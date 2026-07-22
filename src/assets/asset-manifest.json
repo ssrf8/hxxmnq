@@ -1,0 +1,113 @@
+{
+  "version": "0.2.0",
+  "review_mode": "unified-review-after-batch-generation",
+  "style_reference": {
+    "source": "D:/浏览器下载/ChatGPT Image 2026年7月22日 20_58_03.png",
+    "role": "pixel density, chibi proportions and four-direction layout only",
+    "default_expression": "closed mouth, neutral or slight closed-mouth smile"
+  },
+  "characters": {
+    "reimu": {
+      "status": "approved",
+      "map_usage": true,
+      "source_chroma": "characters/reimu/reimu-turnaround-chroma-v1.png",
+      "source_alpha": "characters/reimu/reimu-turnaround-v1.png",
+      "views": ["front", "back", "left", "right"],
+      "expression": "closed-mouth slight smile",
+      "animation_pending": ["walk-3-frame", "idle", "blink", "gohei-sway"]
+    },
+    "marisa": {
+      "status": "approved",
+      "map_usage": true,
+      "source_chroma": "characters/marisa/marisa-riding-turnaround-chroma-v3.png",
+      "source_alpha": "characters/marisa/marisa-riding-turnaround-v3.png",
+      "previous_source_alpha": [
+        "characters/marisa/marisa-turnaround-v1.png",
+        "characters/marisa/marisa-riding-turnaround-v2.png"
+      ],
+      "views": ["front", "back", "left", "right"],
+      "expression": "closed-mouth slight smile",
+      "movement_mode": "low-altitude-broom-flight",
+      "animation_pending": ["hover-cycle", "idle", "blink", "hat-bob", "broom-sway"]
+    },
+    "cirno": {
+      "status": "approved",
+      "map_usage": true,
+      "source_chroma": "characters/cirno/cirno-turnaround-chroma-v1.png",
+      "source_alpha": "characters/cirno/cirno-turnaround-v1.png",
+      "views": ["front", "back", "left", "right"],
+      "expression": "closed-mouth slight smile",
+      "movement_mode": "walking-with-wing-hover",
+      "animation_pending": ["walk-3-frame", "idle", "blink", "wing-shimmer"]
+    }
+  },
+  "player": {
+    "map_usage": false,
+    "battle_usage": true,
+    "status": "pending-unified-review",
+    "source_chroma": "battle/player/keycraft-player-sheet-v1-chroma.png",
+    "source_alpha": "battle/player/keycraft-player-sheet-v1.png"
+  },
+  "battle_assets": {
+    "greenhouse_flower_core": {
+      "status": "pending-unified-review",
+      "source_chroma": "battle/boss/greenhouse-flower-core-sheet-v1-chroma.png",
+      "source_alpha": "battle/boss/greenhouse-flower-core-sheet-v1.png"
+    },
+    "common_effects": {
+      "status": "pending-unified-review",
+      "source_chroma": "battle/effects/battle-effects-sheet-v1-chroma.png",
+      "source_alpha": "battle/effects/battle-effects-sheet-v1.png"
+    }
+  },
+  "maps": {
+    "garden_base_spring": {
+      "status": "pending-unified-review",
+      "source": "maps/garden-base-spring-v1.png"
+    }
+  },
+  "world_assets": {
+    "main_house_states": {
+      "status": "pending-unified-review",
+      "source_chroma": "world/house/main-house-states-v1-chroma.png",
+      "source_alpha": "world/house/main-house-states-v1.png"
+    },
+    "magic_greenhouse_states": {
+      "status": "pending-unified-review",
+      "source_chroma": "world/greenhouse/magic-greenhouse-states-v1-chroma.png",
+      "source_alpha": "world/greenhouse/magic-greenhouse-states-v1.png"
+    },
+    "garden_props": {
+      "status": "pending-unified-review",
+      "source_chroma": "world/props/garden-world-props-v1-chroma.png",
+      "source_alpha": "world/props/garden-world-props-v1.png"
+    },
+    "fairy_garden_states": {
+      "status": "pending-unified-review",
+      "source_chroma": "world/facilities/fairy-garden/fairy-garden-states-v1-chroma.png",
+      "source_alpha": "world/facilities/fairy-garden/fairy-garden-states-v1.png"
+    },
+    "moon_spring_states": {
+      "status": "pending-unified-review",
+      "source_chroma": "world/facilities/moon-spring/moon-spring-states-v1-chroma.png",
+      "source_alpha": "world/facilities/moon-spring/moon-spring-states-v1.png"
+    },
+    "banquet_plaza_states": {
+      "status": "pending-unified-review",
+      "source_chroma": "world/facilities/banquet-plaza/banquet-plaza-states-v1-chroma.png",
+      "source_alpha": "world/facilities/banquet-plaza/banquet-plaza-states-v1.png"
+    },
+    "weather_time_overlays": {
+      "status": "pending-unified-review",
+      "source_chroma": "world/overlays/weather-time-overlays-v1-chroma.png",
+      "source_alpha": "world/overlays/weather-time-overlays-v1.png"
+    }
+  },
+  "ui_assets": {
+    "core_icons": {
+      "status": "pending-unified-review",
+      "source_chroma": "ui/ui-icons-sheet-v1-chroma.png",
+      "source_alpha": "ui/ui-icons-sheet-v1.png"
+    }
+  }
+}

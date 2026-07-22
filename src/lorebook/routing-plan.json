@@ -1,0 +1,69 @@
+{
+  "version": "0.2.0",
+  "entries": [
+    {
+      "id": "core_narrative_contract",
+      "label": "核心叙事与玩家权边界",
+      "activation": "always",
+      "target": "plot-model",
+      "source": "../card/identity.xml",
+      "budget": "high-priority"
+    },
+    {
+      "id": "current_state_projection",
+      "label": "当前状态投影",
+      "activation": "runtime-generated",
+      "target": "plot-model-and-variable-model",
+      "source": "model-projection.md",
+      "budget": "dynamic"
+    },
+    {
+      "id": "variable_update_protocol",
+      "label": "JSONPatch 更新规则",
+      "activation": "always-for-variable-stage",
+      "target": "variable-model",
+      "source": "variable-update-rules.md",
+      "budget": "high-priority"
+    },
+    {
+      "id": "moving_garden_setting",
+      "label": "移动庭园核心设定",
+      "activation": "always",
+      "target": "plot-model",
+      "source": "core/moving-garden.xml",
+      "budget": "medium"
+    },
+    {
+      "id": "character_profiles",
+      "label": "当前相关角色人设",
+      "activation": "conditional-by-character-id",
+      "target": "plot-model",
+      "source": "characters/{character_id}.xml",
+      "budget": "dynamic"
+    },
+    {
+      "id": "event_configs",
+      "label": "当前事件配置",
+      "activation": "conditional-by-config-id",
+      "target": "plot-model-and-variable-model",
+      "source": "events/greenhouse-vertical-slice.json",
+      "budget": "dynamic"
+    },
+    {
+      "id": "database_recall",
+      "label": "可选数据库回忆",
+      "activation": "runtime-optional",
+      "target": "plot-model",
+      "source": "database-adapter",
+      "budget": "max-3-items-1200-zh-chars"
+    },
+    {
+      "id": "opening_first_response",
+      "label": "动态开场首轮引导",
+      "activation": "opening-only",
+      "target": "plot-model-and-variable-model",
+      "source": "../card/opening-first-response.xml",
+      "budget": "high-priority-once"
+    }
+  ]
+}

@@ -1,0 +1,206 @@
+{
+  "meta": {
+    "schema_version": "0.2.0",
+    "bridge_version": "0.2.0",
+    "database_adapter_version": "0.2.0",
+    "initialized": false,
+    "opening_committed": false
+  },
+  "environment": {
+    "day": 1,
+    "time_period": "清晨",
+    "season": "春",
+    "season_day": 1,
+    "weather": "晴",
+    "anomaly_weather": null
+  },
+  "player": {
+    "name": "",
+    "pronouns": "中性称谓",
+    "appearance": "",
+    "current_area_id": "central_courtyard"
+  },
+  "garden": {
+    "name": "无名庭园",
+    "construction_stage": "荒废",
+    "primary_anchor_id": null,
+    "temporary_anchor_ids": []
+  },
+  "resources": {
+    "materials": 6,
+    "inspiration": 1
+  },
+  "areas": {
+    "main_house": {
+      "id": "main_house",
+      "name": "旧主屋",
+      "unlocked": true,
+      "state": "损坏",
+      "main_facility_id": null
+    },
+    "central_courtyard": {
+      "id": "central_courtyard",
+      "name": "中央庭院",
+      "unlocked": true,
+      "state": "荒废",
+      "main_facility_id": null
+    },
+    "greenhouse_plot": {
+      "id": "greenhouse_plot",
+      "name": "温室旧地基",
+      "unlocked": false,
+      "state": "未清理",
+      "main_facility_id": "magic_greenhouse"
+    },
+    "fairy_garden_plot": {
+      "id": "fairy_garden_plot",
+      "name": "妖精花园预留地",
+      "unlocked": false,
+      "state": "未发现",
+      "main_facility_id": "fairy_garden"
+    },
+    "moon_spring_plot": {
+      "id": "moon_spring_plot",
+      "name": "月见温泉预留地",
+      "unlocked": false,
+      "state": "未发现",
+      "main_facility_id": "moon_spring"
+    },
+    "banquet_plaza_plot": {
+      "id": "banquet_plaza_plot",
+      "name": "宴会广场预留地",
+      "unlocked": false,
+      "state": "未发现",
+      "main_facility_id": "banquet_plaza"
+    }
+  },
+  "facilities": {
+    "magic_greenhouse": {
+      "id": "magic_greenhouse",
+      "name": "魔法温室",
+      "area_id": "greenhouse_plot",
+      "state": "未发现",
+      "current_form": null,
+      "unlocked_forms": [],
+      "active_effects": []
+    },
+    "fairy_garden": {
+      "id": "fairy_garden",
+      "name": "妖精花园",
+      "area_id": "fairy_garden_plot",
+      "state": "未发现",
+      "current_form": null,
+      "unlocked_forms": [],
+      "active_effects": []
+    },
+    "moon_spring": {
+      "id": "moon_spring",
+      "name": "月见温泉",
+      "area_id": "moon_spring_plot",
+      "state": "未发现",
+      "current_form": null,
+      "unlocked_forms": [],
+      "active_effects": []
+    },
+    "banquet_plaza": {
+      "id": "banquet_plaza",
+      "name": "宴会广场",
+      "area_id": "banquet_plaza_plot",
+      "state": "未发现",
+      "current_form": null,
+      "unlocked_forms": [],
+      "active_effects": []
+    }
+  },
+  "characters": {
+    "reimu": {
+      "id": "reimu",
+      "name": "博丽灵梦",
+      "fixed": true,
+      "current_relationship_facts": []
+    },
+    "marisa": {
+      "id": "marisa",
+      "name": "雾雨魔理沙",
+      "fixed": true,
+      "current_relationship_facts": []
+    },
+    "cirno": {
+      "id": "cirno",
+      "name": "琪露诺",
+      "fixed": true,
+      "current_relationship_facts": []
+    },
+    "alice": {
+      "id": "alice",
+      "name": "爱丽丝·玛格特洛依德",
+      "fixed": true,
+      "current_relationship_facts": []
+    },
+    "mystia": {
+      "id": "mystia",
+      "name": "米斯蒂娅·萝蕾拉",
+      "fixed": true,
+      "current_relationship_facts": []
+    },
+    "suika": {
+      "id": "suika",
+      "name": "伊吹萃香",
+      "fixed": true,
+      "current_relationship_facts": []
+    },
+    "nitori": {
+      "id": "nitori",
+      "name": "河城荷取",
+      "fixed": true,
+      "current_relationship_facts": []
+    },
+    "sakuya": {
+      "id": "sakuya",
+      "name": "十六夜咲夜",
+      "fixed": true,
+      "current_relationship_facts": []
+    }
+  },
+  "presence_snapshot": {
+    "present_character_ids": [],
+    "character_views": {}
+  },
+  "interaction": {
+    "current_session": null
+  },
+  "events": {
+    "active_event": null,
+    "waiting_events": [],
+    "recent_results": [],
+    "completed_key_events": {},
+    "daily_cooldowns": {}
+  },
+  "anchors": {
+    "stable": {},
+    "temporary": {}
+  },
+  "battle": {
+    "current": null,
+    "settled_ids": []
+  },
+  "key_items": {
+    "garden_keeper_key": {
+      "id": "garden_keeper_key",
+      "name": "庭守钥",
+      "obtained": false,
+      "state": "沉睡"
+    }
+  },
+  "abilities": [],
+  "memory": {
+    "long_term_notes": []
+  },
+  "uid_counters": {
+    "character": 1,
+    "event": 1,
+    "interaction": 1,
+    "battle": 1,
+    "relationship_fact": 1
+  }
+}

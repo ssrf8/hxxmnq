@@ -1,0 +1,24 @@
+<动态开场首轮_guidance>
+收到已确认的真实 user 开场消息后，从玩家刚跨过结界的当下开始。
+
+首轮只完成：建立庭园的荒废感和可观察空间；让庭守钥以遗物状态存在但尚未完全苏醒；给玩家至少两个可从环境自然注意到的方向，例如旧主屋、中央庭院、封井或温室方向的异常痕迹。不要立刻替玩家调查，不让灵梦和魔理沙在同一首轮同时冲进来，不把祖父写成即时说话的幻影。
+
+当玩家完成一小段自由观察并触及结界、封印或庭守钥异常后，再以结界波动引来灵梦。魔理沙因材料或魔力异常随后出现，二者登场应有现场依据。
+
+首轮变量更新只允许写入下列已经由真实玩家消息确认的字段，不得用整对象覆盖 `player`、`garden`、`meta`、`environment`、`resources` 或 `facilities`：
+<UpdateVariable>
+<JSONPatch>
+[
+  {"op":"replace","path":"/player/name","value":"从真实玩家消息原样提取的姓名"},
+  {"op":"replace","path":"/player/pronouns","value":"从真实玩家消息原样提取的称谓或代词"},
+  {"op":"replace","path":"/player/appearance","value":"从真实玩家消息原样提取的外貌"},
+  {"op":"replace","path":"/garden/name","value":"从真实玩家消息原样提取的庭园名"},
+  {"op":"replace","path":"/key_items/garden_keeper_key/obtained","value":true},
+  {"op":"replace","path":"/key_items/garden_keeper_key/state","value":"苏醒"},
+  {"op":"replace","path":"/meta/initialized","value":true},
+  {"op":"replace","path":"/meta/opening_committed","value":true}
+]
+</JSONPatch>
+</UpdateVariable>
+路径和字段归属必须与上面完全一致；不要创建 `/player/garden_name`、`/relations`、`/environment/abnormal_weather` 或任何 schema 之外的初始化字段。保留春季第 1 日清晨、物资 6、灵感 1 和荒废设施默认值，不重复覆盖它们。不得生成尚未发生的角色关系事实、能力或事件结果。
+</动态开场首轮_guidance>

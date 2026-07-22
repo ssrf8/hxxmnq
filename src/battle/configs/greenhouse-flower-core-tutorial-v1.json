@@ -1,0 +1,45 @@
+{
+  "config_id": "greenhouse_flower_core_tutorial_v1",
+  "version": 1,
+  "arena": {"width": 480, "height": 640},
+  "player": {
+    "lives": 3,
+    "move_speed": 230,
+    "focus_speed": 115,
+    "hitbox_radius": 4,
+    "invulnerability_ms": 1600,
+    "auto_fire": true,
+    "normal_shot": {"pattern": "forward_wide", "damage": 1, "interval_ms": 95},
+    "focus_shot": {"pattern": "forward_narrow", "damage": 2, "interval_ms": 110}
+  },
+  "phases": [
+    {
+      "id": "root_bloom",
+      "objective": "defeat",
+      "hp": 420,
+      "duration_ms": 45000,
+      "patterns": [
+        {"pattern_id": "fixed_seed_ring", "interval_ms": 1500, "speed": 95, "count": 12},
+        {"pattern_id": "petal_fan", "interval_ms": 2100, "speed": 120, "count": 9, "arc_deg": 80}
+      ]
+    },
+    {
+      "id": "seeking_vines",
+      "objective": "defeat",
+      "hp": 560,
+      "duration_ms": 55000,
+      "patterns": [
+        {"pattern_id": "homing_leaf", "interval_ms": 1250, "speed": 105, "count": 5, "turn_rate_deg": 55},
+        {"pattern_id": "local_safe_zone", "interval_ms": 5200, "warning_ms": 1300, "duration_ms": 2600}
+      ]
+    }
+  ],
+  "parameter_limits": {
+    "speed": [40, 260],
+    "count": [1, 32],
+    "interval_ms": [80, 10000],
+    "duration_ms": [500, 120000],
+    "damage": [1, 10]
+  },
+  "allowed_outcomes": ["clean_win", "narrow_win", "loss", "narrative"]
+}

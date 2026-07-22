@@ -1,0 +1,73 @@
+{
+  "id": "gensokyo-moving-garden-0.2.0",
+  "version": "0.2.0",
+  "status": "iteration",
+  "source_root": "../src",
+  "test_root": "../tests",
+  "dist_root": "../dist",
+  "package_policy": "no-package-without-explicit-user-request",
+  "components": {
+    "card": "../src/card",
+    "lorebook": "../src/lorebook",
+    "schema": "../src/schema",
+    "runtime": "../src/runtime",
+    "ui": "../src/ui",
+    "battle": "../src/battle",
+    "assets": "../src/assets"
+  },
+  "milestones": {
+    "m0_contract_skeleton": "complete",
+    "m1_minimum_loop": "in-progress",
+    "m2_full_v1": "pending",
+    "m3_package_runtime_acceptance": "in-progress"
+  },
+  "m0_sources": {
+    "initial_state": "../src/schema/initial-state.json",
+    "mvu_loader": "../src/runtime/01-mvu-loader.js",
+    "mvu_schema": "../src/schema/02-mvu-schema.js",
+    "field_ledger": "../src/schema/field-ledger.md",
+    "update_rules": "../src/lorebook/variable-update-rules.md",
+    "projection": "../src/lorebook/model-projection.md",
+    "routing": "../src/lorebook/routing-plan.json",
+    "opening_contract": "../src/card/opening-contract.md"
+  },
+  "m0_content_sources": {
+    "card_identity": "../src/card/identity.xml",
+    "opening_user_template": "../src/card/opening-user-message-template.txt",
+    "opening_first_response": "../src/card/opening-first-response.xml",
+    "moving_garden": "../src/lorebook/core/moving-garden.xml",
+    "character_directory": "../src/lorebook/characters",
+    "greenhouse_events": "../src/lorebook/events/greenhouse-vertical-slice.json",
+    "tutorial_battle_config": "../src/battle/configs/greenhouse-flower-core-tutorial-v1.json"
+  },
+  "ui_sources": {
+    "document": "../src/ui/index.html",
+    "controller": "../src/ui/app.ts",
+    "host_bridge": "../src/ui/bridge.ts",
+    "opening_controller": "../src/ui/opening.ts",
+    "database_adapter": "../src/ui/database-adapter.ts",
+    "garden_canvas": "../src/ui/garden-map.ts",
+    "battle_engine": "../src/ui/battle-engine.ts",
+    "styles": "../src/ui/styles.css",
+    "preview_build": "../dist/ui/index.html"
+  },
+  "runtime_artifacts": {
+    "self_contained_ui_mount": "../dist/runtime/ui-mount.js",
+    "mvu_loader": "../src/runtime/01-mvu-loader.js",
+    "checkpoint_card": "../dist/checkpoint-0.2.0-r6/幻想乡物语-测试检查点-0.2.0-r6.json"
+  },
+  "checkpoint_adapter": {
+    "command_dry_run": "npm run package:checkpoint:dry",
+    "command_write": "npm run package:checkpoint",
+    "format": "SillyTavern chara_card_v2 JSON",
+    "collision_policy": "refuse-overwrite",
+    "inputs": [
+      "../src/card",
+      "../src/lorebook",
+      "../src/schema/initial-state.json",
+      "../src/schema/02-mvu-schema.js",
+      "../src/runtime/01-mvu-loader.js",
+      "../dist/runtime/ui-mount.js"
+    ]
+  }
+}

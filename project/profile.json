@@ -1,0 +1,17 @@
+{
+  "id": "gensokyo-moving-garden",
+  "family": "sillytavern-hybrid-mvu-card",
+  "version": "0.2.0",
+  "plan": "../幻想乡领地建设剧情卡-第一版总体计划.md",
+  "manifest": "manifest.json",
+  "contract": "contract.md",
+  "variable_root": "stat_data",
+  "update_protocol": "magvarupdate-jsonpatch-subset",
+  "target": {
+    "luker": "2.7.0",
+    "tavern_helper": "4.8.18",
+    "prompt_template": "1.17.4",
+    "mag_var_update_commit": "d1bdfd1efcf99c6f456e01f8f747b24f4b9834fc",
+    "mvu_zod_commit": "50e3566f7b27325b1ee80cad0646e2184ac01cdf"
+  }
+}

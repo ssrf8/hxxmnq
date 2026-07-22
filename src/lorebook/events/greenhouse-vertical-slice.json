@@ -1,0 +1,141 @@
+{
+  "version": "0.2.0",
+  "event_chain_id": "m1_greenhouse_vertical_slice",
+  "events": [
+    {
+      "config_id": "opening_arrival",
+      "title": "穿过结界",
+      "prerequisites": ["meta.opening_committed == true"],
+      "blocks": ["events.completed_key_events.opening_arrival exists"],
+      "participants": [],
+      "facility_id": null,
+      "priority": 100,
+      "one_time": true,
+      "expires": null,
+      "allowed_results": ["garden_observation_started"]
+    },
+    {
+      "config_id": "reimu_boundary_inspection",
+      "title": "巫女的结界检查",
+      "prerequisites": [
+        "opening_arrival resolved",
+        "player encountered a boundary trace or the garden_keeper_key"
+      ],
+      "blocks": ["reimu already present", "another active event cannot yield"],
+      "participants": ["reimu"],
+      "facility_id": null,
+      "priority": 95,
+      "one_time": true,
+      "expires": null,
+      "allowed_results": ["temporary_permission", "supervised_restriction", "urgent_seal_repair"]
+    },
+    {
+      "config_id": "marisa_material_rumor",
+      "title": "循着魔力痕迹而来的魔法使",
+      "prerequisites": ["reimu_boundary_inspection started or resolved"],
+      "blocks": ["marisa already present", "site is under urgent evacuation"],
+      "participants": ["marisa"],
+      "facility_id": "magic_greenhouse",
+      "priority": 85,
+      "one_time": true,
+      "expires": null,
+      "allowed_results": ["greenhouse_clue_found", "material_sample_deferred"]
+    },
+    {
+      "config_id": "main_house_repair",
+      "title": "修复旧主屋",
+      "prerequisites": ["reimu_boundary_inspection resolved", "materials >= 1"],
+      "blocks": ["another main construction is active"],
+      "participants": ["reimu", "marisa"],
+      "facility_id": null,
+      "priority": 90,
+      "one_time": true,
+      "expires": null,
+      "time_advance": 1,
+      "allowed_results": ["main_house_enabled", "temporary_shelter_only"]
+    },
+    {
+      "config_id": "gain_second_inspiration",
+      "title": "温室方案的灵感",
+      "prerequisites": ["main_house_repair resolved", "inspiration == 1"],
+      "blocks": [],
+      "participants": ["marisa"],
+      "facility_id": "magic_greenhouse",
+      "priority": 80,
+      "one_time": true,
+      "expires": null,
+      "allowed_results": ["investigate_growth", "hear_marisa_plan", "study_grandfather_blueprint"]
+    },
+    {
+      "config_id": "clear_greenhouse_foundation",
+      "title": "清理温室旧地基",
+      "prerequisites": ["inspiration >= 2", "greenhouse_plot unlocked"],
+      "blocks": ["another main construction is active"],
+      "participants": [],
+      "facility_id": "magic_greenhouse",
+      "priority": 80,
+      "one_time": true,
+      "expires": null,
+      "time_advance": 1,
+      "allowed_results": ["foundation_cleared", "hidden_root_network_found"]
+    },
+    {
+      "config_id": "build_basic_magic_greenhouse",
+      "title": "搭建基础魔法温室",
+      "prerequisites": [
+        "clear_greenhouse_foundation resolved",
+        "materials >= 4",
+        "inspiration >= 2"
+      ],
+      "blocks": ["another main construction is active"],
+      "participants": ["marisa"],
+      "facility_id": "magic_greenhouse",
+      "priority": 90,
+      "one_time": true,
+      "expires": null,
+      "cost": {"materials": 4, "inspiration": 2},
+      "time_advance": 1,
+      "allowed_results": ["basic_greenhouse_enabled", "enabled_with_instability"]
+    },
+    {
+      "config_id": "greenhouse_first_use",
+      "title": "第一次使用温室",
+      "prerequisites": ["magic_greenhouse.state == 启用"],
+      "blocks": ["greenhouse_flower_core active"],
+      "participants": ["marisa"],
+      "facility_id": "magic_greenhouse",
+      "priority": 65,
+      "one_time": true,
+      "expires": null,
+      "allowed_results": ["stable_first_growth", "unusual_growth_observed"]
+    },
+    {
+      "config_id": "greenhouse_multiturn_conversation",
+      "title": "温室里的持续交流",
+      "prerequisites": ["greenhouse_first_use resolved"],
+      "blocks": ["interaction.current_session is not null"],
+      "participants": ["marisa"],
+      "facility_id": "magic_greenhouse",
+      "priority": 60,
+      "one_time": true,
+      "expires": null,
+      "allowed_results": ["conversation_settled_after_multiple_turns"]
+    },
+    {
+      "config_id": "greenhouse_flower_core",
+      "title": "温室妖花核心",
+      "prerequisites": [
+        "greenhouse_first_use resolved",
+        "greenhouse_multiturn_conversation resolved"
+      ],
+      "blocks": ["battle.current is not null", "another active event cannot yield"],
+      "participants": ["marisa"],
+      "facility_id": "magic_greenhouse",
+      "priority": 100,
+      "one_time": true,
+      "expires": null,
+      "battle_config_id": "greenhouse_flower_core_tutorial_v1",
+      "allowed_results": ["clean_win", "narrow_win", "loss", "narrative"]
+    }
+  ]
+}
