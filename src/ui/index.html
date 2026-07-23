@@ -12,7 +12,7 @@
       <div class="gg-opening-copy">
         <p class="gg-eyebrow">祖父留下的庭园</p>
         <h1 id="gg-opening-title">在穿过结界之前</h1>
-        <p>这里保存的只是当前聊天的开局草稿。确认后才会发送一条真实玩家消息，并由正常回复初始化正式状态。</p>
+        <p>确认后会直接载入并复读 MVU 初始状态，不调用 LLM；进入庭院后的第一次真实行动才开始生成剧情。</p>
       </div>
       <form id="gg-opening-form" class="gg-opening-form">
         <div class="gg-field-grid">
@@ -23,7 +23,7 @@
         </div>
         <div class="gg-opening-actions">
           <button type="button" id="gg-opening-quick">读取当前 Persona</button>
-          <button type="submit" id="gg-opening-commit">确认并开始</button>
+          <button type="submit" id="gg-opening-commit">载入资料并进入庭院</button>
         </div>
       </form>
       <section id="gg-opening-recovery" class="gg-opening-recovery" aria-labelledby="gg-opening-recovery-title" hidden>
@@ -35,74 +35,117 @@
           <button type="button" id="gg-opening-repair">补写开场变量</button>
           <button type="button" id="gg-opening-native">显示原生聊天</button>
         </div>
-        <p class="gg-note">“进入庭院”只读取带事务标记的原始玩家消息，并在写入后复读验证；不会依赖 LLM 的变量块格式。</p>
       </section>
       <section class="gg-opening-preview-shell" aria-labelledby="gg-opening-preview-title">
-        <h2 id="gg-opening-preview-title">将要发送的真实玩家消息</h2>
+        <h2 id="gg-opening-preview-title">将写入的开局资料与场景摘要</h2>
         <pre id="gg-opening-preview" class="gg-opening-preview"></pre>
-        <p class="gg-note">预览不会写入 MVU。数据库可用时，只会在开局正式完成后归档主角信息与“祖父的遗物”。</p>
+        <p class="gg-note">预览和编辑不会写入 MVU；只有确认后的确定性事务会提交开局字段。</p>
       </section>
     </section>
 
-    <div id="gg-runtime-shell" hidden>
-    <header class="gg-header">
-      <div class="gg-title-wrap">
-        <p class="gg-eyebrow">会移动的结界领地</p>
-        <h1 id="gg-garden-name">无名庭园</h1>
-      </div>
-      <div class="gg-status-line" aria-label="庭园状态">
-        <span id="gg-time">春·第1日·清晨</span>
-        <span id="gg-weather">晴</span>
-        <span id="gg-resources">物资 6 · 灵感 1</span>
-      </div>
-    </header>
+    <div id="gg-runtime-shell" class="gg-runtime-shell" hidden>
+      <header class="gg-header">
+        <div class="gg-title-wrap">
+          <p class="gg-eyebrow">会移动的结界领地</p>
+          <h1 id="gg-garden-name">无名庭园</h1>
+        </div>
+        <div class="gg-status-line" aria-label="庭园状态">
+          <span id="gg-time">春·第1日·清晨</span>
+          <span id="gg-weather">晴</span>
+          <span id="gg-resources">物资 6 · 灵感 1</span>
+        </div>
+        <button type="button" id="gg-open-settings" class="gg-icon-button" aria-label="打开设置与恢复">设置</button>
+      </header>
 
-    <nav class="gg-tabs" aria-label="主要页面" role="tablist">
-      <button type="button" role="tab" aria-selected="true" aria-controls="gg-panel-garden" id="gg-tab-garden" data-tab="garden">庭园</button>
-      <button type="button" role="tab" aria-selected="false" aria-controls="gg-panel-story" id="gg-tab-story" data-tab="story">剧情</button>
-      <button type="button" role="tab" aria-selected="false" aria-controls="gg-panel-settings" id="gg-tab-settings" data-tab="settings">设置与恢复</button>
-    </nav>
+      <section id="gg-view-garden" class="gg-view gg-view-garden" aria-labelledby="gg-garden-name">
+        <div class="gg-map-shell">
+          <canvas id="gg-garden-map" tabindex="0" aria-label="庭园地图；拖动、缩放并点击角色或区域互动"></canvas>
+          <div class="gg-map-hint">点击角色或区域 · 拖动地图 · 滚轮缩放</div>
+          <section id="gg-target-menu" class="gg-target-menu" aria-labelledby="gg-target-title" hidden>
+            <header>
+              <div>
+                <p class="gg-eyebrow">可执行操作</p>
+                <h2 id="gg-target-title">目标</h2>
+              </div>
+              <button type="button" id="gg-target-close" aria-label="关闭操作菜单">×</button>
+            </header>
+            <p id="gg-target-status" class="gg-note"></p>
+            <div id="gg-target-actions" class="gg-target-actions"></div>
+          </section>
+        </div>
+      </section>
 
-    <section id="gg-panel-garden" role="tabpanel" aria-labelledby="gg-tab-garden" class="gg-panel">
-      <div class="gg-map-shell">
-        <canvas id="gg-garden-map" aria-label="庭园地图，可拖动并滚轮缩放"></canvas>
-        <div class="gg-map-hint">拖动地图 · 滚轮缩放 · 点击角色或区域只生成交互草稿</div>
-      </div>
-      <aside class="gg-inspector" aria-live="polite">
-        <h2 id="gg-inspector-title">庭园概览</h2>
-        <p id="gg-inspector-body">选择角色或设施查看详情。玩家位置只参与剧情判断，不会显示地图小人。</p>
+      <section id="gg-view-gal" class="gg-view gg-gal" aria-labelledby="gg-scene-speaker" hidden>
+        <header class="gg-scene-toolbar">
+          <button type="button" id="gg-gal-back">返回庭院</button>
+          <div class="gg-scene-tools">
+            <button type="button" id="gg-swipe-left" aria-label="上一条 Swipe">◀</button>
+            <button type="button" id="gg-regenerate">重新生成</button>
+            <button type="button" id="gg-swipe-right" aria-label="下一条 Swipe">▶</button>
+            <button type="button" id="gg-stop">停止</button>
+          </div>
+        </header>
+        <div id="gg-portrait-stage" class="gg-portrait-stage" data-reaction="neutral">
+          <img id="gg-portrait" alt="角色近景占位图">
+          <div id="gg-generation-indicator" class="gg-generation-indicator" hidden>
+            <span></span><span></span><span></span>
+            <p>对方正在回应……</p>
+          </div>
+        </div>
+        <button type="button" id="gg-dialogue-box" class="gg-dialogue-box">
+          <span id="gg-scene-speaker" class="gg-scene-speaker">旁白</span>
+          <span id="gg-scene-text" class="gg-scene-text">选择庭园中的角色开始互动。</span>
+          <span id="gg-scene-progress" class="gg-scene-progress">点击继续</span>
+        </button>
+        <div id="gg-reply-panel" class="gg-reply-panel" hidden>
+          <div id="gg-suggested-replies" class="gg-suggested-replies"></div>
+          <form id="gg-gal-compose" class="gg-gal-compose">
+            <label for="gg-gal-input">你的回应</label>
+            <textarea id="gg-gal-input" rows="3" maxlength="6000" placeholder="手动输入对话或行动……"></textarea>
+            <div class="gg-actions">
+              <button type="submit" id="gg-send">发送</button>
+              <button type="button" id="gg-end-chat">结束聊天</button>
+              <button type="button" id="gg-retry-transaction" hidden>继续上次生成</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section id="gg-view-facility" class="gg-view gg-facility" aria-labelledby="gg-facility-title" hidden>
+        <header class="gg-scene-toolbar">
+          <button type="button" id="gg-facility-back">返回庭院</button>
+          <p class="gg-eyebrow">设施与区域</p>
+        </header>
+        <div id="gg-facility-visual" class="gg-facility-visual">
+          <img id="gg-facility-image" alt="设施状态占位图">
+          <div id="gg-work-animation" class="gg-work-animation" hidden aria-label="正在施工">
+            <span>修</span><span>缮</span><span>中</span>
+          </div>
+        </div>
+        <article class="gg-facility-card">
+          <h2 id="gg-facility-title">旧主屋</h2>
+          <p id="gg-facility-description"></p>
+          <dl id="gg-facility-cost" class="gg-facility-cost"></dl>
+          <div class="gg-actions">
+            <button type="button" id="gg-facility-confirm">确认行动</button>
+            <button type="button" id="gg-facility-to-gal" hidden>查看剧情回应</button>
+          </div>
+        </article>
+      </section>
+
+      <section id="gg-view-settings" class="gg-view gg-settings" aria-labelledby="gg-settings-title" hidden>
+        <header class="gg-scene-toolbar">
+          <button type="button" id="gg-settings-back">返回游戏</button>
+          <h2 id="gg-settings-title">诊断与恢复</h2>
+        </header>
+        <dl id="gg-diagnostics" class="gg-diagnostics"></dl>
         <div class="gg-actions">
-          <button type="button" id="gg-draft-interaction" disabled>写入交互草稿</button>
+          <button type="button" id="gg-show-native">显示原生聊天</button>
+          <button type="button" id="gg-reload">重新加载同层应用</button>
           <button type="button" id="gg-start-battle">符卡演练</button>
         </div>
-      </aside>
-    </section>
-
-    <section id="gg-panel-story" role="tabpanel" aria-labelledby="gg-tab-story" class="gg-panel" hidden>
-      <div id="gg-message-list" class="gg-message-list" aria-live="polite"></div>
-      <form id="gg-compose-form" class="gg-compose">
-        <label for="gg-compose-input">发送真实玩家消息</label>
-        <textarea id="gg-compose-input" rows="4" maxlength="6000" placeholder="输入行动、对话或观察……"></textarea>
-        <div class="gg-compose-actions">
-          <button type="submit" id="gg-send">发送并生成</button>
-          <button type="button" id="gg-retry-transaction" hidden>继续上次生成</button>
-          <button type="button" id="gg-end-chat">结束当前聊天</button>
-          <button type="button" id="gg-stop">停止生成</button>
-          <button type="button" id="gg-regenerate">重新生成</button>
-          <button type="button" id="gg-swipe">最新回复 Swipe</button>
-        </div>
-      </form>
-    </section>
-
-    <section id="gg-panel-settings" role="tabpanel" aria-labelledby="gg-tab-settings" class="gg-panel" hidden>
-      <h2>诊断与恢复</h2>
-      <dl id="gg-diagnostics" class="gg-diagnostics"></dl>
-      <div class="gg-actions">
-        <button type="button" id="gg-show-native">显示原生聊天</button>
-        <button type="button" id="gg-reload">重新加载同层应用</button>
-      </div>
-      <p class="gg-note">数据库只作为可选归档；失效时核心玩法继续。界面不会直接修改正式 stat_data。</p>
-    </section>
+        <p class="gg-note">正常游戏只显示这一份常驻界面；后台楼层仍是真实消息。发生故障时可以临时恢复原生聊天。</p>
+      </section>
     </div>
 
     <p id="gg-live-status" class="gg-live-status" role="status" aria-live="polite"></p>
@@ -114,7 +157,6 @@
       <button type="button" id="gg-close-battle" aria-label="结束符卡演练">结束</button>
     </header>
     <canvas id="gg-battle-canvas" aria-label="符卡游戏区域，方向键或 WASD 移动，Shift 专注"></canvas>
-    <p>方向键/WASD 移动；按住 Shift 减速并显示判定点；自机持续向前射击。触控时按住并拖动。</p>
   </dialog>
   <script src="./app.js"></script>
 </body>

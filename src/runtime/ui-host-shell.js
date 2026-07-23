@@ -10,16 +10,38 @@
     host = window;
   }
   const doc = host.document;
-  const instanceKey = '__GENSOKYO_GARDEN_UI_021__';
+  const instanceKey = '__GENSOKYO_GARDEN_UI_022__';
   const shellId = 'gensokyo-game-shell';
   const styleId = 'gensokyo-game-host-style';
+  const returnButtonId = 'gensokyo-game-return';
   const activeClass = 'gg-gensokyo-game-active';
   const chatActiveClass = 'gg-gensokyo-chat-active';
-  const version = '0.2.1-same-layer';
+  const version = '0.3.0-gal-shell-r15';
 
   host[instanceKey]?.destroy?.();
 
+  function currentCharacterId() {
+    try {
+      const api = source.SillyTavern ?? host.SillyTavern;
+      const context = typeof api?.getContext === 'function' ? api.getContext() : api;
+      return String(context?.characterId ?? '');
+    } catch {
+      return '';
+    }
+  }
+
+  function clearHostArtifacts() {
+    doc.body?.classList.remove(activeClass);
+    doc.querySelectorAll(`#chat.${chatActiveClass}`).forEach((chat) => chat.classList.remove(chatActiveClass));
+    doc.querySelectorAll(`#${shellId}, #${returnButtonId}, #${styleId}`).forEach((element) => element.remove());
+  }
+
+  clearHostArtifacts();
+  const ownerCharacterId = currentCharacterId();
+  if (!ownerCharacterId) return;
+
   const state = {
+    ownerCharacterId,
     chat: null,
     shell: null,
     frame: null,
@@ -36,9 +58,9 @@
     const style = doc.createElement('style');
     style.id = styleId;
     style.textContent = `
-      body.${activeClass} #send_form { display: none !important; }
       #chat.${chatActiveClass} > .mes,
       #chat.${chatActiveClass} > #show_more_messages { display: none !important; }
+      body.${activeClass} #send_form { display: none !important; }
       #${shellId} {
         box-sizing: border-box;
         display: block;
@@ -46,7 +68,7 @@
         width: 100%;
         min-width: 0;
         min-height: 320px;
-        height: clamp(520px, calc(100dvh - 132px), 920px);
+        height: clamp(560px, calc(100dvh - 76px), 960px);
         margin: 0;
         padding: 0;
         overflow: hidden;
@@ -64,7 +86,7 @@
         border: 0;
         background: #171a1e;
       }
-      #gensokyo-game-return {
+      #${returnButtonId} {
         position: fixed;
         right: max(16px, env(safe-area-inset-right));
         bottom: max(72px, calc(env(safe-area-inset-bottom) + 64px));
@@ -81,7 +103,7 @@
       }
       @media (max-width: 600px), (max-height: 680px) {
         #${shellId} {
-          height: max(420px, calc(100dvh - 88px));
+          height: max(460px, calc(100dvh - 54px));
           border-radius: 8px;
         }
       }
@@ -132,6 +154,8 @@
     childDoc.close();
     childDoc.documentElement.dataset.mapSrc = embedded.mapDataUrl;
     childDoc.documentElement.dataset.reimuSpriteSrc = embedded.reimuSpriteDataUrl;
+    childDoc.documentElement.dataset.reimuPortraitSrc = embedded.reimuPortraitDataUrl;
+    childDoc.documentElement.dataset.mainHouseSrc = embedded.mainHouseDataUrl;
     const style = childDoc.createElement('style');
     style.textContent = embedded.css;
     childDoc.head.append(style);
@@ -146,7 +170,10 @@
   }
 
   function rebuildFrame() {
-    if (state.destroyed || !state.shell?.isConnected) return;
+    if (state.destroyed || !ownsCurrentCharacter() || !state.shell?.isConnected) {
+      if (!state.destroyed && !ownsCurrentCharacter()) destroy();
+      return;
+    }
     state.frame?.remove();
     state.frame = createGameFrame(state.shell);
   }
@@ -154,7 +181,7 @@
   function ensureReturnButton() {
     if (state.returnButton?.isConnected) return state.returnButton;
     const button = doc.createElement('button');
-    button.id = 'gensokyo-game-return';
+    button.id = returnButtonId;
     button.type = 'button';
     button.textContent = '返回移动庭园';
     button.setAttribute('aria-label', '隐藏原生聊天并返回移动庭园');
@@ -168,8 +195,16 @@
     return doc.querySelector('#chat');
   }
 
+  function ownsCurrentCharacter() {
+    return currentCharacterId() === state.ownerCharacterId;
+  }
+
   function attachShell() {
     if (state.destroyed) return;
+    if (!ownsCurrentCharacter()) {
+      destroy();
+      return;
+    }
     const chat = findChat();
     if (!chat) return;
     if (state.chat !== chat) {
@@ -194,6 +229,10 @@
 
   function applyMode() {
     if (!state.chat || !state.shell) return;
+    if (!ownsCurrentCharacter()) {
+      destroy();
+      return;
+    }
     doc.body.classList.toggle(activeClass, !state.nativeMode);
     state.chat.classList.toggle(chatActiveClass, !state.nativeMode);
     state.shell.hidden = state.nativeMode;
@@ -213,6 +252,10 @@
 
   function queueRemount() {
     if (state.remountQueued || state.destroyed) return;
+    if (!ownsCurrentCharacter()) {
+      destroy();
+      return;
+    }
     state.remountQueued = true;
     queueMicrotask(() => {
       state.remountQueued = false;
@@ -232,19 +275,21 @@
     state.eventStops.splice(0).forEach((stop) => stop());
     state.observer?.disconnect();
     state.chat?.classList.remove(chatActiveClass);
-    doc.body.classList.remove(activeClass);
-    state.shell?.remove();
-    state.returnButton?.remove();
-    doc.getElementById(styleId)?.remove();
-    delete host[instanceKey];
+    clearHostArtifacts();
+    if (host[instanceKey]?.destroy === destroy) delete host[instanceKey];
   }
 
+  source.addEventListener('pagehide', destroy, { once: true });
   installHostStyle();
   ensureReturnButton();
   attachShell();
   state.observer = new MutationObserver(queueRemount);
   state.observer.observe(doc.body, { childList: true, subtree: true });
   subscribe(source.tavern_events?.CHAT_CHANGED, () => {
+    if (!ownsCurrentCharacter()) {
+      destroy();
+      return;
+    }
     state.nativeMode = false;
     attachShell();
     rebuildFrame();

@@ -44,6 +44,10 @@
 
 - 新动态实体必须同时写入唯一 UID 和对应计数器的新值。
 - 交互摘要是覆盖式短摘要，不追加完整对话。
+- 首次有效角色、设施或事件互动在 `interaction.current_session` 为 null 时创建会话；会话 UID 使用 `interaction_<uid_counters.interaction>`，并在同一补丁递增计数器。
+- 普通会话回复只更新仍成立的焦点、参与者、最后有效消息和覆盖式摘要；不得因为一轮回复结束就清空会话。
+- 结束交互时使用 `interaction:<会话UID>` 作为幂等结算 ID；仅当它不在 `interaction.settled_ids` 时追加，然后清空 `interaction.current_session`。
 - 会话只有在真实 assistant 回复完成自然收尾后才标记结算；停止生成、Swipe、删除和失败回复不结算。
+- `main_house_repair` 只在前置满足时消耗 1 物资并推进一个时段；结果只能是 `main_house_enabled` 或 `temporary_shelter_only`，分别把主屋区域状态写为“启用”或“临时修复”，并记录到 `events.completed_key_events.main_house_repair`。
 - 事件到期必须写入错过、延期或条件变化，再移除/转移原记录。
 - 战斗结果先检查白名单、范围与 `settled_ids`；成功消费后追加结算 ID、写剧情结果并清空 `battle.current`。

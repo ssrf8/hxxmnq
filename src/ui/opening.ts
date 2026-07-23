@@ -131,16 +131,23 @@ export class OpeningController {
     if (!draft.gardenName.trim()) return this.setStatus('庭园总得有个暂用名吧', true);
     this.busy = true;
     this.button('gg-opening-commit').disabled = true;
+    this.form.setAttribute('aria-busy', 'true');
     const frozenChatId = this.context.chatId;
     try {
-      const result = await this.bridge.commitOpening(draft, buildOpeningMessage(draft), frozenChatId);
-      this.setStatus(result.messageCreated ? '真实开场消息已提交，等待首轮回复与变量初始化' : '已找到先前的开场消息，正在安全重试生成');
+      const result = await this.bridge.initializeOpening(draft, frozenChatId);
+      sessionStorage.removeItem(storageKey(frozenChatId));
+      this.setStatus(result.alreadyCommitted
+        ? '这组开场资料已经写入，正在进入庭院'
+        : result.initializedFromDefaults
+          ? '已载入完整初始状态并确认开场资料，正在进入庭院'
+          : '开场资料已写入并复读确认，正在进入庭院');
       this.requestRefresh();
     } catch (error) {
-      this.setStatus(`开局提交失败：${error instanceof Error ? error.message : String(error)}。草稿仍在。`, true);
+      this.setStatus(`开局初始化失败：${error instanceof Error ? error.message : String(error)}。没有调用 LLM，草稿仍在。`, true);
     } finally {
       this.busy = false;
       this.button('gg-opening-commit').disabled = false;
+      this.form.setAttribute('aria-busy', 'false');
     }
   }
 

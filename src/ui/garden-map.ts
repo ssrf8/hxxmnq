@@ -2,7 +2,7 @@ import type { GardenState } from './types';
 import { SpriteActor } from './sprite-actor';
 
 interface Point { x: number; y: number }
-interface HitTarget extends Point { id: string; label: string; kind: 'area' | 'character'; radius: number }
+export interface HitTarget extends Point { id: string; label: string; kind: 'area' | 'character'; radius: number }
 
 const areaPositions: Record<string, Point> = {
   main_house: { x: 0.25, y: 0.28 },
@@ -33,7 +33,7 @@ export class GardenMap {
     private readonly canvas: HTMLCanvasElement,
     mapSource: string,
     reimuSpriteSource: string,
-    private readonly onSelect: (target: HitTarget) => void,
+    private readonly onSelect: (target: HitTarget, anchor: Point) => void,
   ) {
     const context = canvas.getContext('2d');
     if (!context) throw new Error('Canvas 2D 不可用');
@@ -228,7 +228,13 @@ export class GardenMap {
     const worldX = (point.x - this.canvas.width / 2 - this.camera.x) / this.camera.zoom;
     const worldY = (point.y - this.canvas.height / 2 - this.camera.y) / this.camera.zoom;
     const target = [...this.targets].reverse().find((item) => Math.hypot(item.x - worldX, item.y - worldY) <= item.radius);
-    if (target) this.onSelect(target);
+    if (target) {
+      const rect = this.canvas.getBoundingClientRect();
+      this.onSelect(target, {
+        x: Math.max(12, Math.min(rect.width - 12, event.clientX - rect.left)),
+        y: Math.max(12, Math.min(rect.height - 12, event.clientY - rect.top)),
+      });
+    }
   };
 
   private onWheel = (event: WheelEvent) => {

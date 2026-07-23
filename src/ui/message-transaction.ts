@@ -14,6 +14,7 @@ interface TransactionHost {
   listMessages(): RawMessage[];
   createUserMessage(message: string, extra: Record<string, unknown>): Promise<void>;
   triggerGeneration(): Promise<void>;
+  continueGeneration(): Promise<void>;
 }
 
 const idleSnapshot = (): MessageTransactionSnapshot => ({
@@ -38,6 +39,7 @@ function messageExtra(message: RawMessage): Record<string, unknown> {
 
 export class MessageTransactionCoordinator {
   private snapshot: MessageTransactionSnapshot = idleSnapshot();
+  private stopped = false;
 
   constructor(private readonly host: TransactionHost) {}
 
@@ -64,6 +66,7 @@ export class MessageTransactionCoordinator {
       assistantResponded: false,
       startedAt: Date.now(),
     };
+    this.stopped = false;
 
     try {
       const existing = this.findUserMessage(request.matchesExisting);
@@ -88,7 +91,7 @@ export class MessageTransactionCoordinator {
       this.snapshot.phase = 'generating';
       await this.host.triggerGeneration();
       this.snapshot.phase = 'settling';
-      this.reconcile();
+      this.reconcile(true);
       if (!this.snapshot.assistantResponded) this.snapshot.phase = 'generating';
       return this.read();
     } catch (error) {
@@ -110,12 +113,15 @@ export class MessageTransactionCoordinator {
       this.snapshot.phase = 'settled';
       return this.read();
     }
+    const shouldContinue = this.stopped;
     this.snapshot.phase = 'generating';
     this.snapshot.lastError = undefined;
+    this.stopped = false;
     try {
-      await this.host.triggerGeneration();
+      if (shouldContinue) await this.host.continueGeneration();
+      else await this.host.triggerGeneration();
       this.snapshot.phase = 'settling';
-      this.reconcile();
+      this.reconcile(true);
       if (!this.snapshot.assistantResponded) this.snapshot.phase = 'generating';
       return this.read();
     } catch (error) {
@@ -127,6 +133,7 @@ export class MessageTransactionCoordinator {
 
   markStopped() {
     if (this.snapshot.phase !== 'generating') return;
+    this.stopped = true;
     this.snapshot.phase = 'failed';
     this.snapshot.lastError = '生成已由玩家停止，可继续生成而不会重复创建玩家消息';
   }
@@ -139,7 +146,7 @@ export class MessageTransactionCoordinator {
     });
   }
 
-  private reconcile() {
+  private reconcile(force = false) {
     if (this.snapshot.phase === 'idle') return;
     if (this.host.currentChatId().trim() !== this.snapshot.chatId) {
       this.snapshot.phase = 'failed';
@@ -156,6 +163,7 @@ export class MessageTransactionCoordinator {
     if (userIndex < 0) return;
     this.snapshot.userMessageCreated = true;
     this.snapshot.userMessageId = Number(messages[userIndex].message_id);
+    if (!force && (this.snapshot.phase === 'submitting_user' || this.snapshot.phase === 'generating' || this.stopped)) return;
     const assistant = messages
       .slice(userIndex + 1)
       .find((message) => message.role === 'assistant' && String(message.message ?? '').trim());

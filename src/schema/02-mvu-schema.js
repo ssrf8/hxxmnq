@@ -151,6 +151,7 @@ const Schema = z.object({
   }).passthrough().prefault({}),
   interaction: z.object({
     current_session: z.union([interactionSessionSchema, z.null()]).prefault(null).catch(null),
+    settled_ids: list(text('', 64), 64),
   }).passthrough().prefault({}),
   events: z.object({
     active_event: z.union([eventSchema, z.null()]).prefault(null).catch(null),

@@ -2,6 +2,7 @@
   "id": "gensokyo-moving-garden-0.2.0",
   "version": "0.2.0",
   "status": "iteration",
+  "next_checkpoint": "0.2.0-r16",
   "source_root": "../src",
   "test_root": "../tests",
   "dist_root": "../dist",
@@ -23,6 +24,8 @@
   },
   "m0_sources": {
     "agent_handoff": "./agent-handoff.md",
+    "api_provenance": "./api-provenance.md",
+    "runtime_report_r15": "./runtime-report-0.2.0-r15.md",
     "initial_state": "../src/schema/initial-state.json",
     "mvu_loader": "../src/runtime/01-mvu-loader.js",
     "mvu_schema": "../src/schema/02-mvu-schema.js",
@@ -30,7 +33,8 @@
     "update_rules": "../src/lorebook/variable-update-rules.md",
     "projection": "../src/lorebook/model-projection.md",
     "routing": "../src/lorebook/routing-plan.json",
-    "opening_contract": "../src/card/opening-contract.md"
+    "opening_contract": "../src/card/opening-contract.md",
+    "gal_interaction_plan": "./gal-interaction-plan.md"
   },
   "m0_content_sources": {
     "card_identity": "../src/card/identity.xml",
@@ -39,6 +43,7 @@
     "moving_garden": "../src/lorebook/core/moving-garden.xml",
     "character_directory": "../src/lorebook/characters",
     "greenhouse_events": "../src/lorebook/events/greenhouse-vertical-slice.json",
+    "gal_presentation": "../src/lorebook/gal-presentation-protocol.md",
     "tutorial_battle_config": "../src/battle/configs/greenhouse-flower-core-tutorial-v1.json"
   },
   "ui_sources": {
@@ -48,6 +53,9 @@
     "opening_controller": "../src/ui/opening.ts",
     "database_adapter": "../src/ui/database-adapter.ts",
     "garden_canvas": "../src/ui/garden-map.ts",
+    "gal_scene_parser": "../src/ui/gal-scene.ts",
+    "target_actions": "../src/ui/target-actions.ts",
+    "message_transaction": "../src/ui/message-transaction.ts",
     "battle_engine": "../src/ui/battle-engine.ts",
     "styles": "../src/ui/styles.css",
     "preview_build": "../dist/ui/index.html"
@@ -55,7 +63,7 @@
   "runtime_artifacts": {
     "self_contained_ui_mount": "../dist/runtime/ui-mount.js",
     "mvu_loader": "../src/runtime/01-mvu-loader.js",
-    "checkpoint_card": "../dist/checkpoint-0.2.0-r12/幻想乡物语-测试检查点-0.2.0-r12.json"
+    "checkpoint_card": "../dist/checkpoint-0.2.0-r15/幻想乡物语-测试检查点-0.2.0-r15.json"
   },
   "checkpoint_adapter": {
     "command_dry_run": "npm run package:checkpoint:dry",

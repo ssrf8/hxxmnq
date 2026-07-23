@@ -26,6 +26,14 @@
       "budget": "high-priority"
     },
     {
+      "id": "gal_presentation_protocol",
+      "label": "GAL 表现与交互会话协议",
+      "activation": "gensokyo-action-or-active-session",
+      "target": "plot-model-and-variable-model",
+      "source": "gal-presentation-protocol.md",
+      "budget": "high-priority-during-interaction"
+    },
+    {
       "id": "moving_garden_setting",
       "label": "移动庭园核心设定",
       "activation": "always",
@@ -59,9 +67,9 @@
     },
     {
       "id": "opening_first_response",
-      "label": "动态开场首轮引导",
-      "activation": "opening-only",
-      "target": "plot-model-and-variable-model",
+      "label": "确定性开场后的首次行动引导",
+      "activation": "first-action-after-opening",
+      "target": "plot-model",
       "source": "../card/opening-first-response.xml",
       "budget": "high-priority-once"
     }

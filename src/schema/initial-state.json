@@ -167,7 +167,8 @@
     "character_views": {}
   },
   "interaction": {
-    "current_session": null
+    "current_session": null,
+    "settled_ids": []
   },
   "events": {
     "active_event": null,

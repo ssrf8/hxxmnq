@@ -16,8 +16,25 @@ export interface GardenState {
   facilities?: Record<string, { id?: string; name?: string; area_id?: string; state?: string; current_form?: string | null }>;
   characters?: Record<string, { id?: string; name?: string }>;
   presence_snapshot?: { present_character_ids?: string[]; character_views?: Record<string, CharacterView> };
-  interaction?: { current_session?: { uid?: string; summary?: string; participant_character_ids?: string[] } | null };
-  events?: { active_event?: { title?: string; config_id?: string } | null };
+  interaction?: {
+    current_session?: {
+      uid?: string;
+      type?: 'character' | 'facility' | 'event';
+      status?: 'active' | 'closing';
+      area_id?: string;
+      summary?: string;
+      focus?: string;
+      participant_character_ids?: string[];
+      facility_id?: string | null;
+      event_id?: string | null;
+      settled?: boolean;
+    } | null;
+    settled_ids?: string[];
+  };
+  events?: {
+    active_event?: { title?: string; config_id?: string } | null;
+    completed_key_events?: Record<string, string>;
+  };
   battle?: { current?: unknown };
   [key: string]: unknown;
 }
@@ -60,6 +77,67 @@ export interface OpeningCommitResult {
   generationTriggered: boolean;
 }
 
+export type TargetType = 'character' | 'area' | 'facility';
+export type SceneMode = 'garden' | 'gal' | 'facility' | 'settings';
+export type GalBeatKind = 'narration' | 'speech' | 'action';
+export type GalReaction =
+  | 'neutral'
+  | 'smile'
+  | 'annoyed'
+  | 'surprised'
+  | 'serious'
+  | 'shy'
+  | 'sad'
+  | 'angry';
+
+export interface InteractionTarget {
+  type: TargetType;
+  id: string;
+  label: string;
+}
+
+export interface TargetAction {
+  id: string;
+  label: string;
+  description: string;
+  target: InteractionTarget;
+  mode: 'gal' | 'facility' | 'close';
+  intent: string;
+  disabled?: boolean;
+  disabledReason?: string;
+  eventId?: string;
+  mayAdvanceTime?: boolean;
+}
+
+export interface GalBeat {
+  kind: GalBeatKind;
+  speakerId: string | null;
+  reactionId: GalReaction;
+  poseId: string;
+  text: string;
+}
+
+export interface SuggestedReply {
+  id: string;
+  label: string;
+  intent: string;
+}
+
+export interface GalSceneProjection {
+  version: 'scene.v1' | 'fallback';
+  beats: GalBeat[];
+  suggestedReplies: SuggestedReply[];
+  sourceMessageId: number;
+  swipeId: number;
+  malformed?: boolean;
+}
+
+export interface OpeningInitializeResult {
+  messageId: number;
+  initializedFromDefaults: boolean;
+  alreadyCommitted: boolean;
+}
+
 export interface OpeningProgress {
   messageSubmitted: boolean;
   assistantResponded: boolean;
@@ -91,16 +169,18 @@ export interface GardenBridge {
   readState(): Promise<GardenState>;
   getOpeningContext(): Promise<OpeningContext>;
   getOpeningProgress(): Promise<OpeningProgress>;
+  initializeOpening(draft: OpeningDraft, expectedChatId: string): Promise<OpeningInitializeResult>;
   commitOpening(draft: OpeningDraft, message: string, expectedChatId: string): Promise<OpeningCommitResult>;
   enterGarden(expectedChatId: string): Promise<{ initializedFromDefaults: boolean }>;
   repairOpening(expectedChatId: string): Promise<{ messageCreated: boolean }>;
   listMessages(): Promise<ChatMessageView[]>;
-  sendUserMessage(text: string): Promise<MessageTransactionSnapshot>;
+  sendUserMessage(text: string, kind?: MessageTransactionKind): Promise<MessageTransactionSnapshot>;
   getTransactionState(): Promise<MessageTransactionSnapshot>;
   retryLastTransaction(): Promise<MessageTransactionSnapshot>;
+  continueGeneration(): Promise<void>;
   stopGeneration(): Promise<boolean>;
   regenerateLatest(): Promise<void>;
-  swipeLatest(): Promise<void>;
+  swipeLatest(direction?: 'left' | 'right'): Promise<void>;
   showNativeChat(): Promise<boolean>;
   diagnostics(): Promise<RuntimeDiagnostics>;
   subscribe(refresh: () => void): Promise<() => void>;

@@ -3,7 +3,7 @@ import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const VERSION = '0.2.0';
-const CHECKPOINT = '0.2.0-r12';
+const CHECKPOINT = '0.2.0-r15';
 const OUTPUT_DIR = path.resolve('dist', `checkpoint-${CHECKPOINT}`);
 const OUTPUT_FILE = path.join(OUTPUT_DIR, `幻想乡物语-测试检查点-${CHECKPOINT}.json`);
 const DRY_RUN = process.argv.includes('--dry-run');
@@ -28,6 +28,7 @@ const [
   movingGarden,
   variableRules,
   projection,
+  galPresentation,
   initialState,
   mvuLoader,
   mvuSchema,
@@ -40,6 +41,7 @@ const [
   source('src/lorebook/core/moving-garden.xml'),
   source('src/lorebook/variable-update-rules.md'),
   source('src/lorebook/model-projection.md'),
+  source('src/lorebook/gal-presentation-protocol.md'),
   json('src/schema/initial-state.json'),
   source('src/runtime/01-mvu-loader.js'),
   source('src/schema/02-mvu-schema.js'),
@@ -102,7 +104,8 @@ const loreEntries = [
   entry(1, '[core] 会移动的结界领地', movingGarden, [], true),
   entry(2, '[mvu_update] 变量更新协议', variableRules, [], true, 'after_char'),
   entry(3, '[mvu_context] 当前状态投影', projection, [], true, 'after_char'),
-  entry(4, '[opening] 动态开场首轮引导', `${openingGuidance}\n\n真实玩家开场消息格式：\n${openingTemplate}`, ['gensokyo_opening'], false),
+  entry(7, '[interaction] GAL 表现与会话协议', galPresentation, [], true, 'after_char'),
+  entry(4, '[opening] 确定性开场后的首次行动引导', `${openingGuidance}\n\n旧版开场兼容格式：\n${openingTemplate}`, ['庭守钥', '荒废庭园', '第一次行动'], false),
   entry(5, '[event] 魔法温室纵切事件', greenhouseEvents, ['魔法温室', '温室旧地基', '妖花', '花核'], false),
   entry(6, '[initvar] 移动庭园初始状态', `<initvar>\n${JSON.stringify(initialState, null, 2)}\n</initvar>`),
   ...Object.entries(characterRoutes).map(([id, keys], index) => entry(10 + index, `[character] ${keys[0]}`, characterContents[index], keys, false)),
@@ -120,7 +123,7 @@ const script = (name, id, content) => ({
   export_with: { data: true, button: true },
 });
 
-const firstMes = `<移动庭园_测试检查点 version="${VERSION}">\n庭守钥在荒废庭园的结界边缘微微发热。请在自动出现的“移动庭园”界面完成开局资料；若界面未出现，可暂时使用原生聊天，并按角色卡备注中的格式发送资料。\n</移动庭园_测试检查点>`;
+const firstMes = `<移动庭园_测试检查点 version="${VERSION}">\n庭守钥在荒废庭园的结界边缘微微发热。请在自动出现的“移动庭园”界面载入开局资料；此步骤会直接写入并复读 MVU，不调用 LLM。进入庭院后，你发送的第一次真实行动才会开始生成剧情。若界面未出现，请先使用原生聊天查看诊断，不要重复发送开场资料。\n</移动庭园_测试检查点>`;
 const data = {
   name: `幻想乡物语·移动庭园（测试检查点 ${CHECKPOINT}）`,
   description: identity,
@@ -128,9 +131,9 @@ const data = {
   scenario: '玩家继承祖父遗物“庭守钥”，抵达幻想乡边缘一处会移动的结界领地。庭园荒废，设施待修，来访者与小型异变会随锚点、建设和玩家选择逐步出现。',
   first_mes: firstMes,
   mes_example: '',
-  creator_notes: `本文件是本地运行测试检查点 ${CHECKPOINT}，不是正式发布版。\n开局回退格式：\n${openingTemplate}`,
+  creator_notes: `本文件是本地运行测试检查点 ${CHECKPOINT}，不是正式发布版。\n开场界面使用确定性 MVU 初始化，不调用 LLM。\n旧版兼容格式：\n${openingTemplate}`,
   system_prompt: `${identity}\n\n${movingGarden}`,
-  post_history_instructions: '严格遵守角色卡身份、玩家权边界、信息可知性与 MVU 更新协议。互动允许跨越多轮真实聊天；只有自然离场或玩家明确结束时才结算当前互动。',
+  post_history_instructions: '严格遵守角色卡身份、玩家权边界、信息可知性、GAL scene.v1 与 MVU 更新协议。互动允许跨越多轮真实聊天；只有自然离场或玩家明确结束时才结算当前互动。',
   alternate_greetings: [],
   tags: ['幻想乡', '群像', '建设', 'MVU', '测试检查点'],
   creator: 'AlbusKen / Codex 协作制作',
@@ -141,7 +144,7 @@ const data = {
       scripts: [
         script('幻想乡物语 · MVU 固定版本加载器', 'gensokyo-mvu-loader-020', mvuLoader),
         script('幻想乡物语 · MVU Schema', 'gensokyo-mvu-schema-020', mvuSchema),
-        script('幻想乡物语 · 移动庭园界面', 'gensokyo-garden-ui-020-r12', uiMount),
+        script('幻想乡物语 · 移动庭园界面', 'gensokyo-garden-ui-020-r15', uiMount),
       ],
       variables: { stat_data: initialState },
     },

@@ -88,7 +88,9 @@ function openingCommitted(state: GardenState, draft: OpeningDraft) {
     && state.player.appearance === draft.playerAppearance
     && state.garden?.name === draft.gardenName
     && (state.key_items as Record<string, Record<string, unknown>> | undefined)
-      ?.garden_keeper_key?.obtained === true;
+      ?.garden_keeper_key?.obtained === true
+    && (state.key_items as Record<string, Record<string, unknown>> | undefined)
+      ?.garden_keeper_key?.state === '苏醒';
 }
 
 function hostWindow(): HostGlobals {
@@ -150,6 +152,17 @@ function openingProgress(rawMessages = activeMessages()) {
   };
 }
 
+function openingTargetMessage(rawMessages = activeMessages()) {
+  const userMessages = rawMessages.filter((item) => item.role === 'user');
+  if (userMessages.length > 0) {
+    throw new Error('当前聊天已经存在玩家消息；请使用原生聊天或旧开场恢复入口，避免覆盖既有剧情');
+  }
+  const assistant = rawMessages.find((item) => item.role === 'assistant');
+  const messageId = Number(assistant?.message_id);
+  if (!Number.isInteger(messageId) || messageId < 0) throw new Error('没有找到可承载开场状态的首个 assistant 楼层');
+  return messageId;
+}
+
 export function createHostBridge(): GardenBridge | null {
   if (!g.waitGlobalInitialized || !g.getChatMessages || !g.createChatMessages || !g.triggerSlash) return null;
   let lastError = '';
@@ -163,7 +176,10 @@ export function createHostBridge(): GardenBridge | null {
       );
     },
     async triggerGeneration() {
-      await g.triggerSlash?.('/trigger');
+      await g.triggerSlash?.('/trigger await=true');
+    },
+    async continueGeneration() {
+      await g.triggerSlash?.('/continue await=true');
     },
   });
 
@@ -196,6 +212,39 @@ export function createHostBridge(): GardenBridge | null {
     },
     async getOpeningProgress() {
       return openingProgress();
+    },
+    async initializeOpening(draft: OpeningDraft, expectedChatId: string) {
+      const frozenChatId = expectedChatId.trim();
+      if (!frozenChatId || currentChatId() !== frozenChatId) throw new Error('聊天已切换，请重新确认开局资料');
+      const mvu = await requireMvu();
+      if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持确定性写入');
+
+      const persistedState = latestPersistedState(mvu);
+      if (openingCommitted(persistedState, draft)) {
+        const existingAssistant = activeMessages().find((item) => item.role === 'assistant');
+        return {
+          messageId: Number(existingAssistant?.message_id ?? 0),
+          initializedFromDefaults: false,
+          alreadyCommitted: true,
+        };
+      }
+      if (persistedState.meta?.opening_committed) {
+        throw new Error('当前聊天已经用另一组资料完成开局，不能静默覆盖');
+      }
+
+      const messageId = openingTargetMessage();
+      const options = { type: 'message', message_id: messageId };
+      const data = structuredClone(mvu.getMvuData(options)) as Record<string, unknown>;
+      const currentState = isRecord(data.stat_data) ? data.stat_data : {};
+      const initializedFromDefaults = !isRecord(currentState.meta);
+      const nextState = mergeState(initialState as Record<string, unknown>, currentState);
+      applyOpeningDraft(nextState, draft);
+      data.stat_data = nextState;
+      await mvu.replaceMvuData(data, options);
+
+      const persisted = mvu.getMvuData(options).stat_data ?? {};
+      if (!openingCommitted(persisted, draft)) throw new Error('MVU 写入后复读校验失败');
+      return { messageId, initializedFromDefaults, alreadyCommitted: false };
     },
     async commitOpening(_draft: OpeningDraft, message: string, expectedChatId: string) {
       const frozenChatId = expectedChatId.trim();
@@ -282,10 +331,10 @@ export function createHostBridge(): GardenBridge | null {
     async listMessages() {
       return normalizeMessages(g.getChatMessages?.('0-{{lastMessageId}}', { include_swipes: true, hide_state: 'unhidden' }) ?? []);
     },
-    async sendUserMessage(text) {
+    async sendUserMessage(text, kind = 'interaction') {
       const value = text.trim();
       if (!value || value.length > 6000) throw new Error('消息应为 1–6000 个字符');
-      return transactions.submit({ kind: 'interaction', message: value });
+      return transactions.submit({ kind, message: value });
     },
     async getTransactionState() {
       return transactions.read();
@@ -293,16 +342,19 @@ export function createHostBridge(): GardenBridge | null {
     async retryLastTransaction() {
       return transactions.retry();
     },
+    async continueGeneration() {
+      await g.triggerSlash?.('/continue await=true');
+    },
     async stopGeneration() {
       const stopped = Boolean(g.SillyTavern?.stopGeneration?.());
       if (stopped) transactions.markStopped();
       return stopped;
     },
     async regenerateLatest() {
-      await g.triggerSlash?.('/regenerate');
+      await g.triggerSlash?.('/regenerate await=true');
     },
-    async swipeLatest() {
-      await g.triggerSlash?.('/swipe await=true direction=right');
+    async swipeLatest(direction = 'right') {
+      await g.triggerSlash?.(`/swipe await=true direction=${direction === 'left' ? 'left' : 'right'}`);
     },
     async showNativeChat() {
       globalThis.dispatchEvent(new CustomEvent('gensokyo-garden:show-native-chat'));
@@ -316,7 +368,7 @@ export function createHostBridge(): GardenBridge | null {
         tavernVersion: g.getTavernVersion?.() ?? 'unknown',
         helperVersion: g.getTavernHelperVersion?.() ?? 'unknown',
         mvuReady,
-        bridgeVersion: '0.2.1-same-layer',
+        bridgeVersion: '0.3.0-gal-r15',
         databaseAvailable: Boolean(databaseApi()),
         databaseVersion: databaseApi() ? 'SP·数据库 VII / AutoCardUpdaterAPI' : '未加载',
         lastError: lastError || undefined,
@@ -331,6 +383,9 @@ export function createHostBridge(): GardenBridge | null {
       subscribe(g.tavern_events?.MESSAGE_UPDATED);
       subscribe(g.tavern_events?.MESSAGE_SWIPED);
       subscribe(g.tavern_events?.CHAT_CHANGED);
+      subscribe(g.tavern_events?.GENERATION_STARTED);
+      subscribe(g.tavern_events?.GENERATION_STOPPED);
+      subscribe(g.tavern_events?.GENERATION_ENDED);
       try {
         const mvu = await requireMvu();
         subscribe(mvu.events.VARIABLE_INITIALIZED);
@@ -361,7 +416,8 @@ const previewState: GardenState = {
       marisa: { area_id: 'greenhouse_plot', action: '观察旧地基', facing: 'left' },
     },
   },
-  interaction: { current_session: null },
+  interaction: { current_session: null, settled_ids: [] },
+  events: { completed_key_events: { reimu_boundary_inspection: 'temporary_permission' } },
 };
 
 export function createPreviewBridge(): GardenBridge {
@@ -380,6 +436,13 @@ export function createPreviewBridge(): GardenBridge {
     async readState() { return structuredClone(previewState); },
     async getOpeningContext() { return { chatId: 'offline-preview-chat', personaName: '预览玩家', personaDescription: '来自外界的年轻旅人。' }; },
     async getOpeningProgress() { return { messageSubmitted: false, assistantResponded: false }; },
+    async initializeOpening(draft) {
+      const alreadyCommitted = Boolean(previewState.meta?.opening_committed);
+      previewState.player = { ...previewState.player, name: draft.playerName, pronouns: draft.playerPronouns, appearance: draft.playerAppearance };
+      previewState.garden = { ...previewState.garden, name: draft.gardenName };
+      previewState.meta = { ...previewState.meta, initialized: true, opening_committed: true };
+      return { messageId: 0, initializedFromDefaults: false, alreadyCommitted };
+    },
     async commitOpening(draft, message) {
       messages.push({ id: messages.length, role: 'user', name: draft.playerName, text: message });
       previewState.player = { ...previewState.player, name: draft.playerName, pronouns: draft.playerPronouns, appearance: draft.playerAppearance };
@@ -393,11 +456,11 @@ export function createPreviewBridge(): GardenBridge {
     },
     async repairOpening() { throw new Error('离线预览不支持修复真实开场'); },
     async listMessages() { return structuredClone(messages); },
-    async sendUserMessage(text) {
+    async sendUserMessage(text, kind = 'interaction') {
       transaction = {
         transactionId: `preview-${Date.now()}`,
         chatId: 'offline-preview-chat',
-        kind: 'interaction',
+        kind,
         phase: 'settled',
         userMessageCreated: true,
         assistantResponded: true,
@@ -405,17 +468,46 @@ export function createPreviewBridge(): GardenBridge {
         assistantMessageId: messages.length + 1,
       };
       messages.push({ id: messages.length, role: 'user', name: '预览玩家', text });
-      messages.push({ id: messages.length, role: 'assistant', name: '幻想乡物语', text: '离线预览：已模拟生成回复。' });
+      const isEnding = text.includes('"action_id":"end_conversation"');
+      const isRepair = text.includes('"action_id":"repair"');
+      const scene = {
+        version: 'scene.v1',
+        beats: isEnding
+          ? [
+            { kind: 'speech', speaker_id: 'reimu', reaction_id: 'neutral', pose_id: 'default', text: '那就先到这里吧。别忘了庭园还有一堆麻烦等着你。' },
+            { kind: 'narration', speaker_id: null, reaction_id: 'neutral', pose_id: 'default', text: '短暂的交谈告一段落，庭园重新安静下来。' },
+          ]
+          : isRepair
+            ? [
+              { kind: 'action', speaker_id: null, reaction_id: 'serious', pose_id: 'default', text: '木料与旧屋的结构被逐一检查，施工声在庭园里断续响起。' },
+              { kind: 'speech', speaker_id: 'reimu', reaction_id: 'serious', pose_id: 'default', text: '先别急着钉死这块板，下面还有结界留下的痕迹。' },
+            ]
+            : [
+              { kind: 'speech', speaker_id: 'reimu', reaction_id: text.includes('pat_head') ? 'annoyed' : 'neutral', pose_id: 'default', text: text.includes('pat_head') ? '……你的手是不是伸得太自然了一点？' : '有话就说。我还得检查这里的结界。' },
+              { kind: 'action', speaker_id: 'reimu', reaction_id: 'neutral', pose_id: 'default', text: '灵梦看了你一眼，没有立刻离开。' },
+            ],
+        suggested_replies: isEnding ? [] : [
+          { id: 'ask-more', label: '继续询问', intent: '我顺着她刚才的话继续问下去。' },
+          { id: 'change-topic', label: '换个话题', intent: '我稍微换了一个轻松些的话题。' },
+        ],
+      };
+      messages.push({
+        id: messages.length,
+        role: 'assistant',
+        name: '幻想乡物语',
+        text: `<GensokyoScene>${JSON.stringify(scene)}</GensokyoScene>`,
+      });
       return structuredClone(transaction);
     },
     async getTransactionState() { return structuredClone(transaction); },
     async retryLastTransaction() { throw new Error('离线预览没有失败事务'); },
+    async continueGeneration() { throw new Error('离线预览不支持继续生成'); },
     async stopGeneration() { return false; },
     async regenerateLatest() { throw new Error('离线预览不支持重新生成'); },
     async swipeLatest() { throw new Error('离线预览不支持 Swipe'); },
     async showNativeChat() { return false; },
     async diagnostics(): Promise<RuntimeDiagnostics> {
-      return { mode: 'preview', tavernVersion: 'offline', helperVersion: 'offline', mvuReady: false, bridgeVersion: '0.2.1-same-layer', databaseAvailable: false, databaseVersion: '未加载' };
+      return { mode: 'preview', tavernVersion: 'offline', helperVersion: 'offline', mvuReady: false, bridgeVersion: '0.3.0-gal-r15', databaseAvailable: false, databaseVersion: '未加载' };
     },
     async subscribe() { return () => undefined; },
   };

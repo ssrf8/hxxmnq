@@ -51,6 +51,7 @@
       "priority": 90,
       "one_time": true,
       "expires": null,
+      "cost": {"materials": 1},
       "time_advance": 1,
       "allowed_results": ["main_house_enabled", "temporary_shelter_only"]
     },
