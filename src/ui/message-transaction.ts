@@ -163,7 +163,10 @@ export class MessageTransactionCoordinator {
     if (userIndex < 0) return;
     this.snapshot.userMessageCreated = true;
     this.snapshot.userMessageId = Number(messages[userIndex].message_id);
-    if (!force && (this.snapshot.phase === 'submitting_user' || this.snapshot.phase === 'generating' || this.stopped)) return;
+    // Only block assistant detection while the user floor is still being created.
+    // Generation/settling/failed must re-check on MESSAGE_RECEIVED / GENERATION_ENDED,
+    // otherwise the UI stays stuck on "对方正在回应" after the real reply lands.
+    if (!force && this.snapshot.phase === 'submitting_user') return;
     const assistant = messages
       .slice(userIndex + 1)
       .find((message) => message.role === 'assistant' && String(message.message ?? '').trim());
@@ -172,5 +175,6 @@ export class MessageTransactionCoordinator {
     this.snapshot.assistantMessageId = Number(assistant.message_id);
     this.snapshot.phase = 'settled';
     this.snapshot.lastError = undefined;
+    this.stopped = false;
   }
 }

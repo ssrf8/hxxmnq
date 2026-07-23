@@ -1,9 +1,9 @@
-import { createHash } from 'node:crypto';
+﻿import { createHash } from 'node:crypto';
 import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const VERSION = '0.2.0';
-const CHECKPOINT = '0.2.0-r15';
+const CHECKPOINT = '0.2.0-r18';
 const OUTPUT_DIR = path.resolve('dist', `checkpoint-${CHECKPOINT}`);
 const OUTPUT_FILE = path.join(OUTPUT_DIR, `幻想乡物语-测试检查点-${CHECKPOINT}.json`);
 const DRY_RUN = process.argv.includes('--dry-run');
@@ -144,7 +144,7 @@ const data = {
       scripts: [
         script('幻想乡物语 · MVU 固定版本加载器', 'gensokyo-mvu-loader-020', mvuLoader),
         script('幻想乡物语 · MVU Schema', 'gensokyo-mvu-schema-020', mvuSchema),
-        script('幻想乡物语 · 移动庭园界面', 'gensokyo-garden-ui-020-r15', uiMount),
+        script('幻想乡物语 · 移动庭园界面', 'gensokyo-garden-ui-020-r18', uiMount),
       ],
       variables: { stat_data: initialState },
     },
@@ -179,3 +179,4 @@ if (!DRY_RUN) {
   await writeFile(OUTPUT_FILE, serialized, { encoding: 'utf8', flag: 'wx' });
 }
 console.log(JSON.stringify(report, null, 2));
+

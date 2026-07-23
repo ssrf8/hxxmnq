@@ -51,3 +51,9 @@
 - `main_house_repair` 只在前置满足时消耗 1 物资并推进一个时段；结果只能是 `main_house_enabled` 或 `temporary_shelter_only`，分别把主屋区域状态写为“启用”或“临时修复”，并记录到 `events.completed_key_events.main_house_repair`。
 - 事件到期必须写入错过、延期或条件变化，再移除/转移原记录。
 - 战斗结果先检查白名单、范围与 `settled_ids`；成功消费后追加结算 ID、写剧情结果并清空 `battle.current`。
+
+## 时段取值（强制）
+
+environment.time_period 只能是：清晨、白昼、黄昏、夜晚。
+
+禁止写 上午 / 中午 / 下午 / 晚上 等口语词；需要下午时段时写 白昼。错误取值会被 schema 拒绝或回落到旧值，表现为时间“没有推进”。

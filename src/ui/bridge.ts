@@ -17,6 +17,8 @@ type HostGlobals = typeof globalThis & {
     events: Record<string, string>;
   };
   getChatMessages?: (range: string | number, options?: Record<string, unknown>) => Array<Record<string, unknown>>;
+  getLastMessageId?: () => number;
+  SillyTavern?: { stopGeneration?: () => boolean; getCurrentChatId?: () => string; getContext?: () => { chat?: Array<Record<string, unknown>>; characterId?: unknown } };
   createChatMessages?: (messages: Array<Record<string, unknown>>, options?: Record<string, unknown>) => Promise<void>;
   triggerSlash?: (command: string) => Promise<string | undefined>;
   getTavernVersion?: () => string;
@@ -25,8 +27,7 @@ type HostGlobals = typeof globalThis & {
   getPersona?: (personaId: string) => { name?: string; description?: string };
   eventOn?: (eventName: string, listener: (...args: unknown[]) => void) => { stop: () => void };
   tavern_events?: Record<string, string>;
-  AutoCardUpdaterAPI?: Record<string, unknown>;
-  SillyTavern?: { stopGeneration?: () => boolean; getCurrentChatId?: () => string };
+  AutoCardUpdaterAPI?: Record<string, unknown>;
 };
 
 const g = globalThis as HostGlobals;
@@ -111,22 +112,83 @@ function currentChatId(): string {
 
 function normalizeMessages(raw: Array<Record<string, unknown>>): ChatMessageView[] {
   return raw.slice(-80).map((message) => {
-    const swipes = Array.isArray(message.swipes) ? message.swipes : [];
+    const swipes = Array.isArray(message.swipes) ? message.swipes.map((item) => String(item ?? '')) : [];
     const swipeId = typeof message.swipe_id === 'number' ? message.swipe_id : 0;
-    const currentText = swipes.length ? swipes[Math.min(swipeId, swipes.length - 1)] : message.message;
+    const swipeText = swipes.length ? swipes[Math.min(Math.max(swipeId, 0), swipes.length - 1)] : '';
+    // Prefer explicit message body (include_swipes:false shape). Empty swipe slots must not win.
+    const currentText = String(message.message ?? message.mes ?? '').trim()
+      ? String(message.message ?? message.mes ?? '')
+      : swipeText;
     return {
       id: Number(message.message_id ?? 0),
       role: message.role === 'user' || message.role === 'system' ? message.role : 'assistant',
       name: String(message.name ?? ''),
-      text: String(currentText ?? ''),
+      text: currentText,
       swipeId: swipes.length ? swipeId : undefined,
       swipeCount: swipes.length || undefined,
     };
   });
 }
 
+function messagesFromContextChat(): Array<Record<string, unknown>> {
+  try {
+    const api = g.SillyTavern ?? hostWindow().SillyTavern;
+    const chat = api?.getContext?.()?.chat;
+    if (!Array.isArray(chat) || chat.length === 0) return [];
+    return chat.map((item, message_id) => {
+      const record = item as Record<string, unknown>;
+      const mes = String(record.mes ?? '');
+      const swipes = Array.isArray(record.swipes) && record.swipes.length
+        ? record.swipes.map((value) => String(value ?? ''))
+        : [mes];
+      return {
+        message_id,
+        name: String(record.name ?? ''),
+        role: record.is_user ? 'user' : 'assistant',
+        message: mes,
+        swipes,
+        swipe_id: typeof record.swipe_id === 'number' ? record.swipe_id : 0,
+        extra: record.extra && typeof record.extra === 'object' ? record.extra : {},
+        is_hidden: Boolean(record.is_system),
+      };
+    });
+  } catch {
+    return [];
+  }
+}
+
+function readRawMessages(options: Record<string, unknown> = {}): Array<Record<string, unknown>> {
+  const opts = { include_swipes: false, hide_state: 'all', ...options };
+  const ranges: Array<string | number> = [];
+  try {
+    const last = g.getChatMessages?.(-1, { ...opts, hide_state: 'all' }) ?? [];
+    const lastId = Number(last[0]?.message_id);
+    if (Number.isInteger(lastId) && lastId >= 0) ranges.push(`0-${lastId}`);
+  } catch { /* probe failed */ }
+  try {
+    const id = g.getLastMessageId?.();
+    if (Number.isInteger(id) && Number(id) >= 0) ranges.push(`0-${id}`);
+  } catch { /* optional helper */ }
+  ranges.push('0-{{lastMessageId}}');
+
+  let best: Array<Record<string, unknown>> = [];
+  for (const range of ranges) {
+    try {
+      const raw = g.getChatMessages?.(range, opts) ?? [];
+      if (raw.length > best.length) best = raw;
+      // Full-history hit: keep the longest successful read.
+      if (raw.length > 1) best = raw;
+    } catch { /* try next */ }
+  }
+  if (best.length <= 1) {
+    const fallback = messagesFromContextChat();
+    if (fallback.length > best.length) best = fallback;
+  }
+  return best;
+}
+
 function activeMessages(): Array<Record<string, unknown>> {
-  return g.getChatMessages?.('0-{{lastMessageId}}', { include_swipes: false, hide_state: 'all' }) ?? [];
+  return readRawMessages({ include_swipes: false, hide_state: 'all' });
 }
 
 function latestPersistedState(mvu: HostGlobals['Mvu']): GardenState {
@@ -329,7 +391,10 @@ export function createHostBridge(): GardenBridge | null {
       return { messageCreated: !exists };
     },
     async listMessages() {
-      return normalizeMessages(g.getChatMessages?.('0-{{lastMessageId}}', { include_swipes: true, hide_state: 'unhidden' }) ?? []);
+      // Use the same raw reader as transactions. include_swipes:true + unhidden previously
+      // could leave the GAL projector stuck on floor 0 when later floors normalized empty
+      // or when the macro range failed to expand past the greeting.
+      return normalizeMessages(readRawMessages({ include_swipes: false, hide_state: 'all' }));
     },
     async sendUserMessage(text, kind = 'interaction') {
       const value = text.trim();

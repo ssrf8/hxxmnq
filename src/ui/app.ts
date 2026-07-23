@@ -11,6 +11,7 @@ import {
   targetActions,
 } from './target-actions';
 import type {
+  ChatMessageView,
   GalSceneProjection,
   GardenState,
   InteractionTarget,
@@ -52,6 +53,7 @@ let state: GardenState = {};
 let cleanupSubscription: (() => void) | undefined;
 let battle: BattleEngine | undefined;
 let refreshTimer = 0;
+let refreshSeq = 0;
 let runtimeMode: 'host' | 'preview' = 'preview';
 let databaseSync: DatabaseSyncResult = { status: 'skipped', detail: '等待开局' };
 let currentView: SceneMode = 'garden';
@@ -93,9 +95,13 @@ function characterName(id: string | null) {
 }
 
 function inferSessionTarget(): InteractionTarget | null {
-  const session = state.interaction?.current_session;
+  const session = state.interaction?.current_session as
+    | (NonNullable<typeof state.interaction>['current_session'] & { participants?: string[] })
+    | null
+    | undefined;
   if (!session) return null;
-  const participant = session.participant_character_ids?.[0];
+  const participant = session.participant_character_ids?.[0]
+    || session.participants?.[0];
   if (participant) {
     return {
       type: 'character',
@@ -163,6 +169,34 @@ function setGenerating(active: boolean, label = '对方正在回应……') {
   byId<HTMLButtonElement>('gg-stop').disabled = !active;
 }
 
+function pickLatestAssistant(messages: ChatMessageView[]) {
+  if (!messages.length) return null;
+  let lastUser = -1;
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    if (messages[index].role === 'user') {
+      lastUser = index;
+      break;
+    }
+  }
+  for (let index = messages.length - 1; index > lastUser; index -= 1) {
+    if (messages[index].role === 'assistant' && messages[index].text.trim()) return messages[index];
+  }
+  // After players have spoken, never fall back to the greeting floor (mesid 0 / first_mes).
+  if (lastUser >= 0) {
+    for (let index = lastUser - 1; index >= 0; index -= 1) {
+      if (messages[index].role === 'assistant' && messages[index].text.trim()) {
+        const hasUserBefore = messages.slice(0, index).some((item) => item.role === 'user');
+        if (hasUserBefore) return messages[index];
+      }
+    }
+    return null;
+  }
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    if (messages[index].role === 'assistant' && messages[index].text.trim()) return messages[index];
+  }
+  return null;
+}
+
 async function renderGal() {
   const transaction = await bridge.getTransactionState();
   const busy = ['submitting_user', 'generating', 'settling'].includes(transaction.phase);
@@ -178,7 +212,7 @@ async function renderGal() {
     replyPanel.hidden = false;
   }
   const messages = await bridge.listMessages();
-  const latest = [...messages].reverse().find((message) => message.role === 'assistant' && message.text.trim());
+  const latest = pickLatestAssistant(messages);
   if (!latest) {
     byId('gg-scene-speaker').textContent = characterName(activeTarget?.type === 'character' ? activeTarget.id : null);
     byId('gg-scene-text').textContent = '还没有可以播放的回复。';
@@ -186,7 +220,7 @@ async function renderGal() {
     replyPanel.hidden = false;
     return;
   }
-  const signature = `${latest.id}:${latest.swipeId ?? 0}:${latest.text.length}`;
+  const signature = `${latest.id}:${latest.swipeId ?? 0}:${latest.text.length}:${latest.text.slice(0, 48)}`;
   if (signature !== sceneSignature) {
     sceneSignature = signature;
     scene = projectGalScene(
@@ -385,37 +419,37 @@ async function endConversation() {
 }
 
 async function refresh() {
+  const seq = ++refreshSeq;
   window.clearTimeout(refreshTimer);
   await new Promise<void>((resolve) => {
-    refreshTimer = window.setTimeout(async () => {
-      app.setAttribute('aria-busy', 'true');
-      try {
-        state = await bridge.readState();
-        await opening.render(state);
-        renderHeader();
-        gardenMap.update(state);
-        databaseSync = await syncOpeningDatabase(state);
-        const transaction = await bridge.getTransactionState();
-        await renderDiagnostics(transaction.phase, transaction.lastError);
-        if (currentView === 'gal') await renderGal();
-        if (!bootRestoredSession && state.meta?.opening_committed) {
-          bootRestoredSession = true;
-          const restored = inferSessionTarget();
-          if (restored) {
-            activeTarget = restored;
-            setView('gal');
-            await renderGal();
-          }
-        }
-        setStatus('庭园状态已同步');
-      } catch (error) {
-        setStatus(`同步失败：${error instanceof Error ? error.message : String(error)}。请使用“显示原生聊天”。`, true);
-      } finally {
-        app.setAttribute('aria-busy', 'false');
-        resolve();
-      }
-    }, 80);
+    refreshTimer = window.setTimeout(() => resolve(), 80);
   });
+  if (seq !== refreshSeq) return;
+  app.setAttribute('aria-busy', 'true');
+  try {
+    state = await bridge.readState();
+    await opening.render(state);
+    renderHeader();
+    gardenMap.update(state);
+    databaseSync = await syncOpeningDatabase(state);
+    const transaction = await bridge.getTransactionState();
+    await renderDiagnostics(transaction.phase, transaction.lastError);
+    if (currentView === 'gal') await renderGal();
+    if (!bootRestoredSession && state.meta?.opening_committed) {
+      bootRestoredSession = true;
+      const restored = inferSessionTarget();
+      if (restored) {
+        activeTarget = restored;
+        setView('gal');
+        await renderGal();
+      }
+    }
+    setStatus('庭园状态已同步');
+  } catch (error) {
+    setStatus(`同步失败：${error instanceof Error ? error.message : String(error)}。请使用“显示原生聊天”。`, true);
+  } finally {
+    if (seq === refreshSeq) app.setAttribute('aria-busy', 'false');
+  }
 }
 
 const gardenMap = new GardenMap(

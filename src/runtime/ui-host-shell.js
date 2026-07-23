@@ -115,6 +115,7 @@
     for (const name of [
       'waitGlobalInitialized',
       'getChatMessages',
+      'getLastMessageId',
       'createChatMessages',
       'triggerSlash',
       'getTavernVersion',

@@ -124,7 +124,7 @@ export interface SuggestedReply {
 }
 
 export interface GalSceneProjection {
-  version: 'scene.v1' | 'fallback';
+  version: 'scene.v1' | 'scene.v1+body' | 'body' | 'fallback';
   beats: GalBeat[];
   suggestedReplies: SuggestedReply[];
   sourceMessageId: number;

@@ -120,7 +120,15 @@ const Schema = z.object({
   }).passthrough().prefault({}),
   environment: z.object({
     day: integer(1, 1, 999999),
-    time_period: z.enum(['清晨', '白昼', '黄昏', '夜晚']).prefault('清晨').catch('清晨'),
+    time_period: z.preprocess((value) => {
+      const aliases = {
+        上午: '白昼', 中午: '白昼', 午后: '白昼', 下午: '白昼',
+        傍晚: '黄昏', 日落: '黄昏',
+        晚上: '夜晚', 夜里: '夜晚', 深夜: '夜晚', 凌晨: '清晨', 早晨: '清晨', 早上: '清晨',
+      };
+      if (typeof value === 'string' && aliases[value]) return aliases[value];
+      return value;
+    }, z.enum(['清晨', '白昼', '黄昏', '夜晚']).prefault('清晨')).catch('清晨'),
     season: z.enum(['春', '夏', '秋', '冬']).prefault('春').catch('春'),
     season_day: integer(1, 1, 30),
     weather: z.enum(['晴', '阴', '雨', '暴雨', '雾', '雪']).prefault('晴').catch('晴'),

@@ -163,8 +163,14 @@
     }
   },
   "presence_snapshot": {
-    "present_character_ids": [],
-    "character_views": {}
+    "present_character_ids": ["reimu"],
+    "character_views": {
+      "reimu": {
+        "area_id": "central_courtyard",
+        "action": "检查结界",
+        "facing": "front"
+      }
+    }
   },
   "interaction": {
     "current_session": null,
