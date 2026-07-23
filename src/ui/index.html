@@ -26,6 +26,17 @@
           <button type="submit" id="gg-opening-commit">确认并开始</button>
         </div>
       </form>
+      <section id="gg-opening-recovery" class="gg-opening-recovery" aria-labelledby="gg-opening-recovery-title" hidden>
+        <h2 id="gg-opening-recovery-title">开场状态待修复</h2>
+        <p id="gg-opening-progress"></p>
+        <div class="gg-opening-actions">
+          <button type="button" id="gg-opening-enter">确认资料并进入庭院</button>
+          <button type="button" id="gg-opening-retry">重新生成首轮回复</button>
+          <button type="button" id="gg-opening-repair">补写开场变量</button>
+          <button type="button" id="gg-opening-native">显示原生聊天</button>
+        </div>
+        <p class="gg-note">“进入庭院”只读取带事务标记的原始玩家消息，并在写入后复读验证；不会依赖 LLM 的变量块格式。</p>
+      </section>
       <section class="gg-opening-preview-shell" aria-labelledby="gg-opening-preview-title">
         <h2 id="gg-opening-preview-title">将要发送的真实玩家消息</h2>
         <pre id="gg-opening-preview" class="gg-opening-preview"></pre>
@@ -74,6 +85,7 @@
         <textarea id="gg-compose-input" rows="4" maxlength="6000" placeholder="输入行动、对话或观察……"></textarea>
         <div class="gg-compose-actions">
           <button type="submit" id="gg-send">发送并生成</button>
+          <button type="button" id="gg-retry-transaction" hidden>继续上次生成</button>
           <button type="button" id="gg-end-chat">结束当前聊天</button>
           <button type="button" id="gg-stop">停止生成</button>
           <button type="button" id="gg-regenerate">重新生成</button>

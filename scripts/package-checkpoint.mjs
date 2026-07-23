@@ -3,7 +3,7 @@ import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const VERSION = '0.2.0';
-const CHECKPOINT = '0.2.0-r6';
+const CHECKPOINT = '0.2.0-r12';
 const OUTPUT_DIR = path.resolve('dist', `checkpoint-${CHECKPOINT}`);
 const OUTPUT_FILE = path.join(OUTPUT_DIR, `幻想乡物语-测试检查点-${CHECKPOINT}.json`);
 const DRY_RUN = process.argv.includes('--dry-run');
@@ -17,7 +17,7 @@ const manifest = await json('project/manifest.json');
 if (profile.version !== VERSION || manifest.version !== VERSION) {
   throw new Error(`版本不一致：profile=${profile.version}, manifest=${manifest.version}, packer=${VERSION}`);
 }
-if (await exists(OUTPUT_FILE)) {
+if (!DRY_RUN && await exists(OUTPUT_FILE)) {
   throw new Error(`拒绝覆盖已有检查点：${OUTPUT_FILE}`);
 }
 
@@ -104,6 +104,7 @@ const loreEntries = [
   entry(3, '[mvu_context] 当前状态投影', projection, [], true, 'after_char'),
   entry(4, '[opening] 动态开场首轮引导', `${openingGuidance}\n\n真实玩家开场消息格式：\n${openingTemplate}`, ['gensokyo_opening'], false),
   entry(5, '[event] 魔法温室纵切事件', greenhouseEvents, ['魔法温室', '温室旧地基', '妖花', '花核'], false),
+  entry(6, '[initvar] 移动庭园初始状态', `<initvar>\n${JSON.stringify(initialState, null, 2)}\n</initvar>`),
   ...Object.entries(characterRoutes).map(([id, keys], index) => entry(10 + index, `[character] ${keys[0]}`, characterContents[index], keys, false)),
 ];
 
@@ -140,14 +141,14 @@ const data = {
       scripts: [
         script('幻想乡物语 · MVU 固定版本加载器', 'gensokyo-mvu-loader-020', mvuLoader),
         script('幻想乡物语 · MVU Schema', 'gensokyo-mvu-schema-020', mvuSchema),
-        script('幻想乡物语 · 移动庭园界面', 'gensokyo-garden-ui-020', uiMount),
+        script('幻想乡物语 · 移动庭园界面', 'gensokyo-garden-ui-020-r12', uiMount),
       ],
       variables: { stat_data: initialState },
     },
     mvu_worldbook_name: '',
   },
   character_book: {
-    name: `幻想乡物语·移动庭园 ${VERSION}`,
+    name: `幻想乡物语·移动庭园 ${CHECKPOINT}`,
     description: '测试检查点内嵌世界书；由项目维护源自动组成。',
     scan_depth: 4,
     token_budget: 4096,

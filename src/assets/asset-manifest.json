@@ -14,7 +14,8 @@
       "source_alpha": "characters/reimu/reimu-turnaround-v1.png",
       "views": ["front", "back", "left", "right"],
       "expression": "closed-mouth slight smile",
-      "animation_pending": ["walk-3-frame", "idle", "blink", "gohei-sway"]
+      "animation_prototype": ["procedural-idle", "procedural-walk", "four-direction-crop"],
+      "animation_pending": ["walk-3-frame", "blink", "gohei-sway"]
     },
     "marisa": {
       "status": "approved",

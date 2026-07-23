@@ -1,4 +1,5 @@
 import type { GardenState } from './types';
+import { SpriteActor } from './sprite-actor';
 
 interface Point { x: number; y: number }
 interface HitTarget extends Point { id: string; label: string; kind: 'area' | 'character'; radius: number }
@@ -21,10 +22,17 @@ export class GardenMap {
   private dragging = false;
   private lastPointer: Point = { x: 0, y: 0 };
   private pointerOrigin: Point = { x: 0, y: 0 };
+  private readonly resizeObserver: ResizeObserver;
+  private readonly reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  private readonly actors = new Map<string, SpriteActor>();
+  private animationFrame = 0;
+  private lastFrameTime = 0;
+  private visible = !document.hidden;
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
     mapSource: string,
+    reimuSpriteSource: string,
     private readonly onSelect: (target: HitTarget) => void,
   ) {
     const context = canvas.getContext('2d');
@@ -37,22 +45,63 @@ export class GardenMap {
     canvas.addEventListener('pointerup', this.onPointerUp);
     canvas.addEventListener('pointercancel', this.onPointerUp);
     canvas.addEventListener('wheel', this.onWheel, { passive: false });
-    new ResizeObserver(() => this.resize()).observe(canvas);
+    this.resizeObserver = new ResizeObserver(() => this.resize());
+    this.resizeObserver.observe(canvas);
+    this.reducedMotion.addEventListener('change', this.onReducedMotionChanged);
+    document.addEventListener('visibilitychange', this.onVisibilityChanged);
+    this.actors.set('reimu', new SpriteActor('reimu', '博丽灵梦', reimuSpriteSource, () => this.draw()));
     this.resize();
+    this.startAnimation();
   }
 
   update(state: GardenState) {
     this.state = state;
+    const views = state.presence_snapshot?.character_views ?? {};
+    this.actors.forEach((actor, id) => actor.sync(views[id], this.reducedMotion.matches));
     this.draw();
   }
 
   destroy() {
+    cancelAnimationFrame(this.animationFrame);
+    this.resizeObserver.disconnect();
+    this.reducedMotion.removeEventListener('change', this.onReducedMotionChanged);
+    document.removeEventListener('visibilitychange', this.onVisibilityChanged);
     this.canvas.removeEventListener('pointerdown', this.onPointerDown);
     this.canvas.removeEventListener('pointermove', this.onPointerMove);
     this.canvas.removeEventListener('pointerup', this.onPointerUp);
     this.canvas.removeEventListener('pointercancel', this.onPointerUp);
     this.canvas.removeEventListener('wheel', this.onWheel);
   }
+
+  private startAnimation() {
+    cancelAnimationFrame(this.animationFrame);
+    this.lastFrameTime = 0;
+    if (!this.visible) return;
+    this.animationFrame = requestAnimationFrame(this.animate);
+  }
+
+  private animate = (time: number) => {
+    const delta = this.lastFrameTime ? Math.min(50, time - this.lastFrameTime) : 16;
+    this.lastFrameTime = time;
+    const present = new Set(this.state.presence_snapshot?.present_character_ids ?? []);
+    this.actors.forEach((actor, id) => {
+      if (present.has(id)) actor.update(delta);
+    });
+    this.draw();
+    this.animationFrame = requestAnimationFrame(this.animate);
+  };
+
+  private onVisibilityChanged = () => {
+    this.visible = !document.hidden;
+    if (this.visible) this.startAnimation();
+    else cancelAnimationFrame(this.animationFrame);
+  };
+
+  private onReducedMotionChanged = () => {
+    const views = this.state.presence_snapshot?.character_views ?? {};
+    this.actors.forEach((actor, id) => actor.sync(views[id], this.reducedMotion.matches));
+    this.draw();
+  };
 
   private resize() {
     const rect = this.canvas.getBoundingClientRect();
@@ -108,9 +157,13 @@ export class GardenMap {
     present.forEach((id, index) => {
       const view = views[id] ?? {};
       const base = areaPositions[view.area_id ?? 'central_courtyard'] ?? areaPositions.central_courtyard;
-      const x = -drawWidth / 2 + base.x * drawWidth + (index % 3 - 1) * 38;
+      const actor = this.actors.get(id);
+      const actorOffset = actor?.offsetX ?? 0;
+      const x = -drawWidth / 2 + (base.x + actorOffset) * drawWidth + (index % 3 - 1) * 38;
       const y = -drawHeight / 2 + base.y * drawHeight + 54 + Math.floor(index / 3) * 35;
       const label = this.state.characters?.[id]?.name ?? id;
+      const drawnAsSprite = actor?.draw(ctx, x, y, Math.min(132, drawWidth * 0.12)) ?? false;
+      if (!drawnAsSprite) {
       ctx.beginPath();
       ctx.arc(x, y, 18, 0, Math.PI * 2);
       ctx.fillStyle = id === 'reimu' ? '#b82f36' : id === 'marisa' ? '#293246' : id === 'cirno' ? '#4a9fd8' : '#6c5c82';
@@ -118,11 +171,12 @@ export class GardenMap {
       ctx.strokeStyle = '#fff8df';
       ctx.lineWidth = 3;
       ctx.stroke();
+      }
       ctx.font = '600 14px system-ui';
       ctx.textAlign = 'center';
       ctx.fillStyle = '#231d18';
       ctx.fillText(label, x, y + 36);
-      this.targets.push({ id, label, kind: 'character', x, y, radius: 24 });
+      this.targets.push({ id, label, kind: 'character', x, y, radius: drawnAsSprite ? 42 : 24 });
     });
     ctx.restore();
   }

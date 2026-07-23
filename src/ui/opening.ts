@@ -1,4 +1,4 @@
-import type { GardenBridge, GardenState, OpeningContext, OpeningDraft } from './types';
+import type { GardenBridge, GardenState, OpeningContext, OpeningDraft, OpeningProgress } from './types';
 
 const DRAFT_VERSION = 1;
 
@@ -24,6 +24,7 @@ function normalizedDraft(value: Partial<OpeningDraft>): OpeningDraft {
 export class OpeningController {
   private context?: OpeningContext;
   private busy = false;
+  private progress: OpeningProgress = { messageSubmitted: false, assistantResponded: false };
 
   constructor(
     private readonly bridge: GardenBridge,
@@ -35,21 +36,29 @@ export class OpeningController {
     this.form.addEventListener('input', () => { this.saveDraft(); this.renderPreview(); });
     this.form.addEventListener('submit', (event) => { event.preventDefault(); void this.commit(); });
     this.button('gg-opening-quick').addEventListener('click', () => this.applyPersona());
+    this.button('gg-opening-retry').addEventListener('click', () => void this.retry());
+    this.button('gg-opening-enter').addEventListener('click', () => void this.enterGarden());
+    this.button('gg-opening-repair').addEventListener('click', () => void this.repair());
+    this.button('gg-opening-native').addEventListener('click', () => void this.showNative());
   }
 
   async render(state: GardenState) {
     const committed = Boolean(state.meta?.opening_committed);
     this.root.hidden = committed;
     this.runtimeShell.hidden = !committed;
-    if (committed || this.context) return;
-    this.context = await this.bridge.getOpeningContext();
-    const saved = this.loadDraft();
-    this.writeDraft(saved ?? normalizedDraft({
-      playerName: this.context.personaName,
-      playerPronouns: '中性称谓',
-      playerAppearance: this.context.personaDescription,
-      gardenName: '无名庭园',
-    }));
+    if (committed) return;
+    if (!this.context) {
+      this.context = await this.bridge.getOpeningContext();
+      const saved = this.loadDraft();
+      this.writeDraft(saved ?? normalizedDraft({
+        playerName: this.context.personaName,
+        playerPronouns: '中性称谓',
+        playerAppearance: this.context.personaDescription,
+        gardenName: '无名庭园',
+      }));
+    }
+    this.progress = await this.bridge.getOpeningProgress();
+    this.renderProgress();
     this.renderPreview();
   }
 
@@ -92,6 +101,17 @@ export class OpeningController {
     document.getElementById('gg-opening-preview')!.textContent = buildOpeningMessage(this.readDraft());
   }
 
+  private renderProgress() {
+    const recovery = document.getElementById('gg-opening-recovery') as HTMLElement;
+    recovery.hidden = !this.progress.messageSubmitted;
+    this.form.hidden = this.progress.messageSubmitted;
+    document.getElementById('gg-opening-progress')!.textContent = this.progress.assistantResponded
+      ? '开场消息和首轮正文已经存在，但 MVU 未确认开场。可以直接从原始玩家消息恢复开场字段并进入庭院。'
+      : '开场消息已经提交，但尚未收到完整回复。可以安全地再次触发生成。';
+    this.button('gg-opening-enter').disabled = !this.progress.assistantResponded;
+    this.button('gg-opening-repair').disabled = !this.progress.assistantResponded;
+  }
+
   private applyPersona() {
     if (!this.context) return;
     const draft = this.readDraft();
@@ -122,5 +142,62 @@ export class OpeningController {
       this.busy = false;
       this.button('gg-opening-commit').disabled = false;
     }
+  }
+
+  private async retry() {
+    if (!this.context || this.busy) return;
+    this.busy = true;
+    try {
+      if (this.progress.assistantResponded) {
+        await this.bridge.regenerateLatest();
+        this.setStatus('已请求重新生成首轮回复；等待 MVU 完成开场变量写入');
+      } else {
+        const draft = this.readDraft();
+        await this.bridge.commitOpening(draft, buildOpeningMessage(draft), this.context.chatId);
+        this.setStatus('已安全地再次触发首轮生成');
+      }
+      this.requestRefresh();
+    } catch (error) {
+      this.setStatus(`重新生成失败：${error instanceof Error ? error.message : String(error)}`, true);
+    } finally {
+      this.busy = false;
+    }
+  }
+
+  private async repair() {
+    if (!this.context || this.busy || !this.progress.assistantResponded) return;
+    this.busy = true;
+    try {
+      const result = await this.bridge.repairOpening(this.context.chatId);
+      this.setStatus(result.messageCreated ? '已发送受限的开场变量修复请求' : '已找到先前的修复请求，正在安全重试生成');
+      this.requestRefresh();
+    } catch (error) {
+      this.setStatus(`修复请求失败：${error instanceof Error ? error.message : String(error)}`, true);
+    } finally {
+      this.busy = false;
+    }
+  }
+
+  private async enterGarden() {
+    if (!this.context || this.busy || !this.progress.assistantResponded) return;
+    this.busy = true;
+    this.button('gg-opening-enter').disabled = true;
+    try {
+      const result = await this.bridge.enterGarden(this.context.chatId);
+      this.setStatus(result.initializedFromDefaults
+        ? '已补齐完整初始状态，并从原始玩家消息确认开场字段'
+        : '已从原始玩家消息确认开场字段，正在进入庭院');
+      this.requestRefresh();
+    } catch (error) {
+      this.setStatus(`进入庭院失败：${error instanceof Error ? error.message : String(error)}`, true);
+    } finally {
+      this.busy = false;
+      this.button('gg-opening-enter').disabled = false;
+    }
+  }
+
+  private async showNative() {
+    const restored = await this.bridge.showNativeChat();
+    this.setStatus(restored ? '已请求显示原生聊天' : '离线预览没有原生聊天');
   }
 }

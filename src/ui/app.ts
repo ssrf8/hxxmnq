@@ -23,6 +23,8 @@ const battleDialog = byId<HTMLDialogElement>('gg-battle-dialog');
 const battleCanvas = byId<HTMLCanvasElement>('gg-battle-canvas');
 const assetBase = document.documentElement.dataset.assetBase ?? '../assets';
 const mapSource = document.documentElement.dataset.mapSrc || `${assetBase}/maps/garden-base-spring-v1.png`;
+const reimuSpriteSource = document.documentElement.dataset.reimuSpriteSrc
+  || `${assetBase}/characters/reimu/reimu-turnaround-v1.png`;
 
 let state: GardenState = {};
 let selectedDraft = '';
@@ -72,7 +74,10 @@ async function renderMessages() {
 }
 
 async function renderDiagnostics() {
-  const diagnostic = await bridge.diagnostics();
+  const [diagnostic, transaction] = await Promise.all([
+    bridge.diagnostics(),
+    bridge.getTransactionState(),
+  ]);
   runtimeMode = diagnostic.mode;
   const values: Record<string, string> = {
     运行模式: diagnostic.mode === 'host' ? '酒馆运行时' : '离线预览',
@@ -82,7 +87,11 @@ async function renderDiagnostics() {
     Bridge: diagnostic.bridgeVersion,
     数据库: diagnostic.databaseAvailable ? diagnostic.databaseVersion : '未加载（不影响核心玩法）',
     数据库归档: databaseSync.detail,
+    消息事务: transaction.phase,
   };
+  if (transaction.lastError) values['事务状态'] = transaction.lastError;
+  const retryButton = byId<HTMLButtonElement>('gg-retry-transaction');
+  retryButton.hidden = transaction.phase !== 'failed' || !transaction.userMessageCreated || transaction.assistantResponded;
   if (diagnostic.lastError) values['最近错误'] = diagnostic.lastError;
   const fragment = document.createDocumentFragment();
   Object.entries(values).forEach(([label, value]) => {
@@ -101,7 +110,7 @@ function renderBattleAvailability() {
   button.title = available ? '' : '对应剧情事件激活后可用';
 }
 
-const gardenMap = new GardenMap(byId<HTMLCanvasElement>('gg-garden-map'), mapSource, (target) => {
+const gardenMap = new GardenMap(byId<HTMLCanvasElement>('gg-garden-map'), mapSource, reimuSpriteSource, (target) => {
   if (target.kind === 'character') {
     const action = state.presence_snapshot?.character_views?.[target.id]?.action ?? '停留在庭园';
     inspectorTitle.textContent = target.label;
@@ -159,20 +168,35 @@ byId<HTMLFormElement>('gg-compose-form').addEventListener('submit', async (event
   if (!text) return setStatus('先写点什么再发送吧。', true);
   try {
     byId<HTMLButtonElement>('gg-send').disabled = true;
-    await bridge.sendUserMessage(text);
+    const transaction = await bridge.sendUserMessage(text);
     composeInput.value = '';
-    setStatus('真实玩家消息已发送，正在生成回复');
+    setStatus(transaction.phase === 'settled' ? '回复已落盘' : '真实玩家消息已发送，正在生成回复');
   } catch (error) {
     setStatus(`发送失败：${error instanceof Error ? error.message : String(error)}`, true);
   } finally {
     byId<HTMLButtonElement>('gg-send').disabled = false;
   }
 });
-byId<HTMLButtonElement>('gg-stop').addEventListener('click', async () => setStatus(await bridge.stopGeneration() ? '已请求停止生成' : '当前没有可停止的生成'));
+byId<HTMLButtonElement>('gg-retry-transaction').addEventListener('click', async () => {
+  try {
+    const transaction = await bridge.retryLastTransaction();
+    setStatus(transaction.phase === 'settled' ? '回复已落盘' : '已继续上次生成');
+    await refresh();
+  } catch (error) {
+    setStatus(`继续生成失败：${error instanceof Error ? error.message : String(error)}`, true);
+  }
+});
+byId<HTMLButtonElement>('gg-stop').addEventListener('click', async () => {
+  const stopped = await bridge.stopGeneration();
+  setStatus(stopped ? '已停止生成；可以使用“继续上次生成”恢复' : '当前没有可停止的生成');
+  await refresh();
+});
 byId<HTMLButtonElement>('gg-regenerate').addEventListener('click', async () => { try { await bridge.regenerateLatest(); } catch (error) { setStatus(String(error), true); } });
 byId<HTMLButtonElement>('gg-swipe').addEventListener('click', async () => { try { await bridge.swipeLatest(); } catch (error) { setStatus(String(error), true); } });
 byId<HTMLButtonElement>('gg-show-native').addEventListener('click', async () => { const restored = await bridge.showNativeChat(); setStatus(restored ? '已请求显示原生聊天' : '离线预览没有原生聊天'); });
-byId<HTMLButtonElement>('gg-reload').addEventListener('click', () => location.reload());
+byId<HTMLButtonElement>('gg-reload').addEventListener('click', () => {
+  globalThis.dispatchEvent(new CustomEvent('gensokyo-garden:reload'));
+});
 
 function startBattle() {
   battle?.destroy();

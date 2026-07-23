@@ -2,24 +2,24 @@
 
 ## Luker 与酒馆助手
 
-- `createChatMessages([{ role: 'user', message }], { insert_before: 'end', refresh: 'affected' })`
+- `createChatMessages([{ role: 'user', message, is_hidden: false, extra }], { insert_before: 'end', refresh: 'none' })`
   - surface: 酒馆助手 / JS-Slash-Runner
-  - applies_to: 4.8.18
-  - provenance: `F:/agent airp/Luker/public/scripts/extensions/third-party/JS-Slash-Runner/@types`
-  - confidence: high（匹配安装版本声明）
-  - runtime_check: 未导入本卡，真实消息创建待验收
+  - applies_to: 4.8.19
+  - provenance: `D:/json脚本地下城/主体/SillyTavern/public/scripts/extensions/third-party/JS-Slash-Runner/@types/function/chat_message.d.ts`
+  - confidence: high（匹配当前安装版本声明）
+  - runtime_check: r11 已验证 `refresh:'affected'`；同层重构使用的 `refresh:'none'` 后接 `/trigger` 时序待真实运行验收
 - `triggerSlash('/trigger')`、`/regenerate`、`/swipe await=true direction=right`
   - surface: 酒馆助手 + Luker STScript
-  - applies_to: 酒馆助手 4.8.18 / Luker 2.7.0
-  - provenance: 匹配安装声明与 `F:/agent airp/Luker/public/scripts/slash-commands.js`
+  - applies_to: 酒馆助手 4.8.19 / SillyTavern 1.18.0
+  - provenance: 当前安装的酒馆助手声明与 SillyTavern slash command 源码
   - confidence: high（源码与声明一致）
-  - runtime_check: 本卡未导入，待验收
+  - runtime_check: r11 已完成正常开场生成；`refresh:'none'` 组合待验收
 - `Mvu.getMvuData({ type: 'message', message_id: 'latest' })`
   - surface: MVU，经酒馆助手导出
-  - applies_to: 酒馆助手 4.8.18 声明；本卡加载器固定 MagVarUpdate commit `d1bdfd1`
+  - applies_to: 酒馆助手 4.8.19 声明；本卡加载器固定 MagVarUpdate commit `d1bdfd1`
   - provenance: `@types/iframe/exported.mvu.d.ts` 与 `src/runtime/01-mvu-loader.js`
-  - confidence: medium（声明已匹配，目标卡运行帧尚未出现）
-  - runtime_check: 待新卡导入与新聊天
+  - confidence: high（声明匹配，r11 已完成真实楼层读写）
+  - runtime_check: 同层壳下的事件时序与 Swipe 仍待新检查点验收
 
 ## SP·数据库 VII
 

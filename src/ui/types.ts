@@ -60,12 +60,44 @@ export interface OpeningCommitResult {
   generationTriggered: boolean;
 }
 
+export interface OpeningProgress {
+  messageSubmitted: boolean;
+  assistantResponded: boolean;
+}
+
+export type MessageTransactionKind = 'opening' | 'interaction' | 'settlement';
+export type MessageTransactionPhase =
+  | 'idle'
+  | 'submitting_user'
+  | 'generating'
+  | 'settling'
+  | 'settled'
+  | 'failed';
+
+export interface MessageTransactionSnapshot {
+  transactionId: string;
+  chatId: string;
+  kind: MessageTransactionKind;
+  phase: MessageTransactionPhase;
+  userMessageCreated: boolean;
+  assistantResponded: boolean;
+  userMessageId?: number;
+  assistantMessageId?: number;
+  startedAt?: number;
+  lastError?: string;
+}
+
 export interface GardenBridge {
   readState(): Promise<GardenState>;
   getOpeningContext(): Promise<OpeningContext>;
+  getOpeningProgress(): Promise<OpeningProgress>;
   commitOpening(draft: OpeningDraft, message: string, expectedChatId: string): Promise<OpeningCommitResult>;
+  enterGarden(expectedChatId: string): Promise<{ initializedFromDefaults: boolean }>;
+  repairOpening(expectedChatId: string): Promise<{ messageCreated: boolean }>;
   listMessages(): Promise<ChatMessageView[]>;
-  sendUserMessage(text: string): Promise<void>;
+  sendUserMessage(text: string): Promise<MessageTransactionSnapshot>;
+  getTransactionState(): Promise<MessageTransactionSnapshot>;
+  retryLastTransaction(): Promise<MessageTransactionSnapshot>;
   stopGeneration(): Promise<boolean>;
   regenerateLatest(): Promise<void>;
   swipeLatest(): Promise<void>;

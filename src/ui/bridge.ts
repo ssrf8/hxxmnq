@@ -1,8 +1,21 @@
-import type { ChatMessageView, GardenBridge, GardenState, OpeningDraft, RuntimeDiagnostics } from './types';
+import type {
+  ChatMessageView,
+  GardenBridge,
+  GardenState,
+  MessageTransactionSnapshot,
+  OpeningDraft,
+  RuntimeDiagnostics,
+} from './types';
+import initialState from '../schema/initial-state.json';
+import { MessageTransactionCoordinator } from './message-transaction';
 
 type HostGlobals = typeof globalThis & {
   waitGlobalInitialized?: (name: string) => Promise<unknown>;
-  Mvu?: { getMvuData: (options: Record<string, unknown>) => { stat_data?: GardenState }; events: Record<string, string> };
+  Mvu?: {
+    getMvuData: (options: Record<string, unknown>) => { stat_data?: GardenState; [key: string]: unknown };
+    replaceMvuData: (data: Record<string, unknown>, options: Record<string, unknown>) => Promise<void>;
+    events: Record<string, string>;
+  };
   getChatMessages?: (range: string | number, options?: Record<string, unknown>) => Array<Record<string, unknown>>;
   createChatMessages?: (messages: Array<Record<string, unknown>>, options?: Record<string, unknown>) => Promise<void>;
   triggerSlash?: (command: string) => Promise<string | undefined>;
@@ -17,6 +30,66 @@ type HostGlobals = typeof globalThis & {
 };
 
 const g = globalThis as HostGlobals;
+const OPENING_MARKER = '<gensokyo_opening transaction="';
+const OPENING_REPAIR_MARKER = '<gensokyo_opening_repair transaction="';
+
+function parseOpeningMessage(message: string): OpeningDraft {
+  const body = message
+    .replace(/\n*<gensokyo_opening transaction="[^"]+" \/>\s*$/u, '')
+    .trim();
+  const match = body.match(
+    /^我叫「([^」]{1,40})」，希望他人使用「([^」]{1,40})」称呼我。我的外貌大致是：([\s\S]{1,520}?)\n\n我依照祖父留下的安排，[\s\S]*?我暂时把它称作「([^」]{1,60})」。/u,
+  );
+  if (!match) throw new Error('无法从原始开场消息识别姓名、称谓、外貌和庭园名');
+  return {
+    playerName: match[1].trim(),
+    playerPronouns: match[2].trim(),
+    playerAppearance: match[3].trim().replace(/[。！？.!?]$/u, ''),
+    gardenName: match[4].trim(),
+  };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function mergeState(base: Record<string, unknown>, current: Record<string, unknown>): Record<string, unknown> {
+  const merged = structuredClone(base);
+  for (const [key, value] of Object.entries(current)) {
+    if (isRecord(value) && isRecord(merged[key])) {
+      merged[key] = mergeState(merged[key] as Record<string, unknown>, value);
+    } else {
+      merged[key] = structuredClone(value);
+    }
+  }
+  return merged;
+}
+
+function applyOpeningDraft(state: Record<string, unknown>, draft: OpeningDraft) {
+  const player = state.player as Record<string, unknown>;
+  const garden = state.garden as Record<string, unknown>;
+  const keyItems = state.key_items as Record<string, Record<string, unknown>>;
+  const meta = state.meta as Record<string, unknown>;
+  player.name = draft.playerName;
+  player.pronouns = draft.playerPronouns;
+  player.appearance = draft.playerAppearance;
+  garden.name = draft.gardenName;
+  keyItems.garden_keeper_key.obtained = true;
+  keyItems.garden_keeper_key.state = '苏醒';
+  meta.initialized = true;
+  meta.opening_committed = true;
+}
+
+function openingCommitted(state: GardenState, draft: OpeningDraft) {
+  return state.meta?.initialized === true
+    && state.meta.opening_committed === true
+    && state.player?.name === draft.playerName
+    && state.player.pronouns === draft.playerPronouns
+    && state.player.appearance === draft.playerAppearance
+    && state.garden?.name === draft.gardenName
+    && (state.key_items as Record<string, Record<string, unknown>> | undefined)
+      ?.garden_keeper_key?.obtained === true;
+}
 
 function hostWindow(): HostGlobals {
   try {
@@ -50,12 +123,52 @@ function normalizeMessages(raw: Array<Record<string, unknown>>): ChatMessageView
   });
 }
 
+function activeMessages(): Array<Record<string, unknown>> {
+  return g.getChatMessages?.('0-{{lastMessageId}}', { include_swipes: false, hide_state: 'all' }) ?? [];
+}
+
+function latestPersistedState(mvu: HostGlobals['Mvu']): GardenState {
+  if (!mvu) return {};
+  const assistantMessages = activeMessages().filter((message) => message.role === 'assistant').reverse();
+  for (const message of assistantMessages) {
+    const messageId = Number(message.message_id);
+    if (!Number.isInteger(messageId) || messageId < 0) continue;
+    const state = mvu.getMvuData({ type: 'message', message_id: messageId }).stat_data;
+    if (isRecord(state) && Object.keys(state).length > 0) return structuredClone(state);
+  }
+  return {};
+}
+
+function openingProgress(rawMessages = activeMessages()) {
+  const openingIndex = rawMessages.findIndex((item) =>
+    item.role === 'user' && String(item.message ?? '').includes(OPENING_MARKER));
+  return {
+    messageSubmitted: openingIndex >= 0,
+    assistantResponded: openingIndex >= 0 && rawMessages
+      .slice(openingIndex + 1)
+      .some((item) => item.role !== 'user' && String(item.message ?? '').trim().length > 0),
+  };
+}
+
 export function createHostBridge(): GardenBridge | null {
   if (!g.waitGlobalInitialized || !g.getChatMessages || !g.createChatMessages || !g.triggerSlash) return null;
   let lastError = '';
+  const transactions = new MessageTransactionCoordinator({
+    currentChatId,
+    listMessages: activeMessages,
+    async createUserMessage(message, extra) {
+      await g.createChatMessages?.(
+        [{ role: 'user', message, is_hidden: false, extra }],
+        { insert_before: 'end', refresh: 'none' },
+      );
+    },
+    async triggerGeneration() {
+      await g.triggerSlash?.('/trigger');
+    },
+  });
 
   const requireMvu = async () => {
-    await g.waitGlobalInitialized?.('Mvu');
+    if (!g.Mvu?.getMvuData) await g.waitGlobalInitialized?.('Mvu');
     if (!g.Mvu?.getMvuData) throw new Error('MVU 全局未就绪');
     return g.Mvu;
   };
@@ -64,7 +177,7 @@ export function createHostBridge(): GardenBridge | null {
     async readState() {
       try {
         const mvu = await requireMvu();
-        return structuredClone(mvu.getMvuData({ type: 'message', message_id: 'latest' }).stat_data ?? {});
+        return latestPersistedState(mvu);
       } catch (error) {
         lastError = error instanceof Error ? error.message : String(error);
         throw error;
@@ -81,15 +194,18 @@ export function createHostBridge(): GardenBridge | null {
       } catch { /* Persona is optional. */ }
       return { chatId: currentChatId(), personaName, personaDescription };
     },
+    async getOpeningProgress() {
+      return openingProgress();
+    },
     async commitOpening(_draft: OpeningDraft, message: string, expectedChatId: string) {
       const frozenChatId = expectedChatId.trim();
       if (!frozenChatId || currentChatId() !== frozenChatId) throw new Error('聊天已切换，请重新确认开局预览');
       const marker = `<gensokyo_opening transaction="${encodeURIComponent(frozenChatId)}" />`;
       // `include_swipes: true` returns ChatMessageSwiped, which intentionally has
-      // no `message` field in Tavern Helper 4.8.18. Use the active-page shape for
+      // no `message` field in Tavern Helper 4.8.19. Use the active-page shape for
       // idempotency, and also compare the normalized body because regex display
       // rules may strip the transaction marker before a retry.
-      const rawMessages = g.getChatMessages?.('0-{{lastMessageId}}', { include_swipes: false, hide_state: 'all' }) ?? [];
+      const rawMessages = activeMessages();
       const expectedBody = message.trim();
       const withoutMarker = (value: unknown) => String(value ?? '')
         .replace(/\n*<gensokyo_opening transaction="[^"]+" \/>\s*$/u, '')
@@ -98,13 +214,70 @@ export function createHostBridge(): GardenBridge | null {
         String(item.message ?? '').includes(marker)
         || withoutMarker(item.message) === expectedBody
       ));
-      if (!exists) {
-        const content = `${message.trim()}\n\n${marker}`;
-        if (!message.trim() || content.length > 6000) throw new Error('开场消息应为 1–6000 个字符');
-        await g.createChatMessages?.([{ role: 'user', message: content }], { insert_before: 'end', refresh: 'affected' });
-      }
-      await g.triggerSlash?.('/trigger');
+      const content = `${message.trim()}\n\n${marker}`;
+      if (!message.trim() || content.length > 6000) throw new Error('开场消息应为 1–6000 个字符');
+      await transactions.submit({
+        kind: 'opening',
+        transactionId: `opening-${encodeURIComponent(frozenChatId)}`,
+        message: content,
+        matchesExisting: (item) => item.role === 'user' && (
+          String(item.message ?? '').includes(marker)
+          || withoutMarker(item.message) === expectedBody
+        ),
+      });
       return { messageCreated: !exists, generationTriggered: true };
+    },
+    async enterGarden(expectedChatId: string) {
+      const frozenChatId = expectedChatId.trim();
+      if (!frozenChatId || currentChatId() !== frozenChatId) throw new Error('聊天已切换，请重新打开恢复页');
+      const rawMessages = activeMessages();
+      const openingIndex = rawMessages.findIndex((item) =>
+        item.role === 'user' && String(item.message ?? '').includes(OPENING_MARKER));
+      if (openingIndex < 0) throw new Error('没有找到带事务标记的原始开场消息');
+      const assistant = rawMessages
+        .slice(openingIndex + 1)
+        .filter((item) => item.role === 'assistant' && String(item.message ?? '').trim().length > 0)
+        .at(-1);
+      const messageId = Number(assistant?.message_id);
+      if (!Number.isInteger(messageId) || messageId < 0) throw new Error('尚未找到完整的开场回复');
+      const draft = parseOpeningMessage(String(rawMessages[openingIndex].message ?? ''));
+      const mvu = await requireMvu();
+      if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持确定性写入');
+      const options = { type: 'message', message_id: messageId };
+      const data = structuredClone(mvu.getMvuData(options)) as Record<string, unknown>;
+      const currentState = isRecord(data.stat_data) ? data.stat_data : {};
+      const initializedFromDefaults = !isRecord(currentState.meta);
+      const nextState = mergeState(initialState as Record<string, unknown>, currentState);
+      applyOpeningDraft(nextState, draft);
+      data.stat_data = nextState;
+      await mvu.replaceMvuData(data, options);
+      const persisted = mvu.getMvuData(options).stat_data ?? {};
+      if (!openingCommitted(persisted, draft)) throw new Error('MVU 写入后复读校验失败');
+      return { initializedFromDefaults };
+    },
+    async repairOpening(expectedChatId: string) {
+      const frozenChatId = expectedChatId.trim();
+      if (!frozenChatId || currentChatId() !== frozenChatId) throw new Error('聊天已切换，请重新打开恢复页');
+      const marker = `${OPENING_REPAIR_MARKER}${encodeURIComponent(frozenChatId)}" />`;
+      const rawMessages = activeMessages();
+      const exists = rawMessages.some((item) =>
+        item.role === 'user' && String(item.message ?? '').includes(marker));
+      const message = [
+        '【开场状态修复】',
+        '前一轮正文已经描写我进入庭园，但正式开场变量没有成功写入。',
+        '请读取此前带有 gensokyo_opening 标记的真实玩家消息，只补写其中已经确认的玩家姓名、称谓、外貌、庭园名、庭守钥取得状态，以及 meta.initialized=true、meta.opening_committed=true。',
+        '先用一句简短叙事承接当前场景，然后严格输出一个可由 MVU 解析的 <UpdateVariable><JSONPatch>…</JSONPatch></UpdateVariable> 块；不要推进时间、事件、关系或资源，不要重复开场剧情。',
+        '',
+        marker,
+      ].join('\n');
+      await transactions.submit({
+        kind: 'opening',
+        transactionId: `opening-repair-${encodeURIComponent(frozenChatId)}`,
+        message,
+        matchesExisting: (item) =>
+          item.role === 'user' && String(item.message ?? '').includes(marker),
+      });
+      return { messageCreated: !exists };
     },
     async listMessages() {
       return normalizeMessages(g.getChatMessages?.('0-{{lastMessageId}}', { include_swipes: true, hide_state: 'unhidden' }) ?? []);
@@ -112,11 +285,18 @@ export function createHostBridge(): GardenBridge | null {
     async sendUserMessage(text) {
       const value = text.trim();
       if (!value || value.length > 6000) throw new Error('消息应为 1–6000 个字符');
-      await g.createChatMessages?.([{ role: 'user', message: value }], { insert_before: 'end', refresh: 'affected' });
-      await g.triggerSlash?.('/trigger');
+      return transactions.submit({ kind: 'interaction', message: value });
+    },
+    async getTransactionState() {
+      return transactions.read();
+    },
+    async retryLastTransaction() {
+      return transactions.retry();
     },
     async stopGeneration() {
-      return Boolean(g.SillyTavern?.stopGeneration?.());
+      const stopped = Boolean(g.SillyTavern?.stopGeneration?.());
+      if (stopped) transactions.markStopped();
+      return stopped;
     },
     async regenerateLatest() {
       await g.triggerSlash?.('/regenerate');
@@ -136,7 +316,7 @@ export function createHostBridge(): GardenBridge | null {
         tavernVersion: g.getTavernVersion?.() ?? 'unknown',
         helperVersion: g.getTavernHelperVersion?.() ?? 'unknown',
         mvuReady,
-        bridgeVersion: '0.2.0',
+        bridgeVersion: '0.2.1-same-layer',
         databaseAvailable: Boolean(databaseApi()),
         databaseVersion: databaseApi() ? 'SP·数据库 VII / AutoCardUpdaterAPI' : '未加载',
         lastError: lastError || undefined,
@@ -188,9 +368,18 @@ export function createPreviewBridge(): GardenBridge {
   const messages: ChatMessageView[] = [
     { id: 0, role: 'assistant', name: '幻想乡物语', text: '庭园页面离线预览。正式运行时，这里镜像真实聊天消息。' },
   ];
+  let transaction: MessageTransactionSnapshot = {
+    transactionId: '',
+    chatId: 'offline-preview-chat',
+    kind: 'interaction',
+    phase: 'idle',
+    userMessageCreated: false,
+    assistantResponded: false,
+  };
   return {
     async readState() { return structuredClone(previewState); },
     async getOpeningContext() { return { chatId: 'offline-preview-chat', personaName: '预览玩家', personaDescription: '来自外界的年轻旅人。' }; },
+    async getOpeningProgress() { return { messageSubmitted: false, assistantResponded: false }; },
     async commitOpening(draft, message) {
       messages.push({ id: messages.length, role: 'user', name: draft.playerName, text: message });
       previewState.player = { ...previewState.player, name: draft.playerName, pronouns: draft.playerPronouns, appearance: draft.playerAppearance };
@@ -198,14 +387,35 @@ export function createPreviewBridge(): GardenBridge {
       previewState.meta = { ...previewState.meta, initialized: true, opening_committed: true };
       return { messageCreated: true, generationTriggered: true };
     },
+    async enterGarden() {
+      previewState.meta = { ...previewState.meta, initialized: true, opening_committed: true };
+      return { initializedFromDefaults: false };
+    },
+    async repairOpening() { throw new Error('离线预览不支持修复真实开场'); },
     async listMessages() { return structuredClone(messages); },
-    async sendUserMessage(text) { messages.push({ id: messages.length, role: 'user', name: '预览玩家', text }); },
+    async sendUserMessage(text) {
+      transaction = {
+        transactionId: `preview-${Date.now()}`,
+        chatId: 'offline-preview-chat',
+        kind: 'interaction',
+        phase: 'settled',
+        userMessageCreated: true,
+        assistantResponded: true,
+        userMessageId: messages.length,
+        assistantMessageId: messages.length + 1,
+      };
+      messages.push({ id: messages.length, role: 'user', name: '预览玩家', text });
+      messages.push({ id: messages.length, role: 'assistant', name: '幻想乡物语', text: '离线预览：已模拟生成回复。' });
+      return structuredClone(transaction);
+    },
+    async getTransactionState() { return structuredClone(transaction); },
+    async retryLastTransaction() { throw new Error('离线预览没有失败事务'); },
     async stopGeneration() { return false; },
     async regenerateLatest() { throw new Error('离线预览不支持重新生成'); },
     async swipeLatest() { throw new Error('离线预览不支持 Swipe'); },
     async showNativeChat() { return false; },
     async diagnostics(): Promise<RuntimeDiagnostics> {
-      return { mode: 'preview', tavernVersion: 'offline', helperVersion: 'offline', mvuReady: false, bridgeVersion: '0.2.0', databaseAvailable: false, databaseVersion: '未加载' };
+      return { mode: 'preview', tavernVersion: 'offline', helperVersion: 'offline', mvuReady: false, bridgeVersion: '0.2.1-same-layer', databaseAvailable: false, databaseVersion: '未加载' };
     },
     async subscribe() { return () => undefined; },
   };
