@@ -8,6 +8,16 @@ export interface GardenActionMarker {
   target_type?: string | null;
 }
 
+interface PresenceUpdate {
+  version: 'presence.v1';
+  presentCharacterIds: string[];
+  characterViews: Record<string, {
+    area_id?: string;
+    action?: string;
+    facing?: 'front' | 'back' | 'left' | 'right';
+  }>;
+}
+
 const LOCAL_EVENT_ACTIONS = new Set([
   'inspect_boundary',
   'repair',
@@ -60,6 +70,8 @@ const defaultResults: Record<string, string> = {
   greenhouse_multiturn_conversation: 'conversation_settled_after_multiple_turns',
 };
 
+export const GREENHOUSE_RESEARCH_MAX_EFFECTIVE_ROUNDS = 2;
+
 function record(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' && !Array.isArray(value)
     ? value as Record<string, unknown>
@@ -82,6 +94,51 @@ export function parseGardenAction(message: string): GardenActionMarker | null {
   } catch {
     return null;
   }
+}
+
+export function parsePresenceUpdate(message: string): PresenceUpdate | null {
+  const match = message.match(/<GensokyoPresence>([\s\S]*?)<\/GensokyoPresence>/iu);
+  if (!match) return null;
+  try {
+    const value = JSON.parse(match[1]) as {
+      version?: unknown;
+      present_character_ids?: unknown;
+      character_views?: unknown;
+    };
+    if (value.version !== 'presence.v1' || !Array.isArray(value.present_character_ids)) return null;
+    const presentCharacterIds = Array.from(new Set(value.present_character_ids
+      .filter((id): id is string => typeof id === 'string' && id.length > 0)
+      .slice(0, 12)));
+    const views = record(value.character_views);
+    const characterViews: PresenceUpdate['characterViews'] = {};
+    for (const id of presentCharacterIds) {
+      const view = record(views[id]);
+      const facing = typeof view.facing === 'string' && ['front', 'back', 'left', 'right'].includes(view.facing)
+        ? view.facing as 'front' | 'back' | 'left' | 'right'
+        : undefined;
+      characterViews[id] = {
+        ...(typeof view.area_id === 'string' ? { area_id: view.area_id.slice(0, 48) } : {}),
+        ...(typeof view.action === 'string' ? { action: view.action.slice(0, 80) } : {}),
+        ...(facing ? { facing } : {}),
+      };
+    }
+    return { version: 'presence.v1', presentCharacterIds, characterViews };
+  } catch {
+    return null;
+  }
+}
+
+export function applyPresenceUpdate(state: GardenState, assistantText: string): GardenState {
+  const update = parsePresenceUpdate(assistantText);
+  if (!update) return state;
+  const next = structuredClone(state);
+  const knownCharacterIds = new Set(Object.keys(next.characters ?? {}));
+  const presentCharacterIds = update.presentCharacterIds.filter((id) => knownCharacterIds.has(id));
+  next.presence_snapshot = {
+    present_character_ids: presentCharacterIds,
+    character_views: Object.fromEntries(presentCharacterIds.map((id) => [id, update.characterViews[id] ?? {}])),
+  };
+  return next;
 }
 
 export function localSettlementAction(
@@ -288,20 +345,37 @@ function settleConversationTurn(
     return;
   }
   if (session.last_effective_message_id === assistantMessageId) return;
+  if (!session.uid) throw new Error('温室持续交流会话缺少 UID');
   session.last_effective_message_id = assistantMessageId;
-  session.effective_rounds = Math.min(999, (session.effective_rounds ?? 0) + 1);
+  session.effective_rounds = Math.min(
+    GREENHOUSE_RESEARCH_MAX_EFFECTIVE_ROUNDS,
+    (session.effective_rounds ?? 0) + 1,
+  );
   session.summary = '你与魔理沙继续交换温室研究的观察与想法。';
+  if ((session.effective_rounds ?? 0) >= GREENHOUSE_RESEARCH_MAX_EFFECTIVE_ROUNDS) {
+    completeGreenhouseConversation(state, session.uid);
+  }
+}
+
+function completeGreenhouseConversation(state: GardenState, sessionUid: string) {
+  completed(state).greenhouse_multiturn_conversation = defaultResults.greenhouse_multiturn_conversation;
+  state.interaction!.settled_ids ??= [];
+  const settlementId = `interaction:${sessionUid}`;
+  state.interaction!.settled_ids = Array.from(new Set([...state.interaction!.settled_ids!, settlementId]));
+  state.interaction!.current_session = null;
+  state.events!.active_event = null;
 }
 
 function settleConversationEnd(state: GardenState, action: GardenActionMarker) {
   requireEvent(action, 'greenhouse_multiturn_conversation');
   const session = state.interaction?.current_session;
   if (!session || session.event_id !== action.event_id) throw new Error('没有找到温室持续交流会话');
-  if ((session.effective_rounds ?? 0) < 2) return;
-  completed(state).greenhouse_multiturn_conversation = defaultResults.greenhouse_multiturn_conversation;
-  state.interaction!.settled_ids ??= [];
-  const settlementId = `interaction:${session.uid}`;
-  state.interaction!.settled_ids = Array.from(new Set([...state.interaction!.settled_ids!, settlementId]));
+  if (!session.uid) throw new Error('温室持续交流会话缺少 UID');
+  if ((session.effective_rounds ?? 0) >= GREENHOUSE_RESEARCH_MAX_EFFECTIVE_ROUNDS) {
+    completeGreenhouseConversation(state, session.uid);
+    return;
+  }
+  // 玩家主动提前结束时，只关闭本次未完成的研究，不把它误记为主线完成。
   state.interaction!.current_session = null;
   state.events!.active_event = null;
 }
@@ -390,9 +464,9 @@ export function settlementProjection(state: GardenState, action: GardenActionMar
   }
   if (eventId === 'greenhouse_multiturn_conversation') {
     if (action.action_id === 'end_conversation') {
-      return Boolean(completed(state)[eventId]) || Boolean(state.interaction?.current_session);
+      return Boolean(completed(state)[eventId]) || state.interaction?.current_session == null;
     }
-    return state.interaction?.current_session?.event_id === eventId;
+    return Boolean(completed(state)[eventId]) || state.interaction?.current_session?.event_id === eventId;
   }
   if (action.action_id === 'settle_flower_core_battle') {
     return Boolean(completed(state).greenhouse_flower_core) && state.battle?.current == null;

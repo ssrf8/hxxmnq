@@ -79,7 +79,7 @@
         <header class="gg-scene-toolbar">
           <button type="button" id="gg-gal-back">返回庭院</button>
           <div class="gg-scene-tools">
-            <button type="button" id="gg-swipe-left" aria-label="上一条 Swipe">◀</button>
+            <button type="button" id="gg-session-history" aria-haspopup="dialog">本次对话记录</button>
             <button type="button" id="gg-regenerate">重新生成</button>
             <button type="button" id="gg-swipe-right" aria-label="下一条 Swipe">▶</button>
             <button type="button" id="gg-stop">停止</button>
@@ -109,6 +109,16 @@
             </div>
           </form>
         </div>
+        <dialog id="gg-session-history-dialog" class="gg-session-history-dialog" aria-labelledby="gg-session-history-title">
+          <header>
+            <div>
+              <p class="gg-eyebrow">本次互动</p>
+              <h2 id="gg-session-history-title">对话记录</h2>
+            </div>
+            <button type="button" id="gg-session-history-close" aria-label="关闭对话记录">关闭</button>
+          </header>
+          <div id="gg-session-history-list" class="gg-session-history-list"></div>
+        </dialog>
       </section>
 
       <section id="gg-view-facility" class="gg-view gg-facility" aria-labelledby="gg-facility-title" hidden>

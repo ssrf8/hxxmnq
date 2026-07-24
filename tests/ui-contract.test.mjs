@@ -68,7 +68,7 @@ test('互动使用单壳 GAL、自定义输入与真实收尾事务', async () =
   assert.match(document, /id="gg-show-native"/);
   assert.match(controller, /bridge\.sendUserMessage/);
   assert.match(controller, /buildSettlementMessage/);
-  assert.match(controller, /submitGalMessage\(message, 'settlement'\)/);
+  assert.match(controller, /submitGalMessage\(message, 'settlement', \{ restoreInputOnFailure: false \}\)/);
   assert.match(actions, /action_id: 'end_conversation'/);
   assert.match(settlement, /interaction!\.settled_ids/);
 });
@@ -299,6 +299,107 @@ test('cleanNarrativeText 优先使用 bginfor 后正文，而不是时段元数�
   assert.doesNotMatch(best, /别折腾/);
 });
 
+test('庭园正文协议只投影最后一个边界内的多角色正文，并拒绝坏协议代码', async () => {
+  const parser = await importTypescript('../src/ui/gal-scene.ts');
+  const state = { characters: { reimu: {}, marisa: {} } };
+  const message = {
+    id: 8,
+    text: [
+      '预设可能在前面输出任意说明。',
+      '【庭园正文开始】<narration>旧样例，不应出现。</narration>【庭园正文结束】',
+      '【庭园正文开始】',
+      '<narration>庭院的风穿过残墙。</narration>',
+      '<dialogue char="reimu" reaction="annoyed">“木料别堵在路上。”</dialogue>',
+      '<dialogue char="marisa" reaction="smile">“借两根，之后还你。”</dialogue>',
+      '【庭园正文结束】',
+      '<w2g>不应进入 GAL</w2g><GensokyoScene>{"version":"scene.v1"}</GensokyoScene>',
+    ].join('\n'),
+  };
+  const scene = parser.projectGalScene(message, state, 'reimu');
+  assert.equal(scene.version, 'garden.v1');
+  assert.deepEqual(scene.beats.map((beat) => [beat.kind, beat.speakerId, beat.text]), [
+    ['narration', null, '庭院的风穿过残墙。'],
+    ['speech', 'reimu', '“木料别堵在路上。”'],
+    ['speech', 'marisa', '“借两根，之后还你。”'],
+  ]);
+  assert.deepEqual(scene.suggestedReplies, []);
+
+  const malformed = parser.projectGalScene({
+    id: 9,
+    text: '【庭园正文开始】<narration>不完整正文</narration><GensokyoScene>{"version":"scene.v1"}',
+  }, state, 'reimu');
+  assert.equal(malformed.version, 'garden.v1');
+  assert.equal(malformed.malformed, true);
+  assert.doesNotMatch(malformed.beats[0].text, /scene\.v1|GensokyoScene/);
+});
+
+test('庭园行动追加正文协议，维修固定结算且不开放续聊', async () => {
+  const actions = await read('../src/ui/target-actions.ts');
+  const bridge = await read('../src/ui/bridge.ts');
+  const app = await read('../src/ui/app.ts');
+  assert.match(actions, /【庭园正文开始】/);
+  assert.match(actions, /最后一个【庭园正文开始】/);
+  assert.match(actions, /fixedPresentation: true/);
+  assert.match(bridge, /action\.action_id === 'repair' && action\.event_id === 'main_house_repair'/);
+  assert.match(bridge, /return 'main_house_enabled'/);
+  assert.match(app, /singleShotEventPresentation = Boolean\(pendingAction\.fixedPresentation\)/);
+  assert.match(app, /点击返回庭园/);
+  assert.match(app, /function returnToGardenAfterFixedScene/);
+  assert.match(app, /if \(singleShotEventPresentation\) returnToGardenAfterFixedScene\(\)/);
+});
+
+test('GAL 加载清空旧正文，并以本次对话记录替换左 Swipe', async () => {
+  const document = await read('../src/ui/index.html');
+  const app = await read('../src/ui/app.ts');
+  assert.match(document, /id="gg-session-history"/);
+  assert.match(document, /id="gg-session-history-dialog"/);
+  assert.doesNotMatch(document, /id="gg-swipe-left"/);
+  assert.match(app, /function sessionHistoryMessages/);
+  assert.match(app, /activeSessionActionId/);
+  assert.match(app, /parseGardenAction\(message\.text\)/);
+  assert.match(app, /await openSessionHistory\(\)/);
+  assert.match(app, /gg-scene-text'\)\.textContent = ''/);
+});
+
+test('温室研究固定两轮、限制输入并在第二轮自动返回庭园', async () => {
+  const app = await read('../src/ui/app.ts');
+  const actions = await read('../src/ui/target-actions.ts');
+  const settlement = await read('../src/ui/event-settlement.ts');
+  const eventConfig = await read('../src/lorebook/events/greenhouse-vertical-slice.json');
+  assert.match(app, /GREENHOUSE_RESEARCH_INPUT_MAX_LENGTH = 120/);
+  assert.match(app, /greenhouseResearchJustSettled/);
+  assert.match(app, /温室研究已在两轮内收束/);
+  assert.match(actions, /初始回复算第 1 轮/);
+  assert.match(actions, /约 300 个汉字以内/);
+  assert.match(settlement, /GREENHOUSE_RESEARCH_MAX_EFFECTIVE_ROUNDS = 2/);
+  assert.match(settlement, /completeGreenhouseConversation/);
+  assert.match(eventConfig, /"maximum_effective_rounds": 2/);
+  assert.match(eventConfig, /"auto_settle_on_max_rounds": true/);
+});
+
+test('在场快照会注入每次庭园请求，并以受控回执同步角色离场', async () => {
+  const actions = await importTypescript('../src/ui/target-actions.ts');
+  const settlement = await importTypescript('../src/ui/event-settlement.ts');
+  const bridge = await read('../src/ui/bridge.ts');
+  const state = {
+    characters: { reimu: { name: '博丽灵梦' }, marisa: { name: '雾雨魔理沙' } },
+    presence_snapshot: {
+      present_character_ids: ['reimu', 'marisa'],
+      character_views: { marisa: { area_id: 'greenhouse_plot', action: '观察温室', facing: 'left' } },
+    },
+  };
+  const request = actions.withGardenNarrativeContract('测试请求', state);
+  assert.match(request, /庭园在场快照：本轮唯一事实/);
+  assert.match(request, /marisa（雾雨魔理沙）：greenhouse_plot/);
+  const next = settlement.applyPresenceUpdate(state, [
+    '魔理沙骑扫帚离开了。',
+    '<GensokyoPresence>{"version":"presence.v1","present_character_ids":["reimu"],"character_views":{"reimu":{"area_id":"central_courtyard","action":"等待","facing":"front"}}}</GensokyoPresence>',
+  ].join('\n'));
+  assert.deepEqual(next.presence_snapshot.present_character_ids, ['reimu']);
+  assert.equal(next.presence_snapshot.character_views.marisa, undefined);
+  assert.match(bridge, /applyPresenceUpdate/);
+});
+
 test('时段 schema 接受口语别名并映射到四值', async () => {
   const schema = await read('../src/schema/02-mvu-schema.js');
   assert.match(schema, /z\.preprocess/);
@@ -414,10 +515,10 @@ test('R21 本地结算器原子完成温室主链并由真实 assistant 楼层�
   assert.equal(state.interaction.current_session.effective_rounds, 1);
   assert.equal(state.interaction.current_session.last_effective_message_id, 8);
   state = settlement.applyLocalSettlement(state, action('continue_greenhouse_conversation', 'greenhouse_multiturn_conversation'), 9, '第二轮');
-  state = settlement.applyLocalSettlement(state, action('end_conversation', 'greenhouse_multiturn_conversation'), 10, '收尾');
   assert.equal(state.interaction.current_session, null);
   assert.equal(state.events.completed_key_events.greenhouse_multiturn_conversation, 'conversation_settled_after_multiple_turns');
   assert.deepEqual(state.interaction.settled_ids, ['interaction:interaction_1']);
+  assert.equal(settlement.localSettlementAction('第三轮不应再被视为研究续聊', state), null);
 
   state = settlement.applyLocalSettlement(state, action('investigate_flower_core', 'greenhouse_flower_core'), 11, '激活');
   state.battle.current = {
@@ -473,14 +574,26 @@ test('R21 空回复与本地结算失败进入可重试事务，不重复创建�
   assert.match(app, /重试本地结算/);
 });
 
-test('R23 每个受控选项先用当前预设生成剧情，再用同一预设和 JSON Schema 解析结算', async () => {
+test('庭园主线只使用本地白名单结算，不依赖预设的第二次解析', async () => {
   const bridge = await read('../src/ui/bridge.ts');
   const rules = await read('../src/lorebook/variable-update-rules.md');
+  const contract = await read('../project/contract.md');
+  const app = await read('../src/ui/app.ts');
   assert.match(bridge, /\/trigger await=true/);
-  assert.match(bridge, /requireGenerate/);
-  assert.match(bridge, /preset_name: 'in_use'/);
-  assert.match(bridge, /json_schema:/);
-  assert.match(bridge, /should_silence: true/);
-  assert.match(bridge, /第二次结算解析结果不符合白名单 schema/);
-  assert.match(rules, /两次带预设的模型请求/);
+  assert.match(bridge, /deterministicSettlementResult/);
+  assert.match(bridge, /action\.action_id === 'inspect_boundary'/);
+  assert.match(bridge, /return 'temporary_permission'/);
+  assert.match(bridge, /action\.action_id === 'repair'/);
+  assert.match(bridge, /return 'main_house_enabled'/);
+  assert.match(bridge, /action\.action_id === 'investigate_magic_trace'/);
+  assert.match(bridge, /return 'greenhouse_clue_found'/);
+  assert.match(bridge, /action\.action_id === 'build_basic_magic_greenhouse'/);
+  assert.match(bridge, /return 'basic_greenhouse_enabled'/);
+  assert.match(bridge, /before\.battle\?\.current\?\.outcome/);
+  assert.doesNotMatch(bridge, /json_schema/);
+  assert.doesNotMatch(bridge, /第二次结算解析/);
+  assert.match(rules, /不发起第二次模型解析/);
+  assert.match(contract, /不发起第二次模型解析/);
+  assert.match(app, /restoreInputOnFailure: false/);
+  assert.match(app, /galCompose\.hidden = singleShotEventPresentation/);
 });

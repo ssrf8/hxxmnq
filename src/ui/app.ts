@@ -2,6 +2,7 @@ import battleConfigJson from '../battle/configs/greenhouse-flower-core-tutorial-
 import { BattleEngine, type BattleConfig } from './battle-engine';
 import { bridge } from './bridge';
 import { syncOpeningDatabase, type DatabaseSyncResult } from './database-adapter';
+import { parseGardenAction } from './event-settlement';
 import { projectGalScene } from './gal-scene';
 import { GardenMap } from './garden-map';
 import {
@@ -14,6 +15,7 @@ import {
   buildActionMessage,
   buildSettlementMessage,
   targetActions,
+  withGardenNarrativeContract,
 } from './target-actions';
 import type {
   BattleResult,
@@ -37,9 +39,12 @@ const liveStatus = byId<HTMLElement>('gg-live-status');
 const targetMenu = byId<HTMLElement>('gg-target-menu');
 const targetActionList = byId<HTMLElement>('gg-target-actions');
 const galInput = byId<HTMLTextAreaElement>('gg-gal-input');
+const galCompose = byId<HTMLFormElement>('gg-gal-compose');
 const replyPanel = byId<HTMLElement>('gg-reply-panel');
 const suggestedReplies = byId<HTMLElement>('gg-suggested-replies');
 const dialogueBox = byId<HTMLButtonElement>('gg-dialogue-box');
+const sessionHistoryDialog = byId<HTMLDialogElement>('gg-session-history-dialog');
+const sessionHistoryList = byId<HTMLElement>('gg-session-history-list');
 const portrait = byId<HTMLImageElement>('gg-portrait');
 const portraitStage = byId<HTMLElement>('gg-portrait-stage');
 const generationIndicator = byId<HTMLElement>('gg-generation-indicator');
@@ -71,14 +76,24 @@ let databaseSync: DatabaseSyncResult = { status: 'skipped', detail: '等待开�
 let currentView: SceneMode = 'garden';
 let previousView: SceneMode = 'garden';
 let activeTarget: InteractionTarget | null = null;
+let activeSessionActionId: string | null = null;
 let pendingAction: TargetAction | null = null;
 let scene: GalSceneProjection | null = null;
 let sceneSignature = '';
 let beatIndex = 0;
 let closurePending = false;
 let closurePresented = false;
+let singleShotEventPresentation = false;
 let bootRestoredSession = false;
 let pendingBattleResult: BattleResult | null = null;
+
+const GREENHOUSE_RESEARCH_INPUT_MAX_LENGTH = 120;
+
+function greenhouseResearchJustSettled() {
+  return activeSessionActionId === 'greenhouse_research_talk'
+    && !state.interaction?.current_session
+    && Boolean(state.events?.completed_key_events?.greenhouse_multiturn_conversation);
+}
 
 function setStatus(text: string, error = false) {
   liveStatus.textContent = text;
@@ -136,20 +151,23 @@ function renderSceneBeat() {
   if (!scene?.beats.length) return;
   beatIndex = Math.max(0, Math.min(beatIndex, scene.beats.length - 1));
   const beat = scene.beats[beatIndex];
+  const atEnd = beatIndex >= scene.beats.length - 1;
   const speaker = characterName(beat.speakerId);
   byId('gg-scene-speaker').textContent = speaker;
   byId('gg-scene-text').textContent = beat.text;
   byId('gg-scene-progress').textContent = beatIndex < scene.beats.length - 1
     ? `${beatIndex + 1}/${scene.beats.length} · 点击继续`
-    : `${beatIndex + 1}/${scene.beats.length}`;
+    : singleShotEventPresentation
+      ? '点击返回庭园'
+      : `${beatIndex + 1}/${scene.beats.length}`;
   portraitStage.dataset.reaction = beat.reactionId;
   portrait.src = beat.speakerId === 'marisa' || activeTarget?.id === 'marisa'
     ? marisaPortraitSource
     : reimuPortraitSource;
   portrait.alt = `${speaker}近景占位图`;
-  const atEnd = beatIndex >= scene.beats.length - 1;
-  replyPanel.hidden = !atEnd;
-  dialogueBox.disabled = atEnd;
+  replyPanel.hidden = !atEnd || singleShotEventPresentation;
+  galCompose.hidden = singleShotEventPresentation;
+  dialogueBox.disabled = atEnd && !singleShotEventPresentation;
   if (atEnd) {
     renderSuggestedReplies();
     const endButton = byId<HTMLButtonElement>('gg-end-chat');
@@ -179,6 +197,11 @@ function setGenerating(active: boolean, label = '对方正在回应……') {
   generationIndicator.querySelector('p')!.textContent = label;
   dialogueBox.hidden = active;
   replyPanel.hidden = true;
+  if (active) {
+    byId('gg-scene-speaker').textContent = '';
+    byId('gg-scene-text').textContent = '';
+    byId('gg-scene-progress').textContent = '';
+  }
   byId<HTMLButtonElement>('gg-stop').disabled = !active;
 }
 
@@ -208,6 +231,67 @@ function pickLatestAssistant(messages: ChatMessageView[]) {
     if (messages[index].role === 'assistant' && messages[index].text.trim()) return messages[index];
   }
   return null;
+}
+
+function userHistoryText(value: string) {
+  return String(value ?? '')
+    .split('【庭园正文协议】')[0]
+    .replace(/<GensokyoAction>[\s\S]*?<\/GensokyoAction>/giu, '')
+    .trim();
+}
+
+function sessionHistoryMessages(messages: ChatMessageView[]) {
+  const target = activeTarget;
+  if (!target) return [];
+  let start = -1;
+  for (let index = 0; index < messages.length; index += 1) {
+    const message = messages[index];
+    if (message.role !== 'user') continue;
+    const action = parseGardenAction(message.text);
+    if (action?.target_type === target.type && action.target_id === target.id
+      && (!activeSessionActionId || action.action_id === activeSessionActionId)) start = index;
+  }
+  if (start < 0) return [];
+  const result: ChatMessageView[] = [];
+  for (let index = start; index < messages.length; index += 1) {
+    const message = messages[index];
+    if (index > start && message.role === 'user' && parseGardenAction(message.text)) break;
+    result.push(message);
+  }
+  return result;
+}
+
+async function openSessionHistory() {
+  const messages = sessionHistoryMessages(await bridge.listMessages());
+  const fragment = document.createDocumentFragment();
+  if (!messages.length) {
+    const empty = document.createElement('p');
+    empty.className = 'gg-note';
+    empty.textContent = '当前还没有可归入这次互动的对话记录。';
+    fragment.append(empty);
+  }
+  for (const message of messages) {
+    const entry = document.createElement('article');
+    entry.className = 'gg-session-history-entry';
+    entry.dataset.role = message.role;
+    const header = document.createElement('header');
+    const body = document.createElement('p');
+    if (message.role === 'user') {
+      header.textContent = '你';
+      body.textContent = userHistoryText(message.text) || '庭园行动';
+    } else {
+      const projection = projectGalScene(message, state, activeTarget?.type === 'character' ? activeTarget.id : null);
+      header.textContent = projection.beats.some((beat) => beat.speakerId) ? '剧情' : '旁白';
+      body.textContent = projection.beats.map((beat) => {
+        const prefix = beat.speakerId ? `${characterName(beat.speakerId)}：` : '';
+        return `${prefix}${beat.text}`;
+      }).join('\n\n');
+    }
+    entry.append(header, body);
+    fragment.append(entry);
+  }
+  sessionHistoryList.replaceChildren(fragment);
+  if (!sessionHistoryDialog.open) sessionHistoryDialog.showModal();
 }
 
 async function renderGal() {
@@ -333,6 +417,7 @@ async function chooseTargetAction(action: TargetAction) {
   }
   pendingAction = action;
   activeTarget = action.target;
+  activeSessionActionId = action.id;
   if (action.mode === 'battle') {
     startBattle();
     return;
@@ -347,11 +432,12 @@ async function chooseTargetAction(action: TargetAction) {
   }
   closurePending = false;
   closurePresented = false;
+  singleShotEventPresentation = Boolean(action.fixedPresentation);
   scene = null;
   sceneSignature = '';
   setView('gal');
   setGenerating(true);
-  await submitGalMessage(buildActionMessage(action));
+  await submitGalMessage(buildActionMessage(action), 'interaction', { restoreInputOnFailure: false });
 }
 
 function openFacilityAction(action: TargetAction) {
@@ -384,10 +470,12 @@ function openFacilityAction(action: TargetAction) {
 async function confirmFacilityAction() {
   if (!pendingAction || pendingAction.disabled) return;
   facilityConfirm.disabled = true;
+  activeSessionActionId = pendingAction.id;
   workAnimation.hidden = false;
   setStatus(`${pendingAction.label}行动已提交，等待真实楼层和 MVU 结算。`);
   try {
-    await bridge.sendUserMessage(buildActionMessage(pendingAction), 'interaction');
+    singleShotEventPresentation = Boolean(pendingAction.fixedPresentation);
+    await bridge.sendUserMessage(withGardenNarrativeContract(buildActionMessage(pendingAction), state), 'interaction');
     workAnimation.hidden = true;
     scene = null;
     sceneSignature = '';
@@ -401,24 +489,39 @@ async function confirmFacilityAction() {
   }
 }
 
-async function submitGalMessage(text: string, kind: MessageTransactionKind = 'interaction') {
+async function submitGalMessage(
+  text: string,
+  kind: MessageTransactionKind = 'interaction',
+  { restoreInputOnFailure = true }: { restoreInputOnFailure?: boolean } = {},
+) {
   const value = text.trim();
   if (!value) {
     setStatus('先写点什么再发送吧。', true);
     return false;
   }
+  if (kind === 'interaction'
+    && state.interaction?.current_session?.event_id === 'greenhouse_multiturn_conversation'
+    && value.length > GREENHOUSE_RESEARCH_INPUT_MAX_LENGTH) {
+    setStatus(`温室研究的补充请控制在 ${GREENHOUSE_RESEARCH_INPUT_MAX_LENGTH} 字以内。`, true);
+    return false;
+  }
   const original = galInput.value;
   setGenerating(true);
   try {
-    const transaction = await bridge.sendUserMessage(value, kind);
+    const transaction = await bridge.sendUserMessage(withGardenNarrativeContract(value, state), kind);
     galInput.value = '';
     scene = null;
     sceneSignature = '';
     setStatus(transaction.phase === 'settled' ? '回复与真实楼层已落盘' : '消息已发送，正在等待回复');
     await refresh();
+    if (greenhouseResearchJustSettled()) {
+      singleShotEventPresentation = true;
+      renderSceneBeat();
+      setStatus('温室研究已在两轮内收束；读完本段后点击正文返回庭园。');
+    }
     return true;
   } catch (error) {
-    galInput.value = original || value;
+    galInput.value = restoreInputOnFailure ? (original || value) : original;
     setGenerating(false);
     replyPanel.hidden = false;
     setStatus(`发送失败：${error instanceof Error ? error.message : String(error)}`, true);
@@ -428,14 +531,7 @@ async function submitGalMessage(text: string, kind: MessageTransactionKind = 'in
 
 async function endConversation() {
   if (closurePresented) {
-    closurePresented = false;
-    closurePending = false;
-    activeTarget = null;
-    pendingAction = null;
-    scene = null;
-    sceneSignature = '';
-    setView('garden');
-    setStatus('已经返回庭园');
+    returnToGardenAfterFixedScene();
     return;
   }
   const participants = state.interaction?.current_session?.participant_character_ids ?? [];
@@ -443,7 +539,19 @@ async function endConversation() {
   const message = buildSettlementMessage(activeTarget, names, state);
   galInput.value = message;
   closurePending = true;
-  await submitGalMessage(message, 'settlement');
+  await submitGalMessage(message, 'settlement', { restoreInputOnFailure: false });
+}
+
+function returnToGardenAfterFixedScene() {
+  closurePresented = false;
+  closurePending = false;
+  singleShotEventPresentation = false;
+  activeTarget = null;
+  pendingAction = null;
+  scene = null;
+  sceneSignature = '';
+  setView('garden');
+  setStatus('已经返回庭园');
 }
 
 async function refresh() {
@@ -502,7 +610,11 @@ const opening = new OpeningController(
 );
 
 dialogueBox.addEventListener('click', () => {
-  if (!scene || beatIndex >= scene.beats.length - 1) return;
+  if (!scene) return;
+  if (beatIndex >= scene.beats.length - 1) {
+    if (singleShotEventPresentation) returnToGardenAfterFixedScene();
+    return;
+  }
   beatIndex += 1;
   renderSceneBeat();
 });
@@ -542,15 +654,16 @@ byId('gg-regenerate').addEventListener('click', async () => {
     setStatus(`重新生成失败：${String(error)}`, true);
   }
 });
-byId('gg-swipe-left').addEventListener('click', async () => {
+byId('gg-session-history').addEventListener('click', async () => {
   try {
-    await bridge.swipeLatest('left');
-    scene = null;
-    sceneSignature = '';
-    await refresh();
+    await openSessionHistory();
   } catch (error) {
-    setStatus(`上一条 Swipe 失败：${String(error)}`, true);
+    setStatus(`读取本次对话记录失败：${String(error)}`, true);
   }
+});
+byId('gg-session-history-close').addEventListener('click', () => sessionHistoryDialog.close());
+sessionHistoryDialog.addEventListener('click', (event) => {
+  if (event.target === sessionHistoryDialog) sessionHistoryDialog.close();
 });
 byId('gg-swipe-right').addEventListener('click', async () => {
   try {

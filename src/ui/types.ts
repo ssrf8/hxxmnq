@@ -118,6 +118,7 @@ export interface TargetAction {
   disabled?: boolean;
   disabledReason?: string;
   eventId?: string;
+  fixedPresentation?: boolean;
   mayAdvanceTime?: boolean;
   cost?: { materials?: number; inspiration?: number };
 }
@@ -137,7 +138,7 @@ export interface SuggestedReply {
 }
 
 export interface GalSceneProjection {
-  version: 'scene.v1' | 'scene.v1+body' | 'body' | 'fallback';
+  version: 'garden.v1' | 'scene.v1' | 'scene.v1+body' | 'body' | 'fallback';
   beats: GalBeat[];
   suggestedReplies: SuggestedReply[];
   sourceMessageId: number;

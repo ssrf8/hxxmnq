@@ -11,6 +11,8 @@
 const SCENE_PATTERN = /<GensokyoScene\b[^>]*>([\s\S]*?)<\/GensokyoScene>/iu;
 const UPDATE_PATTERN = /<UpdateVariable>[\s\S]*?<\/UpdateVariable>/giu;
 const EVENT_RESULT_PATTERN = /<GensokyoEventResult>[\s\S]*?<\/GensokyoEventResult>/giu;
+const GARDEN_BODY_START = /[【\[]\s*庭园正文开始\s*[】\]]/gu;
+const GARDEN_BODY_END = /[【\[]\s*庭园正文结束\s*[】\]]/u;
 const ALLOWED_KINDS = new Set<GalBeatKind>(['narration', 'speech', 'action']);
 const ALLOWED_REACTIONS = new Set<GalReaction>([
   'neutral',
@@ -61,6 +63,49 @@ function normalizeReply(value: unknown, index: number): SuggestedReply | null {
   const rawId = compactText(value.id, 48) || compactText(value.action_id, 48);
   const id = /^[a-z0-9_-]{1,48}$/iu.test(rawId) ? rawId : ('reply-' + (index + 1));
   return { id, label, intent };
+}
+
+function gardenBodySection(value: string) {
+  const source = String(value ?? '')
+    .replace(/&lt;/giu, '<')
+    .replace(/&gt;/giu, '>')
+    .replace(/&amp;/giu, '&')
+    .replace(/\u200b/gu, '');
+  const starts = [...source.matchAll(GARDEN_BODY_START)];
+  if (!starts.length) return { present: false, malformed: false, body: '' };
+  const start = starts.at(-1)!;
+  const bodyStart = (start.index ?? 0) + start[0].length;
+  const tail = source.slice(bodyStart);
+  const end = tail.match(GARDEN_BODY_END);
+  if (!end) return { present: true, malformed: true, body: '' };
+  return { present: true, malformed: false, body: tail.slice(0, end.index) };
+}
+
+function attribute(value: string, name: string) {
+  const match = value.match(new RegExp(`\\b${name}\\s*=\\s*["']([^"']+)["']`, 'iu'));
+  return match?.[1] ?? '';
+}
+
+function gardenProtocolBeats(value: string, knownCharacters: Set<string>) {
+  const section = gardenBodySection(value);
+  if (!section.present || section.malformed) return { ...section, beats: [] as GalBeat[] };
+  const beats: GalBeat[] = [];
+  const pattern = /<(narration|dialogue)\b([^>]*)>([\s\S]*?)<\/\1\s*>/giu;
+  for (const match of section.body.matchAll(pattern)) {
+    const tag = match[1].toLowerCase();
+    const attributes = match[2] ?? '';
+    const text = compactText(String(match[3] ?? '').replace(/<[^>]+>/gu, ''), 1800);
+    if (!text) continue;
+    const beat = normalizeBeat({
+      kind: tag === 'dialogue' ? 'speech' : 'narration',
+      speaker_id: tag === 'dialogue' ? attribute(attributes, 'char') : null,
+      reaction_id: attribute(attributes, 'reaction') || 'neutral',
+      pose_id: attribute(attributes, 'pose') || 'default',
+      text,
+    }, knownCharacters);
+    if (beat) beats.push(beat);
+  }
+  return { ...section, beats: beats.slice(0, 24) };
 }
 
 function stripNarrativeNoise(text: string) {
@@ -172,6 +217,25 @@ export function projectGalScene(
   fallbackSpeakerId: string | null,
 ): GalSceneProjection {
   const knownCharacters = new Set(Object.keys(state.characters ?? {}));
+  const gardenProtocol = gardenProtocolBeats(message.text, knownCharacters);
+  if (gardenProtocol.present) {
+    return {
+      version: 'garden.v1',
+      beats: gardenProtocol.beats.length
+        ? gardenProtocol.beats
+        : [{
+          kind: 'narration',
+          speakerId: null,
+          reactionId: 'neutral',
+          poseId: 'default',
+          text: '这次回复没有提供可播放的庭园正文。',
+        }],
+      suggestedReplies: [],
+      sourceMessageId: message.id,
+      swipeId: message.swipeId ?? 0,
+      malformed: gardenProtocol.malformed || !gardenProtocol.beats.length || undefined,
+    };
+  }
   let suggestedReplies: SuggestedReply[] = [];
   let sceneBeats: GalBeat[] = [];
   let malformed = false;

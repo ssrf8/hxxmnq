@@ -11,6 +11,7 @@ import initialState from '../schema/initial-state.json';
 import { MessageTransactionCoordinator } from './message-transaction';
 import { validateFlowerCoreBattleResult } from './greenhouse-rules';
 import {
+  applyPresenceUpdate,
   applyLocalSettlement,
   localSettlementAction,
   restoreLocalEventOwnership,
@@ -31,7 +32,6 @@ type HostGlobals = typeof globalThis & {
   SillyTavern?: { stopGeneration?: () => boolean; getCurrentChatId?: () => string; getContext?: () => { chat?: Array<Record<string, unknown>>; characterId?: unknown } };
   createChatMessages?: (messages: Array<Record<string, unknown>>, options?: Record<string, unknown>) => Promise<void>;
   triggerSlash?: (command: string) => Promise<string | undefined>;
-  generate?: (config: Record<string, unknown>) => Promise<string | Record<string, unknown>>;
   getTavernVersion?: () => string;
   getTavernHelperVersion?: () => string;
   getCurrentPersonaName?: () => string | null;
@@ -275,17 +275,52 @@ export function createHostBridge(): GardenBridge | null {
     return g.Mvu;
   };
 
-  const requireGenerate = () => {
-    const generate = g.generate ?? hostWindow().generate;
-    if (typeof generate !== 'function') throw new Error('Tavern Helper generate API 未就绪，无法执行第二次结算解析');
-    return generate;
-  };
-
   let pendingSettlement: {
     before: GardenState;
     action: GardenActionMarker;
   } | null = null;
   let pendingOwnershipBefore: GardenState | null = null;
+
+  const deterministicSettlementResult = (action: GardenActionMarker, before: GardenState) => {
+    if (action.action_id === 'inspect_boundary' && action.event_id === 'reimu_boundary_inspection') {
+      return 'temporary_permission';
+    }
+    if (action.action_id === 'repair' && action.event_id === 'main_house_repair') {
+      return 'main_house_enabled';
+    }
+    if (action.action_id === 'investigate_magic_trace' && action.event_id === 'marisa_material_rumor') {
+      return 'greenhouse_clue_found';
+    }
+    if (['investigate_growth', 'hear_marisa_plan', 'study_grandfather_blueprint'].includes(action.action_id)
+      && action.event_id === 'gain_second_inspiration') {
+      return action.action_id;
+    }
+    if (action.action_id === 'clear_greenhouse_foundation' && action.event_id === 'clear_greenhouse_foundation') {
+      return 'foundation_cleared';
+    }
+    if (action.action_id === 'build_basic_magic_greenhouse' && action.event_id === 'build_basic_magic_greenhouse') {
+      return 'basic_greenhouse_enabled';
+    }
+    if (action.action_id === 'greenhouse_first_use' && action.event_id === 'greenhouse_first_use') {
+      return 'stable_first_growth';
+    }
+    if (action.action_id === 'greenhouse_research_talk' || action.action_id === 'continue_greenhouse_conversation') {
+      return 'conversation_continues';
+    }
+    if (action.action_id === 'end_conversation' && action.event_id === 'greenhouse_multiturn_conversation') {
+      return (before.interaction?.current_session?.effective_rounds ?? 0) >= 2
+        ? 'conversation_settled_after_multiple_turns'
+        : 'conversation_continues';
+    }
+    if (action.action_id === 'investigate_flower_core' && action.event_id === 'greenhouse_flower_core') {
+      return 'event_activated';
+    }
+    if ((action.action_id === 'settle_flower_core_battle' || action.action_id === 'resume_battle_settlement')
+      && action.event_id === 'greenhouse_flower_core') {
+      return before.battle?.current?.outcome ?? '';
+    }
+    return '';
+  };
 
   const persistPendingSettlement = async (snapshot: MessageTransactionSnapshot) => {
     if (!pendingSettlement) return snapshot;
@@ -298,44 +333,11 @@ export function createHostBridge(): GardenBridge | null {
       const assistantText = String(raw?.message ?? raw?.mes ?? '');
       if (!assistantText.trim()) throw new Error('assistant 回复为空，不能结算事件');
       const choices = settlementChoices(pendingSettlement.before, pendingSettlement.action);
-      if (!choices.length) throw new Error(`事件 ${pendingSettlement.action.event_id} 没有可供解析的允许结果`);
-      const parsed = await requireGenerate()({
-        preset_name: 'in_use',
-        generation_id: `gensokyo-settlement-${snapshot.transactionId}`,
-        should_stream: false,
-        should_silence: true,
-        max_chat_history: 8,
-        user_input: [
-          '你是移动庭园的专用事件结算解析器。只判断已经完成的剧情正文对应哪个白名单结果，不续写剧情，不输出变量更新。',
-          `事件：${pendingSettlement.action.event_id}`,
-          `行动：${pendingSettlement.action.action_id}`,
-          `允许结果：${choices.join(', ')}`,
-          `剧情正文：\n${assistantText.slice(-8000)}`,
-        ].join('\n'),
-        json_schema: {
-          name: 'gensokyo_event_result',
-          description: '移动庭园受控事件的白名单结算结果',
-          strict: true,
-          value: {
-            type: 'object',
-            additionalProperties: false,
-            properties: {
-              event_id: { type: 'string', enum: [pendingSettlement.action.event_id] },
-              result: { type: 'string', enum: choices },
-            },
-            required: ['event_id', 'result'],
-          },
-        },
-      });
-      if (typeof parsed !== 'string') throw new Error('第二次结算解析没有返回 JSON 文本');
-      let parsedResult = '';
-      try {
-        const value = JSON.parse(parsed) as { event_id?: string; result?: string };
-        if (value.event_id === pendingSettlement.action.event_id && choices.includes(String(value.result))) {
-          parsedResult = String(value.result);
-        }
-      } catch { /* handled below */ }
-      if (!parsedResult) throw new Error('第二次结算解析结果不符合白名单 schema');
+      if (!choices.length) throw new Error(`事件 ${pendingSettlement.action.event_id} 没有可用的本地结算结果`);
+      const parsedResult = deterministicSettlementResult(pendingSettlement.action, pendingSettlement.before);
+      if (!parsedResult || !choices.includes(parsedResult)) {
+        throw new Error(`事件 ${pendingSettlement.action.event_id} 的本地结算结果未登记或不在白名单内`);
+      }
       const settlementText = `${assistantText}\n<GensokyoEventResult>${JSON.stringify({
         version: 'event-result.v1',
         event_id: pendingSettlement.action.event_id,
@@ -343,12 +345,12 @@ export function createHostBridge(): GardenBridge | null {
       })}</GensokyoEventResult>`;
       const options = { type: 'message', message_id: assistantMessageId };
       const data = structuredClone(mvu.getMvuData(options)) as Record<string, unknown>;
-      const nextState = applyLocalSettlement(
+      const nextState = applyPresenceUpdate(applyLocalSettlement(
         pendingSettlement.before,
         pendingSettlement.action,
         assistantMessageId,
         settlementText,
-      );
+      ), assistantText);
       data.stat_data = nextState;
       await mvu.replaceMvuData(data, options);
       const reread = mvu.getMvuData(options).stat_data ?? {};
@@ -374,7 +376,12 @@ export function createHostBridge(): GardenBridge | null {
     const options = { type: 'message', message_id: assistantMessageId };
     const data = structuredClone(mvu.getMvuData(options)) as Record<string, unknown>;
     const current = isRecord(data.stat_data) ? data.stat_data as GardenState : {};
-    const protectedState = restoreLocalEventOwnership(before, current);
+    const assistantText = String(activeMessages()
+      .find((message) => Number(message.message_id) === assistantMessageId)?.message ?? '');
+    const protectedState = applyPresenceUpdate(
+      restoreLocalEventOwnership(before, current),
+      assistantText,
+    );
     if (JSON.stringify(current) === JSON.stringify(protectedState)) {
       pendingOwnershipBefore = null;
       return snapshot;

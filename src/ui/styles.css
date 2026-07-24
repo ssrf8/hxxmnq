@@ -192,6 +192,24 @@ button:disabled { opacity: .5; cursor: not-allowed; }
   color: var(--gg-text);
 }
 .gg-gal-compose button[type="submit"] { background: var(--gg-accent-2); }
+.gg-session-history-dialog {
+  width: min(92vw, 720px);
+  max-height: min(78dvh, 780px);
+  padding: 0;
+  color: var(--gg-text);
+  border: 1px solid #d6b577;
+  border-radius: var(--gg-radius);
+  background: #171b1e;
+  box-shadow: 0 22px 56px rgba(0, 0, 0, .58);
+}
+.gg-session-history-dialog::backdrop { background: rgba(0, 0, 0, .58); }
+.gg-session-history-dialog header { display: flex; justify-content: space-between; gap: 1rem; align-items: start; padding: 1rem; border-bottom: 1px solid var(--gg-border); }
+.gg-session-history-dialog h2 { margin: .15rem 0 0; font-size: 1.05rem; }
+.gg-session-history-list { display: grid; gap: .65rem; max-height: min(62dvh, 620px); overflow: auto; padding: 1rem; }
+.gg-session-history-entry { padding: .7rem .8rem; border: 1px solid var(--gg-border); border-radius: 10px; background: var(--gg-panel); }
+.gg-session-history-entry[data-role="user"] { margin-left: min(9%, 58px); background: #303c42; }
+.gg-session-history-entry header { display: block; padding: 0; border: 0; color: var(--gg-accent); font-size: .8rem; font-weight: 800; }
+.gg-session-history-entry p { margin: .4rem 0 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.65; }
 
 .gg-facility { min-height: min(700px, calc(100dvh - 170px)); padding: 1rem; background: linear-gradient(150deg, #27231e, #171a1e 68%); }
 .gg-facility-visual {

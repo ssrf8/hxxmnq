@@ -136,6 +136,8 @@
       "one_time": true,
       "expires": null,
       "minimum_effective_rounds": 2,
+      "maximum_effective_rounds": 2,
+      "auto_settle_on_max_rounds": true,
       "allowed_results": ["conversation_settled_after_multiple_turns"]
     },
     {

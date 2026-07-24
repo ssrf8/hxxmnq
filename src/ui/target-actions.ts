@@ -11,6 +11,46 @@ const action = (
   extra: Partial<TargetAction> = {},
 ): TargetAction => ({ id, label, description, intent, mode, target, ...extra });
 
+const gardenNarrativeContract = [
+  '【庭园正文协议】',
+  '把玩家可见剧情严格写在最后一个【庭园正文开始】与第一个【庭园正文结束】之间。',
+  '正文内只允许 <narration>旁白或动作</narration> 与 <dialogue char="已登记角色ID" reaction="可选表情" pose="可选姿势">台词</dialogue>；多人对话必须拆成多个 dialogue。',
+  '正文结束后才能输出摘要、状态、选项、GensokyoScene、UpdateVariable 或任何其他标签；它们不会进入庭园 GAL。',
+  '不要在正文开始前输出解释、思维链、列表或代码块。',
+].join('\n');
+
+function presenceNarrativeContext(state?: GardenState) {
+  if (!state) return '';
+  const present = new Set(state.presence_snapshot?.present_character_ids ?? []);
+  const views = state.presence_snapshot?.character_views ?? {};
+  const names = state.characters ?? {};
+  const presentLines = [...present].map((id) => {
+    const view = views[id] ?? {};
+    return `- ${id}（${names[id]?.name ?? id}）：${view.area_id ?? '区域未记录'}；${view.action ?? '行动未记录'}；朝向 ${view.facing ?? '未记录'}`;
+  });
+  const absentLines = Object.keys(names).filter((id) => !present.has(id))
+    .map((id) => `${id}（${names[id]?.name ?? id}）`);
+  return [
+    '【庭园在场快照：本轮唯一事实】',
+    presentLines.length ? `当前在场：\n${presentLines.join('\n')}` : '当前在场：无。',
+    `当前不在场：${absentLines.join('、') || '无。'}`,
+    '正文只能让当前在场角色出现在现场、说话或行动；不在场角色不得被当作就在身边。',
+    '若正文中有角色明确抵达、离场或更换区域，必须在正文结束后额外输出一次严格 JSON 的 <GensokyoPresence>{"version":"presence.v1","present_character_ids":[仍在场角色ID],"character_views":{"角色ID":{"area_id":"区域ID","action":"当前动作","facing":"front|left|right"}}}</GensokyoPresence>。没有出入场或位置变化时不要输出该标签。该标签不是正文、不是选项，也不写 UpdateVariable。',
+  ].join('\n');
+}
+
+export function withGardenNarrativeContract(message: string, state?: GardenState) {
+  const value = message.trim();
+  if (!value) return value;
+  const hasContract = /[【\[]\s*庭园正文协议\s*[】\]]/u.test(value);
+  const hasPresence = /[【\[]\s*庭园在场快照/u.test(value);
+  return [
+    value,
+    hasContract ? '' : gardenNarrativeContract,
+    hasPresence ? '' : presenceNarrativeContext(state),
+  ].filter(Boolean).join('\n\n');
+}
+
 function mainHouseRepairAvailability(state: GardenState) {
   const completed = state.events?.completed_key_events ?? {};
   if (state.areas?.main_house?.state !== '损坏') return '旧主屋当前不需要维修';
@@ -60,7 +100,7 @@ function greenhouseActions(target: InteractionTarget, state: GardenState): Targe
       '追查温室方向的异常魔力，并让魔理沙的线索自然进入剧情。',
       '我沿着灵梦指出的结界异常前往温室方向，谨慎调查残留魔力。请按 marisa_material_rumor 的前置和允许结果推进，让魔理沙的材料传闻通过真实剧情出现；只有回复和 MVU 一起结算后才改变状态。',
       'gal',
-      { eventId: GREENHOUSE_EVENTS.rumor },
+      { eventId: GREENHOUSE_EVENTS.rumor, fixedPresentation: true },
     ));
   } else if (!completed[GREENHOUSE_EVENTS.inspiration] && (state.resources?.inspiration ?? 0) < 2) {
     result.push(
@@ -72,7 +112,7 @@ function greenhouseActions(target: InteractionTarget, state: GardenState): Targe
         '从旧址里的异常植物生长获得第二点灵感。',
         '我仔细观察温室旧址中不合常理的生长痕迹，尝试据此整理温室方案。请按 gain_second_inspiration 结算；三个灵感入口共享同一事件，只能奖励一次。',
         'gal',
-        { eventId: GREENHOUSE_EVENTS.inspiration },
+        { eventId: GREENHOUSE_EVENTS.inspiration, fixedPresentation: true },
       ),
       greenhouseAction(
         target,
@@ -82,7 +122,7 @@ function greenhouseActions(target: InteractionTarget, state: GardenState): Targe
         '和魔理沙讨论一个大胆但可落地的温室方案。',
         '我请魔理沙讲讲她设想的温室方案，并一起辨别哪些部分能安全实现。请按 gain_second_inspiration 结算；三个灵感入口共享同一事件，只能奖励一次。',
         'gal',
-        { eventId: GREENHOUSE_EVENTS.inspiration },
+        { eventId: GREENHOUSE_EVENTS.inspiration, fixedPresentation: true },
       ),
       greenhouseAction(
         target,
@@ -92,7 +132,7 @@ function greenhouseActions(target: InteractionTarget, state: GardenState): Targe
         '从祖父留下的旧图纸中整理温室设计思路。',
         '我把祖父留下的图纸带到温室旧址，对照残存地基逐项研究。请按 gain_second_inspiration 结算；三个灵感入口共享同一事件，只能奖励一次。',
         'gal',
-        { eventId: GREENHOUSE_EVENTS.inspiration },
+        { eventId: GREENHOUSE_EVENTS.inspiration, fixedPresentation: true },
       ),
     );
   }
@@ -106,7 +146,7 @@ function greenhouseActions(target: InteractionTarget, state: GardenState): Targe
       '清除危险残骸并整理可施工地基。',
       '我按照已经确定的方案清理温室旧地基。请严格校验资源、灵感与事件互斥；只有完成叙事并写入 MVU 后才将地基改为已清理，并推进一个时段。',
       'facility',
-      { eventId: GREENHOUSE_EVENTS.clear, mayAdvanceTime: true },
+      { eventId: GREENHOUSE_EVENTS.clear, mayAdvanceTime: true, fixedPresentation: true },
     ));
   } else if (!completed[GREENHOUSE_EVENTS.build]) {
     result.push(greenhouseAction(
@@ -120,6 +160,7 @@ function greenhouseActions(target: InteractionTarget, state: GardenState): Targe
       {
         eventId: GREENHOUSE_EVENTS.build,
         mayAdvanceTime: true,
+        fixedPresentation: true,
         cost: { materials: 4, inspiration: 2 },
       },
     ));
@@ -152,7 +193,7 @@ function greenhouseActions(target: InteractionTarget, state: GardenState): Targe
       '与魔理沙一起完成温室的首次试运行。',
       '我邀请魔理沙一起检查并首次启用基础魔法温室。请按 greenhouse_first_use 演绎设施反应与人物互动；只在回复和 MVU 同步结算后记录首次使用完成。',
       'facility',
-      { eventId: GREENHOUSE_EVENTS.firstUse },
+      { eventId: GREENHOUSE_EVENTS.firstUse, fixedPresentation: true },
     ));
   } else if (!completed[GREENHOUSE_EVENTS.conversation]) {
     result.push(greenhouseAction(
@@ -160,8 +201,8 @@ function greenhouseActions(target: InteractionTarget, state: GardenState): Targe
       state,
       'greenhouse_research_talk',
       '持续研究交流',
-      '在温室里与魔理沙展开至少两轮有效交流。',
-      '我邀请魔理沙在温室里继续研究和交谈。请创建或延续 event_id 为 greenhouse_multiturn_conversation 的真实会话；每次完整有效的助手回复只增加一轮 effective_rounds，至少两轮后结束会话才能结算完成。',
+      '与魔理沙进行两段式、简短的温室研究交流。',
+      '我邀请魔理沙在温室里继续研究和交谈。请创建或延续 event_id 为 greenhouse_multiturn_conversation 的真实会话：初始回复算第 1 轮；若玩家继续，只允许再进行 1 轮，第 2 轮必须自然收束且不要求玩家继续输入。每轮正文控制在约 300 个汉字以内；不可提前揭示、命名或激活妖花核心。正式轮数与完成结算由本地结算器处理。',
       'gal',
       { eventId: GREENHOUSE_EVENTS.conversation },
     ));
@@ -175,7 +216,7 @@ function greenhouseActions(target: InteractionTarget, state: GardenState): Targe
         '继续消费已写入 battle.current 的唯一可信结果。',
         '温室妖花核心已有待结算的可信战斗结果。请只读取并消费 battle.current，按 settlement_id 幂等结算 greenhouse_flower_core，然后清空 battle.current 与 events.active_event。',
         'gal',
-        { eventId: GREENHOUSE_EVENTS.flowerCore },
+        { eventId: GREENHOUSE_EVENTS.flowerCore, fixedPresentation: true },
       ));
     } else if (state.events?.active_event?.config_id === GREENHOUSE_EVENTS.flowerCore) {
       result.push(
@@ -246,9 +287,9 @@ export function targetActions(target: InteractionTarget, state: GardenState): Ta
           'inspect_boundary',
           '检查结界',
           '与灵梦一起确认结界异常；回复完成后由本地结算器原子记录结果。',
-          '我请博丽灵梦和我一起检查庭园边缘的结界异常，并依照她的判断确认当前处置方式。请自然演绎本次检查；正式结果会由第二次预设解析请求判断，再由本地结算器写入。',
+          '我请博丽灵梦和我一起检查庭园边缘的结界异常，并依照她的判断确认当前处置方式。请完整演绎检查、临时许可与指向旧主屋的收束，不要留下继续选择。',
           'gal',
-          { eventId: 'reimu_boundary_inspection' },
+          { eventId: 'reimu_boundary_inspection', fixedPresentation: true },
         ));
       }
       base.push(action(
@@ -268,8 +309,8 @@ export function targetActions(target: InteractionTarget, state: GardenState): Ta
         state,
         'greenhouse_research_talk',
         '聊温室研究',
-        '和魔理沙在温室里展开至少两轮有效交流。',
-        '我邀请魔理沙去温室继续研究和交谈。请创建或延续 event_id 为 greenhouse_multiturn_conversation 的真实会话；每次完整有效的助手回复只增加一轮 effective_rounds，至少两轮后结束会话才能结算完成。',
+        '与魔理沙进行两段式、简短的温室研究交流。',
+        '我邀请魔理沙去温室继续研究和交谈。请创建或延续 event_id 为 greenhouse_multiturn_conversation 的真实会话：初始回复算第 1 轮；若玩家继续，只允许再进行 1 轮，第 2 轮必须自然收束且不要求玩家继续输入。每轮正文控制在约 300 个汉字以内；不可提前揭示、命名或激活妖花核心。正式轮数与完成结算由本地结算器处理。',
         'gal',
         { eventId: GREENHOUSE_EVENTS.conversation },
       ));
@@ -294,12 +335,13 @@ export function targetActions(target: InteractionTarget, state: GardenState): Ta
         'repair',
         '维修',
         unavailable || '确认条件后开始维修旧主屋。',
-        '我确认现有条件后开始修复旧主屋。请按照 main_house_repair 的前置、阻断、参与者和允许结果演绎；在回复与 MVU 结算完成前，不要提前扣除资源或推进时间。',
+        '我确认现有条件后开始修复旧主屋。请完整演绎检查、施工、灵梦验收和可居住的固定收束，不要留下继续选择；正式状态由本地结算。',
         'facility',
         {
           disabled: Boolean(unavailable),
           disabledReason: unavailable || undefined,
           eventId: 'main_house_repair',
+          fixedPresentation: true,
           mayAdvanceTime: true,
         },
       ),
@@ -334,15 +376,15 @@ export function buildActionMessage(action: TargetAction) {
     event_id: action.eventId ?? null,
   };
   const settlementNotice = action.eventId
-    ? `本次 ${action.eventId} 的正式事件、资源、时间、区域、设施与会话字段由第二次带预设的结算解析请求和本地结算器在回复完成后原子写入。你只负责自然叙事与 GensokyoScene；不要输出 GensokyoEventResult，也不要在 UpdateVariable 中修改这些本地托管字段。`
+    ? `本次 ${action.eventId} 的正式事件、资源、时间、区域、设施与会话字段由本地结算器在回复完成后原子写入。你只负责自然叙事；不要输出 GensokyoEventResult，也不要在 UpdateVariable 中修改这些本地托管字段。`
     : '';
-  return [
+  return withGardenNarrativeContract([
     '【庭园行动】',
     action.intent,
     settlementNotice,
     '',
     `<GensokyoAction>${JSON.stringify(marker)}</GensokyoAction>`,
-  ].join('\n');
+  ].join('\n'));
 }
 
 export function buildSettlementMessage(
@@ -364,12 +406,12 @@ export function buildSettlementMessage(
   const settlementRule = greenhouseConversation
     ? '这是 greenhouse_multiturn_conversation：请依据当前交流深度自然收尾；正式轮数、完成标记和幂等结算由本地结算器处理，不要在 UpdateVariable 中修改这些字段。'
     : '是否推进时段应依据实际内容或事件配置，普通短暂闲聊不要强制推进。';
-  return [
+  return withGardenNarrativeContract([
     '【结束当前交互】',
     `我准备结束与${label}的这次互动，向在场者自然说明自己的打算后暂时离开。`,
     `请给出一次简短自然的收尾。${settlementRule}`,
     '',
     `<GensokyoAction>${JSON.stringify(marker)}</GensokyoAction>`,
-  ].join('\n');
+  ].join('\n'));
 }
 
