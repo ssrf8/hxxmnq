@@ -160,6 +160,8 @@ async function clickPopupChoice(client) {
 
 async function importCharacter(client, artifact) {
   const absolute = path.resolve(artifact);
+  const expectedCheckpoint = path.basename(absolute).match(/0\.2\.0-r[0-9]+/u)?.[0];
+  if (!expectedCheckpoint) throw new Error(`无法从产物名识别检查点：${absolute}`);
   await access(absolute);
   const document = await client.send('DOM.getDocument', { depth: 1, pierce: true });
   const input = await client.send('DOM.querySelector', {
@@ -176,7 +178,7 @@ async function importCharacter(client, artifact) {
     const choice = await clickPopupChoice(client);
     if (choice) actions.push({ at: new Date().toISOString(), choice });
     const current = await snapshot(client);
-    if (current.selectedName.includes('0.2.0-r20') || current.selectedAvatar.includes('0.2.0-r20')) {
+    if (current.selectedName.includes(expectedCheckpoint) || current.selectedAvatar.includes(expectedCheckpoint)) {
       stableSelectedAt ||= Date.now();
       if (!current.popupText && Date.now() - stableSelectedAt >= 2500) {
         return { actions, snapshot: current };
@@ -287,7 +289,7 @@ async function selectCharacter(client, query) {
     const choice = await clickPopupChoice(client);
     if (choice) actions.push({ at: new Date().toISOString(), choice });
     const current = await snapshot(client);
-    if (clicked && (current.selectedName.includes(query) || current.shell || current.selectedAvatar.includes('r20'))) {
+    if (clicked && (current.selectedName.includes(query) || current.selectedAvatar.includes(query))) {
       if (!current.popupText) {
         await delay(2500);
         return { clicked, actions, snapshot: await snapshot(client) };
@@ -299,16 +301,19 @@ async function selectCharacter(client, query) {
 }
 
 async function openingSmoke(client) {
+  const smokeCheckpoint = String(args.checkpoint || 'R21').toUpperCase();
+  const smokeName = `${smokeCheckpoint}验收测试`;
+  const smokeGarden = `${smokeCheckpoint}验收庭园`;
   const before = await snapshot(client);
   const submit = await client.evaluate(`(() => {
     const frame = document.querySelector('#gensokyo-game-shell iframe');
     const frameDocument = frame?.contentDocument;
     if (!frameDocument) throw new Error('移动庭园 iframe 未就绪');
     const values = {
-      'gg-opening-name': 'R20验收测试',
+      'gg-opening-name': ${JSON.stringify(smokeName)},
       'gg-opening-pronouns': '中性称谓',
       'gg-opening-appearance': '用于运行冒烟测试的外界旅人',
-      'gg-opening-garden': 'R20验收庭园',
+      'gg-opening-garden': ${JSON.stringify(smokeGarden)},
     };
     for (const [id, value] of Object.entries(values)) {
       const input = frameDocument.getElementById(id);
@@ -356,7 +361,7 @@ async function openingSmoke(client) {
   return { before, after: await snapshot(client), timedOut: true };
 }
 
-async function importLore(client) {
+async function importLore(client, expectedWorld) {
   const started = await client.evaluate(`(() => {
     const select = document.querySelector('#char-management-dropdown');
     const option = document.querySelector('#import_character_info');
@@ -375,7 +380,7 @@ async function importLore(client) {
     const choice = await clickPopupChoice(client);
     if (choice) actions.push({ at: new Date().toISOString(), choice });
     const current = await snapshot(client);
-    if (current.linkedWorld.includes('0.2.0-r20')) {
+    if (current.linkedWorld === expectedWorld) {
       linkedAt ||= Date.now();
       if (!current.popupText && Date.now() - linkedAt > 2000) {
         return { actions, snapshot: current };
@@ -426,7 +431,8 @@ try {
   } else if (command === 'opening-smoke') {
     console.log(JSON.stringify(await openingSmoke(client), null, 2));
   } else if (command === 'import-lore') {
-    console.log(JSON.stringify(await importLore(client), null, 2));
+    if (!args.world) throw new Error('import-lore 需要 --world=期望世界书名');
+    console.log(JSON.stringify(await importLore(client, String(args.world)), null, 2));
   } else if (command === 'link-world') {
     if (!args.world) throw new Error('link-world 需要 --world=世界书名');
     console.log(JSON.stringify(await linkWorld(client, String(args.world)), null, 2));

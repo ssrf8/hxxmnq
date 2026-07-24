@@ -138,6 +138,23 @@ export class MessageTransactionCoordinator {
     this.snapshot.lastError = '生成已由玩家停止，可继续生成而不会重复创建玩家消息';
   }
 
+  markGenerationEnded() {
+    this.reconcile(true);
+    if (this.snapshot.phase !== 'generating' || this.snapshot.assistantResponded) return;
+    this.snapshot.phase = 'failed';
+    this.snapshot.lastError = '生成已结束，但没有收到可用的 assistant 正文；可以重试且不会重复创建玩家消息';
+  }
+
+  markSettlementFailed(error: unknown) {
+    this.snapshot.phase = 'failed';
+    this.snapshot.lastError = `本地结算失败：${error instanceof Error ? error.message : String(error)}`;
+  }
+
+  markSettlementSucceeded() {
+    this.snapshot.phase = 'settled';
+    this.snapshot.lastError = undefined;
+  }
+
   private findUserMessage(matchesExisting?: (message: RawMessage) => boolean) {
     return this.host.listMessages().find((message) => {
       if (message.role !== 'user') return false;

@@ -6,8 +6,8 @@
   "scripts": {
     "build:ui": "node scripts/build-ui.mjs",
     "check:ui": "tsc --noEmit",
-    "package:checkpoint:dry": "node scripts/package-checkpoint.mjs --checkpoint=0.2.0-r20 --dry-run",
-    "package:checkpoint": "node scripts/package-checkpoint.mjs --checkpoint=0.2.0-r20",
+    "package:checkpoint:dry": "node scripts/package-checkpoint.mjs --checkpoint=0.2.0-r23 --dry-run",
+    "package:checkpoint": "node scripts/package-checkpoint.mjs --checkpoint=0.2.0-r23",
     "preview": "node scripts/preview-server.mjs",
     "test": "node --test tests/*.test.mjs"
   },

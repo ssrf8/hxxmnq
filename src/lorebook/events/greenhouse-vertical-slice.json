@@ -1,6 +1,7 @@
 {
   "version": "0.2.0",
   "event_chain_id": "m1_greenhouse_vertical_slice",
+  "settlement_owner": "dual-request-local-bridge-r23",
   "events": [
     {
       "config_id": "opening_arrival",

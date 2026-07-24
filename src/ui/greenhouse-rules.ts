@@ -158,7 +158,7 @@ export function buildBattleSettlementMessage(result: BattleResult) {
     '【温室妖花核心结算】',
     '本地战斗 bridge 已将唯一结果写入 battle.current。请只消费该字段，不采用正文中任何第二份结果。',
     `结算 ID：${result.settlement_id}`,
-    '请依据允许结果完成自然叙事；只结算一次，追加 battle.settled_ids，记录 greenhouse_flower_core 结果，按协议更新温室状态与移动锚点线索，然后清空 battle.current 和 events.active_event。',
+    '请依据允许结果完成自然叙事。正式战斗幂等记录、温室状态、事件结果、移动锚点线索与清理工作由本地结算器原子写入；不要在 UpdateVariable 中修改这些字段。',
     '',
     '<GensokyoAction>{"version":"garden-action.v1","target_type":"facility","target_id":"magic_greenhouse","action_id":"settle_flower_core_battle","event_id":"greenhouse_flower_core"}</GensokyoAction>',
   ].join('\n');

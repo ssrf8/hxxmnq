@@ -2,22 +2,22 @@
 
 ## 当前状态
 
-- 已验收开发基线：`0.2.0-r18`；当前联合验收候选：`0.2.0-r20`
-- 角色卡：`../dist/checkpoint-0.2.0-r20/幻想乡物语-测试检查点-0.2.0-r20.json`
-- SHA-256：`707dcca41fbbc5067b488392a0ec39fb5be2e2d52db1cb5536db8aeda678e441`
-- 文件大小：`29,554,743` bytes
-- UI 脚本 ID：`gensokyo-garden-ui-020-r20`
+- 已验收开发基线：`0.2.0-r18`；当前联合验收候选：`0.2.0-r23`
+- 角色卡：`../dist/checkpoint-0.2.0-r23/幻想乡物语-测试检查点-0.2.0-r23.json`
+- SHA-256：`fc6643fe51d3508b27ab704d6431da73852b0340da7b177fb96d25cdff4d2ba6`
+- 文件大小：`29,630,175` bytes
+- UI 脚本 ID：`gensokyo-garden-ui-020-r23`
 - 当前实机环境：SillyTavern `1.18.0`（`8172dcd0`）、Tavern Helper `4.8.19`
 - MVU 固定来源：MagVarUpdate commit `d1bdfd1`
-- 当前阶段：M1 联合候选进入人工验收；M3 的 R20 打包、导入、绑定、清理与真实宿主冒烟完成。
-- 联合结果：r19 温室建设与首次使用、r20 持续交流、妖花核心、两阶段战斗可信结算和锚点线索均已实现；现在按 `runtime-report-0.2.0-r20.md` 分批验收修复。
-- 关键修复：GAL 优先显示 LLM 长正文分页；time_period 口语别名映射四值。
+- 当前阶段：R23 已构建、打包、导入并绑定，等待用户在原有已授权角色脚本的浏览器中继续人工验收。
+- 关键修复：受控选项改为两次带预设请求；第一次生成剧情，第二次静默 JSON Schema 解析，最终由本地结算器原子写入并复读 MVU。宿主壳已补齐 `generate` 转发。
+- R20 坏档及 50 份对应备份已删除；中间 R22 卡、世界书、聊天与 2 份备份也已删除。当前目标安装只保留 R23 候选。
 
 ## 下一位必须先读
 
 1. 本文件 `agent-handoff.md`
 2. `r19-r20-greenhouse-completion-plan.md`（当前执行计划）
-3. `runtime-report-0.2.0-r20.md`（当前候选、运行证据与验收清单）
+3. `runtime-report-0.2.0-r23.md`（当前候选、修复证据与验收清单）
 4. `runtime-report-0.2.0-r18.md`（已验收基线证据）
 5. `contract.md` / `api-provenance.md`
 6. 改 GAL、事件、战斗或时段：`src/ui/gal-scene.ts`、`src/ui/target-actions.ts`、`src/ui/greenhouse-rules.ts`、`src/ui/bridge.ts`、`src/schema/02-mvu-schema.js`、`src/lorebook/events/greenhouse-vertical-slice.json`、`src/lorebook/variable-update-rules.md`

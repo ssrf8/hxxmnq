@@ -219,7 +219,8 @@ async function renderGal() {
   }
   setGenerating(false);
   const retryButton = byId<HTMLButtonElement>('gg-retry-transaction');
-  retryButton.hidden = transaction.phase !== 'failed' || !transaction.userMessageCreated || transaction.assistantResponded;
+  retryButton.hidden = transaction.phase !== 'failed' || !transaction.userMessageCreated;
+  retryButton.textContent = transaction.assistantResponded ? '重试本地结算' : '重试生成';
   if (transaction.phase === 'failed') {
     setStatus(transaction.lastError || '生成失败，可以编辑、继续生成或显示原生聊天。', true);
     replyPanel.hidden = false;

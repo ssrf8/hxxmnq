@@ -2,8 +2,8 @@
   "id": "gensokyo-moving-garden-0.2.0",
   "version": "0.2.0",
   "status": "acceptance",
-  "next_checkpoint": "0.2.0-r20-acceptance-fixes",
-  "planned_checkpoint_sequence": ["0.2.0-r19", "0.2.0-r20"],
+  "next_checkpoint": "0.2.0-r23-acceptance",
+  "planned_checkpoint_sequence": ["0.2.0-r19", "0.2.0-r20", "0.2.0-r21", "0.2.0-r22", "0.2.0-r23"],
   "source_root": "../src",
   "test_root": "../tests",
   "dist_root": "../dist",
@@ -40,6 +40,7 @@
     "runtime_report_r17": "./runtime-report-0.2.0-r17.md",
     "runtime_report_r18": "./runtime-report-0.2.0-r18.md",
     "runtime_report_r20": "./runtime-report-0.2.0-r20.md",
+    "runtime_report_r23": "./runtime-report-0.2.0-r23.md",
     "r19_r20_greenhouse_plan": "./r19-r20-greenhouse-completion-plan.md"
   },
   "m0_content_sources": {
@@ -63,6 +64,7 @@
     "target_actions": "../src/ui/target-actions.ts",
     "greenhouse_rules": "../src/ui/greenhouse-rules.ts",
     "message_transaction": "../src/ui/message-transaction.ts",
+    "event_settlement": "../src/ui/event-settlement.ts",
     "battle_engine": "../src/ui/battle-engine.ts",
     "styles": "../src/ui/styles.css",
     "preview_build": "../dist/ui/index.html"
@@ -70,9 +72,9 @@
   "runtime_artifacts": {
     "self_contained_ui_mount": "../dist/runtime/ui-mount.js",
     "mvu_loader": "../src/runtime/01-mvu-loader.js",
-    "checkpoint_card": "../dist/checkpoint-0.2.0-r20/幻想乡物语-测试检查点-0.2.0-r20.json",
-    "current_ui_script": "gensokyo-garden-ui-020-r20",
-    "current_checkpoint": "0.2.0-r20"
+    "checkpoint_card": "../dist/checkpoint-0.2.0-r23/幻想乡物语-测试检查点-0.2.0-r23.json",
+    "current_ui_script": "gensokyo-garden-ui-020-r23",
+    "current_checkpoint": "0.2.0-r23"
   },
   "checkpoint_adapter": {
     "command_dry_run": "npm run package:checkpoint:dry",

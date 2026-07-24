@@ -1,5 +1,13 @@
 # 运行 API 来源记录（0.2.0）
 
+## r23 双请求结算与宿主转发
+
+目标安装仍为 SillyTavern `1.18.0`（`8172dcd0`）、Tavern Helper `4.8.19`。受控选项先通过 `/trigger await=true` 使用当前加载预设生成可见剧情；生成结束后，再调用 Tavern Helper `generate`，显式传入 `preset_name: 'in_use'`、`should_silence: true` 与白名单 `json_schema`，把结果解析为本地确定性结算枚举。第二次请求不直接写 MVU；`event-settlement.ts` 根据请求前状态和白名单结果计算新状态，再用 `Mvu.replaceMvuData` 写入同一个真实 assistant 楼层并复读校验。
+
+精确声明来自 `public/scripts/extensions/third-party/JS-Slash-Runner/@types/function/generate.d.ts` 与 `@types/iframe/exported.mvu.d.ts`。r23 同时修复宿主壳转发遗漏：`ui-host-shell.js` 现在把 `generate` 与旧桥接函数一起暴露给游戏 iframe；静态契约测试明确锁定该转发项。
+
+运行边界：目标酒馆已导入并回读 R23 卡、16 条世界书与主世界书链接。Codex 应用内浏览器的独立会话没有执行角色脚本，因此不能用它证明 Tavern Helper 壳挂载；最终人工验收应在用户原有、已授权角色脚本的酒馆浏览器中进行。
+
 ## r20 温室可信战斗结算与目标运行时
 
 目标安装为 `D:\json脚本地下城\主体\SillyTavern`：SillyTavern `1.18.0`（commit `8172dcd0`）、JS-Slash-Runner / Tavern Helper `4.8.19`、ST-Prompt-Template `1.17.4.3`。本轮精确接口以该安装内声明为准：

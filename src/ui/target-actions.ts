@@ -240,6 +240,17 @@ export function targetActions(target: InteractionTarget, state: GardenState): Ta
       ),
     ];
     if (target.id === 'reimu') {
+      if (!state.events?.completed_key_events?.reimu_boundary_inspection) {
+        base.unshift(action(
+          target,
+          'inspect_boundary',
+          '检查结界',
+          '与灵梦一起确认结界异常；回复完成后由本地结算器原子记录结果。',
+          '我请博丽灵梦和我一起检查庭园边缘的结界异常，并依照她的判断确认当前处置方式。请自然演绎本次检查；正式结果会由第二次预设解析请求判断，再由本地结算器写入。',
+          'gal',
+          { eventId: 'reimu_boundary_inspection' },
+        ));
+      }
       base.push(action(
         target,
         'pat_head',
@@ -322,9 +333,13 @@ export function buildActionMessage(action: TargetAction) {
     action_id: action.id,
     event_id: action.eventId ?? null,
   };
+  const settlementNotice = action.eventId
+    ? `本次 ${action.eventId} 的正式事件、资源、时间、区域、设施与会话字段由第二次带预设的结算解析请求和本地结算器在回复完成后原子写入。你只负责自然叙事与 GensokyoScene；不要输出 GensokyoEventResult，也不要在 UpdateVariable 中修改这些本地托管字段。`
+    : '';
   return [
     '【庭园行动】',
     action.intent,
+    settlementNotice,
     '',
     `<GensokyoAction>${JSON.stringify(marker)}</GensokyoAction>`,
   ].join('\n');
@@ -347,12 +362,12 @@ export function buildSettlementMessage(
   };
   const greenhouseConversation = state?.interaction?.current_session?.event_id === GREENHOUSE_EVENTS.conversation;
   const settlementRule = greenhouseConversation
-    ? '这是 greenhouse_multiturn_conversation：复读 current_session.effective_rounds；少于 2 时只自然说明交流尚未充分并保持会话，达到 2 后才可写完成标记并按会话 UID 幂等结算。'
+    ? '这是 greenhouse_multiturn_conversation：请依据当前交流深度自然收尾；正式轮数、完成标记和幂等结算由本地结算器处理，不要在 UpdateVariable 中修改这些字段。'
     : '是否推进时段应依据实际内容或事件配置，普通短暂闲聊不要强制推进。';
   return [
     '【结束当前交互】',
     `我准备结束与${label}的这次互动，向在场者自然说明自己的打算后暂时离开。`,
-    `请给出一次简短自然的收尾；随后更新覆盖式会话摘要，使用当前会话 UID 形成唯一结算 ID，只有未结算时才追加到 interaction.settled_ids，最后按协议处理 interaction.current_session。${settlementRule}`,
+    `请给出一次简短自然的收尾。${settlementRule}`,
     '',
     `<GensokyoAction>${JSON.stringify(marker)}</GensokyoAction>`,
   ].join('\n');

@@ -13,8 +13,16 @@ export interface GardenState {
   garden?: { name?: string; construction_stage?: string; primary_anchor_id?: string | null };
   resources?: { materials?: number; inspiration?: number };
   areas?: Record<string, { id?: string; name?: string; unlocked?: boolean; state?: string; main_facility_id?: string | null }>;
-  facilities?: Record<string, { id?: string; name?: string; area_id?: string; state?: string; current_form?: string | null }>;
-  characters?: Record<string, { id?: string; name?: string }>;
+  facilities?: Record<string, {
+    id?: string;
+    name?: string;
+    area_id?: string;
+    state?: string;
+    current_form?: string | null;
+    unlocked_forms?: string[];
+    active_effects?: string[];
+  }>;
+  characters?: Record<string, { id?: string; name?: string; fixed?: boolean }>;
   presence_snapshot?: { present_character_ids?: string[]; character_views?: Record<string, CharacterView> };
   interaction?: {
     current_session?: {
@@ -27,6 +35,7 @@ export interface GardenState {
       participant_character_ids?: string[];
       facility_id?: string | null;
       event_id?: string | null;
+      last_effective_message_id?: number | null;
       effective_rounds?: number;
       settled?: boolean;
     } | null;
@@ -38,6 +47,7 @@ export interface GardenState {
   };
   battle?: { current?: BattleResult | null; settled_ids?: string[] };
   memory?: { long_term_notes?: string[] };
+  uid_counters?: { interaction?: number; [key: string]: number | undefined };
   [key: string]: unknown;
 }
 

@@ -12,7 +12,20 @@
 
 1. 先写正常、可独立阅读的自然叙事。不能替玩家补写未表达的语言、感受、决定或行动结果。
 2. 紧接一个 `<GensokyoScene>` 表现块。标签内只能是严格 JSON，不使用 Markdown 代码围栏。
-3. 最后按变量更新协议输出必要的 `<UpdateVariable>`；没有正式变化时可以省略更新块。
+3. 若玩家行动带有受控 `event_id`，第一次剧情请求不负责正式结算；回复完成后系统使用同一当前预设发起第二次静默解析请求，按 JSON Schema 得到 `event_id + result`。
+4. 本地结算器将第二次请求结果规范化为内部 `<GensokyoEventResult>` 后原子写入 MVU；第一次回复不要为该事件输出变量更新。
+5. 其他非托管变化才按变量更新协议输出必要的 `<UpdateVariable>`；没有正式变化时可以省略更新块。
+
+## event-result.v1
+
+```text
+<GensokyoEventResult>{"version":"event-result.v1","event_id":"marisa_material_rumor","result":"greenhouse_clue_found"}</GensokyoEventResult>
+```
+
+- `event_id` 必须与最新 `<GensokyoAction>` 完全一致；
+- `result` 必须来自该事件登记的 `allowed_results`；
+- 第二次请求格式错误、结果越界或调用失败时，本地事务失败并允许重试，不执行模型生成的 Patch；
+- 该块只声明叙事结果，不直接写 MVU。
 
 ## scene.v1
 

@@ -2,6 +2,15 @@
 
 每次回复先完成自然叙事，再按需要输出一个变量更新块。只记录本轮已经发生并可从正文确认的变化，不预写未来结果。
 
+## 双请求与本地托管事件边界（r23）
+
+- 最新玩家消息带有已登记的 `<GensokyoAction>` 且 `event_id` 属于灵梦结界检查、主屋维修或温室主链时，正式事件结果、资源、时间、区域、设施、战斗与持续交流字段由本地结算器在完整 assistant 楼层落盘后原子写入。
+- 一次受控选项固定发起两次带预设的模型请求：第一次由酒馆当前加载预设生成真实剧情楼层；第二次由 Tavern Helper `generate` 显式指定 `preset_name=in_use`，结合 JSON Schema 静默解析白名单结果。
+- 第一次模型只负责自然叙事；第二次只返回 `event_id + result`，不续写剧情、不创建聊天楼层。两次请求都不得直接修改本地托管字段。
+- 没有匹配的受控行动标记时，自由文本不得开始、完成或推进这些关键事件；即使正文提前描写成功，本地结算器也会恢复事件拥有的旧状态。
+- `effective_rounds`、`last_effective_message_id` 与相应会话幂等 ID 由本地结算器根据真实 assistant 楼层 ID 维护，模型不得猜测 `msg_001` 等消息 ID。
+- 生成结束但 assistant 正文为空，或本地写入复读失败时，事务进入可重试状态，不视为正式结算。
+
 ```text
 <UpdateVariable>
 <JSONPatch>
@@ -46,8 +55,8 @@
 - 交互摘要是覆盖式短摘要，不追加完整对话。
 - 首次有效角色、设施或事件互动在 `interaction.current_session` 为 null 时创建会话；会话 UID 使用 `interaction_<uid_counters.interaction>`，并在同一补丁递增计数器。
 - 普通会话回复只更新仍成立的焦点、参与者、最后有效消息和覆盖式摘要；不得因为一轮回复结束就清空会话。
-- `greenhouse_multiturn_conversation` 创建会话时令 `effective_rounds=0`。只有收到一个新的、完整的、确实推进交流的 assistant 楼层，且其消息 ID 不等于 `last_effective_message_id` 时，才同时更新该 ID 并令 `effective_rounds += 1`；停止生成、失败回复、同楼重放、Swipe 切换和纯格式修复都不计数。
-- 结束 `greenhouse_multiturn_conversation` 时，`effective_rounds < 2` 只能自然提示交流尚浅并保持会话；达到 2 后才能写 `events.completed_key_events.greenhouse_multiturn_conversation=conversation_settled_after_multiple_turns`，再按通用会话幂等协议结算。
+- `greenhouse_multiturn_conversation` 的会话创建、真实楼层去重、`effective_rounds` 递增与结束结算由本地结算器负责。停止生成、失败回复、同楼重放、Swipe 切换和纯格式修复都不计数。
+- 结束 `greenhouse_multiturn_conversation` 时，`effective_rounds < 2` 只能自然提示交流尚浅并由本地结算器保留会话；达到 2 后本地结算器才写完成标记和幂等结算。
 - 结束交互时使用 `interaction:<会话UID>` 作为幂等结算 ID；仅当它不在 `interaction.settled_ids` 时追加，然后清空 `interaction.current_session`。
 - 会话只有在真实 assistant 回复完成自然收尾后才标记结算；停止生成、Swipe、删除和失败回复不结算。
 - `main_house_repair` 只在前置满足时消耗 1 物资并推进一个时段；结果只能是 `main_house_enabled` 或 `temporary_shelter_only`，分别把主屋区域状态写为“启用”或“临时修复”，并记录到 `events.completed_key_events.main_house_repair`。

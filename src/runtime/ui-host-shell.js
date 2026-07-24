@@ -16,7 +16,7 @@
   const returnButtonId = 'gensokyo-game-return';
   const activeClass = 'gg-gensokyo-game-active';
   const chatActiveClass = 'gg-gensokyo-chat-active';
-  const version = '0.4.0-greenhouse-r20';
+  const version = '0.4.3-host-generate-r23';
 
   host[instanceKey]?.destroy?.();
 
@@ -121,6 +121,7 @@
       'getTavernVersion',
       'getTavernHelperVersion',
       'eventOn',
+      'generate',
       'getCurrentPersonaName',
       'getPersona',
     ]) {

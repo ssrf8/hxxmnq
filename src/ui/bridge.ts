@@ -10,6 +10,14 @@ import type {
 import initialState from '../schema/initial-state.json';
 import { MessageTransactionCoordinator } from './message-transaction';
 import { validateFlowerCoreBattleResult } from './greenhouse-rules';
+import {
+  applyLocalSettlement,
+  localSettlementAction,
+  restoreLocalEventOwnership,
+  settlementChoices,
+  settlementProjection,
+  type GardenActionMarker,
+} from './event-settlement';
 
 type HostGlobals = typeof globalThis & {
   waitGlobalInitialized?: (name: string) => Promise<unknown>;
@@ -23,6 +31,7 @@ type HostGlobals = typeof globalThis & {
   SillyTavern?: { stopGeneration?: () => boolean; getCurrentChatId?: () => string; getContext?: () => { chat?: Array<Record<string, unknown>>; characterId?: unknown } };
   createChatMessages?: (messages: Array<Record<string, unknown>>, options?: Record<string, unknown>) => Promise<void>;
   triggerSlash?: (command: string) => Promise<string | undefined>;
+  generate?: (config: Record<string, unknown>) => Promise<string | Record<string, unknown>>;
   getTavernVersion?: () => string;
   getTavernHelperVersion?: () => string;
   getCurrentPersonaName?: () => string | null;
@@ -266,6 +275,116 @@ export function createHostBridge(): GardenBridge | null {
     return g.Mvu;
   };
 
+  const requireGenerate = () => {
+    const generate = g.generate ?? hostWindow().generate;
+    if (typeof generate !== 'function') throw new Error('Tavern Helper generate API 未就绪，无法执行第二次结算解析');
+    return generate;
+  };
+
+  let pendingSettlement: {
+    before: GardenState;
+    action: GardenActionMarker;
+  } | null = null;
+  let pendingOwnershipBefore: GardenState | null = null;
+
+  const persistPendingSettlement = async (snapshot: MessageTransactionSnapshot) => {
+    if (!pendingSettlement) return snapshot;
+    const assistantMessageId = Number(snapshot.assistantMessageId);
+    if (!snapshot.assistantResponded || !Number.isInteger(assistantMessageId) || assistantMessageId < 0) return snapshot;
+    try {
+      const mvu = await requireMvu();
+      if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持本地事件结算');
+      const raw = activeMessages().find((message) => Number(message.message_id) === assistantMessageId);
+      const assistantText = String(raw?.message ?? raw?.mes ?? '');
+      if (!assistantText.trim()) throw new Error('assistant 回复为空，不能结算事件');
+      const choices = settlementChoices(pendingSettlement.before, pendingSettlement.action);
+      if (!choices.length) throw new Error(`事件 ${pendingSettlement.action.event_id} 没有可供解析的允许结果`);
+      const parsed = await requireGenerate()({
+        preset_name: 'in_use',
+        generation_id: `gensokyo-settlement-${snapshot.transactionId}`,
+        should_stream: false,
+        should_silence: true,
+        max_chat_history: 8,
+        user_input: [
+          '你是移动庭园的专用事件结算解析器。只判断已经完成的剧情正文对应哪个白名单结果，不续写剧情，不输出变量更新。',
+          `事件：${pendingSettlement.action.event_id}`,
+          `行动：${pendingSettlement.action.action_id}`,
+          `允许结果：${choices.join(', ')}`,
+          `剧情正文：\n${assistantText.slice(-8000)}`,
+        ].join('\n'),
+        json_schema: {
+          name: 'gensokyo_event_result',
+          description: '移动庭园受控事件的白名单结算结果',
+          strict: true,
+          value: {
+            type: 'object',
+            additionalProperties: false,
+            properties: {
+              event_id: { type: 'string', enum: [pendingSettlement.action.event_id] },
+              result: { type: 'string', enum: choices },
+            },
+            required: ['event_id', 'result'],
+          },
+        },
+      });
+      if (typeof parsed !== 'string') throw new Error('第二次结算解析没有返回 JSON 文本');
+      let parsedResult = '';
+      try {
+        const value = JSON.parse(parsed) as { event_id?: string; result?: string };
+        if (value.event_id === pendingSettlement.action.event_id && choices.includes(String(value.result))) {
+          parsedResult = String(value.result);
+        }
+      } catch { /* handled below */ }
+      if (!parsedResult) throw new Error('第二次结算解析结果不符合白名单 schema');
+      const settlementText = `${assistantText}\n<GensokyoEventResult>${JSON.stringify({
+        version: 'event-result.v1',
+        event_id: pendingSettlement.action.event_id,
+        result: parsedResult,
+      })}</GensokyoEventResult>`;
+      const options = { type: 'message', message_id: assistantMessageId };
+      const data = structuredClone(mvu.getMvuData(options)) as Record<string, unknown>;
+      const nextState = applyLocalSettlement(
+        pendingSettlement.before,
+        pendingSettlement.action,
+        assistantMessageId,
+        settlementText,
+      );
+      data.stat_data = nextState;
+      await mvu.replaceMvuData(data, options);
+      const reread = mvu.getMvuData(options).stat_data ?? {};
+      if (!settlementProjection(reread, pendingSettlement.action)) {
+        throw new Error(`事件 ${pendingSettlement.action.event_id} 写入后复读校验失败`);
+      }
+      pendingSettlement = null;
+      pendingOwnershipBefore = null;
+      transactions.markSettlementSucceeded();
+      return transactions.read();
+    } catch (error) {
+      transactions.markSettlementFailed(error);
+      lastError = error instanceof Error ? error.message : String(error);
+      throw error;
+    }
+  };
+
+  const preserveLocalOwnership = async (before: GardenState, snapshot: MessageTransactionSnapshot) => {
+    const assistantMessageId = Number(snapshot.assistantMessageId);
+    if (!snapshot.assistantResponded || !Number.isInteger(assistantMessageId) || assistantMessageId < 0) return snapshot;
+    const mvu = await requireMvu();
+    if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持本地事件边界校验');
+    const options = { type: 'message', message_id: assistantMessageId };
+    const data = structuredClone(mvu.getMvuData(options)) as Record<string, unknown>;
+    const current = isRecord(data.stat_data) ? data.stat_data as GardenState : {};
+    const protectedState = restoreLocalEventOwnership(before, current);
+    if (JSON.stringify(current) === JSON.stringify(protectedState)) {
+      pendingOwnershipBefore = null;
+      return snapshot;
+    }
+    data.stat_data = protectedState;
+    await mvu.replaceMvuData(data, options);
+    pendingOwnershipBefore = null;
+    return snapshot;
+  };
+
   return {
     async readState() {
       try {
@@ -414,13 +533,33 @@ export function createHostBridge(): GardenBridge | null {
     async sendUserMessage(text, kind = 'interaction') {
       const value = text.trim();
       if (!value || value.length > 6000) throw new Error('消息应为 1–6000 个字符');
-      return transactions.submit({ kind, message: value });
+      const mvu = await requireMvu();
+      const before = latestPersistedState(mvu);
+      const action = localSettlementAction(value, before);
+      pendingOwnershipBefore = structuredClone(before);
+      pendingSettlement = action ? { before: structuredClone(before), action } : null;
+      try {
+        const snapshot = await transactions.submit({ kind, message: value });
+        if (pendingSettlement) return await persistPendingSettlement(snapshot);
+        return await preserveLocalOwnership(before, snapshot);
+      } catch (error) {
+        if (!pendingSettlement) throw error;
+        lastError = error instanceof Error ? error.message : String(error);
+        throw error;
+      }
     },
     async getTransactionState() {
       return transactions.read();
     },
     async retryLastTransaction() {
-      return transactions.retry();
+      const current = transactions.read();
+      if (pendingSettlement && current.assistantResponded) {
+        return persistPendingSettlement(current);
+      }
+      const snapshot = await transactions.retry();
+      if (pendingSettlement) return persistPendingSettlement(snapshot);
+      if (pendingOwnershipBefore) return preserveLocalOwnership(pendingOwnershipBefore, snapshot);
+      return snapshot;
     },
     async stageBattleResult(result: BattleResult) {
       const mvu = await requireMvu();
@@ -474,7 +613,7 @@ export function createHostBridge(): GardenBridge | null {
         tavernVersion: g.getTavernVersion?.() ?? 'unknown',
         helperVersion: g.getTavernHelperVersion?.() ?? 'unknown',
         mvuReady,
-        bridgeVersion: '0.4.0-greenhouse-r20',
+        bridgeVersion: '0.4.3-host-generate-r23',
         databaseAvailable: Boolean(databaseApi()),
         databaseVersion: databaseApi() ? 'SP·数据库 VII / AutoCardUpdaterAPI' : '未加载',
         lastError: lastError || undefined,
@@ -491,7 +630,12 @@ export function createHostBridge(): GardenBridge | null {
       subscribe(g.tavern_events?.CHAT_CHANGED);
       subscribe(g.tavern_events?.GENERATION_STARTED);
       subscribe(g.tavern_events?.GENERATION_STOPPED);
-      subscribe(g.tavern_events?.GENERATION_ENDED);
+      if (g.tavern_events?.GENERATION_ENDED && g.eventOn) {
+        stops.push(g.eventOn(g.tavern_events.GENERATION_ENDED, () => {
+          transactions.markGenerationEnded();
+          refresh();
+        }).stop);
+      }
       try {
         const mvu = await requireMvu();
         subscribe(mvu.events.VARIABLE_INITIALIZED);
@@ -623,7 +767,7 @@ export function createPreviewBridge(): GardenBridge {
     async swipeLatest() { throw new Error('离线预览不支持 Swipe'); },
     async showNativeChat() { return false; },
     async diagnostics(): Promise<RuntimeDiagnostics> {
-      return { mode: 'preview', tavernVersion: 'offline', helperVersion: 'offline', mvuReady: false, bridgeVersion: '0.4.0-greenhouse-r20', databaseAvailable: false, databaseVersion: '未加载' };
+      return { mode: 'preview', tavernVersion: 'offline', helperVersion: 'offline', mvuReady: false, bridgeVersion: '0.4.3-host-generate-r23', databaseAvailable: false, databaseVersion: '未加载' };
     },
     async subscribe() { return () => undefined; },
   };

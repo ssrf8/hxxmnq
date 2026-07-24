@@ -10,6 +10,7 @@
 
 const SCENE_PATTERN = /<GensokyoScene\b[^>]*>([\s\S]*?)<\/GensokyoScene>/iu;
 const UPDATE_PATTERN = /<UpdateVariable>[\s\S]*?<\/UpdateVariable>/giu;
+const EVENT_RESULT_PATTERN = /<GensokyoEventResult>[\s\S]*?<\/GensokyoEventResult>/giu;
 const ALLOWED_KINDS = new Set<GalBeatKind>(['narration', 'speech', 'action']);
 const ALLOWED_REACTIONS = new Set<GalReaction>([
   'neutral',
@@ -66,6 +67,7 @@ function stripNarrativeNoise(text: string) {
   return String(text ?? '')
     .replace(SCENE_PATTERN, '')
     .replace(UPDATE_PATTERN, '')
+    .replace(EVENT_RESULT_PATTERN, '')
     .replace(/<JSONPatch>[\s\S]*?<\/JSONPatch>/giu, '')
     .replace(/<draft>[\s\S]*?<\/draft>/giu, '')
     .replace(/<draft_notes>[\s\S]*?<\/draft_notes>/giu, '')
