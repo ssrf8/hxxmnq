@@ -10,13 +10,13 @@
     host = window;
   }
   const doc = host.document;
-  const instanceKey = '__GENSOKYO_GARDEN_UI_022__';
+  const instanceKey = '__GENSOKYO_GARDEN_UI_024__';
   const shellId = 'gensokyo-game-shell';
   const styleId = 'gensokyo-game-host-style';
   const returnButtonId = 'gensokyo-game-return';
   const activeClass = 'gg-gensokyo-game-active';
   const chatActiveClass = 'gg-gensokyo-chat-active';
-  const version = '0.3.0-gal-shell-r15';
+  const version = '0.4.0-greenhouse-r20';
 
   host[instanceKey]?.destroy?.();
 
@@ -156,7 +156,10 @@
     childDoc.documentElement.dataset.mapSrc = embedded.mapDataUrl;
     childDoc.documentElement.dataset.reimuSpriteSrc = embedded.reimuSpriteDataUrl;
     childDoc.documentElement.dataset.reimuPortraitSrc = embedded.reimuPortraitDataUrl;
+    childDoc.documentElement.dataset.marisaSpriteSrc = embedded.marisaSpriteDataUrl;
+    childDoc.documentElement.dataset.marisaPortraitSrc = embedded.marisaPortraitDataUrl;
     childDoc.documentElement.dataset.mainHouseSrc = embedded.mainHouseDataUrl;
+    childDoc.documentElement.dataset.greenhouseSrc = embedded.greenhouseDataUrl;
     const style = childDoc.createElement('style');
     style.textContent = embedded.css;
     childDoc.head.append(style);

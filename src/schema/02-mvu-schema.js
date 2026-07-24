@@ -73,6 +73,7 @@ const interactionSessionSchema = z.object({
   started_at: text('', 40),
   focus: text('', 160),
   last_effective_message_id: z.union([integer(0, 0, 999999), z.null()]).prefault(null).catch(null),
+  effective_rounds: integer(0, 0, 999),
   summary: text('', 600),
   settled: boolean(false),
 }).passthrough().prefault({});
@@ -106,7 +107,7 @@ const battleResultSchema = z.object({
   duration_ms: integer(0, 0, 3600000),
   hits: integer(0, 0, 999999),
   damage: integer(0, 0, 999999999),
-  phases_cleared: integer(0, 0, 3),
+  phases_cleared: integer(0, 0, 2),
   objective_ratio: integer(0, 0, 100),
 }).passthrough().prefault({});
 

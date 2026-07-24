@@ -1,4 +1,5 @@
 import type {
+  BattleResult,
   ChatMessageView,
   GardenBridge,
   GardenState,
@@ -8,6 +9,7 @@ import type {
 } from './types';
 import initialState from '../schema/initial-state.json';
 import { MessageTransactionCoordinator } from './message-transaction';
+import { validateFlowerCoreBattleResult } from './greenhouse-rules';
 
 type HostGlobals = typeof globalThis & {
   waitGlobalInitialized?: (name: string) => Promise<unknown>;
@@ -191,16 +193,29 @@ function activeMessages(): Array<Record<string, unknown>> {
   return readRawMessages({ include_swipes: false, hide_state: 'all' });
 }
 
-function latestPersistedState(mvu: HostGlobals['Mvu']): GardenState {
-  if (!mvu) return {};
+function latestPersistedMessage(mvu: HostGlobals['Mvu']) {
+  if (!mvu) return null;
   const assistantMessages = activeMessages().filter((message) => message.role === 'assistant').reverse();
   for (const message of assistantMessages) {
     const messageId = Number(message.message_id);
     if (!Number.isInteger(messageId) || messageId < 0) continue;
-    const state = mvu.getMvuData({ type: 'message', message_id: messageId }).stat_data;
-    if (isRecord(state) && Object.keys(state).length > 0) return structuredClone(state);
+    const options = { type: 'message', message_id: messageId };
+    const data = mvu.getMvuData(options);
+    const state = data.stat_data;
+    if (isRecord(state) && Object.keys(state).length > 0) {
+      return {
+        messageId,
+        options,
+        data: structuredClone(data) as Record<string, unknown>,
+        state: structuredClone(state) as GardenState,
+      };
+    }
   }
-  return {};
+  return null;
+}
+
+function latestPersistedState(mvu: HostGlobals['Mvu']): GardenState {
+  return latestPersistedMessage(mvu)?.state ?? {};
 }
 
 function openingProgress(rawMessages = activeMessages()) {
@@ -407,6 +422,32 @@ export function createHostBridge(): GardenBridge | null {
     async retryLastTransaction() {
       return transactions.retry();
     },
+    async stageBattleResult(result: BattleResult) {
+      const mvu = await requireMvu();
+      if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持可信战斗结果写入');
+      const latest = latestPersistedMessage(mvu);
+      if (!latest) throw new Error('没有找到可承载战斗结果的 assistant 楼层');
+      const current = latest.state.battle?.current;
+      if (current) {
+        if (current.settlement_id !== result.settlement_id) {
+          throw new Error('已有另一份待结算战斗结果，不能覆盖');
+        }
+        if (JSON.stringify(current) !== JSON.stringify(result)) {
+          throw new Error('同一战斗结算 ID 的内容不一致');
+        }
+        return { messageId: latest.messageId, alreadyStaged: true };
+      }
+      const trusted = validateFlowerCoreBattleResult(result, latest.state);
+      const nextState = structuredClone(latest.state);
+      nextState.battle = { ...nextState.battle, current: trusted };
+      latest.data.stat_data = nextState;
+      await mvu.replaceMvuData(latest.data, latest.options);
+      const reread = mvu.getMvuData(latest.options).stat_data?.battle?.current;
+      if (!reread || JSON.stringify(reread) !== JSON.stringify(trusted)) {
+        throw new Error('可信战斗结果写入后复读校验失败');
+      }
+      return { messageId: latest.messageId, alreadyStaged: false };
+    },
     async continueGeneration() {
       await g.triggerSlash?.('/continue await=true');
     },
@@ -433,7 +474,7 @@ export function createHostBridge(): GardenBridge | null {
         tavernVersion: g.getTavernVersion?.() ?? 'unknown',
         helperVersion: g.getTavernHelperVersion?.() ?? 'unknown',
         mvuReady,
-        bridgeVersion: '0.3.0-gal-r15',
+        bridgeVersion: '0.4.0-greenhouse-r20',
         databaseAvailable: Boolean(databaseApi()),
         databaseVersion: databaseApi() ? 'SP·数据库 VII / AutoCardUpdaterAPI' : '未加载',
         lastError: lastError || undefined,
@@ -566,13 +607,23 @@ export function createPreviewBridge(): GardenBridge {
     },
     async getTransactionState() { return structuredClone(transaction); },
     async retryLastTransaction() { throw new Error('离线预览没有失败事务'); },
+    async stageBattleResult(result: BattleResult) {
+      const current = previewState.battle?.current;
+      if (current) {
+        if (JSON.stringify(current) !== JSON.stringify(result)) throw new Error('已有另一份待结算战斗结果');
+        return { messageId: Math.max(0, messages.length - 1), alreadyStaged: true };
+      }
+      const trusted = validateFlowerCoreBattleResult(result, previewState);
+      previewState.battle = { ...previewState.battle, current: trusted };
+      return { messageId: Math.max(0, messages.length - 1), alreadyStaged: false };
+    },
     async continueGeneration() { throw new Error('离线预览不支持继续生成'); },
     async stopGeneration() { return false; },
     async regenerateLatest() { throw new Error('离线预览不支持重新生成'); },
     async swipeLatest() { throw new Error('离线预览不支持 Swipe'); },
     async showNativeChat() { return false; },
     async diagnostics(): Promise<RuntimeDiagnostics> {
-      return { mode: 'preview', tavernVersion: 'offline', helperVersion: 'offline', mvuReady: false, bridgeVersion: '0.3.0-gal-r15', databaseAvailable: false, databaseVersion: '未加载' };
+      return { mode: 'preview', tavernVersion: 'offline', helperVersion: 'offline', mvuReady: false, bridgeVersion: '0.4.0-greenhouse-r20', databaseAvailable: false, databaseVersion: '未加载' };
     },
     async subscribe() { return () => undefined; },
   };

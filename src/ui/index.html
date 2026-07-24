@@ -142,7 +142,6 @@
         <div class="gg-actions">
           <button type="button" id="gg-show-native">显示原生聊天</button>
           <button type="button" id="gg-reload">重新加载同层应用</button>
-          <button type="button" id="gg-start-battle">符卡演练</button>
         </div>
         <p class="gg-note">正常游戏只显示这一份常驻界面；后台楼层仍是真实消息。发生故障时可以临时恢复原生聊天。</p>
       </section>
@@ -154,9 +153,14 @@
   <dialog id="gg-battle-dialog" class="gg-battle-dialog" aria-labelledby="gg-battle-title">
     <header>
       <div><p class="gg-eyebrow">JSON 符卡</p><h2 id="gg-battle-title">温室妖花核心</h2></div>
-      <button type="button" id="gg-close-battle" aria-label="结束符卡演练">结束</button>
+      <button type="button" id="gg-close-battle" aria-label="取消本次符卡战">取消</button>
     </header>
     <canvas id="gg-battle-canvas" aria-label="符卡游戏区域，方向键或 WASD 移动，Shift 专注"></canvas>
+    <p id="gg-battle-status" class="gg-note" role="status">方向键或 WASD 移动，Shift 专注；结算后会先写入可信 MVU 字段。</p>
+    <div class="gg-actions">
+      <button type="button" id="gg-battle-narrative">改用剧情解决</button>
+      <button type="button" id="gg-battle-retry" hidden>重试写入与结算</button>
+    </div>
   </dialog>
   <script src="./app.js"></script>
 </body>

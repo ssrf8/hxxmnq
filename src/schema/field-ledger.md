@@ -17,6 +17,7 @@
 | `characters.{id}.current_relationship_facts` | 最多 12 条事实对象 | 模型 | 相关场景模型 | 冲突事实先失效/归档再新增；不存好感数值 |
 | `presence_snapshot` | 本轮在场和动作快照 | 模型 | 地图、模型 | 每轮覆盖，不作为长期事实；玩家不得进入角色视图 |
 | `interaction.current_session` | null 或单一会话 | 模型 | 模型、剧情页 | 同时仅一个；只有自然收尾后 settled=true 并清空 |
+| `interaction.current_session.effective_rounds` | integer/0 | 模型 | 温室多轮会话门槛 | 仅完整且有效的新 assistant 回复递增；停止、失败、Swipe、重放与同消息 ID 不计数 |
 | `interaction.settled_ids` | 最多 64 个交互结算 ID | 模型 | 模型、GAL 幂等检查 | 只追加已复读成功的会话结算；重复 ID 禁止再次结算 |
 | `events.active_event` | null 或正式事件 | 模型 | 模型、剧情页 | 同时仅一个；结算后转入近期结果/关键标记 |
 | `events.waiting_events` | 最多 3 个事件 | 模型 | 调度器、模型 | 满载时拒绝低优先事件；到期不可静默删除 |
@@ -33,7 +34,7 @@
 ## 关键对象约束
 
 - 关系事实：`id`、`subjects[]`、`fact`、`source_event_id`、`established_at`、`active`、`last_confirmed_at`。
-- 交互会话：`uid`、`type`、`status`、`area_id`、参与者、关联设施/事件、开始时间、焦点、最后有效消息、600 字摘要、结算状态。
+- 交互会话：`uid`、`type`、`status`、`area_id`、参与者、关联设施/事件、开始时间、焦点、最后有效消息、有效轮数、600 字摘要、结算状态。
 - 正式事件：稳定 `config_id` 与实例 `uid` 分离；保存状态、优先级、参与者、关联设施、期限和摘要。
 - 战斗结果：只接受预登记 `config_id`；`settlement_id` 是一次性结算键。
 

@@ -1,8 +1,22 @@
 ﻿import assert from 'node:assert/strict';
+import { build } from 'esbuild';
 import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
 const read = (path) => readFile(new URL(path, import.meta.url), 'utf8');
+const importTypescript = async (path) => {
+  const result = await build({
+    entryPoints: [fileURLToPath(new URL(path, import.meta.url))],
+    bundle: true,
+    write: false,
+    format: 'esm',
+    platform: 'node',
+    target: 'node22',
+  });
+  const source = result.outputFiles[0].text;
+  return import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
+};
 
 test('庭园地图只读取访客快照，不渲染玩家占位小人', async () => {
   const source = await read('../src/ui/garden-map.ts');
@@ -11,11 +25,11 @@ test('庭园地图只读取访客快照，不渲染玩家占位小人', async ()
   assert.doesNotMatch(source, /state\.player/);
 });
 
-test('灵梦 NPC 使用自包含四向图集并提供可暂停的 idle/walk 动画', async () => {
+test('灵梦与魔理沙 NPC 使用自包含图集并提供可暂停的 idle/walk 动画', async () => {
   const map = await read('../src/ui/garden-map.ts');
   const actor = await read('../src/ui/sprite-actor.ts');
   const build = await read('../scripts/build-ui.mjs');
-  assert.match(map, /new SpriteActor\('reimu'/);
+  assert.match(map, /new SpriteActor\(id, actor\.label, actor\.source/);
   assert.match(map, /requestAnimationFrame/);
   assert.match(map, /visibilitychange/);
   assert.match(actor, /SpriteMotion = 'idle' \| 'walk'/);
@@ -23,6 +37,8 @@ test('灵梦 NPC 使用自包含四向图集并提供可暂停的 idle/walk 动�
   assert.match(actor, /facingCell/);
   assert.match(build, /reimuSpriteDataUrl/);
   assert.match(build, /reimu-turnaround-v1\.png/);
+  assert.match(build, /marisaSpriteDataUrl/);
+  assert.match(build, /marisa-riding-turnaround-v3\.png/);
 });
 
 test('庭园地图滚轮缩放不被绘制尺寸抵消，并保持指针锚点', async () => {
@@ -162,9 +178,10 @@ test('打包器提供 MVU initvar 初始状态，不依赖角色脚本变量初�
   assert.match(packer, /\[initvar\] 移动庭园初始状态/);
   assert.match(packer, /<initvar>/);
   assert.match(packer, /JSON\.stringify\(initialState, null, 2\)/);
-  assert.match(packer, /0\.2\.0-r18/);
+  assert.match(packer, /--checkpoint=0\.2\.0-rN/);
+  assert.match(packer, /planned_checkpoint_sequence/);
   assert.match(packer, /GAL 表现与会话协议/);
-  assert.match(packer, /gensokyo-garden-ui-020-r18/);
+  assert.match(packer, /gensokyo-garden-ui-020-\$\{CHECKPOINT_SUFFIX\}/);
   assert.match(packer, /确定性开场后的首次行动引导/);
   assert.match(packer, /此步骤会直接写入并复读 MVU，不调用 LLM/);
   assert.match(packer, /if \(!DRY_RUN && await exists\(OUTPUT_FILE\)\)/);
@@ -181,12 +198,14 @@ test('数据库适配器是可选归档且不下载或执行远程脚本', async
 test('运行挂载产物自包含界面与底图，不依赖开发服务器', async () => {
   const mount = await read('../dist/runtime/ui-mount.js');
   assert.match(mount, /data:image\/png;base64,/);
-  assert.match(mount, /__GENSOKYO_GARDEN_UI_022__/);
+  assert.match(mount, /__GENSOKYO_GARDEN_UI_024__/);
   assert.match(mount, /show-native-chat/);
   assert.match(mount, /gensokyo-game-shell/);
   assert.match(mount, /gg-gensokyo-chat-active/);
   assert.match(mount, /reimuPortraitDataUrl/);
+  assert.match(mount, /marisaPortraitDataUrl/);
   assert.match(mount, /mainHouseDataUrl/);
+  assert.match(mount, /greenhouseDataUrl/);
   assert.doesNotMatch(mount, /position:'fixed',inset/);
   assert.doesNotMatch(mount, /127\.0\.0\.1:8765|gcore\.jsdelivr\.net/);
 });
@@ -285,4 +304,81 @@ test('时段 schema 接受口语别名并映射到四值', async () => {
   assert.match(schema, /晚上:\s*'夜晚'/);
   const rules = await read('../src/lorebook/variable-update-rules.md');
   assert.match(rules, /只能是：清晨、白昼、黄昏、夜晚/);
+});
+
+test('R19 温室行动按线索、灵感、清理、建造和首次使用逐段解锁', async () => {
+  const rules = await importTypescript('../src/ui/greenhouse-rules.ts');
+  const state = {
+    resources: { materials: 3, inspiration: 1 },
+    areas: { greenhouse_plot: { unlocked: false, state: '未清理' } },
+    facilities: { magic_greenhouse: { state: '可建设', current_form: null } },
+    events: { active_event: null, completed_key_events: { reimu_boundary_inspection: 'temporary_permission' } },
+    interaction: { current_session: null },
+    battle: { current: null, settled_ids: [] },
+  };
+  assert.equal(rules.greenhouseDiscoveryVisible(state), true);
+  assert.equal(rules.greenhouseActionBlock(state, 'investigate_magic_trace'), '');
+  state.events.completed_key_events.marisa_material_rumor = 'greenhouse_clue_found';
+  state.areas.greenhouse_plot.unlocked = true;
+  state.events.completed_key_events.main_house_repair = 'main_house_enabled';
+  assert.equal(rules.greenhouseActionBlock(state, 'hear_marisa_plan'), '');
+  state.events.completed_key_events.gain_second_inspiration = 'hear_marisa_plan';
+  state.resources.inspiration = 2;
+  assert.equal(rules.greenhouseActionBlock(state, 'clear_greenhouse_foundation'), '');
+  state.events.completed_key_events.clear_greenhouse_foundation = 'foundation_cleared';
+  assert.match(rules.greenhouseActionBlock(state, 'build_basic_magic_greenhouse'), /4 点物资/);
+  state.resources.materials = 4;
+  assert.equal(rules.greenhouseActionBlock(state, 'build_basic_magic_greenhouse'), '');
+  state.events.completed_key_events.build_basic_magic_greenhouse = 'basic_greenhouse_enabled';
+  state.facilities.magic_greenhouse = { state: '启用', current_form: '基础魔法温室' };
+  assert.equal(rules.greenhouseActionBlock(state, 'greenhouse_first_use'), '');
+});
+
+test('R20 妖花核心只接受活动事件中的白名单可信结果并拒绝重复结算', async () => {
+  const rules = await importTypescript('../src/ui/greenhouse-rules.ts');
+  const state = {
+    events: {
+      active_event: { config_id: rules.GREENHOUSE_EVENTS.flowerCore },
+      completed_key_events: {
+        greenhouse_first_use: 'stable_first_growth',
+        greenhouse_multiturn_conversation: 'conversation_settled_after_multiple_turns',
+      },
+    },
+    battle: { current: null, settled_ids: [] },
+  };
+  const valid = {
+    settlement_id: 'greenhouse-flower-core-test-1',
+    config_id: rules.FLOWER_CORE_BATTLE_CONFIG,
+    outcome: 'clean_win',
+    remaining_lives: 2,
+    grazes: 12,
+    duration_ms: 4567,
+    hits: 20,
+    damage: 80,
+    phases_cleared: 2,
+    objective_ratio: 100,
+  };
+  assert.deepEqual(rules.validateFlowerCoreBattleResult(valid, state), valid);
+  assert.throws(
+    () => rules.validateFlowerCoreBattleResult({ ...valid, config_id: 'untrusted' }, state),
+    /白名单/,
+  );
+  assert.throws(
+    () => rules.validateFlowerCoreBattleResult({ ...valid, objective_ratio: 101 }, state),
+    /objective_ratio/,
+  );
+  state.battle.settled_ids.push(valid.settlement_id);
+  assert.throws(() => rules.validateFlowerCoreBattleResult(valid, state), /已经结算/);
+});
+
+test('妖花核心入口不再暴露为设置页演练，结算先写 battle.current 再生成剧情', async () => {
+  const document = await read('../src/ui/index.html');
+  const app = await read('../src/ui/app.ts');
+  const bridge = await read('../src/ui/bridge.ts');
+  assert.doesNotMatch(document, /id="gg-start-battle"/);
+  assert.match(app, /bridge\.stageBattleResult\(result\)/);
+  assert.match(app, /buildBattleSettlementMessage\(result\)/);
+  assert.match(bridge, /nextState\.battle = \{ \.\.\.nextState\.battle, current: trusted \}/);
+  assert.match(bridge, /可信战斗结果写入后复读校验失败/);
+  assert.match(bridge, /已有另一份待结算战斗结果，不能覆盖/);
 });

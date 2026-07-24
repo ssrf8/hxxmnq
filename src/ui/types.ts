@@ -27,15 +27,17 @@ export interface GardenState {
       participant_character_ids?: string[];
       facility_id?: string | null;
       event_id?: string | null;
+      effective_rounds?: number;
       settled?: boolean;
     } | null;
     settled_ids?: string[];
   };
   events?: {
-    active_event?: { title?: string; config_id?: string } | null;
+    active_event?: { uid?: string; title?: string; config_id?: string; status?: string } | null;
     completed_key_events?: Record<string, string>;
   };
-  battle?: { current?: unknown };
+  battle?: { current?: BattleResult | null; settled_ids?: string[] };
+  memory?: { long_term_notes?: string[] };
   [key: string]: unknown;
 }
 
@@ -101,12 +103,13 @@ export interface TargetAction {
   label: string;
   description: string;
   target: InteractionTarget;
-  mode: 'gal' | 'facility' | 'close';
+  mode: 'gal' | 'facility' | 'battle' | 'battle_narrative' | 'close';
   intent: string;
   disabled?: boolean;
   disabledReason?: string;
   eventId?: string;
   mayAdvanceTime?: boolean;
+  cost?: { materials?: number; inspiration?: number };
 }
 
 export interface GalBeat {
@@ -143,7 +146,7 @@ export interface OpeningProgress {
   assistantResponded: boolean;
 }
 
-export type MessageTransactionKind = 'opening' | 'interaction' | 'settlement';
+export type MessageTransactionKind = 'opening' | 'interaction' | 'settlement' | 'battle';
 export type MessageTransactionPhase =
   | 'idle'
   | 'submitting_user'
@@ -177,6 +180,7 @@ export interface GardenBridge {
   sendUserMessage(text: string, kind?: MessageTransactionKind): Promise<MessageTransactionSnapshot>;
   getTransactionState(): Promise<MessageTransactionSnapshot>;
   retryLastTransaction(): Promise<MessageTransactionSnapshot>;
+  stageBattleResult(result: BattleResult): Promise<{ messageId: number; alreadyStaged: boolean }>;
   continueGeneration(): Promise<void>;
   stopGeneration(): Promise<boolean>;
   regenerateLatest(): Promise<void>;

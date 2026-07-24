@@ -1,5 +1,19 @@
 # 运行 API 来源记录（0.2.0）
 
+## r20 温室可信战斗结算与目标运行时
+
+目标安装为 `D:\json脚本地下城\主体\SillyTavern`：SillyTavern `1.18.0`（commit `8172dcd0`）、JS-Slash-Runner / Tavern Helper `4.8.19`、ST-Prompt-Template `1.17.4.3`。本轮精确接口以该安装内声明为准：
+
+| 能力 | 采用接口 | 本机依据 | r20 用法与证据 |
+|---|---|---|---|
+| 精确读取消息层 MVU | `Mvu.getMvuData({ type: 'message', message_id })` | `public/scripts/extensions/third-party/JS-Slash-Runner/@types/iframe/exported.mvu.d.ts` | 从最新一份具有正式 `stat_data` 的 assistant 楼层取状态；真实宿主诊断显示 MVU 已就绪 |
+| 完整替换同一消息层 MVU | `await Mvu.replaceMvuData(mvu_data, options)` | 同上 | 本地校验 `config_id`、事件前置、范围、settlement ID 后只写 `battle.current`；写后用同一 message ID 复读，失败不发送战后剧情 |
+| 读取当前消息页 | `getChatMessages(range, { include_swipes: false, hide_state: 'all' })` | `@types/function/chat_message.d.ts` | 定位最新 assistant 正式状态；避免 `include_swipes:true` 形状没有 `message` 字段的问题 |
+| 创建真实结算楼层 | `createChatMessages(..., { insert_before: 'end', refresh: 'none' })` 后 `/trigger await=true` | 同上与目标 slash-command 源码 | 可信结果写入成功后创建 `kind=battle` 的真实玩家消息；模型只消费 `battle.current`，不解析正文第二份战果 |
+| MVU 更新刷新 | `Mvu.events.VARIABLE_INITIALIZED`、`VARIABLE_UPDATE_ENDED` | `@types/iframe/exported.mvu.d.ts`；其中历史事件值保留声明拼写 `mag_variable_initiailized` | 刷新单壳状态；代码不自行猜测事件字符串 |
+
+运行时证据：R20 卡通过酒馆文件导入 UI 进入目标安装，角色脚本授权后壳版本为 `0.4.0-greenhouse-r20`；诊断复读 `SillyTavern 1.18.0 / Tavern Helper 4.8.19 / MVU ready`。确定性开场在真实 0 层写入并复读成功，真实消息数保持 1，证明没有调用 LLM 初始化。
+
 ## r15 GAL 消息事务、续写与 Swipe
 
 目标环境为 `F:\agent airp\Luker`，SillyTavern/Luker `2.7.0 release`，JS-Slash-Runner / Tavern Helper 清单版本 `4.8.18`。r15 只采用本机源码和类型声明已确认的接口：

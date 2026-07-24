@@ -54,6 +54,10 @@ export class BattleEngine {
     this.running = false;
     cancelAnimationFrame(this.raf);
     const duration = Math.round(performance.now() - this.startedAt);
+    const clearedPhases = Math.min(this.config.phases.length, this.stats.phases);
+    const partialPhase = clearedPhases >= this.config.phases.length
+      ? 0
+      : Math.min(1, Math.max(0, 1 - this.enemy.hp / Math.max(1, this.enemy.maxHp)));
     this.onFinish({
       settlement_id: `${this.config.config_id}-${Date.now().toString(36)}`,
       config_id: this.config.config_id,
@@ -63,8 +67,8 @@ export class BattleEngine {
       duration_ms: duration,
       hits: this.stats.hits,
       damage: this.stats.damage,
-      phases_cleared: this.stats.phases,
-      objective_ratio: Math.round(100 * (this.stats.phases + (1 - this.enemy.hp / this.enemy.maxHp)) / this.config.phases.length),
+      phases_cleared: clearedPhases,
+      objective_ratio: Math.round(100 * (clearedPhases + partialPhase) / this.config.phases.length),
     });
   }
 

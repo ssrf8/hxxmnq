@@ -1,5 +1,6 @@
 import type { GardenState } from './types';
 import { SpriteActor } from './sprite-actor';
+import { greenhouseDiscoveryVisible } from './greenhouse-rules';
 
 interface Point { x: number; y: number }
 export interface HitTarget extends Point { id: string; label: string; kind: 'area' | 'character'; radius: number }
@@ -32,7 +33,7 @@ export class GardenMap {
   constructor(
     private readonly canvas: HTMLCanvasElement,
     mapSource: string,
-    reimuSpriteSource: string,
+    actorSprites: Record<string, { label: string; source: string }>,
     private readonly onSelect: (target: HitTarget, anchor: Point) => void,
   ) {
     const context = canvas.getContext('2d');
@@ -49,7 +50,9 @@ export class GardenMap {
     this.resizeObserver.observe(canvas);
     this.reducedMotion.addEventListener('change', this.onReducedMotionChanged);
     document.addEventListener('visibilitychange', this.onVisibilityChanged);
-    this.actors.set('reimu', new SpriteActor('reimu', '博丽灵梦', reimuSpriteSource, () => this.draw()));
+    Object.entries(actorSprites).forEach(([id, actor]) => {
+      this.actors.set(id, new SpriteActor(id, actor.label, actor.source, () => this.draw()));
+    });
     this.resize();
     this.startAnimation();
   }
@@ -142,13 +145,18 @@ export class GardenMap {
     this.targets = [];
     const areas = this.state.areas ?? {};
     for (const [id, area] of Object.entries(areas)) {
-      if (!area.unlocked) continue;
+      const discoveryMarker = id === 'greenhouse_plot'
+        && !area.unlocked
+        && greenhouseDiscoveryVisible(this.state);
+      if (!area.unlocked && !discoveryMarker) continue;
       const point = areaPositions[id];
       if (!point) continue;
       const x = -drawWidth / 2 + point.x * drawWidth;
       const y = -drawHeight / 2 + point.y * drawHeight;
-      this.drawMarker(ctx, x, y, area.name ?? id, area.state ?? '未知', '#f3d58a');
-      this.targets.push({ id, label: area.name ?? id, kind: 'area', x, y, radius: 25 });
+      const label = discoveryMarker ? '温室方向的异常痕迹' : area.name ?? id;
+      const markerState = discoveryMarker ? '待调查' : area.state ?? '未知';
+      this.drawMarker(ctx, x, y, label, markerState, discoveryMarker ? '#d9b9e8' : '#f3d58a');
+      this.targets.push({ id, label, kind: 'area', x, y, radius: 25 });
     }
 
     // Only visiting characters are rendered. There is intentionally no player marker.

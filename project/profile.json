@@ -8,9 +8,9 @@
   "variable_root": "stat_data",
   "update_protocol": "magvarupdate-jsonpatch-subset",
   "target": {
-    "luker": "2.7.0",
-    "tavern_helper": "4.8.18",
-    "prompt_template": "1.17.4",
+    "luker": "SillyTavern 1.18.0 (8172dcd0)",
+    "tavern_helper": "4.8.19",
+    "prompt_template": "1.17.4.3",
     "mag_var_update_commit": "d1bdfd1efcf99c6f456e01f8f747b24f4b9834fc",
     "mvu_zod_commit": "50e3566f7b27325b1ee80cad0646e2184ac01cdf"
   }

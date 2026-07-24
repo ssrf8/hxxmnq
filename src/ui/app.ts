@@ -4,6 +4,11 @@ import { bridge } from './bridge';
 import { syncOpeningDatabase, type DatabaseSyncResult } from './database-adapter';
 import { projectGalScene } from './gal-scene';
 import { GardenMap } from './garden-map';
+import {
+  buildBattleSettlementMessage,
+  greenhouseActionBlock,
+  narrativeBattleResult,
+} from './greenhouse-rules';
 import { OpeningController } from './opening';
 import {
   buildActionMessage,
@@ -11,10 +16,12 @@ import {
   targetActions,
 } from './target-actions';
 import type {
+  BattleResult,
   ChatMessageView,
   GalSceneProjection,
   GardenState,
   InteractionTarget,
+  MessageTransactionKind,
   SceneMode,
   TargetAction,
 } from './types';
@@ -46,8 +53,13 @@ const mapSource = document.documentElement.dataset.mapSrc || `${assetBase}/maps/
 const reimuSpriteSource = document.documentElement.dataset.reimuSpriteSrc
   || `${assetBase}/characters/reimu/reimu-turnaround-v1.png`;
 const reimuPortraitSource = document.documentElement.dataset.reimuPortraitSrc || reimuSpriteSource;
+const marisaSpriteSource = document.documentElement.dataset.marisaSpriteSrc
+  || `${assetBase}/characters/marisa/marisa-riding-turnaround-v3.png`;
+const marisaPortraitSource = document.documentElement.dataset.marisaPortraitSrc || marisaSpriteSource;
 const mainHouseSource = document.documentElement.dataset.mainHouseSrc
   || `${assetBase}/world/house/main-house-states-v1.png`;
+const greenhouseSource = document.documentElement.dataset.greenhouseSrc
+  || `${assetBase}/world/greenhouse/magic-greenhouse-states-v1.png`;
 
 let state: GardenState = {};
 let cleanupSubscription: (() => void) | undefined;
@@ -66,6 +78,7 @@ let beatIndex = 0;
 let closurePending = false;
 let closurePresented = false;
 let bootRestoredSession = false;
+let pendingBattleResult: BattleResult | null = null;
 
 function setStatus(text: string, error = false) {
   liveStatus.textContent = text;
@@ -130,8 +143,8 @@ function renderSceneBeat() {
     ? `${beatIndex + 1}/${scene.beats.length} · 点击继续`
     : `${beatIndex + 1}/${scene.beats.length}`;
   portraitStage.dataset.reaction = beat.reactionId;
-  portrait.src = beat.speakerId === 'reimu' || activeTarget?.id === 'reimu'
-    ? reimuPortraitSource
+  portrait.src = beat.speakerId === 'marisa' || activeTarget?.id === 'marisa'
+    ? marisaPortraitSource
     : reimuPortraitSource;
   portrait.alt = `${speaker}近景占位图`;
   const atEnd = beatIndex >= scene.beats.length - 1;
@@ -319,6 +332,14 @@ async function chooseTargetAction(action: TargetAction) {
   }
   pendingAction = action;
   activeTarget = action.target;
+  if (action.mode === 'battle') {
+    startBattle();
+    return;
+  }
+  if (action.mode === 'battle_narrative') {
+    await settleBattleResult(narrativeBattleResult());
+    return;
+  }
   if (action.mode === 'facility') {
     openFacilityAction(action);
     return;
@@ -337,9 +358,11 @@ function openFacilityAction(action: TargetAction) {
   byId('gg-facility-title').textContent = action.target.label;
   byId('gg-facility-description').textContent = action.description;
   const cost = document.createDocumentFragment();
-  const pairs = action.id === 'repair'
-    ? [['行动', '修复旧主屋'], ['最低物资', '1'], ['时间影响', '成功结算后推进一个时段']]
-    : [['行动', action.label], ['时间影响', '依实际剧情判断']];
+  const pairs: string[][] = [['行动', action.label]];
+  if (action.id === 'repair') pairs.push(['最低物资', '1']);
+  if (action.cost?.materials) pairs.push(['消耗物资', String(action.cost.materials)]);
+  if (action.cost?.inspiration) pairs.push(['消耗灵感', String(action.cost.inspiration)]);
+  pairs.push(['时间影响', action.mayAdvanceTime ? '成功结算后推进一个时段' : '依实际剧情判断']);
   for (const [label, value] of pairs) {
     const dt = document.createElement('dt');
     const dd = document.createElement('dd');
@@ -348,7 +371,9 @@ function openFacilityAction(action: TargetAction) {
     cost.append(dt, dd);
   }
   byId('gg-facility-cost').replaceChildren(cost);
-  facilityImage.src = mainHouseSource;
+  facilityImage.src = action.target.id === 'greenhouse_plot' || action.target.id === 'magic_greenhouse'
+    ? greenhouseSource
+    : mainHouseSource;
   facilityImage.alt = `${action.target.label}状态占位图`;
   facilityConfirm.disabled = Boolean(action.disabled);
   facilityConfirm.textContent = action.disabled ? action.disabledReason || '当前不可用' : `确认${action.label}`;
@@ -375,11 +400,11 @@ async function confirmFacilityAction() {
   }
 }
 
-async function submitGalMessage(text: string, kind: 'interaction' | 'settlement' = 'interaction') {
+async function submitGalMessage(text: string, kind: MessageTransactionKind = 'interaction') {
   const value = text.trim();
   if (!value) {
     setStatus('先写点什么再发送吧。', true);
-    return;
+    return false;
   }
   const original = galInput.value;
   setGenerating(true);
@@ -390,11 +415,13 @@ async function submitGalMessage(text: string, kind: 'interaction' | 'settlement'
     sceneSignature = '';
     setStatus(transaction.phase === 'settled' ? '回复与真实楼层已落盘' : '消息已发送，正在等待回复');
     await refresh();
+    return true;
   } catch (error) {
     galInput.value = original || value;
     setGenerating(false);
     replyPanel.hidden = false;
     setStatus(`发送失败：${error instanceof Error ? error.message : String(error)}`, true);
+    return false;
   }
 }
 
@@ -412,7 +439,7 @@ async function endConversation() {
   }
   const participants = state.interaction?.current_session?.participant_character_ids ?? [];
   const names = participants.map((id) => state.characters?.[id]?.name ?? id);
-  const message = buildSettlementMessage(activeTarget, names);
+  const message = buildSettlementMessage(activeTarget, names, state);
   galInput.value = message;
   closurePending = true;
   await submitGalMessage(message, 'settlement');
@@ -455,7 +482,10 @@ async function refresh() {
 const gardenMap = new GardenMap(
   byId<HTMLCanvasElement>('gg-garden-map'),
   mapSource,
-  reimuSpriteSource,
+  {
+    reimu: { label: '博丽灵梦', source: reimuSpriteSource },
+    marisa: { label: '雾雨魔理沙', source: marisaSpriteSource },
+  },
   (target, anchor) => renderTargetMenu(
     { type: target.kind, id: target.id, label: target.label },
     anchor,
@@ -546,23 +576,67 @@ byId('gg-reload').addEventListener('click', () => {
   globalThis.dispatchEvent(new CustomEvent('gensokyo-garden:reload'));
 });
 
+function setBattleStatus(text: string, error = false) {
+  const element = byId('gg-battle-status');
+  element.textContent = text;
+  element.dataset.error = String(error);
+}
+
+async function settleBattleResult(result: BattleResult) {
+  battle?.destroy();
+  battle = undefined;
+  pendingBattleResult = result;
+  byId<HTMLButtonElement>('gg-battle-retry').hidden = true;
+  setBattleStatus('正在把唯一结算结果写入 battle.current 并复读校验……');
+  try {
+    const staged = await bridge.stageBattleResult(result);
+    pendingBattleResult = null;
+    setBattleStatus(staged.alreadyStaged ? '结果已存在，继续恢复剧情结算。' : '可信结果已写入并通过复读校验。');
+    if (battleDialog.open) battleDialog.close();
+    activeTarget = { type: 'facility', id: 'magic_greenhouse', label: '魔法温室' };
+    closurePending = false;
+    closurePresented = false;
+    scene = null;
+    sceneSignature = '';
+    setView('gal');
+    await submitGalMessage(buildBattleSettlementMessage(result), 'battle');
+  } catch (error) {
+    setBattleStatus(`可信结算写入失败：${error instanceof Error ? error.message : String(error)}`, true);
+    byId<HTMLButtonElement>('gg-battle-retry').hidden = false;
+  }
+}
+
 function startBattle() {
+  const blocked = greenhouseActionBlock(state, 'start_flower_core_battle');
+  if (blocked) {
+    setStatus(`无法开始符卡战：${blocked}`, true);
+    return;
+  }
   battle?.destroy();
   battleDialog.showModal();
+  setBattleStatus('方向键或 WASD 移动，Shift 专注；结算后会先写入可信 MVU 字段。');
+  byId<HTMLButtonElement>('gg-battle-retry').hidden = true;
   battle = new BattleEngine(battleCanvas, battleConfigJson as BattleConfig, async (result) => {
-    battleDialog.close();
-    const payload = JSON.stringify(result);
-    activeTarget = null;
-    setView('gal');
-    await submitGalMessage(`【符卡战结算】\n<battle_result>${payload}</battle_result>\n请依据这一唯一结算结果继续剧情，不要重复结算。`);
+    await settleBattleResult(result);
   });
   battle.start();
 }
-byId('gg-start-battle').addEventListener('click', startBattle);
-byId('gg-close-battle').addEventListener('click', () => battle?.stop('narrative'));
+byId('gg-battle-narrative').addEventListener('click', () => void settleBattleResult(narrativeBattleResult()));
+byId('gg-battle-retry').addEventListener('click', () => {
+  if (pendingBattleResult) void settleBattleResult(pendingBattleResult);
+});
+byId('gg-close-battle').addEventListener('click', () => {
+  battle?.destroy();
+  battle = undefined;
+  pendingBattleResult = null;
+  battleDialog.close();
+});
 battleDialog.addEventListener('cancel', (event) => {
   event.preventDefault();
-  battle?.stop('narrative');
+  battle?.destroy();
+  battle = undefined;
+  pendingBattleResult = null;
+  battleDialog.close();
 });
 
 globalThis.addEventListener('beforeunload', () => {

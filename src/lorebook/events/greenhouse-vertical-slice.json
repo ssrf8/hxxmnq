@@ -39,7 +39,13 @@
       "priority": 85,
       "one_time": true,
       "expires": null,
-      "allowed_results": ["greenhouse_clue_found", "material_sample_deferred"]
+      "allowed_results": ["greenhouse_clue_found", "material_sample_deferred"],
+      "settlement_effects": [
+        "areas.greenhouse_plot.unlocked = true",
+        "areas.greenhouse_plot.state = 未清理",
+        "facilities.magic_greenhouse.state = 可建设",
+        "marisa becomes present through the narrated encounter"
+      ]
     },
     {
       "config_id": "main_house_repair",
@@ -65,7 +71,8 @@
       "priority": 80,
       "one_time": true,
       "expires": null,
-      "allowed_results": ["investigate_growth", "hear_marisa_plan", "study_grandfather_blueprint"]
+      "allowed_results": ["investigate_growth", "hear_marisa_plan", "study_grandfather_blueprint"],
+      "settlement_effects": ["resources.inspiration += 1 exactly once"]
     },
     {
       "config_id": "clear_greenhouse_foundation",
@@ -78,7 +85,8 @@
       "one_time": true,
       "expires": null,
       "time_advance": 1,
-      "allowed_results": ["foundation_cleared", "hidden_root_network_found"]
+      "allowed_results": ["foundation_cleared", "hidden_root_network_found"],
+      "settlement_effects": ["areas.greenhouse_plot.state = 已清理"]
     },
     {
       "config_id": "build_basic_magic_greenhouse",
@@ -96,7 +104,13 @@
       "expires": null,
       "cost": {"materials": 4, "inspiration": 2},
       "time_advance": 1,
-      "allowed_results": ["basic_greenhouse_enabled", "enabled_with_instability"]
+      "allowed_results": ["basic_greenhouse_enabled", "enabled_with_instability"],
+      "settlement_effects": [
+        "resources.materials -= 4 exactly once",
+        "resources.inspiration -= 2 exactly once",
+        "facilities.magic_greenhouse.state = 启用",
+        "facilities.magic_greenhouse.current_form = 基础魔法温室"
+      ]
     },
     {
       "config_id": "greenhouse_first_use",
@@ -120,6 +134,7 @@
       "priority": 60,
       "one_time": true,
       "expires": null,
+      "minimum_effective_rounds": 2,
       "allowed_results": ["conversation_settled_after_multiple_turns"]
     },
     {
@@ -136,7 +151,13 @@
       "one_time": true,
       "expires": null,
       "battle_config_id": "greenhouse_flower_core_tutorial_v1",
-      "allowed_results": ["clean_win", "narrow_win", "loss", "narrative"]
+      "allowed_results": ["clean_win", "narrow_win", "loss", "narrative"],
+      "settlement_effects": [
+        "consume only bridge-written battle.current",
+        "append settlement_id to battle.settled_ids exactly once",
+        "record one anchor clue in memory.long_term_notes without creating anchors.stable",
+        "clear battle.current and events.active_event"
+      ]
     }
   ]
 }

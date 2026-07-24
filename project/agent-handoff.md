@@ -2,29 +2,42 @@
 
 ## 当前状态
 
-- 当前可验收检查点：`0.2.0-r18`
-- 角色卡：`../dist/checkpoint-0.2.0-r18/幻想乡物语-测试检查点-0.2.0-r18.json`
-- SHA-256：`ea8445eb07764a87d38cf81b3c52ad09406cc7865b75c2e44457b88a9f4f5b33`
-- 文件大小：约 `19,982,355` bytes
-- UI 脚本 ID：`gensokyo-garden-ui-020-r18`
-- 当前实机环境：Luker `2.7.0 release`、Tavern Helper 本机清单版本 `4.8.18`
+- 已验收开发基线：`0.2.0-r18`；当前联合验收候选：`0.2.0-r20`
+- 角色卡：`../dist/checkpoint-0.2.0-r20/幻想乡物语-测试检查点-0.2.0-r20.json`
+- SHA-256：`707dcca41fbbc5067b488392a0ec39fb5be2e2d52db1cb5536db8aeda678e441`
+- 文件大小：`29,554,743` bytes
+- UI 脚本 ID：`gensokyo-garden-ui-020-r20`
+- 当前实机环境：SillyTavern `1.18.0`（`8172dcd0`）、Tavern Helper `4.8.19`
 - MVU 固定来源：MagVarUpdate commit `d1bdfd1`
-- 当前阶段：M1/M3 并行；r18 已打包并写入 Luker，已清理 r17 角色卡与世界书；等待所有者按验收名单实机勾选 A-H。
+- 当前阶段：M1 联合候选进入人工验收；M3 的 R20 打包、导入、绑定、清理与真实宿主冒烟完成。
+- 联合结果：r19 温室建设与首次使用、r20 持续交流、妖花核心、两阶段战斗可信结算和锚点线索均已实现；现在按 `runtime-report-0.2.0-r20.md` 分批验收修复。
 - 关键修复：GAL 优先显示 LLM 长正文分页；time_period 口语别名映射四值。
 
 ## 下一位必须先读
 
 1. 本文件 `agent-handoff.md`
-2. `runtime-report-0.2.0-r18.md`（证据与验收名单）
-3. `contract.md` / `api-provenance.md`
-4. 改 GAL 或时段：`src/ui/gal-scene.ts`、`src/schema/02-mvu-schema.js`、`src/lorebook/gal-presentation-protocol.md`、`src/lorebook/variable-update-rules.md`
+2. `r19-r20-greenhouse-completion-plan.md`（当前执行计划）
+3. `runtime-report-0.2.0-r20.md`（当前候选、运行证据与验收清单）
+4. `runtime-report-0.2.0-r18.md`（已验收基线证据）
+5. `contract.md` / `api-provenance.md`
+6. 改 GAL、事件、战斗或时段：`src/ui/gal-scene.ts`、`src/ui/target-actions.ts`、`src/ui/greenhouse-rules.ts`、`src/ui/bridge.ts`、`src/schema/02-mvu-schema.js`、`src/lorebook/events/greenhouse-vertical-slice.json`、`src/lorebook/variable-update-rules.md`
 
 ## 操作约束
 
-- 未经用户明确要求，不要 package:checkpoint，不要覆盖已有检查点目录。
+- 当前 R20 已按用户明确授权完成 package 与导入；后续验收修复仍使用新检查点或显式授权，不覆盖 R20 目录。
 - 导入酒馆后只清理旧打包产物（角色卡 PNG / 世界书 JSON）；保留历史聊天目录。
 - 改 schema / 协议 / UI 后必须：npm test -> npm run check:ui -> npm run build:ui -> 再打包。
-- 打包碰撞策略：refuse-overwrite；源码当前 r18，manifest 下一目标 r19。
+- 打包碰撞策略：refuse-overwrite；已验收基线 r18，当前候选 r20。
+
+## r19+r20 已实现并导入
+
+- 自动门禁：22/22 tests、TypeScript、UI build、package dry-run 与 write 全通过。
+- r19：温室调查标记、魔理沙线索、第二点灵感、清理、资源不足路线、建造和首次使用。
+- r20：`effective_rounds`、多轮交流、妖花事件门控、可信 `battle.current`、四结果与锚点线索。
+- 真实目标只剩 R20 卡／R20 世界书／R20 缩略图；世界书 16 条并已绑定，三脚本 ID 正确。
+- 零生成开场在真实 0 层写入并复读成功；壳、MVU、地图／魔理沙／温室图片均已证明。
+- 旧 R12 卡、R12/无后缀世界书和一次误导入副本已删除；8 个历史聊天目录保留。
+- 导入与冒烟细节、已知边界、17 项验收方法见 `runtime-report-0.2.0-r20.md`。
 
 ## r18 已实现并交付：长正文显示 + 时段别名
 
@@ -103,10 +116,10 @@
 
 ## 剩余工作
 
-1. 所有者完成 r18 验收 A-H，尤其 D 与 E。
-2. 结束仍不写时段时，可加强结束协议或本地有限兜底（需授权）。
-3. G 深测（Swipe/停止续写/切卡）可继续。
-4. M2 全量与正式发布未开始。
+1. 所有者按 `runtime-report-0.2.0-r20.md` 第 1–17 项逐项验收并回报序号与现象。
+2. 优先修复主流程阻断、状态错结算和重复扣费；每次修复先回归自动门禁再真机复验。
+3. 完成 narrative 主线后，再分独立聊天慢慢补验 clean/narrow/loss 和待结算恢复。
+4. R20 验收完成后再决定进入 M2，当前不提前实现四设施、八角色全量内容。
 
 ## 常用命令
 

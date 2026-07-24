@@ -233,6 +233,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .gg-battle-dialog header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
 .gg-battle-dialog h2, .gg-battle-dialog p { margin: .2rem 0; }
 #gg-battle-canvas { display: block; width: min(100%, 480px); max-height: 72vh; aspect-ratio: 3/4; margin: .7rem auto; background: #101528; touch-action: none; image-rendering: pixelated; }
+#gg-battle-status[data-error="true"] { color: var(--gg-danger, #ff9c9c); }
 
 @media (max-width: 700px) {
   .gg-opening { grid-template-columns: 1fr; }

@@ -3,7 +3,13 @@ import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const VERSION = '0.2.0';
-const CHECKPOINT = '0.2.0-r18';
+const checkpointArg = process.argv.find(argument => argument.startsWith('--checkpoint='));
+if (!checkpointArg) throw new Error('缺少必需参数：--checkpoint=0.2.0-rN');
+const CHECKPOINT = checkpointArg.slice('--checkpoint='.length).trim();
+if (!/^0\.2\.0-r[1-9][0-9]*$/u.test(CHECKPOINT)) {
+  throw new Error(`非法检查点：${CHECKPOINT}`);
+}
+const CHECKPOINT_SUFFIX = CHECKPOINT.split('-').at(-1);
 const OUTPUT_DIR = path.resolve('dist', `checkpoint-${CHECKPOINT}`);
 const OUTPUT_FILE = path.join(OUTPUT_DIR, `幻想乡物语-测试检查点-${CHECKPOINT}.json`);
 const DRY_RUN = process.argv.includes('--dry-run');
@@ -16,6 +22,9 @@ const profile = await json('project/profile.json');
 const manifest = await json('project/manifest.json');
 if (profile.version !== VERSION || manifest.version !== VERSION) {
   throw new Error(`版本不一致：profile=${profile.version}, manifest=${manifest.version}, packer=${VERSION}`);
+}
+if (!manifest.planned_checkpoint_sequence?.includes(CHECKPOINT)) {
+  throw new Error(`检查点未登记在 planned_checkpoint_sequence：${CHECKPOINT}`);
 }
 if (!DRY_RUN && await exists(OUTPUT_FILE)) {
   throw new Error(`拒绝覆盖已有检查点：${OUTPUT_FILE}`);
@@ -117,7 +126,7 @@ const script = (name, id, content) => ({
   name,
   id,
   content,
-  info: `幻想乡物语测试检查点 ${VERSION}；由项目源文件生成。`,
+  info: `幻想乡物语测试检查点 ${CHECKPOINT}；由项目源文件生成。`,
   button: { enabled: false, buttons: [] },
   data: {},
   export_with: { data: true, button: true },
@@ -144,7 +153,7 @@ const data = {
       scripts: [
         script('幻想乡物语 · MVU 固定版本加载器', 'gensokyo-mvu-loader-020', mvuLoader),
         script('幻想乡物语 · MVU Schema', 'gensokyo-mvu-schema-020', mvuSchema),
-        script('幻想乡物语 · 移动庭园界面', 'gensokyo-garden-ui-020-r18', uiMount),
+        script('幻想乡物语 · 移动庭园界面', `gensokyo-garden-ui-020-${CHECKPOINT_SUFFIX}`, uiMount),
       ],
       variables: { stat_data: initialState },
     },

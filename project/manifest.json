@@ -1,8 +1,9 @@
 {
   "id": "gensokyo-moving-garden-0.2.0",
   "version": "0.2.0",
-  "status": "iteration",
-  "next_checkpoint": "0.2.0-r19",
+  "status": "acceptance",
+  "next_checkpoint": "0.2.0-r20-acceptance-fixes",
+  "planned_checkpoint_sequence": ["0.2.0-r19", "0.2.0-r20"],
   "source_root": "../src",
   "test_root": "../tests",
   "dist_root": "../dist",
@@ -18,7 +19,7 @@
   },
   "milestones": {
     "m0_contract_skeleton": "complete",
-    "m1_minimum_loop": "in-progress",
+    "m1_minimum_loop": "acceptance",
     "m2_full_v1": "pending",
     "m3_package_runtime_acceptance": "in-progress"
   },
@@ -37,7 +38,9 @@
     "gal_interaction_plan": "./gal-interaction-plan.md",
     "runtime_report_r16": "./runtime-report-0.2.0-r16.md",
     "runtime_report_r17": "./runtime-report-0.2.0-r17.md",
-    "runtime_report_r18": "./runtime-report-0.2.0-r18.md"
+    "runtime_report_r18": "./runtime-report-0.2.0-r18.md",
+    "runtime_report_r20": "./runtime-report-0.2.0-r20.md",
+    "r19_r20_greenhouse_plan": "./r19-r20-greenhouse-completion-plan.md"
   },
   "m0_content_sources": {
     "card_identity": "../src/card/identity.xml",
@@ -58,6 +61,7 @@
     "garden_canvas": "../src/ui/garden-map.ts",
     "gal_scene_parser": "../src/ui/gal-scene.ts",
     "target_actions": "../src/ui/target-actions.ts",
+    "greenhouse_rules": "../src/ui/greenhouse-rules.ts",
     "message_transaction": "../src/ui/message-transaction.ts",
     "battle_engine": "../src/ui/battle-engine.ts",
     "styles": "../src/ui/styles.css",
@@ -66,9 +70,9 @@
   "runtime_artifacts": {
     "self_contained_ui_mount": "../dist/runtime/ui-mount.js",
     "mvu_loader": "../src/runtime/01-mvu-loader.js",
-    "checkpoint_card": "../dist/checkpoint-0.2.0-r18/幻想乡物语-测试检查点-0.2.0-r18.json",
-    "current_ui_script": "gensokyo-garden-ui-020-r18",
-    "current_checkpoint": "0.2.0-r18"
+    "checkpoint_card": "../dist/checkpoint-0.2.0-r20/幻想乡物语-测试检查点-0.2.0-r20.json",
+    "current_ui_script": "gensokyo-garden-ui-020-r20",
+    "current_checkpoint": "0.2.0-r20"
   },
   "checkpoint_adapter": {
     "command_dry_run": "npm run package:checkpoint:dry",
