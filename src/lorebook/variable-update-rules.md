@@ -69,6 +69,8 @@
 - 事件到期必须写入错过、延期或条件变化，再移除/转移原记录。
 - `greenhouse_flower_core` 先通过调查回复创建唯一 `events.active_event`，再允许玩家选择本地符卡战或剧情解决。模型不得从正文、HTML、自定义标签或玩家声称的 JSON 创建/替换 `battle.current`；该字段只由本地 bridge 写入并复读。
 - 消费 `greenhouse_flower_core_tutorial_v1` 时先检查白名单、范围与 `battle.settled_ids`。四种允许结果分别为：`clean_win` 温室恢复启用并清除核心异常；`narrow_win` 温室保持启用并记录核心休眠；`loss` 温室置为“异常”并记录核心暂时占据；`narrative` 温室保持启用并记录协商封存。四种结果都只能结算一次，都追加同一结算 ID、记录 `events.completed_key_events.greenhouse_flower_core` 的对应结果、在 `memory.long_term_notes` 合并一条“庭守钥与温室核心共鸣，暗示未来可建立移动锚点”的线索，且绝不创建 `anchors.stable` 或修改 `garden.primary_anchor_id`。最后清空 `battle.current` 与 `events.active_event`。
+- 妖花核心完成后，本地结算器仅一次把 `battle.dungeon_unlocked` 设为 true。可重复副本全过程不生成 user/assistant 楼层：本地白名单校验结果后，`clean_win`/`narrow_win`/`loss` 分别增加 12/8/3 金币并推进一个时段；主动取消不写任何正式状态。每个 `settlement_id` 只允许发奖和推进一次，记录在最多 256 条的 `battle.rewarded_ids` 中。
+- 灵梦小店使用本地 `catalog.json` 白名单；普通物资购买不创建聊天楼层。购买事务先校验解锁、价格、余额、物资上限和购买 ID，再原子扣金币、加物资、记录幂等 ID 并复读；任何失败均不得部分扣款。
 
 ## 时段取值（强制）
 

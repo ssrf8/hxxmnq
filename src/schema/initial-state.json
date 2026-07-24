@@ -28,7 +28,8 @@
   },
   "resources": {
     "materials": 6,
-    "inspiration": 1
+    "inspiration": 1,
+    "coins": 0
   },
   "areas": {
     "main_house": {
@@ -189,7 +190,16 @@
   },
   "battle": {
     "current": null,
-    "settled_ids": []
+    "settled_ids": [],
+    "dungeon_unlocked": false,
+    "run_count": 0,
+    "last_run": null,
+    "rewarded_ids": []
+  },
+  "shop": {
+    "unlocked": false,
+    "purchase_settled_ids": [],
+    "static_dialogue_seen_ids": []
   },
   "key_items": {
     "garden_keeper_key": {

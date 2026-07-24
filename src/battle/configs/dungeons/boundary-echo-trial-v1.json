@@ -1,0 +1,6 @@
+{
+  "config_id": "boundary_echo_trial_v1", "version": 1, "arena": {"width":480,"height":640},
+  "player": {"lives":3,"move_speed":230,"focus_speed":115,"hitbox_radius":4,"invulnerability_ms":1600,"auto_fire":true,"normal_shot":{"pattern":"forward_wide","damage":1,"interval_ms":95},"focus_shot":{"pattern":"forward_narrow","damage":2,"interval_ms":110}},
+  "phases": [{"id":"echo_ring","objective":"defeat","hp":400,"duration_ms":46000,"patterns":[{"pattern_id":"fixed_seed_ring","interval_ms":1200,"speed":115,"count":14}]},{"id":"echo_safe_zone","objective":"defeat","hp":500,"duration_ms":52000,"patterns":[{"pattern_id":"homing_leaf","interval_ms":1150,"speed":115,"count":5,"turn_rate_deg":58},{"pattern_id":"local_safe_zone","interval_ms":4800,"warning_ms":1200,"duration_ms":2400}]}],
+  "parameter_limits":{"speed":[40,260],"count":[1,32],"interval_ms":[80,10000],"duration_ms":[500,120000],"damage":[1,10]}, "allowed_outcomes":["clean_win","narrow_win","loss"]
+}

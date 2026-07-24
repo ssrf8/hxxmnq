@@ -1,0 +1,10 @@
+{
+  "version": "shop-dialogues.v1",
+  "dialogues": {
+    "purchase_success":"灵梦把登记好的物资递来：账已结清，东西拿好。",
+    "shop_locked":"小店尚未开张；先处理温室妖花核心的后续吧。",
+    "insufficient_coins":"金币不够。灵梦把账本合上，示意你下次再来。",
+    "materials_full":"物资已经装不下了，这笔交易没有发生。",
+    "unknown_item":"这件商品不在本地目录中，拒绝交易。"
+  }
+}

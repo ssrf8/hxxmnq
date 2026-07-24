@@ -1,9 +1,9 @@
 {
   "id": "gensokyo-moving-garden-0.2.0",
   "version": "0.2.0",
-  "status": "acceptance",
-  "next_checkpoint": "0.2.0-r28-presence-snapshot-sync",
-  "planned_checkpoint_sequence": ["0.2.0-r19", "0.2.0-r20", "0.2.0-r21", "0.2.0-r22", "0.2.0-r23", "0.2.0-r24", "0.2.0-r25", "0.2.0-r26", "0.2.0-r27", "0.2.0-r28"],
+  "status": "candidate",
+  "next_checkpoint": "0.2.0-r29-narrative-economy",
+  "planned_checkpoint_sequence": ["0.2.0-r19", "0.2.0-r20", "0.2.0-r21", "0.2.0-r22", "0.2.0-r23", "0.2.0-r24", "0.2.0-r25", "0.2.0-r26", "0.2.0-r27", "0.2.0-r28", "0.2.0-r29", "0.2.0-r30", "0.2.0-r31", "0.2.0-r32", "0.2.0-r33", "0.2.0-r34", "0.2.0-r35", "0.2.0-r36"],
   "source_root": "../src",
   "test_root": "../tests",
   "dist_root": "../dist",
@@ -43,7 +43,8 @@
     "runtime_report_r23": "./runtime-report-0.2.0-r23.md",
     "r19_r20_greenhouse_plan": "./r19-r20-greenhouse-completion-plan.md",
     "runtime_report_r28": "./runtime-report-0.2.0-r28.md",
-    "presence_sync_contract": "./presence-sync-contract.md"
+    "presence_sync_contract": "./presence-sync-contract.md",
+    "next_update_plan": "./r29-r36-m1-expansion-plan.md"
   },
   "m0_content_sources": {
     "card_identity": "../src/card/identity.xml",
@@ -52,6 +53,8 @@
     "moving_garden": "../src/lorebook/core/moving-garden.xml",
     "character_directory": "../src/lorebook/characters",
     "greenhouse_events": "../src/lorebook/events/greenhouse-vertical-slice.json",
+    "event_contract": "../src/lorebook/events/event-contract.md",
+    "dungeon_registry": "../src/battle/dungeon-registry.json",
     "gal_presentation": "../src/lorebook/gal-presentation-protocol.md",
     "tutorial_battle_config": "../src/battle/configs/greenhouse-flower-core-tutorial-v1.json"
   },
@@ -67,6 +70,13 @@
     "greenhouse_rules": "../src/ui/greenhouse-rules.ts",
     "message_transaction": "../src/ui/message-transaction.ts",
     "event_settlement": "../src/ui/event-settlement.ts",
+    "event_registry": "../src/ui/event-registry.ts",
+    "state_migrations": "../src/ui/state-migrations.ts",
+    "time_rules": "../src/ui/time-rules.ts",
+    "dungeon_rules": "../src/ui/dungeon-rules.ts",
+    "shop_rules": "../src/ui/shop-rules.ts",
+    "shop_view": "../src/ui/shop-view.ts",
+    "test_tools": "../src/ui/test-tools.ts",
     "battle_engine": "../src/ui/battle-engine.ts",
     "styles": "../src/ui/styles.css",
     "preview_build": "../dist/ui/index.html"
@@ -74,9 +84,9 @@
   "runtime_artifacts": {
     "self_contained_ui_mount": "../dist/runtime/ui-mount.js",
     "mvu_loader": "../src/runtime/01-mvu-loader.js",
-    "checkpoint_card": "../dist/checkpoint-0.2.0-r28/幻想乡物语-测试检查点-0.2.0-r28.json",
-    "current_ui_script": "gensokyo-garden-ui-020-r28",
-    "current_checkpoint": "0.2.0-r28"
+    "checkpoint_card": "../dist/checkpoint-0.2.0-r30/幻想乡物语-测试检查点-0.2.0-r30.json",
+    "current_ui_script": "gensokyo-garden-ui-020-r30",
+    "current_checkpoint": "0.2.0-r30"
   },
   "checkpoint_adapter": {
     "command_dry_run": "npm run package:checkpoint:dry",

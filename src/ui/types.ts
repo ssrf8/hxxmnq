@@ -11,7 +11,7 @@ export interface GardenState {
   environment?: { day?: number; time_period?: TimePeriod; season?: string; weather?: string; anomaly_weather?: string | null };
   player?: { name?: string; pronouns?: string; appearance?: string; current_area_id?: string };
   garden?: { name?: string; construction_stage?: string; primary_anchor_id?: string | null };
-  resources?: { materials?: number; inspiration?: number };
+  resources?: { materials?: number; inspiration?: number; coins?: number };
   areas?: Record<string, { id?: string; name?: string; unlocked?: boolean; state?: string; main_facility_id?: string | null }>;
   facilities?: Record<string, {
     id?: string;
@@ -45,7 +45,15 @@ export interface GardenState {
     active_event?: { uid?: string; title?: string; config_id?: string; status?: string } | null;
     completed_key_events?: Record<string, string>;
   };
-  battle?: { current?: BattleResult | null; settled_ids?: string[] };
+  battle?: {
+    current?: BattleResult | null;
+    settled_ids?: string[];
+    dungeon_unlocked?: boolean;
+    run_count?: number;
+    last_run?: DungeonRunRecord | null;
+    rewarded_ids?: string[];
+  };
+  shop?: { unlocked?: boolean; purchase_settled_ids?: string[]; static_dialogue_seen_ids?: string[] };
   memory?: { long_term_notes?: string[] };
   uid_counters?: { interaction?: number; [key: string]: number | undefined };
   [key: string]: unknown;
@@ -90,7 +98,7 @@ export interface OpeningCommitResult {
 }
 
 export type TargetType = 'character' | 'area' | 'facility';
-export type SceneMode = 'garden' | 'gal' | 'facility' | 'settings';
+export type SceneMode = 'garden' | 'gal' | 'facility' | 'settings' | 'shop';
 export type GalBeatKind = 'narration' | 'speech' | 'action';
 export type GalReaction =
   | 'neutral'
@@ -192,6 +200,9 @@ export interface GardenBridge {
   getTransactionState(): Promise<MessageTransactionSnapshot>;
   retryLastTransaction(): Promise<MessageTransactionSnapshot>;
   stageBattleResult(result: BattleResult): Promise<{ messageId: number; alreadyStaged: boolean }>;
+  settleDungeonResult(result: BattleResult): Promise<{ rewardCoins: number; alreadySettled: boolean }>;
+  applyTestJump(jump: import('./test-tools').TestJumpId): Promise<void>;
+  purchaseShopItem(itemId: string, purchaseId: string): Promise<void>;
   continueGeneration(): Promise<void>;
   stopGeneration(): Promise<boolean>;
   regenerateLatest(): Promise<void>;
@@ -212,4 +223,14 @@ export interface BattleResult {
   damage: number;
   phases_cleared: number;
   objective_ratio: number;
+}
+
+export interface DungeonRunRecord {
+  config_id: string;
+  outcome: 'clean_win' | 'narrow_win' | 'loss';
+  reward_coins: number;
+  started_day: number;
+  started_time_period: TimePeriod;
+  settled_day: number;
+  settled_time_period: TimePeriod;
 }

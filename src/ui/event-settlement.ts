@@ -1,4 +1,6 @@
 import type { GardenState } from './types';
+import { eventById } from './event-registry';
+import { advanceOneTimePeriod } from './time-rules';
 
 export interface GardenActionMarker {
   version: 'garden-action.v1';
@@ -146,7 +148,7 @@ export function localSettlementAction(
   state: GardenState,
 ): GardenActionMarker | null {
   const parsed = parseGardenAction(message);
-  if (parsed && LOCAL_EVENT_ACTIONS.has(parsed.action_id) && parsed.event_id) return parsed;
+  if (parsed && LOCAL_EVENT_ACTIONS.has(parsed.action_id) && parsed.event_id && eventById.has(parsed.event_id)) return parsed;
   const session = state.interaction?.current_session;
   if (!parsed && session?.event_id === 'greenhouse_multiturn_conversation') {
     return {
@@ -199,12 +201,7 @@ function completed(state: GardenState) {
 }
 
 function advanceTime(state: GardenState) {
-  state.environment ??= {};
-  const periods = ['清晨', '白昼', '黄昏', '夜晚'] as const;
-  const current = periods.indexOf(state.environment.time_period ?? '清晨');
-  const next = (current + 1) % periods.length;
-  state.environment.time_period = periods[next];
-  if (next === 0) state.environment.day = (state.environment.day ?? 1) + 1;
+  Object.assign(state, advanceOneTimePeriod(state));
 }
 
 function requireEvent(action: GardenActionMarker, expected: string) {
@@ -425,6 +422,12 @@ function settleFlowerCore(state: GardenState, action: GardenActionMarker) {
     '庭守钥与温室核心共鸣，暗示未来可建立移动锚点',
   ]));
   state.battle!.settled_ids = [...state.battle!.settled_ids!, result.settlement_id];
+  state.battle!.dungeon_unlocked = true;
+  state.battle!.run_count ??= 0;
+  state.battle!.last_run ??= null;
+  state.battle!.rewarded_ids ??= [];
+  state.shop ??= {};
+  state.shop.unlocked = true;
   state.battle!.current = null;
   state.events!.active_event = null;
 }

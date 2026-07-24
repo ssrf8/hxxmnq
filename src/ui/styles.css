@@ -245,6 +245,9 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .gg-facility-cost dt { color: var(--gg-muted); }
 .gg-facility-cost dd { margin: 0; }
 .gg-settings { min-height: 420px; padding: 1rem; }
+.gg-shop-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: .75rem; }
+.gg-shop-item { min-width: 0; padding: .9rem; border: 1px solid var(--gg-border); border-radius: 12px; background: var(--gg-panel); }
+.gg-shop-item h3 { margin: 0 0 .35rem; }
 
 .gg-battle-dialog { width: min(94vw, 560px); max-height: 94vh; padding: .8rem; border: 1px solid var(--gg-border); border-radius: var(--gg-radius); background: #161a24; color: var(--gg-text); }
 .gg-battle-dialog::backdrop { background: rgba(0,0,0,.78); }

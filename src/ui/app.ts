@@ -1,4 +1,7 @@
 import battleConfigJson from '../battle/configs/greenhouse-flower-core-tutorial-v1.json';
+import fairyDungeonConfig from '../battle/configs/dungeons/fairy-pattern-practice-v1.json';
+import forestDungeonConfig from '../battle/configs/dungeons/forest-magic-residue-v1.json';
+import boundaryDungeonConfig from '../battle/configs/dungeons/boundary-echo-trial-v1.json';
 import { BattleEngine, type BattleConfig } from './battle-engine';
 import { bridge } from './bridge';
 import { syncOpeningDatabase, type DatabaseSyncResult } from './database-adapter';
@@ -10,6 +13,9 @@ import {
   greenhouseActionBlock,
   narrativeBattleResult,
 } from './greenhouse-rules';
+import { dungeonBlock } from './dungeon-rules';
+import { renderShopView } from './shop-view';
+import { shopBlock, shopMessage } from './shop-rules';
 import { OpeningController } from './opening';
 import {
   buildActionMessage,
@@ -52,6 +58,7 @@ const facilityImage = byId<HTMLImageElement>('gg-facility-image');
 const workAnimation = byId<HTMLElement>('gg-work-animation');
 const facilityConfirm = byId<HTMLButtonElement>('gg-facility-confirm');
 const battleDialog = byId<HTMLDialogElement>('gg-battle-dialog');
+const dungeonDialog = byId<HTMLDialogElement>('gg-dungeon-dialog');
 const battleCanvas = byId<HTMLCanvasElement>('gg-battle-canvas');
 const assetBase = document.documentElement.dataset.assetBase ?? '../assets';
 const mapSource = document.documentElement.dataset.mapSrc || `${assetBase}/maps/garden-base-spring-v1.png`;
@@ -86,6 +93,7 @@ let closurePresented = false;
 let singleShotEventPresentation = false;
 let bootRestoredSession = false;
 let pendingBattleResult: BattleResult | null = null;
+let activeBattleKind: 'flower_core' | 'dungeon' = 'flower_core';
 
 const GREENHOUSE_RESEARCH_INPUT_MAX_LENGTH = 120;
 
@@ -103,7 +111,7 @@ function setStatus(text: string, error = false) {
 function setView(view: SceneMode) {
   previousView = currentView === 'settings' ? previousView : currentView;
   currentView = view;
-  for (const name of ['garden', 'gal', 'facility', 'settings'] as SceneMode[]) {
+  for (const name of ['garden', 'gal', 'facility', 'settings', 'shop'] as SceneMode[]) {
     byId<HTMLElement>(`gg-view-${name}`).hidden = name !== view;
   }
   if (view !== 'garden') hideTargetMenu();
@@ -114,7 +122,7 @@ function renderHeader() {
   byId('gg-garden-name').textContent = state.garden?.name ?? '无名庭园';
   byId('gg-time').textContent = `${environment.season ?? '春'}·第${environment.day ?? 1}日·${environment.time_period ?? '清晨'}`;
   byId('gg-weather').textContent = [environment.weather ?? '晴', environment.anomaly_weather].filter(Boolean).join(' / ');
-  byId('gg-resources').textContent = `物资 ${state.resources?.materials ?? 0} · 灵感 ${state.resources?.inspiration ?? 0}`;
+  byId('gg-resources').textContent = `物资 ${state.resources?.materials ?? 0} · 灵感 ${state.resources?.inspiration ?? 0} · 金币 ${state.resources?.coins ?? 0}`;
 }
 
 function characterName(id: string | null) {
@@ -571,6 +579,7 @@ async function refresh() {
     const transaction = await bridge.getTransactionState();
     await renderDiagnostics(transaction.phase, transaction.lastError);
     if (currentView === 'gal') await renderGal();
+    if (currentView === 'shop') renderShop();
     if (!bootRestoredSession && state.meta?.opening_committed) {
       bootRestoredSession = true;
       const restored = inferSessionTarget();
@@ -689,6 +698,22 @@ byId('gg-show-native').addEventListener('click', async () => {
 byId('gg-reload').addEventListener('click', () => {
   globalThis.dispatchEvent(new CustomEvent('gensokyo-garden:reload'));
 });
+async function runTestJump(jump: 'greenhouse_ready' | 'r29_after_flower_core' | 'r30_shop_ready') {
+  try {
+    await bridge.applyTestJump(jump);
+    await refresh();
+    setStatus(jump === 'r30_shop_ready'
+      ? '小店测试状态已就绪：已解锁，金币为 50。'
+      : jump === 'r29_after_flower_core'
+      ? '测试快进完成：已到妖花战后，符卡副本已解锁。'
+      : '测试快进完成：基础魔法温室已可用。');
+  } catch (error) {
+    setStatus(`测试快进失败：${error instanceof Error ? error.message : String(error)}`, true);
+  }
+}
+byId('gg-test-greenhouse-ready').addEventListener('click', () => void runTestJump('greenhouse_ready'));
+byId('gg-test-r29-ready').addEventListener('click', () => void runTestJump('r29_after_flower_core'));
+byId('gg-test-r30-ready').addEventListener('click', () => void runTestJump('r30_shop_ready'));
 
 function setBattleStatus(text: string, error = false) {
   const element = byId('gg-battle-status');
@@ -703,6 +728,14 @@ async function settleBattleResult(result: BattleResult) {
   byId<HTMLButtonElement>('gg-battle-retry').hidden = true;
   setBattleStatus('正在把唯一结算结果写入 battle.current 并复读校验……');
   try {
+    if (activeBattleKind === 'dungeon') {
+      const settled = await bridge.settleDungeonResult(result);
+      pendingBattleResult = null;
+      if (battleDialog.open) battleDialog.close();
+      setStatus(`副本结算完成：获得 ${settled.rewardCoins} 金币，并推进一个时段。`);
+      await refresh();
+      return;
+    }
     const staged = await bridge.stageBattleResult(result);
     pendingBattleResult = null;
     setBattleStatus(staged.alreadyStaged ? '结果已存在，继续恢复剧情结算。' : '可信结果已写入并通过复读校验。');
@@ -720,6 +753,43 @@ async function settleBattleResult(result: BattleResult) {
   }
 }
 
+const dungeonEntries = [
+  { title: '妖精弹幕练习', config: fairyDungeonConfig },
+  { title: '森林魔力残响', config: forestDungeonConfig },
+  { title: '结界回声试炼', config: boundaryDungeonConfig },
+] as const;
+
+function openDungeonMenu() {
+  const blocked = dungeonBlock(state);
+  byId('gg-dungeon-note').textContent = blocked || '三种难度共享 12／8／3 金币奖励；主动取消不结算。';
+  const actions = byId('gg-dungeon-actions');
+  const fragment = document.createDocumentFragment();
+  for (const entry of dungeonEntries) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = entry.title;
+    button.disabled = Boolean(blocked);
+    button.addEventListener('click', () => startDungeonBattle(entry.title, entry.config as BattleConfig));
+    fragment.append(button);
+  }
+  actions.replaceChildren(fragment);
+  dungeonDialog.showModal();
+}
+
+function startDungeonBattle(title: string, config: BattleConfig) {
+  const blocked = dungeonBlock(state);
+  if (blocked) { setStatus(blocked, true); return; }
+  dungeonDialog.close();
+  activeBattleKind = 'dungeon';
+  battle?.destroy();
+  battleDialog.showModal();
+  byId('gg-battle-title').textContent = title;
+  byId<HTMLButtonElement>('gg-battle-narrative').hidden = true;
+  setBattleStatus('方向键或 WASD 移动，Shift 专注；本局结算完全在本地进行。');
+  battle = new BattleEngine(battleCanvas, config, async (result) => { await settleBattleResult(result); });
+  battle.start();
+}
+
 function startBattle() {
   const blocked = greenhouseActionBlock(state, 'start_flower_core_battle');
   if (blocked) {
@@ -727,7 +797,10 @@ function startBattle() {
     return;
   }
   battle?.destroy();
+  activeBattleKind = 'flower_core';
   battleDialog.showModal();
+  byId('gg-battle-title').textContent = '温室妖花核心';
+  byId<HTMLButtonElement>('gg-battle-narrative').hidden = false;
   setBattleStatus('方向键或 WASD 移动，Shift 专注；结算后会先写入可信 MVU 字段。');
   byId<HTMLButtonElement>('gg-battle-retry').hidden = true;
   battle = new BattleEngine(battleCanvas, battleConfigJson as BattleConfig, async (result) => {
@@ -736,6 +809,26 @@ function startBattle() {
   battle.start();
 }
 byId('gg-battle-narrative').addEventListener('click', () => void settleBattleResult(narrativeBattleResult()));
+byId('gg-open-dungeon').addEventListener('click', openDungeonMenu);
+byId('gg-close-dungeon').addEventListener('click', () => dungeonDialog.close());
+function renderShop() {
+  renderShopView(byId('gg-shop-content'), state, (itemId) => void buyShopItem(itemId));
+}
+async function buyShopItem(itemId: string) {
+  const blocked = shopBlock(state);
+  if (blocked) { setStatus(blocked, true); return; }
+  const purchaseId = `shop:${itemId}:${Date.now().toString(36)}`;
+  if (!globalThis.confirm('确认以登记价格购买这件商品吗？')) return;
+  try {
+    await bridge.purchaseShopItem(itemId, purchaseId);
+    await refresh();
+    setStatus(shopMessage());
+  } catch (error) {
+    setStatus(shopMessage(error), true);
+  }
+}
+byId('gg-open-shop').addEventListener('click', () => { setView('shop'); renderShop(); });
+byId('gg-shop-back').addEventListener('click', () => setView('garden'));
 byId('gg-battle-retry').addEventListener('click', () => {
   if (pendingBattleResult) void settleBattleResult(pendingBattleResult);
 });

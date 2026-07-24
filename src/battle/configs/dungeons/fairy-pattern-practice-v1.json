@@ -1,0 +1,6 @@
+{
+  "config_id": "fairy_pattern_practice_v1", "version": 1, "arena": {"width":480,"height":640},
+  "player": {"lives":3,"move_speed":230,"focus_speed":115,"hitbox_radius":4,"invulnerability_ms":1600,"auto_fire":true,"normal_shot":{"pattern":"forward_wide","damage":1,"interval_ms":95},"focus_shot":{"pattern":"forward_narrow","damage":2,"interval_ms":110}},
+  "phases": [{"id":"practice_ring","objective":"defeat","hp":280,"duration_ms":35000,"patterns":[{"pattern_id":"fixed_seed_ring","interval_ms":1600,"speed":85,"count":10}]}],
+  "parameter_limits":{"speed":[40,260],"count":[1,32],"interval_ms":[80,10000],"duration_ms":[500,120000],"damage":[1,10]}, "allowed_outcomes":["clean_win","narrow_win","loss"]
+}

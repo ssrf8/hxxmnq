@@ -52,8 +52,10 @@
         <div class="gg-status-line" aria-label="庭园状态">
           <span id="gg-time">春·第1日·清晨</span>
           <span id="gg-weather">晴</span>
-          <span id="gg-resources">物资 6 · 灵感 1</span>
+          <span id="gg-resources">物资 6 · 灵感 1 · 金币 0</span>
         </div>
+        <button type="button" id="gg-open-dungeon" class="gg-icon-button">符卡副本</button>
+        <button type="button" id="gg-open-shop" class="gg-icon-button">灵梦小店</button>
         <button type="button" id="gg-open-settings" class="gg-icon-button" aria-label="打开设置与恢复">设置</button>
       </header>
 
@@ -143,6 +145,11 @@
         </article>
       </section>
 
+      <section id="gg-view-shop" class="gg-view gg-settings" aria-label="灵梦小店" hidden>
+        <header class="gg-scene-toolbar"><button type="button" id="gg-shop-back">返回庭院</button><p class="gg-eyebrow">本地交易 · 不调用 LLM</p></header>
+        <div id="gg-shop-content"></div>
+      </section>
+
       <section id="gg-view-settings" class="gg-view gg-settings" aria-labelledby="gg-settings-title" hidden>
         <header class="gg-scene-toolbar">
           <button type="button" id="gg-settings-back">返回游戏</button>
@@ -153,6 +160,16 @@
           <button type="button" id="gg-show-native">显示原生聊天</button>
           <button type="button" id="gg-reload">重新加载同层应用</button>
         </div>
+        <section class="gg-test-tools" aria-labelledby="gg-test-tools-title">
+          <p class="gg-eyebrow">验收辅助</p>
+          <h3 id="gg-test-tools-title">测试快进（直接写入 MVU）</h3>
+          <p class="gg-note">仅用于测试；不会创建聊天消息或调用 LLM。</p>
+          <div class="gg-actions">
+            <button type="button" id="gg-test-greenhouse-ready">跳至温室可用</button>
+            <button type="button" id="gg-test-r29-ready">跳至妖花战后／副本解锁</button>
+            <button type="button" id="gg-test-r30-ready">跳至小店测试状态（50 金币）</button>
+          </div>
+        </section>
         <p class="gg-note">正常游戏只显示这一份常驻界面；后台楼层仍是真实消息。发生故障时可以临时恢复原生聊天。</p>
       </section>
     </div>
@@ -171,6 +188,11 @@
       <button type="button" id="gg-battle-narrative">改用剧情解决</button>
       <button type="button" id="gg-battle-retry" hidden>重试写入与结算</button>
     </div>
+  </dialog>
+  <dialog id="gg-dungeon-dialog" class="gg-session-history-dialog" aria-labelledby="gg-dungeon-title">
+    <header><div><p class="gg-eyebrow">可重复挑战</p><h2 id="gg-dungeon-title">符卡副本</h2></div><button type="button" id="gg-close-dungeon">关闭</button></header>
+    <p id="gg-dungeon-note" class="gg-note"></p>
+    <div id="gg-dungeon-actions" class="gg-target-actions"></div>
   </dialog>
   <script src="./app.js"></script>
 </body>

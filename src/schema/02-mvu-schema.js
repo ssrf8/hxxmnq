@@ -150,6 +150,7 @@ const Schema = z.object({
   resources: z.object({
     materials: integer(6, 0, 20),
     inspiration: integer(1, 0, 10),
+    coins: integer(0, 0, 99999),
   }).passthrough().prefault({}),
   areas: dictionary(areaSchema),
   facilities: dictionary(facilitySchema),
@@ -176,6 +177,23 @@ const Schema = z.object({
   battle: z.object({
     current: z.union([battleResultSchema, z.null()]).prefault(null).catch(null),
     settled_ids: list(text('', 64), 64),
+    dungeon_unlocked: boolean(false),
+    run_count: integer(0, 0, 999999),
+    last_run: z.union([z.object({
+      config_id: text('', 80),
+      outcome: z.enum(['clean_win', 'narrow_win', 'loss']).prefault('loss').catch('loss'),
+      reward_coins: integer(0, 0, 99999),
+      started_day: integer(1, 1, 999999),
+      started_time_period: z.enum(['清晨', '白昼', '黄昏', '夜晚']).prefault('清晨').catch('清晨'),
+      settled_day: integer(1, 1, 999999),
+      settled_time_period: z.enum(['清晨', '白昼', '黄昏', '夜晚']).prefault('清晨').catch('清晨'),
+    }).passthrough(), z.null()]).prefault(null).catch(null),
+    rewarded_ids: list(text('', 64), 256),
+  }).passthrough().prefault({}),
+  shop: z.object({
+    unlocked: boolean(false),
+    purchase_settled_ids: list(text('', 64), 256),
+    static_dialogue_seen_ids: list(text('', 64), 128),
   }).passthrough().prefault({}),
   key_items: dictionary(z.object({
     id: text('', 48),

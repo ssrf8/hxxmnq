@@ -1,0 +1,7 @@
+{
+  "version": "shop.v1",
+  "items": [
+    {"item_id":"basic_material_single","item_type":"resource","title":"单份基础物资","price":6,"resource":"materials","quantity":1,"unique":false,"enabled_checkpoint":"0.2.0-r30","local_effect_id":"add_materials"},
+    {"item_id":"basic_material_crate","item_type":"resource","title":"基础物资组合箱","price":22,"resource":"materials","quantity":4,"unique":false,"enabled_checkpoint":"0.2.0-r30","local_effect_id":"add_materials"}
+  ]
+}

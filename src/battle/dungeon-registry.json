@@ -1,0 +1,8 @@
+{
+  "version": "coins_standard_v1",
+  "dungeons": [
+    { "config_id": "fairy_pattern_practice_v1", "title": "妖精弹幕练习", "file": "configs/dungeons/fairy-pattern-practice-v1.json" },
+    { "config_id": "forest_magic_residue_v1", "title": "森林魔力残响", "file": "configs/dungeons/forest-magic-residue-v1.json" },
+    { "config_id": "boundary_echo_trial_v1", "title": "结界回声试炼", "file": "configs/dungeons/boundary-echo-trial-v1.json" }
+  ]
+}

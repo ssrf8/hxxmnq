@@ -597,3 +597,80 @@ test('庭园主线只使用本地白名单结算，不依赖预设的第二次�
   assert.match(app, /restoreInputOnFailure: false/);
   assert.match(app, /galCompose\.hidden = singleShotEventPresentation/);
 });
+
+test('R29 副本只由本地白名单结算金币、时段与幂等记录', async () => {
+  const dungeon = await importTypescript('../src/ui/dungeon-rules.ts');
+  const initial = JSON.parse(await read('../src/schema/initial-state.json'));
+  initial.battle.dungeon_unlocked = true;
+  initial.environment.day = 7;
+  initial.environment.time_period = '夜晚';
+  const result = {
+    settlement_id: 'dungeon-r29-clean-1', config_id: 'fairy_pattern_practice_v1', outcome: 'clean_win',
+    remaining_lives: 3, grazes: 0, duration_ms: 1000, hits: 1, damage: 1, phases_cleared: 1, objective_ratio: 100,
+  };
+  const settled = dungeon.settleDungeonResult(initial, result);
+  assert.equal(settled.resources.coins, 12);
+  assert.equal(settled.environment.day, 8);
+  assert.equal(settled.environment.time_period, '清晨');
+  assert.equal(settled.battle.last_run.started_day, 7);
+  assert.equal(settled.battle.last_run.settled_day, 8);
+  assert.deepEqual(settled.battle.rewarded_ids, ['dungeon-r29-clean-1']);
+  assert.throws(() => dungeon.settleDungeonResult(settled, result), /已经结算/);
+  assert.throws(() => dungeon.validateDungeonResult({ ...result, outcome: 'narrative' }, initial), /不接受叙事/);
+});
+
+test('R29 旧存档迁移、事件契约与副本入口完整登记', async () => {
+  const migration = await importTypescript('../src/ui/state-migrations.ts');
+  const initial = JSON.parse(await read('../src/schema/initial-state.json'));
+  delete initial.resources.coins;
+  delete initial.battle.dungeon_unlocked;
+  delete initial.battle.rewarded_ids;
+  const migrated = migration.migrateGardenState(initial);
+  assert.equal(migrated.resources.coins, 0);
+  assert.equal(migrated.battle.dungeon_unlocked, false);
+  assert.deepEqual(migrated.battle.rewarded_ids, []);
+  const registry = JSON.parse(await read('../src/battle/dungeon-registry.json'));
+  assert.equal(registry.dungeons.length, 3);
+  assert.equal(new Set(registry.dungeons.map((entry) => entry.config_id)).size, 3);
+  const events = JSON.parse(await read('../src/lorebook/events/greenhouse-vertical-slice.json'));
+  for (const event of events.events) {
+    assert.ok(event.event_type);
+    assert.ok(Array.isArray(event.trigger_action_ids));
+    assert.ok(Array.isArray(event.narrative_outline));
+    assert.ok(Array.isArray(event.forbidden_deviations));
+  }
+});
+
+test('验收快进只写受控测试快照，能直达温室与妖花战后', async () => {
+  const tools = await importTypescript('../src/ui/test-tools.ts');
+  const initial = JSON.parse(await read('../src/schema/initial-state.json'));
+  const greenhouse = tools.applyTestJump(initial, 'greenhouse_ready');
+  assert.equal(greenhouse.facilities.magic_greenhouse.current_form, '基础魔法温室');
+  assert.equal(greenhouse.events.completed_key_events.greenhouse_flower_core, undefined);
+  assert.equal(greenhouse.battle.dungeon_unlocked, false);
+  const afterCore = tools.applyTestJump(initial, 'r29_after_flower_core');
+  assert.equal(afterCore.events.completed_key_events.greenhouse_flower_core, 'clean_win');
+  assert.equal(afterCore.battle.dungeon_unlocked, true);
+  assert.equal(afterCore.battle.current, null);
+  const app = await read('../src/ui/app.ts');
+  const html = await read('../src/ui/index.html');
+  assert.match(app, /applyTestJump/);
+  assert.match(html, /测试快进/);
+});
+
+test('R30 小店目录以本地白名单原子购买物资，拒绝越界与重复结算', async () => {
+  const shop = await importTypescript('../src/ui/shop-rules.ts');
+  const initial = JSON.parse(await read('../src/schema/initial-state.json'));
+  initial.shop.unlocked = true;
+  initial.resources.coins = 50;
+  initial.resources.materials = 10;
+  const one = shop.purchaseShopItem(initial, 'basic_material_single', 'shop-test-1');
+  assert.equal(one.resources.coins, 44);
+  assert.equal(one.resources.materials, 11);
+  assert.throws(() => shop.purchaseShopItem(one, 'basic_material_single', 'shop-test-1'), /已经结算/);
+  assert.throws(() => shop.purchaseShopItem(initial, 'unknown', 'shop-test-2'), /不在本地目录/);
+  const poor = structuredClone(initial); poor.resources.coins = 5;
+  assert.throws(() => shop.purchaseShopItem(poor, 'basic_material_single', 'shop-test-3'), /金币不够/);
+  const full = structuredClone(initial); full.resources.materials = 19;
+  assert.throws(() => shop.purchaseShopItem(full, 'basic_material_crate', 'shop-test-4'), /装不下/);
+});

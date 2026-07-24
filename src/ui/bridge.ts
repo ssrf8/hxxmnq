@@ -10,6 +10,10 @@ import type {
 import initialState from '../schema/initial-state.json';
 import { MessageTransactionCoordinator } from './message-transaction';
 import { validateFlowerCoreBattleResult } from './greenhouse-rules';
+import { dungeonReward, settleDungeonResult as settleLocalDungeonResult } from './dungeon-rules';
+import { migrateGardenState } from './state-migrations';
+import { applyTestJump, type TestJumpId } from './test-tools';
+import { purchaseShopItem } from './shop-rules';
 import {
   applyPresenceUpdate,
   applyLocalSettlement,
@@ -224,7 +228,7 @@ function latestPersistedMessage(mvu: HostGlobals['Mvu']) {
 }
 
 function latestPersistedState(mvu: HostGlobals['Mvu']): GardenState {
-  return latestPersistedMessage(mvu)?.state ?? {};
+  return migrateGardenState(latestPersistedMessage(mvu)?.state ?? {});
 }
 
 function openingProgress(rawMessages = activeMessages()) {
@@ -594,6 +598,46 @@ export function createHostBridge(): GardenBridge | null {
       }
       return { messageId: latest.messageId, alreadyStaged: false };
     },
+    async settleDungeonResult(result: BattleResult) {
+      const mvu = await requireMvu();
+      if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持本地副本结算');
+      const latest = latestPersistedMessage(mvu);
+      if (!latest) throw new Error('没有找到可承载副本结算的 assistant 楼层');
+      const before = migrateGardenState(latest.state);
+      if (before.battle?.rewarded_ids?.includes(result.settlement_id)) {
+        return { rewardCoins: dungeonReward(result.outcome as 'clean_win' | 'narrow_win' | 'loss'), alreadySettled: true };
+      }
+      const next = settleLocalDungeonResult(before, result);
+      latest.data.stat_data = next;
+      await mvu.replaceMvuData(latest.data, latest.options);
+      const reread = migrateGardenState(mvu.getMvuData(latest.options).stat_data ?? {});
+      if (!reread.battle?.rewarded_ids?.includes(result.settlement_id)) {
+        throw new Error('副本结算复读校验失败');
+      }
+      return { rewardCoins: dungeonReward(result.outcome as 'clean_win' | 'narrow_win' | 'loss'), alreadySettled: false };
+    },
+    async applyTestJump(jump: TestJumpId) {
+      const mvu = await requireMvu();
+      if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持测试快进');
+      const latest = latestPersistedMessage(mvu);
+      if (!latest) throw new Error('没有可承载测试快进的 assistant 楼层');
+      const next = applyTestJump(migrateGardenState(latest.state), jump);
+      latest.data.stat_data = next;
+      await mvu.replaceMvuData(latest.data, latest.options);
+      const reread = migrateGardenState(mvu.getMvuData(latest.options).stat_data ?? {});
+      if (Boolean(reread.battle?.dungeon_unlocked) !== (jump !== 'greenhouse_ready')) throw new Error('测试快进复读校验失败');
+    },
+    async purchaseShopItem(itemId: string, purchaseId: string) {
+      const mvu = await requireMvu();
+      if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持小店购买');
+      const latest = latestPersistedMessage(mvu);
+      if (!latest) throw new Error('没有可承载小店购买的 assistant 楼层');
+      const next = purchaseShopItem(migrateGardenState(latest.state), itemId, purchaseId);
+      latest.data.stat_data = next;
+      await mvu.replaceMvuData(latest.data, latest.options);
+      const reread = migrateGardenState(mvu.getMvuData(latest.options).stat_data ?? {});
+      if (!reread.shop?.purchase_settled_ids?.includes(purchaseId)) throw new Error('小店购买复读校验失败');
+    },
     async continueGeneration() {
       await g.triggerSlash?.('/continue await=true');
     },
@@ -767,6 +811,20 @@ export function createPreviewBridge(): GardenBridge {
       const trusted = validateFlowerCoreBattleResult(result, previewState);
       previewState.battle = { ...previewState.battle, current: trusted };
       return { messageId: Math.max(0, messages.length - 1), alreadyStaged: false };
+    },
+    async settleDungeonResult(result: BattleResult) {
+      if (previewState.battle?.rewarded_ids?.includes(result.settlement_id)) {
+        return { rewardCoins: dungeonReward(result.outcome as 'clean_win' | 'narrow_win' | 'loss'), alreadySettled: true };
+      }
+      const next = settleLocalDungeonResult(previewState, result);
+      Object.assign(previewState, next);
+      return { rewardCoins: dungeonReward(result.outcome as 'clean_win' | 'narrow_win' | 'loss'), alreadySettled: false };
+    },
+    async applyTestJump(jump: TestJumpId) {
+      Object.assign(previewState, applyTestJump(previewState, jump));
+    },
+    async purchaseShopItem(itemId: string, purchaseId: string) {
+      Object.assign(previewState, purchaseShopItem(previewState, itemId, purchaseId));
     },
     async continueGeneration() { throw new Error('离线预览不支持继续生成'); },
     async stopGeneration() { return false; },
