@@ -8,6 +8,9 @@ export const GREENHOUSE_EVENTS = {
   firstUse: 'greenhouse_first_use',
   conversation: 'greenhouse_multiturn_conversation',
   flowerCore: 'greenhouse_flower_core',
+  freeGrowthProposal: 'greenhouse_free_growth_proposal',
+  aliceMaintenanceProposal: 'alice_greenhouse_maintenance_proposal',
+  nitoriAutomationProposal: 'nitori_greenhouse_automation_proposal',
 } as const;
 
 export const FLOWER_CORE_BATTLE_CONFIG = 'greenhouse_flower_core_tutorial_v1';
@@ -39,6 +42,9 @@ export type GreenhouseActionId =
   | 'build_basic_magic_greenhouse'
   | 'greenhouse_first_use'
   | 'greenhouse_research_talk'
+  | 'organize_free_growth_proposal'
+  | 'invite_alice_maintenance_assessment'
+  | 'commission_nitori_engineering_survey'
   | 'investigate_flower_core'
   | 'start_flower_core_battle'
   | 'resolve_flower_core_narratively'
@@ -87,6 +93,26 @@ export function greenhouseActionBlock(state: GardenState, actionId: GreenhouseAc
       if (!events[GREENHOUSE_EVENTS.firstUse]) return '需要先完成温室第一次使用';
       if (events[GREENHOUSE_EVENTS.conversation]) return '温室里的持续交流已经完成';
       if (state.interaction?.current_session) return '当前已有尚未结算的主要会话';
+      return '';
+    case 'organize_free_growth_proposal':
+      if (!events[GREENHOUSE_EVENTS.flowerCore]) return '需要先完成温室妖花核心事件';
+      if (facility?.current_form !== '基础魔法温室') return '需要保留基础魔法温室作为方案讨论的起点';
+      if (events[GREENHOUSE_EVENTS.freeGrowthProposal]) return '自由生长型温室方案已经登记';
+      if (otherActiveEvent(state, GREENHOUSE_EVENTS.freeGrowthProposal)) return '当前已有其他主要事件正在进行';
+      return '';
+    case 'invite_alice_maintenance_assessment':
+      if (!events[GREENHOUSE_EVENTS.flowerCore]) return '需要先完成温室妖花核心事件';
+      if (!events[GREENHOUSE_EVENTS.freeGrowthProposal]) return '需要先整理自由生长型温室方案';
+      if (facility?.current_form !== '基础魔法温室') return '需要保留基础魔法温室作为维护评估的起点';
+      if (events[GREENHOUSE_EVENTS.aliceMaintenanceProposal]) return '人偶维护型温室方案已经登记';
+      if (otherActiveEvent(state, GREENHOUSE_EVENTS.aliceMaintenanceProposal)) return '当前已有其他主要事件正在进行';
+      return '';
+    case 'commission_nitori_engineering_survey':
+      if (!events[GREENHOUSE_EVENTS.flowerCore]) return '需要先完成温室妖花核心事件';
+      if (!events[GREENHOUSE_EVENTS.freeGrowthProposal]) return '需要先整理自由生长型温室方案';
+      if (facility?.current_form !== '基础魔法温室') return '需要保留基础魔法温室作为工程测量的起点';
+      if (events[GREENHOUSE_EVENTS.nitoriAutomationProposal]) return '河童自动化型温室方案已经登记';
+      if (otherActiveEvent(state, GREENHOUSE_EVENTS.nitoriAutomationProposal)) return '当前已有其他主要事件正在进行';
       return '';
     case 'investigate_flower_core':
       if (!events[GREENHOUSE_EVENTS.firstUse]) return '需要先完成温室第一次使用';

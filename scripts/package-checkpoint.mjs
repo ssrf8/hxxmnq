@@ -1,5 +1,5 @@
 ﻿import { createHash } from 'node:crypto';
-import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { access, copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const VERSION = '0.2.0';
@@ -12,7 +12,9 @@ if (!/^0\.2\.0-r[1-9][0-9]*$/u.test(CHECKPOINT)) {
 const CHECKPOINT_SUFFIX = CHECKPOINT.split('-').at(-1);
 const OUTPUT_DIR = path.resolve('dist', `checkpoint-${CHECKPOINT}`);
 const OUTPUT_FILE = path.join(OUTPUT_DIR, `幻想乡物语-测试检查点-${CHECKPOINT}.json`);
+const WORLDBOOK_NAME = `幻想乡物语·移动庭园 ${CHECKPOINT}`;
 const DRY_RUN = process.argv.includes('--dry-run');
+const REPLACE_EXISTING = process.argv.includes('--replace');
 
 const source = async file => readFile(path.resolve(file), 'utf8');
 const json = async file => JSON.parse(await source(file));
@@ -26,8 +28,14 @@ if (profile.version !== VERSION || manifest.version !== VERSION) {
 if (!manifest.planned_checkpoint_sequence?.includes(CHECKPOINT)) {
   throw new Error(`检查点未登记在 planned_checkpoint_sequence：${CHECKPOINT}`);
 }
+let archivedOutput = '';
 if (!DRY_RUN && await exists(OUTPUT_FILE)) {
-  throw new Error(`拒绝覆盖已有检查点：${OUTPUT_FILE}`);
+  if (!REPLACE_EXISTING) throw new Error(`拒绝覆盖已有检查点：${OUTPUT_FILE}`);
+  const archiveDir = path.join(OUTPUT_DIR, 'superseded');
+  const archiveName = `${path.basename(OUTPUT_FILE, '.json')}.pre-replace-${new Date().toISOString().replace(/[:.]/gu, '-')}.json`;
+  archivedOutput = path.join(archiveDir, archiveName);
+  await mkdir(archiveDir, { recursive: true });
+  await copyFile(OUTPUT_FILE, archivedOutput);
 }
 
 const [
@@ -36,26 +44,26 @@ const [
   openingTemplate,
   movingGarden,
   variableRules,
+  variableOutputFormat,
   projection,
   galPresentation,
   initialState,
   mvuLoader,
   mvuSchema,
   uiMount,
-  greenhouseEvents,
 ] = await Promise.all([
   source('src/card/identity.xml'),
   source('src/card/opening-first-response.xml'),
   source('src/card/opening-user-message-template.txt'),
   source('src/lorebook/core/moving-garden.xml'),
   source('src/lorebook/variable-update-rules.md'),
+  source('src/lorebook/variable-output-format.md'),
   source('src/lorebook/model-projection.md'),
   source('src/lorebook/gal-presentation-protocol.md'),
   json('src/schema/initial-state.json'),
   source('src/runtime/01-mvu-loader.js'),
   source('src/schema/02-mvu-schema.js'),
   source('dist/runtime/ui-mount.js'),
-  source('src/lorebook/events/greenhouse-vertical-slice.json'),
 ]);
 
 const characterRoutes = {
@@ -70,7 +78,16 @@ const characterRoutes = {
 };
 
 const characterContents = await Promise.all(Object.keys(characterRoutes).map(id => source(`src/lorebook/characters/${id}.xml`)));
-const entry = (id, comment, content, keys = [], constant = false, position = 'before_char') => ({
+const entry = (
+  id,
+  comment,
+  content,
+  keys = [],
+  constant = false,
+  position = 'before_char',
+  depth = 4,
+  extensionPosition = position === 'before_char' ? 0 : 1,
+) => ({
   id,
   keys,
   secondary_keys: [],
@@ -83,12 +100,12 @@ const entry = (id, comment, content, keys = [], constant = false, position = 'be
   position,
   use_regex: false,
   extensions: {
-    position: 0,
+    position: extensionPosition,
     exclude_recursion: false,
     display_index: id,
     probability: 100,
     useProbability: true,
-    depth: 4,
+    depth,
     selectiveLogic: 0,
     group: '',
     group_override: false,
@@ -109,15 +126,15 @@ const entry = (id, comment, content, keys = [], constant = false, position = 'be
 });
 
 const loreEntries = [
-  entry(0, '[core] 角色卡身份与玩家权边界', identity, [], true),
-  entry(1, '[core] 会移动的结界领地', movingGarden, [], true),
-  entry(2, '[mvu_update] 变量更新协议', variableRules, [], true, 'after_char'),
-  entry(3, '[mvu_context] 当前状态投影', projection, [], true, 'after_char'),
-  entry(7, '[interaction] GAL 表现与会话协议', galPresentation, [], true, 'after_char'),
-  entry(4, '[opening] 确定性开场后的首次行动引导', `${openingGuidance}\n\n旧版开场兼容格式：\n${openingTemplate}`, ['庭守钥', '荒废庭园', '第一次行动'], false),
-  entry(5, '[event] 魔法温室纵切事件', greenhouseEvents, ['魔法温室', '温室旧地基', '妖花', '花核'], false),
+  entry(0, '[mvu_plot][core] 角色卡身份与玩家权边界', identity, [], true),
+  entry(1, '[mvu_plot][core] 会移动的结界领地', movingGarden, [], true),
+  entry(2, '[mvu_update] 变量更新规则', variableRules, [], true, 'after_char'),
+  entry(3, '[mvu_plot][mvu_update] 最新 MVU 状态', projection, [], true, 'after_char', 0, 4),
+  entry(8, '[mvu_update] 变量输出格式', variableOutputFormat, [], true, 'after_char'),
+  entry(7, '[mvu_plot][interaction] GAL 表现与会话协议', galPresentation, [], true, 'after_char'),
+  entry(4, '[mvu_plot][opening] 确定性开场后的首次行动引导', `${openingGuidance}\n\n旧版开场兼容格式：\n${openingTemplate}`, ['庭守钥', '荒废庭园', '第一次行动'], false),
   entry(6, '[initvar] 移动庭园初始状态', `<initvar>\n${JSON.stringify(initialState, null, 2)}\n</initvar>`),
-  ...Object.entries(characterRoutes).map(([id, keys], index) => entry(10 + index, `[character] ${keys[0]}`, characterContents[index], keys, false)),
+  ...Object.entries(characterRoutes).map(([id, keys], index) => entry(10 + index, `[mvu_plot][character] ${keys[0]}`, characterContents[index], keys, false)),
 ];
 
 const script = (name, id, content) => ({
@@ -148,6 +165,7 @@ const data = {
   creator: 'AlbusKen / Codex 协作制作',
   character_version: CHECKPOINT,
   extensions: {
+    world: WORLDBOOK_NAME,
     depth_prompt: { prompt: '', depth: 4, role: 'system' },
     tavern_helper: {
       scripts: [
@@ -157,13 +175,13 @@ const data = {
       ],
       variables: { stat_data: initialState },
     },
-    mvu_worldbook_name: '',
+    mvu_worldbook_name: WORLDBOOK_NAME,
   },
   character_book: {
-    name: `幻想乡物语·移动庭园 ${CHECKPOINT}`,
+    name: WORLDBOOK_NAME,
     description: '测试检查点内嵌世界书；由项目维护源自动组成。',
     scan_depth: 4,
-    token_budget: 4096,
+    token_budget: 12288,
     recursive_scanning: false,
     extensions: {},
     entries: loreEntries,
@@ -180,12 +198,13 @@ const report = {
   sha256: createHash('sha256').update(serialized).digest('hex'),
   scripts: data.extensions.tavern_helper.scripts.map(item => ({ id: item.id, bytes: Buffer.byteLength(item.content) })),
   lorebook_entries: loreEntries.length,
-  collision_policy: 'refuse-overwrite',
+  collision_policy: REPLACE_EXISTING ? 'archive-and-replace' : 'refuse-overwrite',
+  archived_output: archivedOutput || undefined,
 };
 
 if (!DRY_RUN) {
   await mkdir(OUTPUT_DIR, { recursive: true });
-  await writeFile(OUTPUT_FILE, serialized, { encoding: 'utf8', flag: 'wx' });
+  await writeFile(OUTPUT_FILE, serialized, { encoding: 'utf8', flag: REPLACE_EXISTING ? 'w' : 'wx' });
 }
 console.log(JSON.stringify(report, null, 2));
 

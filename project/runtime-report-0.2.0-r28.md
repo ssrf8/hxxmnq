@@ -7,7 +7,7 @@
 
 - 2026-07-24，所有者确认 R28 已完成验收。
 - 后续开发以 R28 为保留基线，不覆盖现有检查点。
-- 下一阶段计划见 `project/r29-r36-m1-expansion-plan.md`。
+- 下一阶段计划见 `project/r29-r37-m1-expansion-plan.md`。
 
 ## 问题证据
 

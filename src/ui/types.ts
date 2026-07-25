@@ -22,7 +22,20 @@ export interface GardenState {
     unlocked_forms?: string[];
     active_effects?: string[];
   }>;
-  characters?: Record<string, { id?: string; name?: string; fixed?: boolean }>;
+  characters?: Record<string, {
+    id?: string;
+    name?: string;
+    fixed?: boolean;
+    current_relationship_facts?: Array<{
+      id: string;
+      subjects: string[];
+      fact: string;
+      source_event_id: string | null;
+      established_at: string;
+      active: boolean;
+      last_confirmed_at: string;
+    }>;
+  }>;
   presence_snapshot?: { present_character_ids?: string[]; character_views?: Record<string, CharacterView> };
   interaction?: {
     current_session?: {

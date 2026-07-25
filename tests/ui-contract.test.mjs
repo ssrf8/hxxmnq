@@ -147,7 +147,7 @@ test('普通互动使用非隐藏真实消息、事务标识和无刷新写入',
 test('最新回复没有变量块时向前读取最近一份 MVU 正式状态', async () => {
   const bridge = await read('../src/ui/bridge.ts');
   assert.match(bridge, /function latestPersistedState/);
-  assert.match(bridge, /filter\(\(message\) => message\.role === 'assistant'\)\.reverse\(\)/);
+  assert.match(bridge, /filter\(\(message\) => messageRole\(message\) === 'assistant'\)\.reverse\(\)/);
   assert.match(bridge, /Object\.keys\(state\)\.length > 0/);
   assert.match(bridge, /return latestPersistedState\(mvu\)/);
   assert.match(bridge, /if \(!g\.Mvu\?\.getMvuData\) await g\.waitGlobalInitialized/);
@@ -176,16 +176,30 @@ test('开场变量掉格式时提供幂等恢复，不把玩家锁在设置页',
 
 test('打包器提供 MVU initvar 初始状态，不依赖角色脚本变量初始化消息楼层', async () => {
   const packer = await read('../scripts/package-checkpoint.mjs');
+  const projection = await read('../src/lorebook/model-projection.md');
+  const outputFormat = await read('../src/lorebook/variable-output-format.md');
   assert.match(packer, /\[initvar\] 移动庭园初始状态/);
+  assert.match(packer, /\[mvu_plot\]\[mvu_update\] 最新 MVU 状态/);
+  assert.match(packer, /\[mvu_update\] 变量输出格式/);
+  assert.match(packer, /'after_char', 0, 4/);
+  assert.match(packer, /token_budget: 12288/);
+  assert.match(projection, /\{\{format_message_variable::stat_data\}\}/);
+  assert.match(outputFormat, /没有合法变化时输出空数组/);
   assert.match(packer, /<initvar>/);
   assert.match(packer, /JSON\.stringify\(initialState, null, 2\)/);
   assert.match(packer, /--checkpoint=0\.2\.0-rN/);
   assert.match(packer, /planned_checkpoint_sequence/);
+  assert.match(packer, /world: WORLDBOOK_NAME/);
+  assert.match(packer, /mvu_worldbook_name: WORLDBOOK_NAME/);
+  assert.match(packer, /name: WORLDBOOK_NAME/);
   assert.match(packer, /GAL 表现与会话协议/);
   assert.match(packer, /gensokyo-garden-ui-020-\$\{CHECKPOINT_SUFFIX\}/);
   assert.match(packer, /确定性开场后的首次行动引导/);
   assert.match(packer, /此步骤会直接写入并复读 MVU，不调用 LLM/);
   assert.match(packer, /if \(!DRY_RUN && await exists\(OUTPUT_FILE\)\)/);
+  assert.match(packer, /REPLACE_EXISTING/);
+  assert.match(packer, /archive-and-replace/);
+  assert.match(packer, /copyFile\(OUTPUT_FILE, archivedOutput\)/);
 });
 
 test('数据库适配器是可选归档且不下载或执行远程脚本', async () => {
@@ -336,12 +350,15 @@ test('庭园正文协议只投影最后一个边界内的多角色正文，并�
 test('庭园行动追加正文协议，维修固定结算且不开放续聊', async () => {
   const actions = await read('../src/ui/target-actions.ts');
   const bridge = await read('../src/ui/bridge.ts');
+  const settlement = await importTypescript('../src/ui/event-settlement.ts');
   const app = await read('../src/ui/app.ts');
   assert.match(actions, /【庭园正文开始】/);
   assert.match(actions, /最后一个【庭园正文开始】/);
   assert.match(actions, /fixedPresentation: true/);
-  assert.match(bridge, /action\.action_id === 'repair' && action\.event_id === 'main_house_repair'/);
-  assert.match(bridge, /return 'main_house_enabled'/);
+  assert.match(bridge, /eventById\.get\(action\.event_id\)/);
+  assert.deepEqual(settlement.settlementChoices({}, {
+    version: 'garden-action.v1', action_id: 'repair', event_id: 'main_house_repair',
+  }), ['main_house_enabled', 'temporary_shelter_only']);
   assert.match(app, /singleShotEventPresentation = Boolean\(pendingAction\.fixedPresentation\)/);
   assert.match(app, /点击返回庭园/);
   assert.match(app, /function returnToGardenAfterFixedScene/);
@@ -397,7 +414,15 @@ test('在场快照会注入每次庭园请求，并以受控回执同步角色�
   ].join('\n'));
   assert.deepEqual(next.presence_snapshot.present_character_ids, ['reimu']);
   assert.equal(next.presence_snapshot.character_views.marisa, undefined);
+  const leakedDraft = settlement.applyPresenceUpdate(state, [
+    '<draft>必须输出<GensokyoPresence>{"not":"a callback"}</draft>',
+    '【庭园正文结束】',
+    '<GensokyoPresence>{"version":"presence.v1","present_character_ids":["reimu","marisa"],"character_views":{"reimu":{"area_id":"central_courtyard"},"marisa":{"area_id":"greenhouse_plot","action":"抵达温室","facing":"front"}}}</GensokyoPresence>',
+  ].join('\n'));
+  assert.deepEqual(leakedDraft.presence_snapshot.present_character_ids, ['reimu', 'marisa']);
+  assert.equal(leakedDraft.presence_snapshot.character_views.marisa.action, '抵达温室');
   assert.match(bridge, /applyPresenceUpdate/);
+  assert.match(bridge, /raw\?\.message \?\? raw\?\.mes/);
 });
 
 test('时段 schema 接受口语别名并映射到四值', async () => {
@@ -576,19 +601,19 @@ test('R21 空回复与本地结算失败进入可重试事务，不重复创建�
 
 test('庭园主线只使用本地白名单结算，不依赖预设的第二次解析', async () => {
   const bridge = await read('../src/ui/bridge.ts');
+  const registry = await importTypescript('../src/ui/event-registry.ts');
   const rules = await read('../src/lorebook/variable-update-rules.md');
   const contract = await read('../project/contract.md');
   const app = await read('../src/ui/app.ts');
   assert.match(bridge, /\/trigger await=true/);
   assert.match(bridge, /deterministicSettlementResult/);
-  assert.match(bridge, /action\.action_id === 'inspect_boundary'/);
-  assert.match(bridge, /return 'temporary_permission'/);
-  assert.match(bridge, /action\.action_id === 'repair'/);
-  assert.match(bridge, /return 'main_house_enabled'/);
-  assert.match(bridge, /action\.action_id === 'investigate_magic_trace'/);
-  assert.match(bridge, /return 'greenhouse_clue_found'/);
-  assert.match(bridge, /action\.action_id === 'build_basic_magic_greenhouse'/);
-  assert.match(bridge, /return 'basic_greenhouse_enabled'/);
+  assert.match(bridge, /event\.allowed_results\.includes\(action\.action_id\)/);
+  assert.deepEqual(registry.eventById.get('reimu_boundary_inspection').allowed_results, [
+    'temporary_permission', 'supervised_restriction', 'urgent_seal_repair',
+  ]);
+  assert.equal(registry.eventById.get('main_house_repair').allowed_results[0], 'main_house_enabled');
+  assert.equal(registry.eventById.get('marisa_material_rumor').allowed_results[0], 'greenhouse_clue_found');
+  assert.equal(registry.eventById.get('build_basic_magic_greenhouse').allowed_results[0], 'basic_greenhouse_enabled');
   assert.match(bridge, /before\.battle\?\.current\?\.outcome/);
   assert.doesNotMatch(bridge, /json_schema/);
   assert.doesNotMatch(bridge, /第二次结算解析/);
@@ -673,4 +698,296 @@ test('R30 小店目录以本地白名单原子购买物资，拒绝越界与重�
   assert.throws(() => shop.purchaseShopItem(poor, 'basic_material_single', 'shop-test-3'), /金币不够/);
   const full = structuredClone(initial); full.resources.materials = 19;
   assert.throws(() => shop.purchaseShopItem(full, 'basic_material_crate', 'shop-test-4'), /装不下/);
+});
+
+test('R31 自由生长方案只由本地单回合结算登记，不提前选型或改变资源', async () => {
+  const settlement = await importTypescript('../src/ui/event-settlement.ts');
+  const rules = await importTypescript('../src/ui/greenhouse-rules.ts');
+  const registry = await importTypescript('../src/ui/event-registry.ts');
+  const actionRules = await importTypescript('../src/ui/target-actions.ts');
+  const actions = await read('../src/ui/target-actions.ts');
+  const state = JSON.parse(await read('../src/schema/initial-state.json'));
+  state.environment.day = 4;
+  state.environment.time_period = '夜晚';
+  state.resources.materials = 7;
+  state.resources.inspiration = 3;
+  state.facilities.magic_greenhouse.state = '启用';
+  state.facilities.magic_greenhouse.current_form = '基础魔法温室';
+  state.facilities.magic_greenhouse.unlocked_forms = ['基础魔法温室'];
+  state.events.completed_key_events.greenhouse_flower_core = 'clean_win';
+  state.presence_snapshot.present_character_ids = ['reimu', 'marisa'];
+
+  assert.equal(rules.greenhouseActionBlock(state, 'organize_free_growth_proposal'), '');
+  assert.equal(actionRules.isFixedPresentationAction('organize_free_growth_proposal'), true);
+  assert.equal(actionRules.isFixedPresentationAction('marisa_greenhouse_night_observation'), false);
+  assert.equal(registry.eventById.get('greenhouse_free_growth_proposal').max_effective_rounds, 1);
+  assert.match(actions, /organize_free_growth_proposal/);
+  assert.match(actions, /marisa_greenhouse_night_observation/);
+  const app = await read('../src/ui/app.ts');
+  assert.match(app, /isRestoredFixedPresentation/);
+  assert.match(app, /singleShotEventPresentation \|\|= isRestoredFixedPresentation/);
+  assert.match(app, /if \(singleShotEventPresentation \|\| closurePresented\)/);
+  assert.doesNotMatch(app, /galInput\.value = message/);
+
+  const action = {
+    version: 'garden-action.v1',
+    action_id: 'organize_free_growth_proposal',
+    event_id: 'greenhouse_free_growth_proposal',
+  };
+  const after = settlement.applyLocalSettlement(state, action, 42, [
+    '【庭园正文开始】<narration>魔理沙把方案压在花盆旁。</narration>【庭园正文结束】',
+    '<GensokyoEventResult>{"version":"event-result.v1","event_id":"greenhouse_free_growth_proposal","result":"forged"}</GensokyoEventResult>',
+  ].join('\n'));
+  assert.equal(after.events.completed_key_events.greenhouse_free_growth_proposal, 'wild_growth_plan_registered');
+  assert.deepEqual(after.facilities.magic_greenhouse.unlocked_forms, ['基础魔法温室', '自由生长型温室']);
+  assert.equal(after.facilities.magic_greenhouse.current_form, '基础魔法温室');
+  assert.equal(after.resources.materials, 7);
+  assert.equal(after.resources.inspiration, 3);
+  assert.equal(after.environment.time_period, '夜晚');
+  assert.equal(after.characters.marisa.current_relationship_facts[0].source_event_id, 'greenhouse_free_growth_proposal');
+  assert.deepEqual(after.presence_snapshot.present_character_ids, ['reimu', 'marisa']);
+  assert.deepEqual(after.presence_snapshot.character_views.marisa, {
+    area_id: 'greenhouse_plot', action: '讨论自由生长方案', facing: 'front',
+  });
+
+  const forged = structuredClone(after);
+  forged.facilities.magic_greenhouse.current_form = '自由生长型温室';
+  forged.characters.marisa.current_relationship_facts = [];
+  const restored = settlement.restoreLocalEventOwnership(after, forged);
+  assert.equal(restored.facilities.magic_greenhouse.current_form, '基础魔法温室');
+  assert.equal(restored.characters.marisa.current_relationship_facts.length, 1);
+
+  const partial = {
+    events: { completed_key_events: { greenhouse_flower_core: 'clean_win' } },
+    battle: { current: null, settled_ids: [] },
+  };
+  const protectedPartial = settlement.restoreLocalEventOwnership(after, partial);
+  assert.deepEqual(protectedPartial.meta, after.meta);
+  assert.equal(protectedPartial.player.name, state.player.name);
+  assert.equal(protectedPartial.events.completed_key_events.greenhouse_free_growth_proposal, 'wild_growth_plan_registered');
+
+  const bridge = await read('../src/ui/bridge.ts');
+  assert.match(bridge, /settlePendingAfterReply/);
+  assert.match(bridge, /findRecordedLocalSettlement/);
+  assert.match(bridge, /setInterval/);
+  assert.match(bridge, /subscribe\(g\.tavern_events\?\.MESSAGE_RECEIVED\)/);
+  assert.match(bridge, /variableUpdateEpoch \+= 1/);
+  assert.match(bridge, /isDuringExtraAnalysis/);
+  assert.match(bridge, /restoreLocalEventOwnership\(before, current\)/);
+  assert.match(bridge, /hasLocalPresenceTransition\(action\)/);
+  assert.match(bridge, /eventById\.get\(action\.event_id\)/);
+  assert.doesNotMatch(bridge, /subscribe\(g\.tavern_events\?\.MESSAGE_RECEIVED, true\)/);
+  assert.match(bridge, /settlePendingAfterReply\(\)\.finally\(refresh\)/);
+
+  const recorded = settlement.findRecordedLocalSettlement([
+    { message_id: 40, role: 'user', message: '<GensokyoAction>{"version":"garden-action.v1","action_id":"organize_free_growth_proposal","event_id":"greenhouse_free_growth_proposal"}</GensokyoAction>' },
+    { message_id: 41, role: 'assistant', message: '【庭园正文开始】方案已经交付。【庭园正文结束】' },
+  ], state);
+  assert.equal(recorded.assistantMessageId, 41);
+  assert.equal(recorded.action.event_id, 'greenhouse_free_growth_proposal');
+  assert.equal(settlement.findRecordedLocalSettlement([
+    { message_id: 40, role: 'user', message: '<GensokyoAction>{"version":"garden-action.v1","action_id":"organize_free_growth_proposal","event_id":"greenhouse_free_growth_proposal"}</GensokyoAction>' },
+    { message_id: 41, role: 'assistant', message: '【庭园正文开始】方案已经交付。【庭园正文结束】' },
+  ], after), null);
+  const upgradeConfig = JSON.parse(await read('../src/lorebook/events/greenhouse-upgrade-routes.json'));
+  assert.equal(upgradeConfig.events[0].presence_transition.arrive[0].character_id, 'marisa');
+});
+
+test('R33 爱丽丝维护方案与受控会话 UID 都由 bridge 本地链路拥有', async () => {
+  const settlement = await importTypescript('../src/ui/event-settlement.ts');
+  const rules = await importTypescript('../src/ui/greenhouse-rules.ts');
+  const registry = await importTypescript('../src/ui/event-registry.ts');
+  const actionRules = await importTypescript('../src/ui/target-actions.ts');
+  const actions = await read('../src/ui/target-actions.ts');
+  const bridge = await read('../src/ui/bridge.ts');
+  const state = JSON.parse(await read('../src/schema/initial-state.json'));
+  state.environment.day = 5;
+  state.resources.materials = 9;
+  state.resources.inspiration = 4;
+  state.facilities.magic_greenhouse.state = '启用';
+  state.facilities.magic_greenhouse.current_form = '基础魔法温室';
+  state.facilities.magic_greenhouse.unlocked_forms = ['基础魔法温室', '自由生长型温室'];
+  state.events.completed_key_events.greenhouse_flower_core = 'clean_win';
+  state.events.completed_key_events.greenhouse_free_growth_proposal = 'wild_growth_plan_registered';
+
+  assert.equal(rules.greenhouseActionBlock(state, 'invite_alice_maintenance_assessment'), '');
+  assert.equal(actionRules.isFixedPresentationAction('invite_alice_maintenance_assessment'), true);
+  assert.equal(registry.eventById.get('alice_greenhouse_maintenance_proposal').max_effective_rounds, 1);
+  assert.match(actions, /邀请爱丽丝进行维护评估/);
+  assert.match(actions, /alice_doll_workshop_chat/);
+
+  const action = {
+    version: 'garden-action.v1',
+    action_id: 'invite_alice_maintenance_assessment',
+    event_id: 'alice_greenhouse_maintenance_proposal',
+  };
+  const after = settlement.applyLocalSettlement(state, action, 51, '【庭园正文开始】爱丽丝交付了方案。【庭园正文结束】');
+  assert.equal(after.events.completed_key_events.alice_greenhouse_maintenance_proposal, 'doll_maintenance_plan_registered');
+  assert.deepEqual(after.facilities.magic_greenhouse.unlocked_forms, ['基础魔法温室', '自由生长型温室', '人偶维护型温室']);
+  assert.equal(after.facilities.magic_greenhouse.current_form, '基础魔法温室');
+  assert.equal(after.resources.materials, 9);
+  assert.equal(after.resources.inspiration, 4);
+  assert.deepEqual(after.presence_snapshot.present_character_ids, ['reimu', 'alice']);
+  assert.equal(after.presence_snapshot.character_views.alice.action, '进行人偶维护评估');
+  assert.equal(after.characters.alice.current_relationship_facts[0].source_event_id, 'alice_greenhouse_maintenance_proposal');
+
+  const sessionState = JSON.parse(await read('../src/schema/initial-state.json'));
+  sessionState.events.completed_key_events.greenhouse_first_use = 'stable_first_growth';
+  const researchAction = {
+    version: 'garden-action.v1',
+    action_id: 'greenhouse_research_talk',
+    event_id: 'greenhouse_multiturn_conversation',
+  };
+  const staged = settlement.stageLocalSession(sessionState, researchAction);
+  assert.equal(staged.interaction.current_session.uid, 'interaction_1');
+  assert.equal(staged.interaction.current_session.effective_rounds, 0);
+  assert.equal(staged.uid_counters.interaction, 2);
+  const firstRound = settlement.applyLocalSettlement(staged, researchAction, 52, '第一轮研究');
+  assert.equal(firstRound.interaction.current_session.uid, 'interaction_1');
+  assert.equal(firstRound.interaction.current_session.effective_rounds, 1);
+  assert.match(bridge, /persistStagedLocalSession/);
+  assert.match(bridge, /stageLocalSession\(before, action\)/);
+  assert.match(bridge, /event\.allowed_results\[0\]/);
+
+  const migration = await importTypescript('../src/ui/state-migrations.ts');
+  const legacy = JSON.parse(await read('../src/schema/initial-state.json'));
+  delete legacy.interaction;
+  delete legacy.uid_counters;
+  const migrated = migration.migrateGardenState(legacy);
+  assert.equal(migrated.interaction.current_session, null);
+  assert.deepEqual(migrated.interaction.settled_ids, []);
+  assert.equal(migrated.uid_counters.interaction, 1);
+
+  const upgradeConfig = JSON.parse(await read('../src/lorebook/events/greenhouse-upgrade-routes.json'));
+  const aliceConfig = upgradeConfig.events.find((event) => event.config_id === 'alice_greenhouse_maintenance_proposal');
+  assert.equal(aliceConfig.presence_transition.arrive[0].character_id, 'alice');
+});
+
+test('R34 荷取自动化方案不依赖爱丽丝路线，并由本地登记入场', async () => {
+  const settlement = await importTypescript('../src/ui/event-settlement.ts');
+  const rules = await importTypescript('../src/ui/greenhouse-rules.ts');
+  const registry = await importTypescript('../src/ui/event-registry.ts');
+  const actionRules = await importTypescript('../src/ui/target-actions.ts');
+  const actions = await read('../src/ui/target-actions.ts');
+  const bridge = await read('../src/ui/bridge.ts');
+  const state = JSON.parse(await read('../src/schema/initial-state.json'));
+  state.environment.day = 6;
+  state.resources.materials = 11;
+  state.resources.inspiration = 5;
+  state.facilities.magic_greenhouse.state = '启用';
+  state.facilities.magic_greenhouse.current_form = '基础魔法温室';
+  state.facilities.magic_greenhouse.unlocked_forms = ['基础魔法温室', '自由生长型温室'];
+  state.events.completed_key_events.greenhouse_flower_core = 'clean_win';
+  state.events.completed_key_events.greenhouse_free_growth_proposal = 'wild_growth_plan_registered';
+
+  assert.equal(rules.greenhouseActionBlock(state, 'commission_nitori_engineering_survey'), '');
+  assert.equal(actionRules.isFixedPresentationAction('commission_nitori_engineering_survey'), true);
+  assert.equal(registry.eventById.get('nitori_greenhouse_automation_proposal').max_effective_rounds, 1);
+  assert.equal(state.events.completed_key_events.alice_greenhouse_maintenance_proposal, undefined);
+  assert.match(actions, /委托荷取进行工程测量/);
+  assert.match(actions, /nitori_instrument_calibration_chat/);
+
+  const action = {
+    version: 'garden-action.v1',
+    action_id: 'commission_nitori_engineering_survey',
+    event_id: 'nitori_greenhouse_automation_proposal',
+  };
+  const after = settlement.applyLocalSettlement(state, action, 61, '【庭园正文开始】荷取交付工程测量方案。【庭园正文结束】');
+  assert.equal(after.events.completed_key_events.nitori_greenhouse_automation_proposal, 'kappa_automation_plan_registered');
+  assert.deepEqual(after.facilities.magic_greenhouse.unlocked_forms, ['基础魔法温室', '自由生长型温室', '河童自动化型温室']);
+  assert.equal(after.facilities.magic_greenhouse.current_form, '基础魔法温室');
+  assert.equal(after.resources.materials, 11);
+  assert.equal(after.resources.inspiration, 5);
+  assert.deepEqual(after.presence_snapshot.present_character_ids, ['reimu', 'nitori']);
+  assert.equal(after.presence_snapshot.character_views.nitori.action, '进行温室工程测量');
+  assert.equal(after.characters.nitori.current_relationship_facts[0].source_event_id, 'nitori_greenhouse_automation_proposal');
+  assert.ok(registry.eventById.get('nitori_greenhouse_automation_proposal')
+    .trigger_action_ids.includes('commission_nitori_engineering_survey'));
+
+  const upgradeConfig = JSON.parse(await read('../src/lorebook/events/greenhouse-upgrade-routes.json'));
+  const nitoriConfig = upgradeConfig.events.find((event) => event.config_id === 'nitori_greenhouse_automation_proposal');
+  assert.equal(nitoriConfig.presence_transition.arrive[0].character_id, 'nitori');
+});
+
+test('优化门：事件登记表严格校验且允许结果只有一个事实源', async () => {
+  const registry = await importTypescript('../src/ui/event-registry.ts');
+  const vertical = JSON.parse(await read('../src/lorebook/events/greenhouse-vertical-slice.json'));
+  const routes = JSON.parse(await read('../src/lorebook/events/greenhouse-upgrade-routes.json'));
+  const sideStories = JSON.parse(await read('../src/lorebook/events/free-side-stories.json'));
+  const events = registry.validateEventDocuments([vertical, routes, sideStories]);
+  assert.equal(events.length, vertical.events.length + routes.events.length + sideStories.events.length);
+  assert.ok(events.every((event) => event.allowed_results.every((result) => typeof result === 'string')));
+  const invalid = structuredClone(vertical);
+  invalid.events[0].projection_keys = ['future.secret'];
+  assert.throws(() => registry.validateEventDocuments([invalid]), /包含未登记路径/);
+  assert.throws(() => registry.validateEventDocuments([vertical, vertical]), /重复 config_id/);
+});
+
+test('优化门：每次只投影当前事件，打包器不再关键词注入整份事件配置', async () => {
+  const projection = await importTypescript('../src/ui/event-projection.ts');
+  const actions = await importTypescript('../src/ui/target-actions.ts');
+  const state = JSON.parse(await read('../src/schema/initial-state.json'));
+  const prompt = projection.buildEventPromptProjection(
+    'greenhouse_free_growth_proposal',
+    'organize_free_growth_proposal',
+    state,
+  );
+  assert.match(prompt, /【当前事件精确投影】/);
+  assert.match(prompt, /greenhouse_free_growth_proposal/);
+  assert.match(prompt, /characters\.marisa\.current_relationship_facts/);
+  assert.doesNotMatch(prompt, /alice_greenhouse_maintenance_proposal/);
+  assert.doesNotMatch(prompt, /nitori_greenhouse_automation_proposal/);
+  assert.throws(() => projection.buildEventPromptProjection(
+    'greenhouse_free_growth_proposal', 'repair', state,
+  ), /未登记为事件/);
+  const message = actions.buildActionMessage({
+    id: 'organize_free_growth_proposal',
+    label: '整理方案',
+    description: '测试',
+    intent: '我与魔理沙整理方案。',
+    mode: 'gal',
+    target: { id: 'magic_greenhouse', label: '魔法温室', type: 'facility' },
+    eventId: 'greenhouse_free_growth_proposal',
+  }, state);
+  assert.match(message, /当前事件精确投影/);
+  assert.doesNotMatch(message, /当前不在场：/);
+  const packer = await read('../scripts/package-checkpoint.mjs');
+  assert.doesNotMatch(packer, /greenhouseEvents/);
+  assert.doesNotMatch(packer, /魔法温室纵切事件/);
+});
+
+test('优化门：时间不可倒退，未知区域回执不能污染正式在场快照', async () => {
+  const time = await importTypescript('../src/ui/time-rules.ts');
+  const settlement = await importTypescript('../src/ui/event-settlement.ts');
+  const state = JSON.parse(await read('../src/schema/initial-state.json'));
+  state.environment.day = 4;
+  state.environment.time_period = '黄昏';
+  const backwards = structuredClone(state);
+  backwards.environment.day = 3;
+  backwards.environment.time_period = '夜晚';
+  assert.deepEqual(time.enforceMonotonicTime(state, backwards).environment, state.environment);
+  const sameDayBackwards = structuredClone(state);
+  sameDayBackwards.environment.time_period = '白昼';
+  assert.deepEqual(time.enforceMonotonicTime(state, sameDayBackwards).environment, state.environment);
+  const nextDay = structuredClone(state);
+  nextDay.environment.day = 5;
+  nextDay.environment.time_period = '清晨';
+  assert.equal(time.enforceMonotonicTime(state, nextDay).environment.day, 5);
+
+  state.characters.marisa = { id: 'marisa', name: '雾雨魔理沙' };
+  state.presence_snapshot = {
+    present_character_ids: ['reimu'],
+    character_views: { reimu: { area_id: 'central_courtyard', action: '等待', facing: 'front' } },
+  };
+  const invalidArea = settlement.applyPresenceUpdate(state, [
+    '【庭园正文结束】',
+    '<GensokyoPresence>{"version":"presence.v1","present_character_ids":["reimu","marisa"],"character_views":{"reimu":{"area_id":"unknown_void"},"marisa":{"area_id":"unknown_void"}}}</GensokyoPresence>',
+  ].join('\n'));
+  assert.deepEqual(invalidArea.presence_snapshot.present_character_ids, ['reimu']);
+  assert.equal(invalidArea.presence_snapshot.character_views.reimu.area_id, 'central_courtyard');
+  assert.equal(invalidArea.presence_snapshot.character_views.marisa, undefined);
+  assert.equal(settlement.localSettlementAction(
+    '<GensokyoAction>{"version":"garden-action.v1","action_id":"repair","event_id":"reimu_boundary_inspection"}</GensokyoAction>',
+    state,
+  ), null);
 });

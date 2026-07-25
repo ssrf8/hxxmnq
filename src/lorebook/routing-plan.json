@@ -10,6 +10,14 @@
       "budget": "high-priority"
     },
     {
+      "id": "variable_output_format",
+      "label": "JSONPatch 输出格式",
+      "activation": "always-for-variable-stage",
+      "target": "variable-model",
+      "source": "variable-output-format.md",
+      "budget": "high-priority"
+    },
+    {
       "id": "current_state_projection",
       "label": "当前状态投影",
       "activation": "runtime-generated",
@@ -29,7 +37,7 @@
       "id": "gal_presentation_protocol",
       "label": "GAL 表现与交互会话协议",
       "activation": "gensokyo-action-or-active-session",
-      "target": "plot-model-and-variable-model",
+      "target": "plot-model",
       "source": "gal-presentation-protocol.md",
       "budget": "high-priority-during-interaction"
     },
@@ -53,7 +61,7 @@
       "id": "event_configs",
       "label": "当前事件配置",
       "activation": "conditional-by-config-id",
-      "target": "plot-model-and-variable-model",
+      "target": "plot-model",
       "source": "events/greenhouse-vertical-slice.json",
       "budget": "dynamic"
     },

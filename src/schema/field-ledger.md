@@ -12,13 +12,13 @@
 | `garden` | 庭园名、建设阶段、锚点引用 | 确定性开场 bridge、事件模型 | 模型、庭园页 | 开场只覆盖名称；临时锚点最多 2 个；引用必须存在 |
 | `resources` | 物资 0–20、灵感 0–10、金币 0–99999 | 本地副本奖励、商店事务 | 模型、资源显示、商店 | 旧存档缺失金币时迁移补 0；不得从正文猜余额 |
 | `areas.{id}` | 固定/动态区域记录 | 模型、迁移器 | 模型、地图 | 固定 ID 不改名；删除前解除设施引用 |
-| `facilities.{id}` | 设施状态与形态 | 模型 | 模型、地图、事件 | 主设施每区一个；形态列表去重由桥接校验 |
-| `characters.{id}` | 角色稳定档案 | 模型 | 模型、地图、数据库归档 | 固定八人永久保留；动态档案最多 16 个 |
-| `characters.{id}.current_relationship_facts` | 最多 12 条事实对象 | 模型 | 相关场景模型 | 冲突事实先失效/归档再新增；不存好感数值 |
-| `presence_snapshot` | 本轮在场和动作快照 | 模型 | 地图、模型 | 每轮覆盖，不作为长期事实；玩家不得进入角色视图 |
-| `interaction.current_session` | null 或单一会话 | 模型 | 模型、剧情页 | 同时仅一个；只有自然收尾后 settled=true 并清空 |
-| `interaction.current_session.effective_rounds` | integer/0 | 模型 | 温室多轮会话门槛 | 仅完整且有效的新 assistant 回复递增；停止、失败、Swipe、重放与同消息 ID 不计数 |
-| `interaction.settled_ids` | 最多 64 个交互结算 ID | 模型 | 模型、GAL 幂等检查 | 只追加已复读成功的会话结算；重复 ID 禁止再次结算 |
+| `facilities.{id}` | 设施状态与形态 | 模型；R31 方案登记由本地结算器 | 模型、地图、事件 | 主设施每区一个；形态列表去重由桥接校验 |
+| `characters.{id}` | 角色稳定档案 | 模型；R31 魔理沙合作事实由本地结算器 | 模型、地图、数据库归档 | 固定八人永久保留；动态档案最多 16 个 |
+| `characters.{id}.current_relationship_facts` | 最多 12 条事实对象 | 模型；受控方案事件的本地结算器 | 相关场景模型 | 冲突事实先失效/归档再新增；不存好感数值 |
+| `presence_snapshot` | 本轮在场和动作快照 | bridge（校验剧情模型的 `presence.v1` 回执；固定事件按登记的 `presence_transition` 本地迁移） | 地图、模型 | 每轮整体覆盖，不交给额外变量模型；玩家不得进入角色视图 |
+| `interaction.current_session` | null 或单一会话 | 额外变量模型；受控温室会话由 bridge 独占 | 模型、剧情页 | 同时仅一个；受控会话不允许模型替换父对象绕过所有权 |
+| `interaction.current_session.effective_rounds` | integer/0 | bridge | 温室多轮会话门槛 | 仅完整且有效的新 assistant 回复递增；停止、失败、Swipe、重放与同消息 ID 不计数 |
+| `interaction.settled_ids` | 最多 64 个交互结算 ID | 额外变量模型；受控温室会话由 bridge 独占 | 模型、GAL 幂等检查 | 只追加已复读成功的会话结算；重复 ID 禁止再次结算 |
 | `events.active_event` | null 或正式事件 | 模型 | 模型、剧情页 | 同时仅一个；结算后转入近期结果/关键标记 |
 | `events.waiting_events` | 最多 3 个事件 | 模型 | 调度器、模型 | 满载时拒绝低优先事件；到期不可静默删除 |
 | `events.recent_results` | 最多 8 条短摘要 | 模型 | 模型、数据库归档 | FIFO；关键结果另存永久标记 |
@@ -32,7 +32,7 @@
 | `key_items` | 关键物品字典 | 确定性开场 bridge、模型 | 模型、UI | 开场只确认庭守钥取得与苏醒；不进入传统背包；关键物不得无因删除 |
 | `abilities` | 最多 32 条事实解锁 | 模型 | 模型、战斗 | 必须记录剧情来源；不用等级/经验 |
 | `memory.long_term_notes` | 最多 24 条短事实 | 模型 | 条件投影、数据库归档 | 不存流水账；相近内容合并 |
-| `uid_counters` | 正整数计数器 | 模型/bridge | 实体创建器 | 创建实体与计数器更新必须同一补丁完成 |
+| `uid_counters` | 正整数计数器 | bridge | 实体创建器 | 额外变量模型不得猜测计数器；动态实体创建须先经本地分配器 |
 
 ## 关键对象约束
 

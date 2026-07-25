@@ -1,6 +1,6 @@
 import type { GardenState } from './types';
 import { eventById } from './event-registry';
-import { advanceOneTimePeriod } from './time-rules';
+import { advanceOneTimePeriod, enforceMonotonicTime } from './time-rules';
 
 export interface GardenActionMarker {
   version: 'garden-action.v1';
@@ -32,6 +32,9 @@ const LOCAL_EVENT_ACTIONS = new Set([
   'greenhouse_first_use',
   'greenhouse_research_talk',
   'continue_greenhouse_conversation',
+  'organize_free_growth_proposal',
+  'invite_alice_maintenance_assessment',
+  'commission_nitori_engineering_survey',
   'end_conversation',
   'investigate_flower_core',
   'resume_battle_settlement',
@@ -48,29 +51,10 @@ const LOCAL_EVENT_IDS = [
   'greenhouse_first_use',
   'greenhouse_multiturn_conversation',
   'greenhouse_flower_core',
+  'greenhouse_free_growth_proposal',
+  'alice_greenhouse_maintenance_proposal',
+  'nitori_greenhouse_automation_proposal',
 ] as const;
-
-const allowedResults: Record<string, readonly string[]> = {
-  reimu_boundary_inspection: ['temporary_permission', 'supervised_restriction', 'urgent_seal_repair'],
-  main_house_repair: ['main_house_enabled', 'temporary_shelter_only'],
-  marisa_material_rumor: ['greenhouse_clue_found', 'material_sample_deferred'],
-  gain_second_inspiration: ['investigate_growth', 'hear_marisa_plan', 'study_grandfather_blueprint'],
-  clear_greenhouse_foundation: ['foundation_cleared', 'hidden_root_network_found'],
-  build_basic_magic_greenhouse: ['basic_greenhouse_enabled', 'enabled_with_instability'],
-  greenhouse_first_use: ['stable_first_growth', 'unusual_growth_observed'],
-  greenhouse_multiturn_conversation: ['conversation_settled_after_multiple_turns'],
-};
-
-const defaultResults: Record<string, string> = {
-  reimu_boundary_inspection: 'temporary_permission',
-  main_house_repair: 'main_house_enabled',
-  marisa_material_rumor: 'greenhouse_clue_found',
-  gain_second_inspiration: 'investigate_growth',
-  clear_greenhouse_foundation: 'foundation_cleared',
-  build_basic_magic_greenhouse: 'basic_greenhouse_enabled',
-  greenhouse_first_use: 'stable_first_growth',
-  greenhouse_multiturn_conversation: 'conversation_settled_after_multiple_turns',
-};
 
 export const GREENHOUSE_RESEARCH_MAX_EFFECTIVE_ROUNDS = 2;
 
@@ -78,6 +62,30 @@ function record(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' && !Array.isArray(value)
     ? value as Record<string, unknown>
     : {};
+}
+
+const BASE_AREA_IDS = ['main_house', 'central_courtyard', 'greenhouse_plot'];
+
+export interface RecordedLocalSettlement {
+  action: GardenActionMarker;
+  assistantMessageId: number;
+  assistantText: string;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function mergePersistedState(before: GardenState, after: GardenState): GardenState {
+  const merge = (base: unknown, update: unknown): unknown => {
+    if (!isRecord(base) || !isRecord(update)) return structuredClone(update);
+    const next = structuredClone(base);
+    for (const [key, value] of Object.entries(update)) {
+      next[key] = merge(next[key], value);
+    }
+    return next;
+  };
+  return merge(before, after) as GardenState;
 }
 
 export function parseGardenAction(message: string): GardenActionMarker | null {
@@ -99,35 +107,47 @@ export function parseGardenAction(message: string): GardenActionMarker | null {
 }
 
 export function parsePresenceUpdate(message: string): PresenceUpdate | null {
-  const match = message.match(/<GensokyoPresence>([\s\S]*?)<\/GensokyoPresence>/iu);
-  if (!match) return null;
-  try {
-    const value = JSON.parse(match[1]) as {
+  const narrativeEnd = message.lastIndexOf('【庭园正文结束】');
+  const trailing = narrativeEnd >= 0
+    ? message.slice(narrativeEnd + '【庭园正文结束】'.length)
+    : message;
+  let closeAt = trailing.length;
+  while (closeAt > 0) {
+    const closing = trailing.lastIndexOf('</GensokyoPresence>', closeAt);
+    if (closing < 0) return null;
+    const opening = trailing.lastIndexOf('<GensokyoPresence>', closing);
+    if (opening < 0) return null;
+    const payload = trailing.slice(opening + '<GensokyoPresence>'.length, closing);
+    closeAt = opening;
+    try {
+      const value = JSON.parse(payload) as {
       version?: unknown;
       present_character_ids?: unknown;
       character_views?: unknown;
-    };
-    if (value.version !== 'presence.v1' || !Array.isArray(value.present_character_ids)) return null;
-    const presentCharacterIds = Array.from(new Set(value.present_character_ids
-      .filter((id): id is string => typeof id === 'string' && id.length > 0)
-      .slice(0, 12)));
-    const views = record(value.character_views);
-    const characterViews: PresenceUpdate['characterViews'] = {};
-    for (const id of presentCharacterIds) {
-      const view = record(views[id]);
-      const facing = typeof view.facing === 'string' && ['front', 'back', 'left', 'right'].includes(view.facing)
-        ? view.facing as 'front' | 'back' | 'left' | 'right'
-        : undefined;
-      characterViews[id] = {
-        ...(typeof view.area_id === 'string' ? { area_id: view.area_id.slice(0, 48) } : {}),
-        ...(typeof view.action === 'string' ? { action: view.action.slice(0, 80) } : {}),
-        ...(facing ? { facing } : {}),
       };
+      if (value.version !== 'presence.v1' || !Array.isArray(value.present_character_ids)) continue;
+      const presentCharacterIds = Array.from(new Set(value.present_character_ids
+        .filter((id): id is string => typeof id === 'string' && id.length > 0)
+        .slice(0, 12)));
+      const views = record(value.character_views);
+      const characterViews: PresenceUpdate['characterViews'] = {};
+      for (const id of presentCharacterIds) {
+        const view = record(views[id]);
+        const facing = typeof view.facing === 'string' && ['front', 'back', 'left', 'right'].includes(view.facing)
+          ? view.facing as 'front' | 'back' | 'left' | 'right'
+          : undefined;
+        characterViews[id] = {
+          ...(typeof view.area_id === 'string' ? { area_id: view.area_id.slice(0, 48) } : {}),
+          ...(typeof view.action === 'string' ? { action: view.action.slice(0, 80) } : {}),
+          ...(facing ? { facing } : {}),
+        };
+      }
+      return { version: 'presence.v1', presentCharacterIds, characterViews };
+    } catch {
+      // A leaked draft can contain an unclosed fake tag; keep looking backward.
     }
-    return { version: 'presence.v1', presentCharacterIds, characterViews };
-  } catch {
-    return null;
   }
+  return null;
 }
 
 export function applyPresenceUpdate(state: GardenState, assistantText: string): GardenState {
@@ -135,10 +155,27 @@ export function applyPresenceUpdate(state: GardenState, assistantText: string): 
   if (!update) return state;
   const next = structuredClone(state);
   const knownCharacterIds = new Set(Object.keys(next.characters ?? {}));
-  const presentCharacterIds = update.presentCharacterIds.filter((id) => knownCharacterIds.has(id));
+  const knownAreaIds = new Set([...BASE_AREA_IDS, ...Object.keys(next.areas ?? {})]);
+  const previousPresent = new Set(next.presence_snapshot?.present_character_ids ?? []);
+  const previousViews = next.presence_snapshot?.character_views ?? {};
+  const presentCharacterIds: string[] = [];
+  const characterViews: PresenceUpdate['characterViews'] = {};
+  for (const id of update.presentCharacterIds) {
+    if (!knownCharacterIds.has(id)) continue;
+    const view = update.characterViews[id] ?? {};
+    if (view.area_id && !knownAreaIds.has(view.area_id)) {
+      if (previousPresent.has(id)) {
+        presentCharacterIds.push(id);
+        characterViews[id] = structuredClone(previousViews[id] ?? {});
+      }
+      continue;
+    }
+    presentCharacterIds.push(id);
+    characterViews[id] = view;
+  }
   next.presence_snapshot = {
     present_character_ids: presentCharacterIds,
-    character_views: Object.fromEntries(presentCharacterIds.map((id) => [id, update.characterViews[id] ?? {}])),
+    character_views: characterViews,
   };
   return next;
 }
@@ -148,7 +185,13 @@ export function localSettlementAction(
   state: GardenState,
 ): GardenActionMarker | null {
   const parsed = parseGardenAction(message);
-  if (parsed && LOCAL_EVENT_ACTIONS.has(parsed.action_id) && parsed.event_id && eventById.has(parsed.event_id)) return parsed;
+  if (parsed && LOCAL_EVENT_ACTIONS.has(parsed.action_id) && parsed.event_id) {
+    const event = eventById.get(parsed.event_id);
+    const registeredAction = event?.trigger_action_ids.includes(parsed.action_id);
+    const registeredAlias = (parsed.action_id === 'end_conversation' && parsed.event_id === 'greenhouse_multiturn_conversation')
+      || (parsed.action_id === 'resume_battle_settlement' && parsed.event_id === 'greenhouse_flower_core');
+    if (event && (registeredAction || registeredAlias)) return parsed;
+  }
   const session = state.interaction?.current_session;
   if (!parsed && session?.event_id === 'greenhouse_multiturn_conversation') {
     return {
@@ -158,6 +201,115 @@ export function localSettlementAction(
       target_id: session.facility_id ?? 'magic_greenhouse',
       target_type: 'facility',
     };
+  }
+  return null;
+}
+
+/** Creates bridge-owned state before a controlled multi-turn reply reaches the variable model. */
+export function stageLocalSession(before: GardenState, action: GardenActionMarker): GardenState {
+  if (action.action_id !== 'greenhouse_research_talk' || action.event_id !== 'greenhouse_multiturn_conversation') {
+    return before;
+  }
+  if (before.interaction?.current_session) return before;
+  if (!completed(before).greenhouse_first_use) throw new Error('需要先完成温室第一次使用');
+  const state = structuredClone(before);
+  const counter = state.uid_counters?.interaction ?? 1;
+  state.interaction ??= { current_session: null, settled_ids: [] };
+  state.interaction.current_session = {
+    uid: `interaction_${counter}`,
+    type: 'facility',
+    status: 'active',
+    area_id: 'greenhouse_plot',
+    participant_character_ids: ['marisa'],
+    facility_id: 'magic_greenhouse',
+    event_id: action.event_id,
+    focus: '温室里的持续研究与交流',
+    summary: '你与魔理沙开始在温室里持续研究和交谈。',
+    last_effective_message_id: null,
+    effective_rounds: 0,
+    settled: false,
+  };
+  state.uid_counters ??= {};
+  state.uid_counters.interaction = counter + 1;
+  return state;
+}
+
+export function hasLocalPresenceTransition(action: GardenActionMarker) {
+  if (!action.event_id) return false;
+  const transition = eventById.get(action.event_id)?.presence_transition;
+  return Boolean(transition?.arrive?.length || transition?.leave?.length);
+}
+
+function applyLocalPresenceTransition(state: GardenState, action: GardenActionMarker) {
+  if (!action.event_id) return;
+  const transition = eventById.get(action.event_id)?.presence_transition;
+  if (!transition) return;
+  const knownCharacterIds = new Set(Object.keys(state.characters ?? {}));
+  const knownAreaIds = new Set([...BASE_AREA_IDS, ...Object.keys(state.areas ?? {})]);
+  const present = new Set(state.presence_snapshot?.present_character_ids ?? []);
+  const views = structuredClone(state.presence_snapshot?.character_views ?? {});
+  for (const arrival of transition.arrive ?? []) {
+    if (!knownCharacterIds.has(arrival.character_id)) continue;
+    if (arrival.area_id && !knownAreaIds.has(arrival.area_id)) {
+      throw new Error(`事件 ${action.event_id} 使用了未登记区域：${arrival.area_id}`);
+    }
+    present.add(arrival.character_id);
+    views[arrival.character_id] = {
+      ...(arrival.area_id ? { area_id: arrival.area_id } : {}),
+      ...(arrival.action ? { action: arrival.action } : {}),
+      ...(arrival.facing ? { facing: arrival.facing } : {}),
+    };
+  }
+  for (const characterId of transition.leave ?? []) {
+    present.delete(characterId);
+    delete views[characterId];
+  }
+  const presentCharacterIds = [...present];
+  state.presence_snapshot = {
+    present_character_ids: presentCharacterIds,
+    character_views: Object.fromEntries(presentCharacterIds.map((id) => [id, views[id] ?? {}])),
+  };
+}
+
+function chatRole(message: Record<string, unknown>) {
+  if (message.role === 'user' || message.is_user === true) return 'user';
+  if (message.role === 'system' || message.is_system === true) return 'system';
+  return 'assistant';
+}
+
+function chatText(message: Record<string, unknown>) {
+  return String(message.message ?? message.mes ?? '');
+}
+
+/**
+ * Rebuilds an unfinished deterministic settlement from durable chat floors.
+ * This deliberately does not depend on an in-memory UI transaction surviving
+ * a refresh, script reload, or a host-specific generation event ordering.
+ */
+export function findRecordedLocalSettlement(
+  messages: Array<Record<string, unknown>>,
+  state: GardenState,
+): RecordedLocalSettlement | null {
+  for (let assistantIndex = messages.length - 1; assistantIndex >= 0; assistantIndex -= 1) {
+    const assistant = messages[assistantIndex];
+    if (chatRole(assistant) !== 'assistant') continue;
+    const assistantText = chatText(assistant);
+    const assistantMessageId = Number(assistant.message_id);
+    if (!assistantText.trim() || !Number.isInteger(assistantMessageId) || assistantMessageId < 0) continue;
+
+    let user: Record<string, unknown> | null = null;
+    for (let index = assistantIndex - 1; index >= 0; index -= 1) {
+      const candidate = messages[index];
+      if (chatRole(candidate) === 'user') {
+        user = candidate;
+        break;
+      }
+      if (chatRole(candidate) === 'assistant') break;
+    }
+    if (!user) continue;
+    const action = localSettlementAction(chatText(user), state);
+    if (!action || settlementProjection(state, action)) continue;
+    return { action, assistantMessageId, assistantText };
   }
   return null;
 }
@@ -174,21 +326,19 @@ export function settlementChoices(state: GardenState, action: GardenActionMarker
   if (action.action_id === 'settle_flower_core_battle' || action.action_id === 'resume_battle_settlement') {
     return state.battle?.current?.outcome ? [state.battle.current.outcome] : [];
   }
-  return [...(allowedResults[action.event_id ?? ''] ?? [])];
+  return [...(eventById.get(action.event_id ?? '')?.allowed_results ?? [])];
 }
 
 function eventResult(text: string, eventId: string, actionId: string) {
-  const fallback = actionId === 'investigate_growth'
-    || actionId === 'hear_marisa_plan'
-    || actionId === 'study_grandfather_blueprint'
-    ? actionId
-    : defaultResults[eventId];
+  const allowedResults = eventById.get(eventId)?.allowed_results ?? [];
+  const fallback = allowedResults.includes(actionId) ? actionId : allowedResults[0];
+  if (!fallback) throw new Error(`事件 ${eventId} 没有登记默认结算结果`);
   const match = text.match(/<GensokyoEventResult>([\s\S]*?)<\/GensokyoEventResult>/iu);
   if (!match) return fallback;
   try {
     const value = JSON.parse(match[1]) as { version?: string; event_id?: string; result?: string };
     if (value.version !== 'event-result.v1' || value.event_id !== eventId) return fallback;
-    return allowedResults[eventId]?.includes(String(value.result)) ? String(value.result) : fallback;
+    return allowedResults.includes(String(value.result)) ? String(value.result) : fallback;
   } catch {
     return fallback;
   }
@@ -311,6 +461,106 @@ function settleFirstUse(state: GardenState, action: GardenActionMarker, assistan
   state.events!.active_event = null;
 }
 
+function settleFreeGrowthProposal(state: GardenState, action: GardenActionMarker, assistantText: string) {
+  requireEvent(action, 'greenhouse_free_growth_proposal');
+  if (completed(state).greenhouse_free_growth_proposal) return;
+  if (!completed(state).greenhouse_flower_core) throw new Error('需要先完成温室妖花核心事件');
+  const facility = state.facilities?.magic_greenhouse;
+  if (!facility || facility.current_form !== '基础魔法温室') {
+    throw new Error('自由生长型方案只能从基础魔法温室登记');
+  }
+  completed(state).greenhouse_free_growth_proposal = eventResult(
+    assistantText,
+    'greenhouse_free_growth_proposal',
+    action.action_id,
+  );
+  facility.unlocked_forms = Array.from(new Set([...(facility.unlocked_forms ?? []), '自由生长型温室']));
+  const marisa = state.characters?.marisa;
+  if (marisa) {
+    marisa.current_relationship_facts ??= [];
+    if (!marisa.current_relationship_facts.some((fact) => fact.id === 'marisa_free_growth_plan')) {
+      marisa.current_relationship_facts.push({
+        id: 'marisa_free_growth_plan',
+        subjects: ['player', 'marisa'],
+        fact: '你与魔理沙共同确认了自由生长型温室的风险边界与可控方案。',
+        source_event_id: 'greenhouse_free_growth_proposal',
+        established_at: `day-${state.environment?.day ?? 1}`,
+        active: true,
+        last_confirmed_at: `day-${state.environment?.day ?? 1}`,
+      });
+    }
+  }
+  state.events!.active_event = null;
+}
+
+function settleAliceMaintenanceProposal(state: GardenState, action: GardenActionMarker, assistantText: string) {
+  requireEvent(action, 'alice_greenhouse_maintenance_proposal');
+  if (completed(state).alice_greenhouse_maintenance_proposal) return;
+  if (!completed(state).greenhouse_flower_core || !completed(state).greenhouse_free_growth_proposal) {
+    throw new Error('需要先完成妖花核心与自由生长方案');
+  }
+  const facility = state.facilities?.magic_greenhouse;
+  if (!facility || facility.current_form !== '基础魔法温室') {
+    throw new Error('人偶维护型方案只能从基础魔法温室登记');
+  }
+  completed(state).alice_greenhouse_maintenance_proposal = eventResult(
+    assistantText,
+    'alice_greenhouse_maintenance_proposal',
+    action.action_id,
+  );
+  facility.unlocked_forms = Array.from(new Set([...(facility.unlocked_forms ?? []), '人偶维护型温室']));
+  const alice = state.characters?.alice;
+  if (alice) {
+    alice.current_relationship_facts ??= [];
+    if (!alice.current_relationship_facts.some((fact) => fact.id === 'alice_maintenance_boundary')) {
+      alice.current_relationship_facts.push({
+        id: 'alice_maintenance_boundary',
+        subjects: ['player', 'alice'],
+        fact: '你尊重爱丽丝提出的维护边界与人偶分工，并共同确认了温室的隔离步骤。',
+        source_event_id: 'alice_greenhouse_maintenance_proposal',
+        established_at: `day-${state.environment?.day ?? 1}`,
+        active: true,
+        last_confirmed_at: `day-${state.environment?.day ?? 1}`,
+      });
+    }
+  }
+  state.events!.active_event = null;
+}
+
+function settleNitoriAutomationProposal(state: GardenState, action: GardenActionMarker, assistantText: string) {
+  requireEvent(action, 'nitori_greenhouse_automation_proposal');
+  if (completed(state).nitori_greenhouse_automation_proposal) return;
+  if (!completed(state).greenhouse_flower_core || !completed(state).greenhouse_free_growth_proposal) {
+    throw new Error('需要先完成妖花核心与自由生长方案');
+  }
+  const facility = state.facilities?.magic_greenhouse;
+  if (!facility || facility.current_form !== '基础魔法温室') {
+    throw new Error('河童自动化型方案只能从基础魔法温室登记');
+  }
+  completed(state).nitori_greenhouse_automation_proposal = eventResult(
+    assistantText,
+    'nitori_greenhouse_automation_proposal',
+    action.action_id,
+  );
+  facility.unlocked_forms = Array.from(new Set([...(facility.unlocked_forms ?? []), '河童自动化型温室']));
+  const nitori = state.characters?.nitori;
+  if (nitori) {
+    nitori.current_relationship_facts ??= [];
+    if (!nitori.current_relationship_facts.some((fact) => fact.id === 'nitori_engineering_acceptance')) {
+      nitori.current_relationship_facts.push({
+        id: 'nitori_engineering_acceptance',
+        subjects: ['player', 'nitori'],
+        fact: '你接受荷取提出的工程验收条件，没有把她当作免费修理工。',
+        source_event_id: 'nitori_greenhouse_automation_proposal',
+        established_at: `day-${state.environment?.day ?? 1}`,
+        active: true,
+        last_confirmed_at: `day-${state.environment?.day ?? 1}`,
+      });
+    }
+  }
+  state.events!.active_event = null;
+}
+
 function settleConversationTurn(
   state: GardenState,
   action: GardenActionMarker,
@@ -355,7 +605,9 @@ function settleConversationTurn(
 }
 
 function completeGreenhouseConversation(state: GardenState, sessionUid: string) {
-  completed(state).greenhouse_multiturn_conversation = defaultResults.greenhouse_multiturn_conversation;
+  const result = eventById.get('greenhouse_multiturn_conversation')?.allowed_results[0];
+  if (!result) throw new Error('温室持续交流事件没有登记结算结果');
+  completed(state).greenhouse_multiturn_conversation = result;
   state.interaction!.settled_ids ??= [];
   const settlementId = `interaction:${sessionUid}`;
   state.interaction!.settled_ids = Array.from(new Set([...state.interaction!.settled_ids!, settlementId]));
@@ -449,6 +701,9 @@ export function applyLocalSettlement(
     case 'clear_greenhouse_foundation': settleClear(state, action, assistantText); break;
     case 'build_basic_magic_greenhouse': settleBuild(state, action, assistantText); break;
     case 'greenhouse_first_use': settleFirstUse(state, action, assistantText); break;
+    case 'organize_free_growth_proposal': settleFreeGrowthProposal(state, action, assistantText); break;
+    case 'invite_alice_maintenance_assessment': settleAliceMaintenanceProposal(state, action, assistantText); break;
+    case 'commission_nitori_engineering_survey': settleNitoriAutomationProposal(state, action, assistantText); break;
     case 'greenhouse_research_talk':
     case 'continue_greenhouse_conversation': settleConversationTurn(state, action, assistantMessageId); break;
     case 'end_conversation': settleConversationEnd(state, action); break;
@@ -457,6 +712,7 @@ export function applyLocalSettlement(
     case 'settle_flower_core_battle': settleFlowerCore(state, action); break;
     default: throw new Error(`未登记的本地结算行动：${action.action_id}`);
   }
+  applyLocalPresenceTransition(state, action);
   return state;
 }
 
@@ -477,8 +733,15 @@ export function settlementProjection(state: GardenState, action: GardenActionMar
   return Boolean(eventId && completed(state)[eventId]);
 }
 
-export function restoreLocalEventOwnership(before: GardenState, after: GardenState): GardenState {
-  const next = structuredClone(after);
+export function restoreLocalEventOwnership(before: GardenState, after: GardenState, lockTime = false): GardenState {
+  // Some MVU hosts replace stat_data when a model emits a partial update. Keep
+  // omitted formal state from the last verified snapshot before restoring local ownership.
+  const next = enforceMonotonicTime(before, mergePersistedState(before, after));
+  if (lockTime) {
+    next.environment ??= {};
+    next.environment.day = before.environment?.day ?? 1;
+    next.environment.time_period = before.environment?.time_period ?? '清晨';
+  }
   next.events ??= {};
   next.events.completed_key_events ??= {};
   const priorCompleted = before.events?.completed_key_events ?? {};
@@ -508,6 +771,11 @@ export function restoreLocalEventOwnership(before: GardenState, after: GardenSta
     current.current_form = prior.current_form;
     current.unlocked_forms = structuredClone(prior.unlocked_forms ?? []);
     current.active_effects = structuredClone(prior.active_effects ?? []);
+  }
+  if (before.characters?.marisa && next.characters?.marisa) {
+    next.characters.marisa.current_relationship_facts = structuredClone(
+      before.characters.marisa.current_relationship_facts ?? [],
+    );
   }
 
   const beforeConversation = before.interaction?.current_session?.event_id === 'greenhouse_multiturn_conversation';

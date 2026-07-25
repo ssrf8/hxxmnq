@@ -7,6 +7,7 @@
   "contract": "contract.md",
   "variable_root": "stat_data",
   "update_protocol": "magvarupdate-jsonpatch-subset",
+  "update_mode": "extra-model-analysis",
   "target": {
     "luker": "SillyTavern 1.18.0 (8172dcd0)",
     "tavern_helper": "4.8.19",

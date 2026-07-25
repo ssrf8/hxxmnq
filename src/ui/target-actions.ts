@@ -1,5 +1,6 @@
 import type { GardenState, InteractionTarget, TargetAction } from './types';
 import { GREENHOUSE_EVENTS, greenhouseActionBlock } from './greenhouse-rules';
+import { buildEventPromptProjection } from './event-projection';
 
 const action = (
   target: InteractionTarget,
@@ -28,12 +29,10 @@ function presenceNarrativeContext(state?: GardenState) {
     const view = views[id] ?? {};
     return `- ${id}（${names[id]?.name ?? id}）：${view.area_id ?? '区域未记录'}；${view.action ?? '行动未记录'}；朝向 ${view.facing ?? '未记录'}`;
   });
-  const absentLines = Object.keys(names).filter((id) => !present.has(id))
-    .map((id) => `${id}（${names[id]?.name ?? id}）`);
   return [
     '【庭园在场快照：本轮唯一事实】',
     presentLines.length ? `当前在场：\n${presentLines.join('\n')}` : '当前在场：无。',
-    `当前不在场：${absentLines.join('、') || '无。'}`,
+    '未列入当前在场快照的登记角色一律视为不在场；不要枚举或主动召回他们。',
     '正文只能让当前在场角色出现在现场、说话或行动；不在场角色不得被当作就在身边。',
     '若正文中有角色明确抵达、离场或更换区域，必须在正文结束后额外输出一次严格 JSON 的 <GensokyoPresence>{"version":"presence.v1","present_character_ids":[仍在场角色ID],"character_views":{"角色ID":{"area_id":"区域ID","action":"当前动作","facing":"front|left|right"}}}</GensokyoPresence>。没有出入场或位置变化时不要输出该标签。该标签不是正文、不是选项，也不写 UpdateVariable。',
   ].join('\n');
@@ -254,6 +253,76 @@ function greenhouseActions(target: InteractionTarget, state: GardenState): Targe
       ));
     }
   } else {
+    if (!completed[GREENHOUSE_EVENTS.freeGrowthProposal]) {
+      result.push(greenhouseAction(
+        target,
+        state,
+        'organize_free_growth_proposal',
+        '整理自由生长方案',
+        '与魔理沙登记保留可控野性的温室方案，暂不施工或选型。',
+        '我和魔理沙复盘温室妖花核心留下的异常生长，讨论如何保留可控野性，并确认风险边界。请按 greenhouse_free_growth_proposal 演绎：最后由魔理沙交付可执行方案；只登记“自由生长型温室”，不施工、不选定当前形态、不扣资源、不推进时间，也不开启新的异变。',
+        'gal',
+        { eventId: GREENHOUSE_EVENTS.freeGrowthProposal, fixedPresentation: true },
+      ));
+    }
+    if (!completed[GREENHOUSE_EVENTS.aliceMaintenanceProposal]) {
+      result.push(greenhouseAction(
+        target,
+        state,
+        'invite_alice_maintenance_assessment',
+        '邀请爱丽丝进行维护评估',
+        '请爱丽丝以人偶协作测量温室的连接、隔离和维护需求。',
+        '我邀请爱丽丝来到温室，检查结构连接、隔离边界和长期维护需求。请按 alice_greenhouse_maintenance_proposal 演绎：人偶分工测量，说明自由生长方案的维护风险但不贬低魔理沙，最后交付人偶维护型温室方案；只登记方案，不施工、不选定当前形态、不扣资源、不推进时间。',
+        'gal',
+        { eventId: GREENHOUSE_EVENTS.aliceMaintenanceProposal, fixedPresentation: true },
+      ));
+    }
+    if (!completed[GREENHOUSE_EVENTS.nitoriAutomationProposal]) {
+      result.push(greenhouseAction(
+        target,
+        state,
+        'commission_nitori_engineering_survey',
+        '委托荷取进行工程测量',
+        '请荷取测量温室水路、结界接口与自动化仪表需求。',
+        '我委托荷取来到温室，测量水路、结界接口和仪表条件。请按 nitori_greenhouse_automation_proposal 演绎：她说明投入与安全限制，完成小规模试运行并交付河童自动化型温室方案；只登记方案，不施工、不选定当前形态、不扣资源、不推进时间。',
+        'gal',
+        { eventId: GREENHOUSE_EVENTS.nitoriAutomationProposal, fixedPresentation: true },
+      ));
+    }
+    const alicePresent = state.presence_snapshot?.present_character_ids?.includes('alice');
+    if (alicePresent) {
+      result.push(action(
+        target,
+        'alice_doll_workshop_chat',
+        '聊聊人偶维护',
+        '与在场的爱丽丝自由讨论人偶协作与温室维护。',
+        '我和在场的爱丽丝聊聊人偶协作、隔离维护与温室里的细节观察；这只是独立支线，不解锁方案、不改变资源、不推进主线。',
+        'gal',
+      ));
+    }
+    const nitoriPresent = state.presence_snapshot?.present_character_ids?.includes('nitori');
+    if (nitoriPresent) {
+      result.push(action(
+        target,
+        'nitori_instrument_calibration_chat',
+        '帮忙校准仪表',
+        '与在场的荷取自由讨论温室仪表和安全读数。',
+        '我和在场的荷取一起校准温室仪表、核对水路和结界读数；这只是独立支线，不解锁方案、不改变资源、不推进主线。',
+        'gal',
+      ));
+    }
+    const marisaPresent = state.presence_snapshot?.present_character_ids?.includes('marisa');
+    if (state.environment?.time_period === '夜晚' && marisaPresent) {
+      result.push(action(
+        target,
+        'marisa_greenhouse_night_observation',
+        '夜间观察',
+        '与在场的魔理沙自由观察夜晚温室的残留魔力。',
+        '夜晚的温室仍有微弱的魔力起伏。我和在场的魔理沙进行一次自由观察。',
+        'gal',
+        { eventId: 'marisa_greenhouse_night_observation' },
+      ));
+    }
     result.push(action(
       target,
       'use_greenhouse',
@@ -367,7 +436,7 @@ export function targetActions(target: InteractionTarget, state: GardenState): Ta
   ];
 }
 
-export function buildActionMessage(action: TargetAction) {
+export function buildActionMessage(action: TargetAction, state: GardenState) {
   const marker = {
     version: 'garden-action.v1',
     target_type: action.target.type,
@@ -378,9 +447,13 @@ export function buildActionMessage(action: TargetAction) {
   const settlementNotice = action.eventId
     ? `本次 ${action.eventId} 的正式事件、资源、时间、区域、设施与会话字段由本地结算器在回复完成后原子写入。你只负责自然叙事；不要输出 GensokyoEventResult，也不要在 UpdateVariable 中修改这些本地托管字段。`
     : '';
+  const eventProjection = action.eventId
+    ? buildEventPromptProjection(action.eventId, action.id, state)
+    : '';
   return withGardenNarrativeContract([
     '【庭园行动】',
     action.intent,
+    eventProjection,
     settlementNotice,
     '',
     `<GensokyoAction>${JSON.stringify(marker)}</GensokyoAction>`,
@@ -412,6 +485,27 @@ export function buildSettlementMessage(
     `请给出一次简短自然的收尾。${settlementRule}`,
     '',
     `<GensokyoAction>${JSON.stringify(marker)}</GensokyoAction>`,
-  ].join('\n'));
+  ].join('\n'), state);
+}
+
+const FIXED_PRESENTATION_ACTION_IDS = new Set([
+  'inspect_boundary',
+  'repair',
+  'investigate_magic_trace',
+  'investigate_growth',
+  'hear_marisa_plan',
+  'study_grandfather_blueprint',
+  'clear_greenhouse_foundation',
+  'build_basic_magic_greenhouse',
+  'greenhouse_first_use',
+  'resume_battle_settlement',
+  'organize_free_growth_proposal',
+  'invite_alice_maintenance_assessment',
+  'commission_nitori_engineering_survey',
+]);
+
+/** Fixed progression replies never expose free-chat controls after a reload. */
+export function isFixedPresentationAction(actionId: string) {
+  return FIXED_PRESENTATION_ACTION_IDS.has(actionId);
 }
 

@@ -1,5 +1,11 @@
 # 运行 API 来源记录（0.2.0）
 
+## R34 后事件精确投影与世界书证据门
+
+2026-07-25 的维护源优化没有引入新的宿主 API：事件定义由 UI bundle 内导入并严格校验，行动消息只注入当前 `event_id` 的受控投影；打包器不再把整份 `greenhouse-vertical-slice.json` 作为通用关键词世界书条目。`character_book.recursive_scanning` 仍为 `false`，但角色条目是否因姓名、宿主扫描设置或扩展行为被意外激活，必须以真实目标环境的最终提示/激活条目证据为准。
+
+本次通过 Codex 应用内浏览器只读访问 `http://127.0.0.1:8001/`，确认 SillyTavern 服务可达；探测时没有选中角色、聊天或角色主世界书，页面上下文也未暴露 Tavern Helper / MVU。因此该结果只证明服务可达，不能证明 O4 世界书激活边界。R37 完成前必须使用包含本优化的精确新候选卡、新聊天及目标版本设置重做审计；不得导入或覆盖 R34 来补做该证据。
+
 ## r23 双请求结算与宿主转发
 
 目标安装仍为 SillyTavern `1.18.0`（`8172dcd0`）、Tavern Helper `4.8.19`。受控选项先通过 `/trigger await=true` 使用当前加载预设生成可见剧情；生成结束后，再调用 Tavern Helper `generate`，显式传入 `preset_name: 'in_use'`、`should_silence: true` 与白名单 `json_schema`，把结果解析为本地确定性结算枚举。第二次请求不直接写 MVU；`event-settlement.ts` 根据请求前状态和白名单结果计算新状态，再用 `Mvu.replaceMvuData` 写入同一个真实 assistant 楼层并复读校验。
@@ -34,6 +40,7 @@
 | 读取消息与 Swipe | `getChatMessages(..., { include_swipes: true })` | Tavern Helper `@types\function\chat_message.d.ts` | 从真实 assistant 楼层读取当前 Swipe；旧消息缺少结构块时使用纯文本降级 |
 | 生成与聊天事件 | `GENERATION_STARTED`、`GENERATION_STOPPED`、`GENERATION_ENDED`、`MESSAGE_SWIPED`、`CHAT_CHANGED` | `F:\agent airp\Luker\public\scripts\events.js` 与 Tavern Helper `@types\iframe\event.d.ts` | 控制生成态、停止态、Swipe 刷新以及跨聊天/切卡清理 |
 | MVU 精确消息层读写 | `Mvu.getMvuData`、`Mvu.replaceMvuData`、`Mvu.events.VARIABLE_UPDATE_ENDED` | Tavern Helper `@types\iframe\exported.mvu.d.ts` | 读取当前状态、确定性开场与兼容修复；GAL 播放等待完整 assistant 楼层和变量更新结束 |
+| 额外变量分析状态 | `Mvu.isDuringExtraAnalysis()` | Tavern Helper `@types\iframe\exported.mvu.d.ts`；MagVarUpdate 固定提交 `d1bdfd1efcf99c6f456e01f8f747b24f4b9834fc` | 阻止本地结算在额外模型仍运行时抢写同一 assistant 楼层；最终以 `VARIABLE_UPDATE_ENDED` 为正常完成信号 |
 
 模型展示协议是“可读正文 + `<GensokyoScene>` JSON + MVU 更新块”。结构块最多 6 个 beat、2–4 个建议回复，只接受本地白名单反应标签；图片路径、URL 和 HTML 不由模型决定。结算以 `interaction:<uid>` 写入 `interaction.settled_ids`，重复收尾不得再次扣材料或推进时间。
 

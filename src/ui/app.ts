@@ -5,7 +5,7 @@ import boundaryDungeonConfig from '../battle/configs/dungeons/boundary-echo-tria
 import { BattleEngine, type BattleConfig } from './battle-engine';
 import { bridge } from './bridge';
 import { syncOpeningDatabase, type DatabaseSyncResult } from './database-adapter';
-import { parseGardenAction } from './event-settlement';
+import { parseGardenAction, settlementProjection } from './event-settlement';
 import { projectGalScene } from './gal-scene';
 import { GardenMap } from './garden-map';
 import {
@@ -20,6 +20,7 @@ import { OpeningController } from './opening';
 import {
   buildActionMessage,
   buildSettlementMessage,
+  isFixedPresentationAction,
   targetActions,
   withGardenNarrativeContract,
 } from './target-actions';
@@ -241,6 +242,23 @@ function pickLatestAssistant(messages: ChatMessageView[]) {
   return null;
 }
 
+function isRestoredFixedPresentation(messages: ChatMessageView[], latest: ChatMessageView) {
+  const assistantIndex = messages.findIndex((message) => message.id === latest.id && message.role === 'assistant');
+  if (assistantIndex < 1) return false;
+  for (let index = assistantIndex - 1; index >= 0; index -= 1) {
+    const message = messages[index];
+    if (message.role === 'assistant') return false;
+    if (message.role !== 'user') continue;
+    const action = parseGardenAction(message.text);
+    return Boolean(
+      action
+      && isFixedPresentationAction(action.action_id)
+      && settlementProjection(state, action),
+    );
+  }
+  return false;
+}
+
 function userHistoryText(value: string) {
   return String(value ?? '')
     .split('【庭园正文协议】')[0]
@@ -326,6 +344,7 @@ async function renderGal() {
     replyPanel.hidden = false;
     return;
   }
+  singleShotEventPresentation ||= isRestoredFixedPresentation(messages, latest);
   const signature = `${latest.id}:${latest.swipeId ?? 0}:${latest.text.length}:${latest.text.slice(0, 48)}`;
   if (signature !== sceneSignature) {
     sceneSignature = signature;
@@ -445,7 +464,7 @@ async function chooseTargetAction(action: TargetAction) {
   sceneSignature = '';
   setView('gal');
   setGenerating(true);
-  await submitGalMessage(buildActionMessage(action), 'interaction', { restoreInputOnFailure: false });
+  await submitGalMessage(buildActionMessage(action, state), 'interaction', { restoreInputOnFailure: false });
 }
 
 function openFacilityAction(action: TargetAction) {
@@ -483,7 +502,7 @@ async function confirmFacilityAction() {
   setStatus(`${pendingAction.label}行动已提交，等待真实楼层和 MVU 结算。`);
   try {
     singleShotEventPresentation = Boolean(pendingAction.fixedPresentation);
-    await bridge.sendUserMessage(withGardenNarrativeContract(buildActionMessage(pendingAction), state), 'interaction');
+    await bridge.sendUserMessage(buildActionMessage(pendingAction, state), 'interaction');
     workAnimation.hidden = true;
     scene = null;
     sceneSignature = '';
@@ -538,14 +557,13 @@ async function submitGalMessage(
 }
 
 async function endConversation() {
-  if (closurePresented) {
+  if (singleShotEventPresentation || closurePresented) {
     returnToGardenAfterFixedScene();
     return;
   }
   const participants = state.interaction?.current_session?.participant_character_ids ?? [];
   const names = participants.map((id) => state.characters?.[id]?.name ?? id);
   const message = buildSettlementMessage(activeTarget, names, state);
-  galInput.value = message;
   closurePending = true;
   await submitGalMessage(message, 'settlement', { restoreInputOnFailure: false });
 }

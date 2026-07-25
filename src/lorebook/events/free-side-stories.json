@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "event_chain_id": "m1_free_side_stories",
+  "events": [
+    {
+      "config_id": "marisa_greenhouse_night_observation",
+      "title": "温室夜间观察",
+      "event_type": "free_side_story",
+      "trigger_action_ids": ["marisa_greenhouse_night_observation"],
+      "prerequisites": ["environment.time_period == 夜晚", "marisa present", "magic_greenhouse accessible"],
+      "blocks": [],
+      "participants": ["marisa"],
+      "facility_id": "magic_greenhouse",
+      "priority": 10,
+      "one_time": false,
+      "max_effective_rounds": 0,
+      "projection_keys": ["environment.time_period", "facilities.magic_greenhouse", "presence_snapshot", "characters.marisa.current_relationship_facts"],
+      "narrative_outline": ["在夜晚观察温室的可控野性与残留魔力"],
+      "required_beats": [],
+      "forbidden_deviations": ["不得解锁方案", "不得扣除资源", "不得推进主线"],
+      "allowed_results": [],
+      "downstream_unlocks": [],
+      "failure_recovery": "作为普通会话离开",
+      "settlement_effects": []
+    }
+  ]
+}

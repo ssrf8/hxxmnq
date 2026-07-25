@@ -1,26 +1,24 @@
 # 变量更新协议（模型可见源文件）
 
-每次回复先完成自然叙事，再按需要输出一个变量更新块。只记录本轮已经发生并可从正文确认的变化，不预写未来结果。
+你处于 MVU 变量分析阶段。阅读最新剧情与 D0 的 `stat_data`，只记录本轮已经发生、能从正文确认且属于模型写入权的变化，不续写剧情，不预写未来结果。
 
 ## 庭园正文与本地托管事件边界（r24）
 
 - 最新玩家消息带有已登记的 `<GensokyoAction>` 且 `event_id` 属于灵梦结界检查、主屋维修或温室主链时，正式事件结果、资源、时间、区域、设施、战斗与持续交流字段由本地结算器在完整 assistant 楼层落盘后原子写入。
 - 庭园主动行动的玩家可见剧情必须写在最后一个 `【庭园正文开始】` 与其后的第一个 `【庭园正文结束】` 之间；内部只允许 `narration` 与 `dialogue`。协议外的预设私有格式、摘要、选项、状态块和代码不会进入 GAL。
-- 所有已登记的庭园主线行动都只在完整剧情结束后由本地直接结算，不发起第二次模型解析：结界检查、主屋维修、温室线索、第二点灵感、清理地基、建造、首次使用、妖花核心激活与战斗消费均有固定白名单结果；持续交流只按真实 assistant 楼层累计轮数。固定推进剧情不允许续聊或由模型猜测完成态。
-- 模型只负责自然叙事，不得直接修改本地托管字段。
+- 所有已登记的庭园主线行动都只在完整剧情结束后由本地直接结算，不发起第二次模型解析：结界检查、主屋维修、温室线索、第二点灵感、清理地基、建造、首次使用、妖花核心激活与战斗消费、自由生长方案登记均有固定白名单结果；持续交流只按真实 assistant 楼层累计轮数。固定推进剧情不允许续聊或由模型猜测完成态。
+- 剧情模型只负责自然叙事；变量模型也不得直接修改本地托管字段。
 - 没有匹配的受控行动标记时，自由文本不得开始、完成或推进这些关键事件；即使正文提前描写成功，本地结算器也会恢复事件拥有的旧状态。
 - `effective_rounds`、`last_effective_message_id` 与相应会话幂等 ID 由本地结算器根据真实 assistant 楼层 ID 维护，模型不得猜测 `msg_001` 等消息 ID。
 - 生成结束但 assistant 正文为空，或本地写入复读失败时，事务进入可重试状态，不视为正式结算。
 
-```text
-<UpdateVariable>
-<JSONPatch>
-[
-  {"op":"replace","path":"/environment/time_period","value":"白昼"}
-]
-</JSONPatch>
-</UpdateVariable>
-```
+输出语法由独立的 `[mvu_update] 变量输出格式` 条目规定。即使没有合法变化，也必须输出空补丁，不能省略变量块。
+
+## 写入所有权
+
+- 变量模型可写：非受控自由互动产生的关系事实、覆盖式交互摘要、普通位置/环境变化、开放支线、长期记忆，以及正文明确产生且未由本地规则接管的普通实体变化。
+- 本地 bridge 独占：`meta`；`resources`；`shop`；`battle`；`presence_snapshot`；`uid_counters`；全部已登记主事件的完成态、资源成本、设施/区域推进；温室多轮会话的轮数、消息 ID、结算 ID；确定性开场字段。
+- 路径所有权不确定时保持原值；不得通过替换父对象绕过禁写子路径。
 
 ## 允许操作
 
@@ -52,10 +50,10 @@
 
 ## 创建与结算
 
-- 新动态实体必须同时写入唯一 UID 和对应计数器的新值。
+- 新动态实体的唯一 UID 与对应计数器只能由 bridge 在写入前分配；额外变量模型不得创建 UID 或递增计数器。
 - 交互摘要是覆盖式短摘要，不追加完整对话。
-- 首次有效角色、设施或事件互动在 `interaction.current_session` 为 null 时创建会话；会话 UID 使用 `interaction_<uid_counters.interaction>`，并在同一补丁递增计数器。
-- 普通会话回复只更新仍成立的焦点、参与者、最后有效消息和覆盖式摘要；不得因为一轮回复结束就清空会话。
+- 只有 bridge 明确创建的受控会话才写入 `interaction.current_session`；会话 UID 使用 `interaction_<uid_counters.interaction>`，并由 bridge 在同一 MVU 写入中递增计数器。
+- 额外变量模型只可更新既有会话的覆盖式摘要、焦点和具体关系事实；不得创建、关闭或结算会话，也不得追加 `settled_ids`。
 - `greenhouse_multiturn_conversation` 的会话创建、真实楼层去重、`effective_rounds` 递增与结束结算由本地结算器负责。它的上限固定为 2：初始回复为第 1 轮，玩家补充后的回复为第 2 轮，并在第 2 轮后自动写入完成标记、幂等结算并清空会话。停止生成、失败回复、同楼重放、Swipe 切换和纯格式修复都不计数。
 - 玩家可在第 1 轮主动结束研究；本地只关闭未完成会话，不写完成标记。此后可重新发起完整的两轮研究。
 - 结束交互时使用 `interaction:<会话UID>` 作为幂等结算 ID；仅当它不在 `interaction.settled_ids` 时追加，然后清空 `interaction.current_session`。
@@ -71,6 +69,8 @@
 - 消费 `greenhouse_flower_core_tutorial_v1` 时先检查白名单、范围与 `battle.settled_ids`。四种允许结果分别为：`clean_win` 温室恢复启用并清除核心异常；`narrow_win` 温室保持启用并记录核心休眠；`loss` 温室置为“异常”并记录核心暂时占据；`narrative` 温室保持启用并记录协商封存。四种结果都只能结算一次，都追加同一结算 ID、记录 `events.completed_key_events.greenhouse_flower_core` 的对应结果、在 `memory.long_term_notes` 合并一条“庭守钥与温室核心共鸣，暗示未来可建立移动锚点”的线索，且绝不创建 `anchors.stable` 或修改 `garden.primary_anchor_id`。最后清空 `battle.current` 与 `events.active_event`。
 - 妖花核心完成后，本地结算器仅一次把 `battle.dungeon_unlocked` 设为 true。可重复副本全过程不生成 user/assistant 楼层：本地白名单校验结果后，`clean_win`/`narrow_win`/`loss` 分别增加 12/8/3 金币并推进一个时段；主动取消不写任何正式状态。每个 `settlement_id` 只允许发奖和推进一次，记录在最多 256 条的 `battle.rewarded_ids` 中。
 - 灵梦小店使用本地 `catalog.json` 白名单；普通物资购买不创建聊天楼层。购买事务先校验解锁、价格、余额、物资上限和购买 ID，再原子扣金币、加物资、记录幂等 ID 并复读；任何失败均不得部分扣款。
+- `greenhouse_free_growth_proposal` 只在妖花核心已结算、`current_form=基础魔法温室` 且没有其他主要事件时可结算。它只登记 `wild_growth_plan_registered`、把“自由生长型温室”去重加入 `unlocked_forms` 并记录魔理沙合作事实；不改 `current_form`、资源、时段、设施效果或异变。夜间观察是普通自由支线，绝不写关键完成标记。
+- `nitori_greenhouse_automation_proposal` 只在妖花核心与自由生长方案已结算、`current_form=基础魔法温室` 且没有其他主要事件时可结算；它只登记 `kappa_automation_plan_registered`、把“河童自动化型温室”去重加入 `unlocked_forms` 并记录荷取工程验收事实；不要求先完成爱丽丝方案，也不改资源、时段、当前形态或设施效果。仪表校准是普通自由支线，绝不写关键完成标记。
 
 ## 时段取值（强制）
 

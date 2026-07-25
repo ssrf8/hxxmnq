@@ -14,11 +14,15 @@ import { dungeonReward, settleDungeonResult as settleLocalDungeonResult } from '
 import { migrateGardenState } from './state-migrations';
 import { applyTestJump, type TestJumpId } from './test-tools';
 import { purchaseShopItem } from './shop-rules';
+import { eventById } from './event-registry';
 import {
   applyPresenceUpdate,
   applyLocalSettlement,
+  findRecordedLocalSettlement,
+  hasLocalPresenceTransition,
   localSettlementAction,
   restoreLocalEventOwnership,
+  stageLocalSession,
   settlementChoices,
   settlementProjection,
   type GardenActionMarker,
@@ -30,6 +34,7 @@ type HostGlobals = typeof globalThis & {
     getMvuData: (options: Record<string, unknown>) => { stat_data?: GardenState; [key: string]: unknown };
     replaceMvuData: (data: Record<string, unknown>, options: Record<string, unknown>) => Promise<void>;
     events: Record<string, string>;
+    isDuringExtraAnalysis?: () => boolean;
   };
   getChatMessages?: (range: string | number, options?: Record<string, unknown>) => Array<Record<string, unknown>>;
   getLastMessageId?: () => number;
@@ -206,9 +211,23 @@ function activeMessages(): Array<Record<string, unknown>> {
   return readRawMessages({ include_swipes: false, hide_state: 'all' });
 }
 
-function latestPersistedMessage(mvu: HostGlobals['Mvu']) {
+function messageRole(message: Record<string, unknown>) {
+  if (message.role === 'user' || message.is_user === true) return 'user';
+  if (message.role === 'system' || message.is_system === true) return 'system';
+  return 'assistant';
+}
+
+interface PersistedMessage {
+  messageId: number;
+  options: Record<string, unknown>;
+  data: Record<string, unknown>;
+  state: GardenState;
+}
+
+function latestPersistedMessage(mvu: HostGlobals['Mvu']): PersistedMessage | null {
   if (!mvu) return null;
-  const assistantMessages = activeMessages().filter((message) => message.role === 'assistant').reverse();
+  const assistantMessages = activeMessages().filter((message) => messageRole(message) === 'assistant').reverse();
+  let fallback: PersistedMessage | null = null;
   for (const message of assistantMessages) {
     const messageId = Number(message.message_id);
     if (!Number.isInteger(messageId) || messageId < 0) continue;
@@ -216,19 +235,35 @@ function latestPersistedMessage(mvu: HostGlobals['Mvu']) {
     const data = mvu.getMvuData(options);
     const state = data.stat_data;
     if (isRecord(state) && Object.keys(state).length > 0) {
-      return {
+      const persisted = {
         messageId,
         options,
         data: structuredClone(data) as Record<string, unknown>,
         state: structuredClone(state) as GardenState,
       };
+      if (persisted.state.meta?.initialized || persisted.state.meta?.opening_committed) return persisted;
+      fallback ??= persisted;
     }
   }
-  return null;
+  return fallback;
 }
 
 function latestPersistedState(mvu: HostGlobals['Mvu']): GardenState {
   return migrateGardenState(latestPersistedMessage(mvu)?.state ?? {});
+}
+
+function persistedStateBefore(mvu: HostGlobals['Mvu'], messageId: number): GardenState | null {
+  if (!mvu) return null;
+  const assistantMessages = activeMessages()
+    .filter((message) => messageRole(message) === 'assistant' && Number(message.message_id) < messageId)
+    .reverse();
+  for (const message of assistantMessages) {
+    const previousId = Number(message.message_id);
+    if (!Number.isInteger(previousId) || previousId < 0) continue;
+    const state = mvu.getMvuData({ type: 'message', message_id: previousId }).stat_data;
+    if (isRecord(state) && Object.keys(state).length > 0) return migrateGardenState(state);
+  }
+  return null;
 }
 
 function openingProgress(rawMessages = activeMessages()) {
@@ -284,30 +319,30 @@ export function createHostBridge(): GardenBridge | null {
     action: GardenActionMarker;
   } | null = null;
   let pendingOwnershipBefore: GardenState | null = null;
+  let settlementInFlight = false;
+  let variableUpdateEpoch = 0;
+  let pendingVariableEpoch = 0;
+  let assistantObservedAt = 0;
+
+  const variableStageReady = (mvu: HostGlobals['Mvu']) => {
+    if (mvu?.isDuringExtraAnalysis?.()) return false;
+    if (variableUpdateEpoch > pendingVariableEpoch) return true;
+    return assistantObservedAt > 0 && Date.now() - assistantObservedAt >= 2500;
+  };
+
+  const waitForVariableStage = async () => {
+    const startedAt = Date.now();
+    while (pendingSettlement || pendingOwnershipBefore) {
+      const mvu = await requireMvu();
+      if (variableStageReady(mvu)) return;
+      if (Date.now() - startedAt >= 90000) {
+        throw new Error('额外变量解析超过 90 秒仍未结束，已暂停本地结算以避免覆盖变量结果');
+      }
+      await new Promise<void>((resolve) => globalThis.setTimeout(resolve, 100));
+    }
+  };
 
   const deterministicSettlementResult = (action: GardenActionMarker, before: GardenState) => {
-    if (action.action_id === 'inspect_boundary' && action.event_id === 'reimu_boundary_inspection') {
-      return 'temporary_permission';
-    }
-    if (action.action_id === 'repair' && action.event_id === 'main_house_repair') {
-      return 'main_house_enabled';
-    }
-    if (action.action_id === 'investigate_magic_trace' && action.event_id === 'marisa_material_rumor') {
-      return 'greenhouse_clue_found';
-    }
-    if (['investigate_growth', 'hear_marisa_plan', 'study_grandfather_blueprint'].includes(action.action_id)
-      && action.event_id === 'gain_second_inspiration') {
-      return action.action_id;
-    }
-    if (action.action_id === 'clear_greenhouse_foundation' && action.event_id === 'clear_greenhouse_foundation') {
-      return 'foundation_cleared';
-    }
-    if (action.action_id === 'build_basic_magic_greenhouse' && action.event_id === 'build_basic_magic_greenhouse') {
-      return 'basic_greenhouse_enabled';
-    }
-    if (action.action_id === 'greenhouse_first_use' && action.event_id === 'greenhouse_first_use') {
-      return 'stable_first_growth';
-    }
     if (action.action_id === 'greenhouse_research_talk' || action.action_id === 'continue_greenhouse_conversation') {
       return 'conversation_continues';
     }
@@ -323,7 +358,68 @@ export function createHostBridge(): GardenBridge | null {
       && action.event_id === 'greenhouse_flower_core') {
       return before.battle?.current?.outcome ?? '';
     }
-    return '';
+    const event = action.event_id ? eventById.get(action.event_id) : undefined;
+    if (!event?.trigger_action_ids.includes(action.action_id)) return '';
+    return event.allowed_results.includes(action.action_id)
+      ? action.action_id
+      : event.allowed_results[0] ?? '';
+  };
+
+  const persistLocalSettlement = async (
+    before: GardenState,
+    action: GardenActionMarker,
+    assistantMessageId: number,
+    assistantText: string,
+  ) => {
+    const mvu = await requireMvu();
+    if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持本地事件结算');
+    if (!assistantText.trim()) throw new Error('assistant 回复为空，不能结算事件');
+    const choices = settlementChoices(before, action);
+    if (!choices.length) throw new Error(`事件 ${action.event_id} 没有可用的本地结算结果`);
+    const parsedResult = deterministicSettlementResult(action, before);
+    if (!parsedResult || !choices.includes(parsedResult)) {
+      throw new Error(`事件 ${action.event_id} 的本地结算结果未登记或不在白名单内`);
+    }
+    const settlementText = `${assistantText}\n<GensokyoEventResult>${JSON.stringify({
+      version: 'event-result.v1',
+      event_id: action.event_id,
+      result: parsedResult,
+    })}</GensokyoEventResult>`;
+    const options = { type: 'message', message_id: assistantMessageId };
+    const data = structuredClone(mvu.getMvuData(options)) as Record<string, unknown>;
+    const current = isRecord(data.stat_data) ? data.stat_data as GardenState : {};
+    const safeCurrent = restoreLocalEventOwnership(before, current, true);
+    const settledState = applyLocalSettlement(
+      safeCurrent,
+      action,
+      assistantMessageId,
+      settlementText,
+    );
+    const nextState = hasLocalPresenceTransition(action)
+      ? settledState
+      : applyPresenceUpdate(settledState, assistantText);
+    data.stat_data = nextState;
+    await mvu.replaceMvuData(data, options);
+    const reread = mvu.getMvuData(options).stat_data ?? {};
+    if (!settlementProjection(reread, action)) {
+      throw new Error(`事件 ${action.event_id} 写入后复读校验失败`);
+    }
+  };
+
+  const persistStagedLocalSession = async (before: GardenState, action: GardenActionMarker) => {
+    const staged = stageLocalSession(before, action);
+    if (staged === before) return before;
+    const mvu = await requireMvu();
+    if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持受控会话初始化');
+    const latest = latestPersistedMessage(mvu);
+    if (!latest) throw new Error('没有可承载受控会话的 assistant 楼层');
+    latest.data.stat_data = staged;
+    await mvu.replaceMvuData(latest.data, latest.options);
+    const reread = migrateGardenState(mvu.getMvuData(latest.options).stat_data ?? {});
+    if (reread.interaction?.current_session?.uid !== staged.interaction?.current_session?.uid) {
+      throw new Error('受控会话初始化复读校验失败');
+    }
+    return reread;
   };
 
   const persistPendingSettlement = async (snapshot: MessageTransactionSnapshot) => {
@@ -331,38 +427,12 @@ export function createHostBridge(): GardenBridge | null {
     const assistantMessageId = Number(snapshot.assistantMessageId);
     if (!snapshot.assistantResponded || !Number.isInteger(assistantMessageId) || assistantMessageId < 0) return snapshot;
     try {
-      const mvu = await requireMvu();
-      if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持本地事件结算');
       const raw = activeMessages().find((message) => Number(message.message_id) === assistantMessageId);
       const assistantText = String(raw?.message ?? raw?.mes ?? '');
-      if (!assistantText.trim()) throw new Error('assistant 回复为空，不能结算事件');
-      const choices = settlementChoices(pendingSettlement.before, pendingSettlement.action);
-      if (!choices.length) throw new Error(`事件 ${pendingSettlement.action.event_id} 没有可用的本地结算结果`);
-      const parsedResult = deterministicSettlementResult(pendingSettlement.action, pendingSettlement.before);
-      if (!parsedResult || !choices.includes(parsedResult)) {
-        throw new Error(`事件 ${pendingSettlement.action.event_id} 的本地结算结果未登记或不在白名单内`);
-      }
-      const settlementText = `${assistantText}\n<GensokyoEventResult>${JSON.stringify({
-        version: 'event-result.v1',
-        event_id: pendingSettlement.action.event_id,
-        result: parsedResult,
-      })}</GensokyoEventResult>`;
-      const options = { type: 'message', message_id: assistantMessageId };
-      const data = structuredClone(mvu.getMvuData(options)) as Record<string, unknown>;
-      const nextState = applyPresenceUpdate(applyLocalSettlement(
-        pendingSettlement.before,
-        pendingSettlement.action,
-        assistantMessageId,
-        settlementText,
-      ), assistantText);
-      data.stat_data = nextState;
-      await mvu.replaceMvuData(data, options);
-      const reread = mvu.getMvuData(options).stat_data ?? {};
-      if (!settlementProjection(reread, pendingSettlement.action)) {
-        throw new Error(`事件 ${pendingSettlement.action.event_id} 写入后复读校验失败`);
-      }
+      await persistLocalSettlement(pendingSettlement.before, pendingSettlement.action, assistantMessageId, assistantText);
       pendingSettlement = null;
       pendingOwnershipBefore = null;
+      assistantObservedAt = 0;
       transactions.markSettlementSucceeded();
       return transactions.read();
     } catch (error) {
@@ -380,20 +450,51 @@ export function createHostBridge(): GardenBridge | null {
     const options = { type: 'message', message_id: assistantMessageId };
     const data = structuredClone(mvu.getMvuData(options)) as Record<string, unknown>;
     const current = isRecord(data.stat_data) ? data.stat_data as GardenState : {};
-    const assistantText = String(activeMessages()
-      .find((message) => Number(message.message_id) === assistantMessageId)?.message ?? '');
+    const raw = activeMessages().find((message) => Number(message.message_id) === assistantMessageId);
+    const assistantText = String(raw?.message ?? raw?.mes ?? '');
     const protectedState = applyPresenceUpdate(
       restoreLocalEventOwnership(before, current),
       assistantText,
     );
     if (JSON.stringify(current) === JSON.stringify(protectedState)) {
       pendingOwnershipBefore = null;
+      assistantObservedAt = 0;
       return snapshot;
     }
     data.stat_data = protectedState;
     await mvu.replaceMvuData(data, options);
     pendingOwnershipBefore = null;
+    assistantObservedAt = 0;
     return snapshot;
+  };
+
+  const settlePendingAfterReply = async (forceReady = false) => {
+    if (settlementInFlight) return false;
+    const snapshot = transactions.read();
+    settlementInFlight = true;
+    try {
+      if ((pendingSettlement || pendingOwnershipBefore) && snapshot.assistantResponded) {
+        assistantObservedAt ||= Date.now();
+        const mvu = await requireMvu();
+        if (!forceReady && !variableStageReady(mvu)) return false;
+        if (pendingSettlement) await persistPendingSettlement(snapshot);
+        else if (pendingOwnershipBefore) await preserveLocalOwnership(pendingOwnershipBefore, snapshot);
+        return true;
+      }
+      const mvu = await requireMvu();
+      if (mvu.isDuringExtraAnalysis?.()) return false;
+      const current = latestPersistedState(mvu);
+      const recorded = findRecordedLocalSettlement(activeMessages(), current);
+      if (!recorded) return false;
+      const before = persistedStateBefore(mvu, recorded.assistantMessageId) ?? current;
+      await persistLocalSettlement(before, recorded.action, recorded.assistantMessageId, recorded.assistantText);
+      return true;
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : String(error);
+      return false;
+    } finally {
+      settlementInFlight = false;
+    }
   };
 
   return {
@@ -545,16 +646,20 @@ export function createHostBridge(): GardenBridge | null {
       const value = text.trim();
       if (!value || value.length > 6000) throw new Error('消息应为 1–6000 个字符');
       const mvu = await requireMvu();
-      const before = latestPersistedState(mvu);
+      let before = latestPersistedState(mvu);
       const action = localSettlementAction(value, before);
+      if (action) before = await persistStagedLocalSession(before, action);
       pendingOwnershipBefore = structuredClone(before);
       pendingSettlement = action ? { before: structuredClone(before), action } : null;
+      pendingVariableEpoch = variableUpdateEpoch;
+      assistantObservedAt = 0;
       try {
         const snapshot = await transactions.submit({ kind, message: value });
-        if (pendingSettlement) return await persistPendingSettlement(snapshot);
-        return await preserveLocalOwnership(before, snapshot);
+        if (snapshot.assistantResponded) assistantObservedAt = Date.now();
+        await waitForVariableStage();
+        await settlePendingAfterReply(true);
+        return transactions.read();
       } catch (error) {
-        if (!pendingSettlement) throw error;
         lastError = error instanceof Error ? error.message : String(error);
         throw error;
       }
@@ -564,13 +669,17 @@ export function createHostBridge(): GardenBridge | null {
     },
     async retryLastTransaction() {
       const current = transactions.read();
-      if (pendingSettlement && current.assistantResponded) {
-        return persistPendingSettlement(current);
+      if ((pendingSettlement || pendingOwnershipBefore) && current.assistantResponded) {
+        assistantObservedAt ||= Date.now();
+        await waitForVariableStage();
+        await settlePendingAfterReply(true);
+        return transactions.read();
       }
       const snapshot = await transactions.retry();
-      if (pendingSettlement) return persistPendingSettlement(snapshot);
-      if (pendingOwnershipBefore) return preserveLocalOwnership(pendingOwnershipBefore, snapshot);
-      return snapshot;
+      if (snapshot.assistantResponded) assistantObservedAt = Date.now();
+      await waitForVariableStage();
+      await settlePendingAfterReply(true);
+      return transactions.read();
     },
     async stageBattleResult(result: BattleResult) {
       const mvu = await requireMvu();
@@ -673,7 +782,9 @@ export function createHostBridge(): GardenBridge | null {
     async subscribe(refresh) {
       const stops: Array<() => void> = [];
       const subscribe = (eventName?: string) => {
-        if (eventName && g.eventOn) stops.push(g.eventOn(eventName, refresh).stop);
+        if (eventName && g.eventOn) stops.push(g.eventOn(eventName, () => {
+          refresh();
+        }).stop);
       };
       subscribe(g.tavern_events?.MESSAGE_RECEIVED);
       subscribe(g.tavern_events?.MESSAGE_UPDATED);
@@ -687,10 +798,21 @@ export function createHostBridge(): GardenBridge | null {
           refresh();
         }).stop);
       }
+      const replayTimer = globalThis.setInterval(() => {
+        void settlePendingAfterReply().then((settled) => {
+          if (settled) refresh();
+        });
+      }, 500);
+      stops.push(() => globalThis.clearInterval(replayTimer));
       try {
         const mvu = await requireMvu();
         subscribe(mvu.events.VARIABLE_INITIALIZED);
-        subscribe(mvu.events.VARIABLE_UPDATE_ENDED);
+        if (mvu.events.VARIABLE_UPDATE_ENDED && g.eventOn) {
+          stops.push(g.eventOn(mvu.events.VARIABLE_UPDATE_ENDED, () => {
+            variableUpdateEpoch += 1;
+            void settlePendingAfterReply().finally(refresh);
+          }).stop);
+        }
       } catch { /* diagnostic mode stays usable */ }
       return () => stops.splice(0).forEach((stop) => stop());
     },

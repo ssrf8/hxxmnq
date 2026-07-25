@@ -19,5 +19,16 @@ export function migrateGardenState(before: GardenState): GardenState {
   state.shop.unlocked ??= Boolean(state.events?.completed_key_events?.greenhouse_flower_core);
   state.shop.purchase_settled_ids = Array.from(new Set(state.shop.purchase_settled_ids ?? [])).slice(-MAX_REWARDED_IDS);
   state.shop.static_dialogue_seen_ids = Array.from(new Set(state.shop.static_dialogue_seen_ids ?? [])).slice(-128);
+  state.interaction ??= {};
+  state.interaction.current_session ??= null;
+  state.interaction.settled_ids = Array.from(new Set(state.interaction.settled_ids ?? [])).slice(-64);
+  state.uid_counters ??= {};
+  if (!Number.isInteger(state.uid_counters.interaction) || (state.uid_counters.interaction ?? 0) < 1) {
+    state.uid_counters.interaction = 1;
+  }
+  const facility = state.facilities?.magic_greenhouse;
+  if (facility?.current_form === '基础魔法温室') {
+    facility.unlocked_forms = Array.from(new Set([...(facility.unlocked_forms ?? []), '基础魔法温室']));
+  }
   return state;
 }
