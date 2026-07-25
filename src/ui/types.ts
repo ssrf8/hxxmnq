@@ -56,7 +56,9 @@ export interface GardenState {
   };
   events?: {
     active_event?: { uid?: string; title?: string; config_id?: string; status?: string } | null;
+    waiting_events?: Array<{ uid?: string; config_id?: string; title?: string; status?: string }>;
     completed_key_events?: Record<string, string>;
+    settled_ids?: string[];
   };
   battle?: {
     current?: BattleResult | null;
@@ -67,6 +69,19 @@ export interface GardenState {
     rewarded_ids?: string[];
   };
   shop?: { unlocked?: boolean; purchase_settled_ids?: string[]; static_dialogue_seen_ids?: string[] };
+  inventory?: { consumables?: Record<string, number> };
+  key_items?: Record<string, {
+    id?: string;
+    name?: string;
+    obtained?: boolean;
+    state?: string;
+    last_used_day?: number | null;
+    total_uses?: number;
+    last_used_area_id?: string | null;
+    last_used_time_period?: TimePeriod | null;
+    temporal_trace_active?: boolean;
+    noticed_by_character_ids?: string[];
+  }>;
   memory?: { long_term_notes?: string[] };
   uid_counters?: { interaction?: number; [key: string]: number | undefined };
   [key: string]: unknown;
@@ -216,6 +231,7 @@ export interface GardenBridge {
   settleDungeonResult(result: BattleResult): Promise<{ rewardCoins: number; alreadySettled: boolean }>;
   applyTestJump(jump: import('./test-tools').TestJumpId): Promise<void>;
   purchaseShopItem(itemId: string, purchaseId: string): Promise<void>;
+  useSpecialItem(itemId: string, useId: string): Promise<string>;
   continueGeneration(): Promise<void>;
   stopGeneration(): Promise<boolean>;
   regenerateLatest(): Promise<void>;

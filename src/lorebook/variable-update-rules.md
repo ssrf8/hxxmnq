@@ -17,7 +17,7 @@
 ## 写入所有权
 
 - 变量模型可写：非受控自由互动产生的关系事实、覆盖式交互摘要、普通位置/环境变化、开放支线、长期记忆，以及正文明确产生且未由本地规则接管的普通实体变化。
-- 本地 bridge 独占：`meta`；`resources`；`shop`；`battle`；`presence_snapshot`；`uid_counters`；全部已登记主事件的完成态、资源成本、设施/区域推进；温室多轮会话的轮数、消息 ID、结算 ID；确定性开场字段。
+- 本地 bridge 独占：`meta`；`resources`；`shop`；`inventory.consumables`；`key_items.sakuya_watch`；`battle`；`presence_snapshot`；`uid_counters`；`events.settled_ids`；全部已登记主事件的完成态、资源成本、设施/区域推进；温室多轮会话的轮数、消息 ID、结算 ID；确定性开场字段。
 - 路径所有权不确定时保持原值；不得通过替换父对象绕过禁写子路径。
 
 ## 允许操作
@@ -71,6 +71,9 @@
 - 灵梦小店使用本地 `catalog.json` 白名单；普通物资购买不创建聊天楼层。购买事务先校验解锁、价格、余额、物资上限和购买 ID，再原子扣金币、加物资、记录幂等 ID 并复读；任何失败均不得部分扣款。
 - `greenhouse_free_growth_proposal` 只在妖花核心已结算、`current_form=基础魔法温室` 且没有其他主要事件时可结算。它只登记 `wild_growth_plan_registered`、把“自由生长型温室”去重加入 `unlocked_forms` 并记录魔理沙合作事实；不改 `current_form`、资源、时段、设施效果或异变。夜间观察是普通自由支线，绝不写关键完成标记。
 - `nitori_greenhouse_automation_proposal` 只在妖花核心与自由生长方案已结算、`current_form=基础魔法温室` 且没有其他主要事件时可结算；它只登记 `kappa_automation_plan_registered`、把“河童自动化型温室”去重加入 `unlocked_forms` 并记录荷取工程验收事实；不要求先完成爱丽丝方案，也不改资源、时段、当前形态或设施效果。仪表校准是普通自由支线，绝不写关键完成标记。
+- `select_greenhouse_form` 只有在三项方案完成标记与三个改造形态同时齐备时开放；本地按明确 action/result 映射扣除 4 物资、推进一个时段并写入对应 `current_form` 与路线 effect。`remodel_greenhouse_form` 只能换到已解锁且不同于当前的形态，本地扣除 3 物资并推进一个时段；只替换三种路线 effect，保留通用设施效果、方案解锁和关系事实。每次选择使用 `events.settled_ids` 幂等，模型不得改变目标、成本或结算 ID。
+- 异变触发卡购买后增加 `inventory.consumables.incident_trigger_card`；使用时以 `use_id` 从当前满足条件的登记异变中确定性选择，原子写入最多 3 条的 `events.waiting_events` 后才消费 1 张。队列满、无候选或重复 ID 时不得消费或重抽。
+- 咲夜怀表为 80 金币的唯一关键物品；成功使用只登记五分钟停顿、当日冷却、地点/时段、累计次数和时间痕迹，不推进或回退正式时段。战斗待结算、固定事件或受控会话期间禁止使用；第二次成功使用后可登记一次咲夜调查候选，但不强制咲夜常驻，也不创建紫或辉夜档案。
 
 ## 时段取值（强制）
 

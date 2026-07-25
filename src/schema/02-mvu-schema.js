@@ -168,6 +168,7 @@ const Schema = z.object({
     waiting_events: list(eventSchema, 3),
     recent_results: list(text('', 240), 8),
     completed_key_events: dictionary(text('', 160)),
+    settled_ids: list(text('', 96), 256),
     daily_cooldowns: dictionary(integer(0, 0, 999999)),
   }).passthrough().prefault({}),
   anchors: z.object({
@@ -194,6 +195,9 @@ const Schema = z.object({
     unlocked: boolean(false),
     purchase_settled_ids: list(text('', 64), 256),
     static_dialogue_seen_ids: list(text('', 64), 128),
+  }).passthrough().prefault({}),
+  inventory: z.object({
+    consumables: dictionary(integer(0, 0, 99)),
   }).passthrough().prefault({}),
   key_items: dictionary(z.object({
     id: text('', 48),

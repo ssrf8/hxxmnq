@@ -830,7 +830,12 @@ byId('gg-battle-narrative').addEventListener('click', () => void settleBattleRes
 byId('gg-open-dungeon').addEventListener('click', openDungeonMenu);
 byId('gg-close-dungeon').addEventListener('click', () => dungeonDialog.close());
 function renderShop() {
-  renderShopView(byId('gg-shop-content'), state, (itemId) => void buyShopItem(itemId));
+  renderShopView(
+    byId('gg-shop-content'),
+    state,
+    (itemId) => void buyShopItem(itemId),
+    (itemId) => void useShopItem(itemId),
+  );
 }
 async function buyShopItem(itemId: string) {
   const blocked = shopBlock(state);
@@ -843,6 +848,16 @@ async function buyShopItem(itemId: string) {
     setStatus(shopMessage());
   } catch (error) {
     setStatus(shopMessage(error), true);
+  }
+}
+async function useShopItem(itemId: string) {
+  const useId = `item:${itemId}:${Date.now().toString(36)}`;
+  try {
+    const message = await bridge.useSpecialItem(itemId, useId);
+    await refresh();
+    setStatus(message);
+  } catch (error) {
+    setStatus(error instanceof Error ? error.message : String(error), true);
   }
 }
 byId('gg-open-shop').addEventListener('click', () => { setView('shop'); renderShop(); });

@@ -2,6 +2,8 @@
   "version": "shop.v1",
   "items": [
     {"item_id":"basic_material_single","item_type":"resource","title":"单份基础物资","price":6,"resource":"materials","quantity":1,"unique":false,"enabled_checkpoint":"0.2.0-r30","local_effect_id":"add_materials"},
-    {"item_id":"basic_material_crate","item_type":"resource","title":"基础物资组合箱","price":22,"resource":"materials","quantity":4,"unique":false,"enabled_checkpoint":"0.2.0-r30","local_effect_id":"add_materials"}
+    {"item_id":"basic_material_crate","item_type":"resource","title":"基础物资组合箱","price":22,"resource":"materials","quantity":4,"unique":false,"enabled_checkpoint":"0.2.0-r30","local_effect_id":"add_materials"},
+    {"item_id":"incident_trigger_card","item_type":"trigger_item","title":"异变触发卡","price":30,"quantity":1,"unique":false,"enabled_checkpoint":"0.2.0-r36","local_effect_id":"add_incident_trigger_card"},
+    {"item_id":"sakuya_watch","item_type":"key_item","title":"十六夜咲夜的怀表","price":80,"quantity":1,"unique":true,"enabled_checkpoint":"0.2.0-r36","local_effect_id":"obtain_sakuya_watch"}
   ]
 }

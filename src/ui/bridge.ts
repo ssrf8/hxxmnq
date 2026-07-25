@@ -14,7 +14,8 @@ import { dungeonReward, settleDungeonResult as settleLocalDungeonResult } from '
 import { migrateGardenState } from './state-migrations';
 import { applyTestJump, type TestJumpId } from './test-tools';
 import { purchaseShopItem } from './shop-rules';
-import { eventById } from './event-registry';
+import { useSpecialItem as applySpecialItemUse } from './special-item-rules';
+import { eventById, eventResultForAction } from './event-registry';
 import {
   applyPresenceUpdate,
   applyLocalSettlement,
@@ -360,9 +361,7 @@ export function createHostBridge(): GardenBridge | null {
     }
     const event = action.event_id ? eventById.get(action.event_id) : undefined;
     if (!event?.trigger_action_ids.includes(action.action_id)) return '';
-    return event.allowed_results.includes(action.action_id)
-      ? action.action_id
-      : event.allowed_results[0] ?? '';
+    return eventResultForAction(event.config_id, action.action_id) ?? event.allowed_results[0] ?? '';
   };
 
   const persistLocalSettlement = async (
@@ -401,7 +400,7 @@ export function createHostBridge(): GardenBridge | null {
     data.stat_data = nextState;
     await mvu.replaceMvuData(data, options);
     const reread = mvu.getMvuData(options).stat_data ?? {};
-    if (!settlementProjection(reread, action)) {
+    if (!settlementProjection(reread, action, assistantMessageId, nextState)) {
       throw new Error(`事件 ${action.event_id} 写入后复读校验失败`);
     }
   };
@@ -747,6 +746,18 @@ export function createHostBridge(): GardenBridge | null {
       const reread = migrateGardenState(mvu.getMvuData(latest.options).stat_data ?? {});
       if (!reread.shop?.purchase_settled_ids?.includes(purchaseId)) throw new Error('小店购买复读校验失败');
     },
+    async useSpecialItem(itemId: string, useId: string) {
+      const mvu = await requireMvu();
+      if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持本地道具使用');
+      const latest = latestPersistedMessage(mvu);
+      if (!latest) throw new Error('没有可承载道具使用的 assistant 楼层');
+      const result = applySpecialItemUse(migrateGardenState(latest.state), itemId, useId);
+      latest.data.stat_data = result.state;
+      await mvu.replaceMvuData(latest.data, latest.options);
+      const reread = migrateGardenState(mvu.getMvuData(latest.options).stat_data ?? {});
+      if (!reread.events?.settled_ids?.includes(useId)) throw new Error('道具使用复读校验失败');
+      return result.message;
+    },
     async continueGeneration() {
       await g.triggerSlash?.('/continue await=true');
     },
@@ -947,6 +958,11 @@ export function createPreviewBridge(): GardenBridge {
     },
     async purchaseShopItem(itemId: string, purchaseId: string) {
       Object.assign(previewState, purchaseShopItem(previewState, itemId, purchaseId));
+    },
+    async useSpecialItem(itemId: string, useId: string) {
+      const result = applySpecialItemUse(previewState, itemId, useId);
+      Object.assign(previewState, result.state);
+      return result.message;
     },
     async continueGeneration() { throw new Error('离线预览不支持继续生成'); },
     async stopGeneration() { return false; },

@@ -289,6 +289,78 @@ function greenhouseActions(target: InteractionTarget, state: GardenState): Targe
         { eventId: GREENHOUSE_EVENTS.nitoriAutomationProposal, fixedPresentation: true },
       ));
     }
+    const proposalsReady = Boolean(
+      completed[GREENHOUSE_EVENTS.freeGrowthProposal]
+      && completed[GREENHOUSE_EVENTS.aliceMaintenanceProposal]
+      && completed[GREENHOUSE_EVENTS.nitoriAutomationProposal],
+    );
+    if (proposalsReady && !completed[GREENHOUSE_EVENTS.selectForm]) {
+      result.push(
+        greenhouseAction(
+          target,
+          state,
+          'select_free_growth',
+          '选择自由生长型',
+          '魔理沙方案：保留可控野性与魔法实验空间；风险是异常生长需要持续观察。首次改造消耗 4 物资。',
+          '我在三套方案的比较页确认首次选择自由生长型温室。请只演绎魔理沙方案的施工、风险边界与验收；不得改成其他形态。',
+          'gal',
+          { eventId: GREENHOUSE_EVENTS.selectForm, fixedPresentation: true, mayAdvanceTime: true, cost: { materials: 4 } },
+        ),
+        greenhouseAction(
+          target,
+          state,
+          'select_doll_maintenance',
+          '选择人偶维护型',
+          '爱丽丝方案：精细维护、异常隔离与人偶协作；限制是责任分工和维护边界必须清晰。首次改造消耗 4 物资。',
+          '我在三套方案的比较页确认首次选择人偶维护型温室。请只演绎爱丽丝方案的施工、责任边界与验收；不得改成其他形态。',
+          'gal',
+          { eventId: GREENHOUSE_EVENTS.selectForm, fixedPresentation: true, mayAdvanceTime: true, cost: { materials: 4 } },
+        ),
+        greenhouseAction(
+          target,
+          state,
+          'select_kappa_automation',
+          '选择河童自动化型',
+          '荷取方案：仪表监测、自动巡检与可复现故障；限制是依赖明确验收和安全条件。首次改造消耗 4 物资。',
+          '我在三套方案的比较页确认首次选择河童自动化型温室。请只演绎荷取方案的施工、安全限制与验收；不得改成其他形态。',
+          'gal',
+          { eventId: GREENHOUSE_EVENTS.selectForm, fixedPresentation: true, mayAdvanceTime: true, cost: { materials: 4 } },
+        ),
+      );
+    } else if (completed[GREENHOUSE_EVENTS.selectForm]) {
+      result.push(
+        greenhouseAction(
+          target,
+          state,
+          'remodel_to_free_growth',
+          '换型：自由生长型',
+          '切换到可控野性与生长观察路线；保留其他方案和历史。消耗 3 物资。',
+          '我确认把当前温室换型为自由生长型。请只演绎必要拆改、魔理沙方案的风险边界与验收；不得改成其他形态。',
+          'gal',
+          { eventId: GREENHOUSE_EVENTS.remodelForm, fixedPresentation: true, mayAdvanceTime: true, cost: { materials: 3 } },
+        ),
+        greenhouseAction(
+          target,
+          state,
+          'remodel_to_doll_maintenance',
+          '换型：人偶维护型',
+          '切换到精细维护与异常隔离路线；保留其他方案和历史。消耗 3 物资。',
+          '我确认把当前温室换型为人偶维护型。请只演绎必要拆改、爱丽丝方案的责任边界与验收；不得改成其他形态。',
+          'gal',
+          { eventId: GREENHOUSE_EVENTS.remodelForm, fixedPresentation: true, mayAdvanceTime: true, cost: { materials: 3 } },
+        ),
+        greenhouseAction(
+          target,
+          state,
+          'remodel_to_kappa_automation',
+          '换型：河童自动化型',
+          '切换到仪表监测与自动巡检路线；保留其他方案和历史。消耗 3 物资。',
+          '我确认把当前温室换型为河童自动化型。请只演绎必要拆改、荷取方案的安全条件与验收；不得改成其他形态。',
+          'gal',
+          { eventId: GREENHOUSE_EVENTS.remodelForm, fixedPresentation: true, mayAdvanceTime: true, cost: { materials: 3 } },
+        ),
+      );
+    }
     const alicePresent = state.presence_snapshot?.present_character_ids?.includes('alice');
     if (alicePresent) {
       result.push(action(
@@ -337,7 +409,44 @@ function greenhouseActions(target: InteractionTarget, state: GardenState): Targe
   return result;
 }
 
+function waitingEventActions(target: InteractionTarget, state: GardenState): TargetAction[] {
+  if (target.type !== 'area' || target.id !== 'central_courtyard') return [];
+  const waiting = new Set((state.events?.waiting_events ?? []).map((event) => event.config_id));
+  const result: TargetAction[] = [];
+  if (waiting.has('fairy_seed_shower')) result.push(action(
+    target, 'observe_fairy_seed_shower', '观察妖精种子雨',
+    '自由观察落入庭园的发光种子；不承担后续前置。',
+    '我留在中央庭院观察异变触发卡引来的妖精种子雨。这是一段自由插曲，不发放资源、不创建长期角色，也不解锁其他事件。',
+    'gal', { eventId: 'fairy_seed_shower' },
+  ));
+  if (waiting.has('wandering_magic_mist')) result.push(action(
+    target, 'observe_wandering_magic_mist', '观察游荡魔法雾',
+    '自由观察穿过庭园的残留魔法雾；不承担后续前置。',
+    '我留在中央庭院观察异变触发卡引来的游荡魔法雾。这是一段自由插曲，不发放资源、不创建未知法术，也不解锁其他事件。',
+    'gal', { eventId: 'wandering_magic_mist' },
+  ));
+  if (waiting.has('clockwork_temporal_ripple')) result.push(action(
+    target, 'investigate_clockwork_temporal_ripple', '调查发条时间涟漪',
+    '调查怀表痕迹与卡片异变的共振；只确认余波，不回滚状态。',
+    '我调查中央庭院里由怀表痕迹和异变卡共同形成的发条时间涟漪。请确认它只是五分钟停顿留下的余波，不撤销任何既有结算或时段。',
+    'gal', { eventId: 'clockwork_temporal_ripple', fixedPresentation: true },
+  ));
+  if (waiting.has('sakuya_temporal_trace_investigation')) result.push(action(
+    target, 'investigate_sakuya_temporal_trace', '回应咲夜的调查',
+    '咲夜注意到了不属于自己的时间停顿痕迹；本次不强制她常驻。',
+    '我回应咲夜对庭园时间痕迹的调查。请只确认她注意到不属于自己的停顿痕迹并完成一次克制接触，不强制她常驻，也不让其他强者同步得知。',
+    'gal', { eventId: 'sakuya_temporal_trace_investigation', fixedPresentation: true },
+  ));
+  return result;
+}
+
 export function targetActions(target: InteractionTarget, state: GardenState): TargetAction[] {
+  const waitingActions = waitingEventActions(target, state);
+  if (waitingActions.length) return [
+    action(target, 'inspect', '查看', '观察庭院与等待中的异变。', '我观察中央庭院与当前等待事件。', 'gal'),
+    ...waitingActions,
+    action(target, 'leave', '离开', '返回庭园。', '', 'close'),
+  ];
   if (target.type === 'character') {
     const base = [
       action(
@@ -443,6 +552,7 @@ export function buildActionMessage(action: TargetAction, state: GardenState) {
     target_id: action.target.id,
     action_id: action.id,
     event_id: action.eventId ?? null,
+    ...(action.eventId ? { settlement_id: `event:${action.eventId}:${Date.now().toString(36)}:${Math.random().toString(36).slice(2, 10)}` } : {}),
   };
   const settlementNotice = action.eventId
     ? `本次 ${action.eventId} 的正式事件、资源、时间、区域、设施与会话字段由本地结算器在回复完成后原子写入。你只负责自然叙事；不要输出 GensokyoEventResult，也不要在 UpdateVariable 中修改这些本地托管字段。`
@@ -502,6 +612,14 @@ const FIXED_PRESENTATION_ACTION_IDS = new Set([
   'organize_free_growth_proposal',
   'invite_alice_maintenance_assessment',
   'commission_nitori_engineering_survey',
+  'select_free_growth',
+  'select_doll_maintenance',
+  'select_kappa_automation',
+  'remodel_to_free_growth',
+  'remodel_to_doll_maintenance',
+  'remodel_to_kappa_automation',
+  'investigate_clockwork_temporal_ripple',
+  'investigate_sakuya_temporal_trace',
 ]);
 
 /** Fixed progression replies never expose free-chat controls after a reload. */

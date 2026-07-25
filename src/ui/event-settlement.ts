@@ -1,5 +1,5 @@
 import type { GardenState } from './types';
-import { eventById } from './event-registry';
+import { eventById, eventResultForAction } from './event-registry';
 import { advanceOneTimePeriod, enforceMonotonicTime } from './time-rules';
 
 export interface GardenActionMarker {
@@ -8,6 +8,7 @@ export interface GardenActionMarker {
   event_id: string | null;
   target_id?: string | null;
   target_type?: string | null;
+  settlement_id?: string | null;
 }
 
 interface PresenceUpdate {
@@ -35,6 +36,16 @@ const LOCAL_EVENT_ACTIONS = new Set([
   'organize_free_growth_proposal',
   'invite_alice_maintenance_assessment',
   'commission_nitori_engineering_survey',
+  'select_free_growth',
+  'select_doll_maintenance',
+  'select_kappa_automation',
+  'remodel_to_free_growth',
+  'remodel_to_doll_maintenance',
+  'remodel_to_kappa_automation',
+  'investigate_clockwork_temporal_ripple',
+  'investigate_sakuya_temporal_trace',
+  'observe_fairy_seed_shower',
+  'observe_wandering_magic_mist',
   'end_conversation',
   'investigate_flower_core',
   'resume_battle_settlement',
@@ -54,6 +65,10 @@ const LOCAL_EVENT_IDS = [
   'greenhouse_free_growth_proposal',
   'alice_greenhouse_maintenance_proposal',
   'nitori_greenhouse_automation_proposal',
+  'select_greenhouse_form',
+  'remodel_greenhouse_form',
+  'clockwork_temporal_ripple',
+  'sakuya_temporal_trace_investigation',
 ] as const;
 
 export const GREENHOUSE_RESEARCH_MAX_EFFECTIVE_ROUNDS = 2;
@@ -100,6 +115,7 @@ export function parseGardenAction(message: string): GardenActionMarker | null {
       event_id: typeof value.event_id === 'string' && value.event_id ? value.event_id : null,
       target_id: typeof value.target_id === 'string' ? value.target_id : null,
       target_type: typeof value.target_type === 'string' ? value.target_type : null,
+      settlement_id: typeof value.settlement_id === 'string' ? value.settlement_id : null,
     };
   } catch {
     return null;
@@ -308,7 +324,7 @@ export function findRecordedLocalSettlement(
     }
     if (!user) continue;
     const action = localSettlementAction(chatText(user), state);
-    if (!action || settlementProjection(state, action)) continue;
+    if (!action || settlementProjection(state, action, assistantMessageId)) continue;
     return { action, assistantMessageId, assistantText };
   }
   return null;
@@ -326,12 +342,14 @@ export function settlementChoices(state: GardenState, action: GardenActionMarker
   if (action.action_id === 'settle_flower_core_battle' || action.action_id === 'resume_battle_settlement') {
     return state.battle?.current?.outcome ? [state.battle.current.outcome] : [];
   }
+  const mappedResult = action.event_id ? eventResultForAction(action.event_id, action.action_id) : undefined;
+  if (mappedResult) return [mappedResult];
   return [...(eventById.get(action.event_id ?? '')?.allowed_results ?? [])];
 }
 
 function eventResult(text: string, eventId: string, actionId: string) {
   const allowedResults = eventById.get(eventId)?.allowed_results ?? [];
-  const fallback = allowedResults.includes(actionId) ? actionId : allowedResults[0];
+  const fallback = eventResultForAction(eventId, actionId) ?? allowedResults[0];
   if (!fallback) throw new Error(`事件 ${eventId} 没有登记默认结算结果`);
   const match = text.match(/<GensokyoEventResult>([\s\S]*?)<\/GensokyoEventResult>/iu);
   if (!match) return fallback;
@@ -561,6 +579,90 @@ function settleNitoriAutomationProposal(state: GardenState, action: GardenAction
   state.events!.active_event = null;
 }
 
+const GREENHOUSE_ROUTE_EFFECTS = new Set([
+  'free_growth_controlled_wildness',
+  'doll_maintenance_routine',
+  'kappa_automation_monitoring',
+]);
+
+function settleGreenhouseFormChange(state: GardenState, action: GardenActionMarker) {
+  const eventId = action.event_id;
+  if (eventId !== 'select_greenhouse_form' && eventId !== 'remodel_greenhouse_form') {
+    throw new Error('温室形态行动没有登记正确事件');
+  }
+  const event = eventById.get(eventId);
+  const choice = event?.action_results?.[action.action_id];
+  const settlement = event?.local_settlement;
+  if (!choice || !settlement || settlement.effect_handler !== 'greenhouse_form_change') {
+    throw new Error('温室形态行动缺少登记结果或本地结算规则');
+  }
+  if (!action.settlement_id || !/^event:[A-Za-z0-9._:-]{1,180}$/u.test(action.settlement_id)) {
+    throw new Error('温室形态行动缺少合法结算 ID');
+  }
+  state.events ??= {};
+  state.events.settled_ids ??= [];
+  if (state.events.settled_ids.includes(action.settlement_id)) return;
+  const completedEvents = completed(state);
+  const facility = state.facilities?.magic_greenhouse;
+  if (!facility || facility.state !== '启用') throw new Error('魔法温室当前不可改造');
+  const proposalEvents = [
+    'greenhouse_free_growth_proposal',
+    'alice_greenhouse_maintenance_proposal',
+    'nitori_greenhouse_automation_proposal',
+  ];
+  const proposalForms = ['自由生长型温室', '人偶维护型温室', '河童自动化型温室'];
+  if (!proposalEvents.every((id) => completedEvents[id])
+    || !proposalForms.every((form) => facility.unlocked_forms?.includes(form))) {
+    throw new Error('三套温室方案的完成标记与解锁形态不一致');
+  }
+  if (!facility.unlocked_forms?.includes(choice.form_name)) throw new Error('目标温室形态尚未解锁');
+  if (eventId === 'select_greenhouse_form') {
+    if (completedEvents.select_greenhouse_form) return;
+    if (facility.current_form !== '基础魔法温室') throw new Error('首次选型必须从基础魔法温室开始');
+  } else {
+    if (!completedEvents.select_greenhouse_form) throw new Error('需要先完成温室首次选型');
+    if (facility.current_form === choice.form_name) throw new Error('不能重复选择当前温室形态');
+  }
+  if ((state.resources?.materials ?? 0) < settlement.material_cost) throw new Error('温室改造所需物资不足');
+  state.resources!.materials = (state.resources?.materials ?? 0) - settlement.material_cost;
+  facility.current_form = choice.form_name;
+  facility.active_effects = [
+    ...(facility.active_effects ?? []).filter((effect) => !GREENHOUSE_ROUTE_EFFECTS.has(effect)),
+    choice.effect_id,
+  ];
+  completedEvents[eventId] = choice.result_id;
+  state.events.active_event = null;
+  if (settlement.advance_time_periods === 1) advanceTime(state);
+}
+
+function settleSpecialItemEvent(state: GardenState, action: GardenActionMarker) {
+  const eventId = action.event_id;
+  if (eventId !== 'clockwork_temporal_ripple' && eventId !== 'sakuya_temporal_trace_investigation') {
+    throw new Error('特殊道具事件没有登记正确事件');
+  }
+  const watch = state.key_items?.sakuya_watch;
+  if (!watch?.obtained || !watch.temporal_trace_active) throw new Error('没有可供调查的怀表时间痕迹');
+  if (!state.events?.waiting_events?.some((event) => event.config_id === eventId)) throw new Error('该时间痕迹事件不在等待队列');
+  if (eventId === 'sakuya_temporal_trace_investigation' && (watch.total_uses ?? 0) < 2) {
+    throw new Error('咲夜调查至少需要两次成功使用留下的痕迹');
+  }
+  completed(state)[eventId] = eventResultForAction(eventId, action.action_id)
+    ?? eventById.get(eventId)?.allowed_results[0]
+    ?? '';
+  state.events!.waiting_events = state.events!.waiting_events!.filter((event) => event.config_id !== eventId);
+  if (eventId === 'sakuya_temporal_trace_investigation') {
+    watch.noticed_by_character_ids = Array.from(new Set([...(watch.noticed_by_character_ids ?? []), 'sakuya']));
+  }
+  state.events!.active_event = null;
+}
+
+function settleWaitingFreeSideStory(state: GardenState, action: GardenActionMarker) {
+  const eventId = action.event_id;
+  if (eventId !== 'fairy_seed_shower' && eventId !== 'wandering_magic_mist') throw new Error('未登记的等待支线');
+  if (!state.events?.waiting_events?.some((event) => event.config_id === eventId)) throw new Error('该自由支线不在等待队列');
+  state.events.waiting_events = state.events.waiting_events.filter((event) => event.config_id !== eventId);
+}
+
 function settleConversationTurn(
   state: GardenState,
   action: GardenActionMarker,
@@ -704,6 +806,16 @@ export function applyLocalSettlement(
     case 'organize_free_growth_proposal': settleFreeGrowthProposal(state, action, assistantText); break;
     case 'invite_alice_maintenance_assessment': settleAliceMaintenanceProposal(state, action, assistantText); break;
     case 'commission_nitori_engineering_survey': settleNitoriAutomationProposal(state, action, assistantText); break;
+    case 'select_free_growth':
+    case 'select_doll_maintenance':
+    case 'select_kappa_automation':
+    case 'remodel_to_free_growth':
+    case 'remodel_to_doll_maintenance':
+    case 'remodel_to_kappa_automation': settleGreenhouseFormChange(state, action); break;
+    case 'investigate_clockwork_temporal_ripple':
+    case 'investigate_sakuya_temporal_trace': settleSpecialItemEvent(state, action); break;
+    case 'observe_fairy_seed_shower':
+    case 'observe_wandering_magic_mist': settleWaitingFreeSideStory(state, action); break;
     case 'greenhouse_research_talk':
     case 'continue_greenhouse_conversation': settleConversationTurn(state, action, assistantMessageId); break;
     case 'end_conversation': settleConversationEnd(state, action); break;
@@ -712,12 +824,52 @@ export function applyLocalSettlement(
     case 'settle_flower_core_battle': settleFlowerCore(state, action); break;
     default: throw new Error(`未登记的本地结算行动：${action.action_id}`);
   }
+  if (action.settlement_id) {
+    state.events ??= {};
+    state.events.settled_ids = Array.from(new Set([...(state.events.settled_ids ?? []), action.settlement_id])).slice(-256);
+  }
   applyLocalPresenceTransition(state, action);
   return state;
 }
 
-export function settlementProjection(state: GardenState, action: GardenActionMarker) {
+export function settlementProjection(
+  state: GardenState,
+  action: GardenActionMarker,
+  assistantMessageId?: number,
+  expectedState?: GardenState,
+) {
   const eventId = action.event_id ?? '';
+  if (eventId === 'select_greenhouse_form' || eventId === 'remodel_greenhouse_form') {
+    const event = eventById.get(eventId);
+    const choice = event?.action_results?.[action.action_id];
+    const completedResult = state.events?.completed_key_events?.[eventId];
+    const hasSettlementId = Boolean(action.settlement_id && state.events?.settled_ids?.includes(action.settlement_id));
+    const superseded = eventId === 'select_greenhouse_form'
+      ? Boolean(state.events?.completed_key_events?.remodel_greenhouse_form)
+      : Boolean(completedResult && choice && completedResult !== choice.result_id);
+    if (!choice || !hasSettlementId || completedResult !== choice.result_id) return superseded && hasSettlementId;
+    if (!superseded) {
+      const facility = state.facilities?.magic_greenhouse;
+      const requiredForms = ['自由生长型温室', '人偶维护型温室', '河童自动化型温室'];
+      if (facility?.current_form !== choice.form_name
+        || !requiredForms.every((form) => facility.unlocked_forms?.includes(form))
+        || !facility.active_effects?.includes(choice.effect_id)) return false;
+    }
+    if (expectedState) {
+      const expectedFacility = expectedState.facilities?.magic_greenhouse;
+      if (state.resources?.materials !== expectedState.resources?.materials
+        || state.environment?.day !== expectedState.environment?.day
+        || state.environment?.time_period !== expectedState.environment?.time_period
+        || JSON.stringify(state.facilities?.magic_greenhouse) !== JSON.stringify(expectedFacility)) return false;
+    }
+    return true;
+  }
+  if (action.settlement_id && state.events?.settled_ids?.includes(action.settlement_id)) return true;
+  if (assistantMessageId !== undefined && action.event_id) {
+    const legacyId = `event:${action.event_id}:message:${assistantMessageId}`;
+    if (state.events?.settled_ids?.includes(legacyId)) return true;
+  }
+  if (action.settlement_id && eventById.get(action.event_id ?? '')?.one_time === false) return false;
   if (eventId === 'greenhouse_flower_core' && action.action_id === 'investigate_flower_core') {
     return state.events?.active_event?.config_id === eventId;
   }
@@ -749,6 +901,7 @@ export function restoreLocalEventOwnership(before: GardenState, after: GardenSta
     if (priorCompleted[eventId] === undefined) delete next.events.completed_key_events[eventId];
     else next.events.completed_key_events[eventId] = priorCompleted[eventId];
   }
+  next.events.settled_ids = structuredClone(before.events?.settled_ids ?? []);
 
   const beforeActive = before.events?.active_event;
   const afterActive = next.events.active_event;

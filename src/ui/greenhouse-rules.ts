@@ -11,7 +11,24 @@ export const GREENHOUSE_EVENTS = {
   freeGrowthProposal: 'greenhouse_free_growth_proposal',
   aliceMaintenanceProposal: 'alice_greenhouse_maintenance_proposal',
   nitoriAutomationProposal: 'nitori_greenhouse_automation_proposal',
+  selectForm: 'select_greenhouse_form',
+  remodelForm: 'remodel_greenhouse_form',
 } as const;
+
+export const GREENHOUSE_ROUTE_FORMS = {
+  freeGrowth: '自由生长型温室',
+  dollMaintenance: '人偶维护型温室',
+  kappaAutomation: '河童自动化型温室',
+} as const;
+
+const FORM_BY_ACTION: Record<string, string> = {
+  select_free_growth: GREENHOUSE_ROUTE_FORMS.freeGrowth,
+  select_doll_maintenance: GREENHOUSE_ROUTE_FORMS.dollMaintenance,
+  select_kappa_automation: GREENHOUSE_ROUTE_FORMS.kappaAutomation,
+  remodel_to_free_growth: GREENHOUSE_ROUTE_FORMS.freeGrowth,
+  remodel_to_doll_maintenance: GREENHOUSE_ROUTE_FORMS.dollMaintenance,
+  remodel_to_kappa_automation: GREENHOUSE_ROUTE_FORMS.kappaAutomation,
+};
 
 export const FLOWER_CORE_BATTLE_CONFIG = 'greenhouse_flower_core_tutorial_v1';
 const outcomes = new Set<BattleResult['outcome']>(['clean_win', 'narrow_win', 'loss', 'narrative']);
@@ -45,6 +62,12 @@ export type GreenhouseActionId =
   | 'organize_free_growth_proposal'
   | 'invite_alice_maintenance_assessment'
   | 'commission_nitori_engineering_survey'
+  | 'select_free_growth'
+  | 'select_doll_maintenance'
+  | 'select_kappa_automation'
+  | 'remodel_to_free_growth'
+  | 'remodel_to_doll_maintenance'
+  | 'remodel_to_kappa_automation'
   | 'investigate_flower_core'
   | 'start_flower_core_battle'
   | 'resolve_flower_core_narratively'
@@ -114,6 +137,38 @@ export function greenhouseActionBlock(state: GardenState, actionId: GreenhouseAc
       if (events[GREENHOUSE_EVENTS.nitoriAutomationProposal]) return '河童自动化型温室方案已经登记';
       if (otherActiveEvent(state, GREENHOUSE_EVENTS.nitoriAutomationProposal)) return '当前已有其他主要事件正在进行';
       return '';
+    case 'select_free_growth':
+    case 'select_doll_maintenance':
+    case 'select_kappa_automation': {
+      const requiredEvents = [
+        GREENHOUSE_EVENTS.freeGrowthProposal,
+        GREENHOUSE_EVENTS.aliceMaintenanceProposal,
+        GREENHOUSE_EVENTS.nitoriAutomationProposal,
+      ];
+      const requiredForms = Object.values(GREENHOUSE_ROUTE_FORMS);
+      const unlocked = new Set(facility?.unlocked_forms ?? []);
+      if (!requiredEvents.every((eventId) => events[eventId]) || !requiredForms.every((form) => unlocked.has(form))) {
+        return '三套方案的完成标记与解锁形态尚未同时齐备';
+      }
+      if (events[GREENHOUSE_EVENTS.selectForm]) return '温室已经完成首次选型，可使用后续换型';
+      if (facility?.state !== '启用' || facility.current_form !== '基础魔法温室') return '首次选型必须从已启用的基础魔法温室开始';
+      if (!unlocked.has(FORM_BY_ACTION[actionId])) return '目标方案尚未解锁';
+      if (materials < 4) return '首次改造至少需要 4 点物资';
+      if (otherActiveEvent(state, GREENHOUSE_EVENTS.selectForm)) return '当前已有其他主要工程正在进行';
+      return '';
+    }
+    case 'remodel_to_free_growth':
+    case 'remodel_to_doll_maintenance':
+    case 'remodel_to_kappa_automation': {
+      const targetForm = FORM_BY_ACTION[actionId];
+      if (!events[GREENHOUSE_EVENTS.selectForm]) return '需要先完成温室首次选型';
+      if (facility?.state !== '启用') return '温室当前未处于可改造状态';
+      if (!(facility.unlocked_forms ?? []).includes(targetForm)) return '目标方案尚未解锁';
+      if (facility.current_form === targetForm) return '该形态已经是当前方案';
+      if (materials < 3) return '后续换型至少需要 3 点物资';
+      if (otherActiveEvent(state, GREENHOUSE_EVENTS.remodelForm)) return '当前已有其他主要工程正在进行';
+      return '';
+    }
     case 'investigate_flower_core':
       if (!events[GREENHOUSE_EVENTS.firstUse]) return '需要先完成温室第一次使用';
       if (!events[GREENHOUSE_EVENTS.conversation]) return '需要先完成一次温室里的持续多轮交流';

@@ -1,6 +1,7 @@
 import greenhouseEventsJson from '../lorebook/events/greenhouse-vertical-slice.json';
 import greenhouseUpgradeRoutesJson from '../lorebook/events/greenhouse-upgrade-routes.json';
 import freeSideStoriesJson from '../lorebook/events/free-side-stories.json';
+import specialItemEventsJson from '../lorebook/events/special-item-events.json';
 
 export type EventType = 'progression_fixed' | 'progression_session' | 'free_side_story' | 'ambient_interaction' | 'static_script' | 'deterministic_action';
 type Facing = 'front' | 'back' | 'left' | 'right';
@@ -22,6 +23,18 @@ export interface RegisteredEvent {
   required_beats: string[];
   forbidden_deviations: string[];
   allowed_results: string[];
+  action_results?: Record<string, {
+    result_id: string;
+    form_name: string;
+    proposer_id: string;
+    effect_id: string;
+    fixed_ending: string;
+  }>;
+  local_settlement?: {
+    effect_handler: string;
+    material_cost: number;
+    advance_time_periods: number;
+  };
   downstream_unlocks: string[];
   failure_recovery: string;
   presence_transition?: {
@@ -59,6 +72,9 @@ const PROJECTION_KEYS = new Set([
   'characters.marisa.current_relationship_facts',
   'characters.alice.current_relationship_facts',
   'characters.nitori.current_relationship_facts',
+  'characters.sakuya.current_relationship_facts',
+  'key_items.sakuya_watch',
+  'events.waiting_events',
 ]);
 
 function record(value: unknown, label: string): Record<string, unknown> {
@@ -104,6 +120,48 @@ function optionalPresenceTransition(value: unknown, label: string): RegisteredEv
   return { ...(arrive ? { arrive } : {}), ...(leave ? { leave } : {}) };
 }
 
+function optionalActionResults(
+  value: unknown,
+  label: string,
+  triggerActionIds: string[],
+  allowedResults: string[],
+): RegisteredEvent['action_results'] {
+  if (value === undefined) return undefined;
+  const source = record(value, label);
+  const result: NonNullable<RegisteredEvent['action_results']> = {};
+  for (const [actionId, rawChoice] of Object.entries(source)) {
+    if (!triggerActionIds.includes(actionId)) throw new Error(`${label}.${actionId} 不是已登记入口`);
+    const choice = record(rawChoice, `${label}.${actionId}`);
+    const resultId = stringValue(choice.result_id, `${label}.${actionId}.result_id`);
+    if (!allowedResults.includes(resultId)) throw new Error(`${label}.${actionId}.result_id 不在允许结果中`);
+    result[actionId] = {
+      result_id: resultId,
+      form_name: stringValue(choice.form_name, `${label}.${actionId}.form_name`),
+      proposer_id: stringValue(choice.proposer_id, `${label}.${actionId}.proposer_id`),
+      effect_id: stringValue(choice.effect_id, `${label}.${actionId}.effect_id`),
+      fixed_ending: stringValue(choice.fixed_ending, `${label}.${actionId}.fixed_ending`),
+    };
+  }
+  if (triggerActionIds.some((actionId) => !result[actionId])) throw new Error(`${label} 必须覆盖全部入口`);
+  return result;
+}
+
+function optionalLocalSettlement(value: unknown, label: string): RegisteredEvent['local_settlement'] {
+  if (value === undefined) return undefined;
+  const source = record(value, label);
+  const materialCost = source.material_cost;
+  const advanceTimePeriods = source.advance_time_periods;
+  if (!Number.isInteger(materialCost) || Number(materialCost) < 0) throw new Error(`${label}.material_cost 必须是非负整数`);
+  if (!Number.isInteger(advanceTimePeriods) || Number(advanceTimePeriods) < 0 || Number(advanceTimePeriods) > 1) {
+    throw new Error(`${label}.advance_time_periods 只能是 0 或 1`);
+  }
+  return {
+    effect_handler: stringValue(source.effect_handler, `${label}.effect_handler`),
+    material_cost: Number(materialCost),
+    advance_time_periods: Number(advanceTimePeriods),
+  };
+}
+
 function validateEvent(value: unknown, index: number, ids: Set<string>): RegisteredEvent {
   const source = record(value, `events[${index}]`);
   const configId = stringValue(source.config_id, `events[${index}].config_id`);
@@ -119,6 +177,7 @@ function validateEvent(value: unknown, index: number, ids: Set<string>): Registe
   if (source.facility_id !== null && typeof source.facility_id !== 'string') {
     throw new Error(`${configId}.facility_id 必须是字符串或 null`);
   }
+  const triggerActionIds = stringArray(source.trigger_action_ids, `${configId}.trigger_action_ids`);
   const projectionKeys = stringArray(source.projection_keys, `${configId}.projection_keys`);
   for (const key of projectionKeys) {
     if (!PROJECTION_KEYS.has(key)) throw new Error(`${configId}.projection_keys 包含未登记路径：${key}`);
@@ -131,7 +190,7 @@ function validateEvent(value: unknown, index: number, ids: Set<string>): Registe
     config_id: configId,
     title: stringValue(source.title, `${configId}.title`),
     event_type: eventType,
-    trigger_action_ids: stringArray(source.trigger_action_ids, `${configId}.trigger_action_ids`),
+    trigger_action_ids: triggerActionIds,
     prerequisites: stringArray(source.prerequisites, `${configId}.prerequisites`),
     blocks: stringArray(source.blocks, `${configId}.blocks`),
     participants: stringArray(source.participants, `${configId}.participants`),
@@ -144,10 +203,19 @@ function validateEvent(value: unknown, index: number, ids: Set<string>): Registe
     required_beats: stringArray(source.required_beats, `${configId}.required_beats`),
     forbidden_deviations: stringArray(source.forbidden_deviations, `${configId}.forbidden_deviations`),
     allowed_results: allowedResults,
+    action_results: optionalActionResults(source.action_results, `${configId}.action_results`, triggerActionIds, allowedResults),
+    local_settlement: optionalLocalSettlement(source.local_settlement, `${configId}.local_settlement`),
     downstream_unlocks: stringArray(source.downstream_unlocks, `${configId}.downstream_unlocks`),
     failure_recovery: stringValue(source.failure_recovery, `${configId}.failure_recovery`),
     presence_transition: optionalPresenceTransition(source.presence_transition, `${configId}.presence_transition`),
   };
+}
+
+export function eventResultForAction(eventId: string, actionId: string) {
+  const event = eventById.get(eventId);
+  if (!event) return undefined;
+  return event.action_results?.[actionId]?.result_id
+    ?? (event.allowed_results.includes(actionId) ? actionId : undefined);
 }
 
 export function validateEventDocuments(values: unknown[]): RegisteredEvent[] {
@@ -163,5 +231,6 @@ export const registeredEvents = validateEventDocuments([
   greenhouseEventsJson,
   greenhouseUpgradeRoutesJson,
   freeSideStoriesJson,
+  specialItemEventsJson,
 ]);
 export const eventById = new Map(registeredEvents.map((event) => [event.config_id, event]));

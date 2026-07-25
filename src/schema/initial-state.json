@@ -182,6 +182,7 @@
     "waiting_events": [],
     "recent_results": [],
     "completed_key_events": {},
+    "settled_ids": [],
     "daily_cooldowns": {}
   },
   "anchors": {
@@ -201,12 +202,27 @@
     "purchase_settled_ids": [],
     "static_dialogue_seen_ids": []
   },
+  "inventory": {
+    "consumables": {}
+  },
   "key_items": {
     "garden_keeper_key": {
       "id": "garden_keeper_key",
       "name": "庭守钥",
       "obtained": false,
       "state": "沉睡"
+    },
+    "sakuya_watch": {
+      "id": "sakuya_watch",
+      "name": "十六夜咲夜的怀表",
+      "obtained": false,
+      "state": "ready",
+      "last_used_day": null,
+      "total_uses": 0,
+      "last_used_area_id": null,
+      "last_used_time_period": null,
+      "temporal_trace_active": false,
+      "noticed_by_character_ids": []
     }
   },
   "abilities": [],

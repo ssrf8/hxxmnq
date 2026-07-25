@@ -1,0 +1,29 @@
+{
+  "checkpoint": "0.2.0-r16",
+  "cardJson": "F:\\agent airp\\卡\\幻想乡物语\\dist\\checkpoint-0.2.0-r16\\幻想乡物语-测试检查点-0.2.0-r16.json",
+  "sha256_source": "bf59e4e7dc386d790e6ddbf2d671e3cee816bd3901179141042cda4050fd72d3",
+  "imported_character": "F:\\agent airp\\Luker\\data\\default-user\\characters\\幻想乡物语·移动庭园（测试检查点 0.2.0-r16）.png",
+  "imported_world": "F:\\agent airp\\Luker\\data\\default-user\\worlds\\幻想乡物语·移动庭园 0.2.0-r16.json",
+  "character_name": "幻想乡物语·移动庭园（测试检查点 0.2.0-r16）",
+  "worldbook_name": "幻想乡物语·移动庭园 0.2.0-r16",
+  "scripts": [
+    "gensokyo-mvu-loader-020",
+    "gensokyo-mvu-schema-020",
+    "gensokyo-garden-ui-020-r16"
+  ],
+  "ui_script_id": "gensokyo-garden-ui-020-r16",
+  "ui_contains_display_fix": false,
+  "lore_entries": 16,
+  "presence_seed": [
+    "reimu"
+  ],
+  "cleaned": [
+    "characters/幻想乡物语·移动庭园（测试检查点 0.2.0-r14）.png",
+    "thumbnails/avatar/幻想乡物语·移动庭园（测试检查点 0.2.0-r14）.png",
+    "characters/幻想乡物语·移动庭园（测试检查点 0.2.0-r15）.png",
+    "thumbnails/avatar/幻想乡物语·移动庭园（测试检查点 0.2.0-r15）.png",
+    "worlds/幻想乡物语·移动庭园 0.2.0-r14.json",
+    "worlds/幻想乡物语·移动庭园 0.2.0-r15.json"
+  ],
+  "note": "Chat history folders kept. Restart or refresh Luker character list to pick up the new card."
+}

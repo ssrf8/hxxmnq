@@ -22,6 +22,7 @@
 | `events.active_event` | null 或正式事件 | 模型 | 模型、剧情页 | 同时仅一个；结算后转入近期结果/关键标记 |
 | `events.waiting_events` | 最多 3 个事件 | 模型 | 调度器、模型 | 满载时拒绝低优先事件；到期不可静默删除 |
 | `events.recent_results` | 最多 8 条短摘要 | 模型 | 模型、数据库归档 | FIFO；关键结果另存永久标记 |
+| `events.settled_ids` | 最多 256 个正式事件结算 ID | bridge | 本地事件恢复与幂等检查 | 每个真实 assistant 楼层的受控结算只追加一次；FIFO，额外变量模型禁写 |
 | `anchors.stable` | 锚点字典 | 模型 | 地图、剧情 | 同时只有一个 `garden.primary_anchor_id` |
 | `anchors.temporary` | 锚点字典 | 模型 | 地图、剧情 | 最多 2 个；到期生成可解释结果后移除 |
 | `battle.current` | null 或待结算结果 | 战斗 bridge | 模型、战斗页 | JSON 白名单校验；结算后写 settled_ids 并清空 |
@@ -29,7 +30,9 @@
 | `battle.dungeon_unlocked` | boolean/false | 妖花核心本地结算、迁移器 | 副本入口 | 教学战完成后永久为 true |
 | `battle.run_count` / `last_run` / `rewarded_ids` | 副本次数、最近结果、最多 256 个奖励 ID | 本地副本事务 | 顶栏、结果页、幂等校验 | 每个 ID 只能奖励并推进时段一次；FIFO 清理 |
 | `shop` | 解锁、最多 256 个购买 ID、最多 128 个静态对话 ID | 本地商店事务、迁移器 | 小店入口与视图 | 妖花核心完成后解锁；未知商品和重复 ID 拒绝 |
+| `inventory.consumables` | 消耗品 ID 到 0..99 数量 | 本地商店与道具事务 | 小店、道具使用 | 购买与使用原子增减；异变卡失败时不消费 |
 | `key_items` | 关键物品字典 | 确定性开场 bridge、模型 | 模型、UI | 开场只确认庭守钥取得与苏醒；不进入传统背包；关键物不得无因删除 |
+| `key_items.sakuya_watch` | 获得、日冷却、累计使用、最近地点/时段、时间痕迹与察觉者 | 本地商店、怀表使用与迁移器 | 小店、登记事件投影 | 每日最多一次；不推进或回滚时段；察觉者去重，痕迹由登记事件消费 |
 | `abilities` | 最多 32 条事实解锁 | 模型 | 模型、战斗 | 必须记录剧情来源；不用等级/经验 |
 | `memory.long_term_notes` | 最多 24 条短事实 | 模型 | 条件投影、数据库归档 | 不存流水账；相近内容合并 |
 | `uid_counters` | 正整数计数器 | bridge | 实体创建器 | 额外变量模型不得猜测计数器；动态实体创建须先经本地分配器 |

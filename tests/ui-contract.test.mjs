@@ -607,7 +607,7 @@ test('庭园主线只使用本地白名单结算，不依赖预设的第二次�
   const app = await read('../src/ui/app.ts');
   assert.match(bridge, /\/trigger await=true/);
   assert.match(bridge, /deterministicSettlementResult/);
-  assert.match(bridge, /event\.allowed_results\.includes\(action\.action_id\)/);
+  assert.match(bridge, /eventResultForAction\(event\.config_id, action\.action_id\) \?\? event\.allowed_results\[0\]/);
   assert.deepEqual(registry.eventById.get('reimu_boundary_inspection').allowed_results, [
     'temporary_permission', 'supervised_restriction', 'urgent_seal_repair',
   ]);
@@ -907,6 +907,188 @@ test('R34 荷取自动化方案不依赖爱丽丝路线，并由本地登记入�
   const upgradeConfig = JSON.parse(await read('../src/lorebook/events/greenhouse-upgrade-routes.json'));
   const nitoriConfig = upgradeConfig.events.find((event) => event.config_id === 'nitori_greenhouse_automation_proposal');
   assert.equal(nitoriConfig.presence_transition.arrive[0].character_id, 'nitori');
+});
+
+test('R35 三方案首次选型与重复换型由登记结果和事件结算 ID 原子保护', async () => {
+  const settlement = await importTypescript('../src/ui/event-settlement.ts');
+  const rules = await importTypescript('../src/ui/greenhouse-rules.ts');
+  const registry = await importTypescript('../src/ui/event-registry.ts');
+  const actionsModule = await importTypescript('../src/ui/target-actions.ts');
+  const state = JSON.parse(await read('../src/schema/initial-state.json'));
+  state.environment.day = 7;
+  state.environment.time_period = '黄昏';
+  state.resources.materials = 12;
+  state.facilities.magic_greenhouse.state = '启用';
+  state.facilities.magic_greenhouse.current_form = '基础魔法温室';
+  state.facilities.magic_greenhouse.unlocked_forms = [
+    '基础魔法温室', '自由生长型温室', '人偶维护型温室', '河童自动化型温室',
+  ];
+  state.facilities.magic_greenhouse.active_effects = ['温室核心保持安静'];
+  Object.assign(state.events.completed_key_events, {
+    marisa_material_rumor: 'greenhouse_clue_found',
+    gain_second_inspiration: 'growth_pattern_understood',
+    clear_greenhouse_foundation: 'foundation_cleared',
+    build_basic_magic_greenhouse: 'basic_greenhouse_enabled',
+    greenhouse_first_use: 'stable_first_growth',
+    greenhouse_multiturn_conversation: 'conversation_settled_after_multiple_turns',
+    greenhouse_flower_core: 'clean_win',
+    greenhouse_free_growth_proposal: 'wild_growth_plan_registered',
+    alice_greenhouse_maintenance_proposal: 'doll_maintenance_plan_registered',
+    nitori_greenhouse_automation_proposal: 'kappa_automation_plan_registered',
+  });
+
+  const selectEvent = registry.eventById.get('select_greenhouse_form');
+  assert.equal(selectEvent.local_settlement.material_cost, 4);
+  assert.equal(registry.eventResultForAction('select_greenhouse_form', 'select_doll_maintenance'), 'selected_doll_maintenance');
+  assert.equal(rules.greenhouseActionBlock(state, 'select_free_growth'), '');
+  const target = { type: 'facility', id: 'magic_greenhouse', label: '魔法温室' };
+  const selectActions = actionsModule.targetActions(target, state);
+  assert.ok(selectActions.some((action) => action.id === 'select_free_growth' && action.cost.materials === 4));
+  assert.ok(selectActions.some((action) => action.id === 'select_doll_maintenance'));
+  assert.ok(selectActions.some((action) => action.id === 'select_kappa_automation'));
+  const projected = actionsModule.buildActionMessage(
+    selectActions.find((action) => action.id === 'select_free_growth'),
+    state,
+  );
+  assert.match(projected, /形态 自由生长型温室/);
+  assert.match(projected, /结果 selected_free_growth/);
+  assert.doesNotMatch(projected, /selected_doll_maintenance/);
+  const parsed = settlement.parseGardenAction(projected);
+  assert.match(parsed.settlement_id, /^event:select_greenhouse_form:/);
+
+  const afterSelect = settlement.applyLocalSettlement(state, parsed, 71, [
+    '【庭园正文开始】改造完成。【庭园正文结束】',
+    '<GensokyoEventResult>{"version":"event-result.v1","event_id":"select_greenhouse_form","result":"selected_kappa_automation"}</GensokyoEventResult>',
+  ].join('\n'));
+  assert.equal(afterSelect.facilities.magic_greenhouse.current_form, '自由生长型温室');
+  assert.deepEqual(afterSelect.facilities.magic_greenhouse.active_effects, ['温室核心保持安静', 'free_growth_controlled_wildness']);
+  assert.equal(afterSelect.resources.materials, 8);
+  assert.equal(afterSelect.environment.day, 7);
+  assert.equal(afterSelect.environment.time_period, '夜晚');
+  assert.equal(afterSelect.events.completed_key_events.select_greenhouse_form, 'selected_free_growth');
+  assert.ok(afterSelect.events.settled_ids.includes(parsed.settlement_id));
+  assert.deepEqual(settlement.applyLocalSettlement(afterSelect, parsed, 71, '重复楼层'), afterSelect);
+
+  const damagedAfterLateWrite = structuredClone(afterSelect);
+  damagedAfterLateWrite.resources.materials = 12;
+  damagedAfterLateWrite.facilities.magic_greenhouse.current_form = '基础魔法温室';
+  damagedAfterLateWrite.facilities.magic_greenhouse.unlocked_forms = ['基础魔法温室'];
+  damagedAfterLateWrite.facilities.magic_greenhouse.active_effects = [];
+  assert.equal(settlement.settlementProjection(damagedAfterLateWrite, parsed, 71), false);
+  const recordedRepair = settlement.findRecordedLocalSettlement([
+    { message_id: 70, role: 'user', message: projected },
+    { message_id: 71, role: 'assistant', message: '改造完成' },
+  ], damagedAfterLateWrite);
+  assert.equal(recordedRepair.action.action_id, 'select_free_growth');
+  const repaired = settlement.applyLocalSettlement(state, recordedRepair.action, 71, recordedRepair.assistantText);
+  assert.equal(repaired.facilities.magic_greenhouse.current_form, '自由生长型温室');
+  assert.equal(repaired.resources.materials, 8);
+  assert.equal(settlement.settlementProjection(repaired, parsed, 71, afterSelect), true);
+
+  const damagedCostOnly = structuredClone(afterSelect);
+  damagedCostOnly.resources.materials = 12;
+  assert.equal(settlement.settlementProjection(damagedCostOnly, parsed, 71), true);
+  assert.equal(settlement.settlementProjection(damagedCostOnly, parsed, 71, afterSelect), false);
+
+  const remodelAction = {
+    version: 'garden-action.v1',
+    action_id: 'remodel_to_doll_maintenance',
+    event_id: 'remodel_greenhouse_form',
+    settlement_id: 'event:remodel_greenhouse_form:test-72',
+  };
+  assert.equal(rules.greenhouseActionBlock(afterSelect, 'remodel_to_doll_maintenance'), '');
+  const afterRemodel = settlement.applyLocalSettlement(afterSelect, remodelAction, 72, '换型完成');
+  assert.equal(afterRemodel.facilities.magic_greenhouse.current_form, '人偶维护型温室');
+  assert.deepEqual(afterRemodel.facilities.magic_greenhouse.active_effects, ['温室核心保持安静', 'doll_maintenance_routine']);
+  assert.equal(afterRemodel.resources.materials, 5);
+  assert.equal(afterRemodel.environment.day, 8);
+  assert.equal(afterRemodel.environment.time_period, '清晨');
+  assert.equal(afterRemodel.events.completed_key_events.remodel_greenhouse_form, 'remodeled_to_doll_maintenance');
+  assert.equal(settlement.findRecordedLocalSettlement([
+    { message_id: 70, role: 'user', message: projected },
+    { message_id: 71, role: 'assistant', message: '改造完成' },
+  ], afterRemodel), null);
+});
+
+test('R36 特殊商品、异变触发卡与咲夜怀表完全由本地规则结算', async () => {
+  const shop = await importTypescript('../src/ui/shop-rules.ts');
+  const special = await importTypescript('../src/ui/special-item-rules.ts');
+  const settlement = await importTypescript('../src/ui/event-settlement.ts');
+  const migration = await importTypescript('../src/ui/state-migrations.ts');
+  const registry = await importTypescript('../src/ui/event-registry.ts');
+  const actions = await importTypescript('../src/ui/target-actions.ts');
+  const state = JSON.parse(await read('../src/schema/initial-state.json'));
+  state.shop.unlocked = true;
+  state.resources.coins = 200;
+  state.player.current_area_id = 'central_courtyard';
+  state.presence_snapshot.present_character_ids = ['reimu'];
+  state.presence_snapshot.character_views.reimu.area_id = 'central_courtyard';
+
+  const withCard = shop.purchaseShopItem(state, 'incident_trigger_card', 'shop-r36-card');
+  assert.equal(withCard.resources.coins, 170);
+  assert.equal(withCard.inventory.consumables.incident_trigger_card, 1);
+  const equipped = shop.purchaseShopItem(withCard, 'sakuya_watch', 'shop-r36-watch');
+  assert.equal(equipped.resources.coins, 90);
+  assert.equal(equipped.key_items.sakuya_watch.obtained, true);
+  assert.throws(() => shop.purchaseShopItem(equipped, 'sakuya_watch', 'shop-r36-watch-2'), /唯一物品|已经归你/);
+
+  const incident = special.useIncidentTriggerCard(equipped, 'item:incident:test-1');
+  assert.equal(incident.state.inventory.consumables.incident_trigger_card, 0);
+  assert.ok(['fairy_seed_shower', 'wandering_magic_mist'].includes(incident.selectedEventId));
+  assert.ok(incident.state.events.waiting_events.some((event) => event.config_id === incident.selectedEventId));
+  assert.deepEqual(special.useIncidentTriggerCard(incident.state, 'item:incident:test-1').state, incident.state);
+  const sideAction = {
+    version: 'garden-action.v1',
+    action_id: incident.selectedEventId === 'fairy_seed_shower' ? 'observe_fairy_seed_shower' : 'observe_wandering_magic_mist',
+    event_id: incident.selectedEventId,
+    settlement_id: `event:${incident.selectedEventId}:test-side`,
+  };
+  const afterSideStoryStarts = settlement.applyLocalSettlement(incident.state, sideAction, 80, '自由支线开始');
+  assert.ok(!afterSideStoryStarts.events.waiting_events.some((event) => event.config_id === incident.selectedEventId));
+  assert.equal(afterSideStoryStarts.events.completed_key_events[incident.selectedEventId], undefined);
+
+  const firstWatch = special.useSakuyaWatch(incident.state, 'item:watch:test-1');
+  assert.equal(firstWatch.state.key_items.sakuya_watch.state, 'daily_cooldown');
+  assert.equal(firstWatch.state.key_items.sakuya_watch.total_uses, 1);
+  assert.equal(firstWatch.state.key_items.sakuya_watch.temporal_trace_active, true);
+  assert.ok(firstWatch.state.key_items.sakuya_watch.noticed_by_character_ids.includes('reimu'));
+  assert.equal(firstWatch.state.environment.time_period, equipped.environment.time_period);
+  assert.throws(() => special.useSakuyaWatch(firstWatch.state, 'item:watch:test-same-day'), /今天已经使用过/);
+
+  const nextDay = structuredClone(firstWatch.state);
+  nextDay.environment.day += 1;
+  const ready = migration.migrateGardenState(nextDay);
+  assert.equal(ready.key_items.sakuya_watch.state, 'ready');
+  const secondWatch = special.useSakuyaWatch(ready, 'item:watch:test-2');
+  assert.equal(secondWatch.state.key_items.sakuya_watch.total_uses, 2);
+  assert.ok(secondWatch.state.events.waiting_events.some((event) => event.config_id === 'sakuya_temporal_trace_investigation'));
+  assert.ok(registry.eventById.has('clockwork_temporal_ripple'));
+  assert.ok(registry.eventById.has('sakuya_temporal_trace_investigation'));
+  const courtyardActions = actions.targetActions({ type: 'area', id: 'central_courtyard', label: '中央庭院' }, secondWatch.state);
+  assert.ok(courtyardActions.some((action) => action.id === 'investigate_sakuya_temporal_trace'));
+  const specialEvents = await read('../src/lorebook/events/special-item-events.json');
+  assert.doesNotMatch(specialEvents, /"participants"\s*:\s*\[[^\]]*(?:yukari|kaguya)/u);
+});
+
+test('R37 候选保留窄屏、可访问性、失败恢复与本地特殊商品反馈', async () => {
+  const styles = await read('../src/ui/styles.css');
+  const app = await read('../src/ui/app.ts');
+  const bridge = await read('../src/ui/bridge.ts');
+  const shopView = await read('../src/ui/shop-view.ts');
+  const packageJson = JSON.parse(await read('../package.json'));
+  const manifest = JSON.parse(await read('../project/manifest.json'));
+  assert.match(styles, /@media \(max-width: 380px\)/);
+  assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(styles, /focus-visible/);
+  assert.match(styles, /min-height: 44px/);
+  assert.match(app, /retryLastTransaction/);
+  assert.match(app, /beforeunload/);
+  assert.match(app, /useSpecialItem/);
+  assert.match(bridge, /道具使用复读校验失败/);
+  assert.match(shopView, /今日已使用/);
+  assert.match(shopView, /唯一关键物品/);
+  assert.match(packageJson.scripts['package:checkpoint:dry'], /0\.2\.0-r37/);
+  assert.equal(manifest.next_checkpoint, '0.2.0-r37-m1-release-candidate');
 });
 
 test('优化门：事件登记表严格校验且允许结果只有一个事实源', async () => {
