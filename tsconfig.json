@@ -10,5 +10,5 @@
     "resolveJsonModule": true,
     "useDefineForClassFields": true
   },
-  "include": ["src/ui/**/*.ts"]
+  "include": ["src/ui/**/*.ts", "src/battle/**/*.ts"]
 }

@@ -1,6 +1,7 @@
 import type { GardenState, InteractionTarget, TargetAction } from './types';
 import { GREENHOUSE_EVENTS, greenhouseActionBlock } from './greenhouse-rules';
 import { buildEventPromptProjection } from './event-projection';
+import { buildPromptContext } from './prompt-context';
 
 const action = (
   target: InteractionTarget,
@@ -43,10 +44,12 @@ export function withGardenNarrativeContract(message: string, state?: GardenState
   if (!value) return value;
   const hasContract = /[【\[]\s*庭园正文协议\s*[】\]]/u.test(value);
   const hasPresence = /[【\[]\s*庭园在场快照/u.test(value);
+  const hasSceneFacts = /[【\[]\s*场景事实\s*[】\]]/u.test(value);
   return [
     value,
     hasContract ? '' : gardenNarrativeContract,
     hasPresence ? '' : presenceNarrativeContext(state),
+    state && !hasSceneFacts ? buildPromptContext(state, { kind: 'ordinary' }) : '',
   ].filter(Boolean).join('\n\n');
 }
 
@@ -567,7 +570,7 @@ export function buildActionMessage(action: TargetAction, state: GardenState) {
     settlementNotice,
     '',
     `<GensokyoAction>${JSON.stringify(marker)}</GensokyoAction>`,
-  ].join('\n'));
+  ].join('\n'), state);
 }
 
 export function buildSettlementMessage(

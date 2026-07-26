@@ -6,6 +6,13 @@
     "role": "pixel density, chibi proportions and four-direction layout only",
     "default_expression": "closed mouth, neutral or slight closed-mouth smile"
   },
+  "character_animation_contract": {
+    "layout": "4x4",
+    "row_order": ["front", "back", "left", "right"],
+    "column_order": ["contact-a", "passing", "contact-b", "passing"],
+    "runtime_fallback": "static-turnaround",
+    "reduced_motion": "static-frame"
+  },
   "characters": {
     "reimu": {
       "status": "approved",
@@ -15,7 +22,11 @@
       "views": ["front", "back", "left", "right"],
       "expression": "closed-mouth slight smile",
       "animation_prototype": ["procedural-idle", "procedural-walk", "four-direction-crop"],
-      "animation_pending": ["walk-3-frame", "blink", "gohei-sway"]
+      "animation_status": "pending-unified-review",
+      "animation_source_chroma": "characters/reimu/reimu-walk-cycle-chroma-v1.png",
+      "animation_source_alpha": "characters/reimu/reimu-walk-cycle-v1.png",
+      "animation_ready": ["walk-4-frame", "gohei-sway"],
+      "animation_pending": ["blink", "dedicated-idle"]
     },
     "marisa": {
       "status": "approved",
@@ -29,7 +40,11 @@
       "views": ["front", "back", "left", "right"],
       "expression": "closed-mouth slight smile",
       "movement_mode": "low-altitude-broom-flight",
-      "animation_pending": ["hover-cycle", "idle", "blink", "hat-bob", "broom-sway"]
+      "animation_status": "pending-unified-review",
+      "animation_source_chroma": "characters/marisa/marisa-hover-cycle-chroma-v1.png",
+      "animation_source_alpha": "characters/marisa/marisa-hover-cycle-v1.png",
+      "animation_ready": ["hover-4-frame", "hat-bob", "broom-sway"],
+      "animation_pending": ["blink", "dedicated-idle"]
     },
     "cirno": {
       "status": "approved",
@@ -39,26 +54,105 @@
       "views": ["front", "back", "left", "right"],
       "expression": "closed-mouth slight smile",
       "movement_mode": "walking-with-wing-hover",
-      "animation_pending": ["walk-3-frame", "idle", "blink", "wing-shimmer"]
+      "animation_status": "pending-unified-review",
+      "animation_source_chroma": "characters/cirno/cirno-walk-cycle-chroma-v1.png",
+      "animation_source_alpha": "characters/cirno/cirno-walk-cycle-v1.png",
+      "animation_ready": ["walk-4-frame", "wing-shimmer"],
+      "animation_pending": ["blink", "dedicated-idle"]
+    },
+    "alice": {
+      "status": "pending-unified-review",
+      "map_usage": true,
+      "source_chroma": "characters/alice/alice-turnaround-chroma-v1.png",
+      "source_alpha": "characters/alice/alice-turnaround-v1.png",
+      "views": ["front", "back", "left", "right"],
+      "expression": "closed-mouth slight smile",
+      "movement_mode": "walking-with-book",
+      "animation_status": "pending-unified-review",
+      "animation_source_chroma": "characters/alice/alice-walk-cycle-chroma-v1.png",
+      "animation_source_alpha": "characters/alice/alice-walk-cycle-v1.png",
+      "animation_ready": ["walk-4-frame", "book-sway"],
+      "animation_pending": ["blink", "dedicated-idle"]
+    },
+    "mystia": {
+      "status": "pending-unified-review",
+      "map_usage": true,
+      "source_chroma": "characters/mystia/mystia-turnaround-chroma-v2.png",
+      "source_alpha": "characters/mystia/mystia-turnaround-v2.png",
+      "previous_source_alpha": "characters/mystia/mystia-turnaround-v1.png",
+      "views": ["front", "back", "left", "right"],
+      "expression": "closed-mouth slight smile",
+      "movement_mode": "walking-with-wing-hover",
+      "animation_status": "pending-unified-review",
+      "animation_source_chroma": "characters/mystia/mystia-walk-cycle-chroma-v1.png",
+      "animation_source_alpha": "characters/mystia/mystia-walk-cycle-v1.png",
+      "animation_ready": ["walk-4-frame", "wing-flutter"],
+      "animation_pending": ["blink", "dedicated-idle"]
+    },
+    "suika": {
+      "status": "pending-unified-review",
+      "map_usage": true,
+      "source_chroma": "characters/suika/suika-turnaround-chroma-v1.png",
+      "source_alpha": "characters/suika/suika-turnaround-v1.png",
+      "views": ["front", "back", "left", "right"],
+      "expression": "closed-mouth mischievous smile",
+      "movement_mode": "walking-with-chain-weights",
+      "animation_status": "pending-unified-review",
+      "animation_source_chroma": "characters/suika/suika-walk-cycle-chroma-v1.png",
+      "animation_source_alpha": "characters/suika/suika-walk-cycle-v1.png",
+      "animation_ready": ["walk-4-frame", "chain-sway"],
+      "animation_pending": ["blink", "dedicated-idle"]
+    },
+    "nitori": {
+      "status": "pending-unified-review",
+      "map_usage": true,
+      "source_chroma": "characters/nitori/nitori-turnaround-chroma-v1.png",
+      "source_alpha": "characters/nitori/nitori-turnaround-v1.png",
+      "views": ["front", "back", "left", "right"],
+      "expression": "closed-mouth slight smile",
+      "movement_mode": "walking-with-backpack",
+      "animation_status": "pending-unified-review",
+      "animation_source_chroma": "characters/nitori/nitori-walk-cycle-chroma-v1.png",
+      "animation_source_alpha": "characters/nitori/nitori-walk-cycle-v1.png",
+      "animation_ready": ["walk-4-frame", "backpack-bob"],
+      "animation_pending": ["blink", "dedicated-idle"]
+    },
+    "sakuya": {
+      "status": "pending-unified-review",
+      "map_usage": true,
+      "source_chroma": "characters/sakuya/sakuya-turnaround-chroma-v1.png",
+      "source_alpha": "characters/sakuya/sakuya-turnaround-v1.png",
+      "views": ["front", "back", "left", "right"],
+      "expression": "closed-mouth composed smile",
+      "movement_mode": "walking",
+      "animation_status": "pending-unified-review",
+      "animation_source_chroma": "characters/sakuya/sakuya-walk-cycle-chroma-v1.png",
+      "animation_source_alpha": "characters/sakuya/sakuya-walk-cycle-v1.png",
+      "animation_ready": ["walk-4-frame", "apron-sway"],
+      "animation_pending": ["blink", "dedicated-idle"]
     }
   },
   "player": {
     "map_usage": false,
     "battle_usage": true,
-    "status": "pending-unified-review",
+    "status": "wired-runtime-alpha-only",
     "source_chroma": "battle/player/keycraft-player-sheet-v1-chroma.png",
-    "source_alpha": "battle/player/keycraft-player-sheet-v1.png"
+    "source_alpha": "battle/player/keycraft-player-sheet-v1.png",
+    "runtime_embed": "alpha-only",
+    "note": "build-ui embeds source_alpha only; chroma is authoring reference and must not ship"
   },
   "battle_assets": {
     "greenhouse_flower_core": {
-      "status": "pending-unified-review",
+      "status": "wired-runtime-alpha-only",
       "source_chroma": "battle/boss/greenhouse-flower-core-sheet-v1-chroma.png",
-      "source_alpha": "battle/boss/greenhouse-flower-core-sheet-v1.png"
+      "source_alpha": "battle/boss/greenhouse-flower-core-sheet-v1.png",
+      "runtime_embed": "alpha-only"
     },
     "common_effects": {
-      "status": "pending-unified-review",
+      "status": "wired-runtime-alpha-only",
       "source_chroma": "battle/effects/battle-effects-sheet-v1-chroma.png",
-      "source_alpha": "battle/effects/battle-effects-sheet-v1.png"
+      "source_alpha": "battle/effects/battle-effects-sheet-v1.png",
+      "runtime_embed": "alpha-only"
     }
   },
   "maps": {

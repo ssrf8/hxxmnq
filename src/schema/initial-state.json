@@ -225,6 +225,85 @@
       "noticed_by_character_ids": []
     }
   },
+  "anomaly_cycle": {
+    "pending_activation": null,
+    "active": null,
+    "history": []
+  },
+  "visit_scheduler": {
+    "version": "visit.v1",
+    "known_characters": [],
+    "plans": [],
+    "cooldown_until": {},
+    "invitation_cooldowns": {},
+    "last_processed_serial": null,
+    "pending_notices": []
+  },
+  "facility_runtime": {
+    "fairy_garden": {
+      "built": false,
+      "current_form": null,
+      "unlocked_forms": [],
+      "first_use_forms": [],
+      "activated_at_serial": null,
+      "distinct_chat_periods": [],
+      "second_form_choice_pending": false,
+      "unlock_deadline_2": null,
+      "unlock_deadline_3": null,
+      "status": "normal",
+      "condition_id": null,
+      "risk_cooldown_until": null,
+      "pending_refit": null,
+      "pending_recovery": null
+    },
+    "moon_spring": {
+      "built": false,
+      "current_form": null,
+      "unlocked_forms": [],
+      "first_use_forms": [],
+      "activated_at_serial": null,
+      "distinct_chat_periods": [],
+      "second_form_choice_pending": false,
+      "unlock_deadline_2": null,
+      "unlock_deadline_3": null,
+      "status": "normal",
+      "condition_id": null,
+      "risk_cooldown_until": null,
+      "pending_refit": null,
+      "pending_recovery": null
+    },
+    "banquet_plaza": {
+      "built": false,
+      "current_form": null,
+      "unlocked_forms": [],
+      "first_use_forms": [],
+      "activated_at_serial": null,
+      "distinct_chat_periods": [],
+      "second_form_choice_pending": false,
+      "unlock_deadline_2": null,
+      "unlock_deadline_3": null,
+      "status": "normal",
+      "condition_id": null,
+      "risk_cooldown_until": null,
+      "pending_refit": null,
+      "pending_recovery": null
+    }
+  },
+  "garden_projects": {
+    "active_construction": null
+  },
+  "garden_activities": {
+    "moon_spring_session": null,
+    "banquet": null,
+    "scheduled_banquet": null,
+    "banquet_history": []
+  },
+  "pending_tasks": [],
+  "scene_item_context": null,
+  "ui_flags": {
+    "graduation_acknowledged": false,
+    "last_visit_notice_serial": null
+  },
   "abilities": [],
   "memory": {
     "long_term_notes": []

@@ -1,36 +1,70 @@
 {
   "config_id": "greenhouse_flower_core_tutorial_v1",
-  "version": 1,
-  "arena": {"width": 480, "height": 640},
+  "version": 4,
+  "arena": { "width": 480, "height": 640 },
+  "presentation": { "boss_id": "flower_core", "boss_name": "温室妖花核心", "boss_title": "逆生长的妖花", "stage_title": "温室妖花异变", "stage_subtitle": "庭园温室 · 根系的反乱" },
   "player": {
     "lives": 3,
     "move_speed": 230,
     "focus_speed": 115,
     "hitbox_radius": 4,
     "invulnerability_ms": 1600,
-    "auto_fire": true,
-    "normal_shot": {"pattern": "forward_wide", "damage": 1, "interval_ms": 95},
-    "focus_shot": {"pattern": "forward_narrow", "damage": 2, "interval_ms": 110}
+    "auto_fire": false,
+    "bombs": 3,
+    "deathbomb_ms": 150,
+    "normal_shot": { "pattern": "forward_wide", "damage": 1, "interval_ms": 95 },
+    "focus_shot": { "pattern": "forward_narrow", "damage": 2, "interval_ms": 110 }
   },
   "phases": [
     {
       "id": "root_bloom",
+      "kind": "nonspell",
+      "name": "根系萌发→逆生花冠",
       "objective": "defeat",
-      "hp": 420,
-      "duration_ms": 45000,
+      "hp": 520,
+      "duration_ms": 56000,
+      "intro_ms": 8000,
+      "intro_mobs": [
+        { "interval_ms": 1600, "count": 2, "hp": 4, "path": "side", "drop": "power_small", "speed": 80, "shot_interval_ms": 0 },
+        { "start_ms": 2500, "interval_ms": 5200, "count": 1, "hp": 7, "path": "top", "drop": "power_big", "speed": 42, "radius": 15, "shot_interval_ms": 0 }
+      ],
       "patterns": [
-        {"pattern_id": "fixed_seed_ring", "interval_ms": 1500, "speed": 95, "count": 12},
-        {"pattern_id": "petal_fan", "interval_ms": 2100, "speed": 120, "count": 9, "arc_deg": 80}
+        { "pattern_id": "fixed_seed_ring", "interval_ms": 1500, "speed": 78, "count": 10, "layer_speed_scale": 0.72, "spin_deg_per_s": 10, "end_ms": 24000 },
+        { "pattern_id": "petal_fan", "interval_ms": 1900, "speed": 96, "count": 7, "arc_deg": 70, "layer_speed_scale": 0.75, "start_ms": 2500, "end_ms": 24000 },
+        { "pattern_id": "aimed_stream", "interval_ms": 2400, "speed": 100, "count": 1, "aim_lead": 0.12, "start_ms": 6000, "end_ms": 24000 },
+        { "pattern_id": "rotating_ring", "interval_ms": 1200, "speed": 90, "count": 14, "rotate_deg_per_volley": 11, "layer_speed_scale": 0.68, "spin_deg_per_s": 28, "start_ms": 24000 },
+        { "pattern_id": "rotating_ring", "interval_ms": 1700, "speed": 80, "count": 10, "rotate_deg_per_volley": -9, "angle_deg": 12, "start_ms": 26000 },
+        { "pattern_id": "wave_fan", "interval_ms": 2000, "speed": 100, "count": 8, "arc_deg": 68, "start_ms": 32000 }
+      ],
+      "mobs": [
+        { "start_ms": 3500, "end_ms": 18000, "interval_ms": 5200, "count": 1, "hp": 5, "path": "side", "drop": "power_small", "shot_interval_ms": 0 }
       ]
     },
     {
       "id": "seeking_vines",
+      "kind": "spell",
+      "name": "寻猎藤蔓→晶核盛放",
       "objective": "defeat",
-      "hp": 560,
-      "duration_ms": 55000,
+      "hp": 640,
+      "duration_ms": 62000,
+      "intro_ms": 6000,
+      "intro_mobs": [
+        { "interval_ms": 1500, "count": 2, "hp": 5, "path": "side", "drop": "power_small", "speed": 84, "shot_interval_ms": 2600, "shot_count": 1, "shot_speed": 92 },
+        { "start_ms": 1500, "interval_ms": 4800, "count": 1, "hp": 8, "path": "top", "drop": "power_big", "speed": 44, "radius": 15, "shot_interval_ms": 0 }
+      ],
       "patterns": [
-        {"pattern_id": "homing_leaf", "interval_ms": 1250, "speed": 105, "count": 5, "turn_rate_deg": 55},
-        {"pattern_id": "local_safe_zone", "interval_ms": 5200, "warning_ms": 1300, "duration_ms": 2600}
+        { "pattern_id": "homing_leaf", "interval_ms": 1400, "speed": 100, "count": 4, "turn_rate_deg": 48, "end_ms": 22000 },
+        { "pattern_id": "local_safe_zone", "interval_ms": 5000, "speed": 95, "warning_ms": 1200, "start_ms": 2500, "end_ms": 22000 },
+        { "pattern_id": "aimed_stream", "interval_ms": 2000, "speed": 108, "count": 1, "aim_lead": 0.16, "start_ms": 5000, "end_ms": 22000 },
+        { "pattern_id": "burst_cluster", "interval_ms": 2800, "speed": 112, "count": 12, "burst_delay_ms": 700, "start_ms": 22000, "end_ms": 40000 },
+        { "pattern_id": "petal_fan", "interval_ms": 1700, "speed": 104, "count": 8, "arc_deg": 72, "start_ms": 24000, "end_ms": 40000 },
+        { "pattern_id": "falling_lanes", "interval_ms": 4400, "speed": 100, "warning_ms": 1100, "gaps": 2, "start_ms": 40000 },
+        { "pattern_id": "aimed_stream", "interval_ms": 1700, "speed": 114, "count": 1, "start_ms": 42000 },
+        { "pattern_id": "rotating_ring", "interval_ms": 1600, "speed": 92, "count": 12, "rotate_deg_per_volley": 10, "start_ms": 44000 },
+        { "pattern_id": "wave_fan", "interval_ms": 2000, "speed": 102, "count": 8, "arc_deg": 66, "start_ms": 50000 }
+      ],
+      "mobs": [
+        { "start_ms": 8000, "end_ms": 28000, "interval_ms": 7000, "count": 1, "hp": 6, "path": "top", "drop": "power_small", "shot_interval_ms": 1800, "shot_count": 1, "shot_speed": 100 }
       ]
     }
   ],

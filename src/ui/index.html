@@ -9,21 +9,30 @@
 <body>
   <main id="gg-app" class="gg-app" aria-busy="true">
     <section id="gg-opening" class="gg-opening" aria-labelledby="gg-opening-title">
-      <div class="gg-opening-copy">
-        <p class="gg-eyebrow">祖父留下的庭园</p>
-        <h1 id="gg-opening-title">在穿过结界之前</h1>
-        <p>确认后会直接载入并复读 MVU 初始状态，不调用 LLM；进入庭院后的第一次真实行动才开始生成剧情。</p>
+      <div class="gg-opening-scene" aria-hidden="true">
+        <span class="gg-magic-core"></span>
+        <span class="gg-opening-orb gg-opening-orb-1"></span>
+        <span class="gg-opening-orb gg-opening-orb-2"></span>
+        <span class="gg-opening-orb gg-opening-orb-3"></span>
+        <span class="gg-opening-orb gg-opening-orb-4"></span>
+        <span class="gg-opening-lantern gg-opening-lantern-l"></span>
+        <span class="gg-opening-lantern gg-opening-lantern-r"></span>
+        <span class="gg-opening-glint gg-opening-glint-1">✦</span>
+        <span class="gg-opening-glint gg-opening-glint-2">✦</span>
+        <span class="gg-opening-glint gg-opening-glint-3">✧</span>
+        <span class="gg-cursor-glow" id="gg-cursor-glow"></span>
       </div>
+      <h1 id="gg-opening-title">幻想乡物语</h1>
+      <p class="gg-opening-sub">向结界递上你的名字</p>
+      <p class="gg-visually-hidden">确认后会直接载入并复读 MVU 初始状态，不调用 LLM；进入庭院后的第一次真实行动才开始生成剧情。</p>
       <form id="gg-opening-form" class="gg-opening-form">
-        <div class="gg-field-grid">
-          <label>玩家姓名<input id="gg-opening-name" name="playerName" maxlength="40" autocomplete="off" required></label>
-          <label>称谓或代词<input id="gg-opening-pronouns" name="playerPronouns" maxlength="40" value="中性称谓" required></label>
-          <label class="gg-field-wide">外貌简述<textarea id="gg-opening-appearance" name="playerAppearance" rows="3" maxlength="500" placeholder="可以留空"></textarea></label>
-          <label class="gg-field-wide">庭园暂用名<input id="gg-opening-garden" name="gardenName" maxlength="60" value="无名庭园" required></label>
-        </div>
+        <label class="gg-opening-field">玩家姓名<input id="gg-opening-name" name="playerName" maxlength="40" autocomplete="off" required></label>
+        <label class="gg-opening-field" hidden>称谓或代词<input id="gg-opening-pronouns" name="playerPronouns" maxlength="40" value="中性称谓"></label>
+        <label class="gg-opening-field">外貌简述<textarea id="gg-opening-appearance" name="playerAppearance" rows="3" maxlength="500" placeholder="可以留空"></textarea></label>
+        <label class="gg-opening-field">庭园名称<input id="gg-opening-garden" name="gardenName" maxlength="60" value="无名庭园" required></label>
         <div class="gg-opening-actions">
           <button type="button" id="gg-opening-quick">读取当前 Persona</button>
-          <button type="submit" id="gg-opening-commit">载入资料并进入庭院</button>
+          <button type="submit" id="gg-opening-commit">穿过结界 · 进入庭院</button>
         </div>
       </form>
       <section id="gg-opening-recovery" class="gg-opening-recovery" aria-labelledby="gg-opening-recovery-title" hidden>
@@ -36,7 +45,7 @@
           <button type="button" id="gg-opening-native">显示原生聊天</button>
         </div>
       </section>
-      <section class="gg-opening-preview-shell" aria-labelledby="gg-opening-preview-title">
+      <section class="gg-opening-preview-shell" aria-labelledby="gg-opening-preview-title" hidden>
         <h2 id="gg-opening-preview-title">将写入的开局资料与场景摘要</h2>
         <pre id="gg-opening-preview" class="gg-opening-preview"></pre>
         <p class="gg-note">预览和编辑不会写入 MVU；只有确认后的确定性事务会提交开局字段。</p>
@@ -56,10 +65,20 @@
         </div>
         <button type="button" id="gg-open-dungeon" class="gg-icon-button">符卡副本</button>
         <button type="button" id="gg-open-shop" class="gg-icon-button">灵梦小店</button>
+        <button type="button" id="gg-open-inventory" class="gg-icon-button">背包</button>
+        <button type="button" id="gg-open-opportunities" class="gg-icon-button">开放庭园</button>
+        <button type="button" id="gg-fullscreen" class="gg-icon-button" aria-label="切换全屏显示">全屏</button>
         <button type="button" id="gg-open-settings" class="gg-icon-button" aria-label="打开设置与恢复">设置</button>
       </header>
 
       <section id="gg-view-garden" class="gg-view gg-view-garden" aria-labelledby="gg-garden-name">
+        <section id="gg-pending-tasks" class="gg-pending-tasks" aria-labelledby="gg-pending-tasks-title" hidden>
+          <div>
+            <p class="gg-eyebrow">到期提醒</p>
+            <h2 id="gg-pending-tasks-title">待办事项</h2>
+          </div>
+          <div id="gg-pending-task-list" class="gg-pending-task-list"></div>
+        </section>
         <div class="gg-map-shell">
           <canvas id="gg-garden-map" tabindex="0" aria-label="庭园地图；拖动、缩放并点击角色或区域互动"></canvas>
           <div class="gg-map-hint">点击角色或区域 · 拖动地图 · 滚轮缩放</div>
@@ -109,6 +128,10 @@
               <button type="button" id="gg-end-chat">结束聊天</button>
               <button type="button" id="gg-retry-transaction" hidden>继续上次生成</button>
             </div>
+            <div class="gg-actions">
+              <label for="gg-scene-item">本轮使用道具</label>
+              <select id="gg-scene-item"><option value="">不新增道具</option></select>
+            </div>
           </form>
         </div>
         <dialog id="gg-session-history-dialog" class="gg-session-history-dialog" aria-labelledby="gg-session-history-title">
@@ -150,6 +173,16 @@
         <div id="gg-shop-content"></div>
       </section>
 
+      <section id="gg-view-inventory" class="gg-view gg-settings" aria-label="背包" hidden>
+        <header class="gg-scene-toolbar"><button type="button" id="gg-inventory-back">返回庭院</button><p class="gg-eyebrow">本地登记物品 · 不可自建</p></header>
+        <div id="gg-inventory-content"></div>
+      </section>
+
+      <section id="gg-view-opportunities" class="gg-view gg-settings" aria-label="开放庭园机会" hidden>
+        <header class="gg-scene-toolbar"><button type="button" id="gg-opportunities-back">返回庭院</button><p class="gg-eyebrow">教程毕业后的并行机会</p></header>
+        <div id="gg-opportunities-content"></div>
+      </section>
+
       <section id="gg-view-settings" class="gg-view gg-settings" aria-labelledby="gg-settings-title" hidden>
         <header class="gg-scene-toolbar">
           <button type="button" id="gg-settings-back">返回游戏</button>
@@ -168,6 +201,12 @@
             <button type="button" id="gg-test-greenhouse-ready">跳至温室可用</button>
             <button type="button" id="gg-test-r29-ready">跳至妖花战后／副本解锁</button>
             <button type="button" id="gg-test-r30-ready">跳至小店测试状态（50 金币）</button>
+            <button type="button" id="gg-test-m2-open">跳至开放庭园（设施未建）</button>
+            <button type="button" id="gg-test-m2-anomaly">跳至异变卡验收</button>
+            <button type="button" id="gg-test-m2-anomaly-end">跳至异变第 7 日收束</button>
+            <button type="button" id="gg-test-m2-facilities">跳至三设施全建成</button>
+            <button type="button" id="gg-test-m2-visitors">跳至来访与活动验收</button>
+            <button type="button" id="gg-test-m2-items">跳至道具与设施修复</button>
           </div>
         </section>
         <p class="gg-note">正常游戏只显示这一份常驻界面；后台楼层仍是真实消息。发生故障时可以临时恢复原生聊天。</p>
@@ -178,15 +217,21 @@
   </main>
 
   <dialog id="gg-battle-dialog" class="gg-battle-dialog" aria-labelledby="gg-battle-title">
-    <header>
+    <header class="gg-battle-header">
       <div><p class="gg-eyebrow">JSON 符卡</p><h2 id="gg-battle-title">温室妖花核心</h2></div>
-      <button type="button" id="gg-close-battle" aria-label="取消本次符卡战">取消</button>
+      <button type="button" id="gg-close-battle" class="gg-battle-cancel" aria-label="取消本次符卡战">取消</button>
     </header>
-    <canvas id="gg-battle-canvas" aria-label="符卡游戏区域，方向键或 WASD 移动，Shift 专注"></canvas>
-    <p id="gg-battle-status" class="gg-note" role="status">方向键或 WASD 移动，Shift 专注；结算后会先写入可信 MVU 字段。</p>
-    <div class="gg-actions">
-      <button type="button" id="gg-battle-narrative">改用剧情解决</button>
-      <button type="button" id="gg-battle-retry" hidden>重试写入与结算</button>
+    <div class="gg-battle-body">
+      <canvas id="gg-battle-canvas" aria-label="符卡游戏区域，方向键或 WASD 移动，按住 Z 射击，Shift 专注，X Bomb，Esc 暂停；触控可拖动并使用下方专注与 Bomb 按钮"></canvas>
+      <div class="gg-battle-touch" role="group" aria-label="触控战斗操作">
+        <button type="button" id="gg-battle-focus" class="gg-battle-touch-btn gg-battle-focus" aria-pressed="false" aria-label="按住专注，低速并显示判定点">专注</button>
+        <button type="button" id="gg-battle-bomb" class="gg-battle-touch-btn gg-battle-bomb" aria-label="使用 Bomb">Bomb <span id="gg-battle-bomb-count">3</span></button>
+      </div>
+      <p id="gg-battle-status" class="gg-note" role="status">方向键/WASD 移动，按住 Z 射击，Shift 专注，X Bomb，Esc 暂停；触控拖动移动，第二根手指按住＝专注，快速双击＝Bomb。</p>
+      <div class="gg-actions gg-battle-actions">
+        <button type="button" id="gg-battle-narrative">改用剧情解决</button>
+        <button type="button" id="gg-battle-retry" hidden>重试写入与结算</button>
+      </div>
     </div>
   </dialog>
   <dialog id="gg-dungeon-dialog" class="gg-session-history-dialog" aria-labelledby="gg-dungeon-title">

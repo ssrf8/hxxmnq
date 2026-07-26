@@ -21,7 +21,7 @@
       "id": "current_state_projection",
       "label": "当前状态投影",
       "activation": "runtime-generated",
-      "target": "plot-model-and-variable-model",
+      "target": "variable-model",
       "source": "model-projection.md",
       "budget": "dynamic"
     },

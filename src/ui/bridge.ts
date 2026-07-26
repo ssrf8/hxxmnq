@@ -9,12 +9,21 @@ import type {
 } from './types';
 import initialState from '../schema/initial-state.json';
 import { MessageTransactionCoordinator } from './message-transaction';
+import { reconcileHostGenerationActivity, SettlementAttemptCoordinator } from './async-coordination';
 import { validateFlowerCoreBattleResult } from './greenhouse-rules';
 import { dungeonReward, settleDungeonResult as settleLocalDungeonResult } from './dungeon-rules';
 import { migrateGardenState } from './state-migrations';
-import { applyTestJump, type TestJumpId } from './test-tools';
+import { applyTestJump, testJumpReached, type TestJumpId } from './test-tools';
 import { purchaseShopItem } from './shop-rules';
-import { useSpecialItem as applySpecialItemUse } from './special-item-rules';
+import {
+  useSpecialItem as applySpecialItemUse,
+  finalizeAnomalyCardUse,
+  abortAnomalyCardUse,
+} from './special-item-rules';
+import type { AnomalyActivationForm, AnomalyHiddenOrigin } from './types';
+import { reconcileM2Runtime } from './m2-runtime';
+import { appendDailyClue, resolveAnomaly } from './anomaly-rules';
+import { applyM2Command as applyLocalM2Command } from './m2-commands';
 import { eventById, eventResultForAction } from './event-registry';
 import {
   applyPresenceUpdate,
@@ -22,6 +31,7 @@ import {
   findRecordedLocalSettlement,
   hasLocalPresenceTransition,
   localSettlementAction,
+  parseGardenAction,
   restoreLocalEventOwnership,
   stageLocalSession,
   settlementChoices,
@@ -48,7 +58,7 @@ type HostGlobals = typeof globalThis & {
   getPersona?: (personaId: string) => { name?: string; description?: string };
   eventOn?: (eventName: string, listener: (...args: unknown[]) => void) => { stop: () => void };
   tavern_events?: Record<string, string>;
-  AutoCardUpdaterAPI?: Record<string, unknown>;
+  AutoCardUpdaterAPI?: Record<string, unknown>;
 };
 
 const g = globalThis as HostGlobals;
@@ -292,9 +302,13 @@ function openingTargetMessage(rawMessages = activeMessages()) {
 export function createHostBridge(): GardenBridge | null {
   if (!g.waitGlobalInitialized || !g.getChatMessages || !g.createChatMessages || !g.triggerSlash) return null;
   let lastError = '';
+  let hostGenerationActive = false;
+  let hostGenerationStartedEpoch = 0;
+  let regenerationPhase: 'idle' | 'generating' | 'settling' = 'idle';
   const transactions = new MessageTransactionCoordinator({
     currentChatId,
     listMessages: activeMessages,
+    isGenerationActive: () => hostGenerationActive,
     async createUserMessage(message, extra) {
       await g.createChatMessages?.(
         [{ role: 'user', message, is_hidden: false, extra }],
@@ -302,10 +316,16 @@ export function createHostBridge(): GardenBridge | null {
       );
     },
     async triggerGeneration() {
+      const startedEpoch = hostGenerationStartedEpoch;
+      hostGenerationActive = true;
       await g.triggerSlash?.('/trigger await=true');
+      if (hostGenerationStartedEpoch === startedEpoch) hostGenerationActive = false;
     },
     async continueGeneration() {
+      const startedEpoch = hostGenerationStartedEpoch;
+      hostGenerationActive = true;
       await g.triggerSlash?.('/continue await=true');
+      if (hostGenerationStartedEpoch === startedEpoch) hostGenerationActive = false;
     },
   });
 
@@ -320,20 +340,31 @@ export function createHostBridge(): GardenBridge | null {
     action: GardenActionMarker;
   } | null = null;
   let pendingOwnershipBefore: GardenState | null = null;
-  let settlementInFlight = false;
+  let pendingSystemOperation: {
+    type: 'anomaly_resolution';
+    operationId: string;
+  } | null = null;
+  const settlementAttempts = new SettlementAttemptCoordinator();
+  let transactionOperationInFlight = false;
   let variableUpdateEpoch = 0;
   let pendingVariableEpoch = 0;
   let assistantObservedAt = 0;
 
+  const readTransaction = () => {
+    const snapshot = transactions.read();
+    hostGenerationActive = reconcileHostGenerationActivity(hostGenerationActive, snapshot);
+    return snapshot;
+  };
+
   const variableStageReady = (mvu: HostGlobals['Mvu']) => {
-    if (mvu?.isDuringExtraAnalysis?.()) return false;
     if (variableUpdateEpoch > pendingVariableEpoch) return true;
+    if (mvu?.isDuringExtraAnalysis?.()) return false;
     return assistantObservedAt > 0 && Date.now() - assistantObservedAt >= 2500;
   };
 
   const waitForVariableStage = async () => {
     const startedAt = Date.now();
-    while (pendingSettlement || pendingOwnershipBefore) {
+    while (pendingSettlement || pendingOwnershipBefore || pendingSystemOperation) {
       const mvu = await requireMvu();
       if (variableStageReady(mvu)) return;
       if (Date.now() - startedAt >= 90000) {
@@ -387,7 +418,11 @@ export function createHostBridge(): GardenBridge | null {
     const options = { type: 'message', message_id: assistantMessageId };
     const data = structuredClone(mvu.getMvuData(options)) as Record<string, unknown>;
     const current = isRecord(data.stat_data) ? data.stat_data as GardenState : {};
-    const safeCurrent = restoreLocalEventOwnership(before, current, true);
+    // A local write (notably an acceptance jump) may have updated the previous
+    // assistant floor after this request was submitted. Rebase on that durable
+    // floor instead of resurrecting the stale send-time snapshot.
+    const ownershipBase = persistedStateBefore(mvu, assistantMessageId) ?? before;
+    const safeCurrent = restoreLocalEventOwnership(ownershipBase, current, true);
     const settledState = applyLocalSettlement(
       safeCurrent,
       action,
@@ -451,49 +486,152 @@ export function createHostBridge(): GardenBridge | null {
     const current = isRecord(data.stat_data) ? data.stat_data as GardenState : {};
     const raw = activeMessages().find((message) => Number(message.message_id) === assistantMessageId);
     const assistantText = String(raw?.message ?? raw?.mes ?? '');
-    const protectedState = applyPresenceUpdate(
-      restoreLocalEventOwnership(before, current),
+    const ownershipBase = persistedStateBefore(mvu, assistantMessageId) ?? before;
+    let protectedState = reconcileM2Runtime(ownershipBase, applyPresenceUpdate(
+      restoreLocalEventOwnership(ownershipBase, current),
       assistantText,
-    );
+    ), currentChatId());
+    if (pendingSystemOperation?.type === 'anomaly_resolution') {
+      const operationId = pendingSystemOperation.operationId;
+      if (!protectedState.events?.settled_ids?.includes(operationId)) {
+        protectedState = resolveAnomaly(protectedState, assistantMessageId);
+        protectedState.events ??= {};
+        protectedState.events.settled_ids = Array.from(new Set([
+          ...(protectedState.events.settled_ids ?? []),
+          operationId,
+        ])).slice(-256);
+      }
+    }
     if (JSON.stringify(current) === JSON.stringify(protectedState)) {
       pendingOwnershipBefore = null;
+      pendingSystemOperation = null;
       assistantObservedAt = 0;
-      return snapshot;
+      transactions.markSettlementSucceeded();
+      return transactions.read();
     }
     data.stat_data = protectedState;
     await mvu.replaceMvuData(data, options);
     pendingOwnershipBefore = null;
+    pendingSystemOperation = null;
     assistantObservedAt = 0;
-    return snapshot;
+    transactions.markSettlementSucceeded();
+    return transactions.read();
   };
 
-  const settlePendingAfterReply = async (forceReady = false) => {
-    if (settlementInFlight) return false;
-    const snapshot = transactions.read();
-    settlementInFlight = true;
-    try {
-      if ((pendingSettlement || pendingOwnershipBefore) && snapshot.assistantResponded) {
-        assistantObservedAt ||= Date.now();
-        const mvu = await requireMvu();
-        if (!forceReady && !variableStageReady(mvu)) return false;
-        if (pendingSettlement) await persistPendingSettlement(snapshot);
-        else if (pendingOwnershipBefore) await preserveLocalOwnership(pendingOwnershipBefore, snapshot);
-        return true;
-      }
-      const mvu = await requireMvu();
-      if (mvu.isDuringExtraAnalysis?.()) return false;
-      const current = latestPersistedState(mvu);
-      const recorded = findRecordedLocalSettlement(activeMessages(), current);
-      if (!recorded) return false;
-      const before = persistedStateBefore(mvu, recorded.assistantMessageId) ?? current;
-      await persistLocalSettlement(before, recorded.action, recorded.assistantMessageId, recorded.assistantText);
+  const recoverRecordedAnomalyResolution = async (mvu: HostGlobals['Mvu'], current: GardenState) => {
+    const messages = activeMessages();
+    for (let index = messages.length - 1; index >= 0; index -= 1) {
+      const user = messages[index];
+      if (messageRole(user) !== 'user') continue;
+      const extra = isRecord(user.extra) ? user.extra : {};
+      const operation = isRecord(extra.gensokyoSystemOperation) ? extra.gensokyoSystemOperation : null;
+      const taggedOperation = operation?.version === 'system-operation.v1'
+        && operation.type === 'anomaly_resolution';
+      const userText = String(user.message ?? user.mes ?? '');
+      const legacyOperation = extra.gensokyoTransactionKind === 'settlement'
+        && userText.includes('【异变最终收束】');
+      if (!taggedOperation && !legacyOperation) continue;
+      const operationId = String(taggedOperation
+        ? operation?.operationId ?? ''
+        : extra.gensokyoTransactionId ?? '');
+      if (!/^[A-Za-z0-9._:-]{1,96}$/u.test(operationId)) continue;
+      if (current.events?.settled_ids?.includes(operationId)) return false;
+      const assistant = messages.slice(index + 1).find((message) => (
+        messageRole(message) === 'assistant' && String(message.message ?? message.mes ?? '').trim()
+      ));
+      const assistantMessageId = Number(assistant?.message_id);
+      if (!assistant || !Number.isInteger(assistantMessageId) || assistantMessageId < 0) return false;
+      if (mvu?.isDuringExtraAnalysis?.()) return false;
+      const before = persistedStateBefore(mvu, assistantMessageId) ?? current;
+      const options = { type: 'message', message_id: assistantMessageId };
+      const data = structuredClone(mvu!.getMvuData(options)) as Record<string, unknown>;
+      const assistantState = isRecord(data.stat_data) ? data.stat_data as GardenState : current;
+      let next = restoreLocalEventOwnership(before, assistantState);
+      if (next.anomaly_cycle?.active) next = resolveAnomaly(next, assistantMessageId);
+      next.events ??= {};
+      next.events.settled_ids = Array.from(new Set([...(next.events.settled_ids ?? []), operationId])).slice(-256);
+      data.stat_data = next;
+      await mvu!.replaceMvuData(data, options);
       return true;
-    } catch (error) {
-      lastError = error instanceof Error ? error.message : String(error);
-      return false;
-    } finally {
-      settlementInFlight = false;
     }
+    return false;
+  };
+
+  const recoverCompletedCurrentTransaction = (current: GardenState) => {
+    const snapshot = transactions.read();
+    const assistantMessageId = Number(snapshot.assistantMessageId);
+    if (snapshot.phase === 'settled' || !snapshot.assistantResponded
+      || !Number.isInteger(assistantMessageId) || assistantMessageId < 0) return false;
+    const user = activeMessages().find((message) => {
+      if (messageRole(message) !== 'user') return false;
+      const extra = isRecord(message.extra) ? message.extra : {};
+      return extra.gensokyoTransactionId === snapshot.transactionId;
+    });
+    const action = parseGardenAction(String(user?.message ?? user?.mes ?? ''));
+    if (!action || !settlementProjection(current, action, assistantMessageId)) return false;
+    pendingSettlement = null;
+    pendingOwnershipBefore = null;
+    assistantObservedAt = 0;
+    transactions.markSettlementSucceeded();
+    lastError = '';
+    return true;
+  };
+
+  const settlePendingAfterReply = (forceReady = false): Promise<boolean> => {
+    return settlementAttempts.run(forceReady, async (attemptForceReady) => {
+      const snapshot = readTransaction();
+      try {
+        if ((pendingSettlement || pendingOwnershipBefore || pendingSystemOperation) && snapshot.assistantResponded) {
+          assistantObservedAt ||= Date.now();
+          const mvu = await requireMvu();
+          if (!attemptForceReady && !variableStageReady(mvu)) return false;
+          if (pendingSettlement) await persistPendingSettlement(snapshot);
+          else if (pendingOwnershipBefore) await preserveLocalOwnership(pendingOwnershipBefore, snapshot);
+          lastError = '';
+          return true;
+        }
+        const mvu = await requireMvu();
+        if (mvu.isDuringExtraAnalysis?.()) return false;
+        const current = latestPersistedState(mvu);
+        if (recoverCompletedCurrentTransaction(current)) return true;
+        if (await recoverRecordedAnomalyResolution(mvu, current)) return true;
+        const recorded = findRecordedLocalSettlement(activeMessages(), current);
+        if (!recorded) return false;
+        const before = persistedStateBefore(mvu, recorded.assistantMessageId) ?? current;
+        await persistLocalSettlement(before, recorded.action, recorded.assistantMessageId, recorded.assistantText);
+        const reconciled = transactions.read();
+        if (reconciled.assistantResponded && reconciled.assistantMessageId === recorded.assistantMessageId) {
+          pendingSettlement = null;
+          pendingOwnershipBefore = null;
+          assistantObservedAt = 0;
+          transactions.markSettlementSucceeded();
+          lastError = '';
+        }
+        return true;
+      } catch (error) {
+        lastError = error instanceof Error ? error.message : String(error);
+        if ((pendingSettlement || pendingOwnershipBefore || pendingSystemOperation) && snapshot.assistantResponded) {
+          transactions.markSettlementFailed(error);
+        }
+        if (attemptForceReady) throw error;
+        return false;
+      }
+    });
+  };
+
+  const requirePendingSettlement = async () => {
+    await settlePendingAfterReply(true);
+    let snapshot = transactions.read();
+    // A background readiness probe may have owned the shared promise. Run the
+    // force-ready pass once more after it releases the slot.
+    if (snapshot.phase === 'settling') {
+      await settlePendingAfterReply(true);
+      snapshot = transactions.read();
+    }
+    if (snapshot.phase !== 'settled') {
+      throw new Error(snapshot.lastError || '回复已收到，但本地游戏状态尚未完成结算');
+    }
+    return snapshot;
   };
 
   return {
@@ -572,7 +710,7 @@ export function createHostBridge(): GardenBridge | null {
       ));
       const content = `${message.trim()}\n\n${marker}`;
       if (!message.trim() || content.length > 6000) throw new Error('开场消息应为 1–6000 个字符');
-      await transactions.submit({
+      const snapshot = await transactions.submit({
         kind: 'opening',
         transactionId: `opening-${encodeURIComponent(frozenChatId)}`,
         message: content,
@@ -581,6 +719,8 @@ export function createHostBridge(): GardenBridge | null {
           || withoutMarker(item.message) === expectedBody
         ),
       });
+      if (!snapshot.assistantResponded) throw new Error(snapshot.lastError || '没有收到完整的开场回复');
+      transactions.markSettlementSucceeded();
       return { messageCreated: !exists, generationTriggered: true };
     },
     async enterGarden(expectedChatId: string) {
@@ -626,13 +766,15 @@ export function createHostBridge(): GardenBridge | null {
         '',
         marker,
       ].join('\n');
-      await transactions.submit({
+      const snapshot = await transactions.submit({
         kind: 'opening',
         transactionId: `opening-repair-${encodeURIComponent(frozenChatId)}`,
         message,
         matchesExisting: (item) =>
           item.role === 'user' && String(item.message ?? '').includes(marker),
       });
+      if (!snapshot.assistantResponded) throw new Error(snapshot.lastError || '没有收到完整的开场修复回复');
+      transactions.markSettlementSucceeded();
       return { messageCreated: !exists };
     },
     async listMessages() {
@@ -642,43 +784,121 @@ export function createHostBridge(): GardenBridge | null {
       return normalizeMessages(readRawMessages({ include_swipes: false, hide_state: 'all' }));
     },
     async sendUserMessage(text, kind = 'interaction') {
+      if (transactionOperationInFlight) throw new Error('上一条消息仍在生成或结算中，请稍候');
+      transactionOperationInFlight = true;
       const value = text.trim();
-      if (!value || value.length > 6000) throw new Error('消息应为 1–6000 个字符');
-      const mvu = await requireMvu();
-      let before = latestPersistedState(mvu);
-      const action = localSettlementAction(value, before);
-      if (action) before = await persistStagedLocalSession(before, action);
-      pendingOwnershipBefore = structuredClone(before);
-      pendingSettlement = action ? { before: structuredClone(before), action } : null;
-      pendingVariableEpoch = variableUpdateEpoch;
-      assistantObservedAt = 0;
       try {
+        if (!value || value.length > 6000) throw new Error('消息应为 1–6000 个字符');
+        const mvu = await requireMvu();
+        let before = latestPersistedState(mvu);
+        const action = localSettlementAction(value, before);
+        if (action) before = await persistStagedLocalSession(before, action);
+        pendingOwnershipBefore = structuredClone(before);
+        pendingSettlement = action ? { before: structuredClone(before), action } : null;
+        pendingVariableEpoch = variableUpdateEpoch;
+        assistantObservedAt = 0;
         const snapshot = await transactions.submit({ kind, message: value });
-        if (snapshot.assistantResponded) assistantObservedAt = Date.now();
+        if (!snapshot.assistantResponded) {
+          throw new Error(snapshot.lastError || '没有收到 assistant 回复，可以安全重试');
+        }
+        assistantObservedAt = Date.now();
         await waitForVariableStage();
-        await settlePendingAfterReply(true);
-        return transactions.read();
+        return await requirePendingSettlement();
       } catch (error) {
         lastError = error instanceof Error ? error.message : String(error);
+        const snapshot = transactions.read();
+        if (snapshot.assistantResponded || snapshot.phase === 'settling') {
+          transactions.markSettlementFailed(error);
+        }
         throw error;
+      } finally {
+        transactionOperationInFlight = false;
+      }
+    },
+    async sendAnomalyResolution(text) {
+      if (transactionOperationInFlight) throw new Error('上一条消息仍在生成或结算中，请稍候');
+      transactionOperationInFlight = true;
+      const value = text.trim();
+      const operationId = `anomaly-resolution:${Date.now().toString(36)}`;
+      try {
+        if (!value || value.length > 6000) throw new Error('消息应为 1–6000 个字符');
+        const mvu = await requireMvu();
+        const before = latestPersistedState(mvu);
+        if (before.anomaly_cycle?.active?.status !== 'resolving') {
+          throw new Error('当前异变尚未进入最终收束阶段');
+        }
+        pendingOwnershipBefore = structuredClone(before);
+        pendingSettlement = null;
+        pendingSystemOperation = { type: 'anomaly_resolution', operationId };
+        pendingVariableEpoch = variableUpdateEpoch;
+        assistantObservedAt = 0;
+        const snapshot = await transactions.submit({
+          kind: 'settlement',
+          message: value,
+          transactionId: operationId,
+          extra: {
+            gensokyoSystemOperation: {
+              version: 'system-operation.v1',
+              operationId,
+              type: 'anomaly_resolution',
+            },
+          },
+        });
+        if (!snapshot.assistantResponded) {
+          throw new Error(snapshot.lastError || '没有收到 assistant 回复，可以安全重试');
+        }
+        assistantObservedAt = Date.now();
+        await waitForVariableStage();
+        return await requirePendingSettlement();
+      } catch (error) {
+        lastError = error instanceof Error ? error.message : String(error);
+        const snapshot = transactions.read();
+        if (snapshot.assistantResponded || snapshot.phase === 'settling') {
+          transactions.markSettlementFailed(error);
+        }
+        throw error;
+      } finally {
+        transactionOperationInFlight = false;
       }
     },
     async getTransactionState() {
-      return transactions.read();
+      const current = readTransaction();
+      if (regenerationPhase !== 'idle') {
+        return {
+          ...current,
+          phase: regenerationPhase,
+          lastError: undefined,
+        };
+      }
+      if (hostGenerationActive && !['submitting_user', 'generating', 'settling'].includes(current.phase)) {
+        return { ...current, phase: 'generating', lastError: undefined };
+      }
+      return current;
     },
     async retryLastTransaction() {
-      const current = transactions.read();
-      if ((pendingSettlement || pendingOwnershipBefore) && current.assistantResponded) {
-        assistantObservedAt ||= Date.now();
+      if (transactionOperationInFlight) throw new Error('上一条消息仍在生成或结算中，请稍候');
+      transactionOperationInFlight = true;
+      try {
+        const current = transactions.read();
+        if ((pendingSettlement || pendingOwnershipBefore) && current.assistantResponded) {
+          assistantObservedAt ||= Date.now();
+          await waitForVariableStage();
+          return await requirePendingSettlement();
+        }
+        const snapshot = await transactions.retry();
+        if (!snapshot.assistantResponded) {
+          throw new Error(snapshot.lastError || '重试后仍没有收到 assistant 回复');
+        }
+        assistantObservedAt = Date.now();
+        if (!pendingSettlement && !pendingOwnershipBefore) {
+          transactions.markSettlementSucceeded();
+          return transactions.read();
+        }
         await waitForVariableStage();
-        await settlePendingAfterReply(true);
-        return transactions.read();
+        return await requirePendingSettlement();
+      } finally {
+        transactionOperationInFlight = false;
       }
-      const snapshot = await transactions.retry();
-      if (snapshot.assistantResponded) assistantObservedAt = Date.now();
-      await waitForVariableStage();
-      await settlePendingAfterReply(true);
-      return transactions.read();
     },
     async stageBattleResult(result: BattleResult) {
       const mvu = await requireMvu();
@@ -715,7 +935,11 @@ export function createHostBridge(): GardenBridge | null {
       if (before.battle?.rewarded_ids?.includes(result.settlement_id)) {
         return { rewardCoins: dungeonReward(result.outcome as 'clean_win' | 'narrow_win' | 'loss'), alreadySettled: true };
       }
-      const next = settleLocalDungeonResult(before, result);
+      const next = reconcileM2Runtime(
+        before,
+        settleLocalDungeonResult(before, result),
+        currentChatId(),
+      );
       latest.data.stat_data = next;
       await mvu.replaceMvuData(latest.data, latest.options);
       const reread = migrateGardenState(mvu.getMvuData(latest.options).stat_data ?? {});
@@ -725,6 +949,11 @@ export function createHostBridge(): GardenBridge | null {
       return { rewardCoins: dungeonReward(result.outcome as 'clean_win' | 'narrow_win' | 'loss'), alreadySettled: false };
     },
     async applyTestJump(jump: TestJumpId) {
+      const transaction = transactions.read();
+      if (transactionOperationInFlight || hostGenerationActive || regenerationPhase !== 'idle'
+        || ['submitting_user', 'generating', 'settling'].includes(transaction.phase)) {
+        throw new Error('当前回复仍在生成或同步状态，请完成本轮后再使用测试快进');
+      }
       const mvu = await requireMvu();
       if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持测试快进');
       const latest = latestPersistedMessage(mvu);
@@ -733,7 +962,7 @@ export function createHostBridge(): GardenBridge | null {
       latest.data.stat_data = next;
       await mvu.replaceMvuData(latest.data, latest.options);
       const reread = migrateGardenState(mvu.getMvuData(latest.options).stat_data ?? {});
-      if (Boolean(reread.battle?.dungeon_unlocked) !== (jump !== 'greenhouse_ready')) throw new Error('测试快进复读校验失败');
+      if (!testJumpReached(reread, jump)) throw new Error('测试快进复读校验失败');
     },
     async purchaseShopItem(itemId: string, purchaseId: string) {
       const mvu = await requireMvu();
@@ -746,17 +975,89 @@ export function createHostBridge(): GardenBridge | null {
       const reread = migrateGardenState(mvu.getMvuData(latest.options).stat_data ?? {});
       if (!reread.shop?.purchase_settled_ids?.includes(purchaseId)) throw new Error('小店购买复读校验失败');
     },
-    async useSpecialItem(itemId: string, useId: string) {
+    async useSpecialItem(itemId: string, useId: string, form?: Partial<AnomalyActivationForm>) {
       const mvu = await requireMvu();
       if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持本地道具使用');
       const latest = latestPersistedMessage(mvu);
       if (!latest) throw new Error('没有可承载道具使用的 assistant 楼层');
-      const result = applySpecialItemUse(migrateGardenState(latest.state), itemId, useId);
+      const result = applySpecialItemUse(migrateGardenState(latest.state), itemId, useId, form);
       latest.data.stat_data = result.state;
       await mvu.replaceMvuData(latest.data, latest.options);
       const reread = migrateGardenState(mvu.getMvuData(latest.options).stat_data ?? {});
-      if (!reread.events?.settled_ids?.includes(useId)) throw new Error('道具使用复读校验失败');
+      if (itemId === 'incident_trigger_card') {
+        if (reread.anomaly_cycle?.pending_activation?.transaction_id !== useId
+          && reread.anomaly_cycle?.active?.anomaly_id !== useId
+          && !reread.events?.settled_ids?.includes(useId)) {
+          throw new Error('道具使用复读校验失败');
+        }
+      } else if (!reread.events?.settled_ids?.includes(useId)) {
+        throw new Error('道具使用复读校验失败');
+      }
       return result.message;
+    },
+    async finalizeAnomalyActivation(origin: AnomalyHiddenOrigin, publicSummary = '') {
+      const mvu = await requireMvu();
+      if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持异变提交');
+      const latest = latestPersistedMessage(mvu);
+      if (!latest) throw new Error('没有可承载异变提交的 assistant 楼层');
+      const result = finalizeAnomalyCardUse(migrateGardenState(latest.state), origin, publicSummary);
+      latest.data.stat_data = result.state;
+      await mvu.replaceMvuData(latest.data, latest.options);
+      const reread = migrateGardenState(mvu.getMvuData(latest.options).stat_data ?? {});
+      if (!reread.anomaly_cycle?.active) throw new Error('异变启用复读校验失败');
+      return result.message;
+    },
+    async cancelAnomalyActivation(transactionId?: string) {
+      const mvu = await requireMvu();
+      if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持异变取消');
+      const latest = latestPersistedMessage(mvu);
+      if (!latest) throw new Error('没有可承载异变取消的 assistant 楼层');
+      const result = abortAnomalyCardUse(migrateGardenState(latest.state), transactionId);
+      latest.data.stat_data = result.state;
+      await mvu.replaceMvuData(latest.data, latest.options);
+      return result.message;
+    },
+    async recordAnomalyClue(summary: string) {
+      const mvu = await requireMvu();
+      if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持异变调查写入');
+      const latest = latestPersistedMessage(mvu);
+      if (!latest) throw new Error('没有可承载异变调查的 assistant 楼层');
+      latest.data.stat_data = appendDailyClue(migrateGardenState(latest.state), summary);
+      await mvu.replaceMvuData(latest.data, latest.options);
+    },
+    async resolveActiveAnomaly(resolutionMessageId: number | null = null) {
+      const mvu = await requireMvu();
+      if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持异变收束写入');
+      const latest = latestPersistedMessage(mvu);
+      if (!latest) throw new Error('没有可承载异变收束的 assistant 楼层');
+      latest.data.stat_data = resolveAnomaly(migrateGardenState(latest.state), resolutionMessageId);
+      await mvu.replaceMvuData(latest.data, latest.options);
+    },
+    async applyM2Command(command) {
+      if (command.type === 'end_conversation_local') {
+        const transaction = transactions.read();
+        if (transactionOperationInFlight || hostGenerationActive || regenerationPhase !== 'idle'
+          || ['submitting_user', 'generating', 'settling'].includes(transaction.phase)) {
+          throw new Error('当前回复仍在生成或同步状态，不能提前结束聊天');
+        }
+      }
+      const mvu = await requireMvu();
+      if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持 M2 本地事务');
+      const latest = latestPersistedMessage(mvu);
+      if (!latest) throw new Error('没有可承载 M2 本地事务的 assistant 楼层');
+      const applied = applyLocalM2Command(migrateGardenState(latest.state), command, currentChatId());
+      latest.data.stat_data = applied.state;
+      await mvu.replaceMvuData(latest.data, latest.options);
+      if (command.type === 'end_conversation_local') {
+        pendingSettlement = null;
+        pendingOwnershipBefore = null;
+        pendingSystemOperation = null;
+        pendingVariableEpoch = variableUpdateEpoch;
+        assistantObservedAt = 0;
+        transactions.resetAfterLocalEnd();
+        lastError = '';
+      }
+      return applied.result;
     },
     async continueGeneration() {
       await g.triggerSlash?.('/continue await=true');
@@ -767,7 +1068,52 @@ export function createHostBridge(): GardenBridge | null {
       return stopped;
     },
     async regenerateLatest() {
-      await g.triggerSlash?.('/regenerate await=true');
+      if (transactionOperationInFlight || regenerationPhase !== 'idle') {
+        throw new Error('上一条消息仍在生成或结算中，请稍候');
+      }
+      transactionOperationInFlight = true;
+      regenerationPhase = 'generating';
+      try {
+        const mvu = await requireMvu();
+        if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持安全重新生成');
+        const latestAssistant = activeMessages()
+          .filter((message) => messageRole(message) === 'assistant')
+          .at(-1);
+        const targetMessageId = Number(latestAssistant?.message_id);
+        if (!Number.isInteger(targetMessageId) || targetMessageId < 0) {
+          throw new Error('没有找到可重新生成的 assistant 楼层');
+        }
+        const protectedBefore = latestPersistedState(mvu);
+        const baselineEpoch = variableUpdateEpoch;
+        const startedEpoch = hostGenerationStartedEpoch;
+        hostGenerationActive = true;
+        await g.triggerSlash?.('/regenerate await=true');
+        if (hostGenerationStartedEpoch === startedEpoch) hostGenerationActive = false;
+        regenerationPhase = 'settling';
+        const waitStartedAt = Date.now();
+        while (mvu.isDuringExtraAnalysis?.()
+          || (variableUpdateEpoch <= baselineEpoch && Date.now() - waitStartedAt < 2500)) {
+          if (Date.now() - waitStartedAt >= 90000) {
+            throw new Error('重新生成后的变量同步超过 90 秒');
+          }
+          await new Promise<void>((resolve) => globalThis.setTimeout(resolve, 100));
+        }
+        const options = { type: 'message', message_id: targetMessageId };
+        const data = structuredClone(mvu.getMvuData(options)) as Record<string, unknown>;
+        const current = isRecord(data.stat_data) ? data.stat_data as GardenState : {};
+        const raw = activeMessages().find((message) => Number(message.message_id) === targetMessageId);
+        const assistantText = String(raw?.message ?? raw?.mes ?? '');
+        data.stat_data = reconcileM2Runtime(
+          protectedBefore,
+          applyPresenceUpdate(restoreLocalEventOwnership(protectedBefore, current), assistantText),
+          currentChatId(),
+        );
+        await mvu.replaceMvuData(data, options);
+      } finally {
+        hostGenerationActive = false;
+        regenerationPhase = 'idle';
+        transactionOperationInFlight = false;
+      }
     },
     async swipeLatest(direction = 'right') {
       await g.triggerSlash?.(`/swipe await=true direction=${direction === 'left' ? 'left' : 'right'}`);
@@ -784,7 +1130,7 @@ export function createHostBridge(): GardenBridge | null {
         tavernVersion: g.getTavernVersion?.() ?? 'unknown',
         helperVersion: g.getTavernHelperVersion?.() ?? 'unknown',
         mvuReady,
-        bridgeVersion: '0.4.3-host-generate-r23',
+        bridgeVersion: '0.4.3-host-generate-r26',
         databaseAvailable: Boolean(databaseApi()),
         databaseVersion: databaseApi() ? 'SP·数据库 VII / AutoCardUpdaterAPI' : '未加载',
         lastError: lastError || undefined,
@@ -801,10 +1147,23 @@ export function createHostBridge(): GardenBridge | null {
       subscribe(g.tavern_events?.MESSAGE_UPDATED);
       subscribe(g.tavern_events?.MESSAGE_SWIPED);
       subscribe(g.tavern_events?.CHAT_CHANGED);
-      subscribe(g.tavern_events?.GENERATION_STARTED);
-      subscribe(g.tavern_events?.GENERATION_STOPPED);
+      if (g.tavern_events?.GENERATION_STARTED && g.eventOn) {
+        stops.push(g.eventOn(g.tavern_events.GENERATION_STARTED, () => {
+          hostGenerationActive = true;
+          hostGenerationStartedEpoch += 1;
+          refresh();
+        }).stop);
+      }
+      if (g.tavern_events?.GENERATION_STOPPED && g.eventOn) {
+        stops.push(g.eventOn(g.tavern_events.GENERATION_STOPPED, () => {
+          hostGenerationActive = false;
+          transactions.markStopped();
+          refresh();
+        }).stop);
+      }
       if (g.tavern_events?.GENERATION_ENDED && g.eventOn) {
         stops.push(g.eventOn(g.tavern_events.GENERATION_ENDED, () => {
+          hostGenerationActive = false;
           transactions.markGenerationEnded();
           refresh();
         }).stop);
@@ -933,6 +1292,11 @@ export function createPreviewBridge(): GardenBridge {
       });
       return structuredClone(transaction);
     },
+    async sendAnomalyResolution(text) {
+      const snapshot = await this.sendUserMessage(text, 'settlement');
+      Object.assign(previewState, resolveAnomaly(previewState, snapshot.assistantMessageId ?? null));
+      return snapshot;
+    },
     async getTransactionState() { return structuredClone(transaction); },
     async retryLastTransaction() { throw new Error('离线预览没有失败事务'); },
     async stageBattleResult(result: BattleResult) {
@@ -949,7 +1313,12 @@ export function createPreviewBridge(): GardenBridge {
       if (previewState.battle?.rewarded_ids?.includes(result.settlement_id)) {
         return { rewardCoins: dungeonReward(result.outcome as 'clean_win' | 'narrow_win' | 'loss'), alreadySettled: true };
       }
-      const next = settleLocalDungeonResult(previewState, result);
+      const before = structuredClone(previewState);
+      const next = reconcileM2Runtime(
+        before,
+        settleLocalDungeonResult(before, result),
+        'preview',
+      );
       Object.assign(previewState, next);
       return { rewardCoins: dungeonReward(result.outcome as 'clean_win' | 'narrow_win' | 'loss'), alreadySettled: false };
     },
@@ -959,10 +1328,31 @@ export function createPreviewBridge(): GardenBridge {
     async purchaseShopItem(itemId: string, purchaseId: string) {
       Object.assign(previewState, purchaseShopItem(previewState, itemId, purchaseId));
     },
-    async useSpecialItem(itemId: string, useId: string) {
-      const result = applySpecialItemUse(previewState, itemId, useId);
+    async useSpecialItem(itemId: string, useId: string, form?: Partial<AnomalyActivationForm>) {
+      const result = applySpecialItemUse(previewState, itemId, useId, form);
       Object.assign(previewState, result.state);
       return result.message;
+    },
+    async finalizeAnomalyActivation(origin: AnomalyHiddenOrigin, publicSummary = '') {
+      const result = finalizeAnomalyCardUse(previewState, origin, publicSummary);
+      Object.assign(previewState, result.state);
+      return result.message;
+    },
+    async cancelAnomalyActivation(transactionId?: string) {
+      const result = abortAnomalyCardUse(previewState, transactionId);
+      Object.assign(previewState, result.state);
+      return result.message;
+    },
+    async recordAnomalyClue(summary: string) {
+      Object.assign(previewState, appendDailyClue(previewState, summary));
+    },
+    async resolveActiveAnomaly(resolutionMessageId: number | null = null) {
+      Object.assign(previewState, resolveAnomaly(previewState, resolutionMessageId));
+    },
+    async applyM2Command(command) {
+      const applied = applyLocalM2Command(previewState, command, 'preview');
+      Object.assign(previewState, applied.state);
+      return applied.result;
     },
     async continueGeneration() { throw new Error('离线预览不支持继续生成'); },
     async stopGeneration() { return false; },

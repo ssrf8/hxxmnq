@@ -1,0 +1,148 @@
+{
+  "version": "facilities.v1",
+  "active_construction_limit": 1,
+  "facilities": [
+    {
+      "facility_id": "fairy_garden",
+      "title": "妖精花园",
+      "area_id": "fairy_garden_plot",
+      "build_cost_materials": 4,
+      "remodel_cost_materials": 2,
+      "representative_character_id": "cirno",
+      "default_participation_mode": "public",
+      "participation_fixed": true,
+      "forms": [
+        {
+          "form_id": "四季花境",
+          "summary": "观察季节与天气痕迹的自然花境",
+          "quick_actions": [
+            { "action_id": "observe_season", "label": "观察季节变化", "intent": "observe seasonal change" },
+            { "action_id": "tidy_flowerbed", "label": "整理花境", "intent": "tidy the flowerscape" },
+            { "action_id": "study_weather_trace", "label": "研究天气痕迹", "intent": "study weather traces" }
+          ],
+          "refit_candidates": ["cirno", "alice", "reimu"],
+          "risk_actions": []
+        },
+        {
+          "form_id": "妖精游乐庭",
+          "summary": "适合小游戏与恶作剧的游乐庭",
+          "quick_actions": [
+            { "action_id": "host_minigame", "label": "举办小游戏", "intent": "host a fairy minigame" },
+            { "action_id": "join_prank", "label": "加入恶作剧", "intent": "join a prank" },
+            { "action_id": "fairy_contest", "label": "发起妖精竞赛", "intent": "start a fairy contest", "risk_tag": "challenge" }
+          ],
+          "refit_candidates": ["cirno", "marisa", "reimu"],
+          "risk_actions": ["fairy_contest"]
+        },
+        {
+          "form_id": "冰露迷宫",
+          "summary": "冰与挑战并存的迷宫",
+          "quick_actions": [
+            { "action_id": "explore_maze", "label": "探索迷宫", "intent": "explore the ice maze" },
+            { "action_id": "ice_experiment", "label": "进行冰冻实验", "intent": "run a freezing experiment", "risk_tag": "experiment" },
+            { "action_id": "danmaku_challenge", "label": "发起符卡挑战", "intent": "start a danmaku challenge", "risk_tag": "challenge" }
+          ],
+          "refit_candidates": ["cirno", "marisa", "reimu"],
+          "risk_actions": ["ice_experiment", "danmaku_challenge"]
+        }
+      ]
+    },
+    {
+      "facility_id": "moon_spring",
+      "title": "月见温泉",
+      "area_id": "moon_spring_plot",
+      "build_cost_materials": 6,
+      "remodel_cost_materials": 2,
+      "representative_character_id": "sakuya",
+      "default_participation_mode": "public",
+      "participation_fixed": false,
+      "forms": [
+        {
+          "form_id": "露天月见汤",
+          "summary": "偏公开的赏月泡汤",
+          "default_mode": "public",
+          "quick_actions": [
+            { "action_id": "soak_chat", "label": "泡汤闲谈", "intent": "soak and chat" },
+            { "action_id": "moon_watch", "label": "赏月", "intent": "watch the moon" },
+            { "action_id": "night_weather", "label": "观察夜间天气", "intent": "observe night weather" }
+          ],
+          "refit_candidates": ["reimu", "marisa", "alice", "nitori"],
+          "risk_actions": []
+        },
+        {
+          "form_id": "静水观测池",
+          "summary": "偏观测与调查的静水池",
+          "default_mode": "invite_only",
+          "quick_actions": [
+            { "action_id": "observe_mana", "label": "观察魔力", "intent": "observe mana", "risk_tag": "experiment" },
+            { "action_id": "investigate_time_trace", "label": "调查时间痕迹", "intent": "investigate time traces", "risk_tag": "experiment" },
+            { "action_id": "reflect_anomaly", "label": "映照当前异变", "intent": "reflect the active anomaly", "risk_tag": "experiment" }
+          ],
+          "refit_candidates": ["sakuya", "reimu", "marisa", "nitori"],
+          "risk_actions": ["observe_mana", "investigate_time_trace", "reflect_anomaly"]
+        },
+        {
+          "form_id": "雾隐汤屋",
+          "summary": "默认独处的隐蔽汤屋",
+          "default_mode": "alone",
+          "force_no_refit_character": true,
+          "quick_actions": [
+            { "action_id": "solo_relax", "label": "独处放松", "intent": "relax alone" },
+            { "action_id": "private_talk", "label": "邀请私下交谈", "intent": "invite a private talk" },
+            { "action_id": "use_personal_item", "label": "使用随身道具", "intent": "use a personal item on site" }
+          ],
+          "refit_candidates": [],
+          "risk_actions": []
+        }
+      ]
+    },
+    {
+      "facility_id": "banquet_plaza",
+      "title": "宴会广场",
+      "area_id": "banquet_plaza_plot",
+      "build_cost_materials": 5,
+      "remodel_cost_materials": 2,
+      "representative_character_ids": ["mystia", "suika"],
+      "default_participation_mode": "public",
+      "participation_fixed": false,
+      "forms": [
+        {
+          "form_id": "灯火夜市",
+          "summary": "摊位与表演的夜市",
+          "default_mode": "public",
+          "quick_actions": [
+            { "action_id": "prepare_stall", "label": "筹办摊位", "intent": "prepare a stall" },
+            { "action_id": "watch_show", "label": "观看表演", "intent": "watch a performance" },
+            { "action_id": "browse_night_market", "label": "逛夜市", "intent": "browse the night market" }
+          ],
+          "refit_candidates": ["mystia", "marisa", "nitori"],
+          "risk_actions": []
+        },
+        {
+          "form_id": "鬼之大宴台",
+          "summary": "热闹宴席与聚会",
+          "default_mode": "public",
+          "quick_actions": [
+            { "action_id": "host_feast", "label": "举办宴席", "intent": "host a feast" },
+            { "action_id": "banquet_game", "label": "进行宴会游戏", "intent": "play banquet games" },
+            { "action_id": "group_chat", "label": "多人自由交流", "intent": "free group conversation" }
+          ],
+          "refit_candidates": ["suika", "mystia", "reimu"],
+          "risk_actions": []
+        },
+        {
+          "form_id": "符卡演武场",
+          "summary": "切磋与符卡展示",
+          "default_mode": "invite_only",
+          "quick_actions": [
+            { "action_id": "arrange_spar", "label": "安排切磋", "intent": "arrange a spar", "risk_tag": "challenge" },
+            { "action_id": "watch_match", "label": "观看比赛", "intent": "watch a match" },
+            { "action_id": "danmaku_showcase", "label": "举办符卡展示", "intent": "host a danmaku showcase", "risk_tag": "challenge" }
+          ],
+          "refit_candidates": ["reimu", "marisa", "cirno", "suika"],
+          "risk_actions": ["arrange_spar", "danmaku_showcase"]
+        }
+      ]
+    }
+  ]
+}

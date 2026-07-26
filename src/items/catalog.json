@@ -1,0 +1,112 @@
+{
+  "version": "items.v1",
+  "items": [
+    {
+      "item_id": "incident_trigger_card",
+      "title": "异变触发卡",
+      "item_type": "consumable",
+      "stack_limit": 99,
+      "use_mode": "anomaly_authoring",
+      "scope_tags": ["anomaly"],
+      "unlock_conditions": ["shop_or_owned"],
+      "consume_policy": "on_commit",
+      "local_effect_id": "anomaly_authoring",
+      "prompt_description": "创建一次自定义七日异变的授权消耗品。",
+      "shop_price": 30,
+      "shop_unlock": "always_when_shop_open"
+    },
+    {
+      "item_id": "fairy_candy_pack",
+      "title": "妖精糖果包",
+      "item_type": "consumable",
+      "stack_limit": 99,
+      "use_mode": "scene_chat",
+      "scope_tags": ["fairy_garden", "character_chat", "gift"],
+      "unlock_conditions": ["facility_fairy_garden_built"],
+      "consume_policy": "on_commit",
+      "prompt_description": "分享糖果、吸引妖精或制造轻松游戏气氛。",
+      "shop_price": 8,
+      "shop_unlock": "facility_fairy_garden_built"
+    },
+    {
+      "item_id": "moon_viewing_tea",
+      "title": "月见茶",
+      "item_type": "consumable",
+      "stack_limit": 99,
+      "use_mode": "scene_chat",
+      "scope_tags": ["moon_spring", "character_chat", "gift"],
+      "unlock_conditions": ["facility_moon_spring_built"],
+      "consume_policy": "on_commit",
+      "prompt_description": "泡一壶月见茶，适合夜谈与安静陪伴。",
+      "shop_price": 10,
+      "shop_unlock": "facility_moon_spring_built"
+    },
+    {
+      "item_id": "hot_spring_sachet",
+      "title": "温泉香包",
+      "item_type": "consumable",
+      "stack_limit": 99,
+      "use_mode": "scene_chat",
+      "scope_tags": ["moon_spring"],
+      "unlock_conditions": ["facility_moon_spring_built"],
+      "consume_policy": "on_commit",
+      "prompt_description": "改变温泉气味与氛围，仅限月见温泉场景。",
+      "shop_price": 12,
+      "shop_unlock": "facility_moon_spring_built"
+    },
+    {
+      "item_id": "banquet_bento",
+      "title": "宴会食盒",
+      "item_type": "consumable",
+      "stack_limit": 99,
+      "use_mode": "scene_chat",
+      "scope_tags": ["banquet", "character_chat", "gift"],
+      "unlock_conditions": ["facility_banquet_plaza_built"],
+      "consume_policy": "on_commit",
+      "prompt_description": "分享食物，营造宴会或闲聊的分享气氛。",
+      "shop_price": 14,
+      "shop_unlock": "facility_banquet_plaza_built"
+    },
+    {
+      "item_id": "oni_sake_flask",
+      "title": "小瓶鬼酒",
+      "item_type": "consumable",
+      "stack_limit": 99,
+      "use_mode": "scene_chat",
+      "scope_tags": ["banquet", "character_chat", "gift"],
+      "unlock_conditions": ["facility_banquet_plaza_built"],
+      "consume_policy": "on_commit",
+      "prompt_description": "改变本场景表现，不新增醉酒数值或长期状态。",
+      "shop_price": 16,
+      "shop_unlock": "facility_banquet_plaza_built"
+    },
+    {
+      "item_id": "emergency_repair_kit",
+      "title": "应急修缮包",
+      "item_type": "consumable",
+      "stack_limit": 99,
+      "use_mode": "local",
+      "scope_tags": ["facility_repair"],
+      "unlock_conditions": ["any_followup_facility_built"],
+      "consume_policy": "on_commit",
+      "local_effect_id": "repair_kit_substitute",
+      "prompt_description": "可替代损坏设施修复所需的 2 物资，仍需完成修复剧情。",
+      "shop_price": 18,
+      "shop_unlock": "any_followup_facility_built"
+    },
+    {
+      "item_id": "sakuya_watch",
+      "title": "十六夜咲夜的怀表",
+      "item_type": "key_item",
+      "stack_limit": 1,
+      "use_mode": "local",
+      "scope_tags": ["time_trace"],
+      "unlock_conditions": ["shop_unique"],
+      "consume_policy": "never",
+      "local_effect_id": "sakuya_watch",
+      "prompt_description": "永久关键物品。每日最多成功使用一次，留下五分钟停顿与时间痕迹，不推进正式时段。",
+      "shop_price": 80,
+      "shop_unlock": "shop_unique"
+    }
+  ]
+}

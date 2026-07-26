@@ -1,20 +1,18 @@
 import dialogues from '../shop/dialogues.json';
-import type { GardenState } from './types';
+import type { AnomalyActivationForm, GardenState } from './types';
+import {
+  cancelAnomalyActivation,
+  canStartAnomaly,
+  commitAnomalyActivation,
+  createDeterministicAnomalyOrigin,
+  reserveAnomalyActivation,
+} from './anomaly-rules';
+import { periodSerialFromState } from './time-rules';
 
 const MAX_EVENT_SETTLEMENT_IDS = 256;
-const INCIDENT_IDS = ['fairy_seed_shower', 'wandering_magic_mist'] as const;
 
 function validateUseId(useId: string) {
   if (!/^[A-Za-z0-9._:-]{1,96}$/u.test(useId)) throw new Error('道具使用 ID 非法');
-}
-
-function deterministicIndex(value: string, length: number) {
-  let hash = 2166136261;
-  for (const character of value) {
-    hash ^= character.codePointAt(0) ?? 0;
-    hash = Math.imul(hash, 16777619);
-  }
-  return (hash >>> 0) % length;
 }
 
 function appendSettlementId(state: GardenState, useId: string) {
@@ -30,34 +28,79 @@ export interface SpecialItemUseResult {
   state: GardenState;
   message: string;
   selectedEventId?: string;
+  pendingAnomaly?: boolean;
 }
 
-export function useIncidentTriggerCard(before: GardenState, useId: string): SpecialItemUseResult {
+/**
+ * R39: incident card reserves a custom seven-day anomaly instead of rolling pre-registered incidents.
+ * Legacy waiting_events already in saves remain completable and are never auto-promoted.
+ */
+export function beginAnomalyCardUse(
+  before: GardenState,
+  useId: string,
+  form: Partial<AnomalyActivationForm>,
+): SpecialItemUseResult {
+  validateUseId(useId);
+  if (before.events?.settled_ids?.includes(useId) && before.anomaly_cycle?.active?.anomaly_id === useId) {
+    return { state: structuredClone(before), message: '该异变启用已经结算' };
+  }
+  const blocked = canStartAnomaly(before);
+  if (blocked) throw new Error(blocked);
+  const state = reserveAnomalyActivation(before, form, useId);
+  return {
+    state,
+    message: '已预留异变卡，等待生成启用剧情与隐藏源头。失败可重试且不扣卡。',
+    pendingAnomaly: true,
+  };
+}
+
+/** Atomically consumes the card and establishes the seven-day anomaly. */
+export function activateAnomalyCard(
+  before: GardenState,
+  useId: string,
+  form: Partial<AnomalyActivationForm>,
+): SpecialItemUseResult {
   validateUseId(useId);
   if (before.events?.settled_ids?.includes(useId)) {
-    return { state: structuredClone(before), message: dialogues.dialogues.trigger_card_used };
+    return { state: structuredClone(before), message: '该异变启用已经结算' };
   }
-  if ((before.inventory?.consumables?.incident_trigger_card ?? 0) < 1) throw new Error('没有可用的异变触发卡');
-  if ((before.events?.waiting_events?.length ?? 0) >= 3) throw new Error('等待事件队列已满，卡片没有消耗');
-  const eligible: string[] = [...INCIDENT_IDS];
-  if (before.key_items?.sakuya_watch?.temporal_trace_active) eligible.push('clockwork_temporal_ripple');
-  const available = eligible.filter((eventId) => !waitingHas(before, eventId));
-  if (!available.length) throw new Error('当前没有可登记的新异变，卡片没有消耗');
-  const selectedEventId = available[deterministicIndex(useId, available.length)];
-  const state = structuredClone(before);
-  state.inventory ??= { consumables: {} };
-  state.inventory.consumables ??= {};
-  state.inventory.consumables.incident_trigger_card = (state.inventory.consumables.incident_trigger_card ?? 0) - 1;
-  state.events ??= {};
-  state.events.waiting_events ??= [];
-  state.events.waiting_events.push({
-    uid: `waiting:${useId}`,
-    config_id: selectedEventId,
-    title: selectedEventId === 'fairy_seed_shower' ? '妖精种子雨' : selectedEventId === 'wandering_magic_mist' ? '游荡魔法雾' : '发条时间涟漪',
-    status: 'waiting',
-  });
+  const reserved = reserveAnomalyActivation(before, form, useId);
+  const generated = createDeterministicAnomalyOrigin(form, useId);
+  const state = commitAnomalyActivation(reserved, generated.origin, generated.publicSummary);
   appendSettlementId(state, useId);
-  return { state, message: dialogues.dialogues.trigger_card_used, selectedEventId };
+  return {
+    state,
+    message: `自定义异变「${state.anomaly_cycle?.active?.title}」已启用，将持续 28 个标准时段。`,
+  };
+}
+
+export function finalizeAnomalyCardUse(
+  before: GardenState,
+  origin: {
+    name: string;
+    type: string;
+    summary: string;
+    location: string;
+    cause: string;
+    resolution_method: string;
+  },
+  publicSummary = '',
+): SpecialItemUseResult {
+  const pending = before.anomaly_cycle?.pending_activation;
+  if (!pending) throw new Error('没有待提交的异变启用');
+  const state = commitAnomalyActivation(before, origin, publicSummary);
+  appendSettlementId(state, pending.transaction_id);
+  return {
+    state,
+    message: `自定义异变「${state.anomaly_cycle?.active?.title}」已启用，将持续 28 个标准时段。`,
+  };
+}
+
+export function abortAnomalyCardUse(before: GardenState, transactionId?: string): SpecialItemUseResult {
+  return {
+    state: cancelAnomalyActivation(before, transactionId),
+    message: '已取消异变启用，卡片已退回。',
+  };
 }
 
 export function useSakuyaWatch(before: GardenState, useId: string): SpecialItemUseResult {
@@ -72,6 +115,7 @@ export function useSakuyaWatch(before: GardenState, useId: string): SpecialItemU
   if (before.battle?.current || before.events?.active_event || before.interaction?.current_session) {
     throw new Error('战斗、固定剧情或受控会话进行中，不能启动怀表');
   }
+  const serialBefore = periodSerialFromState(before);
   const state = structuredClone(before);
   const nextWatch = state.key_items!.sakuya_watch;
   nextWatch.state = 'daily_cooldown';
@@ -85,6 +129,10 @@ export function useSakuyaWatch(before: GardenState, useId: string): SpecialItemU
   const reimuPresent = state.presence_snapshot?.present_character_ids?.includes('reimu');
   if (reimuPresent && (!reimuView?.area_id || reimuView.area_id === nextWatch.last_used_area_id)) {
     nextWatch.noticed_by_character_ids = Array.from(new Set([...nextWatch.noticed_by_character_ids, 'reimu']));
+  }
+  // Watch pause must not advance period serial / anomaly timers / facility unlock deadlines.
+  if (periodSerialFromState(state) !== serialBefore) {
+    throw new Error('怀表不得推进正式时段');
   }
   state.events ??= {};
   state.events.waiting_events ??= [];
@@ -103,8 +151,16 @@ export function useSakuyaWatch(before: GardenState, useId: string): SpecialItemU
   return { state, message: dialogues.dialogues.watch_used };
 }
 
-export function useSpecialItem(before: GardenState, itemId: string, useId: string): SpecialItemUseResult {
-  if (itemId === 'incident_trigger_card') return useIncidentTriggerCard(before, useId);
+export function useSpecialItem(
+  before: GardenState,
+  itemId: string,
+  useId: string,
+  form?: Partial<AnomalyActivationForm>,
+): SpecialItemUseResult {
+  if (itemId === 'incident_trigger_card') {
+    if (!form) throw new Error('启用异变需要填写结构化表单');
+    return activateAnomalyCard(before, useId, form);
+  }
   if (itemId === 'sakuya_watch') return useSakuyaWatch(before, useId);
   throw new Error('该物品没有登记本地使用能力');
 }

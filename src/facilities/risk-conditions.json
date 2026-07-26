@@ -1,0 +1,41 @@
+{
+  "version": "risk.v1",
+  "trigger_rate_percent": 10,
+  "severity_weights": { "abnormal": 70, "damaged": 30 },
+  "first_form_action_protected": true,
+  "cooldown_periods": 28,
+  "conditions": {
+    "fairy_contest": [
+      { "condition_id": "fairy_garden_trampled_beds", "severity": "abnormal", "label": "花圃被踩乱" },
+      { "condition_id": "fairy_garden_broken_fence", "severity": "damaged", "label": "围栏损坏" }
+    ],
+    "ice_experiment": [
+      { "condition_id": "fairy_garden_local_frost", "severity": "abnormal", "label": "局部结霜异常" },
+      { "condition_id": "fairy_garden_pipe_crack", "severity": "damaged", "label": "水道冻裂" }
+    ],
+    "danmaku_challenge": [
+      { "condition_id": "fairy_garden_scorch_marks", "severity": "abnormal", "label": "符卡灼痕" },
+      { "condition_id": "fairy_garden_structure_chip", "severity": "damaged", "label": "结构崩边" }
+    ],
+    "observe_mana": [
+      { "condition_id": "moon_spring_ripple_noise", "severity": "abnormal", "label": "静水涟漪紊乱" },
+      { "condition_id": "moon_spring_basin_crack", "severity": "damaged", "label": "观测池裂痕" }
+    ],
+    "investigate_time_trace": [
+      { "condition_id": "moon_spring_time_haze", "severity": "abnormal", "label": "时间薄雾" },
+      { "condition_id": "moon_spring_clockwork_jam", "severity": "damaged", "label": "观测装置卡滞" }
+    ],
+    "reflect_anomaly": [
+      { "condition_id": "moon_spring_mirror_fog", "severity": "abnormal", "label": "映照雾化" },
+      { "condition_id": "moon_spring_mirror_fracture", "severity": "damaged", "label": "映照面碎裂" }
+    ],
+    "arrange_spar": [
+      { "condition_id": "banquet_arena_dust", "severity": "abnormal", "label": "演武场扬尘" },
+      { "condition_id": "banquet_arena_floor_damage", "severity": "damaged", "label": "场地地板损伤" }
+    ],
+    "danmaku_showcase": [
+      { "condition_id": "banquet_arena_residue", "severity": "abnormal", "label": "符卡残渣" },
+      { "condition_id": "banquet_arena_barrier_tear", "severity": "damaged", "label": "防护结界撕裂" }
+    ]
+  }
+}

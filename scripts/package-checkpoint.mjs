@@ -129,7 +129,7 @@ const loreEntries = [
   entry(0, '[mvu_plot][core] 角色卡身份与玩家权边界', identity, [], true),
   entry(1, '[mvu_plot][core] 会移动的结界领地', movingGarden, [], true),
   entry(2, '[mvu_update] 变量更新规则', variableRules, [], true, 'after_char'),
-  entry(3, '[mvu_plot][mvu_update] 最新 MVU 状态', projection, [], true, 'after_char', 0, 4),
+  entry(3, '[mvu_update] 最新 MVU 状态（含本地私有字段）', projection, [], true, 'after_char', 0, 4),
   entry(8, '[mvu_update] 变量输出格式', variableOutputFormat, [], true, 'after_char'),
   entry(7, '[mvu_plot][interaction] GAL 表现与会话协议', galPresentation, [], true, 'after_char'),
   entry(4, '[mvu_plot][opening] 确定性开场后的首次行动引导', `${openingGuidance}\n\n旧版开场兼容格式：\n${openingTemplate}`, ['庭守钥', '荒废庭园', '第一次行动'], false),
@@ -187,7 +187,7 @@ const data = {
     entries: loreEntries,
   },
 };
-const payload = { spec: 'chara_card_v2', spec_version: '2.0', ...data, data };
+const payload = { spec: 'chara_card_v2', spec_version: '2.0', data };
 const serialized = `${JSON.stringify(payload, null, 2)}\n`;
 const report = {
   mode: DRY_RUN ? 'dry-run' : 'write',

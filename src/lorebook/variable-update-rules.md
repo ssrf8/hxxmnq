@@ -17,7 +17,7 @@
 ## 写入所有权
 
 - 变量模型可写：非受控自由互动产生的关系事实、覆盖式交互摘要、普通位置/环境变化、开放支线、长期记忆，以及正文明确产生且未由本地规则接管的普通实体变化。
-- 本地 bridge 独占：`meta`；`resources`；`shop`；`inventory.consumables`；`key_items.sakuya_watch`；`battle`；`presence_snapshot`；`uid_counters`；`events.settled_ids`；全部已登记主事件的完成态、资源成本、设施/区域推进；温室多轮会话的轮数、消息 ID、结算 ID；确定性开场字段。
+- 本地 bridge 独占：`meta`；`resources`；`shop`；`inventory`；`key_items`；`battle`；`presence_snapshot`；`uid_counters`；`events.settled_ids`；`anomaly_cycle`；`visit_scheduler`；`facility_runtime`；`garden_projects`；`garden_activities`；`pending_tasks`；`scene_item_context`；`ui_flags`；全部已登记主事件的完成态、资源成本、设施/区域推进；温室多轮会话的轮数、消息 ID、结算 ID；确定性开场字段。
 - 路径所有权不确定时保持原值；不得通过替换父对象绕过禁写子路径。
 
 ## 允许操作
@@ -72,8 +72,15 @@
 - `greenhouse_free_growth_proposal` 只在妖花核心已结算、`current_form=基础魔法温室` 且没有其他主要事件时可结算。它只登记 `wild_growth_plan_registered`、把“自由生长型温室”去重加入 `unlocked_forms` 并记录魔理沙合作事实；不改 `current_form`、资源、时段、设施效果或异变。夜间观察是普通自由支线，绝不写关键完成标记。
 - `nitori_greenhouse_automation_proposal` 只在妖花核心与自由生长方案已结算、`current_form=基础魔法温室` 且没有其他主要事件时可结算；它只登记 `kappa_automation_plan_registered`、把“河童自动化型温室”去重加入 `unlocked_forms` 并记录荷取工程验收事实；不要求先完成爱丽丝方案，也不改资源、时段、当前形态或设施效果。仪表校准是普通自由支线，绝不写关键完成标记。
 - `select_greenhouse_form` 只有在三项方案完成标记与三个改造形态同时齐备时开放；本地按明确 action/result 映射扣除 4 物资、推进一个时段并写入对应 `current_form` 与路线 effect。`remodel_greenhouse_form` 只能换到已解锁且不同于当前的形态，本地扣除 3 物资并推进一个时段；只替换三种路线 effect，保留通用设施效果、方案解锁和关系事实。每次选择使用 `events.settled_ids` 幂等，模型不得改变目标、成本或结算 ID。
-- 异变触发卡购买后增加 `inventory.consumables.incident_trigger_card`；使用时以 `use_id` 从当前满足条件的登记异变中确定性选择，原子写入最多 3 条的 `events.waiting_events` 后才消费 1 张。队列满、无候选或重复 ID 时不得消费或重抽。
+- 异变触发卡用于创建玩家填写的唯一自定义异变。使用时由本地事务直接扣卡、按稳定种子建立隐藏源头并锁定 28 个标准时段，不调用 LLM、不创建消息楼层；异变影响从下一次玩家主动聊天开始进入脱敏提示。异变不可主动结束、不可叠加；每日调查与最终收束才可读取隐藏源头。到期且空闲时可发起一次最终收尾；聊天中到期则结束聊天后生成待办，忽略 4 个标准时段后由本地默认归档。旧 `events.waiting_events` 只保留旧存档兼容，不能再由异变卡新增。
 - 咲夜怀表为 80 金币的唯一关键物品；成功使用只登记五分钟停顿、当日冷却、地点/时段、累计次数和时间痕迹，不推进或回退正式时段。战斗待结算、固定事件或受控会话期间禁止使用；第二次成功使用后可登记一次咲夜调查候选，但不强制咲夜常驻，也不创建紫或辉夜档案。
+
+## 开放庭园、设施与活动（M2）
+
+- 首次温室选型完成后教程正式结束；此后没有强制主线。三座后续设施的方案、成本、解锁、角色抽取、风险和恢复全部由本地命令决定，模型只演绎请求中已经给定的事实。
+- 普通聊天可以保持当前时间或最多推进一个标准时段。运行时在合法时间提交后统一处理 12/24 设施形态兜底、来访到离场、温泉结束和到期待办；变量模型不得直接写这些派生结果。宴会到点生成开始待办，异变到期生成收尾待办，两者忽略 4 个标准时段后均由本地代码默认完成。
+- 随机来访与邀请结果由代码按已登记角色档案和稳定 seed 决定。未列入 `presence_snapshot.present_character_ids` 的角色不得因为正文关键词出现在现场。
+- 场景道具一次回复最多新增一种，同一场景最多三种。只有完整回复和 MVU 更新成功后才由 bridge 消费；停止、失败、未采用 Swipe 不消费。普通“结束聊天”不再生成收尾回复，由本地原子清空 `scene_item_context`、绑定会话与活动并直接返回庭院。
 
 ## 时段取值（强制）
 

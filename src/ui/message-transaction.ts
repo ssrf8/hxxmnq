@@ -6,12 +6,14 @@ interface SubmitRequest {
   kind: MessageTransactionKind;
   message: string;
   transactionId?: string;
+  extra?: Record<string, unknown>;
   matchesExisting?: (message: RawMessage) => boolean;
 }
 
 interface TransactionHost {
   currentChatId(): string;
   listMessages(): RawMessage[];
+  isGenerationActive?(): boolean;
   createUserMessage(message: string, extra: Record<string, unknown>): Promise<void>;
   triggerGeneration(): Promise<void>;
   continueGeneration(): Promise<void>;
@@ -50,8 +52,10 @@ export class MessageTransactionCoordinator {
 
   async submit(request: SubmitRequest): Promise<MessageTransactionSnapshot> {
     this.reconcile();
-    if (['submitting_user', 'generating', 'settling'].includes(this.snapshot.phase)) {
-      throw new Error('上一条消息仍在处理中，请等待回复或停止生成');
+    if (!['idle', 'settled'].includes(this.snapshot.phase)) {
+      throw new Error(this.snapshot.phase === 'failed'
+        ? '上一条消息尚未完成，请先重试生成或本地结算'
+        : '上一条消息仍在处理中，请等待回复或停止生成');
     }
 
     const chatId = this.host.currentChatId().trim();
@@ -79,6 +83,7 @@ export class MessageTransactionCoordinator {
         await this.host.createUserMessage(request.message, {
           gensokyoTransactionId: id,
           gensokyoTransactionKind: request.kind,
+          ...(request.extra ?? {}),
         });
         if (this.host.currentChatId().trim() !== chatId) {
           throw new Error('聊天在消息创建期间发生切换');
@@ -90,9 +95,15 @@ export class MessageTransactionCoordinator {
 
       this.snapshot.phase = 'generating';
       await this.host.triggerGeneration();
+      await this.waitForAssistant();
+      const completedDuringGeneration = this.read();
+      if (completedDuringGeneration.phase === 'settled') return completedDuringGeneration;
       this.snapshot.phase = 'settling';
       this.reconcile(true);
-      if (!this.snapshot.assistantResponded) this.snapshot.phase = 'generating';
+      if (!this.snapshot.assistantResponded) {
+        this.snapshot.phase = 'failed';
+        this.snapshot.lastError = '生成命令已经结束，但没有收到可用的 assistant 正文；请求可能未启动，可以安全重试且不会重复创建玩家消息';
+      }
       return this.read();
     } catch (error) {
       this.snapshot.phase = 'failed';
@@ -110,7 +121,7 @@ export class MessageTransactionCoordinator {
       throw new Error('聊天已经切换，不能在新聊天中重试旧事务');
     }
     if (this.snapshot.assistantResponded) {
-      this.snapshot.phase = 'settled';
+      this.snapshot.phase = 'settling';
       return this.read();
     }
     const shouldContinue = this.stopped;
@@ -120,9 +131,15 @@ export class MessageTransactionCoordinator {
     try {
       if (shouldContinue) await this.host.continueGeneration();
       else await this.host.triggerGeneration();
+      await this.waitForAssistant();
+      const completedDuringGeneration = this.read();
+      if (completedDuringGeneration.phase === 'settled') return completedDuringGeneration;
       this.snapshot.phase = 'settling';
       this.reconcile(true);
-      if (!this.snapshot.assistantResponded) this.snapshot.phase = 'generating';
+      if (!this.snapshot.assistantResponded) {
+        this.snapshot.phase = 'failed';
+        this.snapshot.lastError = '重试命令已经结束，但仍没有收到可用的 assistant 正文';
+      }
       return this.read();
     } catch (error) {
       this.snapshot.phase = 'failed';
@@ -151,8 +168,18 @@ export class MessageTransactionCoordinator {
   }
 
   markSettlementSucceeded() {
+    if (!this.snapshot.assistantResponded) {
+      this.snapshot.phase = 'failed';
+      this.snapshot.lastError = '尚未收到 assistant 正文，不能完成本地结算';
+      return;
+    }
     this.snapshot.phase = 'settled';
     this.snapshot.lastError = undefined;
+  }
+
+  resetAfterLocalEnd() {
+    this.snapshot = idleSnapshot();
+    this.stopped = false;
   }
 
   private findUserMessage(matchesExisting?: (message: RawMessage) => boolean) {
@@ -161,6 +188,20 @@ export class MessageTransactionCoordinator {
       if (messageExtra(message).gensokyoTransactionId === this.snapshot.transactionId) return true;
       return matchesExisting?.(message) ?? false;
     });
+  }
+
+  private async waitForAssistant() {
+    const startedAt = Date.now();
+    while (Date.now() - startedAt < 120000) {
+      this.reconcile(true);
+      if (this.snapshot.assistantResponded || this.snapshot.phase === 'failed') return;
+      const active = this.host.isGenerationActive?.() ?? false;
+      // Tavern Helper's slash promise can resolve slightly before a fake-streamed
+      // floor becomes visible. Give the message event a short grace period, then
+      // keep waiting only while the host confirms generation is active.
+      if (!active && Date.now() - startedAt >= 1800) return;
+      await new Promise<void>((resolve) => globalThis.setTimeout(resolve, 100));
+    }
   }
 
   private reconcile(force = false) {
@@ -188,10 +229,16 @@ export class MessageTransactionCoordinator {
       .slice(userIndex + 1)
       .find((message) => message.role === 'assistant' && String(message.message ?? '').trim());
     if (!assistant) return;
+    const assistantWasAlreadyObserved = this.snapshot.assistantResponded;
     this.snapshot.assistantResponded = true;
     this.snapshot.assistantMessageId = Number(assistant.message_id);
-    this.snapshot.phase = 'settled';
-    this.snapshot.lastError = undefined;
+    // Receiving text only ends model generation. MVU analysis and local writes still
+    // belong to this transaction, so only markSettlementSucceeded may fully settle it.
+    if (this.snapshot.phase !== 'settled'
+      && (this.snapshot.phase !== 'failed' || !assistantWasAlreadyObserved)) {
+      this.snapshot.phase = 'settling';
+      this.snapshot.lastError = undefined;
+    }
     this.stopped = false;
   }
 }

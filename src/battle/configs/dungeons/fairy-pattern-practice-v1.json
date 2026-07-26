@@ -1,6 +1,69 @@
 {
-  "config_id": "fairy_pattern_practice_v1", "version": 1, "arena": {"width":480,"height":640},
-  "player": {"lives":3,"move_speed":230,"focus_speed":115,"hitbox_radius":4,"invulnerability_ms":1600,"auto_fire":true,"normal_shot":{"pattern":"forward_wide","damage":1,"interval_ms":95},"focus_shot":{"pattern":"forward_narrow","damage":2,"interval_ms":110}},
-  "phases": [{"id":"practice_ring","objective":"defeat","hp":280,"duration_ms":35000,"patterns":[{"pattern_id":"fixed_seed_ring","interval_ms":1600,"speed":85,"count":10}]}],
-  "parameter_limits":{"speed":[40,260],"count":[1,32],"interval_ms":[80,10000],"duration_ms":[500,120000],"damage":[1,10]}, "allowed_outcomes":["clean_win","narrow_win","loss"]
+  "config_id": "fairy_pattern_practice_v1",
+  "version": 4,
+  "arena": { "width": 480, "height": 640 },
+  "presentation": { "boss_id": "cirno", "boss_name": "琪露诺", "boss_title": "湖上的冰之妖精", "stage_title": "妖精弹幕练习", "stage_subtitle": "雾之湖畔 · 冰精的挑战书" },
+  "player": {
+    "lives": 3,
+    "move_speed": 230,
+    "focus_speed": 115,
+    "hitbox_radius": 4,
+    "invulnerability_ms": 1600,
+    "auto_fire": false,
+    "bombs": 3,
+    "deathbomb_ms": 180,
+    "normal_shot": { "pattern": "forward_wide", "damage": 1, "interval_ms": 95 },
+    "focus_shot": { "pattern": "forward_narrow", "damage": 2, "interval_ms": 110 }
+  },
+  "phases": [
+    {
+      "id": "circle_drill",
+      "kind": "nonspell",
+      "name": "圆阵练习",
+      "objective": "defeat",
+      "hp": 180,
+      "duration_ms": 26000,
+      "intro_ms": 9000,
+      "intro_mobs": [
+        { "interval_ms": 1400, "count": 2, "hp": 4, "path": "side", "drop": "power_small", "speed": 85, "shot_interval_ms": 0 },
+        { "start_ms": 2000, "interval_ms": 4200, "count": 1, "hp": 8, "path": "top", "drop": "power_big", "speed": 45, "radius": 15, "shot_interval_ms": 2200, "shot_count": 1, "shot_speed": 90 }
+      ],
+      "patterns": [
+        { "pattern_id": "fixed_seed_ring", "interval_ms": 1600, "speed": 70, "count": 10, "layer_speed_scale": 0.75, "spin_deg_per_s": 10 },
+        { "pattern_id": "aimed_stream", "interval_ms": 2400, "speed": 95, "count": 1, "aim_lead": 0.1, "start_ms": 4000 }
+      ],
+      "mobs": [
+        { "start_ms": 2500, "end_ms": 16000, "interval_ms": 4500, "count": 1, "hp": 4, "path": "side", "drop": "power_small", "shot_interval_ms": 0 }
+      ]
+    },
+    {
+      "id": "star_spin_drill",
+      "kind": "spell",
+      "name": "星屑回旋练习",
+      "objective": "defeat",
+      "hp": 220,
+      "duration_ms": 30000,
+      "intro_ms": 6500,
+      "intro_mobs": [
+        { "interval_ms": 1300, "count": 2, "hp": 5, "path": "side", "drop": "power_small", "speed": 92, "shot_interval_ms": 0 },
+        { "start_ms": 1500, "interval_ms": 5000, "count": 1, "hp": 9, "path": "top", "drop": "power_big", "speed": 46, "radius": 15, "shot_interval_ms": 2400, "shot_count": 1, "shot_speed": 95 }
+      ],
+      "patterns": [
+        { "pattern_id": "rotating_ring", "interval_ms": 1400, "speed": 76, "count": 12, "rotate_deg_per_volley": 10, "layer_speed_scale": 0.7, "spin_deg_per_s": 22 },
+        { "pattern_id": "rotating_ring", "interval_ms": 1900, "speed": 68, "count": 8, "rotate_deg_per_volley": -8, "angle_deg": 14, "start_ms": 3500 },
+        { "pattern_id": "aimed_stream", "interval_ms": 2200, "speed": 100, "count": 1, "start_ms": 7000 }
+      ],
+      "mobs": [
+        { "start_ms": 5000, "end_ms": 20000, "interval_ms": 6000, "count": 2, "hp": 5, "path": "top", "drop": "power_small", "shot_interval_ms": 1600, "shot_count": 1, "shot_speed": 95 }
+      ]
+    }
+  ],
+  "parameter_limits": {
+    "speed": [40, 260],
+    "count": [1, 32],
+    "interval_ms": [80, 10000],
+    "duration_ms": [500, 120000],
+    "damage": [1, 10]
+  },
+  "allowed_outcomes": ["clean_win", "narrow_win", "loss"]
 }

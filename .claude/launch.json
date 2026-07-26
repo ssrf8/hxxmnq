@@ -1,0 +1,15 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "preview",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "preview"],
+      "port": 8765
+    },
+    {
+      "name": "preview-attach",
+      "url": "http://127.0.0.1:8765"
+    }
+  ]
+}

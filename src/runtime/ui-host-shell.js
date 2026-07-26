@@ -16,9 +16,7 @@
   const returnButtonId = 'gensokyo-game-return';
   const activeClass = 'gg-gensokyo-game-active';
   const chatActiveClass = 'gg-gensokyo-chat-active';
-  const version = '0.4.3-host-generate-r23';
-
-  host[instanceKey]?.destroy?.();
+  const version = '0.4.3-host-generate-r27';
 
   function currentCharacterId() {
     try {
@@ -30,6 +28,19 @@
     }
   }
 
+  const ownerCharacterId = currentCharacterId();
+  const existing = host[instanceKey];
+  if (
+    ownerCharacterId
+    && existing?.version === version
+    && existing.ownerCharacterId === ownerCharacterId
+    && typeof existing.ensureMounted === 'function'
+  ) {
+    existing.ensureMounted();
+    return;
+  }
+  existing?.destroy?.();
+
   function clearHostArtifacts() {
     doc.body?.classList.remove(activeClass);
     doc.querySelectorAll(`#chat.${chatActiveClass}`).forEach((chat) => chat.classList.remove(chatActiveClass));
@@ -37,7 +48,6 @@
   }
 
   clearHostArtifacts();
-  const ownerCharacterId = currentCharacterId();
   if (!ownerCharacterId) return;
 
   const state = {
@@ -155,12 +165,19 @@
     childDoc.write('<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body></body></html>');
     childDoc.close();
     childDoc.documentElement.dataset.mapSrc = embedded.mapDataUrl;
-    childDoc.documentElement.dataset.reimuSpriteSrc = embedded.reimuSpriteDataUrl;
-    childDoc.documentElement.dataset.reimuPortraitSrc = embedded.reimuPortraitDataUrl;
-    childDoc.documentElement.dataset.marisaSpriteSrc = embedded.marisaSpriteDataUrl;
-    childDoc.documentElement.dataset.marisaPortraitSrc = embedded.marisaPortraitDataUrl;
+    const characterSprites = embedded.characterSpriteDataUrls || {};
+    Object.entries(characterSprites).forEach(([id, sources]) => {
+      if (sources?.idle) childDoc.documentElement.dataset[`${id}SpriteSrc`] = sources.idle;
+      if (sources?.motion) childDoc.documentElement.dataset[`${id}MotionSrc`] = sources.motion;
+    });
+    if (characterSprites.reimu?.idle) childDoc.documentElement.dataset.reimuPortraitSrc = characterSprites.reimu.idle;
+    if (characterSprites.marisa?.idle) childDoc.documentElement.dataset.marisaPortraitSrc = characterSprites.marisa.idle;
     childDoc.documentElement.dataset.mainHouseSrc = embedded.mainHouseDataUrl;
     childDoc.documentElement.dataset.greenhouseSrc = embedded.greenhouseDataUrl;
+    // Transparent battle sheets only (no chroma duplicates).
+    if (embedded.battlePlayerDataUrl) childDoc.documentElement.dataset.battlePlayerSrc = embedded.battlePlayerDataUrl;
+    if (embedded.battleBossDataUrl) childDoc.documentElement.dataset.battleBossSrc = embedded.battleBossDataUrl;
+    if (embedded.battleEffectsDataUrl) childDoc.documentElement.dataset.battleEffectsSrc = embedded.battleEffectsDataUrl;
     const style = childDoc.createElement('style');
     style.textContent = embedded.css;
     childDoc.head.append(style);
@@ -253,6 +270,8 @@
     state.nativeMode = false;
     attachShell();
     state.frame?.focus();
+    const child = state.frame?.contentWindow;
+    if (child) child.dispatchEvent(new child.CustomEvent('gensokyo-garden:resume'));
   }
 
   function queueRemount() {
@@ -297,7 +316,13 @@
     }
     state.nativeMode = false;
     attachShell();
-    rebuildFrame();
   });
-  host[instanceKey] = { version, showGame, showNativeChat, destroy };
+  host[instanceKey] = {
+    version,
+    ownerCharacterId,
+    showGame,
+    showNativeChat,
+    ensureMounted: attachShell,
+    destroy,
+  };
 })();

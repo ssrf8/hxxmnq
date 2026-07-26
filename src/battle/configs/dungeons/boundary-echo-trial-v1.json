@@ -1,6 +1,93 @@
 {
-  "config_id": "boundary_echo_trial_v1", "version": 1, "arena": {"width":480,"height":640},
-  "player": {"lives":3,"move_speed":230,"focus_speed":115,"hitbox_radius":4,"invulnerability_ms":1600,"auto_fire":true,"normal_shot":{"pattern":"forward_wide","damage":1,"interval_ms":95},"focus_shot":{"pattern":"forward_narrow","damage":2,"interval_ms":110}},
-  "phases": [{"id":"echo_ring","objective":"defeat","hp":400,"duration_ms":46000,"patterns":[{"pattern_id":"fixed_seed_ring","interval_ms":1200,"speed":115,"count":14}]},{"id":"echo_safe_zone","objective":"defeat","hp":500,"duration_ms":52000,"patterns":[{"pattern_id":"homing_leaf","interval_ms":1150,"speed":115,"count":5,"turn_rate_deg":58},{"pattern_id":"local_safe_zone","interval_ms":4800,"warning_ms":1200,"duration_ms":2400}]}],
-  "parameter_limits":{"speed":[40,260],"count":[1,32],"interval_ms":[80,10000],"duration_ms":[500,120000],"damage":[1,10]}, "allowed_outcomes":["clean_win","narrow_win","loss"]
+  "config_id": "boundary_echo_trial_v1",
+  "version": 4,
+  "arena": { "width": 480, "height": 640 },
+  "presentation": { "boss_id": "sakuya", "boss_name": "十六夜咲夜", "boss_title": "红魔馆的完美从者", "stage_title": "境界回声试炼", "stage_subtitle": "红魔之夜 · 银刀与刻线" },
+  "player": {
+    "lives": 3,
+    "move_speed": 230,
+    "focus_speed": 115,
+    "hitbox_radius": 4,
+    "invulnerability_ms": 1600,
+    "auto_fire": false,
+    "bombs": 3,
+    "deathbomb_ms": 140,
+    "normal_shot": { "pattern": "forward_wide", "damage": 1, "interval_ms": 95 },
+    "focus_shot": { "pattern": "forward_narrow", "damage": 2, "interval_ms": 110 }
+  },
+  "phases": [
+    {
+      "id": "four_echo",
+      "kind": "nonspell",
+      "name": "四方回声",
+      "objective": "defeat",
+      "hp": 250,
+      "duration_ms": 28000,
+      "intro_ms": 9000,
+      "intro_mobs": [
+        { "interval_ms": 1500, "count": 2, "hp": 5, "path": "side", "drop": "power_small", "speed": 90, "shot_interval_ms": 2200, "shot_count": 1, "shot_speed": 100 },
+        { "start_ms": 2200, "interval_ms": 4600, "count": 1, "hp": 9, "path": "top", "drop": "power_big", "speed": 45, "radius": 15, "shot_interval_ms": 0 }
+      ],
+      "patterns": [
+        { "pattern_id": "rotating_ring", "interval_ms": 1300, "speed": 88, "count": 12, "rotate_deg_per_volley": 10, "layer_speed_scale": 0.7, "spin_deg_per_s": 24 },
+        { "pattern_id": "rotating_ring", "interval_ms": 1800, "speed": 80, "count": 10, "rotate_deg_per_volley": -8, "angle_deg": 16, "start_ms": 2500 }
+      ],
+      "mobs": [
+        { "start_ms": 6000, "end_ms": 18000, "interval_ms": 6500, "count": 1, "hp": 6, "path": "top", "drop": "power_big", "shot_interval_ms": 1500, "shot_count": 2, "shot_speed": 105 }
+      ]
+    },
+    {
+      "id": "boundary_lines",
+      "kind": "spell",
+      "name": "境界刻线",
+      "objective": "defeat",
+      "hp": 290,
+      "duration_ms": 32000,
+      "familiars": { "count": 2, "orbit_px": 60, "orbit_ms": 4200 },
+      "patterns": [
+        { "pattern_id": "laser_warning", "interval_ms": 2600, "count": 2, "warning_ms": 900, "active_ms": 550, "speed": 100 },
+        { "pattern_id": "aimed_stream", "interval_ms": 1900, "speed": 110, "count": 1, "start_ms": 3500, "from_familiar": true, "dir_change_interval_ms": 750, "dir_change_rotation_deg": 40, "dir_change_times": 1 },
+        { "pattern_id": "rotating_ring", "interval_ms": 2100, "speed": 84, "count": 10, "rotate_deg_per_volley": 11, "start_ms": 6000 }
+      ]
+    },
+    {
+      "id": "gap_chase",
+      "kind": "nonspell",
+      "name": "缺口追逐",
+      "objective": "defeat",
+      "hp": 280,
+      "duration_ms": 30000,
+      "intro_ms": 7000,
+      "intro_mobs": [
+        { "interval_ms": 1300, "count": 2, "hp": 6, "path": "side", "drop": "power_small", "speed": 96, "shot_interval_ms": 2400, "shot_count": 2, "shot_speed": 100 },
+        { "start_ms": 1800, "interval_ms": 5000, "count": 1, "hp": 10, "path": "top", "drop": "power_big", "speed": 46, "radius": 15, "shot_interval_ms": 0 }
+      ],
+      "patterns": [
+        { "pattern_id": "cross_sweep", "interval_ms": 2000, "speed": 125, "count": 8 },
+        { "pattern_id": "fixed_seed_ring", "interval_ms": 2200, "speed": 90, "count": 10, "start_ms": 4000 },
+        { "pattern_id": "wave_fan", "interval_ms": 2400, "speed": 94, "count": 7, "arc_deg": 64, "start_ms": 7000 }
+      ]
+    },
+    {
+      "id": "echo_safe_domain",
+      "kind": "spell",
+      "name": "回声安全域",
+      "objective": "defeat",
+      "hp": 330,
+      "duration_ms": 36000,
+      "patterns": [
+        { "pattern_id": "falling_lanes", "interval_ms": 4200, "speed": 98, "warning_ms": 1100, "gaps": 2 },
+        { "pattern_id": "aimed_stream", "interval_ms": 1700, "speed": 112, "count": 1, "start_ms": 2500 },
+        { "pattern_id": "rotating_ring", "interval_ms": 1900, "speed": 86, "count": 12, "rotate_deg_per_volley": 9, "start_ms": 5000 }
+      ]
+    }
+  ],
+  "parameter_limits": {
+    "speed": [40, 260],
+    "count": [1, 32],
+    "interval_ms": [80, 10000],
+    "duration_ms": [500, 120000],
+    "damage": [1, 10]
+  },
+  "allowed_outcomes": ["clean_win", "narrow_win", "loss"]
 }

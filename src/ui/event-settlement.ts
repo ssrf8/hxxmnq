@@ -901,6 +901,44 @@ export function restoreLocalEventOwnership(before: GardenState, after: GardenSta
     if (priorCompleted[eventId] === undefined) delete next.events.completed_key_events[eventId];
     else next.events.completed_key_events[eventId] = priorCompleted[eventId];
   }
+  // These roots are owned by local transactions. The variable model may see
+  // them for consistency, but it must never be able to commit replacements.
+  next.meta = structuredClone(before.meta ?? {});
+  next.resources = structuredClone(before.resources ?? {});
+  next.shop = structuredClone(before.shop ?? { unlocked: false, purchase_settled_ids: [] });
+  next.inventory = structuredClone(before.inventory ?? { consumables: {} });
+  next.key_items = structuredClone(before.key_items ?? {});
+  next.uid_counters = structuredClone(before.uid_counters ?? {});
+  next.presence_snapshot = structuredClone(before.presence_snapshot ?? {
+    present_character_ids: [],
+    character_views: {},
+    visitor_meta: {},
+  });
+  next.anomaly_cycle = structuredClone(before.anomaly_cycle ?? {
+    pending_activation: null,
+    active: null,
+    history: [],
+  });
+  next.visit_scheduler = structuredClone(before.visit_scheduler ?? {
+    version: 'visit-scheduler.v1',
+    known_characters: [],
+    plans: [],
+    cooldown_until: {},
+    invitation_cooldowns: {},
+    pending_notices: [],
+    last_processed_serial: null,
+  });
+  next.facility_runtime = structuredClone(before.facility_runtime ?? {});
+  next.garden_projects = structuredClone(before.garden_projects ?? { active_construction: null });
+  next.garden_activities = structuredClone(before.garden_activities ?? {
+    moon_spring_session: null,
+    banquet: null,
+    scheduled_banquet: null,
+    banquet_history: [],
+  });
+  next.pending_tasks = structuredClone(before.pending_tasks ?? []);
+  next.scene_item_context = structuredClone(before.scene_item_context ?? null);
+  next.ui_flags = structuredClone(before.ui_flags ?? {});
   next.events.settled_ids = structuredClone(before.events?.settled_ids ?? []);
 
   const beforeActive = before.events?.active_event;
