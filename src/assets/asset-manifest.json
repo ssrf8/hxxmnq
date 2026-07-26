@@ -25,6 +25,8 @@
       "animation_status": "pending-unified-review",
       "animation_source_chroma": "characters/reimu/reimu-walk-cycle-chroma-v1.png",
       "animation_source_alpha": "characters/reimu/reimu-walk-cycle-v1.png",
+      "animation_v2_source_alpha": "characters/reimu/reimu-animation-v2-r6.png",
+      "animation_v2_status": "runtime-pilot-approved",
       "animation_ready": ["walk-4-frame", "gohei-sway"],
       "animation_pending": ["blink", "dedicated-idle"]
     },
@@ -43,8 +45,11 @@
       "animation_status": "pending-unified-review",
       "animation_source_chroma": "characters/marisa/marisa-hover-cycle-chroma-v1.png",
       "animation_source_alpha": "characters/marisa/marisa-hover-cycle-v1.png",
-      "animation_ready": ["hover-4-frame", "hat-bob", "broom-sway"],
-      "animation_pending": ["blink", "dedicated-idle"]
+      "animation_v2_source_alpha": "characters/marisa/marisa-animation-v2-r2.png",
+      "animation_v2_status": "runtime-pilot-approved",
+      "animation_v2_notes": "hover keyframe r2: 9x4 sheet from low/high references; bob baked into atlas; legacy hover-cycle remains fallback",
+      "animation_ready": ["hover-4-frame", "hat-bob", "broom-sway", "v2-hover-atlas-r2"],
+      "animation_pending": ["blink", "dedicated-idle", "aseprite-inbetween-polish"]
     },
     "cirno": {
       "status": "approved",

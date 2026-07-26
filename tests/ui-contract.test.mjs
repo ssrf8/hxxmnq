@@ -25,7 +25,7 @@ test('庭园地图只读取访客快照，不渲染玩家占位小人', async ()
   assert.doesNotMatch(source, /state\.player/);
 });
 
-test('八名来访角色使用自包含四向图集，并在 idle 与四帧移动动画间安全回退', async () => {
+test('八名来访角色保留旧图集回退，灵梦与魔理沙可使用 V2 图集', async () => {
   const map = await read('../src/ui/garden-map.ts');
   const actor = await read('../src/ui/sprite-actor.ts');
   const registry = await read('../src/ui/character-sprite-registry.ts');
@@ -39,19 +39,24 @@ test('八名来访角色使用自包含四向图集，并在 idle 与四帧移�
   assert.match(actor, /facingCell/);
   assert.match(actor, /facingRow/);
   assert.match(actor, /motionImageReady/);
-  assert.match(actor, /columns = useMotionSheet \? 4 : 2/);
+  assert.match(actor, /resolveRenderFrame/);
+  assert.match(actor, /columns: useMotionSheet \? 4 : 2/);
+  assert.match(actor, /columns: 9, rows: 4/);
   assert.match(actor, /frameDurationMs/);
   for (const id of ['reimu', 'marisa', 'cirno', 'alice', 'mystia', 'suika', 'nitori', 'sakuya']) {
     assert.match(registry, new RegExp(`${id}: \\{`));
   }
   assert.match(registry, /mystia-turnaround-v2\.png/);
   assert.match(registry, /marisa-hover-cycle-v1\.png/);
+  assert.match(registry, /marisa-animation-v2-r2\.png/);
+  assert.match(registry, /reimu-animation-v2-r6\.png/);
   assert.match(build, /asset-manifest\.json/);
   assert.match(build, /animation_source_alpha/);
   assert.match(build, /characterSpriteDataUrls/);
   assert.doesNotMatch(build, /animation_source_chroma/);
   assert.match(host, /characterSpriteDataUrls/);
   assert.match(host, /MotionSrc/);
+  assert.match(host, /AnimationSrc/);
 });
 
 test('庭园地图滚轮缩放不被绘制尺寸抵消，并保持指针锚点', async () => {

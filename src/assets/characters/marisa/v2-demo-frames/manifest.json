@@ -1,0 +1,131 @@
+{
+  "frameMs": 160,
+  "cell": 209,
+  "atlas": "src/assets/characters/marisa/marisa-animation-v2-r2.png",
+  "jobs": [
+    {
+      "name": "idle",
+      "frameCount": 8,
+      "files": [
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\idle\\f000-r0c0.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\idle\\f001-r0c1.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\idle\\f002-r0c2.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\idle\\f003-r0c3.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\idle\\f004-r0c0.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\idle\\f005-r0c1.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\idle\\f006-r0c2.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\idle\\f007-r0c3.png"
+      ]
+    },
+    {
+      "name": "right",
+      "frameCount": 16,
+      "files": [
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\right\\f000-r3c1.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\right\\f001-r3c2.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\right\\f002-r3c3.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\right\\f003-r3c4.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\right\\f004-r3c5.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\right\\f005-r3c6.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\right\\f006-r3c7.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\right\\f007-r3c8.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\right\\f008-r3c1.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\right\\f009-r3c2.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\right\\f010-r3c3.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\right\\f011-r3c4.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\right\\f012-r3c5.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\right\\f013-r3c6.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\right\\f014-r3c7.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\right\\f015-r3c8.png"
+      ]
+    },
+    {
+      "name": "left",
+      "frameCount": 16,
+      "files": [
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\left\\f000-r2c1.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\left\\f001-r2c2.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\left\\f002-r2c3.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\left\\f003-r2c4.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\left\\f004-r2c5.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\left\\f005-r2c6.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\left\\f006-r2c7.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\left\\f007-r2c8.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\left\\f008-r2c1.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\left\\f009-r2c2.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\left\\f010-r2c3.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\left\\f011-r2c4.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\left\\f012-r2c5.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\left\\f013-r2c6.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\left\\f014-r2c7.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\left\\f015-r2c8.png"
+      ]
+    },
+    {
+      "name": "down",
+      "frameCount": 8,
+      "files": [
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\down\\f000-r1c1.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\down\\f001-r1c2.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\down\\f002-r1c3.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\down\\f003-r1c4.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\down\\f004-r1c1.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\down\\f005-r1c2.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\down\\f006-r1c3.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\down\\f007-r1c4.png"
+      ]
+    },
+    {
+      "name": "up",
+      "frameCount": 8,
+      "files": [
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\up\\f000-r0c5.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\up\\f001-r0c6.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\up\\f002-r0c7.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\up\\f003-r0c8.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\up\\f004-r0c5.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\up\\f005-r0c6.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\up\\f006-r0c7.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\up\\f007-r0c8.png"
+      ]
+    },
+    {
+      "name": "overview",
+      "frameCount": 32,
+      "files": [
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f000-r0c0.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f001-r0c1.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f002-r0c2.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f003-r0c3.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f004-r3c0.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f005-r3c1.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f006-r3c2.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f007-r3c3.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f008-r3c4.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f009-r3c5.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f010-r3c6.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f011-r3c7.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f012-r3c8.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f013-r2c0.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f014-r2c1.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f015-r2c2.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f016-r2c3.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f017-r2c4.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f018-r2c5.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f019-r2c6.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f020-r2c7.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f021-r2c8.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f022-r1c0.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f023-r1c1.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f024-r1c2.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f025-r1c3.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f026-r1c4.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f027-r0c4.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f028-r0c5.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f029-r0c6.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f030-r0c7.png",
+        "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\marisa\\v2-demo-frames\\overview\\f031-r0c8.png"
+      ]
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 # 幻想乡物语 · 项目总览（唯一入口文档）
 
 > 读完本文档即可对整个项目建立全貌认知；需要深入某个领域时，按 §3 导航表跳转对应文档。
-> 最后整理：2026-07-26（r54 打包日）。
+> 最后整理：2026-07-27（灵梦 V2 动画试点接入）。
 
 ---
 
@@ -25,6 +25,7 @@
 | 已实机验收基线 | `0.2.0-r32-extra-model-binding`（角色世界书绑定 + 额外模型变量路线） |
 | 里程碑 | M0 complete / M1 施工完但 R37 集中验收未跑 / M2 施工完但 R45 验收未跑 / M3 进行中 |
 | 离线门禁 | check:ui + npm test（108/108）+ build:ui + package dry，全绿 |
+| 像素角色动画 | 灵梦 V2 r6 + 魔理沙 V2 r2（扫帚悬浮）已启用 `9×4` 图集；其余六名角色保持旧图集回退，二维路径与后续角色迁移待批次 |
 | 活跃工作线 | ①前端美化（D/E/F1/F2 阶段待做 + 实机验收）②弹幕小游戏优化（实机验收 + 平衡）③M1/M2 集中实机验收欠账 |
 | 目标环境 | SillyTavern 1.18.0 + Tavern Helper 4.8.19 + MagVarUpdate（固定 commit） |
 
@@ -53,6 +54,7 @@
 |---|---|
 | 前端美化方向（像素×二次元双层架构）与阶段规划 | `project/ui-beautification-plan.md` |
 | 美化逐轮施工记录、待素材清单、验收交接项 | `project/ui-beautification-log.md` |
+| 像素角色 V2 图集合同、灵梦 r6 验收数据与后续迁移步骤 | `project/pixel-character-animation-v2-plan.md` |
 | 弹幕小游戏当前状态（TH06 扩展、六模块引擎） | `project/bullet-hell-minigame-handoff.md` |
 | 弹幕小游戏改动边界（可改/禁改文件、命名空间） | `project/bullet-hell-minigame-optimization-protocol.md` |
 | M1 集中实机验收清单（未执行） | `project/r37-acceptance-checklist.md` |

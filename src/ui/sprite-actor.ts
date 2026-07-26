@@ -8,6 +8,8 @@ export interface SpriteActorConfig {
   label: string;
   idleSource: string;
   motionSource?: string;
+  /** Optional 9×4 V2 atlas; it overrides legacy sheets once loaded. */
+  animationSource?: string;
   movementStyle: SpriteMovementStyle;
   frameDurationMs: number;
   idleBob: number;
@@ -20,6 +22,16 @@ export interface SpriteActorConfig {
 interface Point {
   x: number;
   y: number;
+}
+
+interface RenderFrame {
+  image: HTMLImageElement;
+  columns: number;
+  rows: number;
+  frame: number;
+  row: number;
+  animated: boolean;
+  v2: boolean;
 }
 
 const facingCell: Record<SpriteFacing, Point> = {
@@ -42,11 +54,13 @@ const phaseFor = (id: string) => [...id]
 export class SpriteActor {
   readonly idleImage = new Image();
   readonly motionImage = new Image();
+  readonly animationImage = new Image();
   readonly id: string;
   readonly label: string;
   imageReady = false;
   imageFailed = false;
   motionImageReady = false;
+  animationImageReady = false;
   offsetX = 0;
   facing: SpriteFacing = 'front';
   motion: SpriteMotion = 'idle';
@@ -86,6 +100,17 @@ export class SpriteActor {
         onAssetStateChanged();
       };
       this.motionImage.src = config.motionSource;
+    }
+    if (config.animationSource) {
+      this.animationImage.onload = () => {
+        this.animationImageReady = true;
+        onAssetStateChanged();
+      };
+      this.animationImage.onerror = () => {
+        this.animationImageReady = false;
+        onAssetStateChanged();
+      };
+      this.animationImage.src = config.animationSource;
     }
   }
 
@@ -130,17 +155,9 @@ export class SpriteActor {
     color: string,
     intensity: number,
   ): boolean {
-    if (!this.imageReady || !this.idleImage.naturalWidth) return false;
-    const useMotionSheet = this.motion === 'walk'
-      && this.motionImageReady
-      && this.motionImage.naturalWidth > 0;
-    const image = useMotionSheet ? this.motionImage : this.idleImage;
-    const columns = useMotionSheet ? 4 : 2;
-    const rows = useMotionSheet ? 4 : 2;
-    const frame = useMotionSheet
-      ? Math.floor((this.animationTime + this.phaseOffset) / this.config.frameDurationMs) % 4
-      : facingCell[this.facing].x;
-    const row = useMotionSheet ? facingRow[this.facing] : facingCell[this.facing].y;
+    const renderFrame = this.resolveRenderFrame();
+    if (!renderFrame) return false;
+    const { image, columns, rows, frame, row, animated, v2 } = renderFrame;
     const sourceWidth = image.naturalWidth / columns;
     const sourceHeight = image.naturalHeight / rows;
     const scratch = SpriteActor.glowScratch ?? (SpriteActor.glowScratch = document.createElement('canvas'));
@@ -172,11 +189,11 @@ export class SpriteActor {
     // 与 draw() 同步的浮动/摆动，使光晕严格跟随本体。
     const idleCycle = (this.animationTime + this.phaseOffset) / 470;
     const motionCycle = (this.animationTime + this.phaseOffset) / this.config.frameDurationMs;
-    const bob = this.reducedMotion
+    const bob = this.reducedMotion || v2
       ? 0
-      : Math.sin(useMotionSheet ? motionCycle * Math.PI : idleCycle)
-        * (useMotionSheet ? this.config.motionBob : this.config.idleBob);
-    const sway = this.reducedMotion || !useMotionSheet
+      : Math.sin(animated ? motionCycle * Math.PI : idleCycle)
+        * (animated ? this.config.motionBob : this.config.idleBob);
+    const sway = this.reducedMotion || !animated || v2
       ? 0
       : Math.sin(motionCycle * Math.PI * 0.5) * this.config.motionSway;
     context.save();
@@ -199,29 +216,21 @@ export class SpriteActor {
     y: number,
     size: number,
   ): boolean {
-    if (!this.imageReady || !this.idleImage.naturalWidth) return false;
-    const useMotionSheet = this.motion === 'walk'
-      && this.motionImageReady
-      && this.motionImage.naturalWidth > 0;
-    const image = useMotionSheet ? this.motionImage : this.idleImage;
-    const columns = useMotionSheet ? 4 : 2;
-    const rows = useMotionSheet ? 4 : 2;
-    const frame = useMotionSheet
-      ? Math.floor((this.animationTime + this.phaseOffset) / this.config.frameDurationMs) % 4
-      : facingCell[this.facing].x;
-    const row = useMotionSheet ? facingRow[this.facing] : facingCell[this.facing].y;
+    const renderFrame = this.resolveRenderFrame();
+    if (!renderFrame) return false;
+    const { image, columns, rows, frame, row, animated, v2 } = renderFrame;
     const sourceWidth = image.naturalWidth / columns;
     const sourceHeight = image.naturalHeight / rows;
     const idleCycle = (this.animationTime + this.phaseOffset) / 470;
     const motionCycle = (this.animationTime + this.phaseOffset) / this.config.frameDurationMs;
-    const bob = this.reducedMotion
+    const bob = this.reducedMotion || v2
       ? 0
-      : Math.sin(useMotionSheet ? motionCycle * Math.PI : idleCycle)
-        * (useMotionSheet ? this.config.motionBob : this.config.idleBob);
-    const sway = this.reducedMotion || !useMotionSheet
+      : Math.sin(animated ? motionCycle * Math.PI : idleCycle)
+        * (animated ? this.config.motionBob : this.config.idleBob);
+    const sway = this.reducedMotion || !animated || v2
       ? 0
       : Math.sin(motionCycle * Math.PI * 0.5) * this.config.motionSway;
-    const idleBreath = this.reducedMotion || useMotionSheet
+    const idleBreath = this.reducedMotion || animated || v2
       ? 1
       : 1 + Math.sin(idleCycle) * 0.007;
     context.save();
@@ -242,5 +251,28 @@ export class SpriteActor {
     );
     context.restore();
     return true;
+  }
+
+  private resolveRenderFrame(): RenderFrame | null {
+    if (this.animationImageReady && this.animationImage.naturalWidth > 0) {
+      if (this.motion === 'walk') {
+        const frame = Math.floor((this.animationTime + this.phaseOffset) / this.config.frameDurationMs);
+        if (this.facing === 'back') return { image: this.animationImage, columns: 9, rows: 4, frame: 5 + frame % 4, row: 0, animated: true, v2: true };
+        if (this.facing === 'front') return { image: this.animationImage, columns: 9, rows: 4, frame: 1 + frame % 4, row: 1, animated: true, v2: true };
+        return { image: this.animationImage, columns: 9, rows: 4, frame: 1 + frame % 8, row: this.facing === 'left' ? 2 : 3, animated: true, v2: true };
+      }
+      return { image: this.animationImage, columns: 9, rows: 4, frame: Math.floor((this.animationTime + this.phaseOffset) / 520) % 4, row: 0, animated: false, v2: true };
+    }
+    if (!this.imageReady || !this.idleImage.naturalWidth) return null;
+    const useMotionSheet = this.motion === 'walk' && this.motionImageReady && this.motionImage.naturalWidth > 0;
+    return {
+      image: useMotionSheet ? this.motionImage : this.idleImage,
+      columns: useMotionSheet ? 4 : 2,
+      rows: useMotionSheet ? 4 : 2,
+      frame: useMotionSheet ? Math.floor((this.animationTime + this.phaseOffset) / this.config.frameDurationMs) % 4 : facingCell[this.facing].x,
+      row: useMotionSheet ? facingRow[this.facing] : facingCell[this.facing].y,
+      animated: useMotionSheet,
+      v2: false,
+    };
   }
 }

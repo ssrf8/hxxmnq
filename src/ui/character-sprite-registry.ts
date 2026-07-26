@@ -3,6 +3,7 @@ import type { SpriteActorConfig } from './sprite-actor';
 interface CharacterSpriteDefinition extends Omit<SpriteActorConfig, 'idleSource' | 'motionSource'> {
   idleFile: string;
   motionFile: string;
+  animationFile?: string;
 }
 
 const definitions: Record<string, CharacterSpriteDefinition> = {
@@ -10,6 +11,7 @@ const definitions: Record<string, CharacterSpriteDefinition> = {
     label: '博丽灵梦',
     idleFile: 'reimu-turnaround-v1.png',
     motionFile: 'reimu-walk-cycle-v1.png',
+    animationFile: 'reimu-animation-v2-r6.png',
     movementStyle: 'walk',
     frameDurationMs: 116,
     idleBob: 0.75,
@@ -22,6 +24,7 @@ const definitions: Record<string, CharacterSpriteDefinition> = {
     label: '雾雨魔理沙',
     idleFile: 'marisa-riding-turnaround-v3.png',
     motionFile: 'marisa-hover-cycle-v1.png',
+    animationFile: 'marisa-animation-v2-r2.png',
     movementStyle: 'hover',
     frameDurationMs: 148,
     idleBob: 1.35,
@@ -110,6 +113,9 @@ export function resolveCharacterSprites(assetBase: string, dataset: DOMStringMap
       || `${assetBase}/characters/${id}/${definition.idleFile}`;
     const motionSource = dataset[`${id}MotionSrc`]
       || `${assetBase}/characters/${id}/${definition.motionFile}`;
-    return [id, { ...definition, idleSource, motionSource } satisfies SpriteActorConfig];
+    const animationSource = dataset[`${id}AnimationSrc`] || (definition.animationFile
+      ? `${assetBase}/characters/${id}/${definition.animationFile}`
+      : undefined);
+    return [id, { ...definition, idleSource, motionSource, animationSource } satisfies SpriteActorConfig];
   })) as Record<string, SpriteActorConfig>;
 }

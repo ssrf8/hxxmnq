@@ -12,6 +12,7 @@ const characterAssets = Object.entries(assetManifest.characters)
       id,
       idle: character.source_alpha,
       motion: character.animation_source_alpha,
+      animation: character.animation_v2_source_alpha,
     };
   });
 if (characterAssets.length !== 8) {
@@ -43,9 +44,10 @@ await Promise.all([
 ]);
 await Promise.all([
   copyFile('src/assets/maps/garden-base-spring-v1.png', 'dist/assets/maps/garden-base-spring-v1.png'),
-  ...characterAssets.flatMap(({ idle, motion }) => [
+  ...characterAssets.flatMap(({ idle, motion, animation }) => [
     copyFile(`src/assets/${idle}`, `dist/assets/${idle}`),
     copyFile(`src/assets/${motion}`, `dist/assets/${motion}`),
+    ...(animation ? [copyFile(`src/assets/${animation}`, `dist/assets/${animation}`)] : []),
   ]),
   copyFile('src/assets/world/house/main-house-states-v1.png', 'dist/assets/world/house/main-house-states-v1.png'),
   copyFile('src/assets/world/greenhouse/magic-greenhouse-states-v1.png', 'dist/assets/world/greenhouse/magic-greenhouse-states-v1.png'),
@@ -81,14 +83,16 @@ const [
 const body = html.match(/<body>([\s\S]*?)<script src="\.\/app\.js"><\/script>[\s\S]*?<\/body>/i)?.[1];
 if (!body) throw new Error('无法提取 UI body');
 const mapDataUrl = `data:image/png;base64,${mapBytes.toString('base64')}`;
-const characterSpriteDataUrls = Object.fromEntries(await Promise.all(characterAssets.map(async ({ id, idle, motion }) => {
-  const [idleBytes, motionBytes] = await Promise.all([
+const characterSpriteDataUrls = Object.fromEntries(await Promise.all(characterAssets.map(async ({ id, idle, motion, animation }) => {
+  const [idleBytes, motionBytes, animationBytes] = await Promise.all([
     readFile(`src/assets/${idle}`),
     readFile(`src/assets/${motion}`),
+    animation ? readFile(`src/assets/${animation}`) : Promise.resolve(null),
   ]);
   return [id, {
     idle: `data:image/png;base64,${idleBytes.toString('base64')}`,
     motion: `data:image/png;base64,${motionBytes.toString('base64')}`,
+    animation: animationBytes ? `data:image/png;base64,${animationBytes.toString('base64')}` : undefined,
   }];
 })));
 const mainHouseDataUrl = `data:image/png;base64,${mainHouseBytes.toString('base64')}`;

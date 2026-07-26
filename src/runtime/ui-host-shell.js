@@ -169,6 +169,7 @@
     Object.entries(characterSprites).forEach(([id, sources]) => {
       if (sources?.idle) childDoc.documentElement.dataset[`${id}SpriteSrc`] = sources.idle;
       if (sources?.motion) childDoc.documentElement.dataset[`${id}MotionSrc`] = sources.motion;
+      if (sources?.animation) childDoc.documentElement.dataset[`${id}AnimationSrc`] = sources.animation;
     });
     if (characterSprites.reimu?.idle) childDoc.documentElement.dataset.reimuPortraitSrc = characterSprites.reimu.idle;
     if (characterSprites.marisa?.idle) childDoc.documentElement.dataset.marisaPortraitSrc = characterSprites.marisa.idle;
