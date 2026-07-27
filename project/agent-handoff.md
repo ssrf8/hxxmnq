@@ -1,5 +1,11 @@
 # Agent 交接文档
 
+> 2026-07-27（三）：魔理沙像素动画 V2 r2 已接入维护源。运行时图集 `src/assets/characters/marisa/marisa-animation-v2-r2.png`（`9×4` / `209×209`，由 `v2-hover-keyframes` 四方向 low/high 最近邻对齐合成悬浮循环）；母档 `marisa-animation-v2-r2-work.aseprite`；构建脚本 `scripts/build-marisa-v2-r2.mjs`。registry / asset-manifest / UI 契约测试已登记；旧 `riding-turnaround-v3 + hover-cycle-v1` 保留回退。离线门禁：check:ui 通过、npm test 108/108、build:ui 通过。**未打包、未实机验收**。欠账：Aseprite 手绘 in-between 精修、二维路径、其余六名角色 V2。记录见 `project/pixel-character-animation-v2-plan.md` §10。
+
+> 2026-07-27（二）：所有者对设施扩展计划三项拍板：①R55 底座泛化确认执行；②契约修订已授权并写入 `contract.md`（「八名固定角色」改为首发名单+登记接入制、新增「新设施不得携带后置主线/全局前置/跨设施门票」红线，大妖精禁令保留）；③新角色素材**占位先行**——不再依赖灵梦 V2 试点验收，占位图集规格见计划 §4.4（主题色剪影、V2 版式 9×4、`status: placeholder` 登记、真素材原位替换零链路改动），真素材与动画后补按 r49 流程逐项勾销。R55（泛化）→R56 花见回廊→R57 缘侧书斋→R58 祈愿分社→R59 妖梦→R60+ 帕秋莉/早苗可依序开工；排期与验收欠账的取舍仍开放（计划 §9.4，默认 R55 先行）。本轮仅改文档（计划/契约/本文件），未改代码、未打包。
+
+> 2026-07-27：新增规划文档 `project/r55-r60-facility-character-expansion-plan.md`——沙盒设施扩展与新角色引入线（纯规划，未施工、未改代码、未打包）。所有者方向确认：首批 3 座温泉式无主线沙盒设施（花见回廊/缘侧书斋/祈愿分社，暂名），用于承接后续新角色（推荐妖梦/帕秋莉/早苗，走「静水观测池引出咲夜」的装修 roll 初遇模式）并吸引人设相符的老角色；设施先行、角色二期。施工前置：R55 设施底座泛化（约 7 处三设施硬编码 + `moon_spring_session` 通用化，见计划 §5）。
+
 > 2026-07-26（深夜）：所有者授权打包 —— `0.2.0-r54` 前端美化测试包已正式生成。产物 `dist/checkpoint-0.2.0-r54/幻想乡物语-测试检查点-0.2.0-r54.json`，SHA-256 `ee8587e7e67c832ac7d175c0eb3b58e625e4afc0640de67388fc246d3257ac73`，36,181,652 字节，UI 脚本 `gensokyo-garden-ui-020-r54`，16 条世界书。打包前门禁：check:ui 通过、npm test 108/108、build:ui 通过、dry-run 通过。r53 及更早 dist 均未覆盖。**r54 仍是离线候选，实机验收未执行**。项目总览导航见 `project/README.md`。
 
 > 2026-07-26（晚）：前端美化专项 R1–R7 已在维护源（当前检查点线 `0.2.0-r53`）完成：设计 token 体系、符卡框语言、圆点→半环绕气泡菜单（含视角跟随）、开场页三轮重构（结界祭夜 + 所有者主视觉 base64 嵌入 + 全屏 + 移除魔法阵）、全阶段全屏（含启动首帧修复）、角色轮廓染色发光、区域底图手描轮廓发光、顶栏角色主题按钮、副本页弹幕夜空。离线门禁 106/106 全绿；**未打包、未实机验收**。方向与阶段见 `project/ui-beautification-plan.md`，逐轮施工与待办见 `project/ui-beautification-log.md`。r53 dist 目录已被占用，打包测试需先把 `package.json` 与 `project/manifest.json` 升到未占用的 r54 并重跑 dry-run。战斗/副本命名空间未越界（仅命名空间内底纹与金边）。
