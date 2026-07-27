@@ -9,7 +9,7 @@
 - 新增关键姿势由内置 ImageGen 依据上述两张参考图生成；未调用 `pixel_mcp`。
 - 洋红色键源图保存在 `chroma-strips/`，去背后的整组透明图保存在 `transparent-strips/`。
 - `poses/` 包含交接给后续动画制作的 17 张独立透明 PNG，统一为 `1024×1024`、可见高度 `600px`、水平中心 `x=512`、脚底基线 `y=930`。
-- 前置关键姿势与技术 QA 已完成；候选 `9×4` 图集、Aseprite 母档和 GIF 已生成，等待所有者逐组验收。运行时接入尚未执行。
+- 前置关键姿势与技术 QA 已完成。r1 候选 `9×4` 图集、Aseprite 母档和 GIF 因“整套帧直接由生图模型生成”已被所有者拒绝；关键姿势保留为 r2 的唯一形象来源，运行时接入未执行。
 
 ## 17 张关键姿势
 
@@ -49,7 +49,7 @@
 - 方向、角色配色、蓝色大蝴蝶结、红色领结、白色锯齿裙边与六枚冰翼均保留。
 - `cirno-v2-keyframes-r1-qa-contact-sheet.png` 仅供总览，不作为动画帧来源。
 
-## V2 r1 候选产物（等待所有者验收）
+## V2 r1 历史候选产物（已拒绝）
 
 - 图集：`../cirno-animation-v2-r1.png`（`1881×836`，单格 `209×209`，32 个非空槽）。
 - `pixel_mcp` 母档：`../cirno-animation-v2-r1-work.aseprite`。
@@ -57,7 +57,7 @@
 - 构建帧：`../v2-build-frames-r1/`；GIF 裁片：`../v2-demo-frames-r1/`。
 - 可复现脚本：`scripts/build-cirno-v2-r1.mjs` 与 `scripts/export-cirno-v2-demo-gifs.mjs`。
 - 母档经 `pixel_mcp` 回导 PNG 后与候选图集逐像素一致。
-- 当前状态仅为 `owner-gif-review-pending`；未得到所有者明确“通过”前，不得登记进运行时 registry 或 `asset-manifest.json`。
+- r1 状态为 `rejected-generated-full-frames`；不得登记进运行时 registry 或 `asset-manifest.json`。随后 r2/r4 的重复补位试作也已废弃。基于本关键姿势包制作的四方向指导动作及最终 `../cirno-animation-v2-guided.png`（`9×4 / 32 格`）已获所有者验收；总览为 `../cirno-animation-v2-guided-overview-demo.gif`，统一每帧 `130ms`。正式指导版当前状态为 `owner-approved-pending-runtime`，详见 `project/pixel-character-animation-v2-plan.md` §12。
 
 ## ImageGen 提示组摘要
 

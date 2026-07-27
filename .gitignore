@@ -1,5 +1,6 @@
 node_modules/
 dist/
+tmp/
 /_bad.cjs
 /_gal_parts1.txt
 /_git_push_err.txt

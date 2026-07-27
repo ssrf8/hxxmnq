@@ -1,5 +1,17 @@
 # Agent 交接文档
 
+> 2026-07-28（二）：咲夜四向动作参考序列 v1 已生成 23 张 `720×720` 四向帧、Aseprite 母档与 `130ms` GIF，但**所有者验收不通过**。该批产物仅保留在 `src/assets/characters/sakuya/sequence-reference-v1/` 作为失败试作与方法对照，状态为 `owner-rejected-reference-sequence-v1`；不得登记 `asset-manifest`、不得接入 sprite registry 或运行时，也不得作为咲夜 V2 后续动作基线。后续返修必须重新确认失败点后另起版本，不能覆盖本批留档。
+
+> 2026-07-28：独立设施地图素材第一轮已收束。现有五座地图对象均有独立透明素材：主屋（受损／修缮后）、魔法温室（已建成）、妖精花园／月见温泉／宴会广场（各三形态 + `damaged` 覆盖层）。后面三座的绘制链已接入维护源：构建器从 `asset-manifest.json.map_facility_assets` 嵌入透明图，宿主传入 iframe，`GardenMap` 仅在设施已建成且 `current_form` 有映射时绘制，并在 `facility_runtime.status=damaged` 时叠覆盖层；未知／未建成状态仍回退空地标记。离线门禁 `check:ui`、`npm test`（110/110）与 `build:ui` 均通过，所有者已验收视觉和离线接入；**尚未完成真实 SillyTavern 的锚点、缩放、命中边界与各状态截图验收**。R56 花见回廊、R57 缘侧书斋、R58 祈愿分社仍是暂名/暂定锚点的规划项，未生成素材。
+
+> 2026-07-27（八）：琪露诺 `9×4` 指导版图集已获所有者验收；所有演示 GIF 的帧时长已按反馈从约 `95–100ms` 下调为 `130ms`。`pixel-character-animation-v2-plan.md` 的水平/垂直默认播放速度同步调整为 `130ms`（允许 `120–140ms`）。该素材仍未接入运行时。下一角色按登记顺序开始爱丽丝，先核对既有四向基准与步行动作，再走同一关键姿势→Aseprite→GIF 分组验收流程。
+
+> 2026-07-27（七）：所有者裁定琪露诺 V2 **保持旧 `9×4 / 32 格` 合同**；前后 8 帧指导仍是已验收的动作参考，但向上/向下交付各砍回 `00 + 4`，固定取样 `F1/F3/F5/F7`。因而已开始的 `10×4 / 40 格` V3 图集与总览试作废弃，不能接入。`pixel-character-animation-v2-plan.md` §3.3 已改为“前后 8 帧指导的 V2 四帧适配”；下一步是按旧槽位完成 9×4 候选图集并导出真实总览 GIF 再验收。
+
+> 2026-07-27（六）：所有者已验收琪露诺指导版的向下/向上 8 帧步行。母档为 `src/assets/characters/cirno/cirno-walk-guided-{down,up}-v1-work.aseprite`，演示为 `cirno-walk-guided-{down,up}-v1-demo.gif`；逐帧源位于 `guided-{down,up}-v1-frames/`。前后指导的文字版与配图已归档 `project/animation-guides/front-back-8-frame-walk-cycle-guide.{txt,png}`，并被 `pixel-character-animation-v2-plan.md` §3.3 设为后续角色前后移动的强制基线。琪露诺左右、向下、向上四个 8 帧动作组都已通过；尚未组装 `9×4` 总图集、未登记 registry/asset-manifest、未接入运行时。下一步是组装图集与总览 GIF 后再验收。
+
+> 2026-07-27（五）：所有者已验收琪露诺的指导版水平 8 帧步行。左行母档 `src/assets/characters/cirno/cirno-walk-guided-left-v2-work.aseprite` 与 GIF `cirno-walk-guided-left-v2-demo.gif` 已归档；右行依所有者授权由同一 8 帧水平翻向，母档/演示为 `cirno-walk-guided-right-v2-work.aseprite`、`cirno-walk-guided-right-v2-demo.gif`。指导原件已入库 `project/animation-guides/8-frame-walk-cycle-guide.{docx,png}`，并已写入 `pixel-character-animation-v2-plan.md` §3.2 作为后续角色横向动画的强制步态基线。该批准只覆盖琪露诺左右行走；上下动作、完整 V2 图集、registry/asset-manifest/运行时接入仍未处理，下一步从上下动作开始。
+
 > 2026-07-27（四）：所有者提供扩大视角的无设施庭园底图，已以 `src/assets/maps/garden-base-expanded-empty-v1.png` 接入维护源（1536×1024，SHA-256 `19a88b71…fd52fd`），由 `asset-manifest.json` 的 `maps.garden_base` 驱动构建，不再硬编码旧 `garden-base-spring-v1.png`。地图人物显示缩至旧比例 73%，设施占位光环缩至 76%；旧底图手描建筑轮廓已停用，后续设施必须使用独立透明贴图及登记 hit polygon/透明边界，不能复用旧描点。现有区域锚点与交互保留；设施贴图尚未接入。离线门禁：check:ui 通过、npm test 109/109、build:ui 通过、r54 dry-run 通过（37,420,011 字节，SHA-256 `b9124180…0e3cae`）；**未正式打包、未实机验收**。
 
 > 2026-07-27（三）：魔理沙像素动画 V2 r2 已接入维护源。运行时图集 `src/assets/characters/marisa/marisa-animation-v2-r2.png`（`9×4` / `209×209`，由 `v2-hover-keyframes` 四方向 low/high 最近邻对齐合成悬浮循环）；母档 `marisa-animation-v2-r2-work.aseprite`；构建脚本 `scripts/build-marisa-v2-r2.mjs`。registry / asset-manifest / UI 契约测试已登记；旧 `riding-turnaround-v3 + hover-cycle-v1` 保留回退。离线门禁：check:ui 通过、npm test 108/108、build:ui 通过。**未打包、未实机验收**。欠账：Aseprite 手绘 in-between 精修、二维路径、其余六名角色 V2。记录见 `project/pixel-character-animation-v2-plan.md` §10。

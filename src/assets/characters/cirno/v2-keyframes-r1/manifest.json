@@ -54,7 +54,7 @@
   },
   "qa_contact_sheet": "cirno-v2-keyframes-r1-qa-contact-sheet.png",
   "candidate_animation": {
-    "status": "owner-gif-review-pending",
+    "status": "rejected-generated-full-frames",
     "atlas": "../cirno-animation-v2-r1.png",
     "aseprite_master": "../cirno-animation-v2-r1-work.aseprite",
     "cell_size": 209,
@@ -72,8 +72,7 @@
     }
   },
   "remaining_work": [
-    "obtain owner approval for each action-group GIF",
-    "polish only rejected action groups if owner requests changes",
-    "register and integrate the runtime atlas"
+    "historical r1 candidate: do not register or integrate",
+    "use the owner-approved ../cirno-animation-v2-guided.png for future runtime integration"
   ]
 }

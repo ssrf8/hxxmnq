@@ -1,0 +1,78 @@
+{
+  "cell": 209,
+  "fps": 10,
+  "frames": [
+    {
+      "frame": 1,
+      "phase": "F1-contact-A",
+      "pose": "left-contact-a",
+      "bodyDy": 0,
+      "wingDy": 1,
+      "wingDx": 0,
+      "file": "src/assets/characters/cirno/guided-left-v2-frames/01-F1-contact-A.png"
+    },
+    {
+      "frame": 2,
+      "phase": "F2-bearing-A",
+      "pose": "left-contact-a",
+      "bodyDy": 3,
+      "wingDy": 2,
+      "wingDx": 1,
+      "file": "src/assets/characters/cirno/guided-left-v2-frames/02-F2-bearing-A.png"
+    },
+    {
+      "frame": 3,
+      "phase": "F3-passing-A",
+      "pose": "left-high-pass",
+      "bodyDy": 0,
+      "wingDy": 1,
+      "wingDx": 0,
+      "file": "src/assets/characters/cirno/guided-left-v2-frames/03-F3-passing-A.png"
+    },
+    {
+      "frame": 4,
+      "phase": "F4-lift-A",
+      "pose": "left-high-pass",
+      "bodyDy": -3,
+      "wingDy": 0,
+      "wingDx": 1,
+      "file": "src/assets/characters/cirno/guided-left-v2-frames/04-F4-lift-A.png"
+    },
+    {
+      "frame": 5,
+      "phase": "F5-contact-B",
+      "pose": "left-contact-b",
+      "bodyDy": 0,
+      "wingDy": -1,
+      "wingDx": 0,
+      "file": "src/assets/characters/cirno/guided-left-v2-frames/05-F5-contact-B.png"
+    },
+    {
+      "frame": 6,
+      "phase": "F6-bearing-B",
+      "pose": "left-contact-b",
+      "bodyDy": 3,
+      "wingDy": 0,
+      "wingDx": -1,
+      "file": "src/assets/characters/cirno/guided-left-v2-frames/06-F6-bearing-B.png"
+    },
+    {
+      "frame": 7,
+      "phase": "F7-passing-B",
+      "pose": "left-high-pass",
+      "bodyDy": 0,
+      "wingDy": 1,
+      "wingDx": -1,
+      "file": "src/assets/characters/cirno/guided-left-v2-frames/07-F7-passing-B.png"
+    },
+    {
+      "frame": 8,
+      "phase": "F8-lift-B",
+      "pose": "left-high-pass",
+      "bodyDy": -3,
+      "wingDy": 0,
+      "wingDx": -1,
+      "file": "src/assets/characters/cirno/guided-left-v2-frames/08-F8-lift-B.png"
+    }
+  ]
+}

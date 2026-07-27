@@ -1,0 +1,32 @@
+{
+  "id": "sakuya-reference-sequence-v1",
+  "status": "owner-rejected-reference-sequence-v1",
+  "owner_review": {
+    "date": "2026-07-28",
+    "result": "rejected",
+    "runtime_integration_allowed": false
+  },
+  "runtime_usage": false,
+  "source_sequence": "src/assets/characters/参考序列帧/正常/001.png..023.png",
+  "identity_reference": "src/assets/characters/sakuya/sakuya-turnaround-v1.png",
+  "build_script": "scripts/build-sakuya-reference-sequence-v1.mjs",
+  "frame_count": 23,
+  "frame_width": 720,
+  "frame_height": 720,
+  "frame_duration_ms": 130,
+  "frames": "frames/*.png",
+  "aseprite_master": "sakuya-reference-sequence-v1-work.aseprite",
+  "demo_gif": "sakuya-reference-sequence-v1-demo.gif",
+  "contact_sheet": "sakuya-reference-sequence-v1-contact-sheet.png",
+  "imagegen_identity_template": "candidates/001-identity-template-imagegen-v1.png",
+  "imagegen_template_role": "identity-and-palette-reference-only",
+  "qa": {
+    "alpha_identical_to_sources": true,
+    "changed_pixels_outside_allowed_character_and_watermark_regions": 0,
+    "aseprite_frame_count": 23,
+    "gif_frame_count": 23,
+    "gif_unique_frame_durations_ms": [
+      130
+    ]
+  }
+}

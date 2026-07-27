@@ -1,0 +1,71 @@
+{
+  "direction": "up",
+  "cell": 209,
+  "frameMs": 95,
+  "frames": [
+    {
+      "frame": 1,
+      "phase": "L-contact",
+      "pose": "up-contact-a",
+      "bodyDy": 0,
+      "supportX": 54,
+      "file": "src/assets/characters/cirno/guided-up-v1-frames/01-L-contact.png"
+    },
+    {
+      "frame": 2,
+      "phase": "L-down",
+      "pose": "up-contact-a",
+      "bodyDy": 1,
+      "supportX": 54,
+      "file": "src/assets/characters/cirno/guided-up-v1-frames/02-L-down.png"
+    },
+    {
+      "frame": 3,
+      "phase": "R-pass",
+      "pose": "up-contact-b",
+      "bodyDy": 0,
+      "supportX": 54,
+      "file": "src/assets/characters/cirno/guided-up-v1-frames/03-R-pass.png"
+    },
+    {
+      "frame": 4,
+      "phase": "R-high",
+      "pose": "up-contact-b",
+      "bodyDy": -1,
+      "supportX": 54,
+      "file": "src/assets/characters/cirno/guided-up-v1-frames/04-R-high.png"
+    },
+    {
+      "frame": 5,
+      "phase": "R-contact",
+      "pose": "up-contact-b",
+      "bodyDy": 0,
+      "supportX": 101,
+      "file": "src/assets/characters/cirno/guided-up-v1-frames/05-R-contact.png"
+    },
+    {
+      "frame": 6,
+      "phase": "R-down",
+      "pose": "up-contact-b",
+      "bodyDy": 1,
+      "supportX": 101,
+      "file": "src/assets/characters/cirno/guided-up-v1-frames/06-R-down.png"
+    },
+    {
+      "frame": 7,
+      "phase": "L-pass",
+      "pose": "up-contact-a",
+      "bodyDy": 0,
+      "supportX": 101,
+      "file": "src/assets/characters/cirno/guided-up-v1-frames/07-L-pass.png"
+    },
+    {
+      "frame": 8,
+      "phase": "L-high",
+      "pose": "up-contact-a",
+      "bodyDy": -1,
+      "supportX": 101,
+      "file": "src/assets/characters/cirno/guided-up-v1-frames/08-L-high.png"
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+{
+  "cell": 209,
+  "frameMs": 130,
+  "frames": [
+    {
+      "frame": 1,
+      "phase": "F1-contact-A",
+      "legacy_column": 0,
+      "bodyDy": 0,
+      "supportX": 54,
+      "legMotion": [
+        {
+          "dx": -4,
+          "dy": 0
+        },
+        {
+          "dx": 3,
+          "dy": -1
+        }
+      ],
+      "file": "src/assets/characters/alice/guided-left-v2-frames/01-F1-contact-A.png"
+    },
+    {
+      "frame": 2,
+      "phase": "F2-bearing-A",
+      "legacy_column": 0,
+      "bodyDy": 3,
+      "supportX": 54,
+      "legMotion": [
+        {
+          "dx": -4,
+          "dy": 0
+        },
+        {
+          "dx": 1,
+          "dy": -3
+        }
+      ],
+      "file": "src/assets/characters/alice/guided-left-v2-frames/02-F2-bearing-A.png"
+    },
+    {
+      "frame": 3,
+      "phase": "F3-passing-A",
+      "legacy_column": 1,
+      "bodyDy": 0,
+      "supportX": 54,
+      "legMotion": [
+        {
+          "dx": -1,
+          "dy": 0
+        },
+        {
+          "dx": -1,
+          "dy": -1
+        }
+      ],
+      "file": "src/assets/characters/alice/guided-left-v2-frames/03-F3-passing-A.png"
+    },
+    {
+      "frame": 4,
+      "phase": "F4-lift-A",
+      "legacy_column": 1,
+      "bodyDy": -3,
+      "supportX": 54,
+      "legMotion": [
+        {
+          "dx": 0,
+          "dy": -1
+        },
+        {
+          "dx": -3,
+          "dy": -5
+        }
+      ],
+      "file": "src/assets/characters/alice/guided-left-v2-frames/04-F4-lift-A.png"
+    },
+    {
+      "frame": 5,
+      "phase": "F5-contact-B",
+      "legacy_column": 2,
+      "bodyDy": 0,
+      "supportX": 101,
+      "legMotion": [
+        {
+          "dx": -3,
+          "dy": -1
+        },
+        {
+          "dx": 4,
+          "dy": 0
+        }
+      ],
+      "file": "src/assets/characters/alice/guided-left-v2-frames/05-F5-contact-B.png"
+    },
+    {
+      "frame": 6,
+      "phase": "F6-bearing-B",
+      "legacy_column": 2,
+      "bodyDy": 3,
+      "supportX": 101,
+      "legMotion": [
+        {
+          "dx": -1,
+          "dy": -3
+        },
+        {
+          "dx": 4,
+          "dy": 0
+        }
+      ],
+      "file": "src/assets/characters/alice/guided-left-v2-frames/06-F6-bearing-B.png"
+    },
+    {
+      "frame": 7,
+      "phase": "F7-passing-B",
+      "legacy_column": 3,
+      "bodyDy": 0,
+      "supportX": 101,
+      "legMotion": [
+        {
+          "dx": 1,
+          "dy": -1
+        },
+        {
+          "dx": 1,
+          "dy": 0
+        }
+      ],
+      "file": "src/assets/characters/alice/guided-left-v2-frames/07-F7-passing-B.png"
+    },
+    {
+      "frame": 8,
+      "phase": "F8-lift-B",
+      "legacy_column": 3,
+      "bodyDy": -3,
+      "supportX": 101,
+      "legMotion": [
+        {
+          "dx": 3,
+          "dy": -5
+        },
+        {
+          "dx": 0,
+          "dy": -1
+        }
+      ],
+      "file": "src/assets/characters/alice/guided-left-v2-frames/08-F8-lift-B.png"
+    }
+  ]
+}
