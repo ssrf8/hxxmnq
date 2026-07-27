@@ -1,0 +1,79 @@
+{
+  "schema": "cirno-v2-keyframes.v1",
+  "character_id": "cirno",
+  "version": "r1",
+  "stage": "pre-pixel-mcp-keypose-reference",
+  "status": "technical-qa-passed",
+  "pixel_mcp_used": false,
+  "references": [
+    "../cirno-turnaround-v1.png",
+    "../cirno-walk-cycle-v1.png"
+  ],
+  "normalization": {
+    "canvas_width": 1024,
+    "canvas_height": 1024,
+    "visible_height": 600,
+    "center_x": 512,
+    "baseline_y": 930,
+    "resampling": "nearest"
+  },
+  "groups": {
+    "stand": [
+      "poses/cirno-v2-stand-front-r1.png",
+      "poses/cirno-v2-stand-back-r1.png",
+      "poses/cirno-v2-stand-left-r1.png",
+      "poses/cirno-v2-stand-right-r1.png"
+    ],
+    "idle": [
+      "poses/cirno-v2-idle-blink-r1.png",
+      "poses/cirno-v2-idle-wings-raised-r1.png",
+      "poses/cirno-v2-idle-wings-lowered-r1.png"
+    ],
+    "left": [
+      "poses/cirno-v2-left-contact-a-r1.png",
+      "poses/cirno-v2-left-high-pass-r1.png",
+      "poses/cirno-v2-left-contact-b-r1.png"
+    ],
+    "right": [
+      "poses/cirno-v2-right-contact-a-r1.png",
+      "poses/cirno-v2-right-high-pass-r1.png",
+      "poses/cirno-v2-right-contact-b-r1.png"
+    ],
+    "up": [
+      "poses/cirno-v2-up-contact-a-r1.png",
+      "poses/cirno-v2-up-contact-b-r1.png"
+    ],
+    "down": [
+      "poses/cirno-v2-down-contact-a-r1.png",
+      "poses/cirno-v2-down-contact-b-r1.png"
+    ]
+  },
+  "source_strips": {
+    "chroma": "chroma-strips/",
+    "transparent": "transparent-strips/"
+  },
+  "qa_contact_sheet": "cirno-v2-keyframes-r1-qa-contact-sheet.png",
+  "candidate_animation": {
+    "status": "owner-gif-review-pending",
+    "atlas": "../cirno-animation-v2-r1.png",
+    "aseprite_master": "../cirno-animation-v2-r1-work.aseprite",
+    "cell_size": 209,
+    "atlas_columns": 9,
+    "atlas_rows": 4,
+    "filled_slots": 32,
+    "demo_frame_ms": 160,
+    "gifs": {
+      "idle": "../cirno-animation-v2-r1-idle-demo.gif",
+      "left": "../cirno-animation-v2-r1-left-demo.gif",
+      "right": "../cirno-animation-v2-r1-right-demo.gif",
+      "up": "../cirno-animation-v2-r1-up-demo.gif",
+      "down": "../cirno-animation-v2-r1-down-demo.gif",
+      "overview": "../cirno-animation-v2-r1-overview-demo.gif"
+    }
+  },
+  "remaining_work": [
+    "obtain owner approval for each action-group GIF",
+    "polish only rejected action groups if owner requests changes",
+    "register and integrate the runtime atlas"
+  ]
+}

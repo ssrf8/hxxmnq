@@ -1,0 +1,294 @@
+{
+  "cell": 209,
+  "atlas": "src/assets/characters/cirno/cirno-animation-v2-r1.png",
+  "frames": [
+    {
+      "index": 1,
+      "row": 0,
+      "col": 0,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/01-r0c0.png",
+      "height": 150,
+      "bottom": 179,
+      "centerX": 104.5
+    },
+    {
+      "index": 2,
+      "row": 0,
+      "col": 1,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/02-r0c1.png",
+      "height": 150,
+      "bottom": 179,
+      "centerX": 105
+    },
+    {
+      "index": 3,
+      "row": 0,
+      "col": 2,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/03-r0c2.png",
+      "height": 150,
+      "bottom": 179,
+      "centerX": 104.5
+    },
+    {
+      "index": 4,
+      "row": 0,
+      "col": 3,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/04-r0c3.png",
+      "height": 150,
+      "bottom": 179,
+      "centerX": 105
+    },
+    {
+      "index": 5,
+      "row": 0,
+      "col": 4,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/05-r0c4.png",
+      "height": 150,
+      "bottom": 179,
+      "centerX": 104.5
+    },
+    {
+      "index": 6,
+      "row": 0,
+      "col": 5,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/06-r0c5.png",
+      "height": 150,
+      "bottom": 179,
+      "centerX": 104.5
+    },
+    {
+      "index": 7,
+      "row": 0,
+      "col": 6,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/07-r0c6.png",
+      "height": 150,
+      "bottom": 177,
+      "centerX": 104.5
+    },
+    {
+      "index": 8,
+      "row": 0,
+      "col": 7,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/08-r0c7.png",
+      "height": 149,
+      "bottom": 179,
+      "centerX": 104.5
+    },
+    {
+      "index": 9,
+      "row": 0,
+      "col": 8,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/09-r0c8.png",
+      "height": 149,
+      "bottom": 177,
+      "centerX": 104.5
+    },
+    {
+      "index": 10,
+      "row": 1,
+      "col": 0,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/10-r1c0.png",
+      "height": 150,
+      "bottom": 179,
+      "centerX": 104.5
+    },
+    {
+      "index": 11,
+      "row": 1,
+      "col": 1,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/11-r1c1.png",
+      "height": 150,
+      "bottom": 179,
+      "centerX": 104.5
+    },
+    {
+      "index": 12,
+      "row": 1,
+      "col": 2,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/12-r1c2.png",
+      "height": 150,
+      "bottom": 177,
+      "centerX": 104.5
+    },
+    {
+      "index": 13,
+      "row": 1,
+      "col": 3,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/13-r1c3.png",
+      "height": 150,
+      "bottom": 179,
+      "centerX": 104.5
+    },
+    {
+      "index": 14,
+      "row": 1,
+      "col": 4,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/14-r1c4.png",
+      "height": 150,
+      "bottom": 177,
+      "centerX": 104.5
+    },
+    {
+      "index": 15,
+      "row": 2,
+      "col": 0,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/15-r2c0.png",
+      "height": 150,
+      "bottom": 179,
+      "centerX": 105
+    },
+    {
+      "index": 16,
+      "row": 2,
+      "col": 1,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/16-r2c1.png",
+      "height": 150,
+      "bottom": 179,
+      "centerX": 104.5
+    },
+    {
+      "index": 17,
+      "row": 2,
+      "col": 2,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/17-r2c2.png",
+      "height": 150,
+      "bottom": 177,
+      "centerX": 104.5
+    },
+    {
+      "index": 18,
+      "row": 2,
+      "col": 3,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/18-r2c3.png",
+      "height": 150,
+      "bottom": 175,
+      "centerX": 104.5
+    },
+    {
+      "index": 19,
+      "row": 2,
+      "col": 4,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/19-r2c4.png",
+      "height": 150,
+      "bottom": 179,
+      "centerX": 105
+    },
+    {
+      "index": 20,
+      "row": 2,
+      "col": 5,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/20-r2c5.png",
+      "height": 150,
+      "bottom": 177,
+      "centerX": 105
+    },
+    {
+      "index": 21,
+      "row": 2,
+      "col": 6,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/21-r2c6.png",
+      "height": 150,
+      "bottom": 175,
+      "centerX": 104.5
+    },
+    {
+      "index": 22,
+      "row": 2,
+      "col": 7,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/22-r2c7.png",
+      "height": 150,
+      "bottom": 178,
+      "centerX": 104.5
+    },
+    {
+      "index": 23,
+      "row": 2,
+      "col": 8,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/23-r2c8.png",
+      "height": 150,
+      "bottom": 177,
+      "centerX": 104.5
+    },
+    {
+      "index": 24,
+      "row": 3,
+      "col": 0,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/24-r3c0.png",
+      "height": 150,
+      "bottom": 179,
+      "centerX": 105
+    },
+    {
+      "index": 25,
+      "row": 3,
+      "col": 1,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/25-r3c1.png",
+      "height": 150,
+      "bottom": 179,
+      "centerX": 105
+    },
+    {
+      "index": 26,
+      "row": 3,
+      "col": 2,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/26-r3c2.png",
+      "height": 150,
+      "bottom": 177,
+      "centerX": 105
+    },
+    {
+      "index": 27,
+      "row": 3,
+      "col": 3,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/27-r3c3.png",
+      "height": 150,
+      "bottom": 175,
+      "centerX": 105
+    },
+    {
+      "index": 28,
+      "row": 3,
+      "col": 4,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/28-r3c4.png",
+      "height": 150,
+      "bottom": 179,
+      "centerX": 104.5
+    },
+    {
+      "index": 29,
+      "row": 3,
+      "col": 5,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/29-r3c5.png",
+      "height": 150,
+      "bottom": 177,
+      "centerX": 104.5
+    },
+    {
+      "index": 30,
+      "row": 3,
+      "col": 6,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/30-r3c6.png",
+      "height": 150,
+      "bottom": 175,
+      "centerX": 105
+    },
+    {
+      "index": 31,
+      "row": 3,
+      "col": 7,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/31-r3c7.png",
+      "height": 150,
+      "bottom": 178,
+      "centerX": 105
+    },
+    {
+      "index": 32,
+      "row": 3,
+      "col": 8,
+      "file": "src/assets/characters/cirno/v2-build-frames-r1/32-r3c8.png",
+      "height": 150,
+      "bottom": 177,
+      "centerX": 105
+    }
+  ]
+}

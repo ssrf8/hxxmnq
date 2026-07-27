@@ -1,0 +1,133 @@
+{
+  "frameMs": 160,
+  "cell": 209,
+  "atlas": "src/assets/characters/cirno/cirno-animation-v2-r1.png",
+  "jobs": [
+    {
+      "name": "idle",
+      "frameCount": 9,
+      "files": [
+        "src/assets/characters/cirno/v2-demo-frames-r1/idle/f000-r0c0.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/idle/f001-r0c1.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/idle/f002-r0c2.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/idle/f003-r0c3.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/idle/f004-r0c0.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/idle/f005-r0c1.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/idle/f006-r0c2.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/idle/f007-r0c3.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/idle/f008-r0c0.png"
+      ]
+    },
+    {
+      "name": "left",
+      "frameCount": 16,
+      "files": [
+        "src/assets/characters/cirno/v2-demo-frames-r1/left/f000-r2c1.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/left/f001-r2c2.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/left/f002-r2c3.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/left/f003-r2c4.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/left/f004-r2c5.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/left/f005-r2c6.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/left/f006-r2c7.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/left/f007-r2c8.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/left/f008-r2c1.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/left/f009-r2c2.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/left/f010-r2c3.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/left/f011-r2c4.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/left/f012-r2c5.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/left/f013-r2c6.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/left/f014-r2c7.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/left/f015-r2c8.png"
+      ]
+    },
+    {
+      "name": "right",
+      "frameCount": 16,
+      "files": [
+        "src/assets/characters/cirno/v2-demo-frames-r1/right/f000-r3c1.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/right/f001-r3c2.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/right/f002-r3c3.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/right/f003-r3c4.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/right/f004-r3c5.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/right/f005-r3c6.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/right/f006-r3c7.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/right/f007-r3c8.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/right/f008-r3c1.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/right/f009-r3c2.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/right/f010-r3c3.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/right/f011-r3c4.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/right/f012-r3c5.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/right/f013-r3c6.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/right/f014-r3c7.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/right/f015-r3c8.png"
+      ]
+    },
+    {
+      "name": "up",
+      "frameCount": 8,
+      "files": [
+        "src/assets/characters/cirno/v2-demo-frames-r1/up/f000-r0c5.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/up/f001-r0c6.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/up/f002-r0c7.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/up/f003-r0c8.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/up/f004-r0c5.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/up/f005-r0c6.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/up/f006-r0c7.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/up/f007-r0c8.png"
+      ]
+    },
+    {
+      "name": "down",
+      "frameCount": 8,
+      "files": [
+        "src/assets/characters/cirno/v2-demo-frames-r1/down/f000-r1c1.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/down/f001-r1c2.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/down/f002-r1c3.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/down/f003-r1c4.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/down/f004-r1c1.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/down/f005-r1c2.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/down/f006-r1c3.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/down/f007-r1c4.png"
+      ]
+    },
+    {
+      "name": "overview",
+      "frameCount": 33,
+      "files": [
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f000-r0c0.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f001-r0c1.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f002-r0c2.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f003-r0c3.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f004-r0c0.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f005-r2c0.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f006-r2c1.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f007-r2c2.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f008-r2c3.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f009-r2c4.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f010-r2c5.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f011-r2c6.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f012-r2c7.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f013-r2c8.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f014-r3c0.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f015-r3c1.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f016-r3c2.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f017-r3c3.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f018-r3c4.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f019-r3c5.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f020-r3c6.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f021-r3c7.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f022-r3c8.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f023-r0c4.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f024-r0c5.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f025-r0c6.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f026-r0c7.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f027-r0c8.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f028-r1c0.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f029-r1c1.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f030-r1c2.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f031-r1c3.png",
+        "src/assets/characters/cirno/v2-demo-frames-r1/overview/f032-r1c4.png"
+      ]
+    }
+  ]
+}

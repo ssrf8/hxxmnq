@@ -123,3 +123,14 @@ row 3: right-00 right-01 right-02 right-03 right-04 right-05 right-06 right-07 r
 - 运动语义与灵梦步行不同：水平 8 帧与垂直 4 帧均为 **悬浮起伏**（low → high → low），不是接地步行节奏；左右不可镜像（扫帚/辫子/蝴蝶结方向保留源图）。
 - 已接入范围：魔理沙与灵梦同样走 V2 图集路径；旧 `marisa-riding-turnaround-v3` + `marisa-hover-cycle-v1` 保留为加载失败回退。
 - 已知欠账（不阻塞运行时试点）：中间帧目前由 low/high 关键姿势 + 垂直位移/微摆合成，尚未在 Aseprite 手绘完整 in-between；`aseprite-inbetween-polish` 与 blink/dedicated-idle 仍列在 manifest `animation_pending`。
+
+## 11. 琪露诺 r1 候选（步行 + 冰翼轻悬浮 · 待验收）
+
+- 所有者已将本轮状态明确设为 **待验收**。候选图集、母档与 GIF 均已生成，但未登记进 `asset-manifest.json`、角色 sprite registry 或运行时；不得把技术 QA 通过写成所有者验收通过。
+- 候选图集：`src/assets/characters/cirno/cirno-animation-v2-r1.png`；`9×4` / 单格 `209×209` / 32 个非空槽；可编辑母档：`cirno-animation-v2-r1-work.aseprite`。
+- 前置关键姿势：`src/assets/characters/cirno/v2-keyframes-r1/`，包含四向站姿、idle 三姿、左右接地/高点、上下交替接地共 17 张独立透明参考。
+- 可复现构建：`scripts/build-cirno-v2-r1.mjs`；GIF 裁帧：`scripts/export-cirno-v2-demo-gifs.mjs`。两者使用已登记的 `pngjs` devDependency。
+- 验收 GIF：`cirno-animation-v2-r1-{idle,left,right,up,down,overview}-demo.gif`。idle 为 9 帧，左右各 16 帧（两个完整八帧循环），上下各 8 帧（两个完整四帧循环），总览 33 帧；全部为 `209×209`、每帧 `160ms`，且只从候选透明图集裁切生成。
+- 技术 QA：可见高度 `149–150px`，水平中心 `x=104.5–105`；`pixel_mcp` 母档回导 PNG 与候选图集逐像素一致；第 1 行后四格保持完全透明。
+- 动作语义仍为地面步行辅以冰翼轻微相位变化，不得改成魔理沙式持续离地飞行。当前中间帧由关键姿势与 `0–4px` 最近邻位移组合，所有者若拒绝某个动作组，只返修该组并重新导出 GIF。
+- 下一步仅有两种：所有者逐组明确“通过”后再做运行时登记与回退接入；或按所有者反馈返修被拒绝的动作组。当前统一状态：`owner-gif-review-pending`。
