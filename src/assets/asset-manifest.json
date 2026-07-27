@@ -161,9 +161,16 @@
     }
   },
   "maps": {
-    "garden_base_spring": {
-      "status": "pending-unified-review",
-      "source": "maps/garden-base-spring-v1.png"
+    "garden_base": {
+      "status": "owner-approved-runtime",
+      "source": "maps/garden-base-expanded-empty-v1.png",
+      "canvas": [1536, 1024],
+      "composition": "expanded-view-empty-garden",
+      "runtime_role": "base-layer",
+      "facility_layer_policy": "separate-transparent-sprites",
+      "character_visual_scale": 0.73,
+      "facility_visual_scale": 0.76,
+      "provenance": "owner-supplied 2026-07-27; SHA-256 19a88b71e4119300c5ca012aeb03cd12a13f57d3482e55bb8e9eb4a823fd52fd"
     }
   },
   "world_assets": {

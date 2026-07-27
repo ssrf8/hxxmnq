@@ -7,6 +7,8 @@ interface Point { x: number; y: number }
 export interface HitTarget extends Point { id: string; label: string; kind: 'area' | 'character'; radius: number }
 
 const areaPositions = GARDEN_AREA_POSITIONS;
+const CHARACTER_VISUAL_SCALE = 0.73;
+const FACILITY_VISUAL_SCALE = 0.76;
 
 export class GardenMap {
   private readonly context: CanvasRenderingContext2D;
@@ -186,8 +188,15 @@ export class GardenMap {
         const topY = Math.min(...worldPoints.map((point) => point.y));
         this.drawLabel(ctx, x, topY - 16 * px, `${label} · ${markerState}`);
       } else if (active) {
-        this.drawGroundGlow(ctx, x, y, drawWidth * 0.085, drawHeight * 0.05, pulse);
-        this.drawLabel(ctx, x, y - drawHeight * 0.05 - 18 * px, `${label} · ${markerState}`);
+        this.drawGroundGlow(
+          ctx,
+          x,
+          y,
+          drawWidth * 0.085 * FACILITY_VISUAL_SCALE,
+          drawHeight * 0.05 * FACILITY_VISUAL_SCALE,
+          pulse,
+        );
+        this.drawLabel(ctx, x, y - drawHeight * 0.05 * FACILITY_VISUAL_SCALE - 18 * px, `${label} · ${markerState}`);
       } else {
         this.drawDiamond(ctx, x, y, 7 * px, discoveryMarker ? '#d9b9e8' : '#f3d58a');
       }
@@ -218,7 +227,7 @@ export class GardenMap {
       const x = -drawWidth / 2 + (base.x + actorOffset) * drawWidth + (index % 3 - 1) * 38 * px;
       const y = -drawHeight / 2 + base.y * drawHeight + 54 * px + Math.floor(index / 3) * 35 * px;
       const label = this.state.characters?.[id]?.name ?? id;
-      const spriteSize = Math.min(132 * px, drawWidth * 0.12);
+      const spriteSize = Math.min(132 * px, drawWidth * 0.12) * CHARACTER_VISUAL_SCALE;
       const characterActive = this.hoveredId === id || this.selectedId === id;
       // 轮廓发光：染色剪影垫底，精确贴合人物形状；无 sprite 时回退圆环。
       let glowDrawn = false;
@@ -239,10 +248,10 @@ export class GardenMap {
       ctx.stroke();
       }
       if (characterActive) {
-        this.drawLabel(ctx, x, y + 40 * px, label);
-        if (!glowDrawn) this.drawSelectionRing(ctx, x, y, (drawnAsSprite ? 46 : 26) * px);
+        this.drawLabel(ctx, x, y + 32 * px, label);
+        if (!glowDrawn) this.drawSelectionRing(ctx, x, y, (drawnAsSprite ? 36 : 24) * px);
       }
-      this.targets.push({ id, label, kind: 'character', x, y, radius: (drawnAsSprite ? 42 : 24) * px });
+      this.targets.push({ id, label, kind: 'character', x, y, radius: (drawnAsSprite ? 34 : 24) * px });
     });
     ctx.restore();
 

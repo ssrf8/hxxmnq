@@ -1,7 +1,7 @@
 # 前端美化施工日志（UI Beautification Log）
 
 > 配套方案：`project/ui-beautification-plan.md`（方向定稿与阶段规划）。
-> 本日志按轮记录 2026-07-26 起的美化施工，全部发生在维护源 `0.2.0-r53` 检查点线上；**未打包、未覆盖任何 dist 产物、未做实机验收**。
+> 本日志按轮记录 2026-07-26 起的美化施工；各轮是否打包以轮次与交接记录为准，离线通过不等于实机验收通过。
 > 每轮收工门禁：`npm run check:ui` → `npm test` → `npm run build:ui`，全绿才记为完成。
 
 ## 轮次总览
@@ -17,6 +17,7 @@
 | R6 | 全阶段全屏（.gg-app 基础规则满屏）；SpriteActor 轮廓染色发光替代圆环；顶栏六钮角色主题胶囊（参考所有者灵梦按钮图） | 所有者反馈 + 参考图 | 105/105 |
 | R6.5 | 修复「默认进庭院不全屏」：启动即初始化 `data-active-view='garden'` | 所有者报 bug | 106/106 |
 | R7 | 区域高亮从矩形角括 → 底图手描轮廓多边形描边发光（主屋/水井/田地/山门），空地块贴地光环；两轮叠图校验 | 所有者反馈 | 106/106 |
+| R8 | 扩大视角无设施底图接入；地图素材改为 manifest 驱动；人物 73% / 设施占位 76% 远景缩放；停用旧底图轮廓 | 所有者供图与规划 | 109/109 |
 
 ## 变更文件
 
@@ -27,6 +28,8 @@
 | `src/ui/app.ts` | `createBubbleButton`、半环绕定位、`positionTargetMenu` 跟随、`setStatus` tone、全屏开关、启动视图标记、鼠标光源、正文逐拍淡入 |
 | `src/ui/garden-map.ts` | DPR 补偿、药丸标签、悬停/选中态、轮廓多边形发光、贴地光环、锚点跟随回调、指针切换、imageSmoothing 关闭 |
 | `src/ui/garden-spatial.ts` | 新增 `GARDEN_AREA_OUTLINES` 手描轮廓（换底图必须重描） |
+| `src/assets/maps/garden-base-expanded-empty-v1.png` | 所有者提供的 1536×1024 扩大视角无设施运行时底图；设施改走后续独立透明贴图层 |
+| `src/assets/asset-manifest.json` / `scripts/build-ui.mjs` | 登记 `maps.garden_base` 并由清单选择、复制和内嵌运行时底图 |
 | `src/ui/sprite-actor.ts` | 新增 `drawOutlineGlow`（source-in 染色 + 模糊双叠，含浮动/摆动同步） |
 | `src/ui/shop-view.ts` / `inventory-view.ts` | 价签 `gg-price`、空状态 `gg-empty` |
 | `src/assets/ui/opening-hero-source-v1.png` | 所有者主视觉原图存档（2.9MB，未入清单，不进卡） |
@@ -38,11 +41,11 @@
 - 称谓字段隐藏但保留在 DOM 与开场事务（默认「中性称谓」）。
 - 所有动效统一走全局 `prefers-reduced-motion` 豁免；像素素材永远 `imageSmoothingEnabled=false` / `pixelated`。
 - 体积纪律：主视觉压缩至 430KB 再嵌入；灯笼/星芒/鸟居等全部内嵌 SVG 零位图。
-- world_assets 的 states 图集（RGBA）与底图透视不一致，不能直接叠图——地图态高亮走手描轮廓；图集继续服务设施页。
+- world_assets 的既有 states 图集（RGBA）与新底图透视不一致，继续只服务设施页；地图设施必须重新制作独立透明贴图。空底图阶段统一使用缩小后的贴地光环，旧手描轮廓停用。
 
 ## 待办 / 待素材 / 待验收
 
 - **实机验收（sillytavern-runtime-debug，最高优先）**：轮廓发光悬停手感、全阶段全屏、气泡视角跟随、移动端 320px、reduced-motion、ST 类名改写抽查。
-- ~~升 r54 打包~~ **已完成（2026-07-26 深夜，所有者授权）**：`dist/checkpoint-0.2.0-r54/幻想乡物语-测试检查点-0.2.0-r54.json`，SHA-256 `ee8587e7e67c832ac7d175c0eb3b58e625e4afc0640de67388fc246d3257ac73`，36,181,652 字节；打包时门禁 108/108。
-- **待所有者素材**：鼠标指针（已声明暂缓）、灯笼真素材、开场按钮完整绘制版（参考图未嵌卡）、细腻立绘线（方案 §7）、分层地图（无建筑底图 + 对位建筑贴图 → 地图状态可视化 + 像素级轮廓发光）。
+- ~~升 r54 打包~~ **已完成**：原 2026-07-26 产物 `ee8587e7…57ac73` 已归档；当前 r54 为 `d654424` 基准测试包，SHA-256 `4af870fa…501214`、38,392,452 字节。R8 扩大视角地图尚未正式打包。
+- **待所有者素材**：鼠标指针（已声明暂缓）、灯笼真素材、开场按钮完整绘制版（参考图未嵌卡）、细腻立绘线（方案 §7）、与新空底图对位的独立设施透明贴图（底图已完成接入）。
 - **方案剩余阶段**：D 季节时段主题、E 微交互收尾与截图归档、F 素材接入。

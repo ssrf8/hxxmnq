@@ -74,6 +74,21 @@ test('庭园地图滚轮缩放不被绘制尺寸抵消，并保持指针锚点',
   assert.doesNotMatch(styles, /#gg-garden-map \{[^}]*min-height: 480px/);
 });
 
+test('扩大视角空庭园底图由素材清单驱动，人物与设施标记按远景比例收缩', async () => {
+  const manifest = await read('../src/assets/asset-manifest.json');
+  const build = await read('../scripts/build-ui.mjs');
+  const map = await read('../src/ui/garden-map.ts');
+  const spatial = await read('../src/ui/garden-spatial.ts');
+  assert.match(manifest, /garden-base-expanded-empty-v1\.png/);
+  assert.match(manifest, /"runtime_role": "base-layer"/);
+  assert.match(manifest, /"facility_layer_policy": "separate-transparent-sprites"/);
+  assert.match(build, /assetManifest\.maps\?\.garden_base/);
+  assert.match(build, /gardenBaseAsset\.source/);
+  assert.match(map, /CHARACTER_VISUAL_SCALE = 0\.73/);
+  assert.match(map, /FACILITY_VISUAL_SCALE = 0\.76/);
+  assert.match(spatial, /GARDEN_AREA_OUTLINES[^=]*= Object\.freeze\(\{\}\)/);
+});
+
 test('互动使用单壳 GAL、自定义输入与零模型本地结束', async () => {
   const document = await read('../src/ui/index.html');
   const controller = await read('../src/ui/app.ts');

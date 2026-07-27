@@ -2,6 +2,10 @@ import { build } from 'esbuild';
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 
 const assetManifest = JSON.parse(await readFile('src/assets/asset-manifest.json', 'utf8'));
+const gardenBaseAsset = assetManifest.maps?.garden_base;
+if (!gardenBaseAsset?.source || gardenBaseAsset.runtime_role !== 'base-layer') {
+  throw new Error('素材清单缺少运行时庭园底图 maps.garden_base');
+}
 const characterAssets = Object.entries(assetManifest.characters)
   .filter(([, character]) => character.map_usage)
   .map(([id, character]) => {
@@ -43,7 +47,7 @@ await Promise.all([
   mkdir('dist/assets/battle/effects', { recursive: true }),
 ]);
 await Promise.all([
-  copyFile('src/assets/maps/garden-base-spring-v1.png', 'dist/assets/maps/garden-base-spring-v1.png'),
+  copyFile(`src/assets/${gardenBaseAsset.source}`, `dist/assets/${gardenBaseAsset.source}`),
   ...characterAssets.flatMap(({ idle, motion, animation }) => [
     copyFile(`src/assets/${idle}`, `dist/assets/${idle}`),
     copyFile(`src/assets/${motion}`, `dist/assets/${motion}`),
@@ -72,7 +76,7 @@ const [
   readFile('dist/ui/index.html', 'utf8'),
   readFile('dist/ui/styles.css', 'utf8'),
   readFile('dist/ui/app.js', 'utf8'),
-  readFile('src/assets/maps/garden-base-spring-v1.png'),
+  readFile(`src/assets/${gardenBaseAsset.source}`),
   readFile('src/assets/world/house/main-house-states-v1.png'),
   readFile('src/assets/world/greenhouse/magic-greenhouse-states-v1.png'),
   readFile('src/assets/battle/player/keycraft-player-sheet-v1.png'),

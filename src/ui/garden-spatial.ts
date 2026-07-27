@@ -13,50 +13,10 @@ export const GARDEN_AREA_POSITIONS: Readonly<Record<string, GardenPoint>> = Obje
 });
 
 /**
- * 按 garden-base-spring-v1 底图手描的建筑/地块轮廓（底图宽高的比例坐标）。
- * 仅用于悬停/选中时的描边发光渲染；没有条目的区域回退贴地光环。
- * 换底图素材时需要重描。
+ * 空庭园底图不再画死建筑。设施贴图接入前，所有区域统一使用贴地光环；
+ * 后续轮廓应由独立设施 sprite 的透明边界或登记 hit polygon 提供，禁止复用旧底图描点。
  */
-export const GARDEN_AREA_OUTLINES: Readonly<Record<string, readonly GardenPoint[]>> = Object.freeze({
-  main_house: [
-    { x: 0.235, y: 0.185 },
-    { x: 0.30, y: 0.115 },
-    { x: 0.345, y: 0.075 },
-    { x: 0.46, y: 0.062 },
-    { x: 0.525, y: 0.155 },
-    { x: 0.525, y: 0.25 },
-    { x: 0.475, y: 0.30 },
-    { x: 0.435, y: 0.335 },
-    { x: 0.30, y: 0.315 },
-    { x: 0.218, y: 0.26 },
-  ],
-  central_courtyard: [
-    { x: 0.457, y: 0.47 },
-    { x: 0.47, y: 0.415 },
-    { x: 0.503, y: 0.40 },
-    { x: 0.536, y: 0.415 },
-    { x: 0.549, y: 0.47 },
-    { x: 0.536, y: 0.525 },
-    { x: 0.503, y: 0.545 },
-    { x: 0.47, y: 0.525 },
-  ],
-  greenhouse_plot: [
-    { x: 0.672, y: 0.48 },
-    { x: 0.78, y: 0.375 },
-    { x: 0.945, y: 0.45 },
-    { x: 0.93, y: 0.615 },
-    { x: 0.78, y: 0.675 },
-  ],
-  banquet_plaza_plot: [
-    { x: 0.30, y: 0.79 },
-    { x: 0.42, y: 0.735 },
-    { x: 0.49, y: 0.705 },
-    { x: 0.585, y: 0.735 },
-    { x: 0.655, y: 0.79 },
-    { x: 0.63, y: 0.855 },
-    { x: 0.325, y: 0.855 },
-  ],
-});
+export const GARDEN_AREA_OUTLINES: Readonly<Record<string, readonly GardenPoint[]>> = Object.freeze({});
 
 const REFITTABLE_FACILITY_AREAS = [
   ['fairy_garden', 'fairy_garden_plot'],

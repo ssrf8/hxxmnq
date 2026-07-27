@@ -1,5 +1,7 @@
 # Agent 交接文档
 
+> 2026-07-27（四）：所有者提供扩大视角的无设施庭园底图，已以 `src/assets/maps/garden-base-expanded-empty-v1.png` 接入维护源（1536×1024，SHA-256 `19a88b71…fd52fd`），由 `asset-manifest.json` 的 `maps.garden_base` 驱动构建，不再硬编码旧 `garden-base-spring-v1.png`。地图人物显示缩至旧比例 73%，设施占位光环缩至 76%；旧底图手描建筑轮廓已停用，后续设施必须使用独立透明贴图及登记 hit polygon/透明边界，不能复用旧描点。现有区域锚点与交互保留；设施贴图尚未接入。离线门禁：check:ui 通过、npm test 109/109、build:ui 通过、r54 dry-run 通过（37,420,011 字节，SHA-256 `b9124180…0e3cae`）；**未正式打包、未实机验收**。
+
 > 2026-07-27（三）：魔理沙像素动画 V2 r2 已接入维护源。运行时图集 `src/assets/characters/marisa/marisa-animation-v2-r2.png`（`9×4` / `209×209`，由 `v2-hover-keyframes` 四方向 low/high 最近邻对齐合成悬浮循环）；母档 `marisa-animation-v2-r2-work.aseprite`；构建脚本 `scripts/build-marisa-v2-r2.mjs`。registry / asset-manifest / UI 契约测试已登记；旧 `riding-turnaround-v3 + hover-cycle-v1` 保留回退。离线门禁：check:ui 通过、npm test 108/108、build:ui 通过。**未打包、未实机验收**。欠账：Aseprite 手绘 in-between 精修、二维路径、其余六名角色 V2。记录见 `project/pixel-character-animation-v2-plan.md` §10。
 
 > 2026-07-27（二）：所有者对设施扩展计划三项拍板：①R55 底座泛化确认执行；②契约修订已授权并写入 `contract.md`（「八名固定角色」改为首发名单+登记接入制、新增「新设施不得携带后置主线/全局前置/跨设施门票」红线，大妖精禁令保留）；③新角色素材**占位先行**——不再依赖灵梦 V2 试点验收，占位图集规格见计划 §4.4（主题色剪影、V2 版式 9×4、`status: placeholder` 登记、真素材原位替换零链路改动），真素材与动画后补按 r49 流程逐项勾销。R55（泛化）→R56 花见回廊→R57 缘侧书斋→R58 祈愿分社→R59 妖梦→R60+ 帕秋莉/早苗可依序开工；排期与验收欠账的取舍仍开放（计划 §9.4，默认 R55 先行）。本轮仅改文档（计划/契约/本文件），未改代码、未打包。

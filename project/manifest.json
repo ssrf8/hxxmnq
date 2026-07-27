@@ -107,6 +107,7 @@
     "opening_controller": "../src/ui/opening.ts",
     "database_adapter": "../src/ui/database-adapter.ts",
     "garden_canvas": "../src/ui/garden-map.ts",
+    "garden_base": "../src/assets/maps/garden-base-expanded-empty-v1.png",
     "gal_scene_parser": "../src/ui/gal-scene.ts",
     "gal_message_selection": "../src/ui/gal-message-selection.ts",
     "target_actions": "../src/ui/target-actions.ts",
