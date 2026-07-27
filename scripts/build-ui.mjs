@@ -1,5 +1,6 @@
 import { build } from 'esbuild';
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { dirname } from 'node:path';
 
 const assetManifest = JSON.parse(await readFile('src/assets/asset-manifest.json', 'utf8'));
 const gardenBaseAsset = assetManifest.maps?.garden_base;
@@ -23,6 +24,15 @@ if (characterAssets.length !== 8) {
   throw new Error(`庭园角色素材应为 8 组，实际为 ${characterAssets.length} 组`);
 }
 
+const mapFacilityAssets = Object.entries(assetManifest.map_facility_assets ?? {})
+  .filter(([, facility]) => facility.map_usage)
+  .map(([id, facility]) => {
+    if (!facility.source_alpha || typeof facility.source_alpha === 'string') {
+      throw new Error(`地图设施 ${id} 缺少按形态登记的透明贴图`);
+    }
+    return { id, forms: facility.source_alpha, damageOverlay: facility.damage_overlay_alpha };
+  });
+
 await mkdir('dist/ui', { recursive: true });
 await build({
   entryPoints: ['src/ui/app.ts'],
@@ -45,9 +55,17 @@ await Promise.all([
   mkdir('dist/assets/battle/player', { recursive: true }),
   mkdir('dist/assets/battle/boss', { recursive: true }),
   mkdir('dist/assets/battle/effects', { recursive: true }),
+  ...mapFacilityAssets.flatMap(({ forms, damageOverlay }) => [
+    ...Object.values(forms).map((source) => mkdir(dirname(`dist/assets/${source}`), { recursive: true })),
+    ...(damageOverlay ? [mkdir(dirname(`dist/assets/${damageOverlay}`), { recursive: true })] : []),
+  ]),
 ]);
 await Promise.all([
   copyFile(`src/assets/${gardenBaseAsset.source}`, `dist/assets/${gardenBaseAsset.source}`),
+  ...mapFacilityAssets.flatMap(({ forms, damageOverlay }) => [
+    ...Object.values(forms).map((source) => copyFile(`src/assets/${source}`, `dist/assets/${source}`)),
+    ...(damageOverlay ? [copyFile(`src/assets/${damageOverlay}`, `dist/assets/${damageOverlay}`)] : []),
+  ]),
   ...characterAssets.flatMap(({ idle, motion, animation }) => [
     copyFile(`src/assets/${idle}`, `dist/assets/${idle}`),
     copyFile(`src/assets/${motion}`, `dist/assets/${motion}`),
@@ -101,6 +119,16 @@ const characterSpriteDataUrls = Object.fromEntries(await Promise.all(characterAs
 })));
 const mainHouseDataUrl = `data:image/png;base64,${mainHouseBytes.toString('base64')}`;
 const greenhouseDataUrl = `data:image/png;base64,${greenhouseBytes.toString('base64')}`;
+const mapFacilityDataUrls = Object.fromEntries(await Promise.all(mapFacilityAssets.map(async ({ id, forms, damageOverlay }) => {
+  const formEntries = await Promise.all(Object.entries(forms).map(async ([form, source]) => [
+    form,
+    `data:image/png;base64,${(await readFile(`src/assets/${source}`)).toString('base64')}`,
+  ]));
+  const overlay = damageOverlay
+    ? `data:image/png;base64,${(await readFile(`src/assets/${damageOverlay}`)).toString('base64')}`
+    : undefined;
+  return [id, { forms: Object.fromEntries(formEntries), damageOverlay: overlay }];
+})));
 const battlePlayerDataUrl = `data:image/png;base64,${battlePlayerBytes.toString('base64')}`;
 const battleBossDataUrl = `data:image/png;base64,${battleBossBytes.toString('base64')}`;
 const battleEffectsDataUrl = `data:image/png;base64,${battleEffectsBytes.toString('base64')}`;
@@ -112,6 +140,7 @@ const embedded = {
   characterSpriteDataUrls,
   mainHouseDataUrl,
   greenhouseDataUrl,
+  mapFacilityDataUrls,
   battlePlayerDataUrl,
   battleBossDataUrl,
   battleEffectsDataUrl,

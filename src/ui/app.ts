@@ -80,6 +80,13 @@ const battleBombBtn = byId<HTMLButtonElement>('gg-battle-bomb');
 const battleBombCount = byId<HTMLElement>('gg-battle-bomb-count');
 const assetBase = document.documentElement.dataset.assetBase ?? '../assets';
 const mapSource = document.documentElement.dataset.mapSrc || `${assetBase}/maps/garden-base-spring-v1.png`;
+const mapFacilitySprites = (() => {
+  try {
+    return JSON.parse(document.documentElement.dataset.mapFacilitySprites ?? '{}');
+  } catch {
+    return {};
+  }
+})();
 const characterSprites = resolveCharacterSprites(assetBase, document.documentElement.dataset);
 const reimuSpriteSource = characterSprites.reimu.idleSource;
 const reimuPortraitSource = document.documentElement.dataset.reimuPortraitSrc || reimuSpriteSource;
@@ -908,6 +915,7 @@ const gardenMap = new GardenMap(
   byId<HTMLCanvasElement>('gg-garden-map'),
   mapSource,
   characterSprites,
+  mapFacilitySprites,
   (target, anchor) => renderTargetMenu(
     { type: target.kind, id: target.id, label: target.label },
     anchor,

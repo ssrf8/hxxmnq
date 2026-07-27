@@ -89,6 +89,21 @@ test('扩大视角空庭园底图由素材清单驱动，人物与设施标记�
   assert.match(spatial, /GARDEN_AREA_OUTLINES[^=]*= Object\.freeze\(\{\}\)/);
 });
 
+test('已验收的三座可换型设施以透明图层接入地图，并在损坏时叠加覆盖层', async () => {
+  const manifest = await read('../src/assets/asset-manifest.json');
+  const build = await read('../scripts/build-ui.mjs');
+  const host = await read('../src/runtime/ui-host-shell.js');
+  const map = await read('../src/ui/garden-map.ts');
+  for (const id of ['fairy_garden', 'moon_spring', 'banquet_plaza']) {
+    assert.match(manifest, new RegExp(`"${id}": \\{[\\s\\S]*?"map_usage": true`));
+  }
+  assert.match(build, /mapFacilityDataUrls/);
+  assert.match(host, /mapFacilitySprites/);
+  assert.match(map, /drawFacilityLayer/);
+  assert.match(map, /runtime\?\.status === 'damaged'/);
+  assert.match(map, /runtime\?\.current_form \?\? facility\?\.current_form/);
+});
+
 test('互动使用单壳 GAL、自定义输入与零模型本地结束', async () => {
   const document = await read('../src/ui/index.html');
   const controller = await read('../src/ui/app.ts');

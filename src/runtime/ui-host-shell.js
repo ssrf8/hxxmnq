@@ -175,6 +175,7 @@
     if (characterSprites.marisa?.idle) childDoc.documentElement.dataset.marisaPortraitSrc = characterSprites.marisa.idle;
     childDoc.documentElement.dataset.mainHouseSrc = embedded.mainHouseDataUrl;
     childDoc.documentElement.dataset.greenhouseSrc = embedded.greenhouseDataUrl;
+    childDoc.documentElement.dataset.mapFacilitySprites = JSON.stringify(embedded.mapFacilityDataUrls || {});
     // Transparent battle sheets only (no chroma duplicates).
     if (embedded.battlePlayerDataUrl) childDoc.documentElement.dataset.battlePlayerSrc = embedded.battlePlayerDataUrl;
     if (embedded.battleBossDataUrl) childDoc.documentElement.dataset.battleBossSrc = embedded.battleBossDataUrl;

@@ -276,6 +276,88 @@
 - [ ] 新增待素材项：鼠标指针（所有者暂缓）、灯笼真素材、开场按钮完整绘制版
 - [ ] 实机验收交接（runtime-debug 报告编号：____；建议升 0.2.0-r54 打包后集中验收）
 
+### 9.1 分层地图：独立设施贴图台账（2026-07-27）
+
+> `world_assets` 中既有的 states 图集仅服务设施页近景，透视与
+> `garden-base-expanded-empty-v1.png` 不一致，不能充当下表的地图贴图。
+> 每座设施接入前均需完成：对位透明 PNG、状态变体表、锚点/绘制基线、
+> hit polygon 或透明边界、`asset-manifest.json` 登记与实机叠图校验。
+
+| 范围 | 设施（ID） | 地图锚点 / 位置 | 地图贴图状态 | 尚缺素材规划 |
+|---|---|---|---|---|
+| 现有 | 主屋（`main_house`） | `main_house`（0.25, 0.28） | 受损 / 修缮后两张已生成，待叠图审阅；未接入 | 锚点、基线、边界与运行时选择表 |
+| 现有 | 魔法温室（`magic_greenhouse`） | `greenhouse_plot`（0.72, 0.35） | 已建成图已生成，待叠图审阅；未接入 | 锚点、基线、受损状态、边界与运行时选择表 |
+| 现有 | 妖精花园（`fairy_garden`） | `fairy_garden_plot`（0.76, 0.68） | 三形态与受损覆盖层已验收，绘制链已接入，待实机叠图 | 锚点、边界、基线与 `current_form` 实机校准 |
+| 现有 | 月见温泉（`moon_spring`） | `moon_spring_plot`（0.28, 0.76） | 三形态验收通过，受损覆盖层已生成，绘制链已接入，待实机叠图 | 锚点、边界、基线与 `current_form` 实机校准 |
+| 现有 | 宴会广场（`banquet_plaza`） | `banquet_plaza_plot`（0.50, 0.82） | 三形态验收通过，受损覆盖层已生成，绘制链已接入，待实机叠图 | 锚点、边界、基线与 `current_form` 实机校准 |
+| 新增（R56） | 花见回廊（`hanami_corridor`，暂名） | `hanami_corridor_plot`（约 0.62, 0.16） | 仅有主题与暂定锚点 | 三形态地图贴图；季节/夜樱灯光变体；边界与基线 |
+| 新增（R57） | 缘侧书斋（`garden_study`，暂名） | `garden_study_plot`（约 0.14, 0.47） | 仅有主题与暂定锚点 | 三形态地图贴图；室内灯光变体；边界与基线 |
+| 新增（R58） | 祈愿分社（`wish_shrine`，暂名） | `wish_shrine_plot`（约 0.10, 0.63） | 仅有主题与暂定锚点 | 三形态地图贴图；祭典/夜灯变体；边界与基线 |
+
+> 2026-07-28 更新：现有五座地图对象均已具备独立透明设施素材；妖精花园／月见温泉／宴会广场的三形态与 `damaged` 覆盖层已通过所有者视觉验收，并接入离线绘制链，构建与契约测试通过。真实 SillyTavern 尚待校准锚点、缩放、命中边界和各状态叠图。主屋与魔法温室已有独立素材但仍未进入该绘制分支；R56–R58 均未形成正式内容合同，继续禁止提前生成。
+
+> 不把水井、田地、山门等庭园地标列入本表；它们不是可建设/换型的设施，
+> 需要时另建“固定地标与环境小物”素材台账。
+
+### 9.2 独立设施贴图生产计划：现在生成什么（2026-07-27）
+
+#### 目标与边界
+
+- 先让空底图出现**正确透视、正确锚点、可点击**的设施；不把设施页近景 states 图集裁切或改作地图贴图。
+- 地图设施采用“完整 RGBA 基础贴图 + 少量透明状态覆盖层”。`abnormal` 首轮由代码发光/粒子表现，不为每种异常预生一张全图；`damaged` 只生成每座设施一张可验证的覆盖层。
+- 首轮只做已存在于运行时的五个地图对象。新设施必须等对应 R56/R57/R58 内容轮落地后再生成，避免用暂名、暂定锚点反复返工。
+- 每个交付文件均以 `facility_id`、用途和版本命名；生成完成后先登记 `asset-manifest.json`，再接入绘制顺序与命中边界。未经实机叠图校验，不标记完成。
+
+#### 生成前必须先定稿（不出图）
+
+| 项目 | 需要定稿的内容 | 产物 / 去向 |
+|---|---|---|
+| 图层合同 | 透明 PNG、像素尺寸、脚底基线、锚点偏移、绘制层级（底图 → 设施 → 人物 → UI） | `project/` 素材规格或 `asset-manifest.json` 扩展字段 |
+| 状态映射 | `area` / `facility_runtime` 的状态如何选取基础贴图、`damaged` 覆盖层和代码异常特效 | 渲染选择表；未知状态安全回退为无覆盖层 |
+| 命中合同 | 每座设施使用 hit polygon 或透明边界；菜单锚点取视觉包围盒中心 | `garden-spatial.ts` 的登记数据 |
+| 叠图验收板 | 1536×1024 底图上的真实叠图截图，检查比例、遮挡、可读性及 320px 缩放 | `scratchpad/` 验收图，不进运行时产物 |
+
+#### 首批：立即需要生成的地图贴图（12 张）
+
+> 这一批完成后，现有可建设/可访问设施不再只显示贴地光环。每张均为与
+> `garden-base-expanded-empty-v1.png` 对位的完整透明贴图；`未发现`、`未建成`
+> 状态保持空地/光环，不生成“假建筑”。
+
+| 优先级 | 文件建议 | 对应状态 / 形态 | 数量 | 说明 |
+|---|---|---|---:|---|
+| P0 | `world/map-facilities/main-house/main-house-damaged-v1.png` | 主屋初始损坏 | 1 | 开局可见的首要视觉锚点 |
+| P0 | `world/map-facilities/main-house/main-house-restored-v1.png` | 主屋修缮后 | 1 | 与损坏版构图、基线完全一致 |
+| P0 | `world/map-facilities/magic-greenhouse/magic-greenhouse-operational-v1.png` | 魔法温室已建成 | 1 | 温室旧地基未发现时仍不绘制 |
+| P1 | `world/map-facilities/fairy-garden/fairy-garden-<form>-v1.png` | 四季花境／妖精游乐庭／冰露迷宫 | 3 | 3 个 `current_form` 一一对应 |
+| P1 | `world/map-facilities/moon-spring/moon-spring-<form>-v1.png` | 露天月见汤／静水观测池／雾隐汤屋 | 3 | 3 个 `current_form` 一一对应 |
+| P1 | `world/map-facilities/banquet-plaza/banquet-plaza-<form>-v1.png` | 灯火夜市／鬼之大宴台／符卡演武场 | 3 | 3 个 `current_form` 一一对应 |
+
+#### 第二批：状态覆盖层（首批叠图通过后生成，3 张）
+
+| 文件建议 | 触发状态 | 数量 | 表现边界 |
+|---|---|---:|---|
+| `world/map-facilities/fairy-garden/fairy-garden-damaged-overlay-v1.png` | `facility_runtime.fairy_garden.status = damaged` | 1 | 围栏/水道/结构损伤共用一个低遮挡覆盖层 |
+| `world/map-facilities/moon-spring/moon-spring-damaged-overlay-v1.png` | `facility_runtime.moon_spring.status = damaged` | 1 | 池沿/装置/映照面损伤共用一个覆盖层 |
+| `world/map-facilities/banquet-plaza/banquet-plaza-damaged-overlay-v1.png` | `facility_runtime.banquet_plaza.status = damaged` | 1 | 地板/结界损伤共用一个覆盖层 |
+
+- `abnormal`：首期不生成位图，使用现有 Canvas 染色/发光管线；如果实机辨识度不足，再按设施补一张透明效果层。
+- 夜灯：不作为首批硬依赖；先由基础贴图兼容昼夜。叠图验收后，仅为确有夜间语义的形态补独立灯光覆盖层（优先：灯火夜市、露天月见汤，随后夜樱灯宴）。
+
+#### 新设施：随内容轮生成，当前不提前出图（9 张基础贴图）
+
+| 内容轮 | 设施 | 现在应准备 | 该轮确认后生成 |
+|---|---|---|---|
+| R56 | 花见回廊 | 确认最终中文名、ID、锚点与 3 形态命名 | 四季花见廊／夜樱灯宴／枯山水静庭各 1 张；夜樱灯光覆盖层后补 |
+| R57 | 缘侧书斋 | 确认最终中文名、ID、锚点与室内遮挡关系 | 静读书斋／魔导研究室／茶话书廊各 1 张 |
+| R58 | 祈愿分社 | 确认最终中文名、ID、锚点与祭典摆设边界 | 绘马祈愿所／奇迹演示坛／秋祭小社各 1 张；秋祭灯光覆盖层后补 |
+
+#### 接入与验收顺序
+
+1. 定稿图层、命中和命名合同，再生成首批 12 张。
+2. 为首批逐张做新底图叠图校验，确认 76% 起始比例和实际锚点后才登记素材清单。
+3. 实现“按设施 / 当前形态选择基础图 + `damaged` 覆盖图”的渲染分支；无图、未知状态、加载失败一律回退贴地光环，不能出现 broken image。
+4. 运行离线门禁后，将确切构建产物和 320px / reduced-motion / 各状态截图交给 `sillytavern-runtime-debug` 做实机验收。
+
 ## 10. 施工备注（2026-07-26，阶段 A/B/C 落地记录）
 
 - 离线门禁全绿：`npm run check:ui` 通过、`npm test` 100/100、`npm run build:ui` 通过、`npm run package:checkpoint:dry`（当前维护线检查点 `0.2.0-r53`，UI 脚本 `gensokyo-garden-ui-020-r53`）成功。未正式打包。

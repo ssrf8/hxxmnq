@@ -5,6 +5,10 @@ import { GARDEN_AREA_OUTLINES, GARDEN_AREA_POSITIONS, gardenAreaPoint } from './
 
 interface Point { x: number; y: number }
 export interface HitTarget extends Point { id: string; label: string; kind: 'area' | 'character'; radius: number }
+export interface MapFacilitySpriteSet {
+  forms?: Record<string, string>;
+  damageOverlay?: string;
+}
 
 const areaPositions = GARDEN_AREA_POSITIONS;
 const CHARACTER_VISUAL_SCALE = 0.73;
@@ -22,6 +26,7 @@ export class GardenMap {
   private readonly resizeObserver: ResizeObserver;
   private readonly reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   private readonly actors = new Map<string, SpriteActor>();
+  private readonly facilityImages = new Map<string, HTMLImageElement>();
   private animationFrame = 0;
   private lastFrameTime = 0;
   private visible = !document.hidden;
@@ -35,6 +40,7 @@ export class GardenMap {
     private readonly canvas: HTMLCanvasElement,
     mapSource: string,
     actorSprites: Record<string, SpriteActorConfig>,
+    private readonly facilitySprites: Record<string, MapFacilitySpriteSet>,
     private readonly onSelect: (target: HitTarget, anchor: Point) => void,
     private readonly onSelectedAnchorMoved?: (anchor: Point) => void,
   ) {
@@ -156,6 +162,7 @@ export class GardenMap {
       ctx.fillRect(-drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
     }
 
+    this.drawFacilityLayer(ctx, drawWidth, drawHeight);
     this.targets = [];
     const px = this.pixelRatio;
     const areas = this.state.areas ?? {};
@@ -197,7 +204,7 @@ export class GardenMap {
           pulse,
         );
         this.drawLabel(ctx, x, y - drawHeight * 0.05 * FACILITY_VISUAL_SCALE - 18 * px, `${label} · ${markerState}`);
-      } else {
+      } else if (!this.resolveFacilitySprite(id.endsWith('_plot') ? id.slice(0, -5) : id)) {
         this.drawDiamond(ctx, x, y, 7 * px, discoveryMarker ? '#d9b9e8' : '#f3d58a');
       }
       let hitX = x;
@@ -271,6 +278,48 @@ export class GardenMap {
     } else if (this.lastAnchor) {
       this.lastAnchor = null;
     }
+  }
+
+  private drawFacilityLayer(ctx: CanvasRenderingContext2D, drawWidth: number, drawHeight: number) {
+    for (const facilityId of Object.keys(this.facilitySprites)) {
+      const sprite = this.resolveFacilitySprite(facilityId);
+      const point = areaPositions[`${facilityId}_plot`];
+      if (!sprite || !point) continue;
+      const image = this.imageFor(sprite.source);
+      if (!image.complete || !image.naturalWidth) continue;
+      const width = drawWidth * 0.23 * FACILITY_VISUAL_SCALE;
+      const height = width * image.naturalHeight / image.naturalWidth;
+      const x = -drawWidth / 2 + point.x * drawWidth - width / 2;
+      const y = -drawHeight / 2 + point.y * drawHeight - height / 2;
+      ctx.drawImage(image, x, y, width, height);
+      if (sprite.damageOverlay) {
+        const overlay = this.imageFor(sprite.damageOverlay);
+        if (overlay.complete && overlay.naturalWidth) ctx.drawImage(overlay, x, y, width, height);
+      }
+    }
+  }
+
+  private resolveFacilitySprite(facilityId: string): { source: string; damageOverlay?: string } | null {
+    const runtime = this.state.facility_runtime?.[facilityId];
+    const facility = this.state.facilities?.[facilityId];
+    const built = runtime?.built ?? Boolean(facility?.current_form || facility?.state === '启用');
+    const form = runtime?.current_form ?? facility?.current_form;
+    const source = form ? this.facilitySprites[facilityId]?.forms?.[form] : undefined;
+    if (!built || !source) return null;
+    return {
+      source,
+      damageOverlay: runtime?.status === 'damaged' ? this.facilitySprites[facilityId]?.damageOverlay : undefined,
+    };
+  }
+
+  private imageFor(source: string): HTMLImageElement {
+    const cached = this.facilityImages.get(source);
+    if (cached) return cached;
+    const image = new Image();
+    image.onload = () => this.draw();
+    image.src = source;
+    this.facilityImages.set(source, image);
+    return image;
   }
 
   /** Idle waypoint: a small pixel diamond that keeps the map uncluttered. */

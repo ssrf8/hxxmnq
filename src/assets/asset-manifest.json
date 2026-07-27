@@ -173,6 +173,84 @@
       "provenance": "owner-supplied 2026-07-27; SHA-256 19a88b71e4119300c5ca012aeb03cd12a13f57d3482e55bb8e9eb4a823fd52fd"
     }
   },
+  "map_facility_assets": {
+    "main_house": {
+      "status": "owner-approved-pending-runtime",
+      "map_usage": false,
+      "source_chroma": {
+        "damaged": "world/map-facilities/main-house/main-house-damaged-v1-chroma.png",
+        "restored": "world/map-facilities/main-house/main-house-restored-v1-chroma.png"
+      },
+      "source_alpha": {
+        "damaged": "world/map-facilities/main-house/main-house-damaged-v1.png",
+        "restored": "world/map-facilities/main-house/main-house-restored-v1.png"
+      },
+      "render_contract": "separate transparent map sprite; owner-approved visual candidate, no runtime wiring until anchor, visual scale and hit boundary pass",
+      "provenance": "generated 2026-07-27 from the owner-supplied expanded empty garden map as camera/palette reference; owner-approved 2026-07-27; chroma-key removal validated locally"
+    },
+    "magic_greenhouse": {
+      "status": "owner-approved-pending-runtime",
+      "map_usage": false,
+      "source_chroma": "world/map-facilities/magic-greenhouse/magic-greenhouse-operational-v1-chroma.png",
+      "source_alpha": "world/map-facilities/magic-greenhouse/magic-greenhouse-operational-v1.png",
+      "render_contract": "separate transparent operational map sprite; owner-approved visual candidate, no runtime wiring until anchor, visual scale and hit boundary pass",
+      "provenance": "generated 2026-07-27 from the owner-supplied expanded empty garden map as camera/palette reference; owner-approved 2026-07-27; chroma-key removal validated locally"
+    },
+    "fairy_garden": {
+      "status": "owner-approved-integrated-pending-runtime-validation",
+      "map_usage": true,
+      "damage_overlay_chroma": "world/map-facilities/fairy-garden/fairy-garden-damaged-overlay-v1-chroma.png",
+      "damage_overlay_alpha": "world/map-facilities/fairy-garden/fairy-garden-damaged-overlay-v1.png",
+      "source_chroma": {
+        "four_season_flower_garden": "world/map-facilities/fairy-garden/fairy-garden-four-season-flower-garden-v1-chroma.png",
+        "fairy_playground": "world/map-facilities/fairy-garden/fairy-garden-playground-v1-chroma.png",
+        "ice_dew_maze": "world/map-facilities/fairy-garden/fairy-garden-ice-dew-maze-v1-chroma.png"
+      },
+      "source_alpha": {
+        "four_season_flower_garden": "world/map-facilities/fairy-garden/fairy-garden-four-season-flower-garden-v1.png",
+        "fairy_playground": "world/map-facilities/fairy-garden/fairy-garden-playground-v1.png",
+        "ice_dew_maze": "world/map-facilities/fairy-garden/fairy-garden-ice-dew-maze-v1.png"
+      },
+      "render_contract": "three separate transparent map sprites sharing one footprint and camera plus one low-occlusion damaged overlay; map draw branch is integrated, pending SillyTavern anchor, visual scale, current_form mapping and hit-boundary validation",
+      "provenance": "generated 2026-07-27 as a coherent three-form set from the approved fairy-garden camera reference; owner-approved 2026-07-27; chroma-key removal validated locally"
+    },
+    "moon_spring": {
+      "status": "owner-approved-integrated-pending-runtime-validation",
+      "map_usage": true,
+      "damage_overlay_chroma": "world/map-facilities/moon-spring/moon-spring-damaged-overlay-v1-chroma.png",
+      "damage_overlay_alpha": "world/map-facilities/moon-spring/moon-spring-damaged-overlay-v1.png",
+      "source_chroma": {
+        "open_air_moon_viewing_bath": "world/map-facilities/moon-spring/moon-spring-open-air-moon-viewing-bath-v1-chroma.png",
+        "still_water_observation_pool": "world/map-facilities/moon-spring/moon-spring-still-water-observation-pool-v1-chroma.png",
+        "mist_hidden_bathhouse": "world/map-facilities/moon-spring/moon-spring-mist-hidden-bathhouse-v1-chroma.png"
+      },
+      "source_alpha": {
+        "open_air_moon_viewing_bath": "world/map-facilities/moon-spring/moon-spring-open-air-moon-viewing-bath-v1.png",
+        "still_water_observation_pool": "world/map-facilities/moon-spring/moon-spring-still-water-observation-pool-v1.png",
+        "mist_hidden_bathhouse": "world/map-facilities/moon-spring/moon-spring-mist-hidden-bathhouse-v1.png"
+      },
+      "render_contract": "three separate transparent map sprites sharing one footprint and camera plus one low-occlusion damaged overlay; map draw branch is integrated, pending SillyTavern anchor, visual scale, current_form mapping and hit-boundary validation",
+      "provenance": "generated 2026-07-27 as a coherent three-form set; owner-approved 2026-07-27; chroma-key removal validated locally"
+    },
+    "banquet_plaza": {
+      "status": "owner-approved-integrated-pending-runtime-validation",
+      "map_usage": true,
+      "damage_overlay_chroma": "world/map-facilities/banquet-plaza/banquet-plaza-damaged-overlay-v1-chroma.png",
+      "damage_overlay_alpha": "world/map-facilities/banquet-plaza/banquet-plaza-damaged-overlay-v1.png",
+      "source_chroma": {
+        "lantern_night_market": "world/map-facilities/banquet-plaza/banquet-plaza-lantern-night-market-v1-chroma.png",
+        "oni_grand_feast_stage": "world/map-facilities/banquet-plaza/banquet-plaza-oni-grand-feast-stage-v1-chroma.png",
+        "spell_card_duel_arena": "world/map-facilities/banquet-plaza/banquet-plaza-spell-card-duel-arena-v1-chroma.png"
+      },
+      "source_alpha": {
+        "lantern_night_market": "world/map-facilities/banquet-plaza/banquet-plaza-lantern-night-market-v1.png",
+        "oni_grand_feast_stage": "world/map-facilities/banquet-plaza/banquet-plaza-oni-grand-feast-stage-v1.png",
+        "spell_card_duel_arena": "world/map-facilities/banquet-plaza/banquet-plaza-spell-card-duel-arena-v1.png"
+      },
+      "render_contract": "three separate transparent map sprites sharing one footprint and camera plus one low-occlusion damaged overlay; map draw branch is integrated, pending SillyTavern anchor, visual scale, current_form mapping and hit-boundary validation",
+      "provenance": "generated 2026-07-27 as a coherent three-form set; owner-approved 2026-07-27; chroma-key removal validated locally"
+    }
+  },
   "world_assets": {
     "main_house_states": {
       "status": "pending-unified-review",
