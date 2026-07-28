@@ -1,0 +1,2378 @@
+{
+  "version": 1,
+  "character": "mystia",
+  "status": "generated-pending-owner-review",
+  "layout": "variable-sequence-v1",
+  "sourceLayout": "2x2",
+  "sourceQuadrants": {
+    "front": "top-left",
+    "back": "top-right",
+    "left": "bottom-left",
+    "right": "bottom-right"
+  },
+  "sourceSize": [
+    640,
+    640
+  ],
+  "cell": [
+    209,
+    209
+  ],
+  "atlas": "src/assets/characters/mystia/mystia-animation-sequence-v1.png",
+  "atlasSize": [
+    5016,
+    836
+  ],
+  "frameCount": 24,
+  "rowOrder": [
+    "front",
+    "back",
+    "left",
+    "right"
+  ],
+  "idleFrame": 0,
+  "loopStart": 0,
+  "loopEnd": 23,
+  "candidateFrameDurationsMs": [
+    90,
+    110,
+    130
+  ],
+  "selectedFrameDurationMs": 90,
+  "maskProfileVersion": "connected-edge-plus-interior-islands-v2",
+  "targetVisibleHeight": 150,
+  "baseline": 179,
+  "scale": 0.5357142857142857,
+  "sources": [
+    {
+      "index": 1,
+      "file": "src/assets/characters/mystia/最终版/001.png",
+      "sha256": "8bd49f987a0478e38dab08e9b9de5d763f65f3eabaf2233e7779366973b0d6ce"
+    },
+    {
+      "index": 2,
+      "file": "src/assets/characters/mystia/最终版/002.png",
+      "sha256": "70a2a72e781b9e6ca63c43ed4392785f3e15d4686167550276788558a3c18f40"
+    },
+    {
+      "index": 3,
+      "file": "src/assets/characters/mystia/最终版/003.png",
+      "sha256": "a7653add75f2dfd3228ac8934de3dd2e5003c65327e4e5160918b6a00d566374"
+    },
+    {
+      "index": 4,
+      "file": "src/assets/characters/mystia/最终版/004.png",
+      "sha256": "3491399ee40a72749f6e3ff7fb361d12a5a03a118fa6e18199281e566fb82e02"
+    },
+    {
+      "index": 5,
+      "file": "src/assets/characters/mystia/最终版/005.png",
+      "sha256": "b2a1b6f87ebc5c1a19e678e0069f1b7718413562fa47e26e9003cd55e30103b7"
+    },
+    {
+      "index": 6,
+      "file": "src/assets/characters/mystia/最终版/006.png",
+      "sha256": "8e254ac9c196d52304642ddee52e84ffd55d0d8b3b129e9c52a3ae7e71a349fc"
+    },
+    {
+      "index": 7,
+      "file": "src/assets/characters/mystia/最终版/007.png",
+      "sha256": "c5a5e576ce1199ef67339faa0696a764d790e3a96f7ff57565300aa3c5689dc4"
+    },
+    {
+      "index": 8,
+      "file": "src/assets/characters/mystia/最终版/008.png",
+      "sha256": "9267f69a9c500bd3466c8c09862f46703801fab326fab46bfdb15e1fb92faba7"
+    },
+    {
+      "index": 9,
+      "file": "src/assets/characters/mystia/最终版/009.png",
+      "sha256": "8501f7ccba9a15f9e590073c920115f6552be1b7f2d37f72c2a7a8c63fb7a1eb"
+    },
+    {
+      "index": 10,
+      "file": "src/assets/characters/mystia/最终版/010.png",
+      "sha256": "5fdec2b6eee9cb2f327169ba32d60ebe9d199cef8056b36170cff242fc6a9e8c"
+    },
+    {
+      "index": 11,
+      "file": "src/assets/characters/mystia/最终版/011.png",
+      "sha256": "0e2ac01a0c71204360d688a1fe27efc6d889c394fc64305fb0aa556e2e5be257"
+    },
+    {
+      "index": 12,
+      "file": "src/assets/characters/mystia/最终版/012.png",
+      "sha256": "47f19e670b824d8ebccd997c00604c37e292e73875097b8ce687acfdd6ebdf07"
+    },
+    {
+      "index": 13,
+      "file": "src/assets/characters/mystia/最终版/013.png",
+      "sha256": "2847af24486259c31076319e44472f3c15354adca7ba7152b8c77a48bbd0ed8e"
+    },
+    {
+      "index": 14,
+      "file": "src/assets/characters/mystia/最终版/014.png",
+      "sha256": "dc1b2e8223e01004294bf1a81671a22876209afb75fc5d759b65d9b826323e44"
+    },
+    {
+      "index": 15,
+      "file": "src/assets/characters/mystia/最终版/015.png",
+      "sha256": "1ae4d154b31a33ff6ca9a161eb4a596d4ce3e3f931924fbb72f2aead9e620402"
+    },
+    {
+      "index": 16,
+      "file": "src/assets/characters/mystia/最终版/016.png",
+      "sha256": "445710f647a91426f97910f47a324257581f3f5ec4dd0315f4feb5978f9835ba"
+    },
+    {
+      "index": 17,
+      "file": "src/assets/characters/mystia/最终版/017.png",
+      "sha256": "05ff29225877b5e5b81d1c159694586c42172db8591f317d272870874ba9dfd1"
+    },
+    {
+      "index": 18,
+      "file": "src/assets/characters/mystia/最终版/018.png",
+      "sha256": "e0754a9c47d7a9591a824e96df6136deffefd59d33b25a50debdd8e1ed329b08"
+    },
+    {
+      "index": 19,
+      "file": "src/assets/characters/mystia/最终版/019.png",
+      "sha256": "2bc6e595d1d0a402d89c8dda478d0e303f98a3a49c5d09e64e36372ee3276af0"
+    },
+    {
+      "index": 20,
+      "file": "src/assets/characters/mystia/最终版/020.png",
+      "sha256": "61b00a6265229787331f716407acfc1c4ff7f180fd88de3105fd9141de7c1a60"
+    },
+    {
+      "index": 21,
+      "file": "src/assets/characters/mystia/最终版/021.png",
+      "sha256": "bbc050d60c18fa7913d92194c729f20968d2185d2f7d40d3d9bf5ad71cda0ca6"
+    },
+    {
+      "index": 22,
+      "file": "src/assets/characters/mystia/最终版/022.png",
+      "sha256": "97d6ffcb50b1cda74bd695f67b0a8316ff8b1fc715d705cd1bc5c0b056557500"
+    },
+    {
+      "index": 23,
+      "file": "src/assets/characters/mystia/最终版/023.png",
+      "sha256": "52f5bfb96c11fb4ce9a4b1579b2a9b8c575466ad91e1a4e836608b3135e5f1d7"
+    },
+    {
+      "index": 24,
+      "file": "src/assets/characters/mystia/最终版/024.png",
+      "sha256": "fbe8197ffa346d263c1bc6ec0adc47cb0288b5c51033ed82ec44a2d7655b624f"
+    }
+  ],
+  "frames": [
+    {
+      "index": 1,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/front/001.png",
+      "sourceBBox": {
+        "minX": 33,
+        "minY": 26,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 271,
+        "height": 278,
+        "pixels": 38758
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        234,
+        234,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 61991,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 1,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/back/001.png",
+      "sourceBBox": {
+        "minX": 48,
+        "minY": 37,
+        "maxX": 273,
+        "maxY": 303,
+        "width": 226,
+        "height": 267,
+        "pixels": 32810
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 69446,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 1,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/left/001.png",
+      "sourceBBox": {
+        "minX": 78,
+        "minY": 16,
+        "maxX": 258,
+        "maxY": 288,
+        "width": 181,
+        "height": 273,
+        "pixels": 28893
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        237,
+        237
+      ],
+      "connectedBackgroundPixelsRemoved": 73086,
+      "interiorBackgroundPixelsRemoved": 176,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 1,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/right/001.png",
+      "sourceBBox": {
+        "minX": 59,
+        "minY": 16,
+        "maxX": 242,
+        "maxY": 287,
+        "width": 184,
+        "height": 272,
+        "pixels": 29403
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 72898,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 2,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/front/002.png",
+      "sourceBBox": {
+        "minX": 33,
+        "minY": 26,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 271,
+        "height": 278,
+        "pixels": 38748
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        234,
+        234,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 61998,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 2,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/back/002.png",
+      "sourceBBox": {
+        "minX": 48,
+        "minY": 37,
+        "maxX": 273,
+        "maxY": 303,
+        "width": 226,
+        "height": 267,
+        "pixels": 32826
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 69432,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 2,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/left/002.png",
+      "sourceBBox": {
+        "minX": 78,
+        "minY": 16,
+        "maxX": 257,
+        "maxY": 288,
+        "width": 180,
+        "height": 273,
+        "pixels": 28854
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        237,
+        237
+      ],
+      "connectedBackgroundPixelsRemoved": 73089,
+      "interiorBackgroundPixelsRemoved": 214,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 2,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/right/002.png",
+      "sourceBBox": {
+        "minX": 59,
+        "minY": 16,
+        "maxX": 243,
+        "maxY": 287,
+        "width": 185,
+        "height": 272,
+        "pixels": 29338
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 72960,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 3,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/front/003.png",
+      "sourceBBox": {
+        "minX": 33,
+        "minY": 26,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 271,
+        "height": 278,
+        "pixels": 38682
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        235,
+        235,
+        235
+      ],
+      "connectedBackgroundPixelsRemoved": 62063,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 3,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/back/003.png",
+      "sourceBBox": {
+        "minX": 49,
+        "minY": 37,
+        "maxX": 272,
+        "maxY": 303,
+        "width": 224,
+        "height": 267,
+        "pixels": 32748
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        239,
+        239
+      ],
+      "connectedBackgroundPixelsRemoved": 69510,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 3,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/left/003.png",
+      "sourceBBox": {
+        "minX": 78,
+        "minY": 16,
+        "maxX": 257,
+        "maxY": 288,
+        "width": 180,
+        "height": 273,
+        "pixels": 28884
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 73175,
+      "interiorBackgroundPixelsRemoved": 118,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 3,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/right/003.png",
+      "sourceBBox": {
+        "minX": 60,
+        "minY": 16,
+        "maxX": 243,
+        "maxY": 287,
+        "width": 184,
+        "height": 272,
+        "pixels": 29105
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        239,
+        239,
+        239
+      ],
+      "connectedBackgroundPixelsRemoved": 73118,
+      "interiorBackgroundPixelsRemoved": 60,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 4,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/front/004.png",
+      "sourceBBox": {
+        "minX": 34,
+        "minY": 27,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 270,
+        "height": 277,
+        "pixels": 38699
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        235,
+        234,
+        235
+      ],
+      "connectedBackgroundPixelsRemoved": 62052,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 4,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/back/004.png",
+      "sourceBBox": {
+        "minX": 49,
+        "minY": 36,
+        "maxX": 272,
+        "maxY": 303,
+        "width": 224,
+        "height": 268,
+        "pixels": 32897
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 69365,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 4,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/left/004.png",
+      "sourceBBox": {
+        "minX": 77,
+        "minY": 16,
+        "maxX": 257,
+        "maxY": 288,
+        "width": 181,
+        "height": 273,
+        "pixels": 28845
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        236,
+        236,
+        236
+      ],
+      "connectedBackgroundPixelsRemoved": 73219,
+      "interiorBackgroundPixelsRemoved": 114,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 4,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/right/004.png",
+      "sourceBBox": {
+        "minX": 60,
+        "minY": 16,
+        "maxX": 243,
+        "maxY": 287,
+        "width": 184,
+        "height": 272,
+        "pixels": 28830
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 73411,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 5,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/front/005.png",
+      "sourceBBox": {
+        "minX": 34,
+        "minY": 28,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 270,
+        "height": 276,
+        "pixels": 38711
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        234,
+        234,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 62045,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 5,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/back/005.png",
+      "sourceBBox": {
+        "minX": 50,
+        "minY": 35,
+        "maxX": 270,
+        "maxY": 303,
+        "width": 221,
+        "height": 269,
+        "pixels": 32859
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 69403,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 5,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/left/005.png",
+      "sourceBBox": {
+        "minX": 77,
+        "minY": 16,
+        "maxX": 258,
+        "maxY": 288,
+        "width": 182,
+        "height": 273,
+        "pixels": 28724
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        235,
+        234,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 73462,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 5,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/right/005.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 16,
+        "maxX": 244,
+        "maxY": 287,
+        "width": 183,
+        "height": 272,
+        "pixels": 27916
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 74196,
+      "interiorBackgroundPixelsRemoved": 63,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 6,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/front/006.png",
+      "sourceBBox": {
+        "minX": 34,
+        "minY": 29,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 270,
+        "height": 275,
+        "pixels": 38677
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        234,
+        233,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 62009,
+      "interiorBackgroundPixelsRemoved": 65,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 6,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/back/006.png",
+      "sourceBBox": {
+        "minX": 50,
+        "minY": 35,
+        "maxX": 270,
+        "maxY": 303,
+        "width": 221,
+        "height": 269,
+        "pixels": 32871
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 69391,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 6,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/left/006.png",
+      "sourceBBox": {
+        "minX": 76,
+        "minY": 16,
+        "maxX": 258,
+        "maxY": 288,
+        "width": 183,
+        "height": 273,
+        "pixels": 28718
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        235,
+        234,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 73469,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 6,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/right/006.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 16,
+        "maxX": 244,
+        "maxY": 287,
+        "width": 183,
+        "height": 272,
+        "pixels": 27897
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 74205,
+      "interiorBackgroundPixelsRemoved": 50,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 7,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/front/007.png",
+      "sourceBBox": {
+        "minX": 35,
+        "minY": 29,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 269,
+        "height": 275,
+        "pixels": 38656
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        235,
+        234,
+        235
+      ],
+      "connectedBackgroundPixelsRemoved": 62047,
+      "interiorBackgroundPixelsRemoved": 83,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 7,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/back/007.png",
+      "sourceBBox": {
+        "minX": 51,
+        "minY": 35,
+        "maxX": 270,
+        "maxY": 303,
+        "width": 220,
+        "height": 269,
+        "pixels": 32803
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        239,
+        239
+      ],
+      "connectedBackgroundPixelsRemoved": 69459,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 7,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/left/007.png",
+      "sourceBBox": {
+        "minX": 76,
+        "minY": 16,
+        "maxX": 259,
+        "maxY": 288,
+        "width": 184,
+        "height": 273,
+        "pixels": 28674
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        235,
+        235,
+        235
+      ],
+      "connectedBackgroundPixelsRemoved": 73517,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 7,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/right/007.png",
+      "sourceBBox": {
+        "minX": 63,
+        "minY": 16,
+        "maxX": 244,
+        "maxY": 287,
+        "width": 182,
+        "height": 272,
+        "pixels": 27793
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        239,
+        239
+      ],
+      "connectedBackgroundPixelsRemoved": 74351,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 8,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/front/008.png",
+      "sourceBBox": {
+        "minX": 36,
+        "minY": 28,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 268,
+        "height": 276,
+        "pixels": 38888
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        234,
+        234,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 61850,
+      "interiorBackgroundPixelsRemoved": 60,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 8,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/back/008.png",
+      "sourceBBox": {
+        "minX": 51,
+        "minY": 34,
+        "maxX": 270,
+        "maxY": 303,
+        "width": 220,
+        "height": 270,
+        "pixels": 32828
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 69486,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 8,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/left/008.png",
+      "sourceBBox": {
+        "minX": 76,
+        "minY": 16,
+        "maxX": 259,
+        "maxY": 288,
+        "width": 184,
+        "height": 273,
+        "pixels": 28537
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        235,
+        234,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 73621,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 8,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/right/008.png",
+      "sourceBBox": {
+        "minX": 64,
+        "minY": 16,
+        "maxX": 245,
+        "maxY": 287,
+        "width": 182,
+        "height": 272,
+        "pixels": 28039
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 74095,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 9,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/front/009.png",
+      "sourceBBox": {
+        "minX": 37,
+        "minY": 26,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 267,
+        "height": 278,
+        "pixels": 39297
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        234,
+        234,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 61520,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 9,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/back/009.png",
+      "sourceBBox": {
+        "minX": 52,
+        "minY": 35,
+        "maxX": 269,
+        "maxY": 303,
+        "width": 218,
+        "height": 269,
+        "pixels": 32620
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 69697,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 9,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/left/009.png",
+      "sourceBBox": {
+        "minX": 74,
+        "minY": 16,
+        "maxX": 261,
+        "maxY": 289,
+        "width": 188,
+        "height": 274,
+        "pixels": 28507
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        235,
+        234,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 73568,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 9,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/right/009.png",
+      "sourceBBox": {
+        "minX": 66,
+        "minY": 16,
+        "maxX": 245,
+        "maxY": 287,
+        "width": 180,
+        "height": 272,
+        "pixels": 28286
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 73816,
+      "interiorBackgroundPixelsRemoved": 67,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 10,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/front/010.png",
+      "sourceBBox": {
+        "minX": 38,
+        "minY": 26,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 266,
+        "height": 278,
+        "pixels": 39366
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        234,
+        234,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 61462,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 10,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/back/010.png",
+      "sourceBBox": {
+        "minX": 52,
+        "minY": 35,
+        "maxX": 270,
+        "maxY": 303,
+        "width": 219,
+        "height": 269,
+        "pixels": 32597
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 69721,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 10,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/left/010.png",
+      "sourceBBox": {
+        "minX": 74,
+        "minY": 16,
+        "maxX": 261,
+        "maxY": 289,
+        "width": 188,
+        "height": 274,
+        "pixels": 28632
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        235,
+        234,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 73431,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 10,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/right/010.png",
+      "sourceBBox": {
+        "minX": 66,
+        "minY": 16,
+        "maxX": 246,
+        "maxY": 287,
+        "width": 181,
+        "height": 272,
+        "pixels": 28318
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 73792,
+      "interiorBackgroundPixelsRemoved": 73,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 11,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/front/011.png",
+      "sourceBBox": {
+        "minX": 38,
+        "minY": 25,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 266,
+        "height": 279,
+        "pixels": 39345
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        235,
+        235,
+        235
+      ],
+      "connectedBackgroundPixelsRemoved": 61492,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 11,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/back/011.png",
+      "sourceBBox": {
+        "minX": 52,
+        "minY": 36,
+        "maxX": 270,
+        "maxY": 303,
+        "width": 219,
+        "height": 268,
+        "pixels": 32502
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        239,
+        239,
+        239
+      ],
+      "connectedBackgroundPixelsRemoved": 69816,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 11,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/left/011.png",
+      "sourceBBox": {
+        "minX": 74,
+        "minY": 16,
+        "maxX": 261,
+        "maxY": 289,
+        "width": 188,
+        "height": 274,
+        "pixels": 28868
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        235,
+        235,
+        235
+      ],
+      "connectedBackgroundPixelsRemoved": 73184,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 11,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/right/011.png",
+      "sourceBBox": {
+        "minX": 67,
+        "minY": 16,
+        "maxX": 246,
+        "maxY": 287,
+        "width": 180,
+        "height": 272,
+        "pixels": 28377
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        239,
+        239,
+        239
+      ],
+      "connectedBackgroundPixelsRemoved": 73771,
+      "interiorBackgroundPixelsRemoved": 65,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 12,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/front/012.png",
+      "sourceBBox": {
+        "minX": 38,
+        "minY": 25,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 266,
+        "height": 279,
+        "pixels": 39411
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        235,
+        234,
+        235
+      ],
+      "connectedBackgroundPixelsRemoved": 61426,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 12,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/back/012.png",
+      "sourceBBox": {
+        "minX": 52,
+        "minY": 37,
+        "maxX": 270,
+        "maxY": 303,
+        "width": 219,
+        "height": 267,
+        "pixels": 32469
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 69862,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 12,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/left/012.png",
+      "sourceBBox": {
+        "minX": 74,
+        "minY": 16,
+        "maxX": 262,
+        "maxY": 289,
+        "width": 189,
+        "height": 274,
+        "pixels": 29247
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        235,
+        234,
+        235
+      ],
+      "connectedBackgroundPixelsRemoved": 72784,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 12,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/right/012.png",
+      "sourceBBox": {
+        "minX": 67,
+        "minY": 16,
+        "maxX": 246,
+        "maxY": 287,
+        "width": 180,
+        "height": 272,
+        "pixels": 28477
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 73693,
+      "interiorBackgroundPixelsRemoved": 70,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 13,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/front/013.png",
+      "sourceBBox": {
+        "minX": 37,
+        "minY": 26,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 267,
+        "height": 278,
+        "pixels": 39402
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        234,
+        233,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 61449,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 13,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/back/013.png",
+      "sourceBBox": {
+        "minX": 51,
+        "minY": 38,
+        "maxX": 271,
+        "maxY": 303,
+        "width": 221,
+        "height": 266,
+        "pixels": 32469
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 69862,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 13,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/left/013.png",
+      "sourceBBox": {
+        "minX": 73,
+        "minY": 16,
+        "maxX": 262,
+        "maxY": 289,
+        "width": 190,
+        "height": 274,
+        "pixels": 29767
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        234,
+        234,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 72266,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 13,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/right/013.png",
+      "sourceBBox": {
+        "minX": 68,
+        "minY": 16,
+        "maxX": 246,
+        "maxY": 287,
+        "width": 179,
+        "height": 272,
+        "pixels": 28598
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 73683,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 14,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/front/014.png",
+      "sourceBBox": {
+        "minX": 37,
+        "minY": 26,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 267,
+        "height": 278,
+        "pixels": 39372
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        234,
+        233,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 61399,
+      "interiorBackgroundPixelsRemoved": 78,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 14,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/back/014.png",
+      "sourceBBox": {
+        "minX": 51,
+        "minY": 38,
+        "maxX": 271,
+        "maxY": 303,
+        "width": 221,
+        "height": 266,
+        "pixels": 32475
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 69856,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 14,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/left/014.png",
+      "sourceBBox": {
+        "minX": 73,
+        "minY": 16,
+        "maxX": 262,
+        "maxY": 289,
+        "width": 190,
+        "height": 274,
+        "pixels": 29857
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        235,
+        234,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 72184,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 14,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/right/014.png",
+      "sourceBBox": {
+        "minX": 67,
+        "minY": 16,
+        "maxX": 247,
+        "maxY": 287,
+        "width": 181,
+        "height": 272,
+        "pixels": 28599
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 73683,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 15,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/front/015.png",
+      "sourceBBox": {
+        "minX": 37,
+        "minY": 27,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 267,
+        "height": 277,
+        "pixels": 39534
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        234,
+        234,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 61323,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 15,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/back/015.png",
+      "sourceBBox": {
+        "minX": 50,
+        "minY": 37,
+        "maxX": 272,
+        "maxY": 303,
+        "width": 223,
+        "height": 267,
+        "pixels": 32548
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        239,
+        239
+      ],
+      "connectedBackgroundPixelsRemoved": 69783,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 15,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/left/015.png",
+      "sourceBBox": {
+        "minX": 73,
+        "minY": 16,
+        "maxX": 262,
+        "maxY": 289,
+        "width": 190,
+        "height": 274,
+        "pixels": 29987
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        235,
+        234,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 72091,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 15,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/right/015.png",
+      "sourceBBox": {
+        "minX": 67,
+        "minY": 16,
+        "maxX": 247,
+        "maxY": 287,
+        "width": 181,
+        "height": 272,
+        "pixels": 28531
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        239,
+        239,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 73749,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 16,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/front/016.png",
+      "sourceBBox": {
+        "minX": 36,
+        "minY": 28,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 268,
+        "height": 276,
+        "pixels": 39503
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        234,
+        233,
+        233
+      ],
+      "connectedBackgroundPixelsRemoved": 61354,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 16,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/back/016.png",
+      "sourceBBox": {
+        "minX": 49,
+        "minY": 37,
+        "maxX": 273,
+        "maxY": 303,
+        "width": 225,
+        "height": 267,
+        "pixels": 32611
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 69758,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 16,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/left/016.png",
+      "sourceBBox": {
+        "minX": 72,
+        "minY": 16,
+        "maxX": 262,
+        "maxY": 289,
+        "width": 191,
+        "height": 274,
+        "pixels": 29924
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        235,
+        234,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 72105,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 16,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/right/016.png",
+      "sourceBBox": {
+        "minX": 66,
+        "minY": 16,
+        "maxX": 247,
+        "maxY": 287,
+        "width": 182,
+        "height": 272,
+        "pixels": 28407
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 73837,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 17,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/front/017.png",
+      "sourceBBox": {
+        "minX": 33,
+        "minY": 28,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 271,
+        "height": 276,
+        "pixels": 39570
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        233,
+        232,
+        233
+      ],
+      "connectedBackgroundPixelsRemoved": 61263,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 17,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/back/017.png",
+      "sourceBBox": {
+        "minX": 48,
+        "minY": 35,
+        "maxX": 274,
+        "maxY": 303,
+        "width": 227,
+        "height": 269,
+        "pixels": 32635
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 69765,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 17,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/left/017.png",
+      "sourceBBox": {
+        "minX": 72,
+        "minY": 16,
+        "maxX": 261,
+        "maxY": 289,
+        "width": 190,
+        "height": 274,
+        "pixels": 29453
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        234,
+        234,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 72582,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 17,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/right/017.png",
+      "sourceBBox": {
+        "minX": 65,
+        "minY": 16,
+        "maxX": 248,
+        "maxY": 287,
+        "width": 184,
+        "height": 272,
+        "pixels": 27967
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 74206,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 18,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/front/018.png",
+      "sourceBBox": {
+        "minX": 33,
+        "minY": 28,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 271,
+        "height": 276,
+        "pixels": 39597
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        233,
+        233,
+        233
+      ],
+      "connectedBackgroundPixelsRemoved": 61217,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 18,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/back/018.png",
+      "sourceBBox": {
+        "minX": 48,
+        "minY": 35,
+        "maxX": 274,
+        "maxY": 303,
+        "width": 227,
+        "height": 269,
+        "pixels": 32638
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 69762,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 18,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/left/018.png",
+      "sourceBBox": {
+        "minX": 72,
+        "minY": 16,
+        "maxX": 260,
+        "maxY": 289,
+        "width": 189,
+        "height": 274,
+        "pixels": 29371
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        234,
+        234,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 72650,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 18,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/right/018.png",
+      "sourceBBox": {
+        "minX": 65,
+        "minY": 16,
+        "maxX": 248,
+        "maxY": 287,
+        "width": 184,
+        "height": 272,
+        "pixels": 27921
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 74233,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 19,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/front/019.png",
+      "sourceBBox": {
+        "minX": 32,
+        "minY": 27,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 272,
+        "height": 277,
+        "pixels": 39456
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        234,
+        234,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 61342,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 19,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/back/019.png",
+      "sourceBBox": {
+        "minX": 47,
+        "minY": 35,
+        "maxX": 274,
+        "maxY": 303,
+        "width": 228,
+        "height": 269,
+        "pixels": 32630
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        239,
+        239,
+        239
+      ],
+      "connectedBackgroundPixelsRemoved": 69770,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 19,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/left/019.png",
+      "sourceBBox": {
+        "minX": 72,
+        "minY": 16,
+        "maxX": 260,
+        "maxY": 289,
+        "width": 189,
+        "height": 274,
+        "pixels": 29163
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        235,
+        235,
+        235
+      ],
+      "connectedBackgroundPixelsRemoved": 72850,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 19,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/right/019.png",
+      "sourceBBox": {
+        "minX": 65,
+        "minY": 16,
+        "maxX": 248,
+        "maxY": 287,
+        "width": 184,
+        "height": 272,
+        "pixels": 27795
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        239,
+        239,
+        239
+      ],
+      "connectedBackgroundPixelsRemoved": 74352,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 20,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/front/020.png",
+      "sourceBBox": {
+        "minX": 31,
+        "minY": 26,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 273,
+        "height": 278,
+        "pixels": 39479
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        234,
+        233,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 61299,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 20,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/back/020.png",
+      "sourceBBox": {
+        "minX": 48,
+        "minY": 35,
+        "maxX": 275,
+        "maxY": 303,
+        "width": 228,
+        "height": 269,
+        "pixels": 32641
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 69759,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 20,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/left/020.png",
+      "sourceBBox": {
+        "minX": 71,
+        "minY": 16,
+        "maxX": 258,
+        "maxY": 289,
+        "width": 188,
+        "height": 274,
+        "pixels": 28960
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        235,
+        234,
+        235
+      ],
+      "connectedBackgroundPixelsRemoved": 72995,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 20,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/right/020.png",
+      "sourceBBox": {
+        "minX": 64,
+        "minY": 16,
+        "maxX": 249,
+        "maxY": 287,
+        "width": 186,
+        "height": 272,
+        "pixels": 27998
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 74123,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 21,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/front/021.png",
+      "sourceBBox": {
+        "minX": 31,
+        "minY": 24,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 273,
+        "height": 280,
+        "pixels": 39505
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        233,
+        233,
+        233
+      ],
+      "connectedBackgroundPixelsRemoved": 61243,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 21,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/back/021.png",
+      "sourceBBox": {
+        "minX": 48,
+        "minY": 36,
+        "maxX": 274,
+        "maxY": 303,
+        "width": 227,
+        "height": 268,
+        "pixels": 32431
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 69969,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 21,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/left/021.png",
+      "sourceBBox": {
+        "minX": 71,
+        "minY": 16,
+        "maxX": 256,
+        "maxY": 289,
+        "width": 186,
+        "height": 274,
+        "pixels": 28837
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        234,
+        234,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 73056,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 21,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/right/021.png",
+      "sourceBBox": {
+        "minX": 64,
+        "minY": 16,
+        "maxX": 249,
+        "maxY": 287,
+        "width": 186,
+        "height": 272,
+        "pixels": 28562
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 73574,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 22,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/front/022.png",
+      "sourceBBox": {
+        "minX": 31,
+        "minY": 24,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 273,
+        "height": 280,
+        "pixels": 39473
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        233,
+        233,
+        233
+      ],
+      "connectedBackgroundPixelsRemoved": 61214,
+      "interiorBackgroundPixelsRemoved": 60,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 22,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/back/022.png",
+      "sourceBBox": {
+        "minX": 48,
+        "minY": 36,
+        "maxX": 274,
+        "maxY": 303,
+        "width": 227,
+        "height": 268,
+        "pixels": 32396
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 70003,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 22,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/left/022.png",
+      "sourceBBox": {
+        "minX": 70,
+        "minY": 16,
+        "maxX": 255,
+        "maxY": 289,
+        "width": 186,
+        "height": 274,
+        "pixels": 28835
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        234,
+        234,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 73004,
+      "interiorBackgroundPixelsRemoved": 50,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 22,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/right/022.png",
+      "sourceBBox": {
+        "minX": 64,
+        "minY": 16,
+        "maxX": 249,
+        "maxY": 287,
+        "width": 186,
+        "height": 272,
+        "pixels": 28692
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 73456,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 23,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/front/023.png",
+      "sourceBBox": {
+        "minX": 31,
+        "minY": 24,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 273,
+        "height": 280,
+        "pixels": 39398
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        233,
+        233,
+        233
+      ],
+      "connectedBackgroundPixelsRemoved": 61255,
+      "interiorBackgroundPixelsRemoved": 92,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 23,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/back/023.png",
+      "sourceBBox": {
+        "minX": 48,
+        "minY": 36,
+        "maxX": 273,
+        "maxY": 303,
+        "width": 226,
+        "height": 268,
+        "pixels": 32189
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 70211,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 23,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/left/023.png",
+      "sourceBBox": {
+        "minX": 70,
+        "minY": 16,
+        "maxX": 254,
+        "maxY": 289,
+        "width": 185,
+        "height": 274,
+        "pixels": 28908
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        235,
+        235,
+        235
+      ],
+      "connectedBackgroundPixelsRemoved": 72947,
+      "interiorBackgroundPixelsRemoved": 48,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 23,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/right/023.png",
+      "sourceBBox": {
+        "minX": 64,
+        "minY": 16,
+        "maxX": 250,
+        "maxY": 287,
+        "width": 187,
+        "height": 272,
+        "pixels": 28930
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        239,
+        239,
+        239
+      ],
+      "connectedBackgroundPixelsRemoved": 73256,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 24,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/front/024.png",
+      "sourceBBox": {
+        "minX": 31,
+        "minY": 25,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 273,
+        "height": 279,
+        "pixels": 39573
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        233,
+        233,
+        233
+      ],
+      "connectedBackgroundPixelsRemoved": 61196,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 24,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/back/024.png",
+      "sourceBBox": {
+        "minX": 49,
+        "minY": 37,
+        "maxX": 273,
+        "maxY": 303,
+        "width": 225,
+        "height": 267,
+        "pixels": 32160
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 70240,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 24,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/left/024.png",
+      "sourceBBox": {
+        "minX": 70,
+        "minY": 16,
+        "maxX": 253,
+        "maxY": 289,
+        "width": 184,
+        "height": 274,
+        "pixels": 29011
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        234,
+        234,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 72745,
+      "interiorBackgroundPixelsRemoved": 169,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 24,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-v1/frames/right/024.png",
+      "sourceBBox": {
+        "minX": 64,
+        "minY": 16,
+        "maxX": 250,
+        "maxY": 287,
+        "width": 187,
+        "height": 272,
+        "pixels": 29365
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 72867,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    }
+  ]
+}

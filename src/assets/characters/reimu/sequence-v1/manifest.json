@@ -1,0 +1,1990 @@
+{
+  "version": 1,
+  "character": "reimu",
+  "status": "generated-pending-owner-review",
+  "layout": "variable-sequence-v1",
+  "sourceLayout": "2x2",
+  "sourceQuadrants": {
+    "front": "top-left",
+    "back": "top-right",
+    "left": "bottom-left",
+    "right": "bottom-right"
+  },
+  "sourceSize": [
+    640,
+    640
+  ],
+  "cell": [
+    209,
+    209
+  ],
+  "atlas": "src/assets/characters/reimu/reimu-animation-sequence-v1.png",
+  "atlasSize": [
+    4180,
+    836
+  ],
+  "frameCount": 20,
+  "rowOrder": [
+    "front",
+    "back",
+    "left",
+    "right"
+  ],
+  "idleFrame": 0,
+  "loopStart": 0,
+  "loopEnd": 19,
+  "candidateFrameDurationsMs": [
+    90,
+    110,
+    130
+  ],
+  "selectedFrameDurationMs": 90,
+  "maskProfileVersion": "connected-edge-plus-interior-islands-v2",
+  "targetVisibleHeight": 150,
+  "baseline": 179,
+  "scale": 0.5474452554744526,
+  "sources": [
+    {
+      "index": 1,
+      "file": "src/assets/characters/reimu/最终版/001.png",
+      "sha256": "d2afecc064554960862eb4fde24163fcc6976ec5b9d061bb7b3a672079268efb"
+    },
+    {
+      "index": 2,
+      "file": "src/assets/characters/reimu/最终版/002.png",
+      "sha256": "60f333e718d8c8bdd519ebf4897e3e4550e0523e530b894616e00ac64ae7d648"
+    },
+    {
+      "index": 3,
+      "file": "src/assets/characters/reimu/最终版/003.png",
+      "sha256": "ca5cd0ca81b7b46215056254e52561ad07bf22bb7dda59edbae2afaa47a57c6c"
+    },
+    {
+      "index": 4,
+      "file": "src/assets/characters/reimu/最终版/004.png",
+      "sha256": "24450e6a69abea519b59746c7276f2252b3c42839b8cb0c758371cd40d5df852"
+    },
+    {
+      "index": 5,
+      "file": "src/assets/characters/reimu/最终版/005.png",
+      "sha256": "38a885943ce8a1213c99fd4a2845d18daffaa7b0afdd8c6d62267a795d2d4b28"
+    },
+    {
+      "index": 6,
+      "file": "src/assets/characters/reimu/最终版/006.png",
+      "sha256": "927c847e22d3a95f5754da1b7e37e4ab19140ae84c34975eadc27da5aae0f369"
+    },
+    {
+      "index": 7,
+      "file": "src/assets/characters/reimu/最终版/007.png",
+      "sha256": "30a296366911e64dc550a4938fadba334902315f3cfed03010e1c063f52db93a"
+    },
+    {
+      "index": 8,
+      "file": "src/assets/characters/reimu/最终版/008.png",
+      "sha256": "d0c15d4c9d54130b42f9c8d10fd8a2f008be99a3b2357be97f3bc11bd916968e"
+    },
+    {
+      "index": 9,
+      "file": "src/assets/characters/reimu/最终版/009.png",
+      "sha256": "65fa3aeda6375014334550b1bd812bacdb1b286250c092aa601b1f69e9513ff2"
+    },
+    {
+      "index": 10,
+      "file": "src/assets/characters/reimu/最终版/010.png",
+      "sha256": "1f927566f5f45142017b6acd21a07d0a6fb88f9756970ff09cf9502199e48107"
+    },
+    {
+      "index": 11,
+      "file": "src/assets/characters/reimu/最终版/011.png",
+      "sha256": "cab769d5be18a4d8de4b3a4ee60306bd3a9e69527237fcdb80c75b32b56fcbf2"
+    },
+    {
+      "index": 12,
+      "file": "src/assets/characters/reimu/最终版/012.png",
+      "sha256": "5afc697e803dde80a994eeeacf7056c6b01a162b69652d9649259795932d600c"
+    },
+    {
+      "index": 13,
+      "file": "src/assets/characters/reimu/最终版/013.png",
+      "sha256": "fbe3fac37289214ec7b2908e8d27d381e20a25f877eb9e1d2ba263dd7e8ffd31"
+    },
+    {
+      "index": 14,
+      "file": "src/assets/characters/reimu/最终版/014.png",
+      "sha256": "62dd2e48657d6344cfef68e79cb3304bf265b04d462af06521c73ad38e68e40d"
+    },
+    {
+      "index": 15,
+      "file": "src/assets/characters/reimu/最终版/015.png",
+      "sha256": "efd67807c2ca4e2675035dab624530b63201b7acfa5e29396a71dd406e832ce1"
+    },
+    {
+      "index": 16,
+      "file": "src/assets/characters/reimu/最终版/016.png",
+      "sha256": "c024ce2fa917bcf255a92694a47af98b4cdce17e037836841361ab191d366926"
+    },
+    {
+      "index": 17,
+      "file": "src/assets/characters/reimu/最终版/017.png",
+      "sha256": "7a9699106974d30c669f56f2a36a29345391176c6e4a36945b3988caef7ef595"
+    },
+    {
+      "index": 18,
+      "file": "src/assets/characters/reimu/最终版/018.png",
+      "sha256": "96d8c00bce204d323137f98abdf157d8f21ba72afed2642db028233e3dd90a4f"
+    },
+    {
+      "index": 19,
+      "file": "src/assets/characters/reimu/最终版/019.png",
+      "sha256": "5b613e5a2cdc5e4422865b60ef94608684350c09293af7fe1f2411886c2492bd"
+    },
+    {
+      "index": 20,
+      "file": "src/assets/characters/reimu/最终版/020.png",
+      "sha256": "a27a1bc046d50f3904ee0d1c001f5b2dc81583ca52b3ffa0e72cbdcd56014462"
+    }
+  ],
+  "frames": [
+    {
+      "index": 1,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/front/001.png",
+      "sourceBBox": {
+        "minX": 60,
+        "minY": 30,
+        "maxX": 277,
+        "maxY": 303,
+        "width": 218,
+        "height": 274,
+        "pixels": 36691
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        24,
+        174,
+        27
+      ],
+      "connectedBackgroundPixelsRemoved": 64339,
+      "interiorBackgroundPixelsRemoved": 1237,
+      "interiorBackgroundIslandsRemoved": 417
+    },
+    {
+      "index": 1,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/back/001.png",
+      "sourceBBox": {
+        "minX": 48,
+        "minY": 31,
+        "maxX": 259,
+        "maxY": 303,
+        "width": 212,
+        "height": 273,
+        "pixels": 34877
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        26,
+        174,
+        30
+      ],
+      "connectedBackgroundPixelsRemoved": 66116,
+      "interiorBackgroundPixelsRemoved": 1289,
+      "interiorBackgroundIslandsRemoved": 378
+    },
+    {
+      "index": 1,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/left/001.png",
+      "sourceBBox": {
+        "minX": 57,
+        "minY": 16,
+        "maxX": 262,
+        "maxY": 280,
+        "width": 206,
+        "height": 265,
+        "pixels": 28825
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        26,
+        173,
+        30
+      ],
+      "connectedBackgroundPixelsRemoved": 72225,
+      "interiorBackgroundPixelsRemoved": 1139,
+      "interiorBackgroundIslandsRemoved": 409
+    },
+    {
+      "index": 1,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/right/001.png",
+      "sourceBBox": {
+        "minX": 57,
+        "minY": 16,
+        "maxX": 257,
+        "maxY": 279,
+        "width": 201,
+        "height": 264,
+        "pixels": 28024
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        29,
+        173,
+        32
+      ],
+      "connectedBackgroundPixelsRemoved": 72953,
+      "interiorBackgroundPixelsRemoved": 1234,
+      "interiorBackgroundIslandsRemoved": 415
+    },
+    {
+      "index": 2,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/front/002.png",
+      "sourceBBox": {
+        "minX": 60,
+        "minY": 33,
+        "maxX": 277,
+        "maxY": 303,
+        "width": 218,
+        "height": 271,
+        "pixels": 36549
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        26,
+        173,
+        30
+      ],
+      "connectedBackgroundPixelsRemoved": 64434,
+      "interiorBackgroundPixelsRemoved": 1241,
+      "interiorBackgroundIslandsRemoved": 395
+    },
+    {
+      "index": 2,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/back/002.png",
+      "sourceBBox": {
+        "minX": 48,
+        "minY": 33,
+        "maxX": 259,
+        "maxY": 303,
+        "width": 212,
+        "height": 271,
+        "pixels": 34850
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        28,
+        172,
+        32
+      ],
+      "connectedBackgroundPixelsRemoved": 66097,
+      "interiorBackgroundPixelsRemoved": 1313,
+      "interiorBackgroundIslandsRemoved": 377
+    },
+    {
+      "index": 2,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/left/002.png",
+      "sourceBBox": {
+        "minX": 58,
+        "minY": 16,
+        "maxX": 262,
+        "maxY": 281,
+        "width": 205,
+        "height": 266,
+        "pixels": 28579
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        28,
+        172,
+        32
+      ],
+      "connectedBackgroundPixelsRemoved": 72472,
+      "interiorBackgroundPixelsRemoved": 1238,
+      "interiorBackgroundIslandsRemoved": 406
+    },
+    {
+      "index": 2,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/right/002.png",
+      "sourceBBox": {
+        "minX": 57,
+        "minY": 16,
+        "maxX": 257,
+        "maxY": 279,
+        "width": 201,
+        "height": 264,
+        "pixels": 28051
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        30,
+        171,
+        34
+      ],
+      "connectedBackgroundPixelsRemoved": 72950,
+      "interiorBackgroundPixelsRemoved": 1301,
+      "interiorBackgroundIslandsRemoved": 402
+    },
+    {
+      "index": 3,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/front/003.png",
+      "sourceBBox": {
+        "minX": 60,
+        "minY": 32,
+        "maxX": 277,
+        "maxY": 303,
+        "width": 218,
+        "height": 272,
+        "pixels": 36709
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        24,
+        174,
+        27
+      ],
+      "connectedBackgroundPixelsRemoved": 64313,
+      "interiorBackgroundPixelsRemoved": 1225,
+      "interiorBackgroundIslandsRemoved": 400
+    },
+    {
+      "index": 3,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/back/003.png",
+      "sourceBBox": {
+        "minX": 48,
+        "minY": 33,
+        "maxX": 260,
+        "maxY": 303,
+        "width": 213,
+        "height": 271,
+        "pixels": 35170
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        27,
+        173,
+        30
+      ],
+      "connectedBackgroundPixelsRemoved": 65913,
+      "interiorBackgroundPixelsRemoved": 1191,
+      "interiorBackgroundIslandsRemoved": 399
+    },
+    {
+      "index": 3,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/left/003.png",
+      "sourceBBox": {
+        "minX": 61,
+        "minY": 16,
+        "maxX": 262,
+        "maxY": 281,
+        "width": 202,
+        "height": 266,
+        "pixels": 28024
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        27,
+        174,
+        29
+      ],
+      "connectedBackgroundPixelsRemoved": 72998,
+      "interiorBackgroundPixelsRemoved": 1185,
+      "interiorBackgroundIslandsRemoved": 389
+    },
+    {
+      "index": 3,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/right/003.png",
+      "sourceBBox": {
+        "minX": 58,
+        "minY": 16,
+        "maxX": 258,
+        "maxY": 279,
+        "width": 201,
+        "height": 264,
+        "pixels": 28149
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        29,
+        173,
+        32
+      ],
+      "connectedBackgroundPixelsRemoved": 72924,
+      "interiorBackgroundPixelsRemoved": 1177,
+      "interiorBackgroundIslandsRemoved": 403
+    },
+    {
+      "index": 4,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/front/004.png",
+      "sourceBBox": {
+        "minX": 59,
+        "minY": 32,
+        "maxX": 277,
+        "maxY": 303,
+        "width": 219,
+        "height": 272,
+        "pixels": 36755
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        26,
+        173,
+        30
+      ],
+      "connectedBackgroundPixelsRemoved": 64300,
+      "interiorBackgroundPixelsRemoved": 1225,
+      "interiorBackgroundIslandsRemoved": 410
+    },
+    {
+      "index": 4,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/back/004.png",
+      "sourceBBox": {
+        "minX": 48,
+        "minY": 33,
+        "maxX": 261,
+        "maxY": 303,
+        "width": 214,
+        "height": 271,
+        "pixels": 35351
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        27,
+        172,
+        32
+      ],
+      "connectedBackgroundPixelsRemoved": 65751,
+      "interiorBackgroundPixelsRemoved": 1216,
+      "interiorBackgroundIslandsRemoved": 408
+    },
+    {
+      "index": 4,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/left/004.png",
+      "sourceBBox": {
+        "minX": 61,
+        "minY": 16,
+        "maxX": 262,
+        "maxY": 280,
+        "width": 202,
+        "height": 265,
+        "pixels": 27704
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        28,
+        173,
+        31
+      ],
+      "connectedBackgroundPixelsRemoved": 73322,
+      "interiorBackgroundPixelsRemoved": 1114,
+      "interiorBackgroundIslandsRemoved": 386
+    },
+    {
+      "index": 4,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/right/004.png",
+      "sourceBBox": {
+        "minX": 58,
+        "minY": 16,
+        "maxX": 259,
+        "maxY": 278,
+        "width": 202,
+        "height": 263,
+        "pixels": 28011
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        30,
+        172,
+        34
+      ],
+      "connectedBackgroundPixelsRemoved": 72982,
+      "interiorBackgroundPixelsRemoved": 1208,
+      "interiorBackgroundIslandsRemoved": 388
+    },
+    {
+      "index": 5,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/front/005.png",
+      "sourceBBox": {
+        "minX": 59,
+        "minY": 31,
+        "maxX": 277,
+        "maxY": 303,
+        "width": 219,
+        "height": 273,
+        "pixels": 36927
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        27,
+        172,
+        30
+      ],
+      "connectedBackgroundPixelsRemoved": 64138,
+      "interiorBackgroundPixelsRemoved": 1235,
+      "interiorBackgroundIslandsRemoved": 405
+    },
+    {
+      "index": 5,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/back/005.png",
+      "sourceBBox": {
+        "minX": 48,
+        "minY": 32,
+        "maxX": 262,
+        "maxY": 303,
+        "width": 215,
+        "height": 272,
+        "pixels": 35511
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        28,
+        172,
+        32
+      ],
+      "connectedBackgroundPixelsRemoved": 65586,
+      "interiorBackgroundPixelsRemoved": 1229,
+      "interiorBackgroundIslandsRemoved": 397
+    },
+    {
+      "index": 5,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/left/005.png",
+      "sourceBBox": {
+        "minX": 63,
+        "minY": 16,
+        "maxX": 263,
+        "maxY": 279,
+        "width": 201,
+        "height": 264,
+        "pixels": 27786
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        29,
+        172,
+        31
+      ],
+      "connectedBackgroundPixelsRemoved": 73112,
+      "interiorBackgroundPixelsRemoved": 1184,
+      "interiorBackgroundIslandsRemoved": 386
+    },
+    {
+      "index": 5,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/right/005.png",
+      "sourceBBox": {
+        "minX": 58,
+        "minY": 16,
+        "maxX": 260,
+        "maxY": 278,
+        "width": 203,
+        "height": 263,
+        "pixels": 27996
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        31,
+        171,
+        35
+      ],
+      "connectedBackgroundPixelsRemoved": 73005,
+      "interiorBackgroundPixelsRemoved": 1133,
+      "interiorBackgroundIslandsRemoved": 368
+    },
+    {
+      "index": 6,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/front/006.png",
+      "sourceBBox": {
+        "minX": 59,
+        "minY": 30,
+        "maxX": 277,
+        "maxY": 303,
+        "width": 219,
+        "height": 274,
+        "pixels": 36992
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        26,
+        173,
+        29
+      ],
+      "connectedBackgroundPixelsRemoved": 64152,
+      "interiorBackgroundPixelsRemoved": 1150,
+      "interiorBackgroundIslandsRemoved": 393
+    },
+    {
+      "index": 6,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/back/006.png",
+      "sourceBBox": {
+        "minX": 48,
+        "minY": 32,
+        "maxX": 262,
+        "maxY": 303,
+        "width": 215,
+        "height": 272,
+        "pixels": 35725
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        27,
+        172,
+        31
+      ],
+      "connectedBackgroundPixelsRemoved": 65358,
+      "interiorBackgroundPixelsRemoved": 1228,
+      "interiorBackgroundIslandsRemoved": 412
+    },
+    {
+      "index": 6,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/left/006.png",
+      "sourceBBox": {
+        "minX": 64,
+        "minY": 16,
+        "maxX": 263,
+        "maxY": 279,
+        "width": 200,
+        "height": 264,
+        "pixels": 27832
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        28,
+        172,
+        30
+      ],
+      "connectedBackgroundPixelsRemoved": 73046,
+      "interiorBackgroundPixelsRemoved": 1205,
+      "interiorBackgroundIslandsRemoved": 392
+    },
+    {
+      "index": 6,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/right/006.png",
+      "sourceBBox": {
+        "minX": 58,
+        "minY": 16,
+        "maxX": 262,
+        "maxY": 278,
+        "width": 205,
+        "height": 263,
+        "pixels": 28451
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        30,
+        171,
+        33
+      ],
+      "connectedBackgroundPixelsRemoved": 72429,
+      "interiorBackgroundPixelsRemoved": 1244,
+      "interiorBackgroundIslandsRemoved": 382
+    },
+    {
+      "index": 7,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/front/007.png",
+      "sourceBBox": {
+        "minX": 58,
+        "minY": 30,
+        "maxX": 277,
+        "maxY": 303,
+        "width": 220,
+        "height": 274,
+        "pixels": 36994
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        26,
+        173,
+        29
+      ],
+      "connectedBackgroundPixelsRemoved": 64141,
+      "interiorBackgroundPixelsRemoved": 1128,
+      "interiorBackgroundIslandsRemoved": 386
+    },
+    {
+      "index": 7,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/back/007.png",
+      "sourceBBox": {
+        "minX": 48,
+        "minY": 31,
+        "maxX": 263,
+        "maxY": 303,
+        "width": 216,
+        "height": 273,
+        "pixels": 35933
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        27,
+        173,
+        31
+      ],
+      "connectedBackgroundPixelsRemoved": 65091,
+      "interiorBackgroundPixelsRemoved": 1272,
+      "interiorBackgroundIslandsRemoved": 407
+    },
+    {
+      "index": 7,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/left/007.png",
+      "sourceBBox": {
+        "minX": 64,
+        "minY": 16,
+        "maxX": 263,
+        "maxY": 279,
+        "width": 200,
+        "height": 264,
+        "pixels": 27973
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        27,
+        173,
+        30
+      ],
+      "connectedBackgroundPixelsRemoved": 72998,
+      "interiorBackgroundPixelsRemoved": 1143,
+      "interiorBackgroundIslandsRemoved": 403
+    },
+    {
+      "index": 7,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/right/007.png",
+      "sourceBBox": {
+        "minX": 58,
+        "minY": 16,
+        "maxX": 262,
+        "maxY": 278,
+        "width": 205,
+        "height": 263,
+        "pixels": 28878
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        30,
+        172,
+        33
+      ],
+      "connectedBackgroundPixelsRemoved": 72065,
+      "interiorBackgroundPixelsRemoved": 1190,
+      "interiorBackgroundIslandsRemoved": 384
+    },
+    {
+      "index": 8,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/front/008.png",
+      "sourceBBox": {
+        "minX": 57,
+        "minY": 30,
+        "maxX": 278,
+        "maxY": 303,
+        "width": 222,
+        "height": 274,
+        "pixels": 36952
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        26,
+        172,
+        30
+      ],
+      "connectedBackgroundPixelsRemoved": 64051,
+      "interiorBackgroundPixelsRemoved": 1255,
+      "interiorBackgroundIslandsRemoved": 398
+    },
+    {
+      "index": 8,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/back/008.png",
+      "sourceBBox": {
+        "minX": 48,
+        "minY": 31,
+        "maxX": 264,
+        "maxY": 303,
+        "width": 217,
+        "height": 273,
+        "pixels": 36171
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        28,
+        171,
+        32
+      ],
+      "connectedBackgroundPixelsRemoved": 64861,
+      "interiorBackgroundPixelsRemoved": 1252,
+      "interiorBackgroundIslandsRemoved": 416
+    },
+    {
+      "index": 8,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/left/008.png",
+      "sourceBBox": {
+        "minX": 64,
+        "minY": 16,
+        "maxX": 264,
+        "maxY": 279,
+        "width": 201,
+        "height": 264,
+        "pixels": 28059
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        29,
+        171,
+        32
+      ],
+      "connectedBackgroundPixelsRemoved": 72898,
+      "interiorBackgroundPixelsRemoved": 1190,
+      "interiorBackgroundIslandsRemoved": 410
+    },
+    {
+      "index": 8,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/right/008.png",
+      "sourceBBox": {
+        "minX": 56,
+        "minY": 16,
+        "maxX": 264,
+        "maxY": 279,
+        "width": 209,
+        "height": 264,
+        "pixels": 29194
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        31,
+        171,
+        35
+      ],
+      "connectedBackgroundPixelsRemoved": 71698,
+      "interiorBackgroundPixelsRemoved": 1284,
+      "interiorBackgroundIslandsRemoved": 418
+    },
+    {
+      "index": 9,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/front/009.png",
+      "sourceBBox": {
+        "minX": 56,
+        "minY": 31,
+        "maxX": 278,
+        "maxY": 303,
+        "width": 223,
+        "height": 273,
+        "pixels": 37076
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        26,
+        170,
+        31
+      ],
+      "connectedBackgroundPixelsRemoved": 63905,
+      "interiorBackgroundPixelsRemoved": 1226,
+      "interiorBackgroundIslandsRemoved": 391
+    },
+    {
+      "index": 9,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/back/009.png",
+      "sourceBBox": {
+        "minX": 48,
+        "minY": 31,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 218,
+        "height": 273,
+        "pixels": 36421
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        27,
+        170,
+        33
+      ],
+      "connectedBackgroundPixelsRemoved": 64497,
+      "interiorBackgroundPixelsRemoved": 1358,
+      "interiorBackgroundIslandsRemoved": 443
+    },
+    {
+      "index": 9,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/left/009.png",
+      "sourceBBox": {
+        "minX": 64,
+        "minY": 16,
+        "maxX": 264,
+        "maxY": 279,
+        "width": 201,
+        "height": 264,
+        "pixels": 28235
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        29,
+        170,
+        32
+      ],
+      "connectedBackgroundPixelsRemoved": 72737,
+      "interiorBackgroundPixelsRemoved": 1232,
+      "interiorBackgroundIslandsRemoved": 411
+    },
+    {
+      "index": 9,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/right/009.png",
+      "sourceBBox": {
+        "minX": 56,
+        "minY": 16,
+        "maxX": 265,
+        "maxY": 280,
+        "width": 210,
+        "height": 265,
+        "pixels": 29605
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        31,
+        169,
+        35
+      ],
+      "connectedBackgroundPixelsRemoved": 71320,
+      "interiorBackgroundPixelsRemoved": 1312,
+      "interiorBackgroundIslandsRemoved": 430
+    },
+    {
+      "index": 10,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/front/010.png",
+      "sourceBBox": {
+        "minX": 55,
+        "minY": 32,
+        "maxX": 278,
+        "maxY": 303,
+        "width": 224,
+        "height": 272,
+        "pixels": 37114
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        24,
+        171,
+        27
+      ],
+      "connectedBackgroundPixelsRemoved": 63857,
+      "interiorBackgroundPixelsRemoved": 1229,
+      "interiorBackgroundIslandsRemoved": 395
+    },
+    {
+      "index": 10,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/back/010.png",
+      "sourceBBox": {
+        "minX": 48,
+        "minY": 32,
+        "maxX": 266,
+        "maxY": 303,
+        "width": 219,
+        "height": 272,
+        "pixels": 36527
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        25,
+        171,
+        30
+      ],
+      "connectedBackgroundPixelsRemoved": 64457,
+      "interiorBackgroundPixelsRemoved": 1276,
+      "interiorBackgroundIslandsRemoved": 437
+    },
+    {
+      "index": 10,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/left/010.png",
+      "sourceBBox": {
+        "minX": 64,
+        "minY": 16,
+        "maxX": 264,
+        "maxY": 280,
+        "width": 201,
+        "height": 265,
+        "pixels": 28313
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        26,
+        170,
+        29
+      ],
+      "connectedBackgroundPixelsRemoved": 72753,
+      "interiorBackgroundPixelsRemoved": 1181,
+      "interiorBackgroundIslandsRemoved": 422
+    },
+    {
+      "index": 10,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/right/010.png",
+      "sourceBBox": {
+        "minX": 56,
+        "minY": 16,
+        "maxX": 265,
+        "maxY": 281,
+        "width": 210,
+        "height": 266,
+        "pixels": 29712
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        28,
+        170,
+        32
+      ],
+      "connectedBackgroundPixelsRemoved": 71284,
+      "interiorBackgroundPixelsRemoved": 1271,
+      "interiorBackgroundIslandsRemoved": 422
+    },
+    {
+      "index": 11,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/front/011.png",
+      "sourceBBox": {
+        "minX": 56,
+        "minY": 32,
+        "maxX": 278,
+        "maxY": 303,
+        "width": 223,
+        "height": 272,
+        "pixels": 37040
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        23,
+        173,
+        26
+      ],
+      "connectedBackgroundPixelsRemoved": 63950,
+      "interiorBackgroundPixelsRemoved": 1199,
+      "interiorBackgroundIslandsRemoved": 400
+    },
+    {
+      "index": 11,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/back/011.png",
+      "sourceBBox": {
+        "minX": 48,
+        "minY": 33,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 218,
+        "height": 271,
+        "pixels": 36428
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        25,
+        172,
+        30
+      ],
+      "connectedBackgroundPixelsRemoved": 64558,
+      "interiorBackgroundPixelsRemoved": 1259,
+      "interiorBackgroundIslandsRemoved": 434
+    },
+    {
+      "index": 11,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/left/011.png",
+      "sourceBBox": {
+        "minX": 64,
+        "minY": 16,
+        "maxX": 264,
+        "maxY": 280,
+        "width": 201,
+        "height": 265,
+        "pixels": 28295
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        26,
+        171,
+        28
+      ],
+      "connectedBackgroundPixelsRemoved": 72927,
+      "interiorBackgroundPixelsRemoved": 1051,
+      "interiorBackgroundIslandsRemoved": 420
+    },
+    {
+      "index": 11,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/right/011.png",
+      "sourceBBox": {
+        "minX": 56,
+        "minY": 16,
+        "maxX": 265,
+        "maxY": 282,
+        "width": 210,
+        "height": 267,
+        "pixels": 29693
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        28,
+        171,
+        31
+      ],
+      "connectedBackgroundPixelsRemoved": 71396,
+      "interiorBackgroundPixelsRemoved": 1202,
+      "interiorBackgroundIslandsRemoved": 414
+    },
+    {
+      "index": 12,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/front/012.png",
+      "sourceBBox": {
+        "minX": 56,
+        "minY": 32,
+        "maxX": 277,
+        "maxY": 303,
+        "width": 222,
+        "height": 272,
+        "pixels": 36893
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        24,
+        172,
+        28
+      ],
+      "connectedBackgroundPixelsRemoved": 64085,
+      "interiorBackgroundPixelsRemoved": 1256,
+      "interiorBackgroundIslandsRemoved": 408
+    },
+    {
+      "index": 12,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/back/012.png",
+      "sourceBBox": {
+        "minX": 48,
+        "minY": 33,
+        "maxX": 264,
+        "maxY": 303,
+        "width": 217,
+        "height": 271,
+        "pixels": 36050
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        26,
+        171,
+        31
+      ],
+      "connectedBackgroundPixelsRemoved": 64826,
+      "interiorBackgroundPixelsRemoved": 1398,
+      "interiorBackgroundIslandsRemoved": 414
+    },
+    {
+      "index": 12,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/left/012.png",
+      "sourceBBox": {
+        "minX": 64,
+        "minY": 16,
+        "maxX": 263,
+        "maxY": 279,
+        "width": 200,
+        "height": 264,
+        "pixels": 28019
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        27,
+        170,
+        30
+      ],
+      "connectedBackgroundPixelsRemoved": 72960,
+      "interiorBackgroundPixelsRemoved": 1257,
+      "interiorBackgroundIslandsRemoved": 426
+    },
+    {
+      "index": 12,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/right/012.png",
+      "sourceBBox": {
+        "minX": 57,
+        "minY": 16,
+        "maxX": 264,
+        "maxY": 281,
+        "width": 208,
+        "height": 266,
+        "pixels": 28986
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        29,
+        170,
+        33
+      ],
+      "connectedBackgroundPixelsRemoved": 71945,
+      "interiorBackgroundPixelsRemoved": 1339,
+      "interiorBackgroundIslandsRemoved": 391
+    },
+    {
+      "index": 13,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/front/013.png",
+      "sourceBBox": {
+        "minX": 58,
+        "minY": 32,
+        "maxX": 277,
+        "maxY": 303,
+        "width": 220,
+        "height": 272,
+        "pixels": 36841
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        24,
+        172,
+        29
+      ],
+      "connectedBackgroundPixelsRemoved": 64049,
+      "interiorBackgroundPixelsRemoved": 1374,
+      "interiorBackgroundIslandsRemoved": 390
+    },
+    {
+      "index": 13,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/back/013.png",
+      "sourceBBox": {
+        "minX": 48,
+        "minY": 33,
+        "maxX": 263,
+        "maxY": 303,
+        "width": 216,
+        "height": 271,
+        "pixels": 35815
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        26,
+        171,
+        31
+      ],
+      "connectedBackgroundPixelsRemoved": 65088,
+      "interiorBackgroundPixelsRemoved": 1386,
+      "interiorBackgroundIslandsRemoved": 390
+    },
+    {
+      "index": 13,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/left/013.png",
+      "sourceBBox": {
+        "minX": 63,
+        "minY": 16,
+        "maxX": 262,
+        "maxY": 279,
+        "width": 200,
+        "height": 264,
+        "pixels": 27838
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        27,
+        170,
+        30
+      ],
+      "connectedBackgroundPixelsRemoved": 73155,
+      "interiorBackgroundPixelsRemoved": 1186,
+      "interiorBackgroundIslandsRemoved": 376
+    },
+    {
+      "index": 13,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/right/013.png",
+      "sourceBBox": {
+        "minX": 58,
+        "minY": 16,
+        "maxX": 262,
+        "maxY": 280,
+        "width": 205,
+        "height": 265,
+        "pixels": 28241
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        29,
+        170,
+        34
+      ],
+      "connectedBackgroundPixelsRemoved": 72707,
+      "interiorBackgroundPixelsRemoved": 1251,
+      "interiorBackgroundIslandsRemoved": 381
+    },
+    {
+      "index": 14,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/front/014.png",
+      "sourceBBox": {
+        "minX": 58,
+        "minY": 31,
+        "maxX": 278,
+        "maxY": 303,
+        "width": 221,
+        "height": 273,
+        "pixels": 36888
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        25,
+        172,
+        28
+      ],
+      "connectedBackgroundPixelsRemoved": 64198,
+      "interiorBackgroundPixelsRemoved": 1189,
+      "interiorBackgroundIslandsRemoved": 402
+    },
+    {
+      "index": 14,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/back/014.png",
+      "sourceBBox": {
+        "minX": 48,
+        "minY": 32,
+        "maxX": 262,
+        "maxY": 303,
+        "width": 215,
+        "height": 272,
+        "pixels": 35707
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        27,
+        172,
+        31
+      ],
+      "connectedBackgroundPixelsRemoved": 65297,
+      "interiorBackgroundPixelsRemoved": 1278,
+      "interiorBackgroundIslandsRemoved": 403
+    },
+    {
+      "index": 14,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/left/014.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 16,
+        "maxX": 262,
+        "maxY": 279,
+        "width": 201,
+        "height": 264,
+        "pixels": 27698
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        27,
+        171,
+        30
+      ],
+      "connectedBackgroundPixelsRemoved": 73296,
+      "interiorBackgroundPixelsRemoved": 1147,
+      "interiorBackgroundIslandsRemoved": 392
+    },
+    {
+      "index": 14,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/right/014.png",
+      "sourceBBox": {
+        "minX": 58,
+        "minY": 16,
+        "maxX": 261,
+        "maxY": 280,
+        "width": 204,
+        "height": 265,
+        "pixels": 27855
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        29,
+        171,
+        34
+      ],
+      "connectedBackgroundPixelsRemoved": 73059,
+      "interiorBackgroundPixelsRemoved": 1255,
+      "interiorBackgroundIslandsRemoved": 385
+    },
+    {
+      "index": 15,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/front/015.png",
+      "sourceBBox": {
+        "minX": 59,
+        "minY": 31,
+        "maxX": 278,
+        "maxY": 303,
+        "width": 220,
+        "height": 273,
+        "pixels": 36886
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        25,
+        173,
+        28
+      ],
+      "connectedBackgroundPixelsRemoved": 64179,
+      "interiorBackgroundPixelsRemoved": 1187,
+      "interiorBackgroundIslandsRemoved": 408
+    },
+    {
+      "index": 15,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/back/015.png",
+      "sourceBBox": {
+        "minX": 48,
+        "minY": 32,
+        "maxX": 261,
+        "maxY": 303,
+        "width": 214,
+        "height": 272,
+        "pixels": 35629
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        27,
+        173,
+        31
+      ],
+      "connectedBackgroundPixelsRemoved": 65363,
+      "interiorBackgroundPixelsRemoved": 1275,
+      "interiorBackgroundIslandsRemoved": 404
+    },
+    {
+      "index": 15,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/left/015.png",
+      "sourceBBox": {
+        "minX": 61,
+        "minY": 16,
+        "maxX": 262,
+        "maxY": 279,
+        "width": 202,
+        "height": 264,
+        "pixels": 27853
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        27,
+        172,
+        30
+      ],
+      "connectedBackgroundPixelsRemoved": 73164,
+      "interiorBackgroundPixelsRemoved": 1110,
+      "interiorBackgroundIslandsRemoved": 405
+    },
+    {
+      "index": 15,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/right/015.png",
+      "sourceBBox": {
+        "minX": 58,
+        "minY": 16,
+        "maxX": 260,
+        "maxY": 279,
+        "width": 203,
+        "height": 264,
+        "pixels": 27857
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        29,
+        172,
+        34
+      ],
+      "connectedBackgroundPixelsRemoved": 73099,
+      "interiorBackgroundPixelsRemoved": 1190,
+      "interiorBackgroundIslandsRemoved": 389
+    },
+    {
+      "index": 16,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/front/016.png",
+      "sourceBBox": {
+        "minX": 59,
+        "minY": 30,
+        "maxX": 278,
+        "maxY": 303,
+        "width": 220,
+        "height": 274,
+        "pixels": 36838
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        26,
+        172,
+        30
+      ],
+      "connectedBackgroundPixelsRemoved": 64114,
+      "interiorBackgroundPixelsRemoved": 1318,
+      "interiorBackgroundIslandsRemoved": 409
+    },
+    {
+      "index": 16,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/back/016.png",
+      "sourceBBox": {
+        "minX": 48,
+        "minY": 31,
+        "maxX": 260,
+        "maxY": 303,
+        "width": 213,
+        "height": 273,
+        "pixels": 35457
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        28,
+        172,
+        33
+      ],
+      "connectedBackgroundPixelsRemoved": 65522,
+      "interiorBackgroundPixelsRemoved": 1308,
+      "interiorBackgroundIslandsRemoved": 395
+    },
+    {
+      "index": 16,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/left/016.png",
+      "sourceBBox": {
+        "minX": 58,
+        "minY": 16,
+        "maxX": 262,
+        "maxY": 279,
+        "width": 205,
+        "height": 264,
+        "pixels": 28497
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        28,
+        171,
+        31
+      ],
+      "connectedBackgroundPixelsRemoved": 72470,
+      "interiorBackgroundPixelsRemoved": 1163,
+      "interiorBackgroundIslandsRemoved": 383
+    },
+    {
+      "index": 16,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/right/016.png",
+      "sourceBBox": {
+        "minX": 58,
+        "minY": 16,
+        "maxX": 259,
+        "maxY": 279,
+        "width": 202,
+        "height": 264,
+        "pixels": 27949
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        30,
+        170,
+        35
+      ],
+      "connectedBackgroundPixelsRemoved": 72804,
+      "interiorBackgroundPixelsRemoved": 1416,
+      "interiorBackgroundIslandsRemoved": 381
+    },
+    {
+      "index": 17,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/front/017.png",
+      "sourceBBox": {
+        "minX": 59,
+        "minY": 31,
+        "maxX": 277,
+        "maxY": 303,
+        "width": 219,
+        "height": 273,
+        "pixels": 36881
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        27,
+        172,
+        30
+      ],
+      "connectedBackgroundPixelsRemoved": 64030,
+      "interiorBackgroundPixelsRemoved": 1321,
+      "interiorBackgroundIslandsRemoved": 401
+    },
+    {
+      "index": 17,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/back/017.png",
+      "sourceBBox": {
+        "minX": 47,
+        "minY": 31,
+        "maxX": 259,
+        "maxY": 303,
+        "width": 213,
+        "height": 273,
+        "pixels": 35264
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        28,
+        171,
+        32
+      ],
+      "connectedBackgroundPixelsRemoved": 65728,
+      "interiorBackgroundPixelsRemoved": 1257,
+      "interiorBackgroundIslandsRemoved": 403
+    },
+    {
+      "index": 17,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/left/017.png",
+      "sourceBBox": {
+        "minX": 57,
+        "minY": 16,
+        "maxX": 262,
+        "maxY": 279,
+        "width": 206,
+        "height": 264,
+        "pixels": 28996
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        29,
+        171,
+        31
+      ],
+      "connectedBackgroundPixelsRemoved": 71925,
+      "interiorBackgroundPixelsRemoved": 1255,
+      "interiorBackgroundIslandsRemoved": 388
+    },
+    {
+      "index": 17,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/right/017.png",
+      "sourceBBox": {
+        "minX": 57,
+        "minY": 16,
+        "maxX": 257,
+        "maxY": 279,
+        "width": 201,
+        "height": 264,
+        "pixels": 28139
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        31,
+        170,
+        35
+      ],
+      "connectedBackgroundPixelsRemoved": 72746,
+      "interiorBackgroundPixelsRemoved": 1319,
+      "interiorBackgroundIslandsRemoved": 425
+    },
+    {
+      "index": 18,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/front/018.png",
+      "sourceBBox": {
+        "minX": 59,
+        "minY": 31,
+        "maxX": 277,
+        "maxY": 303,
+        "width": 219,
+        "height": 273,
+        "pixels": 36932
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        26,
+        172,
+        28
+      ],
+      "connectedBackgroundPixelsRemoved": 63970,
+      "interiorBackgroundPixelsRemoved": 1310,
+      "interiorBackgroundIslandsRemoved": 400
+    },
+    {
+      "index": 18,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/back/018.png",
+      "sourceBBox": {
+        "minX": 47,
+        "minY": 31,
+        "maxX": 259,
+        "maxY": 303,
+        "width": 213,
+        "height": 273,
+        "pixels": 35098
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        27,
+        172,
+        31
+      ],
+      "connectedBackgroundPixelsRemoved": 65879,
+      "interiorBackgroundPixelsRemoved": 1268,
+      "interiorBackgroundIslandsRemoved": 376
+    },
+    {
+      "index": 18,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/left/018.png",
+      "sourceBBox": {
+        "minX": 56,
+        "minY": 16,
+        "maxX": 263,
+        "maxY": 279,
+        "width": 208,
+        "height": 264,
+        "pixels": 29331
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        28,
+        171,
+        30
+      ],
+      "connectedBackgroundPixelsRemoved": 71637,
+      "interiorBackgroundPixelsRemoved": 1247,
+      "interiorBackgroundIslandsRemoved": 429
+    },
+    {
+      "index": 18,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/right/018.png",
+      "sourceBBox": {
+        "minX": 56,
+        "minY": 16,
+        "maxX": 257,
+        "maxY": 279,
+        "width": 202,
+        "height": 264,
+        "pixels": 28263
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        30,
+        171,
+        33
+      ],
+      "connectedBackgroundPixelsRemoved": 72716,
+      "interiorBackgroundPixelsRemoved": 1258,
+      "interiorBackgroundIslandsRemoved": 404
+    },
+    {
+      "index": 19,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/front/019.png",
+      "sourceBBox": {
+        "minX": 59,
+        "minY": 32,
+        "maxX": 277,
+        "maxY": 303,
+        "width": 219,
+        "height": 272,
+        "pixels": 36947
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        26,
+        173,
+        28
+      ],
+      "connectedBackgroundPixelsRemoved": 63968,
+      "interiorBackgroundPixelsRemoved": 1260,
+      "interiorBackgroundIslandsRemoved": 405
+    },
+    {
+      "index": 19,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/back/019.png",
+      "sourceBBox": {
+        "minX": 47,
+        "minY": 31,
+        "maxX": 259,
+        "maxY": 303,
+        "width": 213,
+        "height": 273,
+        "pixels": 35033
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        27,
+        172,
+        31
+      ],
+      "connectedBackgroundPixelsRemoved": 65941,
+      "interiorBackgroundPixelsRemoved": 1245,
+      "interiorBackgroundIslandsRemoved": 380
+    },
+    {
+      "index": 19,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/left/019.png",
+      "sourceBBox": {
+        "minX": 56,
+        "minY": 16,
+        "maxX": 263,
+        "maxY": 281,
+        "width": 208,
+        "height": 266,
+        "pixels": 29467
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        29,
+        172,
+        30
+      ],
+      "connectedBackgroundPixelsRemoved": 71568,
+      "interiorBackgroundPixelsRemoved": 1227,
+      "interiorBackgroundIslandsRemoved": 404
+    },
+    {
+      "index": 19,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/right/019.png",
+      "sourceBBox": {
+        "minX": 56,
+        "minY": 16,
+        "maxX": 257,
+        "maxY": 279,
+        "width": 202,
+        "height": 264,
+        "pixels": 28318
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        31,
+        171,
+        33
+      ],
+      "connectedBackgroundPixelsRemoved": 72737,
+      "interiorBackgroundPixelsRemoved": 1218,
+      "interiorBackgroundIslandsRemoved": 400
+    },
+    {
+      "index": 20,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/front/020.png",
+      "sourceBBox": {
+        "minX": 58,
+        "minY": 32,
+        "maxX": 277,
+        "maxY": 303,
+        "width": 220,
+        "height": 272,
+        "pixels": 36780
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        27,
+        172,
+        30
+      ],
+      "connectedBackgroundPixelsRemoved": 64102,
+      "interiorBackgroundPixelsRemoved": 1301,
+      "interiorBackgroundIslandsRemoved": 411
+    },
+    {
+      "index": 20,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/back/020.png",
+      "sourceBBox": {
+        "minX": 47,
+        "minY": 32,
+        "maxX": 259,
+        "maxY": 303,
+        "width": 213,
+        "height": 272,
+        "pixels": 34907
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        28,
+        171,
+        32
+      ],
+      "connectedBackgroundPixelsRemoved": 66045,
+      "interiorBackgroundPixelsRemoved": 1256,
+      "interiorBackgroundIslandsRemoved": 391
+    },
+    {
+      "index": 20,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/left/020.png",
+      "sourceBBox": {
+        "minX": 56,
+        "minY": 16,
+        "maxX": 262,
+        "maxY": 281,
+        "width": 207,
+        "height": 266,
+        "pixels": 29317
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        29,
+        171,
+        31
+      ],
+      "connectedBackgroundPixelsRemoved": 71709,
+      "interiorBackgroundPixelsRemoved": 1247,
+      "interiorBackgroundIslandsRemoved": 429
+    },
+    {
+      "index": 20,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-v1/frames/right/020.png",
+      "sourceBBox": {
+        "minX": 56,
+        "minY": 16,
+        "maxX": 257,
+        "maxY": 279,
+        "width": 202,
+        "height": 264,
+        "pixels": 28196
+      },
+      "backgroundProfile": "green",
+      "borderRgb": [
+        31,
+        171,
+        34
+      ],
+      "connectedBackgroundPixelsRemoved": 72810,
+      "interiorBackgroundPixelsRemoved": 1299,
+      "interiorBackgroundIslandsRemoved": 423
+    }
+  ]
+}

@@ -1,0 +1,2475 @@
+{
+  "version": 1,
+  "character": "alice",
+  "status": "generated-pending-owner-review",
+  "layout": "variable-sequence-v1",
+  "sourceLayout": "2x2",
+  "sourceQuadrants": {
+    "front": "top-left",
+    "back": "top-right",
+    "left": "bottom-left",
+    "right": "bottom-right"
+  },
+  "sourceSize": [
+    640,
+    640
+  ],
+  "cell": [
+    209,
+    209
+  ],
+  "atlas": "src/assets/characters/alice/alice-animation-sequence-v1.png",
+  "atlasSize": [
+    5225,
+    836
+  ],
+  "frameCount": 25,
+  "rowOrder": [
+    "front",
+    "back",
+    "left",
+    "right"
+  ],
+  "idleFrame": 0,
+  "loopStart": 0,
+  "loopEnd": 24,
+  "candidateFrameDurationsMs": [
+    90,
+    110,
+    130
+  ],
+  "selectedFrameDurationMs": 90,
+  "maskProfileVersion": "connected-edge-plus-interior-islands-v2",
+  "targetVisibleHeight": 150,
+  "baseline": 179,
+  "scale": 0.5597014925373134,
+  "sources": [
+    {
+      "index": 1,
+      "file": "src/assets/characters/alice/最终版/001.png",
+      "sha256": "1b1a63e35487a101fee8b141051084cff8352dbb16fbc4191fc13e1bf502c2be"
+    },
+    {
+      "index": 2,
+      "file": "src/assets/characters/alice/最终版/002.png",
+      "sha256": "46225462834348fd52100e715f15614bb6403502f129edd51fa56fa1bdec93a0"
+    },
+    {
+      "index": 3,
+      "file": "src/assets/characters/alice/最终版/003.png",
+      "sha256": "7f8f32053bb0ab29575c8e7581810c28ec95e5e500f12fb9007ad88a8c84f39a"
+    },
+    {
+      "index": 4,
+      "file": "src/assets/characters/alice/最终版/004.png",
+      "sha256": "4215e27c4b2b90745ae040dea2066cb92cc9902a530c409c1b130d492ecf23f6"
+    },
+    {
+      "index": 5,
+      "file": "src/assets/characters/alice/最终版/005.png",
+      "sha256": "a9890756e370a686195acfdb43157b30687c7b14f1fb31218e688c32839aa7b2"
+    },
+    {
+      "index": 6,
+      "file": "src/assets/characters/alice/最终版/006.png",
+      "sha256": "a42cde25ec93d62e5445a9c5c01d4dbe1a5a83245497629dd435723f2f4fb37e"
+    },
+    {
+      "index": 7,
+      "file": "src/assets/characters/alice/最终版/007.png",
+      "sha256": "d85dc4dc683c6fd57c99f95beac6c54ed3077ca75fbd09f6a9cfce766e5de7d0"
+    },
+    {
+      "index": 8,
+      "file": "src/assets/characters/alice/最终版/008.png",
+      "sha256": "1e7182bd8f991b607de7d04c42d9f6b696bb17738bfa8bc5a8eb56166c2bc79e"
+    },
+    {
+      "index": 9,
+      "file": "src/assets/characters/alice/最终版/009.png",
+      "sha256": "0c49a83f15fa920eac791735d8de17bcb414163ea1179f30759883b5bbde7fb7"
+    },
+    {
+      "index": 10,
+      "file": "src/assets/characters/alice/最终版/010.png",
+      "sha256": "91a61bcadcb682fbdfc065a89a4e62c7a4ab2ad0232096af15e6739f740bf85d"
+    },
+    {
+      "index": 11,
+      "file": "src/assets/characters/alice/最终版/011.png",
+      "sha256": "94c190a3f3c20ebcdde84bc01c503fd0bbd53954d07c0fae692db8782cb7917a"
+    },
+    {
+      "index": 12,
+      "file": "src/assets/characters/alice/最终版/012.png",
+      "sha256": "67c7a702ad0004f80b4de1d50393a81201e2c09561f9392aca12469cba636530"
+    },
+    {
+      "index": 13,
+      "file": "src/assets/characters/alice/最终版/013.png",
+      "sha256": "4d4bc4961131fe18567c65d4f745363d729eb98d86f3c97e42cd25e213d8559b"
+    },
+    {
+      "index": 14,
+      "file": "src/assets/characters/alice/最终版/014.png",
+      "sha256": "54ca71adde7f9b0bacf8054e933d2adfb6659fc2fe2341e7589395a802f48644"
+    },
+    {
+      "index": 15,
+      "file": "src/assets/characters/alice/最终版/015.png",
+      "sha256": "a46e4a3a2181e55706c6b1dac594b1bf9b924bc4d0873819ee2f2d5da7032851"
+    },
+    {
+      "index": 16,
+      "file": "src/assets/characters/alice/最终版/016.png",
+      "sha256": "52a466b9b1ab4f90d3ebf1efc61913a179aa80e85c527e24c6ab1752cf4a0bb5"
+    },
+    {
+      "index": 17,
+      "file": "src/assets/characters/alice/最终版/017.png",
+      "sha256": "2773d34f6d807607421dc475f5a3ee336e3769e67f15e01f42a59d3885645562"
+    },
+    {
+      "index": 18,
+      "file": "src/assets/characters/alice/最终版/018.png",
+      "sha256": "a599d009ea245d2e2df96e9c54f6a5d12d4ec63a25f8399ea57cd505fd55b2d9"
+    },
+    {
+      "index": 19,
+      "file": "src/assets/characters/alice/最终版/019.png",
+      "sha256": "9105788b32dfa541ed26c35b9757315c9ce554ece017659e7bb163812b9a5908"
+    },
+    {
+      "index": 20,
+      "file": "src/assets/characters/alice/最终版/020.png",
+      "sha256": "922173e588b99daf43096816dff54380ee907cc60869f9f9349f9545c35ef7b3"
+    },
+    {
+      "index": 21,
+      "file": "src/assets/characters/alice/最终版/021.png",
+      "sha256": "d87ffdeaf306f71db1c3764ac1fd48483db299c17f1178911f03adf829dfa3af"
+    },
+    {
+      "index": 22,
+      "file": "src/assets/characters/alice/最终版/022.png",
+      "sha256": "49d4fa29b5e07ad84e444ef4325564faab8d656f9795cae4c196b0966842924a"
+    },
+    {
+      "index": 23,
+      "file": "src/assets/characters/alice/最终版/023.png",
+      "sha256": "742dc085b804870eeffc15f7b22b66202fcd2d2444ad40df3bdb2f7787adf555"
+    },
+    {
+      "index": 24,
+      "file": "src/assets/characters/alice/最终版/024.png",
+      "sha256": "2d1ba9cf1db94dc00a77da24459a265c5799e6434d5bc41b6fe163f301a6bfbb"
+    },
+    {
+      "index": 25,
+      "file": "src/assets/characters/alice/最终版/025.png",
+      "sha256": "17d9020db31b8b8490eb4569f384265b1e919138465fd78e882f12e21fd2f008"
+    }
+  ],
+  "frames": [
+    {
+      "index": 1,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-v1/frames/front/001.png",
+      "sourceBBox": {
+        "minX": 110,
+        "minY": 38,
+        "maxX": 268,
+        "maxY": 303,
+        "width": 159,
+        "height": 266,
+        "pixels": 29951
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        236,
+        236,
+        237
+      ],
+      "connectedBackgroundPixelsRemoved": 70543,
+      "interiorBackgroundPixelsRemoved": 316,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 1,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-v1/frames/back/001.png",
+      "sourceBBox": {
+        "minX": 58,
+        "minY": 41,
+        "maxX": 210,
+        "maxY": 303,
+        "width": 153,
+        "height": 263,
+        "pixels": 29149
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        236,
+        236,
+        236
+      ],
+      "connectedBackgroundPixelsRemoved": 70968,
+      "interiorBackgroundPixelsRemoved": 717,
+      "interiorBackgroundIslandsRemoved": 5
+    },
+    {
+      "index": 1,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-v1/frames/left/001.png",
+      "sourceBBox": {
+        "minX": 113,
+        "minY": 16,
+        "maxX": 250,
+        "maxY": 283,
+        "width": 138,
+        "height": 268,
+        "pixels": 23525
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        239,
+        239,
+        239
+      ],
+      "connectedBackgroundPixelsRemoved": 78557,
+      "interiorBackgroundPixelsRemoved": 313,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 1,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-v1/frames/right/001.png",
+      "sourceBBox": {
+        "minX": 71,
+        "minY": 19,
+        "maxX": 209,
+        "maxY": 283,
+        "width": 139,
+        "height": 265,
+        "pixels": 23821
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        239,
+        239
+      ],
+      "connectedBackgroundPixelsRemoved": 78258,
+      "interiorBackgroundPixelsRemoved": 318,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 2,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-v1/frames/front/002.png",
+      "sourceBBox": {
+        "minX": 110,
+        "minY": 38,
+        "maxX": 269,
+        "maxY": 303,
+        "width": 160,
+        "height": 266,
+        "pixels": 29846
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        237,
+        236,
+        237
+      ],
+      "connectedBackgroundPixelsRemoved": 70603,
+      "interiorBackgroundPixelsRemoved": 366,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 2,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-v1/frames/back/002.png",
+      "sourceBBox": {
+        "minX": 58,
+        "minY": 40,
+        "maxX": 210,
+        "maxY": 303,
+        "width": 153,
+        "height": 264,
+        "pixels": 29187
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        237,
+        236,
+        237
+      ],
+      "connectedBackgroundPixelsRemoved": 70970,
+      "interiorBackgroundPixelsRemoved": 684,
+      "interiorBackgroundIslandsRemoved": 6
+    },
+    {
+      "index": 2,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-v1/frames/left/002.png",
+      "sourceBBox": {
+        "minX": 113,
+        "minY": 16,
+        "maxX": 251,
+        "maxY": 282,
+        "width": 139,
+        "height": 267,
+        "pixels": 23639
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        239,
+        239,
+        239
+      ],
+      "connectedBackgroundPixelsRemoved": 78438,
+      "interiorBackgroundPixelsRemoved": 312,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 2,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-v1/frames/right/002.png",
+      "sourceBBox": {
+        "minX": 72,
+        "minY": 18,
+        "maxX": 209,
+        "maxY": 283,
+        "width": 138,
+        "height": 266,
+        "pixels": 23576
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        239,
+        239
+      ],
+      "connectedBackgroundPixelsRemoved": 78391,
+      "interiorBackgroundPixelsRemoved": 429,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 3,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-v1/frames/front/003.png",
+      "sourceBBox": {
+        "minX": 110,
+        "minY": 38,
+        "maxX": 269,
+        "maxY": 303,
+        "width": 160,
+        "height": 266,
+        "pixels": 29781
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        237,
+        237,
+        237
+      ],
+      "connectedBackgroundPixelsRemoved": 70637,
+      "interiorBackgroundPixelsRemoved": 395,
+      "interiorBackgroundIslandsRemoved": 5
+    },
+    {
+      "index": 3,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-v1/frames/back/003.png",
+      "sourceBBox": {
+        "minX": 58,
+        "minY": 40,
+        "maxX": 209,
+        "maxY": 303,
+        "width": 152,
+        "height": 264,
+        "pixels": 29303
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 71007,
+      "interiorBackgroundPixelsRemoved": 565,
+      "interiorBackgroundIslandsRemoved": 6
+    },
+    {
+      "index": 3,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-v1/frames/left/003.png",
+      "sourceBBox": {
+        "minX": 113,
+        "minY": 16,
+        "maxX": 251,
+        "maxY": 283,
+        "width": 139,
+        "height": 268,
+        "pixels": 23795
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 78339,
+      "interiorBackgroundPixelsRemoved": 261,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 3,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-v1/frames/right/003.png",
+      "sourceBBox": {
+        "minX": 73,
+        "minY": 17,
+        "maxX": 209,
+        "maxY": 283,
+        "width": 137,
+        "height": 267,
+        "pixels": 23626
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        241,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 78531,
+      "interiorBackgroundPixelsRemoved": 242,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 4,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-v1/frames/front/004.png",
+      "sourceBBox": {
+        "minX": 109,
+        "minY": 39,
+        "maxX": 269,
+        "maxY": 303,
+        "width": 161,
+        "height": 265,
+        "pixels": 29753
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        237,
+        236,
+        237
+      ],
+      "connectedBackgroundPixelsRemoved": 70644,
+      "interiorBackgroundPixelsRemoved": 414,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 4,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-v1/frames/back/004.png",
+      "sourceBBox": {
+        "minX": 58,
+        "minY": 39,
+        "maxX": 208,
+        "maxY": 303,
+        "width": 151,
+        "height": 265,
+        "pixels": 29331
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        239,
+        238,
+        239
+      ],
+      "connectedBackgroundPixelsRemoved": 70951,
+      "interiorBackgroundPixelsRemoved": 640,
+      "interiorBackgroundIslandsRemoved": 6
+    },
+    {
+      "index": 4,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-v1/frames/left/004.png",
+      "sourceBBox": {
+        "minX": 112,
+        "minY": 16,
+        "maxX": 252,
+        "maxY": 283,
+        "width": 141,
+        "height": 268,
+        "pixels": 23999
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        237,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 78041,
+      "interiorBackgroundPixelsRemoved": 340,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 4,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-v1/frames/right/004.png",
+      "sourceBBox": {
+        "minX": 73,
+        "minY": 16,
+        "maxX": 210,
+        "maxY": 282,
+        "width": 138,
+        "height": 267,
+        "pixels": 23413
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 78563,
+      "interiorBackgroundPixelsRemoved": 422,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 5,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-v1/frames/front/005.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 41,
+        "maxX": 269,
+        "maxY": 303,
+        "width": 162,
+        "height": 263,
+        "pixels": 29612
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        236,
+        235,
+        236
+      ],
+      "connectedBackgroundPixelsRemoved": 70786,
+      "interiorBackgroundPixelsRemoved": 390,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 5,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-v1/frames/back/005.png",
+      "sourceBBox": {
+        "minX": 58,
+        "minY": 38,
+        "maxX": 208,
+        "maxY": 303,
+        "width": 151,
+        "height": 266,
+        "pixels": 29309
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        239,
+        239,
+        239
+      ],
+      "connectedBackgroundPixelsRemoved": 70985,
+      "interiorBackgroundPixelsRemoved": 629,
+      "interiorBackgroundIslandsRemoved": 6
+    },
+    {
+      "index": 5,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-v1/frames/left/005.png",
+      "sourceBBox": {
+        "minX": 110,
+        "minY": 18,
+        "maxX": 252,
+        "maxY": 283,
+        "width": 143,
+        "height": 266,
+        "pixels": 24342
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        237,
+        236,
+        236
+      ],
+      "connectedBackgroundPixelsRemoved": 77491,
+      "interiorBackgroundPixelsRemoved": 498,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 5,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-v1/frames/right/005.png",
+      "sourceBBox": {
+        "minX": 73,
+        "minY": 16,
+        "maxX": 211,
+        "maxY": 283,
+        "width": 139,
+        "height": 268,
+        "pixels": 23609
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        239,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 78558,
+      "interiorBackgroundPixelsRemoved": 230,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 6,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-v1/frames/front/006.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 42,
+        "maxX": 269,
+        "maxY": 303,
+        "width": 162,
+        "height": 262,
+        "pixels": 29518
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        236,
+        235,
+        236
+      ],
+      "connectedBackgroundPixelsRemoved": 70795,
+      "interiorBackgroundPixelsRemoved": 481,
+      "interiorBackgroundIslandsRemoved": 5
+    },
+    {
+      "index": 6,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-v1/frames/back/006.png",
+      "sourceBBox": {
+        "minX": 57,
+        "minY": 38,
+        "maxX": 208,
+        "maxY": 303,
+        "width": 152,
+        "height": 266,
+        "pixels": 29273
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        239,
+        239,
+        239
+      ],
+      "connectedBackgroundPixelsRemoved": 71004,
+      "interiorBackgroundPixelsRemoved": 650,
+      "interiorBackgroundIslandsRemoved": 5
+    },
+    {
+      "index": 6,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-v1/frames/left/006.png",
+      "sourceBBox": {
+        "minX": 110,
+        "minY": 19,
+        "maxX": 253,
+        "maxY": 283,
+        "width": 144,
+        "height": 265,
+        "pixels": 24461
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        236,
+        236,
+        236
+      ],
+      "connectedBackgroundPixelsRemoved": 77352,
+      "interiorBackgroundPixelsRemoved": 498,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 6,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-v1/frames/right/006.png",
+      "sourceBBox": {
+        "minX": 73,
+        "minY": 16,
+        "maxX": 212,
+        "maxY": 283,
+        "width": 140,
+        "height": 268,
+        "pixels": 23867
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        239,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 78270,
+      "interiorBackgroundPixelsRemoved": 261,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 7,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-v1/frames/front/007.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 42,
+        "maxX": 269,
+        "maxY": 303,
+        "width": 162,
+        "height": 262,
+        "pixels": 29371
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        236,
+        236,
+        236
+      ],
+      "connectedBackgroundPixelsRemoved": 70867,
+      "interiorBackgroundPixelsRemoved": 562,
+      "interiorBackgroundIslandsRemoved": 6
+    },
+    {
+      "index": 7,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-v1/frames/back/007.png",
+      "sourceBBox": {
+        "minX": 57,
+        "minY": 38,
+        "maxX": 208,
+        "maxY": 303,
+        "width": 152,
+        "height": 266,
+        "pixels": 29412
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 71054,
+      "interiorBackgroundPixelsRemoved": 464,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 7,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-v1/frames/left/007.png",
+      "sourceBBox": {
+        "minX": 109,
+        "minY": 19,
+        "maxX": 253,
+        "maxY": 283,
+        "width": 145,
+        "height": 265,
+        "pixels": 24408
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        237,
+        236,
+        236
+      ],
+      "connectedBackgroundPixelsRemoved": 77353,
+      "interiorBackgroundPixelsRemoved": 519,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 7,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-v1/frames/right/007.png",
+      "sourceBBox": {
+        "minX": 73,
+        "minY": 16,
+        "maxX": 212,
+        "maxY": 283,
+        "width": 140,
+        "height": 268,
+        "pixels": 24070
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 78016,
+      "interiorBackgroundPixelsRemoved": 310,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 8,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-v1/frames/front/008.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 42,
+        "maxX": 268,
+        "maxY": 303,
+        "width": 161,
+        "height": 262,
+        "pixels": 29406
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        236,
+        235,
+        236
+      ],
+      "connectedBackgroundPixelsRemoved": 70855,
+      "interiorBackgroundPixelsRemoved": 538,
+      "interiorBackgroundIslandsRemoved": 6
+    },
+    {
+      "index": 8,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-v1/frames/back/008.png",
+      "sourceBBox": {
+        "minX": 56,
+        "minY": 39,
+        "maxX": 208,
+        "maxY": 303,
+        "width": 153,
+        "height": 265,
+        "pixels": 29066
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        239,
+        239,
+        239
+      ],
+      "connectedBackgroundPixelsRemoved": 71096,
+      "interiorBackgroundPixelsRemoved": 774,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 8,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-v1/frames/left/008.png",
+      "sourceBBox": {
+        "minX": 110,
+        "minY": 19,
+        "maxX": 252,
+        "maxY": 283,
+        "width": 143,
+        "height": 265,
+        "pixels": 24374
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        236,
+        236,
+        236
+      ],
+      "connectedBackgroundPixelsRemoved": 77396,
+      "interiorBackgroundPixelsRemoved": 502,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 8,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-v1/frames/right/008.png",
+      "sourceBBox": {
+        "minX": 72,
+        "minY": 16,
+        "maxX": 213,
+        "maxY": 283,
+        "width": 142,
+        "height": 268,
+        "pixels": 24347
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        239,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 77615,
+      "interiorBackgroundPixelsRemoved": 437,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 9,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-v1/frames/front/009.png",
+      "sourceBBox": {
+        "minX": 107,
+        "minY": 42,
+        "maxX": 267,
+        "maxY": 303,
+        "width": 161,
+        "height": 262,
+        "pixels": 29383
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        236,
+        235,
+        236
+      ],
+      "connectedBackgroundPixelsRemoved": 71020,
+      "interiorBackgroundPixelsRemoved": 414,
+      "interiorBackgroundIslandsRemoved": 5
+    },
+    {
+      "index": 9,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-v1/frames/back/009.png",
+      "sourceBBox": {
+        "minX": 56,
+        "minY": 40,
+        "maxX": 209,
+        "maxY": 303,
+        "width": 154,
+        "height": 264,
+        "pixels": 28936
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 71248,
+      "interiorBackgroundPixelsRemoved": 738,
+      "interiorBackgroundIslandsRemoved": 5
+    },
+    {
+      "index": 9,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-v1/frames/left/009.png",
+      "sourceBBox": {
+        "minX": 109,
+        "minY": 19,
+        "maxX": 250,
+        "maxY": 283,
+        "width": 142,
+        "height": 265,
+        "pixels": 24245
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        236,
+        236,
+        236
+      ],
+      "connectedBackgroundPixelsRemoved": 77591,
+      "interiorBackgroundPixelsRemoved": 430,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 9,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-v1/frames/right/009.png",
+      "sourceBBox": {
+        "minX": 71,
+        "minY": 18,
+        "maxX": 214,
+        "maxY": 283,
+        "width": 144,
+        "height": 266,
+        "pixels": 24953
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        239,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 77005,
+      "interiorBackgroundPixelsRemoved": 436,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 10,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-v1/frames/front/010.png",
+      "sourceBBox": {
+        "minX": 107,
+        "minY": 41,
+        "maxX": 266,
+        "maxY": 303,
+        "width": 160,
+        "height": 263,
+        "pixels": 29628
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        236,
+        235,
+        236
+      ],
+      "connectedBackgroundPixelsRemoved": 70664,
+      "interiorBackgroundPixelsRemoved": 521,
+      "interiorBackgroundIslandsRemoved": 7
+    },
+    {
+      "index": 10,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-v1/frames/back/010.png",
+      "sourceBBox": {
+        "minX": 56,
+        "minY": 41,
+        "maxX": 210,
+        "maxY": 303,
+        "width": 155,
+        "height": 263,
+        "pixels": 29023
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 71281,
+      "interiorBackgroundPixelsRemoved": 616,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 10,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-v1/frames/left/010.png",
+      "sourceBBox": {
+        "minX": 110,
+        "minY": 18,
+        "maxX": 249,
+        "maxY": 283,
+        "width": 140,
+        "height": 266,
+        "pixels": 24012
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        236,
+        236,
+        236
+      ],
+      "connectedBackgroundPixelsRemoved": 77778,
+      "interiorBackgroundPixelsRemoved": 478,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 10,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-v1/frames/right/010.png",
+      "sourceBBox": {
+        "minX": 71,
+        "minY": 19,
+        "maxX": 214,
+        "maxY": 283,
+        "width": 144,
+        "height": 265,
+        "pixels": 24792
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        239,
+        239
+      ],
+      "connectedBackgroundPixelsRemoved": 76920,
+      "interiorBackgroundPixelsRemoved": 685,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 11,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-v1/frames/front/011.png",
+      "sourceBBox": {
+        "minX": 107,
+        "minY": 41,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 159,
+        "height": 263,
+        "pixels": 29832
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        236,
+        236,
+        237
+      ],
+      "connectedBackgroundPixelsRemoved": 70624,
+      "interiorBackgroundPixelsRemoved": 361,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 11,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-v1/frames/back/011.png",
+      "sourceBBox": {
+        "minX": 55,
+        "minY": 42,
+        "maxX": 211,
+        "maxY": 303,
+        "width": 157,
+        "height": 262,
+        "pixels": 29183
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        239,
+        238,
+        239
+      ],
+      "connectedBackgroundPixelsRemoved": 71330,
+      "interiorBackgroundPixelsRemoved": 373,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 11,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-v1/frames/left/011.png",
+      "sourceBBox": {
+        "minX": 110,
+        "minY": 18,
+        "maxX": 249,
+        "maxY": 283,
+        "width": 140,
+        "height": 266,
+        "pixels": 24026
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        237,
+        237,
+        237
+      ],
+      "connectedBackgroundPixelsRemoved": 77882,
+      "interiorBackgroundPixelsRemoved": 358,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 11,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-v1/frames/right/011.png",
+      "sourceBBox": {
+        "minX": 71,
+        "minY": 20,
+        "maxX": 214,
+        "maxY": 283,
+        "width": 144,
+        "height": 264,
+        "pixels": 25026
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        240,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 76926,
+      "interiorBackgroundPixelsRemoved": 445,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 12,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-v1/frames/front/012.png",
+      "sourceBBox": {
+        "minX": 107,
+        "minY": 39,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 159,
+        "height": 265,
+        "pixels": 29996
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        236,
+        236,
+        236
+      ],
+      "connectedBackgroundPixelsRemoved": 70405,
+      "interiorBackgroundPixelsRemoved": 424,
+      "interiorBackgroundIslandsRemoved": 5
+    },
+    {
+      "index": 12,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-v1/frames/back/012.png",
+      "sourceBBox": {
+        "minX": 56,
+        "minY": 42,
+        "maxX": 212,
+        "maxY": 303,
+        "width": 157,
+        "height": 262,
+        "pixels": 28913
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 71388,
+      "interiorBackgroundPixelsRemoved": 625,
+      "interiorBackgroundIslandsRemoved": 6
+    },
+    {
+      "index": 12,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-v1/frames/left/012.png",
+      "sourceBBox": {
+        "minX": 110,
+        "minY": 17,
+        "maxX": 247,
+        "maxY": 283,
+        "width": 138,
+        "height": 267,
+        "pixels": 23932
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        237,
+        236,
+        236
+      ],
+      "connectedBackgroundPixelsRemoved": 77998,
+      "interiorBackgroundPixelsRemoved": 340,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 12,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-v1/frames/right/012.png",
+      "sourceBBox": {
+        "minX": 72,
+        "minY": 20,
+        "maxX": 215,
+        "maxY": 283,
+        "width": 144,
+        "height": 264,
+        "pixels": 24681
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        239,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 77095,
+      "interiorBackgroundPixelsRemoved": 619,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 13,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-v1/frames/front/013.png",
+      "sourceBBox": {
+        "minX": 106,
+        "minY": 38,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 160,
+        "height": 266,
+        "pixels": 30316
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        236,
+        235,
+        236
+      ],
+      "connectedBackgroundPixelsRemoved": 70254,
+      "interiorBackgroundPixelsRemoved": 264,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 13,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-v1/frames/back/013.png",
+      "sourceBBox": {
+        "minX": 57,
+        "minY": 43,
+        "maxX": 212,
+        "maxY": 303,
+        "width": 156,
+        "height": 261,
+        "pixels": 29022
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        238,
+        238,
+        238
+      ],
+      "connectedBackgroundPixelsRemoved": 71408,
+      "interiorBackgroundPixelsRemoved": 485,
+      "interiorBackgroundIslandsRemoved": 5
+    },
+    {
+      "index": 13,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-v1/frames/left/013.png",
+      "sourceBBox": {
+        "minX": 109,
+        "minY": 16,
+        "maxX": 247,
+        "maxY": 283,
+        "width": 139,
+        "height": 268,
+        "pixels": 23841
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        237,
+        236,
+        236
+      ],
+      "connectedBackgroundPixelsRemoved": 78093,
+      "interiorBackgroundPixelsRemoved": 337,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 13,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-v1/frames/right/013.png",
+      "sourceBBox": {
+        "minX": 74,
+        "minY": 20,
+        "maxX": 215,
+        "maxY": 283,
+        "width": 142,
+        "height": 264,
+        "pixels": 24246
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        239,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 77691,
+      "interiorBackgroundPixelsRemoved": 457,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 14,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-v1/frames/front/014.png",
+      "sourceBBox": {
+        "minX": 106,
+        "minY": 38,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 160,
+        "height": 266,
+        "pixels": 30360
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        236,
+        235,
+        236
+      ],
+      "connectedBackgroundPixelsRemoved": 70143,
+      "interiorBackgroundPixelsRemoved": 335,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 14,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-v1/frames/back/014.png",
+      "sourceBBox": {
+        "minX": 58,
+        "minY": 42,
+        "maxX": 212,
+        "maxY": 303,
+        "width": 155,
+        "height": 262,
+        "pixels": 28921
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        239,
+        238,
+        239
+      ],
+      "connectedBackgroundPixelsRemoved": 71432,
+      "interiorBackgroundPixelsRemoved": 571,
+      "interiorBackgroundIslandsRemoved": 6
+    },
+    {
+      "index": 14,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-v1/frames/left/014.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 16,
+        "maxX": 247,
+        "maxY": 283,
+        "width": 140,
+        "height": 268,
+        "pixels": 23947
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        236,
+        236,
+        236
+      ],
+      "connectedBackgroundPixelsRemoved": 78109,
+      "interiorBackgroundPixelsRemoved": 209,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 14,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-v1/frames/right/014.png",
+      "sourceBBox": {
+        "minX": 75,
+        "minY": 19,
+        "maxX": 215,
+        "maxY": 283,
+        "width": 141,
+        "height": 265,
+        "pixels": 23819
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        239,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 78007,
+      "interiorBackgroundPixelsRemoved": 573,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 15,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-v1/frames/front/015.png",
+      "sourceBBox": {
+        "minX": 106,
+        "minY": 38,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 160,
+        "height": 266,
+        "pixels": 30389
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        236,
+        236,
+        236
+      ],
+      "connectedBackgroundPixelsRemoved": 70155,
+      "interiorBackgroundPixelsRemoved": 303,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 15,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-v1/frames/back/015.png",
+      "sourceBBox": {
+        "minX": 59,
+        "minY": 42,
+        "maxX": 212,
+        "maxY": 303,
+        "width": 154,
+        "height": 262,
+        "pixels": 29215
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        239,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 71388,
+      "interiorBackgroundPixelsRemoved": 332,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 15,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-v1/frames/left/015.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 16,
+        "maxX": 247,
+        "maxY": 283,
+        "width": 140,
+        "height": 268,
+        "pixels": 23978
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        237,
+        237,
+        237
+      ],
+      "connectedBackgroundPixelsRemoved": 78003,
+      "interiorBackgroundPixelsRemoved": 289,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 15,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-v1/frames/right/015.png",
+      "sourceBBox": {
+        "minX": 76,
+        "minY": 19,
+        "maxX": 214,
+        "maxY": 283,
+        "width": 139,
+        "height": 265,
+        "pixels": 23616
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 78221,
+      "interiorBackgroundPixelsRemoved": 557,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 16,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-v1/frames/front/016.png",
+      "sourceBBox": {
+        "minX": 105,
+        "minY": 38,
+        "maxX": 266,
+        "maxY": 303,
+        "width": 162,
+        "height": 266,
+        "pixels": 30541
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        236,
+        235,
+        236
+      ],
+      "connectedBackgroundPixelsRemoved": 69962,
+      "interiorBackgroundPixelsRemoved": 334,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 16,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-v1/frames/back/016.png",
+      "sourceBBox": {
+        "minX": 60,
+        "minY": 41,
+        "maxX": 212,
+        "maxY": 303,
+        "width": 153,
+        "height": 263,
+        "pixels": 29361
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        239,
+        239,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 71325,
+      "interiorBackgroundPixelsRemoved": 315,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 16,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-v1/frames/left/016.png",
+      "sourceBBox": {
+        "minX": 107,
+        "minY": 16,
+        "maxX": 248,
+        "maxY": 283,
+        "width": 142,
+        "height": 268,
+        "pixels": 24344
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        237,
+        236,
+        236
+      ],
+      "connectedBackgroundPixelsRemoved": 77532,
+      "interiorBackgroundPixelsRemoved": 369,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 16,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-v1/frames/right/016.png",
+      "sourceBBox": {
+        "minX": 76,
+        "minY": 18,
+        "maxX": 215,
+        "maxY": 283,
+        "width": 140,
+        "height": 266,
+        "pixels": 23523
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        239,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 78382,
+      "interiorBackgroundPixelsRemoved": 494,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 17,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-v1/frames/front/017.png",
+      "sourceBBox": {
+        "minX": 104,
+        "minY": 39,
+        "maxX": 267,
+        "maxY": 303,
+        "width": 164,
+        "height": 265,
+        "pixels": 30666
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        235,
+        234,
+        235
+      ],
+      "connectedBackgroundPixelsRemoved": 69912,
+      "interiorBackgroundPixelsRemoved": 254,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 17,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-v1/frames/back/017.png",
+      "sourceBBox": {
+        "minX": 61,
+        "minY": 39,
+        "maxX": 212,
+        "maxY": 303,
+        "width": 152,
+        "height": 265,
+        "pixels": 29516
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        239,
+        239,
+        239
+      ],
+      "connectedBackgroundPixelsRemoved": 71143,
+      "interiorBackgroundPixelsRemoved": 347,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 17,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-v1/frames/left/017.png",
+      "sourceBBox": {
+        "minX": 106,
+        "minY": 18,
+        "maxX": 249,
+        "maxY": 283,
+        "width": 144,
+        "height": 266,
+        "pixels": 25127
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        236,
+        235,
+        236
+      ],
+      "connectedBackgroundPixelsRemoved": 76725,
+      "interiorBackgroundPixelsRemoved": 340,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 17,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-v1/frames/right/017.png",
+      "sourceBBox": {
+        "minX": 77,
+        "minY": 16,
+        "maxX": 215,
+        "maxY": 283,
+        "width": 139,
+        "height": 268,
+        "pixels": 23269
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        239,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 78730,
+      "interiorBackgroundPixelsRemoved": 398,
+      "interiorBackgroundIslandsRemoved": 5
+    },
+    {
+      "index": 18,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-v1/frames/front/018.png",
+      "sourceBBox": {
+        "minX": 103,
+        "minY": 40,
+        "maxX": 268,
+        "maxY": 303,
+        "width": 166,
+        "height": 264,
+        "pixels": 30827
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        234,
+        233,
+        233
+      ],
+      "connectedBackgroundPixelsRemoved": 69823,
+      "interiorBackgroundPixelsRemoved": 180,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 18,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-v1/frames/back/018.png",
+      "sourceBBox": {
+        "minX": 61,
+        "minY": 38,
+        "maxX": 212,
+        "maxY": 303,
+        "width": 152,
+        "height": 266,
+        "pixels": 29591
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        239,
+        239,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 71057,
+      "interiorBackgroundPixelsRemoved": 375,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 18,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-v1/frames/left/018.png",
+      "sourceBBox": {
+        "minX": 106,
+        "minY": 18,
+        "maxX": 249,
+        "maxY": 283,
+        "width": 144,
+        "height": 266,
+        "pixels": 25201
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        236,
+        235,
+        235
+      ],
+      "connectedBackgroundPixelsRemoved": 76517,
+      "interiorBackgroundPixelsRemoved": 441,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 18,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-v1/frames/right/018.png",
+      "sourceBBox": {
+        "minX": 77,
+        "minY": 16,
+        "maxX": 215,
+        "maxY": 283,
+        "width": 139,
+        "height": 268,
+        "pixels": 23386
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        239,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 78716,
+      "interiorBackgroundPixelsRemoved": 298,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 19,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-v1/frames/front/019.png",
+      "sourceBBox": {
+        "minX": 103,
+        "minY": 41,
+        "maxX": 268,
+        "maxY": 303,
+        "width": 166,
+        "height": 263,
+        "pixels": 30814
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        234,
+        233,
+        233
+      ],
+      "connectedBackgroundPixelsRemoved": 69856,
+      "interiorBackgroundPixelsRemoved": 155,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 19,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-v1/frames/back/019.png",
+      "sourceBBox": {
+        "minX": 61,
+        "minY": 38,
+        "maxX": 212,
+        "maxY": 303,
+        "width": 152,
+        "height": 266,
+        "pixels": 29624
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 71024,
+      "interiorBackgroundPixelsRemoved": 383,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 19,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-v1/frames/left/019.png",
+      "sourceBBox": {
+        "minX": 105,
+        "minY": 19,
+        "maxX": 250,
+        "maxY": 283,
+        "width": 146,
+        "height": 265,
+        "pixels": 25287
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        235,
+        235,
+        235
+      ],
+      "connectedBackgroundPixelsRemoved": 76430,
+      "interiorBackgroundPixelsRemoved": 406,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 19,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-v1/frames/right/019.png",
+      "sourceBBox": {
+        "minX": 77,
+        "minY": 16,
+        "maxX": 216,
+        "maxY": 283,
+        "width": 140,
+        "height": 268,
+        "pixels": 23512
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 78669,
+      "interiorBackgroundPixelsRemoved": 218,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 20,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-v1/frames/front/020.png",
+      "sourceBBox": {
+        "minX": 104,
+        "minY": 41,
+        "maxX": 268,
+        "maxY": 303,
+        "width": 165,
+        "height": 263,
+        "pixels": 30789
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        233,
+        232,
+        233
+      ],
+      "connectedBackgroundPixelsRemoved": 69910,
+      "interiorBackgroundPixelsRemoved": 142,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 20,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-v1/frames/back/020.png",
+      "sourceBBox": {
+        "minX": 61,
+        "minY": 38,
+        "maxX": 212,
+        "maxY": 303,
+        "width": 152,
+        "height": 266,
+        "pixels": 29714
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        239,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 71022,
+      "interiorBackgroundPixelsRemoved": 334,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 20,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-v1/frames/left/020.png",
+      "sourceBBox": {
+        "minX": 105,
+        "minY": 20,
+        "maxX": 250,
+        "maxY": 283,
+        "width": 146,
+        "height": 264,
+        "pixels": 25305
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        234,
+        233,
+        233
+      ],
+      "connectedBackgroundPixelsRemoved": 76420,
+      "interiorBackgroundPixelsRemoved": 387,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 20,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-v1/frames/right/020.png",
+      "sourceBBox": {
+        "minX": 77,
+        "minY": 16,
+        "maxX": 216,
+        "maxY": 283,
+        "width": 140,
+        "height": 268,
+        "pixels": 23628
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        239,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 78428,
+      "interiorBackgroundPixelsRemoved": 344,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 21,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-v1/frames/front/021.png",
+      "sourceBBox": {
+        "minX": 105,
+        "minY": 42,
+        "maxX": 268,
+        "maxY": 303,
+        "width": 164,
+        "height": 262,
+        "pixels": 30732
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        232,
+        231,
+        232
+      ],
+      "connectedBackgroundPixelsRemoved": 70003,
+      "interiorBackgroundPixelsRemoved": 126,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 21,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-v1/frames/back/021.png",
+      "sourceBBox": {
+        "minX": 61,
+        "minY": 38,
+        "maxX": 213,
+        "maxY": 303,
+        "width": 153,
+        "height": 266,
+        "pixels": 29877
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        239,
+        239,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 70983,
+      "interiorBackgroundPixelsRemoved": 198,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 21,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-v1/frames/left/021.png",
+      "sourceBBox": {
+        "minX": 105,
+        "minY": 20,
+        "maxX": 248,
+        "maxY": 283,
+        "width": 144,
+        "height": 264,
+        "pixels": 24923
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        233,
+        232,
+        233
+      ],
+      "connectedBackgroundPixelsRemoved": 76907,
+      "interiorBackgroundPixelsRemoved": 272,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 21,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-v1/frames/right/021.png",
+      "sourceBBox": {
+        "minX": 76,
+        "minY": 16,
+        "maxX": 217,
+        "maxY": 283,
+        "width": 142,
+        "height": 268,
+        "pixels": 24036
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        239,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 77969,
+      "interiorBackgroundPixelsRemoved": 393,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 22,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-v1/frames/front/022.png",
+      "sourceBBox": {
+        "minX": 106,
+        "minY": 41,
+        "maxX": 268,
+        "maxY": 303,
+        "width": 163,
+        "height": 263,
+        "pixels": 30746
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        232,
+        231,
+        232
+      ],
+      "connectedBackgroundPixelsRemoved": 69984,
+      "interiorBackgroundPixelsRemoved": 124,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 22,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-v1/frames/back/022.png",
+      "sourceBBox": {
+        "minX": 61,
+        "minY": 39,
+        "maxX": 214,
+        "maxY": 303,
+        "width": 154,
+        "height": 265,
+        "pixels": 29833
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        239,
+        239,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 70993,
+      "interiorBackgroundPixelsRemoved": 226,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 22,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-v1/frames/left/022.png",
+      "sourceBBox": {
+        "minX": 105,
+        "minY": 19,
+        "maxX": 247,
+        "maxY": 283,
+        "width": 143,
+        "height": 265,
+        "pixels": 24685
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        234,
+        233,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 77182,
+      "interiorBackgroundPixelsRemoved": 239,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 22,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-v1/frames/right/022.png",
+      "sourceBBox": {
+        "minX": 75,
+        "minY": 17,
+        "maxX": 218,
+        "maxY": 283,
+        "width": 144,
+        "height": 267,
+        "pixels": 23995
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        239,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 77793,
+      "interiorBackgroundPixelsRemoved": 610,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 23,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-v1/frames/front/023.png",
+      "sourceBBox": {
+        "minX": 107,
+        "minY": 40,
+        "maxX": 268,
+        "maxY": 303,
+        "width": 162,
+        "height": 264,
+        "pixels": 30740
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        233,
+        232,
+        232
+      ],
+      "connectedBackgroundPixelsRemoved": 69974,
+      "interiorBackgroundPixelsRemoved": 137,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 23,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-v1/frames/back/023.png",
+      "sourceBBox": {
+        "minX": 60,
+        "minY": 40,
+        "maxX": 214,
+        "maxY": 303,
+        "width": 155,
+        "height": 264,
+        "pixels": 29819
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 71016,
+      "interiorBackgroundPixelsRemoved": 195,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 23,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-v1/frames/left/023.png",
+      "sourceBBox": {
+        "minX": 105,
+        "minY": 18,
+        "maxX": 246,
+        "maxY": 283,
+        "width": 142,
+        "height": 266,
+        "pixels": 24386
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        236,
+        235,
+        235
+      ],
+      "connectedBackgroundPixelsRemoved": 77429,
+      "interiorBackgroundPixelsRemoved": 295,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 23,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-v1/frames/right/023.png",
+      "sourceBBox": {
+        "minX": 75,
+        "minY": 18,
+        "maxX": 218,
+        "maxY": 283,
+        "width": 144,
+        "height": 266,
+        "pixels": 23999
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 77706,
+      "interiorBackgroundPixelsRemoved": 692,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 24,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-v1/frames/front/024.png",
+      "sourceBBox": {
+        "minX": 107,
+        "minY": 39,
+        "maxX": 268,
+        "maxY": 303,
+        "width": 162,
+        "height": 265,
+        "pixels": 30809
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        233,
+        233,
+        233
+      ],
+      "connectedBackgroundPixelsRemoved": 69922,
+      "interiorBackgroundPixelsRemoved": 115,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 24,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-v1/frames/back/024.png",
+      "sourceBBox": {
+        "minX": 60,
+        "minY": 41,
+        "maxX": 215,
+        "maxY": 303,
+        "width": 156,
+        "height": 263,
+        "pixels": 29786
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        239,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 71058,
+      "interiorBackgroundPixelsRemoved": 189,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 24,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-v1/frames/left/024.png",
+      "sourceBBox": {
+        "minX": 105,
+        "minY": 17,
+        "maxX": 244,
+        "maxY": 283,
+        "width": 140,
+        "height": 267,
+        "pixels": 23957
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        236,
+        235,
+        236
+      ],
+      "connectedBackgroundPixelsRemoved": 77755,
+      "interiorBackgroundPixelsRemoved": 408,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 24,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-v1/frames/right/024.png",
+      "sourceBBox": {
+        "minX": 74,
+        "minY": 19,
+        "maxX": 219,
+        "maxY": 283,
+        "width": 146,
+        "height": 265,
+        "pixels": 24216
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        239,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 77543,
+      "interiorBackgroundPixelsRemoved": 639,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 25,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-v1/frames/front/025.png",
+      "sourceBBox": {
+        "minX": 107,
+        "minY": 38,
+        "maxX": 268,
+        "maxY": 303,
+        "width": 162,
+        "height": 266,
+        "pixels": 30467
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        235,
+        234,
+        234
+      ],
+      "connectedBackgroundPixelsRemoved": 69932,
+      "interiorBackgroundPixelsRemoved": 442,
+      "interiorBackgroundIslandsRemoved": 5
+    },
+    {
+      "index": 25,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-v1/frames/back/025.png",
+      "sourceBBox": {
+        "minX": 59,
+        "minY": 42,
+        "maxX": 214,
+        "maxY": 303,
+        "width": 156,
+        "height": 262,
+        "pixels": 29617
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        239,
+        239,
+        239
+      ],
+      "connectedBackgroundPixelsRemoved": 71148,
+      "interiorBackgroundPixelsRemoved": 253,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 25,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-v1/frames/left/025.png",
+      "sourceBBox": {
+        "minX": 104,
+        "minY": 16,
+        "maxX": 244,
+        "maxY": 283,
+        "width": 141,
+        "height": 268,
+        "pixels": 23752
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        235,
+        235,
+        235
+      ],
+      "connectedBackgroundPixelsRemoved": 78089,
+      "interiorBackgroundPixelsRemoved": 286,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 25,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-v1/frames/right/025.png",
+      "sourceBBox": {
+        "minX": 74,
+        "minY": 20,
+        "maxX": 219,
+        "maxY": 283,
+        "width": 146,
+        "height": 264,
+        "pixels": 24440
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        239,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 77485,
+      "interiorBackgroundPixelsRemoved": 471,
+      "interiorBackgroundIslandsRemoved": 3
+    }
+  ]
+}

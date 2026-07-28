@@ -1,0 +1,24 @@
+{
+  "id": "sakuya-sequence-imagegen-v2",
+  "status": "owner-rejected-imagegen-sequence-v2",
+  "runtime_usage": false,
+  "owner_review": {
+    "date": "2026-07-28",
+    "result": "rejected"
+  },
+  "action_reference_pattern": "src/assets/characters/参考序列帧/正常/NNN.png",
+  "identity_reference": "src/assets/characters/sakuya/sakuya-turnaround-v1.png",
+  "generation_mode": "built-in-imagegen-one-call-per-frame",
+  "archived_project_outputs": [
+    "raw/001.png"
+  ],
+  "aborted_calls_not_archived": [
+    "002",
+    "003",
+    "004",
+    "005"
+  ],
+  "not_called": "006..023",
+  "continuation_allowed": false,
+  "runtime_integration_allowed": false
+}

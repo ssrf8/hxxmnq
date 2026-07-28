@@ -1,0 +1,1699 @@
+{
+  "version": 1,
+  "character": "cirno",
+  "status": "generated-pending-owner-review",
+  "layout": "variable-sequence-v1",
+  "sourceLayout": "2x2",
+  "sourceQuadrants": {
+    "front": "top-left",
+    "back": "top-right",
+    "left": "bottom-left",
+    "right": "bottom-right"
+  },
+  "sourceSize": [
+    640,
+    640
+  ],
+  "cell": [
+    209,
+    209
+  ],
+  "atlas": "src/assets/characters/cirno/cirno-animation-sequence-v1.png",
+  "atlasSize": [
+    3553,
+    836
+  ],
+  "frameCount": 17,
+  "rowOrder": [
+    "front",
+    "back",
+    "left",
+    "right"
+  ],
+  "idleFrame": 0,
+  "loopStart": 0,
+  "loopEnd": 16,
+  "candidateFrameDurationsMs": [
+    90,
+    110,
+    130
+  ],
+  "selectedFrameDurationMs": 90,
+  "maskProfileVersion": "connected-edge-plus-interior-islands-v2",
+  "targetVisibleHeight": 150,
+  "baseline": 179,
+  "scale": 0.5319148936170213,
+  "sources": [
+    {
+      "index": 1,
+      "file": "src/assets/characters/cirno/最终版/001.png",
+      "sha256": "b2a379e97f3400b00e3926d84a3b00d252ddfa30e87ec58741e6372c19b034ea"
+    },
+    {
+      "index": 2,
+      "file": "src/assets/characters/cirno/最终版/002.png",
+      "sha256": "1f75eaf3802a501260760cbfd888aef911333a98b28e679977089564bcdb55b9"
+    },
+    {
+      "index": 3,
+      "file": "src/assets/characters/cirno/最终版/003.png",
+      "sha256": "c0d4d3189bf7a89aa5472aab78c96abb8089439d45c19d8667c9f2bb1e2c59ab"
+    },
+    {
+      "index": 4,
+      "file": "src/assets/characters/cirno/最终版/004.png",
+      "sha256": "a0bd04a53702a77c0cd89d20cac57900cb7b769e09754a2a461474d162a7193b"
+    },
+    {
+      "index": 5,
+      "file": "src/assets/characters/cirno/最终版/005.png",
+      "sha256": "8b50e14a84d659f6a8b89e467ac063708b037ab9a279785eadf0e24ecf7eb9f4"
+    },
+    {
+      "index": 6,
+      "file": "src/assets/characters/cirno/最终版/006.png",
+      "sha256": "2bd3afe01ee9c6d7d5802546a004ed20f562d18d90f1e29eabbcf33de73351e8"
+    },
+    {
+      "index": 7,
+      "file": "src/assets/characters/cirno/最终版/007.png",
+      "sha256": "075c5d3bcdd88f96e2415391262bc3ee0edc8f36da147660043e1f894f878ce3"
+    },
+    {
+      "index": 8,
+      "file": "src/assets/characters/cirno/最终版/008.png",
+      "sha256": "e8330950045c975eaa13aa931c68534c2c583c94fed85ebcd3285ed53b0a7b0e"
+    },
+    {
+      "index": 9,
+      "file": "src/assets/characters/cirno/最终版/009.png",
+      "sha256": "e2dfcd321c3393752a9aecdb597b6317c66d542b758b1feea77450397f32d780"
+    },
+    {
+      "index": 10,
+      "file": "src/assets/characters/cirno/最终版/010.png",
+      "sha256": "9fc7c492f5f1a83ab924a8c842a4bb4bfb660a096b3dc96ed8e7930bd105fefc"
+    },
+    {
+      "index": 11,
+      "file": "src/assets/characters/cirno/最终版/011.png",
+      "sha256": "cd6f3e401204a1ee932674911ed8f27b83e2d4a7ea210b230d94306a3bc5aeee"
+    },
+    {
+      "index": 12,
+      "file": "src/assets/characters/cirno/最终版/012.png",
+      "sha256": "e5fda9b895ad3637d3276b22280d2103fc580c28e8a8fe0346a95112893690e3"
+    },
+    {
+      "index": 13,
+      "file": "src/assets/characters/cirno/最终版/013.png",
+      "sha256": "fda9e9d21226a9a1f5d138afe8c0c5f2e89b6f7f0e39920ae61a766255244fa2"
+    },
+    {
+      "index": 14,
+      "file": "src/assets/characters/cirno/最终版/014.png",
+      "sha256": "99bcd471f92afa61ea59b4f28fb1bbb48a1424864abf865222ef984594ba344e"
+    },
+    {
+      "index": 15,
+      "file": "src/assets/characters/cirno/最终版/015.png",
+      "sha256": "d81e61948647630610dead77652f6bdfa93499a56ff067dff2b7dc72caedce44"
+    },
+    {
+      "index": 16,
+      "file": "src/assets/characters/cirno/最终版/016.png",
+      "sha256": "571449e54a7eece47c3c3c5d1b864dfb7b14f90abbb313392707dcb2994b1352"
+    },
+    {
+      "index": 17,
+      "file": "src/assets/characters/cirno/最终版/017.png",
+      "sha256": "e3dd2be8070d12854bc64078a48f0d06e706956a872187a1e2ed5c1a30fe37c9"
+    }
+  ],
+  "frames": [
+    {
+      "index": 1,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/front/001.png",
+      "sourceBBox": {
+        "minX": 63,
+        "minY": 26,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 241,
+        "height": 278,
+        "pixels": 44442
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        1,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 57225,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 1,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/back/001.png",
+      "sourceBBox": {
+        "minX": 18,
+        "minY": 26,
+        "maxX": 260,
+        "maxY": 303,
+        "width": 243,
+        "height": 278,
+        "pixels": 44201
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 57515,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 1,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/left/001.png",
+      "sourceBBox": {
+        "minX": 93,
+        "minY": 16,
+        "maxX": 281,
+        "maxY": 277,
+        "width": 189,
+        "height": 262,
+        "pixels": 29431
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 72903,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 1,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/right/001.png",
+      "sourceBBox": {
+        "minX": 40,
+        "minY": 16,
+        "maxX": 226,
+        "maxY": 277,
+        "width": 187,
+        "height": 262,
+        "pixels": 29616
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 72731,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 2,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/front/002.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 24,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 242,
+        "height": 280,
+        "pixels": 44818
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        1,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 56870,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 2,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/back/002.png",
+      "sourceBBox": {
+        "minX": 17,
+        "minY": 25,
+        "maxX": 261,
+        "maxY": 303,
+        "width": 245,
+        "height": 279,
+        "pixels": 44570
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 57125,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 2,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/left/002.png",
+      "sourceBBox": {
+        "minX": 93,
+        "minY": 16,
+        "maxX": 282,
+        "maxY": 276,
+        "width": 190,
+        "height": 261,
+        "pixels": 30307
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 72016,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 2,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/right/002.png",
+      "sourceBBox": {
+        "minX": 38,
+        "minY": 16,
+        "maxX": 226,
+        "maxY": 277,
+        "width": 189,
+        "height": 262,
+        "pixels": 30198
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 72141,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 3,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/front/003.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 23,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 242,
+        "height": 281,
+        "pixels": 44999
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 56745,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 3,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/back/003.png",
+      "sourceBBox": {
+        "minX": 17,
+        "minY": 23,
+        "maxX": 262,
+        "maxY": 303,
+        "width": 246,
+        "height": 281,
+        "pixels": 44782
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 56817,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 3,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/left/003.png",
+      "sourceBBox": {
+        "minX": 92,
+        "minY": 16,
+        "maxX": 283,
+        "maxY": 276,
+        "width": 192,
+        "height": 261,
+        "pixels": 30760
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 71541,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 3,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/right/003.png",
+      "sourceBBox": {
+        "minX": 38,
+        "minY": 16,
+        "maxX": 227,
+        "maxY": 277,
+        "width": 190,
+        "height": 262,
+        "pixels": 30477
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 71836,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 4,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/front/004.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 24,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 242,
+        "height": 280,
+        "pixels": 45055
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 56686,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 4,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/back/004.png",
+      "sourceBBox": {
+        "minX": 19,
+        "minY": 24,
+        "maxX": 262,
+        "maxY": 303,
+        "width": 244,
+        "height": 280,
+        "pixels": 44914
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        1,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 56629,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 4,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/left/004.png",
+      "sourceBBox": {
+        "minX": 92,
+        "minY": 16,
+        "maxX": 284,
+        "maxY": 276,
+        "width": 193,
+        "height": 261,
+        "pixels": 31019
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 71292,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 4,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/right/004.png",
+      "sourceBBox": {
+        "minX": 39,
+        "minY": 16,
+        "maxX": 227,
+        "maxY": 277,
+        "width": 189,
+        "height": 262,
+        "pixels": 30644
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 71615,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 5,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/front/005.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 25,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 242,
+        "height": 279,
+        "pixels": 45123
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        1,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 56638,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 5,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/back/005.png",
+      "sourceBBox": {
+        "minX": 20,
+        "minY": 25,
+        "maxX": 262,
+        "maxY": 303,
+        "width": 243,
+        "height": 279,
+        "pixels": 44939
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 56579,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 5,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/left/005.png",
+      "sourceBBox": {
+        "minX": 91,
+        "minY": 16,
+        "maxX": 284,
+        "maxY": 277,
+        "width": 194,
+        "height": 262,
+        "pixels": 31198
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 71134,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 5,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/right/005.png",
+      "sourceBBox": {
+        "minX": 40,
+        "minY": 16,
+        "maxX": 228,
+        "maxY": 278,
+        "width": 189,
+        "height": 263,
+        "pixels": 30740
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 71476,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 6,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/front/006.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 27,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 242,
+        "height": 277,
+        "pixels": 44941
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 56796,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 6,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/back/006.png",
+      "sourceBBox": {
+        "minX": 20,
+        "minY": 28,
+        "maxX": 261,
+        "maxY": 303,
+        "width": 242,
+        "height": 276,
+        "pixels": 44657
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 56852,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 6,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/left/006.png",
+      "sourceBBox": {
+        "minX": 91,
+        "minY": 17,
+        "maxX": 282,
+        "maxY": 280,
+        "width": 192,
+        "height": 264,
+        "pixels": 30832
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        1,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 71463,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 6,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/right/006.png",
+      "sourceBBox": {
+        "minX": 41,
+        "minY": 18,
+        "maxX": 228,
+        "maxY": 278,
+        "width": 188,
+        "height": 261,
+        "pixels": 30574
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 71531,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 7,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/front/007.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 28,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 242,
+        "height": 276,
+        "pixels": 44966
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 56765,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 7,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/back/007.png",
+      "sourceBBox": {
+        "minX": 20,
+        "minY": 28,
+        "maxX": 261,
+        "maxY": 303,
+        "width": 242,
+        "height": 276,
+        "pixels": 44657
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 56866,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 7,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/left/007.png",
+      "sourceBBox": {
+        "minX": 91,
+        "minY": 17,
+        "maxX": 282,
+        "maxY": 281,
+        "width": 192,
+        "height": 265,
+        "pixels": 30621
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        1,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 71667,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 7,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/right/007.png",
+      "sourceBBox": {
+        "minX": 40,
+        "minY": 18,
+        "maxX": 228,
+        "maxY": 279,
+        "width": 189,
+        "height": 262,
+        "pixels": 30510
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 71594,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 8,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/front/008.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 27,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 242,
+        "height": 277,
+        "pixels": 44911
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 56825,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 8,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/back/008.png",
+      "sourceBBox": {
+        "minX": 19,
+        "minY": 28,
+        "maxX": 262,
+        "maxY": 303,
+        "width": 244,
+        "height": 276,
+        "pixels": 44474
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 57071,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 8,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/left/008.png",
+      "sourceBBox": {
+        "minX": 91,
+        "minY": 17,
+        "maxX": 282,
+        "maxY": 281,
+        "width": 192,
+        "height": 265,
+        "pixels": 30330
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 71969,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 8,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/right/008.png",
+      "sourceBBox": {
+        "minX": 39,
+        "minY": 18,
+        "maxX": 228,
+        "maxY": 279,
+        "width": 190,
+        "height": 262,
+        "pixels": 30352
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 71779,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 9,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/front/009.png",
+      "sourceBBox": {
+        "minX": 61,
+        "minY": 25,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 243,
+        "height": 279,
+        "pixels": 45136
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        1,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 56565,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 9,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/back/009.png",
+      "sourceBBox": {
+        "minX": 18,
+        "minY": 27,
+        "maxX": 262,
+        "maxY": 303,
+        "width": 245,
+        "height": 277,
+        "pixels": 44735
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 56882,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 9,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/left/009.png",
+      "sourceBBox": {
+        "minX": 92,
+        "minY": 16,
+        "maxX": 282,
+        "maxY": 281,
+        "width": 191,
+        "height": 266,
+        "pixels": 30424
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 71906,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 9,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/right/009.png",
+      "sourceBBox": {
+        "minX": 38,
+        "minY": 16,
+        "maxX": 228,
+        "maxY": 278,
+        "width": 191,
+        "height": 263,
+        "pixels": 30514
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 71690,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 10,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/front/010.png",
+      "sourceBBox": {
+        "minX": 61,
+        "minY": 23,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 243,
+        "height": 281,
+        "pixels": 45195
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        1,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 56468,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 10,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/back/010.png",
+      "sourceBBox": {
+        "minX": 17,
+        "minY": 24,
+        "maxX": 263,
+        "maxY": 303,
+        "width": 247,
+        "height": 280,
+        "pixels": 44819
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 56854,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 10,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/left/010.png",
+      "sourceBBox": {
+        "minX": 92,
+        "minY": 16,
+        "maxX": 281,
+        "maxY": 279,
+        "width": 190,
+        "height": 264,
+        "pixels": 30643
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 71667,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 10,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/right/010.png",
+      "sourceBBox": {
+        "minX": 37,
+        "minY": 16,
+        "maxX": 227,
+        "maxY": 276,
+        "width": 191,
+        "height": 261,
+        "pixels": 30852
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 71372,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 11,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/front/011.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 22,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 242,
+        "height": 282,
+        "pixels": 45311
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 56338,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 11,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/back/011.png",
+      "sourceBBox": {
+        "minX": 18,
+        "minY": 24,
+        "maxX": 263,
+        "maxY": 303,
+        "width": 246,
+        "height": 280,
+        "pixels": 44911
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 56790,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 11,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/left/011.png",
+      "sourceBBox": {
+        "minX": 92,
+        "minY": 16,
+        "maxX": 281,
+        "maxY": 279,
+        "width": 190,
+        "height": 264,
+        "pixels": 30726
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 71540,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 11,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/right/011.png",
+      "sourceBBox": {
+        "minX": 36,
+        "minY": 16,
+        "maxX": 227,
+        "maxY": 275,
+        "width": 192,
+        "height": 260,
+        "pixels": 31095
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 71145,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 12,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/front/012.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 22,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 242,
+        "height": 282,
+        "pixels": 45282
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 56373,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 12,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/back/012.png",
+      "sourceBBox": {
+        "minX": 18,
+        "minY": 24,
+        "maxX": 263,
+        "maxY": 303,
+        "width": 246,
+        "height": 280,
+        "pixels": 44842
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 56963,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 12,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/left/012.png",
+      "sourceBBox": {
+        "minX": 92,
+        "minY": 16,
+        "maxX": 281,
+        "maxY": 279,
+        "width": 190,
+        "height": 264,
+        "pixels": 30756
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 71494,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 12,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/right/012.png",
+      "sourceBBox": {
+        "minX": 36,
+        "minY": 16,
+        "maxX": 227,
+        "maxY": 275,
+        "width": 192,
+        "height": 260,
+        "pixels": 31225
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 71012,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 13,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/front/013.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 24,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 242,
+        "height": 280,
+        "pixels": 45380
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 56298,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 13,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/back/013.png",
+      "sourceBBox": {
+        "minX": 20,
+        "minY": 25,
+        "maxX": 263,
+        "maxY": 303,
+        "width": 244,
+        "height": 279,
+        "pixels": 44882
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 56797,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 13,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/left/013.png",
+      "sourceBBox": {
+        "minX": 91,
+        "minY": 16,
+        "maxX": 281,
+        "maxY": 279,
+        "width": 191,
+        "height": 264,
+        "pixels": 31007
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 71253,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 13,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/right/013.png",
+      "sourceBBox": {
+        "minX": 37,
+        "minY": 16,
+        "maxX": 228,
+        "maxY": 276,
+        "width": 192,
+        "height": 261,
+        "pixels": 31467
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 70810,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 14,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/front/014.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 26,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 242,
+        "height": 278,
+        "pixels": 45200
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 56512,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 14,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/back/014.png",
+      "sourceBBox": {
+        "minX": 20,
+        "minY": 27,
+        "maxX": 261,
+        "maxY": 303,
+        "width": 242,
+        "height": 277,
+        "pixels": 44667
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 56958,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 14,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/left/014.png",
+      "sourceBBox": {
+        "minX": 90,
+        "minY": 16,
+        "maxX": 280,
+        "maxY": 279,
+        "width": 191,
+        "height": 264,
+        "pixels": 30832
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 71417,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 14,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/right/014.png",
+      "sourceBBox": {
+        "minX": 37,
+        "minY": 17,
+        "maxX": 228,
+        "maxY": 279,
+        "width": 192,
+        "height": 263,
+        "pixels": 31239
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 71035,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 15,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/front/015.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 27,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 242,
+        "height": 277,
+        "pixels": 45201
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 56496,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 15,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/back/015.png",
+      "sourceBBox": {
+        "minX": 20,
+        "minY": 28,
+        "maxX": 261,
+        "maxY": 303,
+        "width": 242,
+        "height": 276,
+        "pixels": 44654
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 56939,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 15,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/left/015.png",
+      "sourceBBox": {
+        "minX": 90,
+        "minY": 17,
+        "maxX": 281,
+        "maxY": 279,
+        "width": 192,
+        "height": 263,
+        "pixels": 30738
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 71488,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 15,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/right/015.png",
+      "sourceBBox": {
+        "minX": 38,
+        "minY": 18,
+        "maxX": 229,
+        "maxY": 280,
+        "width": 192,
+        "height": 263,
+        "pixels": 30975
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        1,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 71285,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 16,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/front/016.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 28,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 242,
+        "height": 276,
+        "pixels": 45075
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 56593,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 16,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/back/016.png",
+      "sourceBBox": {
+        "minX": 20,
+        "minY": 29,
+        "maxX": 261,
+        "maxY": 303,
+        "width": 242,
+        "height": 275,
+        "pixels": 44427
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 57152,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 16,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/left/016.png",
+      "sourceBBox": {
+        "minX": 90,
+        "minY": 18,
+        "maxX": 281,
+        "maxY": 280,
+        "width": 192,
+        "height": 263,
+        "pixels": 30626
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 71596,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 16,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/right/016.png",
+      "sourceBBox": {
+        "minX": 39,
+        "minY": 18,
+        "maxX": 228,
+        "maxY": 280,
+        "width": 190,
+        "height": 263,
+        "pixels": 30621
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        1,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 71619,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 17,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/front/017.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 26,
+        "maxX": 303,
+        "maxY": 303,
+        "width": 242,
+        "height": 278,
+        "pixels": 45246
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        2
+      ],
+      "connectedBackgroundPixelsRemoved": 56412,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 17,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/back/017.png",
+      "sourceBBox": {
+        "minX": 18,
+        "minY": 27,
+        "maxX": 262,
+        "maxY": 303,
+        "width": 245,
+        "height": 277,
+        "pixels": 44670
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 56906,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 17,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/left/017.png",
+      "sourceBBox": {
+        "minX": 91,
+        "minY": 16,
+        "maxX": 282,
+        "maxY": 279,
+        "width": 192,
+        "height": 264,
+        "pixels": 30585
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        1,
+        1,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 71691,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 17,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-v1/frames/right/017.png",
+      "sourceBBox": {
+        "minX": 40,
+        "minY": 16,
+        "maxX": 228,
+        "maxY": 279,
+        "width": 189,
+        "height": 264,
+        "pixels": 30485
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        1,
+        1
+      ],
+      "connectedBackgroundPixelsRemoved": 71722,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    }
+  ]
+}

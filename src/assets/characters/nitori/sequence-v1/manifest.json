@@ -1,0 +1,2184 @@
+{
+  "version": 1,
+  "character": "nitori",
+  "status": "generated-pending-owner-review",
+  "layout": "variable-sequence-v1",
+  "sourceLayout": "2x2",
+  "sourceQuadrants": {
+    "front": "top-left",
+    "back": "top-right",
+    "left": "bottom-left",
+    "right": "bottom-right"
+  },
+  "sourceSize": [
+    640,
+    640
+  ],
+  "cell": [
+    209,
+    209
+  ],
+  "atlas": "src/assets/characters/nitori/nitori-animation-sequence-v1.png",
+  "atlasSize": [
+    4598,
+    836
+  ],
+  "frameCount": 22,
+  "rowOrder": [
+    "front",
+    "back",
+    "left",
+    "right"
+  ],
+  "idleFrame": 0,
+  "loopStart": 0,
+  "loopEnd": 21,
+  "candidateFrameDurationsMs": [
+    90,
+    110,
+    130
+  ],
+  "selectedFrameDurationMs": 90,
+  "maskProfileVersion": "connected-edge-plus-interior-islands-v2",
+  "targetVisibleHeight": 150,
+  "baseline": 179,
+  "scale": 0.5639097744360902,
+  "sources": [
+    {
+      "index": 1,
+      "file": "src/assets/characters/nitori/最终版/001.png",
+      "sha256": "c7e573e94e7994d59295d05372a13ea67d0bca4643fbfa80da89eb3fdbd1cca2"
+    },
+    {
+      "index": 2,
+      "file": "src/assets/characters/nitori/最终版/002.png",
+      "sha256": "8f1c2f5feabfa89048ea71e43a5a8058c3594fa8df3ca806256a3693bd51ce30"
+    },
+    {
+      "index": 3,
+      "file": "src/assets/characters/nitori/最终版/003.png",
+      "sha256": "168bae1e6e26f0254756286aac3454f3bf04faaadd6e121656419177286f46e2"
+    },
+    {
+      "index": 4,
+      "file": "src/assets/characters/nitori/最终版/004.png",
+      "sha256": "17a0dfaf7f6eb50433474c11f77c0f294846a921b0242ec2763223c337e7b119"
+    },
+    {
+      "index": 5,
+      "file": "src/assets/characters/nitori/最终版/005.png",
+      "sha256": "96a5395710233e6990f9600199c24470135b3f577369b35f456022635016333c"
+    },
+    {
+      "index": 6,
+      "file": "src/assets/characters/nitori/最终版/006.png",
+      "sha256": "4c09110f817500428a6bc1fe633b279584274d1d07167a4ab42ae7cabc646d9b"
+    },
+    {
+      "index": 7,
+      "file": "src/assets/characters/nitori/最终版/007.png",
+      "sha256": "dc91b237c61935880c7773b144aaa0789908b2d5b5fdb2fbc86024c2a44f0a8d"
+    },
+    {
+      "index": 8,
+      "file": "src/assets/characters/nitori/最终版/008.png",
+      "sha256": "906b555e7f7d1124da68f118bc68ffd58ca7deeec49333e32b1d27108500e4dc"
+    },
+    {
+      "index": 9,
+      "file": "src/assets/characters/nitori/最终版/009.png",
+      "sha256": "5489b805904bb10d9e59b85621de8b35fe377ddce744853f93440c81d41d2057"
+    },
+    {
+      "index": 10,
+      "file": "src/assets/characters/nitori/最终版/010.png",
+      "sha256": "c13ee83bcc3f097cd5e0e751ceefbd0b88580ec25ea805307e97065fe3055f25"
+    },
+    {
+      "index": 11,
+      "file": "src/assets/characters/nitori/最终版/011.png",
+      "sha256": "3ea29f4c920a60788ffb9d1e2bc2ee0deb4ff1320e2d1a4fc87350ff719bbefd"
+    },
+    {
+      "index": 12,
+      "file": "src/assets/characters/nitori/最终版/012.png",
+      "sha256": "c17037186b1c0761567166bb211e79d891a081dc369aa664b339e35e3bb49202"
+    },
+    {
+      "index": 13,
+      "file": "src/assets/characters/nitori/最终版/013.png",
+      "sha256": "4951e306b5ba5a50ff2f09f7563614314be165bfe96f11a11cda8710d6c39962"
+    },
+    {
+      "index": 14,
+      "file": "src/assets/characters/nitori/最终版/014.png",
+      "sha256": "40e8f627df64bf089d005c73d115b6068b409e219dc7c5d9b9ebd75af5801d02"
+    },
+    {
+      "index": 15,
+      "file": "src/assets/characters/nitori/最终版/015.png",
+      "sha256": "1356e1bdee1b2eeacb1cb15f6d9593cb39938e74ace61419b280e85021054fca"
+    },
+    {
+      "index": 16,
+      "file": "src/assets/characters/nitori/最终版/016.png",
+      "sha256": "4701eae573d7a249dbfd895d46621c3052a807977769bb77a4910547eaf95d67"
+    },
+    {
+      "index": 17,
+      "file": "src/assets/characters/nitori/最终版/017.png",
+      "sha256": "472daec2f6ee50eb48dc3c36dcac3fa7b4425ddb194ee7c6e2b3fa7316d3e671"
+    },
+    {
+      "index": 18,
+      "file": "src/assets/characters/nitori/最终版/018.png",
+      "sha256": "a6905790a90a99a9181506a06d392e093fb7d762da03d74d935069aaa2c300a1"
+    },
+    {
+      "index": 19,
+      "file": "src/assets/characters/nitori/最终版/019.png",
+      "sha256": "52b783865da5014dfb65fef843d2338eace33afa9f7f4f41bc0a10a892bbb7ff"
+    },
+    {
+      "index": 20,
+      "file": "src/assets/characters/nitori/最终版/020.png",
+      "sha256": "7efe73b3b3752a4778d95f7b02144f7b43598a88e1ac87defaed403f3fcbe3e2"
+    },
+    {
+      "index": 21,
+      "file": "src/assets/characters/nitori/最终版/021.png",
+      "sha256": "2aa49b7d9765655d55f95456ff5e7dace4049b5d4300da3e9b6784b1396f2593"
+    },
+    {
+      "index": 22,
+      "file": "src/assets/characters/nitori/最终版/022.png",
+      "sha256": "aac236fa1350afcdca0f050eb0580ebb8eefb9ce005c25bee4c4922ba50bbf50"
+    }
+  ],
+  "frames": [
+    {
+      "index": 1,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/front/001.png",
+      "sourceBBox": {
+        "minX": 93,
+        "minY": 41,
+        "maxX": 267,
+        "maxY": 303,
+        "width": 175,
+        "height": 263,
+        "pixels": 27803
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74494,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 1,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/back/001.png",
+      "sourceBBox": {
+        "minX": 70,
+        "minY": 42,
+        "maxX": 242,
+        "maxY": 303,
+        "width": 173,
+        "height": 262,
+        "pixels": 27339
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74994,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 1,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/left/001.png",
+      "sourceBBox": {
+        "minX": 73,
+        "minY": 25,
+        "maxX": 226,
+        "maxY": 276,
+        "width": 154,
+        "height": 252,
+        "pixels": 23675
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 78724,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 1,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/right/001.png",
+      "sourceBBox": {
+        "minX": 99,
+        "minY": 25,
+        "maxX": 254,
+        "maxY": 275,
+        "width": 156,
+        "height": 251,
+        "pixels": 23601
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 78796,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 2,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/front/002.png",
+      "sourceBBox": {
+        "minX": 95,
+        "minY": 39,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 171,
+        "height": 265,
+        "pixels": 27956
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74396,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 2,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/back/002.png",
+      "sourceBBox": {
+        "minX": 72,
+        "minY": 40,
+        "maxX": 241,
+        "maxY": 303,
+        "width": 170,
+        "height": 264,
+        "pixels": 27474
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74924,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 2,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/left/002.png",
+      "sourceBBox": {
+        "minX": 71,
+        "minY": 22,
+        "maxX": 223,
+        "maxY": 275,
+        "width": 153,
+        "height": 254,
+        "pixels": 22603
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 79795,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 2,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/right/002.png",
+      "sourceBBox": {
+        "minX": 103,
+        "minY": 23,
+        "maxX": 256,
+        "maxY": 276,
+        "width": 154,
+        "height": 254,
+        "pixels": 22583
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 79817,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 3,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/front/003.png",
+      "sourceBBox": {
+        "minX": 95,
+        "minY": 39,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 171,
+        "height": 265,
+        "pixels": 28043
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74325,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 3,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/back/003.png",
+      "sourceBBox": {
+        "minX": 73,
+        "minY": 40,
+        "maxX": 241,
+        "maxY": 303,
+        "width": 169,
+        "height": 264,
+        "pixels": 27584
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74812,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 3,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/left/003.png",
+      "sourceBBox": {
+        "minX": 71,
+        "minY": 22,
+        "maxX": 222,
+        "maxY": 275,
+        "width": 152,
+        "height": 254,
+        "pixels": 22493
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 79907,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 3,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/right/003.png",
+      "sourceBBox": {
+        "minX": 103,
+        "minY": 23,
+        "maxX": 256,
+        "maxY": 276,
+        "width": 154,
+        "height": 254,
+        "pixels": 22802
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 79598,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 4,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/front/004.png",
+      "sourceBBox": {
+        "minX": 93,
+        "minY": 39,
+        "maxX": 267,
+        "maxY": 303,
+        "width": 175,
+        "height": 265,
+        "pixels": 28169
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74216,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 4,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/back/004.png",
+      "sourceBBox": {
+        "minX": 71,
+        "minY": 40,
+        "maxX": 243,
+        "maxY": 303,
+        "width": 173,
+        "height": 264,
+        "pixels": 27741
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74637,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 4,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/left/004.png",
+      "sourceBBox": {
+        "minX": 70,
+        "minY": 22,
+        "maxX": 222,
+        "maxY": 274,
+        "width": 153,
+        "height": 253,
+        "pixels": 23401
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 78999,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 4,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/right/004.png",
+      "sourceBBox": {
+        "minX": 105,
+        "minY": 23,
+        "maxX": 258,
+        "maxY": 276,
+        "width": 154,
+        "height": 254,
+        "pixels": 23482
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 78917,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 5,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/front/005.png",
+      "sourceBBox": {
+        "minX": 92,
+        "minY": 41,
+        "maxX": 269,
+        "maxY": 303,
+        "width": 178,
+        "height": 263,
+        "pixels": 28121
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74247,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 5,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/back/005.png",
+      "sourceBBox": {
+        "minX": 71,
+        "minY": 41,
+        "maxX": 246,
+        "maxY": 303,
+        "width": 176,
+        "height": 263,
+        "pixels": 27714
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74634,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 5,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/left/005.png",
+      "sourceBBox": {
+        "minX": 69,
+        "minY": 23,
+        "maxX": 222,
+        "maxY": 275,
+        "width": 154,
+        "height": 253,
+        "pixels": 23866
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 78534,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 5,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/right/005.png",
+      "sourceBBox": {
+        "minX": 105,
+        "minY": 24,
+        "maxX": 258,
+        "maxY": 276,
+        "width": 154,
+        "height": 253,
+        "pixels": 23642
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 78758,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 6,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/front/006.png",
+      "sourceBBox": {
+        "minX": 91,
+        "minY": 42,
+        "maxX": 269,
+        "maxY": 303,
+        "width": 179,
+        "height": 262,
+        "pixels": 27955
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74379,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 6,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/back/006.png",
+      "sourceBBox": {
+        "minX": 70,
+        "minY": 42,
+        "maxX": 248,
+        "maxY": 303,
+        "width": 179,
+        "height": 262,
+        "pixels": 27616
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74700,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 6,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/left/006.png",
+      "sourceBBox": {
+        "minX": 68,
+        "minY": 24,
+        "maxX": 221,
+        "maxY": 276,
+        "width": 154,
+        "height": 253,
+        "pixels": 23922
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 78476,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 6,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/right/006.png",
+      "sourceBBox": {
+        "minX": 105,
+        "minY": 24,
+        "maxX": 259,
+        "maxY": 276,
+        "width": 155,
+        "height": 253,
+        "pixels": 23602
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 78796,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 7,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/front/007.png",
+      "sourceBBox": {
+        "minX": 91,
+        "minY": 42,
+        "maxX": 269,
+        "maxY": 303,
+        "width": 179,
+        "height": 262,
+        "pixels": 28025
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74282,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 7,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/back/007.png",
+      "sourceBBox": {
+        "minX": 70,
+        "minY": 42,
+        "maxX": 248,
+        "maxY": 303,
+        "width": 179,
+        "height": 262,
+        "pixels": 27734
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74569,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 7,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/left/007.png",
+      "sourceBBox": {
+        "minX": 67,
+        "minY": 25,
+        "maxX": 221,
+        "maxY": 276,
+        "width": 155,
+        "height": 252,
+        "pixels": 24091
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 78307,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 7,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/right/007.png",
+      "sourceBBox": {
+        "minX": 105,
+        "minY": 25,
+        "maxX": 260,
+        "maxY": 276,
+        "width": 156,
+        "height": 252,
+        "pixels": 23699
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 78701,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 8,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/front/008.png",
+      "sourceBBox": {
+        "minX": 92,
+        "minY": 41,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 174,
+        "height": 263,
+        "pixels": 27921
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74363,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 8,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/back/008.png",
+      "sourceBBox": {
+        "minX": 71,
+        "minY": 42,
+        "maxX": 247,
+        "maxY": 303,
+        "width": 177,
+        "height": 262,
+        "pixels": 27709
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74622,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 8,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/left/008.png",
+      "sourceBBox": {
+        "minX": 66,
+        "minY": 25,
+        "maxX": 219,
+        "maxY": 276,
+        "width": 154,
+        "height": 252,
+        "pixels": 23471
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 78928,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 8,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/right/008.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 25,
+        "maxX": 261,
+        "maxY": 275,
+        "width": 154,
+        "height": 251,
+        "pixels": 23268
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 79130,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 9,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/front/009.png",
+      "sourceBBox": {
+        "minX": 93,
+        "minY": 41,
+        "maxX": 264,
+        "maxY": 303,
+        "width": 172,
+        "height": 263,
+        "pixels": 27794
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74491,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 9,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/back/009.png",
+      "sourceBBox": {
+        "minX": 72,
+        "minY": 42,
+        "maxX": 245,
+        "maxY": 303,
+        "width": 174,
+        "height": 262,
+        "pixels": 27549
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74808,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 9,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/left/009.png",
+      "sourceBBox": {
+        "minX": 66,
+        "minY": 25,
+        "maxX": 218,
+        "maxY": 277,
+        "width": 153,
+        "height": 253,
+        "pixels": 23188
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 79209,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 9,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/right/009.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 25,
+        "maxX": 261,
+        "maxY": 275,
+        "width": 154,
+        "height": 251,
+        "pixels": 22993
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 79406,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 10,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/front/010.png",
+      "sourceBBox": {
+        "minX": 94,
+        "minY": 39,
+        "maxX": 263,
+        "maxY": 303,
+        "width": 170,
+        "height": 265,
+        "pixels": 28003
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74342,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 10,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/back/010.png",
+      "sourceBBox": {
+        "minX": 74,
+        "minY": 39,
+        "maxX": 246,
+        "maxY": 303,
+        "width": 173,
+        "height": 265,
+        "pixels": 27694
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74706,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 10,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/left/010.png",
+      "sourceBBox": {
+        "minX": 63,
+        "minY": 22,
+        "maxX": 215,
+        "maxY": 276,
+        "width": 153,
+        "height": 255,
+        "pixels": 22867
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 79533,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 10,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/right/010.png",
+      "sourceBBox": {
+        "minX": 111,
+        "minY": 23,
+        "maxX": 262,
+        "maxY": 276,
+        "width": 152,
+        "height": 254,
+        "pixels": 22277
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 80121,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 11,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/front/011.png",
+      "sourceBBox": {
+        "minX": 93,
+        "minY": 38,
+        "maxX": 264,
+        "maxY": 303,
+        "width": 172,
+        "height": 266,
+        "pixels": 28074
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74283,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 11,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/back/011.png",
+      "sourceBBox": {
+        "minX": 73,
+        "minY": 39,
+        "maxX": 245,
+        "maxY": 303,
+        "width": 173,
+        "height": 265,
+        "pixels": 27682
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74718,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 11,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/left/011.png",
+      "sourceBBox": {
+        "minX": 63,
+        "minY": 22,
+        "maxX": 214,
+        "maxY": 276,
+        "width": 152,
+        "height": 255,
+        "pixels": 23170
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 79229,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 11,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/right/011.png",
+      "sourceBBox": {
+        "minX": 111,
+        "minY": 23,
+        "maxX": 263,
+        "maxY": 275,
+        "width": 153,
+        "height": 253,
+        "pixels": 22242
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 80158,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 12,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/front/012.png",
+      "sourceBBox": {
+        "minX": 90,
+        "minY": 39,
+        "maxX": 266,
+        "maxY": 303,
+        "width": 177,
+        "height": 265,
+        "pixels": 28207
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74172,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 12,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/back/012.png",
+      "sourceBBox": {
+        "minX": 72,
+        "minY": 40,
+        "maxX": 247,
+        "maxY": 303,
+        "width": 176,
+        "height": 264,
+        "pixels": 27646
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74754,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 12,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/left/012.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 22,
+        "maxX": 214,
+        "maxY": 276,
+        "width": 153,
+        "height": 255,
+        "pixels": 23913
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 78485,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 12,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/right/012.png",
+      "sourceBBox": {
+        "minX": 111,
+        "minY": 23,
+        "maxX": 264,
+        "maxY": 275,
+        "width": 154,
+        "height": 253,
+        "pixels": 23019
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 79381,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 13,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/front/013.png",
+      "sourceBBox": {
+        "minX": 90,
+        "minY": 40,
+        "maxX": 267,
+        "maxY": 303,
+        "width": 178,
+        "height": 264,
+        "pixels": 28107
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74263,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 13,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/back/013.png",
+      "sourceBBox": {
+        "minX": 72,
+        "minY": 41,
+        "maxX": 249,
+        "maxY": 303,
+        "width": 178,
+        "height": 263,
+        "pixels": 27402
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74996,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 13,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/left/013.png",
+      "sourceBBox": {
+        "minX": 61,
+        "minY": 23,
+        "maxX": 214,
+        "maxY": 276,
+        "width": 154,
+        "height": 254,
+        "pixels": 23958
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 78442,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 13,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/right/013.png",
+      "sourceBBox": {
+        "minX": 111,
+        "minY": 24,
+        "maxX": 264,
+        "maxY": 275,
+        "width": 154,
+        "height": 252,
+        "pixels": 23648
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 78752,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 14,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/front/014.png",
+      "sourceBBox": {
+        "minX": 88,
+        "minY": 41,
+        "maxX": 267,
+        "maxY": 303,
+        "width": 180,
+        "height": 263,
+        "pixels": 27906
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74449,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 14,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/back/014.png",
+      "sourceBBox": {
+        "minX": 72,
+        "minY": 42,
+        "maxX": 250,
+        "maxY": 303,
+        "width": 179,
+        "height": 262,
+        "pixels": 27221
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 75153,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 14,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/left/014.png",
+      "sourceBBox": {
+        "minX": 60,
+        "minY": 24,
+        "maxX": 215,
+        "maxY": 277,
+        "width": 156,
+        "height": 254,
+        "pixels": 23922
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 78477,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 14,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/right/014.png",
+      "sourceBBox": {
+        "minX": 111,
+        "minY": 25,
+        "maxX": 265,
+        "maxY": 275,
+        "width": 155,
+        "height": 251,
+        "pixels": 23744
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 78655,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 15,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/front/015.png",
+      "sourceBBox": {
+        "minX": 89,
+        "minY": 42,
+        "maxX": 267,
+        "maxY": 303,
+        "width": 179,
+        "height": 262,
+        "pixels": 28006
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74323,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 15,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/back/015.png",
+      "sourceBBox": {
+        "minX": 72,
+        "minY": 42,
+        "maxX": 250,
+        "maxY": 303,
+        "width": 179,
+        "height": 262,
+        "pixels": 27353
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 75017,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 15,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/left/015.png",
+      "sourceBBox": {
+        "minX": 60,
+        "minY": 25,
+        "maxX": 215,
+        "maxY": 276,
+        "width": 156,
+        "height": 252,
+        "pixels": 24091
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 78309,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 15,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/right/015.png",
+      "sourceBBox": {
+        "minX": 112,
+        "minY": 25,
+        "maxX": 266,
+        "maxY": 276,
+        "width": 155,
+        "height": 252,
+        "pixels": 23887
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 78512,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 16,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/front/016.png",
+      "sourceBBox": {
+        "minX": 90,
+        "minY": 41,
+        "maxX": 264,
+        "maxY": 303,
+        "width": 175,
+        "height": 263,
+        "pixels": 27911
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74387,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 16,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/back/016.png",
+      "sourceBBox": {
+        "minX": 76,
+        "minY": 41,
+        "maxX": 248,
+        "maxY": 303,
+        "width": 173,
+        "height": 263,
+        "pixels": 27335
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 75045,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 16,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/left/016.png",
+      "sourceBBox": {
+        "minX": 59,
+        "minY": 25,
+        "maxX": 212,
+        "maxY": 275,
+        "width": 154,
+        "height": 251,
+        "pixels": 23768
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 78632,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 16,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/right/016.png",
+      "sourceBBox": {
+        "minX": 113,
+        "minY": 25,
+        "maxX": 267,
+        "maxY": 276,
+        "width": 155,
+        "height": 252,
+        "pixels": 23528
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 78872,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 17,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/front/017.png",
+      "sourceBBox": {
+        "minX": 91,
+        "minY": 41,
+        "maxX": 263,
+        "maxY": 303,
+        "width": 173,
+        "height": 263,
+        "pixels": 27783
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74514,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 17,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/back/017.png",
+      "sourceBBox": {
+        "minX": 76,
+        "minY": 41,
+        "maxX": 248,
+        "maxY": 303,
+        "width": 173,
+        "height": 263,
+        "pixels": 27245
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 75136,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 17,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/left/017.png",
+      "sourceBBox": {
+        "minX": 59,
+        "minY": 25,
+        "maxX": 212,
+        "maxY": 275,
+        "width": 154,
+        "height": 251,
+        "pixels": 23576
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 78822,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 17,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/right/017.png",
+      "sourceBBox": {
+        "minX": 114,
+        "minY": 25,
+        "maxX": 267,
+        "maxY": 276,
+        "width": 154,
+        "height": 252,
+        "pixels": 23243
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 79154,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 18,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/front/018.png",
+      "sourceBBox": {
+        "minX": 92,
+        "minY": 39,
+        "maxX": 261,
+        "maxY": 303,
+        "width": 170,
+        "height": 265,
+        "pixels": 27992
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74343,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 18,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/back/018.png",
+      "sourceBBox": {
+        "minX": 79,
+        "minY": 39,
+        "maxX": 248,
+        "maxY": 303,
+        "width": 170,
+        "height": 265,
+        "pixels": 27440
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74960,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 18,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/left/018.png",
+      "sourceBBox": {
+        "minX": 57,
+        "minY": 22,
+        "maxX": 209,
+        "maxY": 275,
+        "width": 153,
+        "height": 254,
+        "pixels": 22814
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 79585,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 18,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/right/018.png",
+      "sourceBBox": {
+        "minX": 115,
+        "minY": 23,
+        "maxX": 268,
+        "maxY": 277,
+        "width": 154,
+        "height": 255,
+        "pixels": 22458
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 79942,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 19,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/front/019.png",
+      "sourceBBox": {
+        "minX": 92,
+        "minY": 39,
+        "maxX": 261,
+        "maxY": 303,
+        "width": 170,
+        "height": 265,
+        "pixels": 28053
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74302,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 19,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/back/019.png",
+      "sourceBBox": {
+        "minX": 79,
+        "minY": 39,
+        "maxX": 248,
+        "maxY": 303,
+        "width": 170,
+        "height": 265,
+        "pixels": 27485
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74914,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 19,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/left/019.png",
+      "sourceBBox": {
+        "minX": 57,
+        "minY": 22,
+        "maxX": 209,
+        "maxY": 276,
+        "width": 153,
+        "height": 255,
+        "pixels": 22561
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 79839,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 19,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/right/019.png",
+      "sourceBBox": {
+        "minX": 117,
+        "minY": 22,
+        "maxX": 269,
+        "maxY": 277,
+        "width": 153,
+        "height": 256,
+        "pixels": 22448
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 79952,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 20,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/front/020.png",
+      "sourceBBox": {
+        "minX": 92,
+        "minY": 39,
+        "maxX": 263,
+        "maxY": 303,
+        "width": 172,
+        "height": 265,
+        "pixels": 28177
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74197,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 20,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/back/020.png",
+      "sourceBBox": {
+        "minX": 77,
+        "minY": 40,
+        "maxX": 250,
+        "maxY": 303,
+        "width": 174,
+        "height": 264,
+        "pixels": 27700
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74683,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 20,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/left/020.png",
+      "sourceBBox": {
+        "minX": 56,
+        "minY": 22,
+        "maxX": 208,
+        "maxY": 274,
+        "width": 153,
+        "height": 253,
+        "pixels": 23235
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 79164,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 20,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/right/020.png",
+      "sourceBBox": {
+        "minX": 118,
+        "minY": 23,
+        "maxX": 270,
+        "maxY": 277,
+        "width": 153,
+        "height": 255,
+        "pixels": 23152
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 79247,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 21,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/front/021.png",
+      "sourceBBox": {
+        "minX": 90,
+        "minY": 41,
+        "maxX": 266,
+        "maxY": 303,
+        "width": 177,
+        "height": 263,
+        "pixels": 28083
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74300,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 21,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/back/021.png",
+      "sourceBBox": {
+        "minX": 76,
+        "minY": 41,
+        "maxX": 252,
+        "maxY": 303,
+        "width": 177,
+        "height": 263,
+        "pixels": 27675
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74675,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 21,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/left/021.png",
+      "sourceBBox": {
+        "minX": 55,
+        "minY": 23,
+        "maxX": 208,
+        "maxY": 275,
+        "width": 154,
+        "height": 253,
+        "pixels": 23876
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 78524,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 21,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/right/021.png",
+      "sourceBBox": {
+        "minX": 118,
+        "minY": 24,
+        "maxX": 270,
+        "maxY": 277,
+        "width": 153,
+        "height": 254,
+        "pixels": 23560
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 78840,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 22,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/front/022.png",
+      "sourceBBox": {
+        "minX": 89,
+        "minY": 42,
+        "maxX": 267,
+        "maxY": 303,
+        "width": 179,
+        "height": 262,
+        "pixels": 27917
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74436,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 22,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/back/022.png",
+      "sourceBBox": {
+        "minX": 75,
+        "minY": 42,
+        "maxX": 253,
+        "maxY": 303,
+        "width": 179,
+        "height": 262,
+        "pixels": 27548
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 74774,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 22,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/left/022.png",
+      "sourceBBox": {
+        "minX": 55,
+        "minY": 24,
+        "maxX": 209,
+        "maxY": 275,
+        "width": 155,
+        "height": 252,
+        "pixels": 23936
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 78462,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 22,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-v1/frames/right/022.png",
+      "sourceBBox": {
+        "minX": 118,
+        "minY": 25,
+        "maxX": 271,
+        "maxY": 276,
+        "width": 154,
+        "height": 252,
+        "pixels": 23543
+      },
+      "backgroundProfile": "dark",
+      "borderRgb": [
+        0,
+        0,
+        0
+      ],
+      "connectedBackgroundPixelsRemoved": 78854,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    }
+  ]
+}

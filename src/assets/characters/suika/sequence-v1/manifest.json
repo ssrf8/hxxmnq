@@ -1,0 +1,1893 @@
+{
+  "version": 1,
+  "character": "suika",
+  "status": "generated-pending-owner-review",
+  "layout": "variable-sequence-v1",
+  "sourceLayout": "2x2",
+  "sourceQuadrants": {
+    "front": "top-left",
+    "back": "top-right",
+    "left": "bottom-left",
+    "right": "bottom-right"
+  },
+  "sourceSize": [
+    640,
+    640
+  ],
+  "cell": [
+    209,
+    209
+  ],
+  "atlas": "src/assets/characters/suika/suika-animation-sequence-v1.png",
+  "atlasSize": [
+    3971,
+    836
+  ],
+  "frameCount": 19,
+  "rowOrder": [
+    "front",
+    "back",
+    "left",
+    "right"
+  ],
+  "idleFrame": 0,
+  "loopStart": 0,
+  "loopEnd": 18,
+  "candidateFrameDurationsMs": [
+    90,
+    110,
+    130
+  ],
+  "selectedFrameDurationMs": 90,
+  "maskProfileVersion": "connected-edge-plus-interior-islands-v2",
+  "targetVisibleHeight": 150,
+  "baseline": 179,
+  "scale": 0.5357142857142857,
+  "sources": [
+    {
+      "index": 1,
+      "file": "src/assets/characters/suika/最终版/001.png",
+      "sha256": "c95f2bf0c981eef8847df965885fe9b39531be2c1b5baf5e9e57f69ede5d28e8"
+    },
+    {
+      "index": 2,
+      "file": "src/assets/characters/suika/最终版/002.png",
+      "sha256": "f9e7f64d8cf52d2135c68e6985c54da106a51b0b87ff346354fe98c6f166ce69"
+    },
+    {
+      "index": 3,
+      "file": "src/assets/characters/suika/最终版/003.png",
+      "sha256": "b9044f3874e5ab072b20d5abf6142c577f96d2c79bb7b226735f7def55fa8db7"
+    },
+    {
+      "index": 4,
+      "file": "src/assets/characters/suika/最终版/004.png",
+      "sha256": "299d8d52b49b3de0d5984bcae85d2617b35d403032d77fca39dba376a51c9556"
+    },
+    {
+      "index": 5,
+      "file": "src/assets/characters/suika/最终版/005.png",
+      "sha256": "218e57733488f75ced6f58161b6d440371fdf5ff322f71a65ff3999c1895cbae"
+    },
+    {
+      "index": 6,
+      "file": "src/assets/characters/suika/最终版/006.png",
+      "sha256": "c336e83c02522149d2a16f4cb20154170cacbb12ef520793556625db89001663"
+    },
+    {
+      "index": 7,
+      "file": "src/assets/characters/suika/最终版/007.png",
+      "sha256": "e3e7d82be6fe1f4ea7476226077a692a743337b5ad26fc721a4f5ff7b27e3ba1"
+    },
+    {
+      "index": 8,
+      "file": "src/assets/characters/suika/最终版/008.png",
+      "sha256": "7130e4e23ad2eca95c0569f44f56bf0fb734789f25e2e5430a2f1203a7f27853"
+    },
+    {
+      "index": 9,
+      "file": "src/assets/characters/suika/最终版/009.png",
+      "sha256": "3d3027ff76201ead50f7d59b46c0f492363f019127d06417e6e545fc6d8b4b37"
+    },
+    {
+      "index": 10,
+      "file": "src/assets/characters/suika/最终版/010.png",
+      "sha256": "b4de1d2e955afc96b99cb1f1d0ebeafcd8ad7fd8132e53e9a72bcf73779fc0c2"
+    },
+    {
+      "index": 11,
+      "file": "src/assets/characters/suika/最终版/011.png",
+      "sha256": "032dbb297eb61ff139305ea600e1e1ce4cbed590ae312b432d7c5a6fb668adc6"
+    },
+    {
+      "index": 12,
+      "file": "src/assets/characters/suika/最终版/012.png",
+      "sha256": "72b5af0d2f920269d22c0fe115e4d7611100dde759c4e474dad0895f4952c9b8"
+    },
+    {
+      "index": 13,
+      "file": "src/assets/characters/suika/最终版/013.png",
+      "sha256": "748e1c7d6037d02daf8e252625ee146e70db38be44b27619c00dc372449615f7"
+    },
+    {
+      "index": 14,
+      "file": "src/assets/characters/suika/最终版/014.png",
+      "sha256": "c0436fd5b25cd84c8f9e24de80b2752fe3d91b43342df0399195746f458ffe16"
+    },
+    {
+      "index": 15,
+      "file": "src/assets/characters/suika/最终版/015.png",
+      "sha256": "0ab39339da7a46be58c8b5443fdd80b2595e957e80fcebf6af6aeef396ea9f3f"
+    },
+    {
+      "index": 16,
+      "file": "src/assets/characters/suika/最终版/016.png",
+      "sha256": "4ce0b633c84f215eb5a128dbe75979e679824b58e616a322ddeb9721c8a81724"
+    },
+    {
+      "index": 17,
+      "file": "src/assets/characters/suika/最终版/017.png",
+      "sha256": "18f0e6c0c56bbec32ca3758ad318b02f9f58a6b08c0f6788783fb38a5f6c105f"
+    },
+    {
+      "index": 18,
+      "file": "src/assets/characters/suika/最终版/018.png",
+      "sha256": "ccc46383fb276a36ef353fe56d64b5e30ed9da48a357155bcf9aca2b3ccd8d8f"
+    },
+    {
+      "index": 19,
+      "file": "src/assets/characters/suika/最终版/019.png",
+      "sha256": "2c75700c3cf9ccd8173fe75bc30fc76685737255504d1729dce3b4f3d75eb22e"
+    }
+  ],
+  "frames": [
+    {
+      "index": 1,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-v1/frames/front/001.png",
+      "sourceBBox": {
+        "minX": 66,
+        "minY": 24,
+        "maxX": 282,
+        "maxY": 303,
+        "width": 217,
+        "height": 280,
+        "pixels": 37080
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        239,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 63604,
+      "interiorBackgroundPixelsRemoved": 527,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 1,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-v1/frames/back/001.png",
+      "sourceBBox": {
+        "minX": 38,
+        "minY": 24,
+        "maxX": 255,
+        "maxY": 303,
+        "width": 218,
+        "height": 280,
+        "pixels": 36726
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 63972,
+      "interiorBackgroundPixelsRemoved": 511,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 1,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-v1/frames/left/001.png",
+      "sourceBBox": {
+        "minX": 109,
+        "minY": 16,
+        "maxX": 252,
+        "maxY": 293,
+        "width": 144,
+        "height": 278,
+        "pixels": 28688
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 73490,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 1,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-v1/frames/right/001.png",
+      "sourceBBox": {
+        "minX": 67,
+        "minY": 16,
+        "maxX": 211,
+        "maxY": 293,
+        "width": 145,
+        "height": 278,
+        "pixels": 28886
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 73275,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 2,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-v1/frames/front/002.png",
+      "sourceBBox": {
+        "minX": 66,
+        "minY": 24,
+        "maxX": 282,
+        "maxY": 303,
+        "width": 217,
+        "height": 280,
+        "pixels": 37165
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        241,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 63601,
+      "interiorBackgroundPixelsRemoved": 443,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 2,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-v1/frames/back/002.png",
+      "sourceBBox": {
+        "minX": 38,
+        "minY": 24,
+        "maxX": 256,
+        "maxY": 303,
+        "width": 219,
+        "height": 280,
+        "pixels": 36743
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        241,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 63938,
+      "interiorBackgroundPixelsRemoved": 556,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 2,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-v1/frames/left/002.png",
+      "sourceBBox": {
+        "minX": 109,
+        "minY": 16,
+        "maxX": 252,
+        "maxY": 293,
+        "width": 144,
+        "height": 278,
+        "pixels": 28729
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        241,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 73456,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 2,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-v1/frames/right/002.png",
+      "sourceBBox": {
+        "minX": 67,
+        "minY": 16,
+        "maxX": 211,
+        "maxY": 293,
+        "width": 145,
+        "height": 278,
+        "pixels": 28804
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        241,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 73358,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 3,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-v1/frames/front/003.png",
+      "sourceBBox": {
+        "minX": 65,
+        "minY": 24,
+        "maxX": 282,
+        "maxY": 303,
+        "width": 218,
+        "height": 280,
+        "pixels": 37331
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 63414,
+      "interiorBackgroundPixelsRemoved": 454,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 3,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-v1/frames/back/003.png",
+      "sourceBBox": {
+        "minX": 38,
+        "minY": 24,
+        "maxX": 257,
+        "maxY": 303,
+        "width": 220,
+        "height": 280,
+        "pixels": 36943
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 63711,
+      "interiorBackgroundPixelsRemoved": 548,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 3,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-v1/frames/left/003.png",
+      "sourceBBox": {
+        "minX": 109,
+        "minY": 16,
+        "maxX": 254,
+        "maxY": 293,
+        "width": 146,
+        "height": 278,
+        "pixels": 29103
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 73083,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 3,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-v1/frames/right/003.png",
+      "sourceBBox": {
+        "minX": 66,
+        "minY": 16,
+        "maxX": 212,
+        "maxY": 293,
+        "width": 147,
+        "height": 278,
+        "pixels": 29064
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 73104,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 4,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-v1/frames/front/004.png",
+      "sourceBBox": {
+        "minX": 63,
+        "minY": 25,
+        "maxX": 282,
+        "maxY": 303,
+        "width": 220,
+        "height": 279,
+        "pixels": 37331
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 63368,
+      "interiorBackgroundPixelsRemoved": 487,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 4,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-v1/frames/back/004.png",
+      "sourceBBox": {
+        "minX": 37,
+        "minY": 26,
+        "maxX": 259,
+        "maxY": 303,
+        "width": 223,
+        "height": 278,
+        "pixels": 37022
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 63613,
+      "interiorBackgroundPixelsRemoved": 543,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 4,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-v1/frames/left/004.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 16,
+        "maxX": 256,
+        "maxY": 293,
+        "width": 149,
+        "height": 278,
+        "pixels": 29211
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 72834,
+      "interiorBackgroundPixelsRemoved": 204,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 4,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-v1/frames/right/004.png",
+      "sourceBBox": {
+        "minX": 64,
+        "minY": 16,
+        "maxX": 212,
+        "maxY": 293,
+        "width": 149,
+        "height": 278,
+        "pixels": 29275
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 72901,
+      "interiorBackgroundPixelsRemoved": 64,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 5,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-v1/frames/front/005.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 26,
+        "maxX": 282,
+        "maxY": 303,
+        "width": 221,
+        "height": 278,
+        "pixels": 37161
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        239,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 63397,
+      "interiorBackgroundPixelsRemoved": 614,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 5,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-v1/frames/back/005.png",
+      "sourceBBox": {
+        "minX": 37,
+        "minY": 27,
+        "maxX": 260,
+        "maxY": 303,
+        "width": 224,
+        "height": 277,
+        "pixels": 36988
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        239,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 63586,
+      "interiorBackgroundPixelsRemoved": 582,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 5,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-v1/frames/left/005.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 16,
+        "maxX": 257,
+        "maxY": 293,
+        "width": 150,
+        "height": 278,
+        "pixels": 29238
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 72839,
+      "interiorBackgroundPixelsRemoved": 204,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 5,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-v1/frames/right/005.png",
+      "sourceBBox": {
+        "minX": 64,
+        "minY": 16,
+        "maxX": 212,
+        "maxY": 293,
+        "width": 149,
+        "height": 278,
+        "pixels": 29201
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 72981,
+      "interiorBackgroundPixelsRemoved": 91,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 6,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-v1/frames/front/006.png",
+      "sourceBBox": {
+        "minX": 61,
+        "minY": 27,
+        "maxX": 282,
+        "maxY": 303,
+        "width": 222,
+        "height": 277,
+        "pixels": 37179
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        241,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 63436,
+      "interiorBackgroundPixelsRemoved": 526,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 6,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-v1/frames/back/006.png",
+      "sourceBBox": {
+        "minX": 37,
+        "minY": 28,
+        "maxX": 260,
+        "maxY": 303,
+        "width": 224,
+        "height": 276,
+        "pixels": 36955
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        241,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 63645,
+      "interiorBackgroundPixelsRemoved": 530,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 6,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-v1/frames/left/006.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 16,
+        "maxX": 257,
+        "maxY": 294,
+        "width": 150,
+        "height": 279,
+        "pixels": 29086
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        241,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 72990,
+      "interiorBackgroundPixelsRemoved": 239,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 6,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-v1/frames/right/006.png",
+      "sourceBBox": {
+        "minX": 64,
+        "minY": 16,
+        "maxX": 212,
+        "maxY": 293,
+        "width": 149,
+        "height": 278,
+        "pixels": 29067
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        241,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 73149,
+      "interiorBackgroundPixelsRemoved": 88,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 7,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-v1/frames/front/007.png",
+      "sourceBBox": {
+        "minX": 61,
+        "minY": 28,
+        "maxX": 282,
+        "maxY": 303,
+        "width": 222,
+        "height": 276,
+        "pixels": 37225
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 63414,
+      "interiorBackgroundPixelsRemoved": 495,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 7,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-v1/frames/back/007.png",
+      "sourceBBox": {
+        "minX": 37,
+        "minY": 28,
+        "maxX": 260,
+        "maxY": 303,
+        "width": 224,
+        "height": 276,
+        "pixels": 36828
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 63690,
+      "interiorBackgroundPixelsRemoved": 603,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 7,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-v1/frames/left/007.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 16,
+        "maxX": 257,
+        "maxY": 294,
+        "width": 150,
+        "height": 279,
+        "pixels": 28975
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 73194,
+      "interiorBackgroundPixelsRemoved": 145,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 7,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-v1/frames/right/007.png",
+      "sourceBBox": {
+        "minX": 64,
+        "minY": 16,
+        "maxX": 212,
+        "maxY": 293,
+        "width": 149,
+        "height": 278,
+        "pixels": 28952
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 73303,
+      "interiorBackgroundPixelsRemoved": 50,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 8,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-v1/frames/front/008.png",
+      "sourceBBox": {
+        "minX": 63,
+        "minY": 26,
+        "maxX": 282,
+        "maxY": 303,
+        "width": 220,
+        "height": 278,
+        "pixels": 37136
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 63558,
+      "interiorBackgroundPixelsRemoved": 480,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 8,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-v1/frames/back/008.png",
+      "sourceBBox": {
+        "minX": 37,
+        "minY": 27,
+        "maxX": 259,
+        "maxY": 303,
+        "width": 223,
+        "height": 277,
+        "pixels": 36801
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 63818,
+      "interiorBackgroundPixelsRemoved": 543,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 8,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-v1/frames/left/008.png",
+      "sourceBBox": {
+        "minX": 109,
+        "minY": 16,
+        "maxX": 254,
+        "maxY": 293,
+        "width": 146,
+        "height": 278,
+        "pixels": 28728
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 73547,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 8,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-v1/frames/right/008.png",
+      "sourceBBox": {
+        "minX": 66,
+        "minY": 16,
+        "maxX": 212,
+        "maxY": 293,
+        "width": 147,
+        "height": 278,
+        "pixels": 28688
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 73573,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 9,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-v1/frames/front/009.png",
+      "sourceBBox": {
+        "minX": 64,
+        "minY": 26,
+        "maxX": 282,
+        "maxY": 303,
+        "width": 219,
+        "height": 278,
+        "pixels": 37137
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 63578,
+      "interiorBackgroundPixelsRemoved": 474,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 9,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-v1/frames/back/009.png",
+      "sourceBBox": {
+        "minX": 37,
+        "minY": 26,
+        "maxX": 258,
+        "maxY": 303,
+        "width": 222,
+        "height": 278,
+        "pixels": 36874
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 63846,
+      "interiorBackgroundPixelsRemoved": 455,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 9,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-v1/frames/left/009.png",
+      "sourceBBox": {
+        "minX": 109,
+        "minY": 16,
+        "maxX": 253,
+        "maxY": 293,
+        "width": 145,
+        "height": 278,
+        "pixels": 28637
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 73605,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 9,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-v1/frames/right/009.png",
+      "sourceBBox": {
+        "minX": 67,
+        "minY": 16,
+        "maxX": 212,
+        "maxY": 293,
+        "width": 146,
+        "height": 278,
+        "pixels": 28578
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 73653,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 10,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-v1/frames/front/010.png",
+      "sourceBBox": {
+        "minX": 64,
+        "minY": 25,
+        "maxX": 282,
+        "maxY": 303,
+        "width": 219,
+        "height": 279,
+        "pixels": 37094
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        241,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 63645,
+      "interiorBackgroundPixelsRemoved": 459,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 10,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-v1/frames/back/010.png",
+      "sourceBBox": {
+        "minX": 37,
+        "minY": 25,
+        "maxX": 258,
+        "maxY": 303,
+        "width": 222,
+        "height": 279,
+        "pixels": 36971
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        241,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 63887,
+      "interiorBackgroundPixelsRemoved": 335,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 10,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-v1/frames/left/010.png",
+      "sourceBBox": {
+        "minX": 109,
+        "minY": 16,
+        "maxX": 252,
+        "maxY": 293,
+        "width": 144,
+        "height": 278,
+        "pixels": 28605
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        241,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 73618,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 10,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-v1/frames/right/010.png",
+      "sourceBBox": {
+        "minX": 67,
+        "minY": 16,
+        "maxX": 212,
+        "maxY": 293,
+        "width": 146,
+        "height": 278,
+        "pixels": 28513
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        241,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 73647,
+      "interiorBackgroundPixelsRemoved": 48,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 11,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-v1/frames/front/011.png",
+      "sourceBBox": {
+        "minX": 64,
+        "minY": 24,
+        "maxX": 282,
+        "maxY": 303,
+        "width": 219,
+        "height": 280,
+        "pixels": 37186
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 63592,
+      "interiorBackgroundPixelsRemoved": 442,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 11,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-v1/frames/back/011.png",
+      "sourceBBox": {
+        "minX": 37,
+        "minY": 24,
+        "maxX": 257,
+        "maxY": 303,
+        "width": 221,
+        "height": 280,
+        "pixels": 37087
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 63757,
+      "interiorBackgroundPixelsRemoved": 362,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 11,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-v1/frames/left/011.png",
+      "sourceBBox": {
+        "minX": 109,
+        "minY": 16,
+        "maxX": 252,
+        "maxY": 293,
+        "width": 144,
+        "height": 278,
+        "pixels": 28751
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 73444,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 11,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-v1/frames/right/011.png",
+      "sourceBBox": {
+        "minX": 67,
+        "minY": 16,
+        "maxX": 212,
+        "maxY": 293,
+        "width": 146,
+        "height": 278,
+        "pixels": 28596
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        240,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 73518,
+      "interiorBackgroundPixelsRemoved": 68,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 12,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-v1/frames/front/012.png",
+      "sourceBBox": {
+        "minX": 65,
+        "minY": 24,
+        "maxX": 282,
+        "maxY": 303,
+        "width": 218,
+        "height": 280,
+        "pixels": 37065
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 63587,
+      "interiorBackgroundPixelsRemoved": 553,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 12,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-v1/frames/back/012.png",
+      "sourceBBox": {
+        "minX": 37,
+        "minY": 25,
+        "maxX": 258,
+        "maxY": 303,
+        "width": 222,
+        "height": 279,
+        "pixels": 37112
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 63666,
+      "interiorBackgroundPixelsRemoved": 437,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 12,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-v1/frames/left/012.png",
+      "sourceBBox": {
+        "minX": 109,
+        "minY": 16,
+        "maxX": 253,
+        "maxY": 293,
+        "width": 145,
+        "height": 278,
+        "pixels": 29512
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 72686,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 12,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-v1/frames/right/012.png",
+      "sourceBBox": {
+        "minX": 66,
+        "minY": 16,
+        "maxX": 212,
+        "maxY": 293,
+        "width": 147,
+        "height": 278,
+        "pixels": 28895
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 73223,
+      "interiorBackgroundPixelsRemoved": 59,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 13,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-v1/frames/front/013.png",
+      "sourceBBox": {
+        "minX": 65,
+        "minY": 24,
+        "maxX": 282,
+        "maxY": 303,
+        "width": 218,
+        "height": 280,
+        "pixels": 37056
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 63578,
+      "interiorBackgroundPixelsRemoved": 560,
+      "interiorBackgroundIslandsRemoved": 4
+    },
+    {
+      "index": 13,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-v1/frames/back/013.png",
+      "sourceBBox": {
+        "minX": 37,
+        "minY": 25,
+        "maxX": 258,
+        "maxY": 303,
+        "width": 222,
+        "height": 279,
+        "pixels": 37165
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 63627,
+      "interiorBackgroundPixelsRemoved": 427,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 13,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-v1/frames/left/013.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 16,
+        "maxX": 254,
+        "maxY": 293,
+        "width": 147,
+        "height": 278,
+        "pixels": 29883
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 72329,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 13,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-v1/frames/right/013.png",
+      "sourceBBox": {
+        "minX": 65,
+        "minY": 16,
+        "maxX": 212,
+        "maxY": 293,
+        "width": 148,
+        "height": 278,
+        "pixels": 29090
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 73044,
+      "interiorBackgroundPixelsRemoved": 69,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 14,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-v1/frames/front/014.png",
+      "sourceBBox": {
+        "minX": 65,
+        "minY": 25,
+        "maxX": 282,
+        "maxY": 303,
+        "width": 218,
+        "height": 279,
+        "pixels": 37019
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        241,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 63665,
+      "interiorBackgroundPixelsRemoved": 500,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 14,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-v1/frames/back/014.png",
+      "sourceBBox": {
+        "minX": 36,
+        "minY": 26,
+        "maxX": 259,
+        "maxY": 303,
+        "width": 224,
+        "height": 278,
+        "pixels": 37210
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        241,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 63615,
+      "interiorBackgroundPixelsRemoved": 354,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 14,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-v1/frames/left/014.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 16,
+        "maxX": 255,
+        "maxY": 293,
+        "width": 148,
+        "height": 278,
+        "pixels": 29996
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        241,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 72253,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 14,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-v1/frames/right/014.png",
+      "sourceBBox": {
+        "minX": 64,
+        "minY": 16,
+        "maxX": 212,
+        "maxY": 293,
+        "width": 149,
+        "height": 278,
+        "pixels": 29173
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        241,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 72999,
+      "interiorBackgroundPixelsRemoved": 61,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 15,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-v1/frames/front/015.png",
+      "sourceBBox": {
+        "minX": 65,
+        "minY": 26,
+        "maxX": 283,
+        "maxY": 303,
+        "width": 219,
+        "height": 278,
+        "pixels": 37058
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 63683,
+      "interiorBackgroundPixelsRemoved": 407,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 15,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-v1/frames/back/015.png",
+      "sourceBBox": {
+        "minX": 37,
+        "minY": 27,
+        "maxX": 260,
+        "maxY": 303,
+        "width": 224,
+        "height": 277,
+        "pixels": 37190
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 63613,
+      "interiorBackgroundPixelsRemoved": 348,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 15,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-v1/frames/left/015.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 16,
+        "maxX": 255,
+        "maxY": 294,
+        "width": 148,
+        "height": 279,
+        "pixels": 30118
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 72165,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 15,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-v1/frames/right/015.png",
+      "sourceBBox": {
+        "minX": 64,
+        "minY": 16,
+        "maxX": 212,
+        "maxY": 293,
+        "width": 149,
+        "height": 278,
+        "pixels": 29194
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 73015,
+      "interiorBackgroundPixelsRemoved": 60,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 16,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-v1/frames/front/016.png",
+      "sourceBBox": {
+        "minX": 65,
+        "minY": 28,
+        "maxX": 283,
+        "maxY": 303,
+        "width": 219,
+        "height": 276,
+        "pixels": 36982
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 63740,
+      "interiorBackgroundPixelsRemoved": 398,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 16,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-v1/frames/back/016.png",
+      "sourceBBox": {
+        "minX": 37,
+        "minY": 28,
+        "maxX": 261,
+        "maxY": 303,
+        "width": 225,
+        "height": 276,
+        "pixels": 37141
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 63661,
+      "interiorBackgroundPixelsRemoved": 339,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 16,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-v1/frames/left/016.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 16,
+        "maxX": 255,
+        "maxY": 294,
+        "width": 148,
+        "height": 279,
+        "pixels": 29688
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 72633,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 16,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-v1/frames/right/016.png",
+      "sourceBBox": {
+        "minX": 64,
+        "minY": 16,
+        "maxX": 212,
+        "maxY": 293,
+        "width": 149,
+        "height": 278,
+        "pixels": 28978
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 73257,
+      "interiorBackgroundPixelsRemoved": 69,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 17,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-v1/frames/front/017.png",
+      "sourceBBox": {
+        "minX": 65,
+        "minY": 27,
+        "maxX": 283,
+        "maxY": 303,
+        "width": 219,
+        "height": 277,
+        "pixels": 36980
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 63727,
+      "interiorBackgroundPixelsRemoved": 419,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 17,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-v1/frames/back/017.png",
+      "sourceBBox": {
+        "minX": 37,
+        "minY": 28,
+        "maxX": 260,
+        "maxY": 303,
+        "width": 224,
+        "height": 276,
+        "pixels": 37097
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 63708,
+      "interiorBackgroundPixelsRemoved": 334,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 17,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-v1/frames/left/017.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 16,
+        "maxX": 254,
+        "maxY": 293,
+        "width": 147,
+        "height": 278,
+        "pixels": 29377
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 72920,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 17,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-v1/frames/right/017.png",
+      "sourceBBox": {
+        "minX": 65,
+        "minY": 16,
+        "maxX": 212,
+        "maxY": 293,
+        "width": 148,
+        "height": 278,
+        "pixels": 28851
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 73345,
+      "interiorBackgroundPixelsRemoved": 83,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 18,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-v1/frames/front/018.png",
+      "sourceBBox": {
+        "minX": 65,
+        "minY": 27,
+        "maxX": 283,
+        "maxY": 303,
+        "width": 219,
+        "height": 277,
+        "pixels": 36992
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        241,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 63790,
+      "interiorBackgroundPixelsRemoved": 364,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 18,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-v1/frames/back/018.png",
+      "sourceBBox": {
+        "minX": 37,
+        "minY": 27,
+        "maxX": 260,
+        "maxY": 303,
+        "width": 224,
+        "height": 277,
+        "pixels": 36942
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        241,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 63747,
+      "interiorBackgroundPixelsRemoved": 453,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 18,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-v1/frames/left/018.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 16,
+        "maxX": 254,
+        "maxY": 293,
+        "width": 147,
+        "height": 278,
+        "pixels": 29033
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        241,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 73197,
+      "interiorBackgroundPixelsRemoved": 55,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 18,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-v1/frames/right/018.png",
+      "sourceBBox": {
+        "minX": 66,
+        "minY": 16,
+        "maxX": 212,
+        "maxY": 293,
+        "width": 147,
+        "height": 278,
+        "pixels": 28751
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        241,
+        241,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 73451,
+      "interiorBackgroundPixelsRemoved": 70,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 19,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-v1/frames/front/019.png",
+      "sourceBBox": {
+        "minX": 66,
+        "minY": 26,
+        "maxX": 283,
+        "maxY": 303,
+        "width": 218,
+        "height": 278,
+        "pixels": 37140
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 63613,
+      "interiorBackgroundPixelsRemoved": 439,
+      "interiorBackgroundIslandsRemoved": 3
+    },
+    {
+      "index": 19,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-v1/frames/back/019.png",
+      "sourceBBox": {
+        "minX": 37,
+        "minY": 26,
+        "maxX": 258,
+        "maxY": 303,
+        "width": 222,
+        "height": 278,
+        "pixels": 37105
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 63695,
+      "interiorBackgroundPixelsRemoved": 383,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 19,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-v1/frames/left/019.png",
+      "sourceBBox": {
+        "minX": 109,
+        "minY": 16,
+        "maxX": 253,
+        "maxY": 293,
+        "width": 145,
+        "height": 278,
+        "pixels": 28923
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        240
+      ],
+      "connectedBackgroundPixelsRemoved": 73312,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 19,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-v1/frames/right/019.png",
+      "sourceBBox": {
+        "minX": 67,
+        "minY": 16,
+        "maxX": 212,
+        "maxY": 293,
+        "width": 146,
+        "height": 278,
+        "pixels": 28694
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        240,
+        240,
+        241
+      ],
+      "connectedBackgroundPixelsRemoved": 73458,
+      "interiorBackgroundPixelsRemoved": 61,
+      "interiorBackgroundIslandsRemoved": 1
+    }
+  ]
+}

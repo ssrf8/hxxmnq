@@ -1,5 +1,11 @@
 # Agent 交接文档
 
+> 2026-07-28（五）：所有者已选择“最终版”序列统一按 `90ms` 预览，并要求修正前后方向脚部误删、灵梦绿幕残留、萃香道具内部白块与腿间白底。蒙版管线已升级为 `connected-edge-plus-interior-islands-v2`：放宽主体附近小组件保留以保护脚尖/鞋跟；绿幕强清理；灰白背景只清理至少 48 个原始像素的内部同色岛；黑底禁用全局内抠以保护黑色轮廓。期间补入荷取 `001`–`022`，当前七名角色共 151 张原始合帧，已重建 604 个透明方向帧、7 张 `N×4` 图集、7 份 manifest 与 7 个 `90ms` 总览 GIF；旧 `110/130ms` 预览已清理。透明棋盘底与高反差洋红底接触表复核未再发现上述问题，咲夜白色发丝高光也得到保护。离线门禁 `check:ui`、`npm test`（112/112）、`build:ui`、r54 dry-run 全绿。**状态仍为 `generated-pending-owner-review`，未登记 asset-manifest / registry、未接入运行时、未正式打包**；下一步只做所有者 90ms GIF 美术复核，通过后再决定 P1 接入。
+
+> 2026-07-28（四）：六名角色“最终版”可变长序列 P0 已完成，统一状态 `generated-pending-owner-review`。只读处理 129 张 `640×640` 四方向合帧，生成 516 个透明方向帧、6 张 `N×4` 候选图集、6 份可追溯 manifest 与 `90/110/130ms` 共 18 个真实来源总览 GIF；原件未覆盖。构建脚本为 `scripts/build-variable-character-sequences.mjs`，预览脚本为 `scripts/export-variable-character-sequence-gifs.py`，资产门禁为 `tests/character-sequence-assets.test.mjs`。自动 QA：可见高度 `138–150px`、统一底线 `y=179`、四角透明、原件 SHA-256 一致；离线门禁 `check:ui`、`npm test`（112/112）、`build:ui`、r54 dry-run 全绿。**尚未登记 asset-manifest / registry、未接入运行时、未正式打包**；下一步必须先由所有者查看三档 GIF 并逐角色确认透明边缘、循环和速度，通过后才开始 P1 爱丽丝垂直切片。
+
+> 2026-07-28（三）：咲夜四向动作参考序列第二方案 `sequence-imagegen-v2`（逐图调用内置 imagegen，以当前帧锁动作、`sakuya-turnaround-v1.png` 锁身份）同样被所有者判定**验收不通过**，工作已立即停止。项目仅保留首张 `raw/001.png` 与失败说明；随后 `002–005` 的并行调用在完成前被中止，任何默认生成目录中的临时结果均未收进项目。统一状态为 `owner-rejected-imagegen-sequence-v2`；不得继续补齐 23 帧、不得登记或接入，也不得拿本轮 `001` 作为后续身份锚点。此前 v1 换色方案同样维持拒绝状态。
+
 > 2026-07-28（二）：咲夜四向动作参考序列 v1 已生成 23 张 `720×720` 四向帧、Aseprite 母档与 `130ms` GIF，但**所有者验收不通过**。该批产物仅保留在 `src/assets/characters/sakuya/sequence-reference-v1/` 作为失败试作与方法对照，状态为 `owner-rejected-reference-sequence-v1`；不得登记 `asset-manifest`、不得接入 sprite registry 或运行时，也不得作为咲夜 V2 后续动作基线。后续返修必须重新确认失败点后另起版本，不能覆盖本批留档。
 
 > 2026-07-28：独立设施地图素材第一轮已收束。现有五座地图对象均有独立透明素材：主屋（受损／修缮后）、魔法温室（已建成）、妖精花园／月见温泉／宴会广场（各三形态 + `damaged` 覆盖层）。后面三座的绘制链已接入维护源：构建器从 `asset-manifest.json.map_facility_assets` 嵌入透明图，宿主传入 iframe，`GardenMap` 仅在设施已建成且 `current_form` 有映射时绘制，并在 `facility_runtime.status=damaged` 时叠覆盖层；未知／未建成状态仍回退空地标记。离线门禁 `check:ui`、`npm test`（110/110）与 `build:ui` 均通过，所有者已验收视觉和离线接入；**尚未完成真实 SillyTavern 的锚点、缩放、命中边界与各状态截图验收**。R56 花见回廊、R57 缘侧书斋、R58 祈愿分社仍是暂名/暂定锚点的规划项，未生成素材。

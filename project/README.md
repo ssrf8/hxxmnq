@@ -1,7 +1,7 @@
 # 幻想乡物语 · 项目总览（唯一入口文档）
 
 > 读完本文档即可对整个项目建立全貌认知；需要深入某个领域时，按 §3 导航表跳转对应文档。
-> 最后整理：2026-07-27（琪露诺指导版 V2 图集验收通过）。
+> 最后整理：2026-07-28（七名角色“最终版”可变长四方向序列已完成 90ms 候选与第二轮蒙版优化，待所有者复核后再决定运行时接入）。
 
 ---
 
@@ -24,8 +24,8 @@
 | 最新打包 | `0.2.0-r54`（`d654424` 主分支基准，SHA-256 `4af870fa…501214`，38.4MB）——**离线候选，未包含本轮扩大视角地图，未实机验收** |
 | 已实机验收基线 | `0.2.0-r32-extra-model-binding`（角色世界书绑定 + 额外模型变量路线） |
 | 里程碑 | M0 complete / M1 施工完但 R37 集中验收未跑 / M2 施工完但 R45 验收未跑 / M3 进行中 |
-| 离线门禁 | check:ui + npm test（110/110）+ build:ui + package dry，全绿 |
-| 像素角色动画 | 灵梦 V2 r6 + 魔理沙 V2 r2（扫帚悬浮）已启用 `9×4` 图集；琪露诺指导版 V2 `9×4 / 32 格` 图集已获所有者验收、待 registry / asset-manifest 登记与运行时接入；其余五名角色保持旧图集回退，二维路径与后续角色迁移待批次 |
+| 离线门禁 | check:ui + npm test（112/112）+ build:ui + package dry，全绿 |
+| 像素角色动画 | 当前运行时仍为灵梦 V2 r6 + 魔理沙 V2 r2（扫帚悬浮），其余角色走旧图集回退。爱丽丝、琪露诺、米斯蒂娅、荷取、灵梦、咲夜、萃香共 151 张“最终版”原始合帧已完成 P0 与第二轮蒙版优化：可重复脚本生成 604 个透明方向帧、7 张逐角色可变列图集和 7 个所有者已选 `90ms` 总览 GIF；脚部小组件保护、绿幕残留、腿间白底与道具内部白块已针对性修正，并通过透明底/高反差底接触表复核。候选状态仍为 `generated-pending-owner-review`，尚未登记或接入；仅魔理沙暂无该批最终序列。详见动画专项文档 §13 |
 | 庭园地图分层 | 扩大视角无设施底图 `garden-base-expanded-empty-v1.png` 已接入；妖精花园／月见温泉／宴会广场的三形态透明贴图与 `damaged` 覆盖层已接入绘制链，按 `facility_runtime.current_form/status` 选择；主屋／魔法温室已有独立素材但尚未接入；全部仍待 SillyTavern 实机锚点、缩放与命中边界校准 |
 | 活跃工作线 | ①前端美化（D/E/F1/F2 阶段待做 + 实机验收）②弹幕小游戏优化（实机验收 + 平衡）③M1/M2 集中实机验收欠账 |
 | 目标环境 | SillyTavern 1.18.0 + Tavern Helper 4.8.19 + MagVarUpdate（固定 commit） |
@@ -55,7 +55,7 @@
 |---|---|
 | 前端美化方向（像素×二次元双层架构）与阶段规划 | `project/ui-beautification-plan.md` |
 | 美化逐轮施工记录、待素材清单、验收交接项 | `project/ui-beautification-log.md` |
-| 像素角色 V2 图集合同、灵梦 r6 验收数据与后续迁移步骤 | `project/pixel-character-animation-v2-plan.md` |
+| 像素角色旧 V2 图集合同、最终版可变长序列盘点与下一批迁移步骤 | `project/pixel-character-animation-v2-plan.md`（新工作先读 §13） |
 | 弹幕小游戏当前状态（TH06 扩展、六模块引擎） | `project/bullet-hell-minigame-handoff.md` |
 | 弹幕小游戏改动边界（可改/禁改文件、命名空间） | `project/bullet-hell-minigame-optimization-protocol.md` |
 | M1 集中实机验收清单（未执行） | `project/r37-acceptance-checklist.md` |

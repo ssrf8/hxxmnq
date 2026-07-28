@@ -1,0 +1,2378 @@
+{
+  "version": 1,
+  "character": "sakuya",
+  "status": "generated-pending-owner-review",
+  "layout": "variable-sequence-v1",
+  "sourceLayout": "2x2",
+  "sourceQuadrants": {
+    "front": "top-left",
+    "back": "top-right",
+    "left": "bottom-left",
+    "right": "bottom-right"
+  },
+  "sourceSize": [
+    640,
+    640
+  ],
+  "cell": [
+    209,
+    209
+  ],
+  "atlas": "src/assets/characters/sakuya/sakuya-animation-sequence-v1.png",
+  "atlasSize": [
+    5016,
+    836
+  ],
+  "frameCount": 24,
+  "rowOrder": [
+    "front",
+    "back",
+    "left",
+    "right"
+  ],
+  "idleFrame": 0,
+  "loopStart": 0,
+  "loopEnd": 23,
+  "candidateFrameDurationsMs": [
+    90,
+    110,
+    130
+  ],
+  "selectedFrameDurationMs": 90,
+  "maskProfileVersion": "connected-edge-plus-interior-islands-v2",
+  "targetVisibleHeight": 150,
+  "baseline": 179,
+  "scale": 0.5535055350553506,
+  "sources": [
+    {
+      "index": 1,
+      "file": "src/assets/characters/sakuya/最终版/001.png",
+      "sha256": "f7a21886f16707276250e29155994964dbcf054f7af2277df4de8a337bb7b175"
+    },
+    {
+      "index": 2,
+      "file": "src/assets/characters/sakuya/最终版/002.png",
+      "sha256": "99cdd94e4e1dea3c599c4f91eb6d68556b312fccb8a3de9fef330851a66a26b5"
+    },
+    {
+      "index": 3,
+      "file": "src/assets/characters/sakuya/最终版/003.png",
+      "sha256": "5582d2a7e616dc9c83a3900fe6d2adb773e2349e3fd1745de81bb4812075acd0"
+    },
+    {
+      "index": 4,
+      "file": "src/assets/characters/sakuya/最终版/004.png",
+      "sha256": "2fc7ae751b00ca24b88a7477fbafe109856359b5c44b870c2bb03018be374b31"
+    },
+    {
+      "index": 5,
+      "file": "src/assets/characters/sakuya/最终版/005.png",
+      "sha256": "21588d8a5dca491f8525a02fc1584a4b3e78a88dc833cfef58929051014a378c"
+    },
+    {
+      "index": 6,
+      "file": "src/assets/characters/sakuya/最终版/006.png",
+      "sha256": "2929c42d6ea1b0c87c94c7728a98944b40cfba1588250de641910a5613cf3038"
+    },
+    {
+      "index": 7,
+      "file": "src/assets/characters/sakuya/最终版/007.png",
+      "sha256": "358ac9e3b94166a01b71a5ac1978bdc3c9fd2d7780be4858b9ebde4450d5cfef"
+    },
+    {
+      "index": 8,
+      "file": "src/assets/characters/sakuya/最终版/008.png",
+      "sha256": "668f6a7fc7ba4aad5e687eb92cff1d9f6211cddecdec4595107fecb4d3e80d7c"
+    },
+    {
+      "index": 9,
+      "file": "src/assets/characters/sakuya/最终版/009.png",
+      "sha256": "86a57b4658c7e15e845d02ab040d31b83dbf6445f85541574632f8a4589e1c46"
+    },
+    {
+      "index": 10,
+      "file": "src/assets/characters/sakuya/最终版/010.png",
+      "sha256": "3c9f8f2406e98fe5205cb43724a86db6194ebbf4d6ed29433c1313380aabfedc"
+    },
+    {
+      "index": 11,
+      "file": "src/assets/characters/sakuya/最终版/011.png",
+      "sha256": "c710e42c1f74a5ca9e0da60ced9e70be80975eacffc5026c7dd82e15d8af805e"
+    },
+    {
+      "index": 12,
+      "file": "src/assets/characters/sakuya/最终版/012.png",
+      "sha256": "3a4c6aa703170b01c1252676e4f6cf4482d698a4c9ce2472b03e45fe1f544baf"
+    },
+    {
+      "index": 13,
+      "file": "src/assets/characters/sakuya/最终版/013.png",
+      "sha256": "a503c55d16b37ba5ceedef3296d079c74b208d70704b6a2ed2a7e8ab07973ada"
+    },
+    {
+      "index": 14,
+      "file": "src/assets/characters/sakuya/最终版/014.png",
+      "sha256": "6e85c144b40ae2ab2ec4c23c08601aebf1afea2e4ca972d1f7c12cf75e05f243"
+    },
+    {
+      "index": 15,
+      "file": "src/assets/characters/sakuya/最终版/015.png",
+      "sha256": "14898287d0779029a7f1209151548802d72ab8d2340351ffa9798c80321b383a"
+    },
+    {
+      "index": 16,
+      "file": "src/assets/characters/sakuya/最终版/016.png",
+      "sha256": "9a229c9fa1f62bf315f7d16e947418d6c3369287f50960acc1efa702791d4619"
+    },
+    {
+      "index": 17,
+      "file": "src/assets/characters/sakuya/最终版/017.png",
+      "sha256": "7737aaf5cdcd88004006211765415754d3fae616140c830ac15eff289543b334"
+    },
+    {
+      "index": 18,
+      "file": "src/assets/characters/sakuya/最终版/018.png",
+      "sha256": "4a142df5e422e0dd4648d8e2458b5e89456c65249e427369e334e4f50f34f10c"
+    },
+    {
+      "index": 19,
+      "file": "src/assets/characters/sakuya/最终版/019.png",
+      "sha256": "5d52758ce562a45671f166cb5b800775b30f393c57f5583ebf1413393843349a"
+    },
+    {
+      "index": 20,
+      "file": "src/assets/characters/sakuya/最终版/020.png",
+      "sha256": "51062fc0b5edf8e7db718bfce94682fb8b22236134a4b80326221697861da0ee"
+    },
+    {
+      "index": 21,
+      "file": "src/assets/characters/sakuya/最终版/021.png",
+      "sha256": "b7dc6fc39fad0eb9b2d70fa07df946ca3fdfdfaeb0a5c37c6a9116941c2c51c9"
+    },
+    {
+      "index": 22,
+      "file": "src/assets/characters/sakuya/最终版/022.png",
+      "sha256": "9e3b6a3c689742bce361c92cbf8554f4b1661e7969f61367c7172121544339eb"
+    },
+    {
+      "index": 23,
+      "file": "src/assets/characters/sakuya/最终版/023.png",
+      "sha256": "b19efc22867979f1b0374a7553a6aebc5a0ef26233af31e2abd67a1f4cec7cf4"
+    },
+    {
+      "index": 24,
+      "file": "src/assets/characters/sakuya/最终版/024.png",
+      "sha256": "5016202c181ebee78f9580db753ae5c5d639ca05f72289d6254a1c77ec8a0b12"
+    }
+  ],
+  "frames": [
+    {
+      "index": 1,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/front/001.png",
+      "sourceBBox": {
+        "minX": 109,
+        "minY": 35,
+        "maxX": 264,
+        "maxY": 303,
+        "width": 156,
+        "height": 269,
+        "pixels": 28700
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        213
+      ],
+      "connectedBackgroundPixelsRemoved": 72680,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 1,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/back/001.png",
+      "sourceBBox": {
+        "minX": 58,
+        "minY": 34,
+        "maxX": 213,
+        "maxY": 303,
+        "width": 156,
+        "height": 270,
+        "pixels": 29070
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 71632,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 1,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/left/001.png",
+      "sourceBBox": {
+        "minX": 118,
+        "minY": 16,
+        "maxX": 263,
+        "maxY": 278,
+        "width": 146,
+        "height": 263,
+        "pixels": 22736
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 76726,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 1,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/right/001.png",
+      "sourceBBox": {
+        "minX": 58,
+        "minY": 16,
+        "maxX": 204,
+        "maxY": 277,
+        "width": 147,
+        "height": 262,
+        "pixels": 23646
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        212,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75665,
+      "interiorBackgroundPixelsRemoved": 50,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 2,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/front/002.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 34,
+        "maxX": 264,
+        "maxY": 303,
+        "width": 157,
+        "height": 270,
+        "pixels": 28927
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        215,
+        213
+      ],
+      "connectedBackgroundPixelsRemoved": 72441,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 2,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/back/002.png",
+      "sourceBBox": {
+        "minX": 58,
+        "minY": 36,
+        "maxX": 213,
+        "maxY": 303,
+        "width": 156,
+        "height": 268,
+        "pixels": 28962
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        214,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 71737,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 2,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/left/002.png",
+      "sourceBBox": {
+        "minX": 117,
+        "minY": 16,
+        "maxX": 262,
+        "maxY": 278,
+        "width": 146,
+        "height": 263,
+        "pixels": 22960
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        213
+      ],
+      "connectedBackgroundPixelsRemoved": 76493,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 2,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/right/002.png",
+      "sourceBBox": {
+        "minX": 58,
+        "minY": 16,
+        "maxX": 206,
+        "maxY": 277,
+        "width": 149,
+        "height": 262,
+        "pixels": 24025
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        211
+      ],
+      "connectedBackgroundPixelsRemoved": 75355,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 3,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/front/003.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 34,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 158,
+        "height": 270,
+        "pixels": 29098
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        213
+      ],
+      "connectedBackgroundPixelsRemoved": 72261,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 3,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/back/003.png",
+      "sourceBBox": {
+        "minX": 59,
+        "minY": 37,
+        "maxX": 214,
+        "maxY": 303,
+        "width": 156,
+        "height": 267,
+        "pixels": 28961
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        214,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 71741,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 3,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/left/003.png",
+      "sourceBBox": {
+        "minX": 117,
+        "minY": 16,
+        "maxX": 262,
+        "maxY": 278,
+        "width": 146,
+        "height": 263,
+        "pixels": 23175
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 76287,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 3,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/right/003.png",
+      "sourceBBox": {
+        "minX": 59,
+        "minY": 16,
+        "maxX": 206,
+        "maxY": 278,
+        "width": 148,
+        "height": 263,
+        "pixels": 24126
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75206,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 4,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/front/004.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 34,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 158,
+        "height": 270,
+        "pixels": 28883
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        213
+      ],
+      "connectedBackgroundPixelsRemoved": 72357,
+      "interiorBackgroundPixelsRemoved": 58,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 4,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/back/004.png",
+      "sourceBBox": {
+        "minX": 59,
+        "minY": 37,
+        "maxX": 214,
+        "maxY": 303,
+        "width": 156,
+        "height": 267,
+        "pixels": 28827
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 71853,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 4,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/left/004.png",
+      "sourceBBox": {
+        "minX": 116,
+        "minY": 16,
+        "maxX": 262,
+        "maxY": 278,
+        "width": 147,
+        "height": 263,
+        "pixels": 23475
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75975,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 4,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/right/004.png",
+      "sourceBBox": {
+        "minX": 59,
+        "minY": 17,
+        "maxX": 207,
+        "maxY": 278,
+        "width": 149,
+        "height": 262,
+        "pixels": 24044
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75243,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 5,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/front/005.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 34,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 158,
+        "height": 270,
+        "pixels": 28878
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        213
+      ],
+      "connectedBackgroundPixelsRemoved": 72308,
+      "interiorBackgroundPixelsRemoved": 111,
+      "interiorBackgroundIslandsRemoved": 2
+    },
+    {
+      "index": 5,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/back/005.png",
+      "sourceBBox": {
+        "minX": 59,
+        "minY": 37,
+        "maxX": 215,
+        "maxY": 303,
+        "width": 157,
+        "height": 267,
+        "pixels": 28807
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 71889,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 5,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/left/005.png",
+      "sourceBBox": {
+        "minX": 115,
+        "minY": 16,
+        "maxX": 262,
+        "maxY": 278,
+        "width": 148,
+        "height": 263,
+        "pixels": 23665
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75804,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 5,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/right/005.png",
+      "sourceBBox": {
+        "minX": 59,
+        "minY": 17,
+        "maxX": 207,
+        "maxY": 278,
+        "width": 149,
+        "height": 262,
+        "pixels": 24121
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75152,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 6,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/front/006.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 35,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 158,
+        "height": 269,
+        "pixels": 28912
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        215,
+        213
+      ],
+      "connectedBackgroundPixelsRemoved": 72318,
+      "interiorBackgroundPixelsRemoved": 61,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 6,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/back/006.png",
+      "sourceBBox": {
+        "minX": 60,
+        "minY": 37,
+        "maxX": 215,
+        "maxY": 303,
+        "width": 156,
+        "height": 267,
+        "pixels": 28589
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        214,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 72101,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 6,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/left/006.png",
+      "sourceBBox": {
+        "minX": 115,
+        "minY": 16,
+        "maxX": 261,
+        "maxY": 278,
+        "width": 147,
+        "height": 263,
+        "pixels": 23786
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75687,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 6,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/right/006.png",
+      "sourceBBox": {
+        "minX": 60,
+        "minY": 17,
+        "maxX": 208,
+        "maxY": 278,
+        "width": 149,
+        "height": 262,
+        "pixels": 24031
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75235,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 7,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/front/007.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 36,
+        "maxX": 266,
+        "maxY": 303,
+        "width": 159,
+        "height": 268,
+        "pixels": 29243
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        213
+      ],
+      "connectedBackgroundPixelsRemoved": 72020,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 7,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/back/007.png",
+      "sourceBBox": {
+        "minX": 60,
+        "minY": 36,
+        "maxX": 215,
+        "maxY": 303,
+        "width": 156,
+        "height": 268,
+        "pixels": 28858
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 71861,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 7,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/left/007.png",
+      "sourceBBox": {
+        "minX": 114,
+        "minY": 16,
+        "maxX": 261,
+        "maxY": 278,
+        "width": 148,
+        "height": 263,
+        "pixels": 23903
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75616,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 7,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/right/007.png",
+      "sourceBBox": {
+        "minX": 61,
+        "minY": 16,
+        "maxX": 208,
+        "maxY": 278,
+        "width": 148,
+        "height": 263,
+        "pixels": 23875
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75398,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 8,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/front/008.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 37,
+        "maxX": 266,
+        "maxY": 303,
+        "width": 159,
+        "height": 267,
+        "pixels": 29132
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        213
+      ],
+      "connectedBackgroundPixelsRemoved": 72090,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 8,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/back/008.png",
+      "sourceBBox": {
+        "minX": 61,
+        "minY": 35,
+        "maxX": 215,
+        "maxY": 303,
+        "width": 155,
+        "height": 269,
+        "pixels": 28926
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        214,
+        213,
+        211
+      ],
+      "connectedBackgroundPixelsRemoved": 71821,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 8,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/left/008.png",
+      "sourceBBox": {
+        "minX": 113,
+        "minY": 17,
+        "maxX": 261,
+        "maxY": 278,
+        "width": 149,
+        "height": 262,
+        "pixels": 23925
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        211
+      ],
+      "connectedBackgroundPixelsRemoved": 75588,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 8,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/right/008.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 16,
+        "maxX": 209,
+        "maxY": 278,
+        "width": 148,
+        "height": 263,
+        "pixels": 23624
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        214,
+        212,
+        211
+      ],
+      "connectedBackgroundPixelsRemoved": 75639,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 9,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/front/009.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 37,
+        "maxX": 266,
+        "maxY": 303,
+        "width": 159,
+        "height": 267,
+        "pixels": 28961
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        213
+      ],
+      "connectedBackgroundPixelsRemoved": 72233,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 9,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/back/009.png",
+      "sourceBBox": {
+        "minX": 61,
+        "minY": 34,
+        "maxX": 215,
+        "maxY": 303,
+        "width": 155,
+        "height": 270,
+        "pixels": 28796
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 71977,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 9,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/left/009.png",
+      "sourceBBox": {
+        "minX": 113,
+        "minY": 17,
+        "maxX": 260,
+        "maxY": 279,
+        "width": 148,
+        "height": 263,
+        "pixels": 23799
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        211
+      ],
+      "connectedBackgroundPixelsRemoved": 75721,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 9,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/right/009.png",
+      "sourceBBox": {
+        "minX": 63,
+        "minY": 16,
+        "maxX": 210,
+        "maxY": 279,
+        "width": 148,
+        "height": 264,
+        "pixels": 23453
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        214,
+        213,
+        211
+      ],
+      "connectedBackgroundPixelsRemoved": 75804,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 10,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/front/010.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 35,
+        "maxX": 266,
+        "maxY": 303,
+        "width": 159,
+        "height": 269,
+        "pixels": 29373
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 71743,
+      "interiorBackgroundPixelsRemoved": 52,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 10,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/back/010.png",
+      "sourceBBox": {
+        "minX": 61,
+        "minY": 34,
+        "maxX": 216,
+        "maxY": 303,
+        "width": 156,
+        "height": 270,
+        "pixels": 28950
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 71900,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 10,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/left/010.png",
+      "sourceBBox": {
+        "minX": 111,
+        "minY": 16,
+        "maxX": 258,
+        "maxY": 279,
+        "width": 148,
+        "height": 264,
+        "pixels": 23623
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75887,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 10,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/right/010.png",
+      "sourceBBox": {
+        "minX": 64,
+        "minY": 16,
+        "maxX": 211,
+        "maxY": 279,
+        "width": 148,
+        "height": 264,
+        "pixels": 23187
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        214,
+        212,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 76078,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 11,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/front/011.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 34,
+        "maxX": 266,
+        "maxY": 303,
+        "width": 159,
+        "height": 270,
+        "pixels": 29453
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 71640,
+      "interiorBackgroundPixelsRemoved": 55,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 11,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/back/011.png",
+      "sourceBBox": {
+        "minX": 61,
+        "minY": 34,
+        "maxX": 216,
+        "maxY": 303,
+        "width": 156,
+        "height": 270,
+        "pixels": 28895
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        211
+      ],
+      "connectedBackgroundPixelsRemoved": 71956,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 11,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/left/011.png",
+      "sourceBBox": {
+        "minX": 111,
+        "minY": 16,
+        "maxX": 258,
+        "maxY": 279,
+        "width": 148,
+        "height": 264,
+        "pixels": 23348
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 76100,
+      "interiorBackgroundPixelsRemoved": 49,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 11,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/right/011.png",
+      "sourceBBox": {
+        "minX": 65,
+        "minY": 16,
+        "maxX": 212,
+        "maxY": 279,
+        "width": 148,
+        "height": 264,
+        "pixels": 23313
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        211
+      ],
+      "connectedBackgroundPixelsRemoved": 75959,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 12,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/front/012.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 34,
+        "maxX": 266,
+        "maxY": 303,
+        "width": 159,
+        "height": 270,
+        "pixels": 29556
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        215,
+        213
+      ],
+      "connectedBackgroundPixelsRemoved": 71571,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 12,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/back/012.png",
+      "sourceBBox": {
+        "minX": 61,
+        "minY": 35,
+        "maxX": 216,
+        "maxY": 303,
+        "width": 156,
+        "height": 269,
+        "pixels": 28776
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        214,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 72079,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 12,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/left/012.png",
+      "sourceBBox": {
+        "minX": 110,
+        "minY": 16,
+        "maxX": 258,
+        "maxY": 279,
+        "width": 149,
+        "height": 264,
+        "pixels": 23307
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 76206,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 12,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/right/012.png",
+      "sourceBBox": {
+        "minX": 65,
+        "minY": 16,
+        "maxX": 213,
+        "maxY": 279,
+        "width": 149,
+        "height": 264,
+        "pixels": 23383
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75892,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 13,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/front/013.png",
+      "sourceBBox": {
+        "minX": 107,
+        "minY": 33,
+        "maxX": 267,
+        "maxY": 303,
+        "width": 161,
+        "height": 271,
+        "pixels": 29718
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        213
+      ],
+      "connectedBackgroundPixelsRemoved": 71404,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 13,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/back/013.png",
+      "sourceBBox": {
+        "minX": 61,
+        "minY": 35,
+        "maxX": 216,
+        "maxY": 303,
+        "width": 156,
+        "height": 269,
+        "pixels": 28739
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 72111,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 13,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/left/013.png",
+      "sourceBBox": {
+        "minX": 110,
+        "minY": 16,
+        "maxX": 258,
+        "maxY": 279,
+        "width": 149,
+        "height": 264,
+        "pixels": 23370
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 76078,
+      "interiorBackgroundPixelsRemoved": 51,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 13,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/right/013.png",
+      "sourceBBox": {
+        "minX": 65,
+        "minY": 16,
+        "maxX": 214,
+        "maxY": 279,
+        "width": 150,
+        "height": 264,
+        "pixels": 23613
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75652,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 14,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/front/014.png",
+      "sourceBBox": {
+        "minX": 107,
+        "minY": 33,
+        "maxX": 267,
+        "maxY": 303,
+        "width": 161,
+        "height": 271,
+        "pixels": 29821
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 71249,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 14,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/back/014.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 37,
+        "maxX": 216,
+        "maxY": 303,
+        "width": 155,
+        "height": 267,
+        "pixels": 28258
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        214,
+        213,
+        211
+      ],
+      "connectedBackgroundPixelsRemoved": 72586,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 14,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/left/014.png",
+      "sourceBBox": {
+        "minX": 108,
+        "minY": 16,
+        "maxX": 257,
+        "maxY": 280,
+        "width": 150,
+        "height": 265,
+        "pixels": 23645
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75853,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 14,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/right/014.png",
+      "sourceBBox": {
+        "minX": 66,
+        "minY": 17,
+        "maxX": 215,
+        "maxY": 280,
+        "width": 150,
+        "height": 264,
+        "pixels": 23899
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        214,
+        212,
+        211
+      ],
+      "connectedBackgroundPixelsRemoved": 75338,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 15,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/front/015.png",
+      "sourceBBox": {
+        "minX": 106,
+        "minY": 34,
+        "maxX": 267,
+        "maxY": 303,
+        "width": 162,
+        "height": 270,
+        "pixels": 29759
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        213
+      ],
+      "connectedBackgroundPixelsRemoved": 71233,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 15,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/back/015.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 37,
+        "maxX": 216,
+        "maxY": 303,
+        "width": 155,
+        "height": 267,
+        "pixels": 28350
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 72550,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 15,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/left/015.png",
+      "sourceBBox": {
+        "minX": 107,
+        "minY": 16,
+        "maxX": 256,
+        "maxY": 280,
+        "width": 150,
+        "height": 265,
+        "pixels": 24085
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75453,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 15,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/right/015.png",
+      "sourceBBox": {
+        "minX": 68,
+        "minY": 18,
+        "maxX": 216,
+        "maxY": 280,
+        "width": 149,
+        "height": 263,
+        "pixels": 23834
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        211
+      ],
+      "connectedBackgroundPixelsRemoved": 75402,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 16,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/front/016.png",
+      "sourceBBox": {
+        "minX": 106,
+        "minY": 36,
+        "maxX": 267,
+        "maxY": 303,
+        "width": 162,
+        "height": 268,
+        "pixels": 29636
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 71285,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 16,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/back/016.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 36,
+        "maxX": 215,
+        "maxY": 303,
+        "width": 154,
+        "height": 268,
+        "pixels": 28371
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        211
+      ],
+      "connectedBackgroundPixelsRemoved": 72556,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 16,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/left/016.png",
+      "sourceBBox": {
+        "minX": 106,
+        "minY": 17,
+        "maxX": 256,
+        "maxY": 280,
+        "width": 151,
+        "height": 264,
+        "pixels": 24373
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        211
+      ],
+      "connectedBackgroundPixelsRemoved": 75164,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 16,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/right/016.png",
+      "sourceBBox": {
+        "minX": 69,
+        "minY": 17,
+        "maxX": 216,
+        "maxY": 280,
+        "width": 148,
+        "height": 264,
+        "pixels": 23600
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        214,
+        212,
+        211
+      ],
+      "connectedBackgroundPixelsRemoved": 75646,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 17,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/front/017.png",
+      "sourceBBox": {
+        "minX": 105,
+        "minY": 36,
+        "maxX": 267,
+        "maxY": 303,
+        "width": 163,
+        "height": 268,
+        "pixels": 29604
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 71299,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 17,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/back/017.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 36,
+        "maxX": 216,
+        "maxY": 303,
+        "width": 155,
+        "height": 268,
+        "pixels": 28483
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        211
+      ],
+      "connectedBackgroundPixelsRemoved": 72447,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 17,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/left/017.png",
+      "sourceBBox": {
+        "minX": 106,
+        "minY": 18,
+        "maxX": 256,
+        "maxY": 280,
+        "width": 151,
+        "height": 263,
+        "pixels": 24424
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75114,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 17,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/right/017.png",
+      "sourceBBox": {
+        "minX": 69,
+        "minY": 16,
+        "maxX": 217,
+        "maxY": 280,
+        "width": 149,
+        "height": 265,
+        "pixels": 23741
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        214,
+        212,
+        211
+      ],
+      "connectedBackgroundPixelsRemoved": 75513,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 18,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/front/018.png",
+      "sourceBBox": {
+        "minX": 105,
+        "minY": 36,
+        "maxX": 267,
+        "maxY": 303,
+        "width": 163,
+        "height": 268,
+        "pixels": 29659
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        213
+      ],
+      "connectedBackgroundPixelsRemoved": 71191,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 18,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/back/018.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 34,
+        "maxX": 215,
+        "maxY": 303,
+        "width": 154,
+        "height": 270,
+        "pixels": 28585
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 72411,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 18,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/left/018.png",
+      "sourceBBox": {
+        "minX": 105,
+        "minY": 17,
+        "maxX": 255,
+        "maxY": 281,
+        "width": 151,
+        "height": 265,
+        "pixels": 24320
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75217,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 18,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/right/018.png",
+      "sourceBBox": {
+        "minX": 70,
+        "minY": 16,
+        "maxX": 218,
+        "maxY": 280,
+        "width": 149,
+        "height": 265,
+        "pixels": 23578
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75672,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 19,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/front/019.png",
+      "sourceBBox": {
+        "minX": 105,
+        "minY": 35,
+        "maxX": 266,
+        "maxY": 303,
+        "width": 162,
+        "height": 269,
+        "pixels": 29787
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        213
+      ],
+      "connectedBackgroundPixelsRemoved": 71058,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 19,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/back/019.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 34,
+        "maxX": 215,
+        "maxY": 303,
+        "width": 154,
+        "height": 270,
+        "pixels": 28616
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 72383,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 19,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/left/019.png",
+      "sourceBBox": {
+        "minX": 104,
+        "minY": 16,
+        "maxX": 254,
+        "maxY": 281,
+        "width": 151,
+        "height": 266,
+        "pixels": 24127
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        214,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75396,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 19,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/right/019.png",
+      "sourceBBox": {
+        "minX": 71,
+        "minY": 16,
+        "maxX": 218,
+        "maxY": 280,
+        "width": 148,
+        "height": 265,
+        "pixels": 23514
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75736,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 20,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/front/020.png",
+      "sourceBBox": {
+        "minX": 105,
+        "minY": 34,
+        "maxX": 266,
+        "maxY": 303,
+        "width": 162,
+        "height": 270,
+        "pixels": 29914
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        213
+      ],
+      "connectedBackgroundPixelsRemoved": 70930,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 20,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/back/020.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 34,
+        "maxX": 216,
+        "maxY": 303,
+        "width": 155,
+        "height": 270,
+        "pixels": 28664
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 72337,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 20,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/left/020.png",
+      "sourceBBox": {
+        "minX": 104,
+        "minY": 16,
+        "maxX": 254,
+        "maxY": 281,
+        "width": 151,
+        "height": 266,
+        "pixels": 23797
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75725,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 20,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/right/020.png",
+      "sourceBBox": {
+        "minX": 71,
+        "minY": 16,
+        "maxX": 219,
+        "maxY": 280,
+        "width": 149,
+        "height": 265,
+        "pixels": 23646
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75595,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 21,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/front/021.png",
+      "sourceBBox": {
+        "minX": 105,
+        "minY": 34,
+        "maxX": 266,
+        "maxY": 303,
+        "width": 162,
+        "height": 270,
+        "pixels": 29996
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        215,
+        213
+      ],
+      "connectedBackgroundPixelsRemoved": 70836,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 21,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/back/021.png",
+      "sourceBBox": {
+        "minX": 62,
+        "minY": 34,
+        "maxX": 216,
+        "maxY": 303,
+        "width": 155,
+        "height": 270,
+        "pixels": 28655
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        214,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 72332,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 21,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/left/021.png",
+      "sourceBBox": {
+        "minX": 104,
+        "minY": 16,
+        "maxX": 253,
+        "maxY": 281,
+        "width": 150,
+        "height": 266,
+        "pixels": 23703
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        213
+      ],
+      "connectedBackgroundPixelsRemoved": 75806,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 21,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/right/021.png",
+      "sourceBBox": {
+        "minX": 71,
+        "minY": 16,
+        "maxX": 219,
+        "maxY": 280,
+        "width": 149,
+        "height": 265,
+        "pixels": 23751
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75496,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 22,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/front/022.png",
+      "sourceBBox": {
+        "minX": 105,
+        "minY": 33,
+        "maxX": 267,
+        "maxY": 303,
+        "width": 163,
+        "height": 271,
+        "pixels": 30193
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        213
+      ],
+      "connectedBackgroundPixelsRemoved": 70542,
+      "interiorBackgroundPixelsRemoved": 54,
+      "interiorBackgroundIslandsRemoved": 1
+    },
+    {
+      "index": 22,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/back/022.png",
+      "sourceBBox": {
+        "minX": 63,
+        "minY": 35,
+        "maxX": 217,
+        "maxY": 303,
+        "width": 155,
+        "height": 269,
+        "pixels": 28481
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 72572,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 22,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/left/022.png",
+      "sourceBBox": {
+        "minX": 102,
+        "minY": 16,
+        "maxX": 252,
+        "maxY": 281,
+        "width": 151,
+        "height": 266,
+        "pixels": 23842
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        213
+      ],
+      "connectedBackgroundPixelsRemoved": 75664,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 22,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/right/022.png",
+      "sourceBBox": {
+        "minX": 73,
+        "minY": 16,
+        "maxX": 221,
+        "maxY": 280,
+        "width": 149,
+        "height": 265,
+        "pixels": 24137
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75132,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 23,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/front/023.png",
+      "sourceBBox": {
+        "minX": 105,
+        "minY": 33,
+        "maxX": 267,
+        "maxY": 303,
+        "width": 163,
+        "height": 271,
+        "pixels": 30282
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 70482,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 23,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/back/023.png",
+      "sourceBBox": {
+        "minX": 63,
+        "minY": 36,
+        "maxX": 217,
+        "maxY": 303,
+        "width": 155,
+        "height": 268,
+        "pixels": 28441
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 72612,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 23,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/left/023.png",
+      "sourceBBox": {
+        "minX": 102,
+        "minY": 16,
+        "maxX": 252,
+        "maxY": 281,
+        "width": 151,
+        "height": 266,
+        "pixels": 24007
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75501,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 23,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/right/023.png",
+      "sourceBBox": {
+        "minX": 73,
+        "minY": 16,
+        "maxX": 222,
+        "maxY": 280,
+        "width": 150,
+        "height": 265,
+        "pixels": 24204
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 75064,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 24,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/front/024.png",
+      "sourceBBox": {
+        "minX": 105,
+        "minY": 33,
+        "maxX": 267,
+        "maxY": 303,
+        "width": 163,
+        "height": 271,
+        "pixels": 30311
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        215,
+        213
+      ],
+      "connectedBackgroundPixelsRemoved": 70395,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 24,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/back/024.png",
+      "sourceBBox": {
+        "minX": 63,
+        "minY": 37,
+        "maxX": 217,
+        "maxY": 303,
+        "width": 155,
+        "height": 267,
+        "pixels": 28077
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 72976,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 24,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/left/024.png",
+      "sourceBBox": {
+        "minX": 102,
+        "minY": 16,
+        "maxX": 252,
+        "maxY": 282,
+        "width": 151,
+        "height": 267,
+        "pixels": 24107
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        216,
+        214,
+        213
+      ],
+      "connectedBackgroundPixelsRemoved": 75416,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    },
+    {
+      "index": 24,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-v1/frames/right/024.png",
+      "sourceBBox": {
+        "minX": 73,
+        "minY": 17,
+        "maxX": 222,
+        "maxY": 281,
+        "width": 150,
+        "height": 265,
+        "pixels": 24284
+      },
+      "backgroundProfile": "light",
+      "borderRgb": [
+        215,
+        213,
+        212
+      ],
+      "connectedBackgroundPixelsRemoved": 74985,
+      "interiorBackgroundPixelsRemoved": 0,
+      "interiorBackgroundIslandsRemoved": 0
+    }
+  ]
+}
