@@ -217,6 +217,15 @@
       "source_chroma": "battle/effects/battle-effects-sheet-v1-chroma.png",
       "source_alpha": "battle/effects/battle-effects-sheet-v1.png",
       "runtime_embed": "alpha-only"
+    },
+    "local_etama3_bullets": {
+      "status": "owner-authorized-local-only-integrated",
+      "source_alpha": "battle/effects/battle-bullets-etama3-local-v1.png",
+      "runtime_embed": "alpha-only",
+      "runtime_scope": "personal-local-only-do-not-package-or-distribute",
+      "layout": "8-hues-x-8-families-32px-cells",
+      "sha256": "a7b9b322857f73bbb945f7296c6fcc41c3d5a7fa8972e6991a527267456b2bfd",
+      "note": "Normalized from the owner-supplied local etama3.png for personal use; star and load-failure paths retain procedural rendering."
     }
   },
   "maps": {
@@ -234,8 +243,8 @@
   },
   "map_facility_assets": {
     "main_house": {
-      "status": "owner-approved-integrated-pending-runtime-validation",
-      "map_usage": true,
+      "status": "retired-from-map-owner-request-2026-07-29",
+      "map_usage": false,
       "area_id": "main_house",
       "source_chroma": {
         "damaged": "world/map-facilities/main-house/main-house-damaged-v1-chroma.png",
@@ -246,8 +255,8 @@
         "临时修复": "world/map-facilities/main-house/main-house-restored-v1.png",
         "启用": "world/map-facilities/main-house/main-house-restored-v1.png"
       },
-      "render_contract": "separate transparent map sprite selected from areas.main_house.state; integrated with explicit area anchor, pending SillyTavern visual scale and hit-boundary validation",
-      "provenance": "generated 2026-07-27 from the owner-supplied expanded empty garden map as camera/palette reference; owner-approved 2026-07-27; chroma-key removal validated locally"
+      "render_contract": "maintenance-only historical sprites; the v2 garden base already contains the upper-left residence, so runtime map rendering must not overlay these files",
+      "provenance": "generated 2026-07-27 and owner-approved for the previous map; removed from runtime map usage by owner request on 2026-07-29 because it conflicts with the residence already painted into the v2 base"
     },
     "magic_greenhouse": {
       "status": "owner-approved-v2-integrated-pending-runtime-validation",

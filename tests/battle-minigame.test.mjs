@@ -627,6 +627,7 @@ test('战斗 dialog 文案包含原作式操作提示', async () => {
   assert.match(html, /按住 Z 射击/);
   assert.match(html, /X Bomb/);
   assert.match(html, /Esc 暂停/);
+  assert.match(html, /手机拖动会自动射击/);
   assert.match(html, /id="gg-battle-dialog"/);
   assert.match(html, /id="gg-dungeon-dialog"/);
   assert.match(html, /id="gg-battle-focus"/);
@@ -701,7 +702,15 @@ test('外部专注与 Bomb 请求进入输入状态', async () => {
 });
 
 test('战斗 atlas 裁切表完整且 build 只嵌入透明素材', async () => {
-  const { ATLAS_FRAMES, listAtlasFrameIds, patternEffectFrame, drawAtlasFrame, loadBattleAtlas } = await importTypescript('../src/battle/battle-atlas.ts');
+  const {
+    ATLAS_FRAMES,
+    listAtlasFrameIds,
+    patternEffectFrame,
+    drawAtlasFrame,
+    drawLocalBulletSprite,
+    loadBattleAtlas,
+    resolveLocalBulletSprite,
+  } = await importTypescript('../src/battle/battle-atlas.ts');
   const ids = listAtlasFrameIds();
   assert.ok(ids.includes('player_normal'));
   assert.ok(ids.includes('boss_phase1'));
@@ -715,6 +724,15 @@ test('战斗 atlas 裁切表完整且 build 只嵌入透明素材', async () => 
   }
   assert.equal(patternEffectFrame('petal_fan'), 'fx_petal');
   assert.equal(patternEffectFrame('laser_warning'), null);
+  assert.deepEqual(resolveLocalBulletSprite('circle', 'red').rect, { x: 8, y: 40, w: 16, h: 16 });
+  assert.deepEqual(resolveLocalBulletSprite('kunai', 'gold').rect, { x: 160, y: 192, w: 32, h: 32 });
+  assert.equal(resolveLocalBulletSprite('star', 'purple'), null);
+  let localBulletDraws = 0;
+  assert.equal(drawLocalBulletSprite({
+    save() {}, restore() {}, drawImage() { localBulletDraws += 1; },
+    set globalAlpha(_) {}, set imageSmoothingEnabled(_) {},
+  }, { ready: true, failed: false, images: { bullets_local: {} } }, 'rice', 'cyan', 6), true);
+  assert.equal(localBulletDraws, 1);
   // Missing sources → not ready, renderer must tolerate null atlas.
   const empty = await loadBattleAtlas({});
   assert.equal(empty.ready, false);
@@ -730,6 +748,8 @@ test('战斗 atlas 裁切表完整且 build 只嵌入透明素材', async () => 
   assert.match(build, /alice-battle-sheet-v1\.png/);
   assert.match(build, /sakuya-battle-sheet-v1\.png/);
   assert.match(build, /battle-effects-sheet-v1\.png/);
+  assert.match(build, /localBulletSource/);
+  assert.match(build, /battleBulletsLocalDataUrl/);
   assert.match(build, /battlePlayerDataUrl/);
   assert.doesNotMatch(build, /sheet-v1-chroma\.png|copyFile\([^)]*chroma/);
   const host = await read('../src/runtime/ui-host-shell.js');
@@ -739,9 +759,15 @@ test('战斗 atlas 裁切表完整且 build 只嵌入透明素材', async () => 
   assert.match(host, /battleBossAliceSrc/);
   assert.match(host, /battleBossSakuyaSrc/);
   assert.match(host, /battleEffectsSrc/);
+  assert.match(host, /battleBulletsLocalSrc/);
   const app = await read('../src/ui/app.ts');
   assert.match(app, /atlasSources: battleAtlasSources/);
   assert.match(app, /dataset\.battlePlayerSrc/);
+  assert.match(app, /dataset\.battleBulletsLocalSrc/);
+  const manifest = JSON.parse(await read('../src/assets/asset-manifest.json'));
+  assert.equal(manifest.battle_assets.local_etama3_bullets.runtime_scope, 'personal-local-only-do-not-package-or-distribute');
+  const localBullets = await readFile(new URL(`../src/assets/${manifest.battle_assets.local_etama3_bullets.source_alpha}`, import.meta.url));
+  assert.ok(localBullets.length > 50_000);
 });
 
 test('四场配置保留 config_id 且阶段具有非符／符卡语义', async () => {
@@ -1138,7 +1164,7 @@ test('B3 渲染冒烟：mock 上下文整帧绘制含 cut-in 占位卡，不抛�
   assert.ok(!textCalls.some((t) => t.includes('立绘占位')), 'cut-in must retire after the intro window');
 });
 
-test('R49-C 触控手势：双指按住专注、双击 Bomb、鼠标不误触', async () => {
+test('R49-C 触控手势：拖动自动射击、双指按住专注、双击 Bomb、鼠标不误触', async () => {
   const { createBattleInput } = await importTypescript('../src/battle/battle-input.ts');
   const listeners = new Map();
   const canvas = {
@@ -1167,17 +1193,23 @@ test('R49-C 触控手势：双指按住专注、双击 Bomb、鼠标不误触', 
   // Two held touch pointers = focus; the 2nd finger must not steer.
   fire('pointerdown', { pointerId: 1, pointerType: 'touch', clientX: 100, clientY: 100, button: 0 });
   assert.equal(input.state.focused, false);
+  assert.equal(input.state.firing, false, 'touch-down alone remains a tap and must not fire');
   assert.equal(input.state.pointerX, 100);
   fire('pointerdown', { pointerId: 2, pointerType: 'touch', clientX: 300, clientY: 300, button: 0 });
   assert.equal(input.state.focused, true);
   assert.equal(input.state.pointerX, 100, 'second finger must not move the aim point');
   fire('pointermove', { pointerId: 2, pointerType: 'touch', clientX: 320, clientY: 320 });
   assert.equal(input.state.pointerX, 100);
+  assert.equal(input.state.firing, false, 'modifier finger must not trigger firing');
   fire('pointerup', { pointerId: 2, pointerType: 'touch', clientX: 300, clientY: 300 });
   assert.equal(input.state.focused, false);
   assert.equal(input.state.pointerActive, true, 'primary drag survives the modifier finger lifting');
-  fire('pointerup', { pointerId: 1, pointerType: 'touch', clientX: 100, clientY: 100 });
+  fire('pointermove', { pointerId: 1, pointerType: 'touch', clientX: 120, clientY: 130 });
+  assert.equal(input.state.firing, true, 'primary touch drag should automatically fire');
+  assert.equal(input.state.pointerX, 120);
+  fire('pointerup', { pointerId: 1, pointerType: 'touch', clientX: 120, clientY: 130 });
   assert.equal(input.state.pointerActive, false);
+  assert.equal(input.state.firing, false, 'lifting the primary touch should stop drag firing');
 
   // The pair of ups above counts as tap #1+#2 only if both were quick and still;
   // finger 2 moved (320,320->300,300 < threshold from down at 300,300? it moved 20px+ then back)
@@ -1192,6 +1224,8 @@ test('R49-C 触控手势：双指按住专注、双击 Bomb、鼠标不误触', 
 
   // Mouse clicks never trigger the tap gesture.
   fire('pointerdown', { pointerId: 5, pointerType: 'mouse', clientX: 240, clientY: 320, button: 0 });
+  fire('pointermove', { pointerId: 5, pointerType: 'mouse', clientX: 280, clientY: 360 });
+  assert.equal(input.state.firing, false, 'mouse drag still requires the Z key');
   fire('pointerup', { pointerId: 5, pointerType: 'mouse', clientX: 240, clientY: 320 });
   fire('pointerdown', { pointerId: 6, pointerType: 'mouse', clientX: 240, clientY: 320, button: 0 });
   fire('pointerup', { pointerId: 6, pointerType: 'mouse', clientX: 240, clientY: 320 });

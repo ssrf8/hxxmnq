@@ -62,7 +62,7 @@ export class BattleEngine {
     canvas.tabIndex = 0;
     canvas.setAttribute('role', 'img');
     if (!canvas.getAttribute('aria-label')) {
-      canvas.setAttribute('aria-label', '符卡游戏区域，方向键或 WASD 移动，按住 Z 射击，Shift 专注，X Bomb，Esc 暂停');
+      canvas.setAttribute('aria-label', '符卡游戏区域，方向键或 WASD 移动，按住 Z 射击，Shift 专注，X Bomb，Esc 暂停；触控拖动时自动射击，双指专注，双击 Bomb');
     }
 
     this.sim = new BattleSimulation(config, {

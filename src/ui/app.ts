@@ -147,6 +147,8 @@ const battleBossSakuyaSheetSource = document.documentElement.dataset.battleBossS
   || `${assetBase}/battle/boss/sakuya-battle-sheet-v1.png`;
 const battleEffectsSheetSource = document.documentElement.dataset.battleEffectsSrc
   || `${assetBase}/battle/effects/battle-effects-sheet-v1.png`;
+const battleBulletsLocalSheetSource = document.documentElement.dataset.battleBulletsLocalSrc
+  || `${assetBase}/battle/effects/battle-bullets-etama3-local-v1.png`;
 const battleAtlasSources = {
   player: battlePlayerSheetSource,
   boss: battleBossSheetSource,
@@ -154,6 +156,7 @@ const battleAtlasSources = {
   boss_alice: battleBossAliceSheetSource,
   boss_sakuya: battleBossSakuyaSheetSource,
   effects: battleEffectsSheetSource,
+  bullets_local: battleBulletsLocalSheetSource,
 };
 
 let state: GardenState = {};
@@ -1302,6 +1305,11 @@ async function settleBattleResult(result: BattleResult) {
 const dungeonEntries = [
   {
     title: '妖精弹幕练习',
+    chapter: '壹之卷',
+    location: '雾之湖 · 冰雾回廊',
+    boss: '琪露诺',
+    difficulty: '入门',
+    theme: 'ice',
     focus: '环弹 · 自机狙 · Bomb',
     phases: 2,
     duration: '约 40～70 秒',
@@ -1309,6 +1317,11 @@ const dungeonEntries = [
   },
   {
     title: '森林魔力残响',
+    chapter: '贰之卷',
+    location: '魔法森林 · 人偶剧场',
+    boss: '爱丽丝',
+    difficulty: '进阶',
+    theme: 'forest',
     focus: '扇弹 · 追踪 · 切返',
     phases: 4,
     duration: '约 70～110 秒',
@@ -1316,6 +1329,11 @@ const dungeonEntries = [
   },
   {
     title: '结界回声试炼',
+    chapter: '叁之卷',
+    location: '境界边缘 · 银时回廊',
+    boss: '十六夜咲夜',
+    difficulty: '上级',
+    theme: 'boundary',
     focus: '旋转环 · 激光预警 · 安全道',
     phases: 4,
     duration: '约 80～120 秒',
@@ -1329,28 +1347,65 @@ function openDungeonMenu() {
     || '正式挑战：12／8／3 金币并推进时段。练习：不结算、不发奖、不推进。主动取消均不结算。';
   const actions = byId('gg-dungeon-actions');
   const fragment = document.createDocumentFragment();
+  const decorateButton = (button: HTMLButtonElement, symbol: string, title: string, detail: string) => {
+    const symbolNode = document.createElement('span');
+    symbolNode.setAttribute('aria-hidden', 'true');
+    symbolNode.textContent = symbol;
+    const titleNode = document.createElement('strong');
+    titleNode.textContent = title;
+    const detailNode = document.createElement('small');
+    detailNode.textContent = detail;
+    button.append(symbolNode, titleNode, detailNode);
+  };
   for (const entry of dungeonEntries) {
     const card = document.createElement('article');
     card.className = 'gg-dungeon-entry';
+    card.dataset.theme = entry.theme;
+    const cardTopline = document.createElement('div');
+    cardTopline.className = 'gg-dungeon-card-topline';
+    const chapter = document.createElement('span');
+    chapter.className = 'gg-dungeon-chapter';
+    chapter.textContent = entry.chapter;
+    const difficulty = document.createElement('span');
+    difficulty.className = 'gg-dungeon-difficulty';
+    difficulty.textContent = `${entry.difficulty}难度`;
+    cardTopline.append(chapter, difficulty);
+    const location = document.createElement('p');
+    location.className = 'gg-dungeon-location';
+    location.textContent = entry.location;
     const heading = document.createElement('h3');
     heading.textContent = entry.title;
-    const meta = document.createElement('p');
-    meta.className = 'gg-note';
-    meta.textContent = `${entry.phases} 阶段 · ${entry.duration} · ${entry.focus}`;
+    const boss = document.createElement('p');
+    boss.className = 'gg-dungeon-boss';
+    const bossLabel = document.createElement('span');
+    bossLabel.textContent = '对阵';
+    const bossName = document.createElement('strong');
+    bossName.textContent = entry.boss;
+    boss.append(bossLabel, bossName);
+    const meta = document.createElement('div');
+    meta.className = 'gg-dungeon-meta';
+    for (const value of [`${entry.phases} 阶段`, entry.duration, ...entry.focus.split(' · ')]) {
+      const tag = document.createElement('span');
+      tag.textContent = value;
+      meta.append(tag);
+    }
     const row = document.createElement('div');
     row.className = 'gg-dungeon-entry-actions';
     const challenge = document.createElement('button');
     challenge.type = 'button';
-    challenge.textContent = '正式挑战';
+    challenge.className = 'gg-dungeon-challenge';
+    decorateButton(challenge, '⚔', '正式挑战', '结算金币与时段');
+    challenge.setAttribute('aria-label', `正式挑战：${entry.title}`);
     challenge.disabled = Boolean(blocked);
     challenge.addEventListener('click', () => startDungeonBattle(entry.title, entry.config as unknown as BattleConfig, 'dungeon'));
     const practice = document.createElement('button');
     practice.type = 'button';
-    practice.textContent = '练习（不结算）';
+    decorateButton(practice, '✧', '弹幕演练', '不结算庭园状态');
+    practice.setAttribute('aria-label', `练习（不结算）：${entry.title}`);
     practice.className = 'gg-dungeon-practice';
     practice.addEventListener('click', () => startDungeonBattle(`练习 · ${entry.title}`, entry.config as unknown as BattleConfig, 'practice'));
     row.append(challenge, practice);
-    card.append(heading, meta, row);
+    card.append(cardTopline, location, heading, boss, meta, row);
     fragment.append(card);
   }
   actions.replaceChildren(fragment);
@@ -1370,8 +1425,8 @@ function startDungeonBattle(title: string, config: BattleConfig, kind: 'dungeon'
   byId<HTMLButtonElement>('gg-battle-narrative').hidden = true;
   setBattleStatus(
     kind === 'practice'
-      ? '【练习】方向键/WASD 移动，按住 Z 射击，Shift/专注，X/Bomb，Esc 暂停；结束不写入 MVU。'
-      : '方向键/WASD 移动，按住 Z 射击，Shift/专注，X/Bomb，Esc 暂停；本局结算完全在本地进行。',
+      ? '【练习】方向键/WASD 移动，按住 Z 射击，Shift 专注，X Bomb，Esc 暂停；手机拖动自动射击，双指专注，双击 Bomb；结束不写入 MVU。'
+      : '方向键/WASD 移动，按住 Z 射击，Shift 专注，X Bomb，Esc 暂停；手机拖动自动射击，双指专注，双击 Bomb；本局结算完全在本地进行。',
   );
   battle = new BattleEngine(
     battleCanvas,
@@ -1394,7 +1449,7 @@ function startBattle() {
   battleDialog.showModal();
   byId('gg-battle-title').textContent = '温室妖花核心';
   byId<HTMLButtonElement>('gg-battle-narrative').hidden = false;
-  setBattleStatus('方向键/WASD 移动，按住 Z 射击，Shift/专注，X/Bomb，Esc 暂停；结算后会先写入可信 MVU 字段。');
+  setBattleStatus('方向键/WASD 移动，按住 Z 射击，Shift 专注，X Bomb，Esc 暂停；手机拖动自动射击，双指专注，双击 Bomb；结算后会先写入可信 MVU 字段。');
   byId<HTMLButtonElement>('gg-battle-retry').hidden = true;
   battle = new BattleEngine(
     battleCanvas,

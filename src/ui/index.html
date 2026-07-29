@@ -297,12 +297,12 @@
       <button type="button" id="gg-close-battle" class="gg-battle-cancel" aria-label="取消本次符卡战">取消</button>
     </header>
     <div class="gg-battle-body">
-      <canvas id="gg-battle-canvas" aria-label="符卡游戏区域，方向键或 WASD 移动，按住 Z 射击，Shift 专注，X Bomb，Esc 暂停；触控可拖动并使用下方专注与 Bomb 按钮"></canvas>
+      <canvas id="gg-battle-canvas" aria-label="符卡游戏区域，方向键或 WASD 移动，按住 Z 射击，Shift 专注，X Bomb，Esc 暂停；触控拖动时自动射击，双指专注，双击 Bomb"></canvas>
       <div class="gg-battle-touch" role="group" aria-label="触控战斗操作">
         <button type="button" id="gg-battle-focus" class="gg-battle-touch-btn gg-battle-focus" aria-pressed="false" aria-label="按住专注，低速并显示判定点">专注</button>
         <button type="button" id="gg-battle-bomb" class="gg-battle-touch-btn gg-battle-bomb" aria-label="使用 Bomb">Bomb <span id="gg-battle-bomb-count">3</span></button>
       </div>
-      <p id="gg-battle-status" class="gg-note" role="status">方向键/WASD 移动，按住 Z 射击，Shift 专注，X Bomb，Esc 暂停；触控拖动移动，第二根手指按住＝专注，快速双击＝Bomb。</p>
+      <p id="gg-battle-status" class="gg-note" role="status">方向键/WASD 移动，按住 Z 射击，Shift 专注，X Bomb，Esc 暂停；手机拖动会自动射击，第二根手指按住＝专注，快速双击＝Bomb。</p>
       <div class="gg-actions gg-battle-actions">
         <button type="button" id="gg-battle-narrative">改用剧情解决</button>
         <button type="button" id="gg-battle-retry" hidden>重试写入与结算</button>
@@ -310,9 +310,21 @@
     </div>
   </dialog>
   <dialog id="gg-dungeon-dialog" class="gg-session-history-dialog" aria-labelledby="gg-dungeon-title">
-    <header><div><p class="gg-eyebrow">可重复挑战</p><h2 id="gg-dungeon-title">符卡副本</h2></div><button type="button" id="gg-close-dungeon">关闭</button></header>
-    <p id="gg-dungeon-note" class="gg-note"></p>
+    <header class="gg-dungeon-header">
+      <span class="gg-dungeon-seal" aria-hidden="true">符</span>
+      <div class="gg-dungeon-heading">
+        <p class="gg-eyebrow">SPELL CARD ARCHIVE · 幻想弹幕绘卷</p>
+        <h2 id="gg-dungeon-title">符卡副本</h2>
+        <p class="gg-dungeon-subtitle">循着结界记录，选择今夜要挑战的弹幕传说。</p>
+      </div>
+      <button type="button" id="gg-close-dungeon" aria-label="关闭符卡副本">关闭</button>
+    </header>
+    <div class="gg-dungeon-notice" role="status" aria-live="polite">
+      <span class="gg-dungeon-notice-mark" aria-hidden="true">◇</span>
+      <p id="gg-dungeon-note"></p>
+    </div>
     <div id="gg-dungeon-actions" class="gg-target-actions"></div>
+    <footer class="gg-dungeon-footer"><span aria-hidden="true">✦</span> 正式挑战会结算奖励与时段；演练模式不会改动庭园状态 <span aria-hidden="true">✦</span></footer>
   </dialog>
   <script src="./app.js"></script>
 </body>

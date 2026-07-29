@@ -20,7 +20,7 @@ type Listener = {
   options?: AddEventListenerOptions | boolean;
 };
 
-/** Touch gestures replacing the on-screen buttons: 2nd finger held = focus, double-tap = bomb. */
+/** Touch gestures replacing the on-screen buttons: drag = fire, 2nd finger held = focus, double-tap = bomb. */
 const TAP_MAX_MS = 260;
 const TAP_MAX_MOVE_PX = 14;
 const DOUBLE_TAP_MS = 360;
@@ -38,6 +38,7 @@ export function createBattleInput(
   let pauseEdge = false;
   let attached = false;
   let touchFocus = false;
+  let touchDragFiring = false;
   let primaryPointerId: number | null = null;
   let lastTapAt = -Infinity;
   const touchDown = new Map<number, { x: number; y: number; at: number; moved: boolean }>();
@@ -47,6 +48,7 @@ export function createBattleInput(
   const clearGestures = () => {
     touchDown.clear();
     touchFocus = false;
+    touchDragFiring = false;
     primaryPointerId = null;
     lastTapAt = -Infinity;
   };
@@ -67,7 +69,7 @@ export function createBattleInput(
     state.moveX = dx;
     state.moveY = dy;
     state.focused = externalFocus || touchFocus || keys.has('ShiftLeft') || keys.has('ShiftRight');
-    state.firing = autoFire || keys.has('KeyZ');
+    state.firing = autoFire || touchDragFiring || keys.has('KeyZ');
   };
 
   const onKeyDown = (event: KeyboardEvent) => {
@@ -126,6 +128,7 @@ export function createBattleInput(
     if (primaryPointerId == null || !isTouch) {
       primaryPointerId = event.pointerId;
       state.pointerActive = true;
+      if (isTouch) touchDragFiring = false;
       pointToArena(event);
     }
     try {
@@ -133,7 +136,6 @@ export function createBattleInput(
     } catch {
       // ignore capture failures in test doubles
     }
-    // Touch drag only moves; fire still requires Z or auto_fire assist.
     event.preventDefault();
   };
 
@@ -147,6 +149,10 @@ export function createBattleInput(
       return;
     }
     if (event.pointerId !== primaryPointerId && event.pointerType !== 'mouse') return;
+    if (event.pointerType !== 'mouse' && info?.moved && !touchDragFiring) {
+      touchDragFiring = true;
+      syncMovement();
+    }
     pointToArena(event);
     event.preventDefault();
   };
@@ -173,6 +179,10 @@ export function createBattleInput(
     if (event.pointerId === primaryPointerId || primaryPointerId == null || !isTouch) {
       primaryPointerId = null;
       state.pointerActive = false;
+      if (isTouch && touchDragFiring) {
+        touchDragFiring = false;
+        syncMovement();
+      }
     }
     try {
       canvas.releasePointerCapture(event.pointerId);

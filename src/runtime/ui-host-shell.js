@@ -189,6 +189,7 @@
     if (embedded.battleBossAliceDataUrl) childDoc.documentElement.dataset.battleBossAliceSrc = embedded.battleBossAliceDataUrl;
     if (embedded.battleBossSakuyaDataUrl) childDoc.documentElement.dataset.battleBossSakuyaSrc = embedded.battleBossSakuyaDataUrl;
     if (embedded.battleEffectsDataUrl) childDoc.documentElement.dataset.battleEffectsSrc = embedded.battleEffectsDataUrl;
+    if (embedded.battleBulletsLocalDataUrl) childDoc.documentElement.dataset.battleBulletsLocalSrc = embedded.battleBulletsLocalDataUrl;
     const style = childDoc.createElement('style');
     style.textContent = embedded.css;
     childDoc.head.append(style);

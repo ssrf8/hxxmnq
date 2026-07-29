@@ -11,6 +11,7 @@ import type {
 import { BOSS_DAMAGE_LABELS, bossDamageLevel, ITEM_POC_RATIO, POWER_MAX } from './battle-types';
 import {
   drawAtlasFrame,
+  drawLocalBulletSprite,
   type BattleAtlas,
   type BattleSheetKey,
 } from './battle-atlas';
@@ -217,7 +218,7 @@ export function renderBattleFrame(
 
   for (const bullet of enemyShots) {
     if (bullet.safeLane) continue;
-    drawEnemyBullet(ctx, bullet, reduced);
+    drawEnemyBullet(ctx, bullet, reduced, atlas);
   }
 
   for (const item of items as ItemState[]) {
@@ -1027,7 +1028,12 @@ function traceBulletShape(ctx: CanvasRenderingContext2D, shape: BulletShape, r: 
   }
 }
 
-function drawEnemyBullet(ctx: CanvasRenderingContext2D, bullet: Bullet, reduced: boolean) {
+function drawEnemyBullet(
+  ctx: CanvasRenderingContext2D,
+  bullet: Bullet,
+  reduced: boolean,
+  atlas?: BattleAtlas | null,
+) {
   if (bullet.laser) {
     const angle = bullet.laserAngle ?? 0;
     const length = bullet.laserLength ?? 600;
@@ -1118,7 +1124,7 @@ function drawEnemyBullet(ctx: CanvasRenderingContext2D, bullet: Bullet, reduced:
   if (Number.isFinite(angle)) ctx.rotate(angle + Math.PI / 2);
   // Stars spin slowly on top of their travel rotation.
   if (shape === 'star') ctx.rotate(bullet.age * 2);
-  drawBulletSprite(ctx, shape, bullet.hue, bullet.radius, spawnScale, spawnAlpha);
+  drawBulletSprite(ctx, shape, bullet.hue, bullet.radius, spawnScale, spawnAlpha, atlas);
   ctx.restore();
 }
 
@@ -1135,11 +1141,13 @@ const pixelCellCache = new Map<string, { cell: CanvasImageSource; size: number }
 function drawBulletSprite(
   ctx: CanvasRenderingContext2D,
   shape: BulletShape,
-  hue: string | undefined,
+  hue: Bullet['hue'],
   radius: number,
   scale: number,
   alpha: number,
+  atlas?: BattleAtlas | null,
 ) {
+  if (drawLocalBulletSprite(ctx, atlas, shape, hue, radius, scale, alpha)) return;
   const key = `${shape}:${hue ?? 'blue'}:${Math.round(radius)}`;
   let entry = pixelCellCache.get(key);
   if (!entry && typeof document !== 'undefined') {

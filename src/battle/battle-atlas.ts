@@ -1,3 +1,5 @@
+import type { BulletHue, BulletShape } from './battle-types';
+
 /**
  * Explicit crop table for local transparent battle sheets.
  * Collision radii never come from these draw sizes.
@@ -24,7 +26,7 @@ export interface AtlasFrame {
   pivotY?: number;
 }
 
-export type BattleSheetKey = 'player' | 'boss' | 'boss_cirno' | 'boss_alice' | 'boss_sakuya' | 'effects';
+export type BattleSheetKey = 'player' | 'boss' | 'boss_cirno' | 'boss_alice' | 'boss_sakuya' | 'effects' | 'bullets_local';
 
 /** Source sheets are the transparent *-v1.png assets only. */
 export const BATTLE_SHEET_PATHS = {
@@ -34,6 +36,7 @@ export const BATTLE_SHEET_PATHS = {
   boss_alice: 'battle/boss/alice-battle-sheet-v1.png',
   boss_sakuya: 'battle/boss/sakuya-battle-sheet-v1.png',
   effects: 'battle/effects/battle-effects-sheet-v1.png',
+  bullets_local: 'battle/effects/battle-bullets-etama3-local-v1.png',
 } as const;
 
 export const ATLAS_FRAMES = {
@@ -257,6 +260,7 @@ export interface BattleAtlasSources {
   boss_alice?: string;
   boss_sakuya?: string;
   effects?: string;
+  bullets_local?: string;
 }
 
 export interface BattleAtlas {
@@ -291,6 +295,7 @@ export async function loadBattleAtlas(sources: BattleAtlasSources = {}): Promise
     ['boss_alice', sources.boss_alice],
     ['boss_sakuya', sources.boss_sakuya],
     ['effects', sources.effects],
+    ['bullets_local', sources.bullets_local],
   ];
   const results = await Promise.all(entries.map(async ([key, src]) => {
     if (!src) return [key, null] as const;
@@ -338,6 +343,89 @@ export function patternEffectFrame(patternId: string | undefined): AtlasFrameId 
     default:
       return 'fx_orb_small';
   }
+}
+
+const LOCAL_BULLET_CELL_SIZE = 32;
+const LOCAL_BULLET_HUE_COLUMN: Record<BulletHue, number> = {
+  red: 0,
+  blue: 1,
+  pink: 2,
+  cyan: 3,
+  purple: 4,
+  gold: 5,
+  green: 6,
+  white: 7,
+};
+
+const LOCAL_BULLET_SHAPE_ROW: Partial<Record<BulletShape, { row: number; cropSize: 16 | 32; drawMultiplier: number }>> = {
+  circle: { row: 1, cropSize: 16, drawMultiplier: 3 },
+  pellet: { row: 0, cropSize: 16, drawMultiplier: 3 },
+  ellipse: { row: 2, cropSize: 16, drawMultiplier: 3.2 },
+  rice: { row: 4, cropSize: 16, drawMultiplier: 3.2 },
+  kunai: { row: 6, cropSize: 32, drawMultiplier: 4.1 },
+  petal: { row: 4, cropSize: 16, drawMultiplier: 3.2 },
+  crystal: { row: 3, cropSize: 16, drawMultiplier: 3.2 },
+  orb: { row: 7, cropSize: 32, drawMultiplier: 3.8 },
+  bead: { row: 1, cropSize: 16, drawMultiplier: 2.8 },
+};
+
+export interface LocalBulletSprite {
+  rect: AtlasRect;
+  drawMultiplier: number;
+}
+
+/** Local-only normalized etama sheet lookup. Unsupported shapes keep the procedural fallback. */
+export function resolveLocalBulletSprite(shape: BulletShape, hue: BulletHue = 'blue'): LocalBulletSprite | null {
+  const family = LOCAL_BULLET_SHAPE_ROW[shape];
+  if (!family) return null;
+  const inset = (LOCAL_BULLET_CELL_SIZE - family.cropSize) / 2;
+  return {
+    rect: {
+      x: LOCAL_BULLET_HUE_COLUMN[hue] * LOCAL_BULLET_CELL_SIZE + inset,
+      y: family.row * LOCAL_BULLET_CELL_SIZE + inset,
+      w: family.cropSize,
+      h: family.cropSize,
+    },
+    drawMultiplier: family.drawMultiplier,
+  };
+}
+
+/** Draws at the caller's transformed origin; collision and simulation never read these dimensions. */
+export function drawLocalBulletSprite(
+  ctx: CanvasRenderingContext2D,
+  atlas: BattleAtlas | null | undefined,
+  shape: BulletShape,
+  hue: BulletHue | undefined,
+  radius: number,
+  scale = 1,
+  alpha = 1,
+): boolean {
+  if (!atlas?.ready) return false;
+  const image = atlas.images.bullets_local;
+  const sprite = resolveLocalBulletSprite(shape, hue ?? 'blue');
+  if (!image || !sprite) return false;
+  const drawSize = radius * sprite.drawMultiplier * scale;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.imageSmoothingEnabled = false;
+  try {
+    ctx.drawImage(
+      image,
+      sprite.rect.x,
+      sprite.rect.y,
+      sprite.rect.w,
+      sprite.rect.h,
+      -drawSize / 2,
+      -drawSize / 2,
+      drawSize,
+      drawSize,
+    );
+  } catch {
+    ctx.restore();
+    return false;
+  }
+  ctx.restore();
+  return true;
 }
 
 export function drawAtlasFrame(

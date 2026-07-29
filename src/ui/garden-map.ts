@@ -1,7 +1,12 @@
 import type { GardenState } from './types';
 import { SpriteActor, type SpriteActorConfig } from './sprite-actor';
 import { greenhouseDiscoveryVisible } from './greenhouse-rules';
-import { GARDEN_AREA_OUTLINES, GARDEN_AREA_POSITIONS, gardenAreaPoint } from './garden-spatial';
+import {
+  GARDEN_AREA_OUTLINES,
+  GARDEN_AREA_POSITIONS,
+  gardenAreaLabel,
+  gardenAreaPoint,
+} from './garden-spatial';
 
 interface Point { x: number; y: number }
 export interface HitTarget extends Point {
@@ -235,11 +240,13 @@ export class GardenMap {
       if (!point) continue;
       const x = -drawWidth / 2 + point.x * drawWidth;
       const y = -drawHeight / 2 + point.y * drawHeight;
-      const label = discoveryMarker ? '温室方向的异常痕迹' : area.name ?? id;
+      const label = discoveryMarker ? '温室方向的异常痕迹' : gardenAreaLabel(id, area.name);
       const markerState = discoveryMarker ? '待调查' : area.state ?? '未知';
       // 悬停/选中前只留一枚低调的菱形路标；有实景轮廓的区域沿底图
       // 手描多边形描边发光，空地块回退贴地光环。
       const active = this.hoveredId === id || this.selectedId === id;
+      const facilityId = this.facilityIdForArea(id);
+      const facilitySprite = this.resolveFacilitySprite(facilityId);
       const accent = discoveryMarker ? '#d9b9e8' : '#f3c86c';
       const outline = facilityGeometry?.hit_polygon
         ?.map(([outlineX, outlineY]) => ({ x: outlineX, y: outlineY }))
@@ -253,7 +260,9 @@ export class GardenMap {
           x: -drawWidth / 2 + point.x * drawWidth,
           y: -drawHeight / 2 + point.y * drawHeight,
         }));
-        this.drawAreaOutlineGlow(ctx, worldPoints, accent, pulse);
+        // Built facilities glow from their transparent sprite edge in drawFacilityLayer().
+        // The polygon remains the precise hit target and is only drawn for empty plots.
+        if (!facilitySprite) this.drawAreaOutlineGlow(ctx, worldPoints, accent, pulse);
         const labelX = facilityGeometry
           ? -drawWidth / 2 + facilityGeometry.label_anchor[0] * drawWidth
           : x;
@@ -262,16 +271,18 @@ export class GardenMap {
           : Math.min(...worldPoints.map((point) => point.y)) - 16 * px;
         this.drawLabel(ctx, labelX, labelY, `${label} · ${markerState}`);
       } else if (active) {
-        this.drawGroundGlow(
-          ctx,
-          x,
-          y,
-          drawWidth * 0.085 * FACILITY_VISUAL_SCALE,
-          drawHeight * 0.05 * FACILITY_VISUAL_SCALE,
-          pulse,
-        );
+        if (!facilitySprite) {
+          this.drawGroundGlow(
+            ctx,
+            x,
+            y,
+            drawWidth * 0.085 * FACILITY_VISUAL_SCALE,
+            drawHeight * 0.05 * FACILITY_VISUAL_SCALE,
+            pulse,
+          );
+        }
         this.drawLabel(ctx, x, y - drawHeight * 0.05 * FACILITY_VISUAL_SCALE - 18 * px, `${label} · ${markerState}`);
-      } else if (!this.resolveFacilitySprite(this.facilityIdForArea(id))) {
+      } else if (!facilitySprite) {
         this.drawDiamond(ctx, x, y, 7 * px, discoveryMarker ? '#d9b9e8' : '#f3d58a');
       }
       let hitX = x;
@@ -368,12 +379,40 @@ export class GardenMap {
       const height = width * image.naturalHeight / image.naturalWidth;
       const x = -drawWidth / 2 + point.x * drawWidth - width / 2;
       const y = -drawHeight / 2 + point.y * drawHeight - height / 2;
-      ctx.drawImage(image, x, y, width, height);
+      const active = this.hoveredId === facilityId
+        || this.selectedId === facilityId
+        || this.hoveredId === spriteSet.areaId
+        || this.selectedId === spriteSet.areaId;
+      this.drawFacilityImage(ctx, image, x, y, width, height, active);
       if (sprite.damageOverlay) {
         const overlay = this.imageFor(sprite.damageOverlay);
         if (overlay.complete && overlay.naturalWidth) ctx.drawImage(overlay, x, y, width, height);
       }
     }
+  }
+
+  private drawFacilityImage(
+    ctx: CanvasRenderingContext2D,
+    image: HTMLImageElement,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    active: boolean,
+  ) {
+    if (!active) {
+      ctx.drawImage(image, x, y, width, height);
+      return;
+    }
+    const pulse = this.reducedMotion.matches || this.selectedId
+      ? 1
+      : 0.72 + 0.28 * Math.abs(Math.sin(this.frameClock / 360));
+    const px = this.pixelRatio * this.browserZoomCompensation;
+    ctx.save();
+    ctx.shadowColor = `rgba(255, 222, 128, ${0.72 * pulse})`;
+    ctx.shadowBlur = (14 + 5 * pulse) * px;
+    ctx.drawImage(image, x, y, width, height);
+    ctx.restore();
   }
 
   private resolveFacilitySprite(facilityId: string): { source: string; damageOverlay?: string } | null {

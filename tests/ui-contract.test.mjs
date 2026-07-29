@@ -456,13 +456,12 @@ test('所有者批准的新庭园底图由素材清单驱动，人物与旧主�
   assert.match(spatial, /GARDEN_AREA_OUTLINES[^=]*= Object\.freeze\(\{\}\)/);
 });
 
-test('五座已验收设施按正式状态键和显式区域锚点接入地图', async () => {
+test('四座独立设施接入地图，主屋复用新底图左上庭院', async () => {
   const manifest = JSON.parse(await read('../src/assets/asset-manifest.json'));
   const build = await read('../scripts/build-ui.mjs');
   const host = await read('../src/runtime/ui-host-shell.js');
   const map = await read('../src/ui/garden-map.ts');
   const expectedForms = {
-    main_house: ['损坏', '临时修复', '启用'],
     magic_greenhouse: ['基础魔法温室', '自由生长型温室', '人偶维护型温室', '河童自动化型温室'],
     fairy_garden: ['四季花境', '妖精游乐庭', '冰露迷宫'],
     moon_spring: ['露天月见汤', '静水观测池', '雾隐汤屋'],
@@ -475,6 +474,11 @@ test('五座已验收设施按正式状态键和显式区域锚点接入地图',
     assert.deepEqual(Object.keys(asset.source_alpha), forms);
     for (const source of Object.values(asset.source_alpha)) await read(`../src/assets/${source}`);
   }
+  assert.equal(manifest.map_facility_assets.main_house.map_usage, false);
+  assert.deepEqual(Object.keys(manifest.map_facility_assets.main_house.source_alpha), ['损坏', '临时修复', '启用']);
+  assert.match(manifest.map_facility_assets.main_house.status, /^retired-from-map/);
+  const spatial = await read('../src/ui/garden-spatial.ts');
+  assert.match(spatial, /main_house:\s*\{\s*x:\s*0\.16,\s*y:\s*0\.15\s*\}/);
   for (const id of ['magic_greenhouse', 'fairy_garden', 'moon_spring', 'banquet_plaza']) {
     const geometry = manifest.map_facility_assets[id].geometry;
     assert.ok(geometry.width_ratio > 0.2 && geometry.width_ratio < 0.3);
@@ -485,7 +489,6 @@ test('五座已验收设施按正式状态键和显式区域锚点接入地图',
     assert.ok(geometry.hit_polygon.length >= 6);
     assert.match(manifest.map_facility_assets[id].status, /^owner-approved-v2-integrated/);
   }
-  assert.equal(manifest.map_facility_assets.main_house.geometry, undefined);
   assert.match(build, /mapFacilityDataUrls/);
   assert.match(build, /areaId: facility\.area_id/);
   assert.match(build, /validateFacilityGeometry/);
@@ -513,6 +516,40 @@ test('设施命中优先使用精确多边形，避免中央庭院的宽泛圆�
   ];
   assert.equal(map.pointInPolygon({ x: 20, y: 20 }, polygon), true);
   assert.equal(map.pointInPolygon({ x: 40, y: 20 }, polygon), false);
+});
+
+test('内置地图区域使用固定中文名，已建设施使用贴图透明边缘发光', async () => {
+  const spatial = await importTypescript('../src/ui/garden-spatial.ts');
+  const map = await read('../src/ui/garden-map.ts');
+  assert.equal(spatial.gardenAreaLabel('fairy_garden_plot'), '妖精花园');
+  assert.equal(spatial.gardenAreaLabel('moon_spring_plot'), '月见温泉');
+  assert.equal(spatial.gardenAreaLabel('banquet_plaza_plot'), '宴会广场');
+  assert.equal(spatial.gardenAreaLabel('custom_area', '自定义区域'), '自定义区域');
+  assert.doesNotMatch(map, /area\.name \?\? id/);
+  assert.match(map, /gardenAreaLabel\(id, area\.name\)/);
+  assert.match(map, /if \(!facilitySprite\) this\.drawAreaOutlineGlow/);
+  assert.match(map, /this\.drawFacilityImage\(ctx, image, x, y, width, height, active\)/);
+  assert.match(map, /ctx\.shadowColor = `rgba\(255, 222, 128,/);
+  assert.match(map, /ctx\.shadowBlur = \(14 \+ 5 \* pulse\) \* px/);
+});
+
+test('符卡副本选关使用三卷主题绘卷与响应式挑战层级', async () => {
+  const document = await read('../src/ui/index.html');
+  const app = await read('../src/ui/app.ts');
+  const styles = await read('../src/ui/styles.css');
+  assert.match(document, /SPELL CARD ARCHIVE · 幻想弹幕绘卷/);
+  assert.match(document, /gg-dungeon-seal[^>]*>符</);
+  assert.match(document, /gg-dungeon-footer/);
+  for (const value of ['壹之卷', '贰之卷', '叁之卷', '琪露诺', '爱丽丝', '十六夜咲夜']) assert.match(app, new RegExp(value));
+  assert.match(app, /card\.dataset\.theme = entry\.theme/);
+  assert.match(app, /gg-dungeon-meta/);
+  assert.match(app, /aria-label', `正式挑战：\$\{entry\.title\}`/);
+  assert.match(app, /aria-label', `练习（不结算）：\$\{entry\.title\}`/);
+  assert.match(styles, /#gg-dungeon-actions\s*\{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
+  assert.match(styles, /\.gg-dungeon-entry\[data-theme="ice"\]/);
+  assert.match(styles, /\.gg-dungeon-entry\[data-theme="forest"\]/);
+  assert.match(styles, /\.gg-dungeon-entry\[data-theme="boundary"\]/);
+  assert.match(styles, /@media \(max-width: 760px\)[\s\S]*?#gg-dungeon-actions \{ grid-template-columns: 1fr; \}/);
 });
 
 test('设施贴图解析覆盖主屋状态、温室形态、可换型设施与损坏叠层', async () => {
