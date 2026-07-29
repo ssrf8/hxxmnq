@@ -1,0 +1,2236 @@
+{
+  "version": 1,
+  "character": "cirno",
+  "status": "owner-approved-sequence-source",
+  "runtimeStatus": "ready-for-runtime-integration",
+  "layout": "variable-sequence-v1",
+  "sourceProject": "../参考素材/New project 11",
+  "sourceDirectory": "characters/cirno/transparent-v1",
+  "sourcePolicy": "copied-byte-for-byte-from-owner-approved-frames",
+  "transform": "uniform-nearest-neighbor-fixed-anchor",
+  "cell": [
+    209,
+    209
+  ],
+  "atlas": "src/assets/characters/cirno/cirno-animation-sequence-approved-v1.png",
+  "atlasSha256": "16e0e7a85b486f502dd69a8597f724e5ef79e3bfc908fe9e1078a0769f506127",
+  "atlasSize": [
+    3553,
+    836
+  ],
+  "frameCount": 17,
+  "rowOrder": [
+    "front",
+    "back",
+    "left",
+    "right"
+  ],
+  "frameDurationMs": 100,
+  "stationaryFrame": "direction-row-column-0",
+  "loopStart": 0,
+  "loopEnd": 16,
+  "sourceAnchorByDirection": {
+    "front": [
+      185,
+      330
+    ],
+    "back": [
+      140,
+      331
+    ],
+    "left": [
+      187,
+      270
+    ],
+    "right": [
+      133,
+      270
+    ]
+  },
+  "targetAnchor": [
+    104,
+    179
+  ],
+  "targetVisibleHeight": 150,
+  "scale": 0.48859934853420195,
+  "sources": [
+    {
+      "index": 1,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/front/001.png",
+      "sha256": "0e11fe68931abbf242fb043aac87b9e97fc379bc07e035e72a121b8de8efb557",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 61,
+        "minY": 24,
+        "maxX": 309,
+        "maxY": 323,
+        "width": 249,
+        "height": 300
+      }
+    },
+    {
+      "index": 2,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/front/002.png",
+      "sha256": "56f326b858cad19b2d364c955f261cc5f732bcd696cbe8d7e8c9eaf1d46d34e1",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 61,
+        "minY": 23,
+        "maxX": 308,
+        "maxY": 323,
+        "width": 248,
+        "height": 301
+      }
+    },
+    {
+      "index": 3,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/front/003.png",
+      "sha256": "18143786c3b9cff6df4269eec4b83199c8485a9597d3ecb1586a721868b39565",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 60,
+        "minY": 21,
+        "maxX": 309,
+        "maxY": 323,
+        "width": 250,
+        "height": 303
+      }
+    },
+    {
+      "index": 4,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/front/004.png",
+      "sha256": "7a9c52c5bb0df7aeb9ea60e7de6bf3009ab3c1692d40279a1576eb03aabbc494",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 61,
+        "minY": 22,
+        "maxX": 309,
+        "maxY": 324,
+        "width": 249,
+        "height": 303
+      }
+    },
+    {
+      "index": 5,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/front/005.png",
+      "sha256": "7be34e933082328a0c94ba613846d4f2bac76a1165ef1f65302e4c8710a616b0",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 60,
+        "minY": 23,
+        "maxX": 309,
+        "maxY": 325,
+        "width": 250,
+        "height": 303
+      }
+    },
+    {
+      "index": 6,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/front/006.png",
+      "sha256": "2bd2d84d96ab78ffc8d1d437ea2b169741e51161f06ccb5dc5946953e8aed4c0",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 60,
+        "minY": 26,
+        "maxX": 309,
+        "maxY": 326,
+        "width": 250,
+        "height": 301
+      }
+    },
+    {
+      "index": 7,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/front/007.png",
+      "sha256": "e8dbc2281c0c6de0856dc7b987ca3158a05e9800e26f2c14ca478e895cc53897",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 61,
+        "minY": 26,
+        "maxX": 309,
+        "maxY": 327,
+        "width": 249,
+        "height": 302
+      }
+    },
+    {
+      "index": 8,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/front/008.png",
+      "sha256": "ac3ae2c958dfd87b9c335fa3a1e2c9ef641fc400031a8be96a4bf4ddee6fba78",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 59,
+        "minY": 26,
+        "maxX": 309,
+        "maxY": 326,
+        "width": 251,
+        "height": 301
+      }
+    },
+    {
+      "index": 9,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/front/009.png",
+      "sha256": "76f0335ff00d4b3ff64244007ad8c1c92a2d09f985015ab4eae03b03f8a050cd",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 59,
+        "minY": 24,
+        "maxX": 309,
+        "maxY": 324,
+        "width": 251,
+        "height": 301
+      }
+    },
+    {
+      "index": 10,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/front/010.png",
+      "sha256": "377ed38610a30873c9d066bd7a491e97fa69487ad35779743605f38863cc1ab7",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 59,
+        "minY": 21,
+        "maxX": 310,
+        "maxY": 323,
+        "width": 252,
+        "height": 303
+      }
+    },
+    {
+      "index": 11,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/front/011.png",
+      "sha256": "73776b1a27de335aca77e034751bd79082db70297c28303f7b2961dd21c904fe",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 60,
+        "minY": 20,
+        "maxX": 309,
+        "maxY": 323,
+        "width": 250,
+        "height": 304
+      }
+    },
+    {
+      "index": 12,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/front/012.png",
+      "sha256": "11931664abdd9a24d7c37d3d3cc7e85c46434a4832225d3e1a53ae525c3e1201",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 60,
+        "minY": 20,
+        "maxX": 310,
+        "maxY": 324,
+        "width": 251,
+        "height": 305
+      }
+    },
+    {
+      "index": 13,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/front/013.png",
+      "sha256": "c70a83caa4e6ec6efa7b772b509447988600b5741fa8b5ba04cc66f721da000a",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 60,
+        "minY": 21,
+        "maxX": 309,
+        "maxY": 326,
+        "width": 250,
+        "height": 306
+      }
+    },
+    {
+      "index": 14,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/front/014.png",
+      "sha256": "9a111bfb0924ce6e3a85049efec82987680021c3b50892df7e8004a21717f147",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 60,
+        "minY": 24,
+        "maxX": 308,
+        "maxY": 328,
+        "width": 249,
+        "height": 305
+      }
+    },
+    {
+      "index": 15,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/front/015.png",
+      "sha256": "701bd91d2c360140b88d1794d8fc85779a8151ce11c00cc366fc8c46a9303c5c",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 60,
+        "minY": 25,
+        "maxX": 309,
+        "maxY": 329,
+        "width": 250,
+        "height": 305
+      }
+    },
+    {
+      "index": 16,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/front/016.png",
+      "sha256": "57816eb6bfe0963edaa20503bccd64b4815921704ba2eeb67d64fc903b3a3471",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 60,
+        "minY": 25,
+        "maxX": 309,
+        "maxY": 329,
+        "width": 250,
+        "height": 305
+      }
+    },
+    {
+      "index": 17,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/front/017.png",
+      "sha256": "cd99211774cd5b00a0ec948086526dae1c25fd76446c339c97ce9bdf286f381b",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 59,
+        "minY": 24,
+        "maxX": 309,
+        "maxY": 327,
+        "width": 251,
+        "height": 304
+      }
+    },
+    {
+      "index": 1,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/back/001.png",
+      "sha256": "3f2cdef762bda36e1bcc7550f43a6af9d17a7d7f54d59933ddc91d0d524933ec",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 16,
+        "minY": 24,
+        "maxX": 262,
+        "maxY": 324,
+        "width": 247,
+        "height": 301
+      }
+    },
+    {
+      "index": 2,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/back/002.png",
+      "sha256": "86b91af835dea9d919d367cd093f2fc6ab3b5cef46c9431741990e6501cab608",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 16,
+        "minY": 23,
+        "maxX": 263,
+        "maxY": 324,
+        "width": 248,
+        "height": 302
+      }
+    },
+    {
+      "index": 3,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/back/003.png",
+      "sha256": "5fd32f79d46f3fe2ae5c5867aa341e2efe2fabebdd977b9b8a6dda784b63e9e2",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 16,
+        "minY": 21,
+        "maxX": 264,
+        "maxY": 325,
+        "width": 249,
+        "height": 305
+      }
+    },
+    {
+      "index": 4,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/back/004.png",
+      "sha256": "29f6e05591d693948c1451bb55eaf0a002cc661d9ccdede0d8ef96e93bb7af89",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 17,
+        "minY": 22,
+        "maxX": 264,
+        "maxY": 328,
+        "width": 248,
+        "height": 307
+      }
+    },
+    {
+      "index": 5,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/back/005.png",
+      "sha256": "6e6fbb0fb6cd2f67b5edccb057c8aab9f14b2f136b43600c383b57dfcbb28a52",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 18,
+        "minY": 23,
+        "maxX": 264,
+        "maxY": 329,
+        "width": 247,
+        "height": 307
+      }
+    },
+    {
+      "index": 6,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/back/006.png",
+      "sha256": "4743f13d578fefb64327abcf90f7af287d2f559a2094e28d6e7c145522d00765",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 18,
+        "minY": 26,
+        "maxX": 263,
+        "maxY": 330,
+        "width": 246,
+        "height": 305
+      }
+    },
+    {
+      "index": 7,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/back/007.png",
+      "sha256": "054136d8c6facc8d46f7acf1510e8b508287d1902aeb585d2dc874dd1c2bf335",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 18,
+        "minY": 26,
+        "maxX": 263,
+        "maxY": 330,
+        "width": 246,
+        "height": 305
+      }
+    },
+    {
+      "index": 8,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/back/008.png",
+      "sha256": "c0905ef60a2accc654e3fc104ca2b51d8824d2daa9752847ec39f8d2b3a77032",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 17,
+        "minY": 26,
+        "maxX": 264,
+        "maxY": 329,
+        "width": 248,
+        "height": 304
+      }
+    },
+    {
+      "index": 9,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/back/009.png",
+      "sha256": "4f69599e32be328140e25bf6b49a94428b7000e36bc5bfbc445cbe0d8261284a",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 16,
+        "minY": 25,
+        "maxX": 264,
+        "maxY": 327,
+        "width": 249,
+        "height": 303
+      }
+    },
+    {
+      "index": 10,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/back/010.png",
+      "sha256": "8dd90be6ade772a882444c52c64df145fe0b46d73d47812a901e6892fbe1af88",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 16,
+        "minY": 22,
+        "maxX": 265,
+        "maxY": 327,
+        "width": 250,
+        "height": 306
+      }
+    },
+    {
+      "index": 11,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/back/011.png",
+      "sha256": "9782027f92d681737c84118c77241886a90ae5e8cbeb3e56b3df8c12c084da10",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 16,
+        "minY": 22,
+        "maxX": 265,
+        "maxY": 326,
+        "width": 250,
+        "height": 305
+      }
+    },
+    {
+      "index": 12,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/back/012.png",
+      "sha256": "a10f5850e5b3d7068f1f08c7a2dc6826c6479523bc9353b00559c04933fd8416",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 16,
+        "minY": 22,
+        "maxX": 265,
+        "maxY": 326,
+        "width": 250,
+        "height": 305
+      }
+    },
+    {
+      "index": 13,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/back/013.png",
+      "sha256": "2af642dc42bb36876901d3a3d9b1e823c35102eb9a3c321655cb68bf3e208360",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 17,
+        "minY": 23,
+        "maxX": 265,
+        "maxY": 327,
+        "width": 249,
+        "height": 305
+      }
+    },
+    {
+      "index": 14,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/back/014.png",
+      "sha256": "85c421a829fee95b1255c6baca0473b7e60b8d8c484cfcd14dd0a67a3eed2002",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 18,
+        "minY": 25,
+        "maxX": 263,
+        "maxY": 327,
+        "width": 246,
+        "height": 303
+      }
+    },
+    {
+      "index": 15,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/back/015.png",
+      "sha256": "6768935c671a3ca6c196b983e4896a1af45e5956bcf413fe343b305ca051b573",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 18,
+        "minY": 26,
+        "maxX": 263,
+        "maxY": 329,
+        "width": 246,
+        "height": 304
+      }
+    },
+    {
+      "index": 16,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/back/016.png",
+      "sha256": "ebeeb95736a3331f4ee7280da585e561c7adea2f9e234fa3e9d804a85834e76d",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 17,
+        "minY": 27,
+        "maxX": 264,
+        "maxY": 330,
+        "width": 248,
+        "height": 304
+      }
+    },
+    {
+      "index": 17,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/back/017.png",
+      "sha256": "77c87bcb52e1cb3d6d380b2d6e0309f2a77eb41b1ad59d8919862a98b0dae084",
+      "size": [
+        320,
+        333
+      ],
+      "bbox": {
+        "minX": 16,
+        "minY": 25,
+        "maxX": 264,
+        "maxY": 330,
+        "width": 249,
+        "height": 306
+      }
+    },
+    {
+      "index": 1,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/left/001.png",
+      "sha256": "d2970d6c78234976230f11890de05d467b7febbce5fd2553ae30e142c79124d6",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 90,
+        "minY": 1,
+        "maxX": 283,
+        "maxY": 266,
+        "width": 194,
+        "height": 266
+      }
+    },
+    {
+      "index": 2,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/left/002.png",
+      "sha256": "676b427b66fe5d536da954847f76b48491e5d688751c486ad3bf607472316ebb",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 90,
+        "minY": 0,
+        "maxX": 284,
+        "maxY": 265,
+        "width": 195,
+        "height": 266
+      }
+    },
+    {
+      "index": 3,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/left/003.png",
+      "sha256": "f6c6175788f1e16bad725b04a2087d87447a73d13e662fc1554b299da85d28f5",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 90,
+        "minY": 0,
+        "maxX": 286,
+        "maxY": 265,
+        "width": 197,
+        "height": 266
+      }
+    },
+    {
+      "index": 4,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/left/004.png",
+      "sha256": "52495e9e4c903c77036b475f3c5f27d21079d0c7c1d29b20aef0da312ffec378",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 90,
+        "minY": 0,
+        "maxX": 286,
+        "maxY": 264,
+        "width": 197,
+        "height": 265
+      }
+    },
+    {
+      "index": 5,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/left/005.png",
+      "sha256": "9ab65f929f49818f9995a25acd269571552e48a782410656fbf82625fdef4156",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 90,
+        "minY": 1,
+        "maxX": 286,
+        "maxY": 266,
+        "width": 197,
+        "height": 266
+      }
+    },
+    {
+      "index": 6,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/left/006.png",
+      "sha256": "fd308b3c757b162a8b19e90226b350b7fa2f643ea05f751e1858a5648f8df2d8",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 89,
+        "minY": 3,
+        "maxX": 284,
+        "maxY": 269,
+        "width": 196,
+        "height": 267
+      }
+    },
+    {
+      "index": 7,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/left/007.png",
+      "sha256": "7518200fa58fd122d1c1ec157c3854488e71dd2b1b37c2f15e4679e567f13a2f",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 89,
+        "minY": 3,
+        "maxX": 284,
+        "maxY": 269,
+        "width": 196,
+        "height": 267
+      }
+    },
+    {
+      "index": 8,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/left/008.png",
+      "sha256": "86079dd12d97c970d8342dae980eefabea829bfdbacf208a9a3cd2f23570751f",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 89,
+        "minY": 3,
+        "maxX": 284,
+        "maxY": 269,
+        "width": 196,
+        "height": 267
+      }
+    },
+    {
+      "index": 9,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/left/009.png",
+      "sha256": "15e94eb41ccd75fa0e267d050397158f23382061f5901abc33a8041e5c07c317",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 90,
+        "minY": 1,
+        "maxX": 284,
+        "maxY": 269,
+        "width": 195,
+        "height": 269
+      }
+    },
+    {
+      "index": 10,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/left/010.png",
+      "sha256": "c40eb27ccfbfd5ba15ac86f41901abaf08b12e3c9ca34456e77a3f2d747be9da",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 90,
+        "minY": 0,
+        "maxX": 284,
+        "maxY": 267,
+        "width": 195,
+        "height": 268
+      }
+    },
+    {
+      "index": 11,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/left/011.png",
+      "sha256": "a8238f4ad1b01c4027919a5faee4bf1ebaade1fcc26952964f186cea75e0b87d",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 90,
+        "minY": 0,
+        "maxX": 284,
+        "maxY": 267,
+        "width": 195,
+        "height": 268
+      }
+    },
+    {
+      "index": 12,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/left/012.png",
+      "sha256": "9bcc6715279b022425c68d3ef5f26387bcbb5288ab89a09ebb0d04edde5cf04e",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 90,
+        "minY": 0,
+        "maxX": 284,
+        "maxY": 267,
+        "width": 195,
+        "height": 268
+      }
+    },
+    {
+      "index": 13,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/left/013.png",
+      "sha256": "21b496423a188bd07480f5551bc111a6fdabe7cf4211791263e56869783232d5",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 89,
+        "minY": 0,
+        "maxX": 283,
+        "maxY": 267,
+        "width": 195,
+        "height": 268
+      }
+    },
+    {
+      "index": 14,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/left/014.png",
+      "sha256": "12353f931a0dfbc862cc3d834cc6ca1c02291c10f8d5fb27bbd7e5972659726b",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 88,
+        "minY": 2,
+        "maxX": 282,
+        "maxY": 267,
+        "width": 195,
+        "height": 266
+      }
+    },
+    {
+      "index": 15,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/left/015.png",
+      "sha256": "2642fb41027468f8d6b48e7f135c6894d4542a08e46714ca5d1afa3a9220f45f",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 88,
+        "minY": 3,
+        "maxX": 283,
+        "maxY": 267,
+        "width": 196,
+        "height": 265
+      }
+    },
+    {
+      "index": 16,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/left/016.png",
+      "sha256": "b5fcb1f228991898d5f5d1aa1ee19b5bec86e50106dda5e2fa8f90496577edd7",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 88,
+        "minY": 3,
+        "maxX": 283,
+        "maxY": 268,
+        "width": 196,
+        "height": 266
+      }
+    },
+    {
+      "index": 17,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/left/017.png",
+      "sha256": "50a91c86070c45fcf1c1af6833ef78c24f22bebea550017bfcf17094ce916278",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 89,
+        "minY": 1,
+        "maxX": 285,
+        "maxY": 268,
+        "width": 197,
+        "height": 268
+      }
+    },
+    {
+      "index": 1,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/right/001.png",
+      "sha256": "b7622ea42194576e408c824c9b79dd0561098b1971ba571f628f89191c6cf04e",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 39,
+        "minY": 2,
+        "maxX": 228,
+        "maxY": 265,
+        "width": 190,
+        "height": 264
+      }
+    },
+    {
+      "index": 2,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/right/002.png",
+      "sha256": "650d8a29335426d9256d9250b26395766edbd4ec5c1426c8f8a3dd44fdbfe519",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 37,
+        "minY": 1,
+        "maxX": 229,
+        "maxY": 265,
+        "width": 193,
+        "height": 265
+      }
+    },
+    {
+      "index": 3,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/right/003.png",
+      "sha256": "a451ec20f5613efe5b6050bd37552a5b95b148fd91d54013fe208d3f73207e42",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 37,
+        "minY": 0,
+        "maxX": 229,
+        "maxY": 265,
+        "width": 193,
+        "height": 266
+      }
+    },
+    {
+      "index": 4,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/right/004.png",
+      "sha256": "25a06bb0829205af14452f751788db1bc6911f066ecca5596cf56febfff61ead",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 37,
+        "minY": 1,
+        "maxX": 229,
+        "maxY": 266,
+        "width": 193,
+        "height": 266
+      }
+    },
+    {
+      "index": 5,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/right/005.png",
+      "sha256": "21226f8dab9ffabbd3c50105145e27d27b09c9223d1165131e61cf95615fa38b",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 38,
+        "minY": 2,
+        "maxX": 230,
+        "maxY": 266,
+        "width": 193,
+        "height": 265
+      }
+    },
+    {
+      "index": 6,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/right/006.png",
+      "sha256": "f2ecd09a9f51f08cef7859d3b164a6861fd92e3d7264ab71865835ef57cd9e78",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 39,
+        "minY": 4,
+        "maxX": 230,
+        "maxY": 267,
+        "width": 192,
+        "height": 264
+      }
+    },
+    {
+      "index": 7,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/right/007.png",
+      "sha256": "272aaeb0967167eeeeee7df74c19938eb5ce5531c726d8c2408863f2d6793836",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 38,
+        "minY": 4,
+        "maxX": 230,
+        "maxY": 267,
+        "width": 193,
+        "height": 264
+      }
+    },
+    {
+      "index": 8,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/right/008.png",
+      "sha256": "eaabdce63fba8449b28550de84884d1ed184952e9c2301f2b73521117c97f529",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 37,
+        "minY": 4,
+        "maxX": 230,
+        "maxY": 268,
+        "width": 194,
+        "height": 265
+      }
+    },
+    {
+      "index": 9,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/right/009.png",
+      "sha256": "f1c9ff8b1d5f10616ac19d34cac38f373f1dfe2fae1a453f64b9fbc39af40f90",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 36,
+        "minY": 1,
+        "maxX": 230,
+        "maxY": 266,
+        "width": 195,
+        "height": 266
+      }
+    },
+    {
+      "index": 10,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/right/010.png",
+      "sha256": "ae79516a2bf23a10136fecfa6b09bfd3173732b91b00b0c6f64c1e7b3e07f94f",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 34,
+        "minY": 0,
+        "maxX": 229,
+        "maxY": 265,
+        "width": 196,
+        "height": 266
+      }
+    },
+    {
+      "index": 11,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/right/011.png",
+      "sha256": "59b8ae936b13f6d79474edd36cfe92d84dfb2338d56dd9b1d67e547f5d782427",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 34,
+        "minY": 0,
+        "maxX": 229,
+        "maxY": 264,
+        "width": 196,
+        "height": 265
+      }
+    },
+    {
+      "index": 12,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/right/012.png",
+      "sha256": "0ca17e3dff9783e57acd05b4a2e6af97f9a1336518a9632905f1b2f36b2adb02",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 34,
+        "minY": 0,
+        "maxX": 229,
+        "maxY": 264,
+        "width": 196,
+        "height": 265
+      }
+    },
+    {
+      "index": 13,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/right/013.png",
+      "sha256": "41cde185793960d3510bcde60741e28133d26d3b0d6c90f020c18f1f2372c476",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 34,
+        "minY": 1,
+        "maxX": 230,
+        "maxY": 264,
+        "width": 197,
+        "height": 264
+      }
+    },
+    {
+      "index": 14,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/right/014.png",
+      "sha256": "b41b975a319fde975211adce40dd692c76b4e56b14694dfc9589fb7ab7c30636",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 35,
+        "minY": 3,
+        "maxX": 230,
+        "maxY": 267,
+        "width": 196,
+        "height": 265
+      }
+    },
+    {
+      "index": 15,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/right/015.png",
+      "sha256": "64668cf9a5d5bcdddb5aabdde198f35f44d9f2ee71162f470e09626f97a42f99",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 36,
+        "minY": 4,
+        "maxX": 231,
+        "maxY": 269,
+        "width": 196,
+        "height": 266
+      }
+    },
+    {
+      "index": 16,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/right/016.png",
+      "sha256": "ff8f227e850ddb8734704ecd75f2cc4a3f976e4279eeca4e3e66f3ca12e66f42",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 37,
+        "minY": 4,
+        "maxX": 230,
+        "maxY": 269,
+        "width": 194,
+        "height": 266
+      }
+    },
+    {
+      "index": 17,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/source/right/017.png",
+      "sha256": "28c0ceb2b7b0a73d52a28070a239e2aeac2618e14b16a7e476ac32ac4d2354e8",
+      "size": [
+        320,
+        307
+      ],
+      "bbox": {
+        "minX": 38,
+        "minY": 2,
+        "maxX": 230,
+        "maxY": 268,
+        "width": 193,
+        "height": 267
+      }
+    }
+  ],
+  "frames": [
+    {
+      "index": 1,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/front/001.png",
+      "sha256": "ccbc9dc7e3670985e80421f50e3c391c0ae1c6ee06c6c55ff64497db35686b22",
+      "bbox": {
+        "minX": 44,
+        "minY": 30,
+        "maxX": 164,
+        "maxY": 175,
+        "width": 121,
+        "height": 146
+      }
+    },
+    {
+      "index": 2,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/front/002.png",
+      "sha256": "9eacf47bb4a56cd742afd0cb22b59b01e942f1a4c255f5ff4d7a07577e4fe90b",
+      "bbox": {
+        "minX": 44,
+        "minY": 29,
+        "maxX": 164,
+        "maxY": 175,
+        "width": 121,
+        "height": 147
+      }
+    },
+    {
+      "index": 3,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/front/003.png",
+      "sha256": "c1b78171a198ff8ad925000489444aee1bac8daadb15a2ead8acf8ea985cc098",
+      "bbox": {
+        "minX": 43,
+        "minY": 29,
+        "maxX": 164,
+        "maxY": 175,
+        "width": 122,
+        "height": 147
+      }
+    },
+    {
+      "index": 4,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/front/004.png",
+      "sha256": "6c900ba3a03bc3603ba4eff36e87fcb3d2a1c786724b76c95bc62cf81084b447",
+      "bbox": {
+        "minX": 44,
+        "minY": 29,
+        "maxX": 164,
+        "maxY": 176,
+        "width": 121,
+        "height": 148
+      }
+    },
+    {
+      "index": 5,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/front/005.png",
+      "sha256": "7f763da4bd64f9aa7157b1d8ec4da333bd57339b596dc7ff2e1937794c54dfd0",
+      "bbox": {
+        "minX": 43,
+        "minY": 29,
+        "maxX": 164,
+        "maxY": 176,
+        "width": 122,
+        "height": 148
+      }
+    },
+    {
+      "index": 6,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/front/006.png",
+      "sha256": "5958139b08d14f5e5fa0d284f094075200ac5727eb2375ad2838f594330a8e2e",
+      "bbox": {
+        "minX": 44,
+        "minY": 31,
+        "maxX": 164,
+        "maxY": 177,
+        "width": 121,
+        "height": 147
+      }
+    },
+    {
+      "index": 7,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/front/007.png",
+      "sha256": "7a7111a7bc78b8143648b73e68ebbb65cee7fbaecc337db8800794daa90adfe3",
+      "bbox": {
+        "minX": 44,
+        "minY": 31,
+        "maxX": 164,
+        "maxY": 177,
+        "width": 121,
+        "height": 147
+      }
+    },
+    {
+      "index": 8,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/front/008.png",
+      "sha256": "f5ad2cd9cbc8fc65edfacdba53c087c6cf8835f0f681b538f1c2a1fc594aa6eb",
+      "bbox": {
+        "minX": 43,
+        "minY": 31,
+        "maxX": 164,
+        "maxY": 177,
+        "width": 122,
+        "height": 147
+      }
+    },
+    {
+      "index": 9,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/front/009.png",
+      "sha256": "150f597508c4696006bc2e7da31ee4eff335a29d8cdd22bbbb7ed57d1642b156",
+      "bbox": {
+        "minX": 43,
+        "minY": 30,
+        "maxX": 164,
+        "maxY": 176,
+        "width": 122,
+        "height": 147
+      }
+    },
+    {
+      "index": 10,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/front/010.png",
+      "sha256": "d4824bac2d46f862dc70b4967270bbd97223df5d1b9025c71ec103ae75919dff",
+      "bbox": {
+        "minX": 43,
+        "minY": 28,
+        "maxX": 165,
+        "maxY": 175,
+        "width": 123,
+        "height": 148
+      }
+    },
+    {
+      "index": 11,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/front/011.png",
+      "sha256": "26836648521ae6c1642d339ce79f34c33cca16b5b7f238ac65a2dd3843fc28a0",
+      "bbox": {
+        "minX": 43,
+        "minY": 28,
+        "maxX": 164,
+        "maxY": 175,
+        "width": 122,
+        "height": 148
+      }
+    },
+    {
+      "index": 12,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/front/012.png",
+      "sha256": "bfe464c7e182ca6edf2f61010972ab9971465aecbc1097dbda8d92239bdfce40",
+      "bbox": {
+        "minX": 43,
+        "minY": 28,
+        "maxX": 165,
+        "maxY": 176,
+        "width": 123,
+        "height": 149
+      }
+    },
+    {
+      "index": 13,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/front/013.png",
+      "sha256": "1d10a99c42c84ad1c0734fd1f48b8d5c9746c9a87f297a0ac2f446d10d090fec",
+      "bbox": {
+        "minX": 43,
+        "minY": 28,
+        "maxX": 164,
+        "maxY": 177,
+        "width": 122,
+        "height": 150
+      }
+    },
+    {
+      "index": 14,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/front/014.png",
+      "sha256": "4ac89e37f5d8be4ebb78da22e8b07bd00080c9778cb192064ad8e3fd9dde2885",
+      "bbox": {
+        "minX": 43,
+        "minY": 30,
+        "maxX": 164,
+        "maxY": 178,
+        "width": 122,
+        "height": 149
+      }
+    },
+    {
+      "index": 15,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/front/015.png",
+      "sha256": "91a4e24193363dcae2c8b51d7c0da78197b0da60d8b9d573464217c8512b1c63",
+      "bbox": {
+        "minX": 43,
+        "minY": 30,
+        "maxX": 164,
+        "maxY": 178,
+        "width": 122,
+        "height": 149
+      }
+    },
+    {
+      "index": 16,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/front/016.png",
+      "sha256": "1997136b1317f9fe61ab3450fe5a609fc84e7ddc2a73c1b15cd5204210d461d9",
+      "bbox": {
+        "minX": 43,
+        "minY": 30,
+        "maxX": 164,
+        "maxY": 178,
+        "width": 122,
+        "height": 149
+      }
+    },
+    {
+      "index": 17,
+      "direction": "front",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/front/017.png",
+      "sha256": "713ef3a03d54474fd244cc259c2105914e29c8f4a9c3855ee5b63c8eb5c29d7f",
+      "bbox": {
+        "minX": 43,
+        "minY": 30,
+        "maxX": 164,
+        "maxY": 177,
+        "width": 122,
+        "height": 148
+      }
+    },
+    {
+      "index": 1,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/back/001.png",
+      "sha256": "5ba8dd3beafbc696e1009d384cf671b0df8703a586c400d199ab55f7eb7953ec",
+      "bbox": {
+        "minX": 44,
+        "minY": 29,
+        "maxX": 163,
+        "maxY": 175,
+        "width": 120,
+        "height": 147
+      }
+    },
+    {
+      "index": 2,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/back/002.png",
+      "sha256": "46d5e904059616bdbf2237153ef0c4b853ae0e82309f3121bab9ad2d616a5318",
+      "bbox": {
+        "minX": 44,
+        "minY": 29,
+        "maxX": 164,
+        "maxY": 175,
+        "width": 121,
+        "height": 147
+      }
+    },
+    {
+      "index": 3,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/back/003.png",
+      "sha256": "03d708db1b3e2df178a83e16d00d5bce4917094e4dd4784c4b052f76b797bccd",
+      "bbox": {
+        "minX": 44,
+        "minY": 28,
+        "maxX": 164,
+        "maxY": 176,
+        "width": 121,
+        "height": 149
+      }
+    },
+    {
+      "index": 4,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/back/004.png",
+      "sha256": "39630c2f0065af2dad85e02800cbb2863932ab72df7af59680b3d70d8984c38a",
+      "bbox": {
+        "minX": 44,
+        "minY": 28,
+        "maxX": 164,
+        "maxY": 177,
+        "width": 121,
+        "height": 150
+      }
+    },
+    {
+      "index": 5,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/back/005.png",
+      "sha256": "9f8707c52b20ace2f159a01c97d9a627c58304878f1a472c7b70c5a18b5d23a9",
+      "bbox": {
+        "minX": 45,
+        "minY": 29,
+        "maxX": 164,
+        "maxY": 178,
+        "width": 120,
+        "height": 150
+      }
+    },
+    {
+      "index": 6,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/back/006.png",
+      "sha256": "322e64d35e5226d5d26c730df1d48ea56e795e1364f4457e14ed25a2205ed556",
+      "bbox": {
+        "minX": 45,
+        "minY": 30,
+        "maxX": 164,
+        "maxY": 178,
+        "width": 120,
+        "height": 149
+      }
+    },
+    {
+      "index": 7,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/back/007.png",
+      "sha256": "387e0b5077f1cb2c05bf22c76c13c312372847d765df71bae96b7af0182fdd00",
+      "bbox": {
+        "minX": 45,
+        "minY": 31,
+        "maxX": 164,
+        "maxY": 178,
+        "width": 120,
+        "height": 148
+      }
+    },
+    {
+      "index": 8,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/back/008.png",
+      "sha256": "5cbdac5705ef2b04e754892a99707725a7f1504ad00a23167ee60c89b5e4a292",
+      "bbox": {
+        "minX": 44,
+        "minY": 30,
+        "maxX": 164,
+        "maxY": 178,
+        "width": 121,
+        "height": 149
+      }
+    },
+    {
+      "index": 9,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/back/009.png",
+      "sha256": "483340e6ac51aeeaf9fc7c105ad014b6c6f1f6d7107e4940eab3b1d2da5dbc37",
+      "bbox": {
+        "minX": 44,
+        "minY": 30,
+        "maxX": 164,
+        "maxY": 177,
+        "width": 121,
+        "height": 148
+      }
+    },
+    {
+      "index": 10,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/back/010.png",
+      "sha256": "7af483c244119bcb8693d09fe091c70aa5b60e3bea720743b76b5cb7cd4fd8ca",
+      "bbox": {
+        "minX": 44,
+        "minY": 28,
+        "maxX": 165,
+        "maxY": 177,
+        "width": 122,
+        "height": 150
+      }
+    },
+    {
+      "index": 11,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/back/011.png",
+      "sha256": "2e8aa9ae86c7bd91ea60a04fcd6668e96cff47089af5209b02abfab83b6c2b4b",
+      "bbox": {
+        "minX": 44,
+        "minY": 28,
+        "maxX": 165,
+        "maxY": 176,
+        "width": 122,
+        "height": 149
+      }
+    },
+    {
+      "index": 12,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/back/012.png",
+      "sha256": "36a40d072597e0549fbd14e45d91ce0e1993b7d09dc7e28d52c80a5673f4bbf7",
+      "bbox": {
+        "minX": 44,
+        "minY": 28,
+        "maxX": 165,
+        "maxY": 176,
+        "width": 122,
+        "height": 149
+      }
+    },
+    {
+      "index": 13,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/back/013.png",
+      "sha256": "17f24892d2da11dbdc480f35613eb665d5115cece63e44a3ca30cdc747779fbf",
+      "bbox": {
+        "minX": 44,
+        "minY": 29,
+        "maxX": 165,
+        "maxY": 177,
+        "width": 122,
+        "height": 149
+      }
+    },
+    {
+      "index": 14,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/back/014.png",
+      "sha256": "3142100c500b903f58095e7dc249e3996e99005092d0c9bb00af6e7511250170",
+      "bbox": {
+        "minX": 45,
+        "minY": 30,
+        "maxX": 164,
+        "maxY": 177,
+        "width": 120,
+        "height": 148
+      }
+    },
+    {
+      "index": 15,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/back/015.png",
+      "sha256": "c06404b2da7e27d84e22e2f8746ae95c31c218ed7a498ae2100b8d98ec35365e",
+      "bbox": {
+        "minX": 45,
+        "minY": 30,
+        "maxX": 164,
+        "maxY": 178,
+        "width": 120,
+        "height": 149
+      }
+    },
+    {
+      "index": 16,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/back/016.png",
+      "sha256": "807e07f8da3d8ffe22d89b58b1a1864364fb45133ae384efd71c8e7c79acc303",
+      "bbox": {
+        "minX": 44,
+        "minY": 31,
+        "maxX": 164,
+        "maxY": 178,
+        "width": 121,
+        "height": 148
+      }
+    },
+    {
+      "index": 17,
+      "direction": "back",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/back/017.png",
+      "sha256": "b969df4db20285575092d8cf9e0a44dd1dcc3e96ed5db3c439b0fc65c611bed8",
+      "bbox": {
+        "minX": 44,
+        "minY": 30,
+        "maxX": 164,
+        "maxY": 178,
+        "width": 121,
+        "height": 149
+      }
+    },
+    {
+      "index": 1,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/left/001.png",
+      "sha256": "337f8c3899e723902de1666ea3e7ac66b1408b41f003b2ab6e12d33a5305598d",
+      "bbox": {
+        "minX": 57,
+        "minY": 48,
+        "maxX": 151,
+        "maxY": 177,
+        "width": 95,
+        "height": 130
+      }
+    },
+    {
+      "index": 2,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/left/002.png",
+      "sha256": "4eeef25396fa3fb88dcc9abb43b49bd4bff085e83496b9e0c48e76c8af36b35e",
+      "bbox": {
+        "minX": 57,
+        "minY": 47,
+        "maxX": 151,
+        "maxY": 176,
+        "width": 95,
+        "height": 130
+      }
+    },
+    {
+      "index": 3,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/left/003.png",
+      "sha256": "647fa73982f9ec9c6f2d73065ffb31c996adb8481600948a21c9b8b5c8e0e71c",
+      "bbox": {
+        "minX": 57,
+        "minY": 47,
+        "maxX": 152,
+        "maxY": 176,
+        "width": 96,
+        "height": 130
+      }
+    },
+    {
+      "index": 4,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/left/004.png",
+      "sha256": "e6f868f76c59c503809bf05847464b7603c32dec0368888139350d84f7701e4b",
+      "bbox": {
+        "minX": 57,
+        "minY": 47,
+        "maxX": 152,
+        "maxY": 176,
+        "width": 96,
+        "height": 130
+      }
+    },
+    {
+      "index": 5,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/left/005.png",
+      "sha256": "89bf47f9afcee956c72aabd8cd65db7f710a6c3cef7d635d4fef168b6d8b5377",
+      "bbox": {
+        "minX": 57,
+        "minY": 48,
+        "maxX": 152,
+        "maxY": 177,
+        "width": 96,
+        "height": 130
+      }
+    },
+    {
+      "index": 6,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/left/006.png",
+      "sha256": "fd8e1635dc9f53e3b439eb06f2d50d5fabbd290a520413f69349c9b8914a86eb",
+      "bbox": {
+        "minX": 56,
+        "minY": 49,
+        "maxX": 151,
+        "maxY": 178,
+        "width": 96,
+        "height": 130
+      }
+    },
+    {
+      "index": 7,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/left/007.png",
+      "sha256": "40b77b0e73a60dcabb7ec60d6554d1322f3498577084266999c33254751e3082",
+      "bbox": {
+        "minX": 56,
+        "minY": 49,
+        "maxX": 151,
+        "maxY": 178,
+        "width": 96,
+        "height": 130
+      }
+    },
+    {
+      "index": 8,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/left/008.png",
+      "sha256": "68baba1495a4850d5f9a0e0622397518b5fdb6cdbf0e8fe0b8cad27e33955cd3",
+      "bbox": {
+        "minX": 56,
+        "minY": 49,
+        "maxX": 151,
+        "maxY": 178,
+        "width": 96,
+        "height": 130
+      }
+    },
+    {
+      "index": 9,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/left/009.png",
+      "sha256": "10f38f8c0bd0b0289617ce2b4adab8a5bd56ebf1cc11192a146781d6fb847f0d",
+      "bbox": {
+        "minX": 57,
+        "minY": 48,
+        "maxX": 151,
+        "maxY": 178,
+        "width": 95,
+        "height": 131
+      }
+    },
+    {
+      "index": 10,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/left/010.png",
+      "sha256": "aace8ad77b2f120de4929b292c7e6b30fac7dcf2e1064f76eb39edb19ca88828",
+      "bbox": {
+        "minX": 57,
+        "minY": 47,
+        "maxX": 151,
+        "maxY": 177,
+        "width": 95,
+        "height": 131
+      }
+    },
+    {
+      "index": 11,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/left/011.png",
+      "sha256": "3cda1fa04f41bb569d19869f982b1ebe11cea6ec6192b6c20bd1c9991b37875e",
+      "bbox": {
+        "minX": 57,
+        "minY": 47,
+        "maxX": 151,
+        "maxY": 177,
+        "width": 95,
+        "height": 131
+      }
+    },
+    {
+      "index": 12,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/left/012.png",
+      "sha256": "0894d429238b38ea1c13a67b25c4cf117d65169e2cf8df128ac1243c6a33c05d",
+      "bbox": {
+        "minX": 57,
+        "minY": 47,
+        "maxX": 151,
+        "maxY": 177,
+        "width": 95,
+        "height": 131
+      }
+    },
+    {
+      "index": 13,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/left/013.png",
+      "sha256": "aad20db03a18dfb5b7f4237aee248730c4cb34bb805e6faffa8f2db20352c3d8",
+      "bbox": {
+        "minX": 56,
+        "minY": 47,
+        "maxX": 151,
+        "maxY": 177,
+        "width": 96,
+        "height": 131
+      }
+    },
+    {
+      "index": 14,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/left/014.png",
+      "sha256": "acf206135249c14a2cc68e89f7d9baa1d76b543cc6583420fabb59125912d27d",
+      "bbox": {
+        "minX": 56,
+        "minY": 48,
+        "maxX": 150,
+        "maxY": 177,
+        "width": 95,
+        "height": 130
+      }
+    },
+    {
+      "index": 15,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/left/015.png",
+      "sha256": "d55473bee351493f5aab6b78638bdf0ae510f603aad7a199d98bf6b887431b05",
+      "bbox": {
+        "minX": 56,
+        "minY": 49,
+        "maxX": 151,
+        "maxY": 177,
+        "width": 96,
+        "height": 129
+      }
+    },
+    {
+      "index": 16,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/left/016.png",
+      "sha256": "badc099ba2b4174814c560e5db51ef44dc791d3ce0150df5a44d97f8a175a003",
+      "bbox": {
+        "minX": 56,
+        "minY": 49,
+        "maxX": 151,
+        "maxY": 178,
+        "width": 96,
+        "height": 130
+      }
+    },
+    {
+      "index": 17,
+      "direction": "left",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/left/017.png",
+      "sha256": "8fc4b648e86737a51f84ff1da507d52b3678db96f6b283d44a899d240a4f6934",
+      "bbox": {
+        "minX": 56,
+        "minY": 48,
+        "maxX": 152,
+        "maxY": 178,
+        "width": 97,
+        "height": 131
+      }
+    },
+    {
+      "index": 1,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/right/001.png",
+      "sha256": "c892eaab40904f5f4f8c727b9b9a0aeeaf5fcf179f4ba5c8600978e807a05ea5",
+      "bbox": {
+        "minX": 58,
+        "minY": 48,
+        "maxX": 150,
+        "maxY": 176,
+        "width": 93,
+        "height": 129
+      }
+    },
+    {
+      "index": 2,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/right/002.png",
+      "sha256": "dc5dd1067371bc683ae5ef5e82ca057ce37ef82378e4eef41462f7db017de372",
+      "bbox": {
+        "minX": 57,
+        "minY": 48,
+        "maxX": 151,
+        "maxY": 176,
+        "width": 95,
+        "height": 129
+      }
+    },
+    {
+      "index": 3,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/right/003.png",
+      "sha256": "2824c10b6116258bab0a4caabacbd8fdcfb8e2becdcff3a46c2451b58ef7e9c3",
+      "bbox": {
+        "minX": 57,
+        "minY": 47,
+        "maxX": 151,
+        "maxY": 176,
+        "width": 95,
+        "height": 130
+      }
+    },
+    {
+      "index": 4,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/right/004.png",
+      "sha256": "d206825aa1b0d6d3053acc714b200d7c9f82643912558e3ba2635a91861c98c0",
+      "bbox": {
+        "minX": 57,
+        "minY": 48,
+        "maxX": 151,
+        "maxY": 177,
+        "width": 95,
+        "height": 130
+      }
+    },
+    {
+      "index": 5,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/right/005.png",
+      "sha256": "32b6a21c6b1c61839c005cc709db31fd9d150ba1208e5dd6c2198543a4dcf02e",
+      "bbox": {
+        "minX": 58,
+        "minY": 48,
+        "maxX": 151,
+        "maxY": 177,
+        "width": 94,
+        "height": 130
+      }
+    },
+    {
+      "index": 6,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/right/006.png",
+      "sha256": "dc78d3d3458bcc679d5623864f59681101e7a16011a2b887722ad7478fcf9c21",
+      "bbox": {
+        "minX": 58,
+        "minY": 49,
+        "maxX": 151,
+        "maxY": 177,
+        "width": 94,
+        "height": 129
+      }
+    },
+    {
+      "index": 7,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/right/007.png",
+      "sha256": "a619666c17b96f9afc4637d56f137adb2f19675e94e438e398053b17897ecc98",
+      "bbox": {
+        "minX": 58,
+        "minY": 49,
+        "maxX": 151,
+        "maxY": 177,
+        "width": 94,
+        "height": 129
+      }
+    },
+    {
+      "index": 8,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/right/008.png",
+      "sha256": "f10abcf37fff905d8132acacae504fa2a7cb373c36e4d8f8d8db7cff66823775",
+      "bbox": {
+        "minX": 57,
+        "minY": 49,
+        "maxX": 151,
+        "maxY": 178,
+        "width": 95,
+        "height": 130
+      }
+    },
+    {
+      "index": 9,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/right/009.png",
+      "sha256": "df2dae7a08419d01e008fe708366bb530bcfbeecba3ddc0be4415bfd78842a02",
+      "bbox": {
+        "minX": 57,
+        "minY": 48,
+        "maxX": 151,
+        "maxY": 177,
+        "width": 95,
+        "height": 130
+      }
+    },
+    {
+      "index": 10,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/right/010.png",
+      "sha256": "0740db95f20cab85951ba06d410cdbd2bc597bacf4e49619e47b0e328492ea1d",
+      "bbox": {
+        "minX": 56,
+        "minY": 47,
+        "maxX": 151,
+        "maxY": 176,
+        "width": 96,
+        "height": 130
+      }
+    },
+    {
+      "index": 11,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/right/011.png",
+      "sha256": "b1f27b1f80ce6df33d270ee2c30cd86a62f825abe9ce47549c2439c3b3b9ce50",
+      "bbox": {
+        "minX": 56,
+        "minY": 47,
+        "maxX": 151,
+        "maxY": 176,
+        "width": 96,
+        "height": 130
+      }
+    },
+    {
+      "index": 12,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/right/012.png",
+      "sha256": "d8616ffae58b5aef9dc687a1041d7297fd4e0d6dc0b13e6df8fc1ac97038eaf2",
+      "bbox": {
+        "minX": 56,
+        "minY": 47,
+        "maxX": 151,
+        "maxY": 176,
+        "width": 96,
+        "height": 130
+      }
+    },
+    {
+      "index": 13,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/right/013.png",
+      "sha256": "7d12157fb2a1a11ff56c621a7e02168a7603888ff7130f0b653e4383ad87035a",
+      "bbox": {
+        "minX": 56,
+        "minY": 48,
+        "maxX": 151,
+        "maxY": 176,
+        "width": 96,
+        "height": 129
+      }
+    },
+    {
+      "index": 14,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/right/014.png",
+      "sha256": "66317678fc549826409214bc8d715c7986611557764a7a1f05fd2b81205a8605",
+      "bbox": {
+        "minX": 56,
+        "minY": 49,
+        "maxX": 151,
+        "maxY": 177,
+        "width": 96,
+        "height": 129
+      }
+    },
+    {
+      "index": 15,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/right/015.png",
+      "sha256": "f856322fd6981cb2e09ce7f6ed8992e2fee7f0f4ecc3a84a369d6bce14b4c2fb",
+      "bbox": {
+        "minX": 57,
+        "minY": 49,
+        "maxX": 152,
+        "maxY": 178,
+        "width": 96,
+        "height": 130
+      }
+    },
+    {
+      "index": 16,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/right/016.png",
+      "sha256": "b893f40c2d26e3b36386b3f92b20a4801101da3b1f1b79293e0664974aa2af84",
+      "bbox": {
+        "minX": 57,
+        "minY": 49,
+        "maxX": 151,
+        "maxY": 178,
+        "width": 95,
+        "height": 130
+      }
+    },
+    {
+      "index": 17,
+      "direction": "right",
+      "file": "src/assets/characters/cirno/sequence-approved-v1/frames/right/017.png",
+      "sha256": "760842a9038d833e12becb491fdc5ffa2c246f9fb4cd4361710a3c861d6a3b9e",
+      "bbox": {
+        "minX": 58,
+        "minY": 48,
+        "maxX": 151,
+        "maxY": 178,
+        "width": 94,
+        "height": 131
+      }
+    }
+  ]
+}

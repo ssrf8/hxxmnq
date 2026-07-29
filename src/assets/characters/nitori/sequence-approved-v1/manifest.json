@@ -1,0 +1,2876 @@
+{
+  "version": 1,
+  "character": "nitori",
+  "status": "owner-approved-sequence-source",
+  "runtimeStatus": "ready-for-runtime-integration",
+  "layout": "variable-sequence-v1",
+  "sourceProject": "../参考素材/New project 11",
+  "sourceDirectory": "characters/nitori/定位完成",
+  "sourcePolicy": "copied-byte-for-byte-from-owner-approved-frames",
+  "transform": "uniform-nearest-neighbor-fixed-anchor",
+  "cell": [
+    209,
+    209
+  ],
+  "atlas": "src/assets/characters/nitori/nitori-animation-sequence-approved-v1.png",
+  "atlasSha256": "efc9cd3518ec6382fd8bce27c2f1fb776e0fdfedce0e051f9dbc6a7c4259686e",
+  "atlasSize": [
+    4598,
+    836
+  ],
+  "frameCount": 22,
+  "rowOrder": [
+    "front",
+    "back",
+    "left",
+    "right"
+  ],
+  "frameDurationMs": 90,
+  "stationaryFrame": "direction-row-column-0",
+  "loopStart": 0,
+  "loopEnd": 21,
+  "sourceAnchorByDirection": {
+    "front": [
+      160,
+      304
+    ],
+    "back": [
+      160,
+      304
+    ],
+    "left": [
+      160,
+      304
+    ],
+    "right": [
+      160,
+      304
+    ]
+  },
+  "targetAnchor": [
+    104,
+    179
+  ],
+  "targetVisibleHeight": 150,
+  "scale": 0.5494505494505495,
+  "sources": [
+    {
+      "index": 1,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/front/001.png",
+      "sha256": "1302232f816bf82bc3bf788ed84617bdebe07115c3fad2b7938b6e24b39e7e94",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 71,
+        "minY": 33,
+        "maxX": 249,
+        "maxY": 303,
+        "width": 179,
+        "height": 271
+      }
+    },
+    {
+      "index": 2,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/front/002.png",
+      "sha256": "691ac7e5f36d4b3a2e72ff8b08e6a5b5e28bd638233939d6b253138172e289d9",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 73,
+        "minY": 32,
+        "maxX": 246,
+        "maxY": 303,
+        "width": 174,
+        "height": 272
+      }
+    },
+    {
+      "index": 3,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/front/003.png",
+      "sha256": "5b89783773dc760b80f8bf46611ab49b0c9ec96208b7695a3c91d64d7098abc1",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 72,
+        "minY": 33,
+        "maxX": 247,
+        "maxY": 303,
+        "width": 176,
+        "height": 271
+      }
+    },
+    {
+      "index": 4,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/front/004.png",
+      "sha256": "12b150f0089d6422623614dfb465a139202a1219e13f165aaf2521fd5aef4966",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 71,
+        "minY": 34,
+        "maxX": 249,
+        "maxY": 303,
+        "width": 179,
+        "height": 270
+      }
+    },
+    {
+      "index": 5,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/front/005.png",
+      "sha256": "695e3483bb80ed39d4b50e30316ca0f965226b31f95d9d05b991b53c4a1cc16d",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 69,
+        "minY": 34,
+        "maxX": 250,
+        "maxY": 303,
+        "width": 182,
+        "height": 270
+      }
+    },
+    {
+      "index": 6,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/front/006.png",
+      "sha256": "dd9a33c0e94c13fabc6c9adaebca5a89cc38e428b9c23a67d29371569fbb7d25",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 69,
+        "minY": 35,
+        "maxX": 251,
+        "maxY": 303,
+        "width": 183,
+        "height": 269
+      }
+    },
+    {
+      "index": 7,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/front/007.png",
+      "sha256": "f1957f53262e2b26688a3dc57d6b0f20e39ae9122eecbefa90d9a9ae0336e116",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 69,
+        "minY": 35,
+        "maxX": 251,
+        "maxY": 303,
+        "width": 183,
+        "height": 269
+      }
+    },
+    {
+      "index": 8,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/front/008.png",
+      "sha256": "e45a425772d5134e164e0e47fb12e83def7a43fdaa56cade2bb77232ddd0ca2d",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 71,
+        "minY": 32,
+        "maxX": 248,
+        "maxY": 303,
+        "width": 178,
+        "height": 272
+      }
+    },
+    {
+      "index": 9,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/front/009.png",
+      "sha256": "022ce01495f9ca48b901efc1f5578e840fbb2a647a9297c891f948b62fe19806",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 72,
+        "minY": 32,
+        "maxX": 247,
+        "maxY": 303,
+        "width": 176,
+        "height": 272
+      }
+    },
+    {
+      "index": 10,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/front/010.png",
+      "sha256": "5d414fb88d8877b3f261556d696480c0e4a24c41d65c0ab931777cfefbca93d1",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 73,
+        "minY": 32,
+        "maxX": 246,
+        "maxY": 303,
+        "width": 174,
+        "height": 272
+      }
+    },
+    {
+      "index": 11,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/front/011.png",
+      "sha256": "1261dc71cd8f5a1b851b229b21f7d920677772813ffc5e5d614d118a7b976b2a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 72,
+        "minY": 31,
+        "maxX": 247,
+        "maxY": 303,
+        "width": 176,
+        "height": 273
+      }
+    },
+    {
+      "index": 12,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/front/012.png",
+      "sha256": "70ddbf816d6b3d6a21ff32f894e67100bb6b7224808cce174d570aa1740e668a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 70,
+        "minY": 33,
+        "maxX": 250,
+        "maxY": 303,
+        "width": 181,
+        "height": 271
+      }
+    },
+    {
+      "index": 13,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/front/013.png",
+      "sha256": "e9f6ad5d348ffdc5fe82b4a659f905a2171acfa6e1cc8129d077c2c04574337d",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 69,
+        "minY": 35,
+        "maxX": 250,
+        "maxY": 303,
+        "width": 182,
+        "height": 269
+      }
+    },
+    {
+      "index": 14,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/front/014.png",
+      "sha256": "5a1889c0414a1dfd04042f637e601362ff89a61d39425f3a47f51eae01bbbe8d",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 68,
+        "minY": 35,
+        "maxX": 252,
+        "maxY": 303,
+        "width": 185,
+        "height": 269
+      }
+    },
+    {
+      "index": 15,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/front/015.png",
+      "sha256": "5274cec2a92d1ad327e802556a57dd6dba6e80f2d738ca171ad810888a42c36f",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 68,
+        "minY": 34,
+        "maxX": 251,
+        "maxY": 303,
+        "width": 184,
+        "height": 270
+      }
+    },
+    {
+      "index": 16,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/front/016.png",
+      "sha256": "bf3212ae23a671bc4fb12286b0ff6f99ff6a5964fb944b49cfb9c93f78df104a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 71,
+        "minY": 32,
+        "maxX": 248,
+        "maxY": 303,
+        "width": 178,
+        "height": 272
+      }
+    },
+    {
+      "index": 17,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/front/017.png",
+      "sha256": "1c5f2a36576891e71eb4577b2c0a7821ce5cbc0d751a66e787b32c2942abfb15",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 72,
+        "minY": 32,
+        "maxX": 247,
+        "maxY": 303,
+        "width": 176,
+        "height": 272
+      }
+    },
+    {
+      "index": 18,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/front/018.png",
+      "sha256": "f43b4744bc7190f18ac5de97be856656f8407413a65bd6ad76e034bf12c68ea5",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 73,
+        "minY": 31,
+        "maxX": 245,
+        "maxY": 303,
+        "width": 173,
+        "height": 273
+      }
+    },
+    {
+      "index": 19,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/front/019.png",
+      "sha256": "1e1c06376a936587680544020374b7e4b8c3216f602f58271299d894513be6af",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 73,
+        "minY": 32,
+        "maxX": 245,
+        "maxY": 303,
+        "width": 173,
+        "height": 272
+      }
+    },
+    {
+      "index": 20,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/front/020.png",
+      "sha256": "378ab6fcaabe015ec58a3a7ffcb0aca11d5f6631410b38b25a407c2d6d457d9e",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 72,
+        "minY": 33,
+        "maxX": 248,
+        "maxY": 303,
+        "width": 177,
+        "height": 271
+      }
+    },
+    {
+      "index": 21,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/front/021.png",
+      "sha256": "85005b18642badf3419624d94beb5c127ee1078120661ed80cf39cc576aa4eb8",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 70,
+        "minY": 36,
+        "maxX": 250,
+        "maxY": 303,
+        "width": 181,
+        "height": 268
+      }
+    },
+    {
+      "index": 22,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/front/022.png",
+      "sha256": "54e36bda17a091fce1834b40c39490a9dcd491d8ddc3e67cd24e15b0c5e95d83",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 69,
+        "minY": 35,
+        "maxX": 250,
+        "maxY": 303,
+        "width": 182,
+        "height": 269
+      }
+    },
+    {
+      "index": 1,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/back/001.png",
+      "sha256": "501197b2d59a1267f8a8ac68d8e63af28fdc61065bb158d1e4876f3b03b24bbe",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 71,
+        "minY": 35,
+        "maxX": 248,
+        "maxY": 303,
+        "width": 178,
+        "height": 269
+      }
+    },
+    {
+      "index": 2,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/back/002.png",
+      "sha256": "b803dc52b1b4206e139519a36955283bf32697db16cb78ade8b5e830bed0dfae",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 74,
+        "minY": 37,
+        "maxX": 246,
+        "maxY": 303,
+        "width": 173,
+        "height": 267
+      }
+    },
+    {
+      "index": 3,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/back/003.png",
+      "sha256": "63dd5e41f57d3de0d1487734ae7db7990b55e887ff9ed5289bc5798dc8629d17",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 73,
+        "minY": 37,
+        "maxX": 246,
+        "maxY": 303,
+        "width": 174,
+        "height": 267
+      }
+    },
+    {
+      "index": 4,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/back/004.png",
+      "sha256": "ee48c3e13ac5f95dcd9f1e0e2bf21b648db78b491e5cdf66dc4b0c46e2184dc3",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 71,
+        "minY": 35,
+        "maxX": 247,
+        "maxY": 303,
+        "width": 177,
+        "height": 269
+      }
+    },
+    {
+      "index": 5,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/back/005.png",
+      "sha256": "46ba76a1c4007da2bd0db18d9d9b816feb31e76890cd3a27260f19053f8ae87a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 70,
+        "minY": 35,
+        "maxX": 250,
+        "maxY": 303,
+        "width": 181,
+        "height": 269
+      }
+    },
+    {
+      "index": 6,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/back/006.png",
+      "sha256": "f97074f9ef19a468f1f7908112ca513d271c5201467a0e0fcc411228a69ae7b7",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 69,
+        "minY": 34,
+        "maxX": 250,
+        "maxY": 303,
+        "width": 182,
+        "height": 270
+      }
+    },
+    {
+      "index": 7,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/back/007.png",
+      "sha256": "6672c9ec54e812b5a4165941032db18bc45dd81bbe6e87af804b8b780499759e",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 69,
+        "minY": 34,
+        "maxX": 250,
+        "maxY": 303,
+        "width": 182,
+        "height": 270
+      }
+    },
+    {
+      "index": 8,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/back/008.png",
+      "sha256": "52f06d141764462bd78d0e4ab9513c514c3b391a7b585c1b0f15973df0fea039",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 70,
+        "minY": 35,
+        "maxX": 249,
+        "maxY": 303,
+        "width": 180,
+        "height": 269
+      }
+    },
+    {
+      "index": 9,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/back/009.png",
+      "sha256": "8d1a3f195d218a7cd9b7690b28a6374d8680f1229a9b384644e6fc2fa6e55d29",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 72,
+        "minY": 36,
+        "maxX": 248,
+        "maxY": 303,
+        "width": 177,
+        "height": 268
+      }
+    },
+    {
+      "index": 10,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/back/010.png",
+      "sha256": "f9c1977f31ca3353f74cb87f444821144da866aa33b2db31b103f54b126f3669",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 72,
+        "minY": 36,
+        "maxX": 248,
+        "maxY": 303,
+        "width": 177,
+        "height": 268
+      }
+    },
+    {
+      "index": 11,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/back/011.png",
+      "sha256": "722fdd824f87834260c7ee1e0bf367d98e198cab7db3226b5ad75bb6272fa0fc",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 71,
+        "minY": 35,
+        "maxX": 247,
+        "maxY": 303,
+        "width": 177,
+        "height": 269
+      }
+    },
+    {
+      "index": 12,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/back/012.png",
+      "sha256": "281bf681ac060c37b680f0cf06a70bb1271c476c7265b1ba1cd9ea565e6ed374",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 70,
+        "minY": 35,
+        "maxX": 249,
+        "maxY": 303,
+        "width": 180,
+        "height": 269
+      }
+    },
+    {
+      "index": 13,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/back/013.png",
+      "sha256": "eeed379b677294f7fd43f4addb733a8834cf7cb711c1fbc365667a2ff36aae64",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 69,
+        "minY": 36,
+        "maxX": 250,
+        "maxY": 303,
+        "width": 182,
+        "height": 268
+      }
+    },
+    {
+      "index": 14,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/back/014.png",
+      "sha256": "8b53a9d94c2167483c397d994a4ddc8246b9043cdc695f52b38bd10c43527b8e",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 68,
+        "minY": 34,
+        "maxX": 250,
+        "maxY": 303,
+        "width": 183,
+        "height": 270
+      }
+    },
+    {
+      "index": 15,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/back/015.png",
+      "sha256": "97e19ed8cf1b0e3367b9bc1563312bcb6c279f3f677f3fed06ccc041718631fe",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 68,
+        "minY": 36,
+        "maxX": 251,
+        "maxY": 303,
+        "width": 184,
+        "height": 268
+      }
+    },
+    {
+      "index": 16,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/back/016.png",
+      "sha256": "a520f6a03945c29f3e039799acae9b77daa0ef9758e2ffa01c49358d640cc805",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 72,
+        "minY": 36,
+        "maxX": 248,
+        "maxY": 303,
+        "width": 177,
+        "height": 268
+      }
+    },
+    {
+      "index": 17,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/back/017.png",
+      "sha256": "142a8430dc905e7bab6c320e6fd4d6e0a328ed68f83c3bd6bd56847ebf86ba65",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 72,
+        "minY": 36,
+        "maxX": 247,
+        "maxY": 303,
+        "width": 176,
+        "height": 268
+      }
+    },
+    {
+      "index": 18,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/back/018.png",
+      "sha256": "68cf2c14a516e904e47bcd70fc1972bb9af4da245c6c269bbfbdf63684df3ed1",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 73,
+        "minY": 35,
+        "maxX": 246,
+        "maxY": 303,
+        "width": 174,
+        "height": 269
+      }
+    },
+    {
+      "index": 19,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/back/019.png",
+      "sha256": "fce2bd2ddd2b1c32ae4a62dbc4361a68530a8b72ad76a91f215f79540ee9f7ef",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 73,
+        "minY": 35,
+        "maxX": 246,
+        "maxY": 303,
+        "width": 174,
+        "height": 269
+      }
+    },
+    {
+      "index": 20,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/back/020.png",
+      "sha256": "e6f01728a253afe8fbdb925049066c25b3890683df571fbe3d75986cd5d0e432",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 71,
+        "minY": 34,
+        "maxX": 248,
+        "maxY": 303,
+        "width": 178,
+        "height": 270
+      }
+    },
+    {
+      "index": 21,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/back/021.png",
+      "sha256": "4d445fa7adf24a45680eb04f4ec3faf311a976c791bee09bd0d98fd346fc99e0",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 70,
+        "minY": 35,
+        "maxX": 250,
+        "maxY": 303,
+        "width": 181,
+        "height": 269
+      }
+    },
+    {
+      "index": 22,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/back/022.png",
+      "sha256": "ac2428d9e327483159349f956f36a981a9d2d090de5e9c870344db8c2e3eca62",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 69,
+        "minY": 35,
+        "maxX": 251,
+        "maxY": 303,
+        "width": 183,
+        "height": 269
+      }
+    },
+    {
+      "index": 1,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/left/001.png",
+      "sha256": "6dc9560b0fe9ac79c9a7062451c5837d753d7eef309eb20dbb30a80f8ce57848",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 48,
+        "maxX": 238,
+        "maxY": 303,
+        "width": 157,
+        "height": 256
+      }
+    },
+    {
+      "index": 2,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/left/002.png",
+      "sha256": "2eaaa1276bef55b912194e79763a4cd6ac9becb5b3e96fc16abd5f01c651af9a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 83,
+        "minY": 46,
+        "maxX": 236,
+        "maxY": 303,
+        "width": 154,
+        "height": 258
+      }
+    },
+    {
+      "index": 3,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/left/003.png",
+      "sha256": "65fd2e5e1a2ad7efb2609daeacb2c5726870fba89253173a192530517a3ff9a7",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 45,
+        "maxX": 236,
+        "maxY": 303,
+        "width": 155,
+        "height": 259
+      }
+    },
+    {
+      "index": 4,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/left/004.png",
+      "sha256": "83c1bdd3bd279ae533d0d856300abf69efd0fc0819678ea4473ffde088c2dc13",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 47,
+        "maxX": 238,
+        "maxY": 303,
+        "width": 157,
+        "height": 257
+      }
+    },
+    {
+      "index": 5,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/left/005.png",
+      "sha256": "5afaac9d0d3b56a53ad4dcb08ee3b14534faf07133b980e58c9a5a27e76ed8f8",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 47,
+        "maxX": 237,
+        "maxY": 303,
+        "width": 157,
+        "height": 257
+      }
+    },
+    {
+      "index": 6,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/left/006.png",
+      "sha256": "0762b4b171faa03c9f351d4cad27aad721a050ed7f0e1ffdd35e7edad8232198",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 48,
+        "maxX": 238,
+        "maxY": 303,
+        "width": 158,
+        "height": 256
+      }
+    },
+    {
+      "index": 7,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/left/007.png",
+      "sha256": "f9c3f2db9a939f216b8ecbcfed0942d2e60e81b789bf4f40dd113a2025c07fee",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 47,
+        "maxX": 239,
+        "maxY": 303,
+        "width": 159,
+        "height": 257
+      }
+    },
+    {
+      "index": 8,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/left/008.png",
+      "sha256": "d2e59c08bf07689f3e2020d6a7ea06f4df04e615b38f2cfd33e8fb85c7afecd8",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 48,
+        "maxX": 237,
+        "maxY": 303,
+        "width": 157,
+        "height": 256
+      }
+    },
+    {
+      "index": 9,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/left/009.png",
+      "sha256": "c1b0ae9db696c1f6df34165a0cb8c047a76b15a75f673b0527024bdfb1168c7e",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 48,
+        "maxX": 238,
+        "maxY": 303,
+        "width": 157,
+        "height": 256
+      }
+    },
+    {
+      "index": 10,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/left/010.png",
+      "sha256": "b83224f12bf07304f8254a1dbe950dae4297a3a8acfbc3b1a68bb0524b22aec2",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 45,
+        "maxX": 237,
+        "maxY": 303,
+        "width": 156,
+        "height": 259
+      }
+    },
+    {
+      "index": 11,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/left/011.png",
+      "sha256": "51d88c2c169f9592fa2f63b3324f184b80617ff923e5e2999ab94ba9f39ec787",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 45,
+        "maxX": 237,
+        "maxY": 303,
+        "width": 156,
+        "height": 259
+      }
+    },
+    {
+      "index": 12,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/left/012.png",
+      "sha256": "9cf33e37eb74f58705f27aa78e4b3d53fa78c2f4cde32597b11973f98b2b8575",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 45,
+        "maxX": 237,
+        "maxY": 303,
+        "width": 156,
+        "height": 259
+      }
+    },
+    {
+      "index": 13,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/left/013.png",
+      "sha256": "7f24d34ab01028eb828d8d5ffd5beb8305de4587e2ccde607126f4f818a5a584",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 46,
+        "maxX": 238,
+        "maxY": 303,
+        "width": 157,
+        "height": 258
+      }
+    },
+    {
+      "index": 14,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/left/014.png",
+      "sha256": "d11910e262fa5d1e779c89a3ba10781282074e0814f94ff4082279628fc9666a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 46,
+        "maxX": 238,
+        "maxY": 303,
+        "width": 159,
+        "height": 258
+      }
+    },
+    {
+      "index": 15,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/left/015.png",
+      "sha256": "11769bf08e38710665816da93b2f59fef96fa76b28927e4f5d9f1f1c620fbc96",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 47,
+        "maxX": 238,
+        "maxY": 303,
+        "width": 159,
+        "height": 257
+      }
+    },
+    {
+      "index": 16,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/left/016.png",
+      "sha256": "e9d684341155d85e3909dd9d13061dc22ec7409746b936cc55dd43376080b010",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 49,
+        "maxX": 238,
+        "maxY": 303,
+        "width": 158,
+        "height": 255
+      }
+    },
+    {
+      "index": 17,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/left/017.png",
+      "sha256": "77dd8fcafd952442004a85935788d3060a60a56058492d7f32221d957dc61a87",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 49,
+        "maxX": 237,
+        "maxY": 303,
+        "width": 157,
+        "height": 255
+      }
+    },
+    {
+      "index": 18,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/left/018.png",
+      "sha256": "a1217727b323c79094f1a3088a366599c63aeecfb2a3ed87778dfb71880ebbb8",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 46,
+        "maxX": 237,
+        "maxY": 303,
+        "width": 157,
+        "height": 258
+      }
+    },
+    {
+      "index": 19,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/left/019.png",
+      "sha256": "4a817023754658072db168ac546363680121f7996e515536d8e564fae811d167",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 45,
+        "maxX": 237,
+        "maxY": 303,
+        "width": 157,
+        "height": 259
+      }
+    },
+    {
+      "index": 20,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/left/020.png",
+      "sha256": "e1d7a044f177273684a924b7cddaec04881d11f7faa4083741cb8f2d456bbf75",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 46,
+        "maxX": 238,
+        "maxY": 303,
+        "width": 157,
+        "height": 258
+      }
+    },
+    {
+      "index": 21,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/left/021.png",
+      "sha256": "29acf604ccb67d3c19cbae7800187a21c6296726f88fba490e7b7f7a72d2e12f",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 47,
+        "maxX": 239,
+        "maxY": 303,
+        "width": 159,
+        "height": 257
+      }
+    },
+    {
+      "index": 22,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/left/022.png",
+      "sha256": "64efca2fe97823e72de218bd7b17ef89e7d4526794b90c9a307ac0bb400bd627",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 48,
+        "maxX": 239,
+        "maxY": 303,
+        "width": 159,
+        "height": 256
+      }
+    },
+    {
+      "index": 1,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/right/001.png",
+      "sha256": "fbfb735c1172263c2c1f549d193828d462a021273c8af4660d67db93f3a61f39",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 49,
+        "maxX": 239,
+        "maxY": 303,
+        "width": 159,
+        "height": 255
+      }
+    },
+    {
+      "index": 2,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/right/002.png",
+      "sha256": "7b1cb58554b04566d1088cf112a330840007e44c0f312d3e2568c9d5cfff2f26",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 46,
+        "maxX": 237,
+        "maxY": 303,
+        "width": 156,
+        "height": 258
+      }
+    },
+    {
+      "index": 3,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/right/003.png",
+      "sha256": "d573d9f1d4035ac5a4db56a4c61c4fb5e88318a7dbf895e6b2889715413e15d7",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 46,
+        "maxX": 237,
+        "maxY": 303,
+        "width": 157,
+        "height": 258
+      }
+    },
+    {
+      "index": 4,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/right/004.png",
+      "sha256": "0e0feef23754eed76d5e8413fb0c518990701f8269805390b9ee6100629ed381",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 46,
+        "maxX": 237,
+        "maxY": 303,
+        "width": 156,
+        "height": 258
+      }
+    },
+    {
+      "index": 5,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/right/005.png",
+      "sha256": "b38aee4203230cdcddc0941f6dd312e8733571c2e420298430f2de98d27fe274",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 46,
+        "maxX": 237,
+        "maxY": 303,
+        "width": 157,
+        "height": 258
+      }
+    },
+    {
+      "index": 6,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/right/006.png",
+      "sha256": "22048348a27a97794800ac92581840827d4f714b4347104d106c98967c000533",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 47,
+        "maxX": 239,
+        "maxY": 303,
+        "width": 159,
+        "height": 257
+      }
+    },
+    {
+      "index": 7,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/right/007.png",
+      "sha256": "06f19ce6404d3701e32c6128aaeda56bebf2b91bdf3ec604df76f515ef0b49e6",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 48,
+        "maxX": 238,
+        "maxY": 303,
+        "width": 158,
+        "height": 256
+      }
+    },
+    {
+      "index": 8,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/right/008.png",
+      "sha256": "d81cfd240c344f952c2163b299caaebfb12e0c89d5b4f7c324403b9e875c6691",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 49,
+        "maxX": 237,
+        "maxY": 303,
+        "width": 156,
+        "height": 255
+      }
+    },
+    {
+      "index": 9,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/right/009.png",
+      "sha256": "323baaa2a0375262e818f44fdd73bd9e0e6e93eb0b73bf1203eb9902ab4c3579",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 50,
+        "maxX": 237,
+        "maxY": 303,
+        "width": 157,
+        "height": 254
+      }
+    },
+    {
+      "index": 10,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/right/010.png",
+      "sha256": "5816f8996ace3478a1b09fbd95cf1f68b329352ee982f4b1c13005c60c4fc83d",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 46,
+        "maxX": 237,
+        "maxY": 303,
+        "width": 156,
+        "height": 258
+      }
+    },
+    {
+      "index": 11,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/right/011.png",
+      "sha256": "de4a93d7aa1c690a76ff5441f82a8e26b11a9640c81188bb8b2d2120d56dd102",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 83,
+        "minY": 47,
+        "maxX": 237,
+        "maxY": 303,
+        "width": 155,
+        "height": 257
+      }
+    },
+    {
+      "index": 12,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/right/012.png",
+      "sha256": "27fc01d3327e72eaac5ef1f4f922aff3226e64ab5b2eff36a6ccd83398976541",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 47,
+        "maxX": 237,
+        "maxY": 303,
+        "width": 156,
+        "height": 257
+      }
+    },
+    {
+      "index": 13,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/right/013.png",
+      "sha256": "6781397c3e49384e2642ea434bd797df50d3904a7d8d572b2d28e6b5f16c414a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 47,
+        "maxX": 238,
+        "maxY": 303,
+        "width": 158,
+        "height": 257
+      }
+    },
+    {
+      "index": 14,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/right/014.png",
+      "sha256": "d9448c096256399e23ebe585c6b855c368ea0c84b849783dcb019a6e78bb7b13",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 48,
+        "maxX": 238,
+        "maxY": 303,
+        "width": 158,
+        "height": 256
+      }
+    },
+    {
+      "index": 15,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/right/015.png",
+      "sha256": "6013d07089031f53f408efaf4626f7f8c3361902ece5cc9b5ed156b648ddb685",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 49,
+        "maxX": 238,
+        "maxY": 303,
+        "width": 158,
+        "height": 255
+      }
+    },
+    {
+      "index": 16,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/right/016.png",
+      "sha256": "f51621f12dd769ec5eb63a5b6dbdaa123127e5c3cc313676c09854834f60e3c1",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 83,
+        "minY": 48,
+        "maxX": 237,
+        "maxY": 303,
+        "width": 155,
+        "height": 256
+      }
+    },
+    {
+      "index": 17,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/right/017.png",
+      "sha256": "1efeb5887bd3a0b19036ff743b0b40a40dd0cdfc4585ac13b29004f904941fbd",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 48,
+        "maxX": 237,
+        "maxY": 303,
+        "width": 157,
+        "height": 256
+      }
+    },
+    {
+      "index": 18,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/right/018.png",
+      "sha256": "3110a3cef65e4df0fa7ef7a56a9ea1955a6a467335d0a17f6810cea29853035b",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 45,
+        "maxX": 238,
+        "maxY": 303,
+        "width": 158,
+        "height": 259
+      }
+    },
+    {
+      "index": 19,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/right/019.png",
+      "sha256": "35d63e2df85829cfead63922c203cded39b5024ebde26a4385e3c6663a560330",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 44,
+        "maxX": 237,
+        "maxY": 303,
+        "width": 157,
+        "height": 260
+      }
+    },
+    {
+      "index": 20,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/right/020.png",
+      "sha256": "e8aaf5eaaa21188bc4e957a348822de10d2c7d94210685d0081066280d55e435",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 45,
+        "maxX": 238,
+        "maxY": 303,
+        "width": 157,
+        "height": 259
+      }
+    },
+    {
+      "index": 21,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/right/021.png",
+      "sha256": "288f439bfe76cf12314d8cd0c5bb1f063e72469109fc60a406f264061ef9922c",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 46,
+        "maxX": 238,
+        "maxY": 303,
+        "width": 157,
+        "height": 258
+      }
+    },
+    {
+      "index": 22,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/source/right/022.png",
+      "sha256": "69dbbc14df8993ca88accf41b04390b2cbfd2a2b19dae7647e164b01a1aca033",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 48,
+        "maxX": 238,
+        "maxY": 303,
+        "width": 157,
+        "height": 256
+      }
+    }
+  ],
+  "frames": [
+    {
+      "index": 1,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/front/001.png",
+      "sha256": "49c339c4cf9a136342665af53965b82598f2f2a045c71f1b5c66754aae83c4eb",
+      "bbox": {
+        "minX": 55,
+        "minY": 30,
+        "maxX": 153,
+        "maxY": 178,
+        "width": 99,
+        "height": 149
+      }
+    },
+    {
+      "index": 2,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/front/002.png",
+      "sha256": "7b1d46ec81da495f38bd663816462847f98135f214b7e8dc3b17ef4b34bbeddb",
+      "bbox": {
+        "minX": 56,
+        "minY": 30,
+        "maxX": 151,
+        "maxY": 178,
+        "width": 96,
+        "height": 149
+      }
+    },
+    {
+      "index": 3,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/front/003.png",
+      "sha256": "496d70a13191ff88871464c866fae096c0ee8ec91db61ba99dba44c36f2aef3c",
+      "bbox": {
+        "minX": 56,
+        "minY": 30,
+        "maxX": 152,
+        "maxY": 178,
+        "width": 97,
+        "height": 149
+      }
+    },
+    {
+      "index": 4,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/front/004.png",
+      "sha256": "23649abdcab709aad9025250f2250ad335768b7a18d70659be54403989a2a8de",
+      "bbox": {
+        "minX": 55,
+        "minY": 31,
+        "maxX": 153,
+        "maxY": 178,
+        "width": 99,
+        "height": 148
+      }
+    },
+    {
+      "index": 5,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/front/005.png",
+      "sha256": "ecae2f95043e20b971418113626908f62cabcd625c8404d363f0e229f4d72058",
+      "bbox": {
+        "minX": 54,
+        "minY": 31,
+        "maxX": 153,
+        "maxY": 178,
+        "width": 100,
+        "height": 148
+      }
+    },
+    {
+      "index": 6,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/front/006.png",
+      "sha256": "7737e4f0587223cf8f55e8966ce53bf0e5475f7f132b88a2b64e92b126849080",
+      "bbox": {
+        "minX": 54,
+        "minY": 31,
+        "maxX": 154,
+        "maxY": 178,
+        "width": 101,
+        "height": 148
+      }
+    },
+    {
+      "index": 7,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/front/007.png",
+      "sha256": "60d47a1431d2681cdf0cb183ef6a72f7b6c812e1a7388a832bad13c009b39575",
+      "bbox": {
+        "minX": 54,
+        "minY": 31,
+        "maxX": 154,
+        "maxY": 178,
+        "width": 101,
+        "height": 148
+      }
+    },
+    {
+      "index": 8,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/front/008.png",
+      "sha256": "c37d7e91ae32804f9165ea706e6a2dabfc947206c093e0ea290a106a441cbe2c",
+      "bbox": {
+        "minX": 55,
+        "minY": 30,
+        "maxX": 152,
+        "maxY": 178,
+        "width": 98,
+        "height": 149
+      }
+    },
+    {
+      "index": 9,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/front/009.png",
+      "sha256": "61eb28bd50fa6b6c234db09a7af820e5642ea82f9444af117f7462607d99f13b",
+      "bbox": {
+        "minX": 56,
+        "minY": 30,
+        "maxX": 152,
+        "maxY": 178,
+        "width": 97,
+        "height": 149
+      }
+    },
+    {
+      "index": 10,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/front/010.png",
+      "sha256": "9e45a1e1dc75e3e3c0b55a924a94f100197ff707ec66bc6f91d4f183cade7c7d",
+      "bbox": {
+        "minX": 56,
+        "minY": 30,
+        "maxX": 151,
+        "maxY": 178,
+        "width": 96,
+        "height": 149
+      }
+    },
+    {
+      "index": 11,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/front/011.png",
+      "sha256": "a8d13da221744c9521a71f12a6ab8cfdc1fc441bcdf0e7446a7e65b5a4138f12",
+      "bbox": {
+        "minX": 56,
+        "minY": 29,
+        "maxX": 152,
+        "maxY": 178,
+        "width": 97,
+        "height": 150
+      }
+    },
+    {
+      "index": 12,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/front/012.png",
+      "sha256": "5447f89c7b69317d03158d6913639cad20669f573a0ed1ac4ae77ec5460e5835",
+      "bbox": {
+        "minX": 55,
+        "minY": 30,
+        "maxX": 153,
+        "maxY": 178,
+        "width": 99,
+        "height": 149
+      }
+    },
+    {
+      "index": 13,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/front/013.png",
+      "sha256": "8af42dba8f092a8ca4560263a76292fb6bf062cc0967b71af7fa02fb537a0f9a",
+      "bbox": {
+        "minX": 54,
+        "minY": 31,
+        "maxX": 153,
+        "maxY": 178,
+        "width": 100,
+        "height": 148
+      }
+    },
+    {
+      "index": 14,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/front/014.png",
+      "sha256": "245fc5ff9202ec6296f579eb31a0f5a69e245fd9fd42f236f5201379f3d9f663",
+      "bbox": {
+        "minX": 54,
+        "minY": 31,
+        "maxX": 154,
+        "maxY": 178,
+        "width": 101,
+        "height": 148
+      }
+    },
+    {
+      "index": 15,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/front/015.png",
+      "sha256": "89adf2312a6c650687e7a511a3d9afa40c40a1bc0986f58e107c0a57e257e81c",
+      "bbox": {
+        "minX": 54,
+        "minY": 31,
+        "maxX": 154,
+        "maxY": 178,
+        "width": 101,
+        "height": 148
+      }
+    },
+    {
+      "index": 16,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/front/016.png",
+      "sha256": "ea5f75616dbbdc2f7622da0ecdec164863376319859226f06518a89463c5654a",
+      "bbox": {
+        "minX": 55,
+        "minY": 30,
+        "maxX": 152,
+        "maxY": 178,
+        "width": 98,
+        "height": 149
+      }
+    },
+    {
+      "index": 17,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/front/017.png",
+      "sha256": "dc050f547823d6825400f6cc03cc569af918546bdcea6e94ab3d7088c81501a8",
+      "bbox": {
+        "minX": 56,
+        "minY": 31,
+        "maxX": 152,
+        "maxY": 178,
+        "width": 97,
+        "height": 148
+      }
+    },
+    {
+      "index": 18,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/front/018.png",
+      "sha256": "1c025cfbac15e614a323173d06fd046a63cd6393c3e5b2fa94596198e46068ca",
+      "bbox": {
+        "minX": 56,
+        "minY": 29,
+        "maxX": 150,
+        "maxY": 178,
+        "width": 95,
+        "height": 150
+      }
+    },
+    {
+      "index": 19,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/front/019.png",
+      "sha256": "977470c5b8ee501b168b4442afce70923d23ca437f5ad2137b2afd690380b61c",
+      "bbox": {
+        "minX": 56,
+        "minY": 30,
+        "maxX": 150,
+        "maxY": 178,
+        "width": 95,
+        "height": 149
+      }
+    },
+    {
+      "index": 20,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/front/020.png",
+      "sha256": "ae1c07db657e040b71d007cf14f80ef516eaa8bc5027fe098c5c1fbd123c1d11",
+      "bbox": {
+        "minX": 56,
+        "minY": 30,
+        "maxX": 152,
+        "maxY": 178,
+        "width": 97,
+        "height": 149
+      }
+    },
+    {
+      "index": 21,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/front/021.png",
+      "sha256": "3606d68503b645ccd5defb0350b2234cfb73131943fd6be0b71ac7b7ca18383b",
+      "bbox": {
+        "minX": 55,
+        "minY": 32,
+        "maxX": 153,
+        "maxY": 178,
+        "width": 99,
+        "height": 147
+      }
+    },
+    {
+      "index": 22,
+      "direction": "front",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/front/022.png",
+      "sha256": "56e767146fc2c817f7886a8fe62bf23a0b1ebee3ba56d59fb7a613e381d4c5e5",
+      "bbox": {
+        "minX": 55,
+        "minY": 31,
+        "maxX": 153,
+        "maxY": 178,
+        "width": 99,
+        "height": 148
+      }
+    },
+    {
+      "index": 1,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/back/001.png",
+      "sha256": "4f222cf179a87e7ff4ba28006239a588507c7b9b76c4feb46bc351aec182213e",
+      "bbox": {
+        "minX": 55,
+        "minY": 31,
+        "maxX": 152,
+        "maxY": 178,
+        "width": 98,
+        "height": 148
+      }
+    },
+    {
+      "index": 2,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/back/002.png",
+      "sha256": "e139f4087bebc4bc266fa0f3fe78fb7d6c938ffe429450e500236d01d376b6ae",
+      "bbox": {
+        "minX": 57,
+        "minY": 33,
+        "maxX": 151,
+        "maxY": 178,
+        "width": 95,
+        "height": 146
+      }
+    },
+    {
+      "index": 3,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/back/003.png",
+      "sha256": "d70eb9af5b1f6244a7c8e7b98b23b2517e4efb51e94121426ced1954790595b2",
+      "bbox": {
+        "minX": 56,
+        "minY": 33,
+        "maxX": 151,
+        "maxY": 178,
+        "width": 96,
+        "height": 146
+      }
+    },
+    {
+      "index": 4,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/back/004.png",
+      "sha256": "f97d9368cd4e73bbefff0e07b5c715b191a3d4df39c848410e587bb6011f4641",
+      "bbox": {
+        "minX": 55,
+        "minY": 31,
+        "maxX": 152,
+        "maxY": 178,
+        "width": 98,
+        "height": 148
+      }
+    },
+    {
+      "index": 5,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/back/005.png",
+      "sha256": "19aaeeafbb5ff897ae03a560be8954edd053bb90a1eda8056bcf57c258955df3",
+      "bbox": {
+        "minX": 55,
+        "minY": 31,
+        "maxX": 153,
+        "maxY": 178,
+        "width": 99,
+        "height": 148
+      }
+    },
+    {
+      "index": 6,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/back/006.png",
+      "sha256": "59f6addff64a6bd1bd969477ff0e40b4cb5203e060fd0f258a7157ff4b3a37fa",
+      "bbox": {
+        "minX": 54,
+        "minY": 31,
+        "maxX": 153,
+        "maxY": 178,
+        "width": 100,
+        "height": 148
+      }
+    },
+    {
+      "index": 7,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/back/007.png",
+      "sha256": "1be510a31c5d9897a919f2fe983b85174176c0d7f05ba8712c22f510b7edfa1b",
+      "bbox": {
+        "minX": 54,
+        "minY": 31,
+        "maxX": 153,
+        "maxY": 178,
+        "width": 100,
+        "height": 148
+      }
+    },
+    {
+      "index": 8,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/back/008.png",
+      "sha256": "8c71ee43624524ef15caad54136bfc4b44f8f52ea53453aaf619724e7d124419",
+      "bbox": {
+        "minX": 55,
+        "minY": 31,
+        "maxX": 153,
+        "maxY": 178,
+        "width": 99,
+        "height": 148
+      }
+    },
+    {
+      "index": 9,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/back/009.png",
+      "sha256": "3a6dd3f8cb98171e3a6103f425308b5dc5a69a500f4012cccd341780db5ae6e4",
+      "bbox": {
+        "minX": 56,
+        "minY": 32,
+        "maxX": 152,
+        "maxY": 178,
+        "width": 97,
+        "height": 147
+      }
+    },
+    {
+      "index": 10,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/back/010.png",
+      "sha256": "5dab6a1228b97ff558c5f571958cbc2ff429ebdfe13db7ea3711b0bb1d6e2390",
+      "bbox": {
+        "minX": 56,
+        "minY": 32,
+        "maxX": 152,
+        "maxY": 178,
+        "width": 97,
+        "height": 147
+      }
+    },
+    {
+      "index": 11,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/back/011.png",
+      "sha256": "aa467400400fbca816cc9fe077c3a6749958eb495cac47200ded336a1daf216f",
+      "bbox": {
+        "minX": 55,
+        "minY": 31,
+        "maxX": 152,
+        "maxY": 178,
+        "width": 98,
+        "height": 148
+      }
+    },
+    {
+      "index": 12,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/back/012.png",
+      "sha256": "84a37e82974850759de35c60789293205b4586909af550192aa5992ca9fca603",
+      "bbox": {
+        "minX": 55,
+        "minY": 31,
+        "maxX": 153,
+        "maxY": 177,
+        "width": 99,
+        "height": 147
+      }
+    },
+    {
+      "index": 13,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/back/013.png",
+      "sha256": "dad0d5359ff18c422cbe9108dda0a1abd746b20981614ffc4e00bc1a8e8f4eed",
+      "bbox": {
+        "minX": 54,
+        "minY": 32,
+        "maxX": 153,
+        "maxY": 178,
+        "width": 100,
+        "height": 147
+      }
+    },
+    {
+      "index": 14,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/back/014.png",
+      "sha256": "bceca5bce131faa998b8e7db03907f1f6e1ddb30a3668d32a831cd44ed1c85f7",
+      "bbox": {
+        "minX": 54,
+        "minY": 32,
+        "maxX": 153,
+        "maxY": 178,
+        "width": 100,
+        "height": 147
+      }
+    },
+    {
+      "index": 15,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/back/015.png",
+      "sha256": "358c7c4ffc89c4e48642381dbd9f2311a66969bd8532c17a538af1d72d0cf35f",
+      "bbox": {
+        "minX": 54,
+        "minY": 32,
+        "maxX": 154,
+        "maxY": 178,
+        "width": 101,
+        "height": 147
+      }
+    },
+    {
+      "index": 16,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/back/016.png",
+      "sha256": "c0f821cdc108989d6958fa4e8add2332a492519e3516ce4a1bab35f24216d64b",
+      "bbox": {
+        "minX": 56,
+        "minY": 32,
+        "maxX": 152,
+        "maxY": 178,
+        "width": 97,
+        "height": 147
+      }
+    },
+    {
+      "index": 17,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/back/017.png",
+      "sha256": "5dff0d8c566071a792c1f62a6a92510c89a0f7c60e1f6a80e01a22290477e565",
+      "bbox": {
+        "minX": 56,
+        "minY": 32,
+        "maxX": 152,
+        "maxY": 178,
+        "width": 97,
+        "height": 147
+      }
+    },
+    {
+      "index": 18,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/back/018.png",
+      "sha256": "8d6561479d0b664bff3741ba3d15786b86af7a967344feb1490250bdf56dca00",
+      "bbox": {
+        "minX": 56,
+        "minY": 31,
+        "maxX": 151,
+        "maxY": 178,
+        "width": 96,
+        "height": 148
+      }
+    },
+    {
+      "index": 19,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/back/019.png",
+      "sha256": "1012f48feccc1202f70088d0f00d6245acbe5834633f35939d482b95e07eff04",
+      "bbox": {
+        "minX": 56,
+        "minY": 31,
+        "maxX": 151,
+        "maxY": 178,
+        "width": 96,
+        "height": 148
+      }
+    },
+    {
+      "index": 20,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/back/020.png",
+      "sha256": "27b9f524a9c4a804353057166773b27c58ed17e4808cd9e3646cadf3a11667cd",
+      "bbox": {
+        "minX": 55,
+        "minY": 31,
+        "maxX": 152,
+        "maxY": 178,
+        "width": 98,
+        "height": 148
+      }
+    },
+    {
+      "index": 21,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/back/021.png",
+      "sha256": "e558f7c5bf8e34d381151674cf4050af17c15e972b99686443c355aea583a5fc",
+      "bbox": {
+        "minX": 55,
+        "minY": 31,
+        "maxX": 153,
+        "maxY": 178,
+        "width": 99,
+        "height": 148
+      }
+    },
+    {
+      "index": 22,
+      "direction": "back",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/back/022.png",
+      "sha256": "474516d80a73929aefadc05f481b09e53541885311194f5a51961d413edb4e91",
+      "bbox": {
+        "minX": 54,
+        "minY": 31,
+        "maxX": 154,
+        "maxY": 178,
+        "width": 101,
+        "height": 148
+      }
+    },
+    {
+      "index": 1,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/left/001.png",
+      "sha256": "05ebf84f6ed542284edae9f24a8c547910ae56ff0a32e7b420c9726b704b2288",
+      "bbox": {
+        "minX": 62,
+        "minY": 39,
+        "maxX": 147,
+        "maxY": 178,
+        "width": 86,
+        "height": 140
+      }
+    },
+    {
+      "index": 2,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/left/002.png",
+      "sha256": "93d13ce01e71434e8b463739246a05af5b35fe80ba881de7be8df01c1f028b8e",
+      "bbox": {
+        "minX": 62,
+        "minY": 37,
+        "maxX": 145,
+        "maxY": 178,
+        "width": 84,
+        "height": 142
+      }
+    },
+    {
+      "index": 3,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/left/003.png",
+      "sha256": "015c76ec47ea75417543e592f06120ba3fce9d61b9c125f8619aa656cef175de",
+      "bbox": {
+        "minX": 61,
+        "minY": 37,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 86,
+        "height": 142
+      }
+    },
+    {
+      "index": 4,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/left/004.png",
+      "sha256": "706154041bc3972cb105f6e7c650300897389e50be47910c14360aae169983b8",
+      "bbox": {
+        "minX": 61,
+        "minY": 38,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 86,
+        "height": 141
+      }
+    },
+    {
+      "index": 5,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/left/005.png",
+      "sha256": "39a15049bf1b527d381f22d62d4fc1d4a5557df170f1fdae102500bbebaccacc",
+      "bbox": {
+        "minX": 61,
+        "minY": 38,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 86,
+        "height": 141
+      }
+    },
+    {
+      "index": 6,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/left/006.png",
+      "sha256": "e7b7250f4ae16e0f8f0b09063556eee419034e8eebca0e0105f90bc0d13393c7",
+      "bbox": {
+        "minX": 61,
+        "minY": 39,
+        "maxX": 147,
+        "maxY": 178,
+        "width": 87,
+        "height": 140
+      }
+    },
+    {
+      "index": 7,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/left/007.png",
+      "sha256": "8f987cc7520a6260cde7ba627165438ec86f1d82673e593db283bb1f784297b2",
+      "bbox": {
+        "minX": 61,
+        "minY": 38,
+        "maxX": 147,
+        "maxY": 178,
+        "width": 87,
+        "height": 141
+      }
+    },
+    {
+      "index": 8,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/left/008.png",
+      "sha256": "4062579d2c24873412022ff41fcf6596bb4c5e5051413143e6424b2cfe9b0e58",
+      "bbox": {
+        "minX": 61,
+        "minY": 39,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 86,
+        "height": 140
+      }
+    },
+    {
+      "index": 9,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/left/009.png",
+      "sha256": "d6abdd545df85c02dbb39a4c390504ada96d319e579913cd5201c311b2a0298b",
+      "bbox": {
+        "minX": 61,
+        "minY": 39,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 86,
+        "height": 140
+      }
+    },
+    {
+      "index": 10,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/left/010.png",
+      "sha256": "4817f29ea8679998e1ced5a636bac990a446bab74be8cb8a0c36ce2685e45995",
+      "bbox": {
+        "minX": 61,
+        "minY": 37,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 86,
+        "height": 142
+      }
+    },
+    {
+      "index": 11,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/left/011.png",
+      "sha256": "627e9e6b0b97b60d9a9146452de28f3134a01475f07b50e3752b09d69660db06",
+      "bbox": {
+        "minX": 61,
+        "minY": 37,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 86,
+        "height": 142
+      }
+    },
+    {
+      "index": 12,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/left/012.png",
+      "sha256": "9586c3d7af4e0e09a58609874b8d2ed88c78b4d7f1af518bb9512fd0c5117f46",
+      "bbox": {
+        "minX": 61,
+        "minY": 37,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 86,
+        "height": 142
+      }
+    },
+    {
+      "index": 13,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/left/013.png",
+      "sha256": "4b2e0d929be53bc352d9780cb40c5092f32b3637c0977734032348f70798bf1f",
+      "bbox": {
+        "minX": 61,
+        "minY": 37,
+        "maxX": 147,
+        "maxY": 178,
+        "width": 87,
+        "height": 142
+      }
+    },
+    {
+      "index": 14,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/left/014.png",
+      "sha256": "11a99d6123c2a6532b7d5de52069e407aa212340dce548bcd73de531866ae5c8",
+      "bbox": {
+        "minX": 61,
+        "minY": 37,
+        "maxX": 147,
+        "maxY": 178,
+        "width": 87,
+        "height": 142
+      }
+    },
+    {
+      "index": 15,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/left/015.png",
+      "sha256": "518a8df500c6b026a754e6de8b139da294900c4ae5c76cac047a31936f11b2ed",
+      "bbox": {
+        "minX": 60,
+        "minY": 38,
+        "maxX": 147,
+        "maxY": 178,
+        "width": 88,
+        "height": 141
+      }
+    },
+    {
+      "index": 16,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/left/016.png",
+      "sha256": "aa1236250068d31253a68f056e9b9918fe8c7a1c799f72a440d8ef5c2a00658a",
+      "bbox": {
+        "minX": 61,
+        "minY": 39,
+        "maxX": 147,
+        "maxY": 178,
+        "width": 87,
+        "height": 140
+      }
+    },
+    {
+      "index": 17,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/left/017.png",
+      "sha256": "30aaa043ec6c459f7fc747a2c8c1a3e5bceab6b9150d5532a04796ee07bb74c3",
+      "bbox": {
+        "minX": 61,
+        "minY": 39,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 86,
+        "height": 140
+      }
+    },
+    {
+      "index": 18,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/left/018.png",
+      "sha256": "67148f4689446e975e457e3aa6b111f2c94dab2bf4ae1a6df4ddd681a3198ec9",
+      "bbox": {
+        "minX": 61,
+        "minY": 37,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 86,
+        "height": 142
+      }
+    },
+    {
+      "index": 19,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/left/019.png",
+      "sha256": "8a091537cc06573ce443369558a9c94d5da6bf679ef3b3b4dae3774eca328705",
+      "bbox": {
+        "minX": 61,
+        "minY": 37,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 86,
+        "height": 142
+      }
+    },
+    {
+      "index": 20,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/left/020.png",
+      "sha256": "2ef78b2adc8fefd4625fc6a39e4b51703f1208fe1c3b1227d85e6410e9f0fbbd",
+      "bbox": {
+        "minX": 62,
+        "minY": 37,
+        "maxX": 147,
+        "maxY": 178,
+        "width": 86,
+        "height": 142
+      }
+    },
+    {
+      "index": 21,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/left/021.png",
+      "sha256": "d23e1f2f718d5ccb7d62825f94d194ab33214772de4651011209e3d89915e70b",
+      "bbox": {
+        "minX": 61,
+        "minY": 38,
+        "maxX": 147,
+        "maxY": 178,
+        "width": 87,
+        "height": 141
+      }
+    },
+    {
+      "index": 22,
+      "direction": "left",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/left/022.png",
+      "sha256": "1ba26f98837aac1ed51af0a9741207047547c0a87d400563c35a1e3e343a93a8",
+      "bbox": {
+        "minX": 61,
+        "minY": 39,
+        "maxX": 147,
+        "maxY": 178,
+        "width": 87,
+        "height": 140
+      }
+    },
+    {
+      "index": 1,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/right/001.png",
+      "sha256": "c099aaf260f74402c41eb5499fbb610994421a64da4ac9a1103df0ec9bf743e7",
+      "bbox": {
+        "minX": 61,
+        "minY": 39,
+        "maxX": 147,
+        "maxY": 178,
+        "width": 87,
+        "height": 140
+      }
+    },
+    {
+      "index": 2,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/right/002.png",
+      "sha256": "d7c06b346ef021f8ad2fdf419bbee35a3378169767c853bf19593febb86eeafd",
+      "bbox": {
+        "minX": 61,
+        "minY": 37,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 86,
+        "height": 142
+      }
+    },
+    {
+      "index": 3,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/right/003.png",
+      "sha256": "9c14bb40e7b16cebdd2f7fb5bbda8794cf1370e8cf211195a44db8c7292d44a3",
+      "bbox": {
+        "minX": 61,
+        "minY": 37,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 86,
+        "height": 142
+      }
+    },
+    {
+      "index": 4,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/right/004.png",
+      "sha256": "7d505b6967e5ae2066c97316a54cfae034474d2776a744b34c0fb92a5e70c3b6",
+      "bbox": {
+        "minX": 61,
+        "minY": 37,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 86,
+        "height": 142
+      }
+    },
+    {
+      "index": 5,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/right/005.png",
+      "sha256": "1b3677c97aae88bbe9885684adebfe842922b34a1de22aa4e5227b53dd0a7fbf",
+      "bbox": {
+        "minX": 61,
+        "minY": 37,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 86,
+        "height": 142
+      }
+    },
+    {
+      "index": 6,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/right/006.png",
+      "sha256": "b9f2a31f45a5cf1cca5a737be262b7637a09680fe1defb2e7cf6c0547aa22ae7",
+      "bbox": {
+        "minX": 61,
+        "minY": 38,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 86,
+        "height": 141
+      }
+    },
+    {
+      "index": 7,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/right/007.png",
+      "sha256": "2495d65cedf7fd89ea92017f7c051e9682b60d1d6dac6ff080f5022f31e1ad85",
+      "bbox": {
+        "minX": 61,
+        "minY": 39,
+        "maxX": 147,
+        "maxY": 178,
+        "width": 87,
+        "height": 140
+      }
+    },
+    {
+      "index": 8,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/right/008.png",
+      "sha256": "4ddb459fcfbea50db603d503072908fa8111d13cde6b59000497a281d0255c90",
+      "bbox": {
+        "minX": 61,
+        "minY": 39,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 86,
+        "height": 140
+      }
+    },
+    {
+      "index": 9,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/right/009.png",
+      "sha256": "ad2f749628ad05667b033a8c53b8505ab0a9fbb8cff33d6f69c3fadc77376556",
+      "bbox": {
+        "minX": 61,
+        "minY": 40,
+        "maxX": 145,
+        "maxY": 178,
+        "width": 85,
+        "height": 139
+      }
+    },
+    {
+      "index": 10,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/right/010.png",
+      "sha256": "0287a122a1386f23e0d82f7757b6948dda59e90fff5ac5aef1eea29c1d7e44fc",
+      "bbox": {
+        "minX": 62,
+        "minY": 37,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 85,
+        "height": 142
+      }
+    },
+    {
+      "index": 11,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/right/011.png",
+      "sha256": "cc5f450334005ffe68b703168772dd2d819165a433681db434060dadd113642c",
+      "bbox": {
+        "minX": 62,
+        "minY": 38,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 85,
+        "height": 141
+      }
+    },
+    {
+      "index": 12,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/right/012.png",
+      "sha256": "86f1c6d63255369df3c2174f698f75731cdbb8d51a20afd5a8f5d077d089ca8b",
+      "bbox": {
+        "minX": 61,
+        "minY": 38,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 86,
+        "height": 141
+      }
+    },
+    {
+      "index": 13,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/right/013.png",
+      "sha256": "8984c6e024fd0a9796be1168a2504671c6e390e9be5536ee872a3fb925c1c7ea",
+      "bbox": {
+        "minX": 61,
+        "minY": 38,
+        "maxX": 147,
+        "maxY": 178,
+        "width": 87,
+        "height": 141
+      }
+    },
+    {
+      "index": 14,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/right/014.png",
+      "sha256": "8e971200aa2f9df0c0eb7c6842fa69fc5a962b45308f82cf16ec151a949b2f7e",
+      "bbox": {
+        "minX": 61,
+        "minY": 39,
+        "maxX": 147,
+        "maxY": 178,
+        "width": 87,
+        "height": 140
+      }
+    },
+    {
+      "index": 15,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/right/015.png",
+      "sha256": "fee6101ad087a5e7355fc9050233765d35e1efcf02b72b932c37ae6283cea164",
+      "bbox": {
+        "minX": 61,
+        "minY": 39,
+        "maxX": 147,
+        "maxY": 178,
+        "width": 87,
+        "height": 140
+      }
+    },
+    {
+      "index": 16,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/right/016.png",
+      "sha256": "76a6d2bdf71c066df5c24665bfd2ac5abf4123b0c73de853930d59149c8effd1",
+      "bbox": {
+        "minX": 62,
+        "minY": 39,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 85,
+        "height": 140
+      }
+    },
+    {
+      "index": 17,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/right/017.png",
+      "sha256": "b83fd6b80e897a25c57c1cf0f1d5d92d81978cb4176cecedd67a6ad5929c0b7b",
+      "bbox": {
+        "minX": 61,
+        "minY": 39,
+        "maxX": 145,
+        "maxY": 178,
+        "width": 85,
+        "height": 140
+      }
+    },
+    {
+      "index": 18,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/right/018.png",
+      "sha256": "1e83e1f175164917072c006eb0e51a480ed6a4891a165d5b1604385e8eb6be58",
+      "bbox": {
+        "minX": 61,
+        "minY": 37,
+        "maxX": 147,
+        "maxY": 178,
+        "width": 87,
+        "height": 142
+      }
+    },
+    {
+      "index": 19,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/right/019.png",
+      "sha256": "3f0cb18117bb71ec400cc5187ee707321c9b5984588716ddf99b80744a9227dc",
+      "bbox": {
+        "minX": 61,
+        "minY": 36,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 86,
+        "height": 143
+      }
+    },
+    {
+      "index": 20,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/right/020.png",
+      "sha256": "d6de6f6d81c6135ed7a6ec67e8287c7ffa00b5befe1b1b1e52bd698da204d1f9",
+      "bbox": {
+        "minX": 61,
+        "minY": 37,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 86,
+        "height": 142
+      }
+    },
+    {
+      "index": 21,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/right/021.png",
+      "sha256": "8981a09906a655e0c280d71eeff689ae3380bdb666106a62127e8192fba2f460",
+      "bbox": {
+        "minX": 61,
+        "minY": 37,
+        "maxX": 147,
+        "maxY": 178,
+        "width": 87,
+        "height": 142
+      }
+    },
+    {
+      "index": 22,
+      "direction": "right",
+      "file": "src/assets/characters/nitori/sequence-approved-v1/frames/right/022.png",
+      "sha256": "ff9950ffb86b7bfbd51d2168fe9ee3e3f47e4343c7285164b4b8c9556ac82d90",
+      "bbox": {
+        "minX": 61,
+        "minY": 39,
+        "maxX": 147,
+        "maxY": 178,
+        "width": 87,
+        "height": 140
+      }
+    }
+  ]
+}

@@ -1,0 +1,2492 @@
+{
+  "version": 1,
+  "character": "suika",
+  "status": "owner-approved-sequence-source",
+  "runtimeStatus": "ready-for-runtime-integration",
+  "layout": "variable-sequence-v1",
+  "sourceProject": "../参考素材/New project 11",
+  "sourceDirectory": "characters/suika/验收通过版/frames",
+  "sourcePolicy": "copied-byte-for-byte-from-owner-approved-frames",
+  "transform": "uniform-nearest-neighbor-fixed-anchor",
+  "cell": [
+    209,
+    209
+  ],
+  "atlas": "src/assets/characters/suika/suika-animation-sequence-approved-v1.png",
+  "atlasSha256": "7169c1c053c1d50f4ca7e131932e96e7aaf5ec4346dc3a55038e1a4904c76e82",
+  "atlasSize": [
+    3971,
+    836
+  ],
+  "frameCount": 19,
+  "rowOrder": [
+    "front",
+    "back",
+    "left",
+    "right"
+  ],
+  "frameDurationMs": 100,
+  "stationaryFrame": "direction-row-column-0",
+  "loopStart": 0,
+  "loopEnd": 18,
+  "sourceAnchorByDirection": {
+    "front": [
+      160,
+      313
+    ],
+    "back": [
+      160,
+      313
+    ],
+    "left": [
+      160,
+      313
+    ],
+    "right": [
+      160,
+      313
+    ]
+  },
+  "targetAnchor": [
+    104,
+    179
+  ],
+  "targetVisibleHeight": 150,
+  "scale": 0.5119453924914675,
+  "sources": [
+    {
+      "index": 1,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/front/001.png",
+      "sha256": "6c245e039b64304339e3ca02e0bb8dd5d1a50639fdda624f8f974a28ed2c102e",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 44,
+        "minY": 22,
+        "maxX": 265,
+        "maxY": 311,
+        "width": 222,
+        "height": 290
+      }
+    },
+    {
+      "index": 2,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/front/002.png",
+      "sha256": "846442d1a12b99f1800f2d6c183193fd7076348c78bf68253ed6c1b1db6712fe",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 44,
+        "minY": 22,
+        "maxX": 264,
+        "maxY": 311,
+        "width": 221,
+        "height": 290
+      }
+    },
+    {
+      "index": 3,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/front/003.png",
+      "sha256": "7bcd3eb897bda303ef1d5a41de0db9b251c2c47585401e5264e3d20634b70f9c",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 44,
+        "minY": 22,
+        "maxX": 264,
+        "maxY": 310,
+        "width": 221,
+        "height": 289
+      }
+    },
+    {
+      "index": 4,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/front/004.png",
+      "sha256": "96e3403b357d7cbd69d5db7020dc0fd8eb099d20da6fe8e234fddad87e54ef31",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 42,
+        "minY": 23,
+        "maxX": 264,
+        "maxY": 312,
+        "width": 223,
+        "height": 290
+      }
+    },
+    {
+      "index": 5,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/front/005.png",
+      "sha256": "ac7a69b50f9d84a87f6bd74255680602cb18a27798939ccc6a44057572ae4120",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 41,
+        "minY": 24,
+        "maxX": 265,
+        "maxY": 314,
+        "width": 225,
+        "height": 291
+      }
+    },
+    {
+      "index": 6,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/front/006.png",
+      "sha256": "022206e5756835e2e14dbdbc81ada24dd585cf9b04af5376c18158e22ebc3e30",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 40,
+        "minY": 25,
+        "maxX": 265,
+        "maxY": 315,
+        "width": 226,
+        "height": 291
+      }
+    },
+    {
+      "index": 7,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/front/007.png",
+      "sha256": "097a39528f7f5192ff4206e88c730c3c4133fbcce1c5d8c093645d0038a9b22d",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 40,
+        "minY": 26,
+        "maxX": 264,
+        "maxY": 314,
+        "width": 225,
+        "height": 289
+      }
+    },
+    {
+      "index": 8,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/front/008.png",
+      "sha256": "a8203aada957b8f1b85e61c5f46eea202bd6f13fb6d7db270c8ce3f55d95d151",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 41,
+        "minY": 24,
+        "maxX": 264,
+        "maxY": 313,
+        "width": 224,
+        "height": 290
+      }
+    },
+    {
+      "index": 9,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/front/009.png",
+      "sha256": "60a0792635602a82e1ca4a4c88397e4534acedf87a16db82e2694e45d39a9276",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 42,
+        "minY": 23,
+        "maxX": 264,
+        "maxY": 312,
+        "width": 223,
+        "height": 290
+      }
+    },
+    {
+      "index": 10,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/front/010.png",
+      "sha256": "fbaa47e0ab696c22e2de4a2e347e397d773ca64408e82e808b9f11b71422f991",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 43,
+        "minY": 23,
+        "maxX": 263,
+        "maxY": 312,
+        "width": 221,
+        "height": 290
+      }
+    },
+    {
+      "index": 11,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/front/011.png",
+      "sha256": "06e2af0bc6cb03355bc0bb567feda384c3eb5c45c9dfa8089d52645998e0af25",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 44,
+        "minY": 22,
+        "maxX": 264,
+        "maxY": 311,
+        "width": 221,
+        "height": 290
+      }
+    },
+    {
+      "index": 12,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/front/012.png",
+      "sha256": "ed03e916674313316b89eca0b7493d6e284e213915b0e09ebb465be057051b94",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 44,
+        "minY": 22,
+        "maxX": 264,
+        "maxY": 310,
+        "width": 221,
+        "height": 289
+      }
+    },
+    {
+      "index": 13,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/front/013.png",
+      "sha256": "58e02488c62967616c7b7570b119bf3b08f57c22ac55c991087ebd6bb8eeab5b",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 44,
+        "minY": 23,
+        "maxX": 265,
+        "maxY": 311,
+        "width": 222,
+        "height": 289
+      }
+    },
+    {
+      "index": 14,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/front/014.png",
+      "sha256": "e5b277cd604126a1b34613c981dab37692fc401cb399a2bd98c6fa9ef0111eee",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 44,
+        "minY": 23,
+        "maxX": 265,
+        "maxY": 312,
+        "width": 222,
+        "height": 290
+      }
+    },
+    {
+      "index": 15,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/front/015.png",
+      "sha256": "9295675b0d63676c50392674668703b75b3e1f1423f5531d6c865b257f5ab0e4",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 44,
+        "minY": 24,
+        "maxX": 265,
+        "maxY": 313,
+        "width": 222,
+        "height": 290
+      }
+    },
+    {
+      "index": 16,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/front/016.png",
+      "sha256": "f993f3e9573d6d5605a7f1b013b77c76c8c9b1704c280c383ad95970dc1fb17e",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 44,
+        "minY": 26,
+        "maxX": 265,
+        "maxY": 314,
+        "width": 222,
+        "height": 289
+      }
+    },
+    {
+      "index": 17,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/front/017.png",
+      "sha256": "497b8a9acf625e7aad4aa469f165f4099be18c82a7a5ec5e5e984a939d13a99f",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 44,
+        "minY": 26,
+        "maxX": 265,
+        "maxY": 314,
+        "width": 222,
+        "height": 289
+      }
+    },
+    {
+      "index": 18,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/front/018.png",
+      "sha256": "31f8aaf49bcbdfcad3a965dbc24b3d82a57cf29157d0404afe038835f5df8999",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 44,
+        "minY": 25,
+        "maxX": 265,
+        "maxY": 314,
+        "width": 222,
+        "height": 290
+      }
+    },
+    {
+      "index": 19,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/front/019.png",
+      "sha256": "b478d562998eb50c2f2960caa79b75eb6648bccb9c1add50ae50c5a9b87dd866",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 44,
+        "minY": 23,
+        "maxX": 265,
+        "maxY": 313,
+        "width": 222,
+        "height": 291
+      }
+    },
+    {
+      "index": 1,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/back/001.png",
+      "sha256": "899cafd7bc2194a7906b21d5ddd86120184ea1e94fc50c8e8d64dc0f9ee19816",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 54,
+        "minY": 23,
+        "maxX": 280,
+        "maxY": 311,
+        "width": 227,
+        "height": 289
+      }
+    },
+    {
+      "index": 2,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/back/002.png",
+      "sha256": "76439e97e80811c99ef0f1f0227591596cc3d95b526206bf0af62b90e9835ae3",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 54,
+        "minY": 25,
+        "maxX": 281,
+        "maxY": 313,
+        "width": 228,
+        "height": 289
+      }
+    },
+    {
+      "index": 3,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/back/003.png",
+      "sha256": "3fcc6a2bfaf8ab5ad598671b0750d7e19f5a68892c2e167f1fe69aa7601ce425",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 54,
+        "minY": 26,
+        "maxX": 281,
+        "maxY": 313,
+        "width": 228,
+        "height": 288
+      }
+    },
+    {
+      "index": 4,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/back/004.png",
+      "sha256": "89eba7d08b1529d426ae78122b8531d1d101a287803a584e38e33b90fb4f696a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 53,
+        "minY": 26,
+        "maxX": 282,
+        "maxY": 313,
+        "width": 230,
+        "height": 288
+      }
+    },
+    {
+      "index": 5,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/back/005.png",
+      "sha256": "5eda13d324e3c4952e5677afd18519f55084de865e20054c918a85f0a8275919",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 53,
+        "minY": 25,
+        "maxX": 281,
+        "maxY": 311,
+        "width": 229,
+        "height": 287
+      }
+    },
+    {
+      "index": 6,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/back/006.png",
+      "sha256": "171dcbadfbf0faff972e29a4716e94660c61e94f9d7cc4593b49bd493463b2da",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 53,
+        "minY": 24,
+        "maxX": 280,
+        "maxY": 311,
+        "width": 228,
+        "height": 288
+      }
+    },
+    {
+      "index": 7,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/back/007.png",
+      "sha256": "9e8ca2f4cc05bb7d4204de1c962406b50e7f5152e110508b1facf60130096ed7",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 54,
+        "minY": 23,
+        "maxX": 279,
+        "maxY": 310,
+        "width": 226,
+        "height": 288
+      }
+    },
+    {
+      "index": 8,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/back/008.png",
+      "sha256": "06563b1925af7bcde75173f67998fca3857016d361aef404fd1ebbddc0c51cb8",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 54,
+        "minY": 23,
+        "maxX": 279,
+        "maxY": 311,
+        "width": 226,
+        "height": 289
+      }
+    },
+    {
+      "index": 9,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/back/009.png",
+      "sha256": "c362c69077061a5aef9950da9935234de9863dee00c1d3378527dc887d24dffb",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 54,
+        "minY": 22,
+        "maxX": 278,
+        "maxY": 311,
+        "width": 225,
+        "height": 290
+      }
+    },
+    {
+      "index": 10,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/back/010.png",
+      "sha256": "f918643a95f48a204fdbaafbf42cbc593e6cbb25924a7df3729ecd47f851b1e2",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 54,
+        "minY": 23,
+        "maxX": 279,
+        "maxY": 312,
+        "width": 226,
+        "height": 290
+      }
+    },
+    {
+      "index": 11,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/back/011.png",
+      "sha256": "3a37ccd89b8b18130493123fd519dacc71632197f13f7db89e1a36c3a6b4b23c",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 54,
+        "minY": 24,
+        "maxX": 279,
+        "maxY": 312,
+        "width": 226,
+        "height": 289
+      }
+    },
+    {
+      "index": 12,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/back/012.png",
+      "sha256": "766a8b65b66bd686f0c22d3371cceab7304f504a3d65e0a57e5da7dc2d3c75c2",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 54,
+        "minY": 25,
+        "maxX": 280,
+        "maxY": 313,
+        "width": 227,
+        "height": 289
+      }
+    },
+    {
+      "index": 13,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/back/013.png",
+      "sha256": "7bb5e59b538cc1ef05253834b49b05840ca3985af2acb394a1ca1bc371f34fee",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 54,
+        "minY": 26,
+        "maxX": 281,
+        "maxY": 314,
+        "width": 228,
+        "height": 289
+      }
+    },
+    {
+      "index": 14,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/back/014.png",
+      "sha256": "d1eb633389ba38a7c19464eb6db5de923cd7f7547b84dad9721af46eac6ad6e2",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 54,
+        "minY": 26,
+        "maxX": 281,
+        "maxY": 315,
+        "width": 228,
+        "height": 290
+      }
+    },
+    {
+      "index": 15,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/back/015.png",
+      "sha256": "2045b345123602ec03a160895657d8638156ea79e60035fc01bd4f86fe3e1a6c",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 54,
+        "minY": 25,
+        "maxX": 281,
+        "maxY": 314,
+        "width": 228,
+        "height": 290
+      }
+    },
+    {
+      "index": 16,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/back/016.png",
+      "sha256": "58088dd65d2f365880f321970e0f75934fee9140a0a9564b496c5d0024f2aa88",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 54,
+        "minY": 24,
+        "maxX": 280,
+        "maxY": 313,
+        "width": 227,
+        "height": 290
+      }
+    },
+    {
+      "index": 17,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/back/017.png",
+      "sha256": "394ab260926fd6ddb6febf507b8542763a2ed6c70999d5e92821046fbe985abc",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 54,
+        "minY": 22,
+        "maxX": 278,
+        "maxY": 311,
+        "width": 225,
+        "height": 290
+      }
+    },
+    {
+      "index": 18,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/back/018.png",
+      "sha256": "789854dff50875ea3f3d7290f8e6511fdc0af5eb199dad8c9e016792a114e6a3",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 55,
+        "minY": 22,
+        "maxX": 277,
+        "maxY": 310,
+        "width": 223,
+        "height": 289
+      }
+    },
+    {
+      "index": 19,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/back/019.png",
+      "sha256": "a0a0b34c0fb2a79b172b8a865b66b72b30c204f5c8bff36df90475b66b4f1314",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 55,
+        "minY": 22,
+        "maxX": 275,
+        "maxY": 310,
+        "width": 221,
+        "height": 289
+      }
+    },
+    {
+      "index": 1,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/left/001.png",
+      "sha256": "6a5e3c2e7118e7d86d18cc1ffdc34dedf50f4b4b65fe8ed6505374c32577b613",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 21,
+        "maxX": 228,
+        "maxY": 313,
+        "width": 148,
+        "height": 293
+      }
+    },
+    {
+      "index": 2,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/left/002.png",
+      "sha256": "ebdda20fe1be26f202cededfee908fb16ce74a5734617ee33f944f7e250415f1",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 22,
+        "maxX": 228,
+        "maxY": 309,
+        "width": 148,
+        "height": 288
+      }
+    },
+    {
+      "index": 3,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/left/003.png",
+      "sha256": "4b2986aec19388c12ca31da7dec1cd9bf507d565551eae331aa56fc75ccada24",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 22,
+        "maxX": 229,
+        "maxY": 308,
+        "width": 149,
+        "height": 287
+      }
+    },
+    {
+      "index": 4,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/left/004.png",
+      "sha256": "ce763f38b468c0c1d93cc89a35d9a3ac48e5aed815aa797504c22f998b0c942d",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 24,
+        "maxX": 231,
+        "maxY": 312,
+        "width": 151,
+        "height": 289
+      }
+    },
+    {
+      "index": 5,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/left/005.png",
+      "sha256": "acb074e2f6203a3dce355f5c6d132ef53fa7a4a3ebb00345b2a3babdf2e16535",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 25,
+        "maxX": 233,
+        "maxY": 313,
+        "width": 154,
+        "height": 289
+      }
+    },
+    {
+      "index": 6,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/left/006.png",
+      "sha256": "27f3c0c2abdcba132edfbcd6cc26114320abd6970b6656b48b9058b34cc677d0",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 26,
+        "maxX": 233,
+        "maxY": 313,
+        "width": 154,
+        "height": 288
+      }
+    },
+    {
+      "index": 7,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/left/007.png",
+      "sha256": "ea710f6d209b27f548671a676bec6754199b1a35f932a74241c30f0210000c1b",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 26,
+        "maxX": 232,
+        "maxY": 313,
+        "width": 152,
+        "height": 288
+      }
+    },
+    {
+      "index": 8,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/left/008.png",
+      "sha256": "7735e262ed0950b82b7898869f107d917cb5306db52deac873a671e7a192ceef",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 25,
+        "maxX": 230,
+        "maxY": 312,
+        "width": 150,
+        "height": 288
+      }
+    },
+    {
+      "index": 9,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/left/009.png",
+      "sha256": "ae22bc4c4d659d537c3dafa60a60fd182540d314b1654f3081bc5ef3d2d42cdf",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 23,
+        "maxX": 229,
+        "maxY": 312,
+        "width": 149,
+        "height": 290
+      }
+    },
+    {
+      "index": 10,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/left/010.png",
+      "sha256": "2f2a9dc31eb06796f0a1bec3a7532654d657892f5986e7b858314937e9682cf0",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 23,
+        "maxX": 228,
+        "maxY": 313,
+        "width": 148,
+        "height": 291
+      }
+    },
+    {
+      "index": 11,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/left/011.png",
+      "sha256": "8b61e2f944c2d6c547985e3246f509a1f3ec5294870eda05504c6888593b54ea",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 22,
+        "maxX": 228,
+        "maxY": 312,
+        "width": 148,
+        "height": 291
+      }
+    },
+    {
+      "index": 12,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/left/012.png",
+      "sha256": "260844d96563d77a2a756b21cd92e92590bc32004659de3496a5b29834740635",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 22,
+        "maxX": 229,
+        "maxY": 312,
+        "width": 149,
+        "height": 291
+      }
+    },
+    {
+      "index": 13,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/left/013.png",
+      "sha256": "c7e39737d563ead912a42a5a0ae828d0e059b03d02a52d2416d21faacbfba825",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 22,
+        "maxX": 229,
+        "maxY": 312,
+        "width": 150,
+        "height": 291
+      }
+    },
+    {
+      "index": 14,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/left/014.png",
+      "sha256": "60f80733dd1bd1569f059a3b60a088866c62a6b1d8f113612534d0176c7e0c96",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 23,
+        "maxX": 230,
+        "maxY": 312,
+        "width": 151,
+        "height": 290
+      }
+    },
+    {
+      "index": 15,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/left/015.png",
+      "sha256": "eda1ddca70e3c2dd20b864a6f1f82ca6a23648dd6573f5b7d0b4e7d185fe8975",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 25,
+        "maxX": 231,
+        "maxY": 312,
+        "width": 152,
+        "height": 288
+      }
+    },
+    {
+      "index": 16,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/left/016.png",
+      "sha256": "e6712153eca4d244729bbceace67b044e18532455262ca5420648b462c42a18f",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 26,
+        "maxX": 231,
+        "maxY": 313,
+        "width": 152,
+        "height": 288
+      }
+    },
+    {
+      "index": 17,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/left/017.png",
+      "sha256": "b58541b0a6210575ef6e0f75806dd8b606c656d1d92ccb00137e4d09485ca219",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 25,
+        "maxX": 230,
+        "maxY": 309,
+        "width": 151,
+        "height": 285
+      }
+    },
+    {
+      "index": 18,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/left/018.png",
+      "sha256": "aca1656b58b1719d45d1b9d5fb44c00f9e5d2ea14a160f3a2e5bca7ec6c967aa",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 25,
+        "maxX": 229,
+        "maxY": 309,
+        "width": 149,
+        "height": 285
+      }
+    },
+    {
+      "index": 19,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/left/019.png",
+      "sha256": "fb39792d09411d7ae9311f5cc6aea0dd4db8e5530b900babe6511ffd0f5e2bd9",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 23,
+        "maxX": 228,
+        "maxY": 313,
+        "width": 148,
+        "height": 291
+      }
+    },
+    {
+      "index": 1,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/right/001.png",
+      "sha256": "86e95937bdf0fe77716604b84144601e94af3d0b9bcf24a2c18fd8ac55afa6c9",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 91,
+        "minY": 22,
+        "maxX": 239,
+        "maxY": 312,
+        "width": 149,
+        "height": 291
+      }
+    },
+    {
+      "index": 2,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/right/002.png",
+      "sha256": "2724b03810586f782dac3180a2fca7e007801652f8c53e0911fd6f276a889f36",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 91,
+        "minY": 22,
+        "maxX": 239,
+        "maxY": 312,
+        "width": 149,
+        "height": 291
+      }
+    },
+    {
+      "index": 3,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/right/003.png",
+      "sha256": "4d5108a5c713a13ee879d248ce4da5219a73b151154c6b7470fae14c6c689ab6",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 90,
+        "minY": 22,
+        "maxX": 240,
+        "maxY": 313,
+        "width": 151,
+        "height": 292
+      }
+    },
+    {
+      "index": 4,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/right/004.png",
+      "sha256": "69ae1354008cbf51746e03de17499f72c80b30f15d1e354f404edde4037b8e2b",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 89,
+        "minY": 23,
+        "maxX": 240,
+        "maxY": 312,
+        "width": 152,
+        "height": 290
+      }
+    },
+    {
+      "index": 5,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/right/005.png",
+      "sha256": "41159c41ecf6dc22190a722476a21ed1d17ea4612f5f9ebf612e6f0e940fa5f1",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 89,
+        "minY": 24,
+        "maxX": 240,
+        "maxY": 312,
+        "width": 152,
+        "height": 289
+      }
+    },
+    {
+      "index": 6,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/right/006.png",
+      "sha256": "7e874aed10a71d4dad07f73330fb17b066cb1113526d8de86596efb42f45331b",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 88,
+        "minY": 25,
+        "maxX": 240,
+        "maxY": 313,
+        "width": 153,
+        "height": 289
+      }
+    },
+    {
+      "index": 7,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/right/007.png",
+      "sha256": "d944b7a11e0745760fae66b548706f0d09313e4a403fba276891f8231a5d5ecd",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 89,
+        "minY": 25,
+        "maxX": 240,
+        "maxY": 313,
+        "width": 152,
+        "height": 289
+      }
+    },
+    {
+      "index": 8,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/right/008.png",
+      "sha256": "e856eabda765104439ecef01743116a62cb496d591aa16610f96ce1846d95e62",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 90,
+        "minY": 24,
+        "maxX": 240,
+        "maxY": 313,
+        "width": 151,
+        "height": 290
+      }
+    },
+    {
+      "index": 9,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/right/009.png",
+      "sha256": "36a82e7e8f3a77fcbd928a6f1c381bf7fafc3aaeba19596767783610abd94fc9",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 91,
+        "minY": 23,
+        "maxX": 240,
+        "maxY": 313,
+        "width": 150,
+        "height": 291
+      }
+    },
+    {
+      "index": 10,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/right/010.png",
+      "sha256": "698ce9f3d6a6bea50ca26e7ba8846d996e3d577894b11a078ca1e64777e51f4b",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 91,
+        "minY": 22,
+        "maxX": 239,
+        "maxY": 313,
+        "width": 149,
+        "height": 292
+      }
+    },
+    {
+      "index": 11,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/right/011.png",
+      "sha256": "dffb4afe6bff82c7a445ce98933d5b9d531345674a25b9bb997bb869a1297b3b",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 91,
+        "minY": 22,
+        "maxX": 240,
+        "maxY": 312,
+        "width": 150,
+        "height": 291
+      }
+    },
+    {
+      "index": 12,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/right/012.png",
+      "sha256": "0d5d27252aa0530906a510a55f7abe340a0b3179e5e2c908e9025eec4fb12f8d",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 90,
+        "minY": 22,
+        "maxX": 240,
+        "maxY": 312,
+        "width": 151,
+        "height": 291
+      }
+    },
+    {
+      "index": 13,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/right/013.png",
+      "sha256": "b087004207f9596864504dafdfe3543e8687122c549ae0c5585c66f4704097b0",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 90,
+        "minY": 22,
+        "maxX": 240,
+        "maxY": 312,
+        "width": 151,
+        "height": 291
+      }
+    },
+    {
+      "index": 14,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/right/014.png",
+      "sha256": "69302e5405d69237300c96b9ff81b7b19fbe1d2207665d5bb7fea5d31d4c2da5",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 89,
+        "minY": 23,
+        "maxX": 240,
+        "maxY": 312,
+        "width": 152,
+        "height": 290
+      }
+    },
+    {
+      "index": 15,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/right/015.png",
+      "sha256": "f29047462031a134625d5741a075b28afcf2190808159f07ae55e21142d7ccb8",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 89,
+        "minY": 24,
+        "maxX": 240,
+        "maxY": 312,
+        "width": 152,
+        "height": 289
+      }
+    },
+    {
+      "index": 16,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/right/016.png",
+      "sha256": "6ec6888148d7c20ce1271fd701e47c05a3dd70a7363fbf159c2e9cff912d47f1",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 89,
+        "minY": 25,
+        "maxX": 240,
+        "maxY": 313,
+        "width": 152,
+        "height": 289
+      }
+    },
+    {
+      "index": 17,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/right/017.png",
+      "sha256": "53003ccfae010f6ebdc62932dd3716e22a7975d30fd15bd7216f3363f8942faa",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 90,
+        "minY": 25,
+        "maxX": 240,
+        "maxY": 312,
+        "width": 151,
+        "height": 288
+      }
+    },
+    {
+      "index": 18,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/right/018.png",
+      "sha256": "983df69e531a299eb8b929804753c2a881cc2eb39a007bae8a3cf818a4ba688a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 90,
+        "minY": 24,
+        "maxX": 240,
+        "maxY": 312,
+        "width": 151,
+        "height": 289
+      }
+    },
+    {
+      "index": 19,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/source/right/019.png",
+      "sha256": "6f7cc46cf3a403fd5de524fafbff15a75edcf3b1ca8d02a3b8e1521a8191cf96",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 91,
+        "minY": 23,
+        "maxX": 240,
+        "maxY": 312,
+        "width": 150,
+        "height": 290
+      }
+    }
+  ],
+  "frames": [
+    {
+      "index": 1,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/front/001.png",
+      "sha256": "52ff116797e2032fe5b90cb452f4f7339d53f2433916142d678e8b3e06ef3893",
+      "bbox": {
+        "minX": 45,
+        "minY": 30,
+        "maxX": 158,
+        "maxY": 178,
+        "width": 114,
+        "height": 149
+      }
+    },
+    {
+      "index": 2,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/front/002.png",
+      "sha256": "6637fcb189c8cba5b5f5121c90b13428663e681d1af61044bcf166e5db11e7cb",
+      "bbox": {
+        "minX": 45,
+        "minY": 30,
+        "maxX": 157,
+        "maxY": 178,
+        "width": 113,
+        "height": 149
+      }
+    },
+    {
+      "index": 3,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/front/003.png",
+      "sha256": "637fc249be992e8f2b9764332b10dabe050b4b6a572e761891dc065da33ebd41",
+      "bbox": {
+        "minX": 45,
+        "minY": 30,
+        "maxX": 157,
+        "maxY": 177,
+        "width": 113,
+        "height": 148
+      }
+    },
+    {
+      "index": 4,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/front/004.png",
+      "sha256": "52e7c8536941989685ff7fb2b30d0a038f9a89cbc5ec892fcda8b326736b637b",
+      "bbox": {
+        "minX": 44,
+        "minY": 31,
+        "maxX": 157,
+        "maxY": 178,
+        "width": 114,
+        "height": 148
+      }
+    },
+    {
+      "index": 5,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/front/005.png",
+      "sha256": "ed1d95e066e600766ab6dfcb4a203504e64cd38a4e4543db84c0d844d3bf8632",
+      "bbox": {
+        "minX": 43,
+        "minY": 31,
+        "maxX": 158,
+        "maxY": 179,
+        "width": 116,
+        "height": 149
+      }
+    },
+    {
+      "index": 6,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/front/006.png",
+      "sha256": "a79aac4fd6c59c0bb1ebaa0709104c75ba12391a47360fe9fad475a3cfc99426",
+      "bbox": {
+        "minX": 43,
+        "minY": 32,
+        "maxX": 157,
+        "maxY": 180,
+        "width": 115,
+        "height": 149
+      }
+    },
+    {
+      "index": 7,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/front/007.png",
+      "sha256": "96a4d82dcd6cc8a3fdca4427385229961bbd253d955bca33f78d7e61b16a3c81",
+      "bbox": {
+        "minX": 43,
+        "minY": 32,
+        "maxX": 157,
+        "maxY": 179,
+        "width": 115,
+        "height": 148
+      }
+    },
+    {
+      "index": 8,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/front/008.png",
+      "sha256": "96d9e072831bb4fbdddaf76268b91177b1371c4b12dd7ca33bc3cdf4575b5b50",
+      "bbox": {
+        "minX": 43,
+        "minY": 31,
+        "maxX": 156,
+        "maxY": 179,
+        "width": 114,
+        "height": 149
+      }
+    },
+    {
+      "index": 9,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/front/009.png",
+      "sha256": "b75c2c5d37fb016bce83b5e2bd4470ea631abe5dd92c11a00ff7202468cbec48",
+      "bbox": {
+        "minX": 44,
+        "minY": 31,
+        "maxX": 157,
+        "maxY": 178,
+        "width": 114,
+        "height": 148
+      }
+    },
+    {
+      "index": 10,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/front/010.png",
+      "sha256": "b178a712356c7e96a9175a8e35e39b85bc47797d51d696fab2ea49384b043f4f",
+      "bbox": {
+        "minX": 44,
+        "minY": 31,
+        "maxX": 156,
+        "maxY": 178,
+        "width": 113,
+        "height": 148
+      }
+    },
+    {
+      "index": 11,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/front/011.png",
+      "sha256": "2a24fcd5aa0a791cc655ac0bf4638c464c9385835a6bfefc0320f108c470c713",
+      "bbox": {
+        "minX": 45,
+        "minY": 30,
+        "maxX": 156,
+        "maxY": 178,
+        "width": 112,
+        "height": 149
+      }
+    },
+    {
+      "index": 12,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/front/012.png",
+      "sha256": "4fa139dd77a769918da70cd7102a8581ff71303a856966cee6a557592477c982",
+      "bbox": {
+        "minX": 45,
+        "minY": 30,
+        "maxX": 156,
+        "maxY": 177,
+        "width": 112,
+        "height": 148
+      }
+    },
+    {
+      "index": 13,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/front/013.png",
+      "sha256": "20c6e3666ae1e027c16beb3feba798cf78daebadb4e6a99ebee5692a351d5eef",
+      "bbox": {
+        "minX": 45,
+        "minY": 31,
+        "maxX": 158,
+        "maxY": 178,
+        "width": 114,
+        "height": 148
+      }
+    },
+    {
+      "index": 14,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/front/014.png",
+      "sha256": "f0af4f40f4297e0dda50d8e01bd8e334d343dcf26ef730c394f32013f62fee37",
+      "bbox": {
+        "minX": 45,
+        "minY": 31,
+        "maxX": 158,
+        "maxY": 178,
+        "width": 114,
+        "height": 148
+      }
+    },
+    {
+      "index": 15,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/front/015.png",
+      "sha256": "5d999672e8f838420f486361b8c36e89f4e4fd23a7ff1f68f0d50f720fe887e7",
+      "bbox": {
+        "minX": 45,
+        "minY": 31,
+        "maxX": 158,
+        "maxY": 179,
+        "width": 114,
+        "height": 149
+      }
+    },
+    {
+      "index": 16,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/front/016.png",
+      "sha256": "ec3e4c1546b4df1353b6f8d3e944198ee387a072e8beb7675b63cdf7a4cf6b99",
+      "bbox": {
+        "minX": 45,
+        "minY": 32,
+        "maxX": 158,
+        "maxY": 179,
+        "width": 114,
+        "height": 148
+      }
+    },
+    {
+      "index": 17,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/front/017.png",
+      "sha256": "c8df87a0995cc3a8a077c6020c8c20f6598cc103c21fcc5646213de5fc9f0103",
+      "bbox": {
+        "minX": 45,
+        "minY": 32,
+        "maxX": 158,
+        "maxY": 179,
+        "width": 114,
+        "height": 148
+      }
+    },
+    {
+      "index": 18,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/front/018.png",
+      "sha256": "3cc56f2c63103545aa2ac2ff4856921d3cd151788ecf68088c642b8339d29cfa",
+      "bbox": {
+        "minX": 45,
+        "minY": 32,
+        "maxX": 158,
+        "maxY": 179,
+        "width": 114,
+        "height": 148
+      }
+    },
+    {
+      "index": 19,
+      "direction": "front",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/front/019.png",
+      "sha256": "f4c2eca56ff69e3f43ef39d4c797a90005ed461d1b070ed287a42caa076ec964",
+      "bbox": {
+        "minX": 45,
+        "minY": 31,
+        "maxX": 158,
+        "maxY": 179,
+        "width": 114,
+        "height": 149
+      }
+    },
+    {
+      "index": 1,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/back/001.png",
+      "sha256": "a7623a131ee7b7ba6c2a03b6ea0198e39c23a61a6af22d48cc72cf8fdcd360c8",
+      "bbox": {
+        "minX": 50,
+        "minY": 31,
+        "maxX": 165,
+        "maxY": 178,
+        "width": 116,
+        "height": 148
+      }
+    },
+    {
+      "index": 2,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/back/002.png",
+      "sha256": "96d3c6e2b3e6639f86d94105014e5b980da389ce415e7d242c06e56a7abe8cc4",
+      "bbox": {
+        "minX": 50,
+        "minY": 32,
+        "maxX": 166,
+        "maxY": 178,
+        "width": 117,
+        "height": 147
+      }
+    },
+    {
+      "index": 3,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/back/003.png",
+      "sha256": "041919d9c2313da8f2cb5671b110567695fb9de896fd84f2e0ca01ed40b692f0",
+      "bbox": {
+        "minX": 50,
+        "minY": 32,
+        "maxX": 166,
+        "maxY": 178,
+        "width": 117,
+        "height": 147
+      }
+    },
+    {
+      "index": 4,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/back/004.png",
+      "sha256": "a8c00a05399e7bd753b9d9193148ba090b1cb9dd857f8cb1c6a5ca60cabc72ed",
+      "bbox": {
+        "minX": 49,
+        "minY": 32,
+        "maxX": 166,
+        "maxY": 179,
+        "width": 118,
+        "height": 148
+      }
+    },
+    {
+      "index": 5,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/back/005.png",
+      "sha256": "8dfdde0a88cd0729e1fe8faa43dd2a46a4ec4c330c05ec344393cf62b1fde7c2",
+      "bbox": {
+        "minX": 49,
+        "minY": 32,
+        "maxX": 166,
+        "maxY": 178,
+        "width": 118,
+        "height": 147
+      }
+    },
+    {
+      "index": 6,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/back/006.png",
+      "sha256": "6981d4eee3de6c1282845ef9ca5e5574954c0df2a5393af60f12da2e79ee3930",
+      "bbox": {
+        "minX": 49,
+        "minY": 31,
+        "maxX": 165,
+        "maxY": 178,
+        "width": 117,
+        "height": 148
+      }
+    },
+    {
+      "index": 7,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/back/007.png",
+      "sha256": "f9cd8ad8025b47bb86ac535a9a6bfc46944ac08a060f142c216abc3284ddedd0",
+      "bbox": {
+        "minX": 50,
+        "minY": 31,
+        "maxX": 165,
+        "maxY": 177,
+        "width": 116,
+        "height": 147
+      }
+    },
+    {
+      "index": 8,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/back/008.png",
+      "sha256": "62fed5da1fd0395b01d6fd1e492a3c5967cb4990f0a6072e97be2de606ee2259",
+      "bbox": {
+        "minX": 50,
+        "minY": 31,
+        "maxX": 165,
+        "maxY": 178,
+        "width": 116,
+        "height": 148
+      }
+    },
+    {
+      "index": 9,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/back/009.png",
+      "sha256": "dd5dfed17fd6d8dde42ce0665b014dd0977cddd86f377a790494162bbb3dbf04",
+      "bbox": {
+        "minX": 50,
+        "minY": 30,
+        "maxX": 164,
+        "maxY": 178,
+        "width": 115,
+        "height": 149
+      }
+    },
+    {
+      "index": 10,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/back/010.png",
+      "sha256": "6ca81c7d46ee74bdc41e37695e1a8928f7748b102c3c552570e53bc850126f51",
+      "bbox": {
+        "minX": 50,
+        "minY": 31,
+        "maxX": 165,
+        "maxY": 178,
+        "width": 116,
+        "height": 148
+      }
+    },
+    {
+      "index": 11,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/back/011.png",
+      "sha256": "fd6fd02d8900ae75e2c0a506a3f2ceaf1830539b452bdb428df3185ebed6a100",
+      "bbox": {
+        "minX": 50,
+        "minY": 31,
+        "maxX": 165,
+        "maxY": 178,
+        "width": 116,
+        "height": 148
+      }
+    },
+    {
+      "index": 12,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/back/012.png",
+      "sha256": "e43bea35f3475d9ed4e60b31ba08bf4b1a66cfa82ff1646d07fd9f157abf8f8d",
+      "bbox": {
+        "minX": 50,
+        "minY": 32,
+        "maxX": 165,
+        "maxY": 179,
+        "width": 116,
+        "height": 148
+      }
+    },
+    {
+      "index": 13,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/back/013.png",
+      "sha256": "05961e38e8a33faba2b34f62d0ed3203c8f938a0448f544c89644624e0423643",
+      "bbox": {
+        "minX": 50,
+        "minY": 32,
+        "maxX": 166,
+        "maxY": 179,
+        "width": 117,
+        "height": 148
+      }
+    },
+    {
+      "index": 14,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/back/014.png",
+      "sha256": "48030874a9463695e4a5b7cc78fe9bd1af1ec08c7a3b760420d7bf892ec583e7",
+      "bbox": {
+        "minX": 50,
+        "minY": 32,
+        "maxX": 166,
+        "maxY": 180,
+        "width": 117,
+        "height": 149
+      }
+    },
+    {
+      "index": 15,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/back/015.png",
+      "sha256": "61ca81b96b6eb729ec9dd7e8d93ff28dfb0ea358433a86e155adf6f93516ca18",
+      "bbox": {
+        "minX": 50,
+        "minY": 32,
+        "maxX": 166,
+        "maxY": 179,
+        "width": 117,
+        "height": 148
+      }
+    },
+    {
+      "index": 16,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/back/016.png",
+      "sha256": "4468e5aa94c1a4d692032a75459d09ac64f0352624ee7ccaf5326662031a2f02",
+      "bbox": {
+        "minX": 50,
+        "minY": 31,
+        "maxX": 165,
+        "maxY": 179,
+        "width": 116,
+        "height": 149
+      }
+    },
+    {
+      "index": 17,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/back/017.png",
+      "sha256": "a61cb30de2f8204ccbc7b830804940ac1449a8b222b721df2bab06603212106d",
+      "bbox": {
+        "minX": 50,
+        "minY": 30,
+        "maxX": 164,
+        "maxY": 178,
+        "width": 115,
+        "height": 149
+      }
+    },
+    {
+      "index": 18,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/back/018.png",
+      "sha256": "5bba273647d06127abc3953550a36f1efa709d28a945e283717bb7d4ca72196b",
+      "bbox": {
+        "minX": 50,
+        "minY": 30,
+        "maxX": 164,
+        "maxY": 177,
+        "width": 115,
+        "height": 148
+      }
+    },
+    {
+      "index": 19,
+      "direction": "back",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/back/019.png",
+      "sha256": "ed1515e28ce786b52cf534d669256f4a213d0e9425631b75e1bc3569ff278425",
+      "bbox": {
+        "minX": 50,
+        "minY": 30,
+        "maxX": 163,
+        "maxY": 177,
+        "width": 114,
+        "height": 148
+      }
+    },
+    {
+      "index": 1,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/left/001.png",
+      "sha256": "b1f8fa5f7bf04188096aaa2374e043bfa9edf8bc9960a2bb2e379a06af4cbd1a",
+      "bbox": {
+        "minX": 64,
+        "minY": 30,
+        "maxX": 139,
+        "maxY": 179,
+        "width": 76,
+        "height": 150
+      }
+    },
+    {
+      "index": 2,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/left/002.png",
+      "sha256": "7665187abcba8ac00dd46542d92b7a0d0112fb5d33381f0dbb475a9eb8de6581",
+      "bbox": {
+        "minX": 64,
+        "minY": 30,
+        "maxX": 139,
+        "maxY": 177,
+        "width": 76,
+        "height": 148
+      }
+    },
+    {
+      "index": 3,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/left/003.png",
+      "sha256": "3277e0e9129506c9e49d78d39665b07ba73a0ec4a9e1cec113d15bb857d59bae",
+      "bbox": {
+        "minX": 64,
+        "minY": 30,
+        "maxX": 139,
+        "maxY": 176,
+        "width": 76,
+        "height": 147
+      }
+    },
+    {
+      "index": 4,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/left/004.png",
+      "sha256": "87b015ad564cc34793d47951a7ce9ff4ea7f595589b27558c9cde385cbda0891",
+      "bbox": {
+        "minX": 64,
+        "minY": 31,
+        "maxX": 140,
+        "maxY": 178,
+        "width": 77,
+        "height": 148
+      }
+    },
+    {
+      "index": 5,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/left/005.png",
+      "sha256": "4143ab0b91558f221af113129112d0f6c5a2798282c90b0b036a279304878ef5",
+      "bbox": {
+        "minX": 63,
+        "minY": 32,
+        "maxX": 141,
+        "maxY": 179,
+        "width": 79,
+        "height": 148
+      }
+    },
+    {
+      "index": 6,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/left/006.png",
+      "sha256": "e6023ac8e67a047c937841a9fbf4c8e82c37854bb2e2d58aa6fbbc1060ae21b7",
+      "bbox": {
+        "minX": 63,
+        "minY": 32,
+        "maxX": 141,
+        "maxY": 179,
+        "width": 79,
+        "height": 148
+      }
+    },
+    {
+      "index": 7,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/left/007.png",
+      "sha256": "694a41edaa4c2a035a00d0821c2d0ef9f9446de71eaa4e1349d74b7a8b59d55d",
+      "bbox": {
+        "minX": 64,
+        "minY": 32,
+        "maxX": 141,
+        "maxY": 179,
+        "width": 78,
+        "height": 148
+      }
+    },
+    {
+      "index": 8,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/left/008.png",
+      "sha256": "8daf8d2fe948be9462b865d053751a15c1c88c395d1735d9b503e70e53c4c200",
+      "bbox": {
+        "minX": 64,
+        "minY": 32,
+        "maxX": 140,
+        "maxY": 178,
+        "width": 77,
+        "height": 147
+      }
+    },
+    {
+      "index": 9,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/left/009.png",
+      "sha256": "05aaf54971ee47bb1b4891bd9ec5aeade127303e66f0c491f4ad18a536273b13",
+      "bbox": {
+        "minX": 64,
+        "minY": 32,
+        "maxX": 139,
+        "maxY": 178,
+        "width": 76,
+        "height": 147
+      }
+    },
+    {
+      "index": 10,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/left/010.png",
+      "sha256": "aa96e88d8bde08b706e5c2bb9fb0ff83b300e662b96b2e26d67e5c3f615cca69",
+      "bbox": {
+        "minX": 64,
+        "minY": 31,
+        "maxX": 139,
+        "maxY": 179,
+        "width": 76,
+        "height": 149
+      }
+    },
+    {
+      "index": 11,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/left/011.png",
+      "sha256": "daf89869da242f3c00468edbfebd51032524a112f4d85b74a9a741727d6757b6",
+      "bbox": {
+        "minX": 64,
+        "minY": 30,
+        "maxX": 139,
+        "maxY": 178,
+        "width": 76,
+        "height": 149
+      }
+    },
+    {
+      "index": 12,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/left/012.png",
+      "sha256": "5e5897a84aa9f19a41e0f4be71c3eace6450f62237afa7b9956d77702f3f9540",
+      "bbox": {
+        "minX": 64,
+        "minY": 30,
+        "maxX": 139,
+        "maxY": 178,
+        "width": 76,
+        "height": 149
+      }
+    },
+    {
+      "index": 13,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/left/013.png",
+      "sha256": "7eae780481ea7b097a345eb84c5fc708bb256b8b9814580fb443aa4caace1c01",
+      "bbox": {
+        "minX": 63,
+        "minY": 30,
+        "maxX": 139,
+        "maxY": 178,
+        "width": 77,
+        "height": 149
+      }
+    },
+    {
+      "index": 14,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/left/014.png",
+      "sha256": "78d3515695b2f6483a2b5ceed538032e68a79ad466133d98f9eaf6a0da948556",
+      "bbox": {
+        "minX": 63,
+        "minY": 31,
+        "maxX": 140,
+        "maxY": 178,
+        "width": 78,
+        "height": 148
+      }
+    },
+    {
+      "index": 15,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/left/015.png",
+      "sha256": "a831150b5745a5660a39fd6fc733ab015884ce7dd2a606744e55276606d43808",
+      "bbox": {
+        "minX": 63,
+        "minY": 32,
+        "maxX": 140,
+        "maxY": 178,
+        "width": 78,
+        "height": 147
+      }
+    },
+    {
+      "index": 16,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/left/016.png",
+      "sha256": "fd4c1f6f9025c97e14daa8021fb0504eb6cdadc5392f3f24c39bb6961986ebf6",
+      "bbox": {
+        "minX": 63,
+        "minY": 32,
+        "maxX": 140,
+        "maxY": 179,
+        "width": 78,
+        "height": 148
+      }
+    },
+    {
+      "index": 17,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/left/017.png",
+      "sha256": "47a6bc117a13b5f04e2c2cdf510469d35c76217daecd41c4eaf9926da3fbe0f4",
+      "bbox": {
+        "minX": 63,
+        "minY": 32,
+        "maxX": 140,
+        "maxY": 177,
+        "width": 78,
+        "height": 146
+      }
+    },
+    {
+      "index": 18,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/left/018.png",
+      "sha256": "42dac74d1b558d8c90308f8e92a934220f19d9beff99398dae7f4767573bb6cd",
+      "bbox": {
+        "minX": 64,
+        "minY": 32,
+        "maxX": 139,
+        "maxY": 177,
+        "width": 76,
+        "height": 146
+      }
+    },
+    {
+      "index": 19,
+      "direction": "left",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/left/019.png",
+      "sha256": "63f8688d0c86a044c8519f53bba15930047ce4ffbb4cd9cfafa17ea2f93c86c1",
+      "bbox": {
+        "minX": 64,
+        "minY": 31,
+        "maxX": 139,
+        "maxY": 179,
+        "width": 76,
+        "height": 149
+      }
+    },
+    {
+      "index": 1,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/right/001.png",
+      "sha256": "8764d8007363cd704bbb83e92399c36b289e958744a730e78bbded87b8dfa214",
+      "bbox": {
+        "minX": 69,
+        "minY": 30,
+        "maxX": 144,
+        "maxY": 178,
+        "width": 76,
+        "height": 149
+      }
+    },
+    {
+      "index": 2,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/right/002.png",
+      "sha256": "c5864dc008c4c280b4c71c871ef7187527343b716e236de2c57ad9e4377a8ab2",
+      "bbox": {
+        "minX": 69,
+        "minY": 30,
+        "maxX": 144,
+        "maxY": 178,
+        "width": 76,
+        "height": 149
+      }
+    },
+    {
+      "index": 3,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/right/003.png",
+      "sha256": "7379a2898184500961630a46b2c728af347cfa026a3bd3ae3a4013f47bc3b982",
+      "bbox": {
+        "minX": 68,
+        "minY": 30,
+        "maxX": 145,
+        "maxY": 179,
+        "width": 78,
+        "height": 150
+      }
+    },
+    {
+      "index": 4,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/right/004.png",
+      "sha256": "6678bf95d729ff9ed9863acd7d85f17059170f40141c2fd87c79308ac4b66065",
+      "bbox": {
+        "minX": 68,
+        "minY": 31,
+        "maxX": 145,
+        "maxY": 178,
+        "width": 78,
+        "height": 148
+      }
+    },
+    {
+      "index": 5,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/right/005.png",
+      "sha256": "906be38db6bc2dd902ed2f5e523e719c42d3e2e75bf1749fda13b9e6659d03b9",
+      "bbox": {
+        "minX": 68,
+        "minY": 31,
+        "maxX": 145,
+        "maxY": 178,
+        "width": 78,
+        "height": 148
+      }
+    },
+    {
+      "index": 6,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/right/006.png",
+      "sha256": "85ce38a95387e593dcabfd33f94adfd22143e4074b58da83cd287420dcc5dcb5",
+      "bbox": {
+        "minX": 67,
+        "minY": 32,
+        "maxX": 145,
+        "maxY": 179,
+        "width": 79,
+        "height": 148
+      }
+    },
+    {
+      "index": 7,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/right/007.png",
+      "sha256": "2c76927abf93e790e191361a8a746a6773af85d1927fee39d78188d29c794419",
+      "bbox": {
+        "minX": 68,
+        "minY": 32,
+        "maxX": 145,
+        "maxY": 179,
+        "width": 78,
+        "height": 148
+      }
+    },
+    {
+      "index": 8,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/right/008.png",
+      "sha256": "3a5a24cc673d8981b7f327e9f5cf218a1e2cfa0bba7d9fa289e5f4dbc0176fc5",
+      "bbox": {
+        "minX": 68,
+        "minY": 31,
+        "maxX": 145,
+        "maxY": 179,
+        "width": 78,
+        "height": 149
+      }
+    },
+    {
+      "index": 9,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/right/009.png",
+      "sha256": "8d1bf60f740b0de37f4fdeb5ec4f9a7521f5215380645aaf52616a4253cece72",
+      "bbox": {
+        "minX": 69,
+        "minY": 31,
+        "maxX": 145,
+        "maxY": 179,
+        "width": 77,
+        "height": 149
+      }
+    },
+    {
+      "index": 10,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/right/010.png",
+      "sha256": "3c4940cb8dff780fd48190cdafc2763cb22d88340ddda991f48f7c1aea0a33e4",
+      "bbox": {
+        "minX": 69,
+        "minY": 30,
+        "maxX": 144,
+        "maxY": 179,
+        "width": 76,
+        "height": 150
+      }
+    },
+    {
+      "index": 11,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/right/011.png",
+      "sha256": "637988244daf94869e64205a180a581ce845d0db5f2161ebc2d25a2d6403dfe3",
+      "bbox": {
+        "minX": 69,
+        "minY": 30,
+        "maxX": 145,
+        "maxY": 178,
+        "width": 77,
+        "height": 149
+      }
+    },
+    {
+      "index": 12,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/right/012.png",
+      "sha256": "8506da4ce07db1395f70852db08446e27fd5ec55a4350b42aa65c9b5f86a76d7",
+      "bbox": {
+        "minX": 68,
+        "minY": 30,
+        "maxX": 145,
+        "maxY": 178,
+        "width": 78,
+        "height": 149
+      }
+    },
+    {
+      "index": 13,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/right/013.png",
+      "sha256": "e412215df585807528d717958786aa73aee99d70691cfec03d03a3c417f4aac5",
+      "bbox": {
+        "minX": 68,
+        "minY": 30,
+        "maxX": 145,
+        "maxY": 178,
+        "width": 78,
+        "height": 149
+      }
+    },
+    {
+      "index": 14,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/right/014.png",
+      "sha256": "d07f03e104dc75a665d506c8751938575613a7deffdfa3cf495fc2b96c8cc583",
+      "bbox": {
+        "minX": 68,
+        "minY": 31,
+        "maxX": 145,
+        "maxY": 178,
+        "width": 78,
+        "height": 148
+      }
+    },
+    {
+      "index": 15,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/right/015.png",
+      "sha256": "0f3c9e91147f93f85f7ea3562727b6ef49c403964d3fefe3f2c590af74cd91ba",
+      "bbox": {
+        "minX": 68,
+        "minY": 31,
+        "maxX": 145,
+        "maxY": 178,
+        "width": 78,
+        "height": 148
+      }
+    },
+    {
+      "index": 16,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/right/016.png",
+      "sha256": "dd0e31ab02f4928986083a217125fe354efacee556ab7c771307b9b5c6e36f02",
+      "bbox": {
+        "minX": 68,
+        "minY": 32,
+        "maxX": 145,
+        "maxY": 179,
+        "width": 78,
+        "height": 148
+      }
+    },
+    {
+      "index": 17,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/right/017.png",
+      "sha256": "720a3c6f659c8c4c0bb008a42372a55d25fa6d7f2102959694e506f31f5b4f9d",
+      "bbox": {
+        "minX": 68,
+        "minY": 32,
+        "maxX": 145,
+        "maxY": 178,
+        "width": 78,
+        "height": 147
+      }
+    },
+    {
+      "index": 18,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/right/018.png",
+      "sha256": "fd94fc67694025bb9aa373f6a30d9c8a97f91006b53e44733f6d384b1754397f",
+      "bbox": {
+        "minX": 68,
+        "minY": 31,
+        "maxX": 145,
+        "maxY": 178,
+        "width": 78,
+        "height": 148
+      }
+    },
+    {
+      "index": 19,
+      "direction": "right",
+      "file": "src/assets/characters/suika/sequence-approved-v1/frames/right/019.png",
+      "sha256": "6218080debb8dbb8e73c155b606cc175fbeda68f09a274657cf830bf29d46e11",
+      "bbox": {
+        "minX": 69,
+        "minY": 31,
+        "maxX": 145,
+        "maxY": 178,
+        "width": 77,
+        "height": 148
+      }
+    }
+  ]
+}

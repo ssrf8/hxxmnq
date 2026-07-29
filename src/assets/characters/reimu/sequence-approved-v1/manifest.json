@@ -1,0 +1,2620 @@
+{
+  "version": 1,
+  "character": "reimu",
+  "status": "owner-approved-sequence-source",
+  "runtimeStatus": "ready-for-runtime-integration",
+  "layout": "variable-sequence-v1",
+  "sourceProject": "../参考素材/New project 11",
+  "sourceDirectory": "characters/reimu/sprite-sequence-v1/frames",
+  "sourcePolicy": "copied-byte-for-byte-from-owner-approved-frames",
+  "transform": "uniform-nearest-neighbor-fixed-anchor",
+  "cell": [
+    209,
+    209
+  ],
+  "atlas": "src/assets/characters/reimu/reimu-animation-sequence-approved-v1.png",
+  "atlasSha256": "5c9d822d5eceb7ac8e893cfcef58ba0ccfd1d76130b2913583c1dad34347e0db",
+  "atlasSize": [
+    4180,
+    836
+  ],
+  "frameCount": 20,
+  "rowOrder": [
+    "front",
+    "back",
+    "left",
+    "right"
+  ],
+  "frameDurationMs": 110,
+  "stationaryFrame": "direction-row-column-0",
+  "loopStart": 0,
+  "loopEnd": 19,
+  "sourceAnchorByDirection": {
+    "front": [
+      160,
+      304
+    ],
+    "back": [
+      160,
+      304
+    ],
+    "left": [
+      160,
+      304
+    ],
+    "right": [
+      160,
+      304
+    ]
+  },
+  "targetAnchor": [
+    104,
+    179
+  ],
+  "targetVisibleHeight": 150,
+  "scale": 0.5226480836236934,
+  "sources": [
+    {
+      "index": 1,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/front/001.png",
+      "sha256": "52a71c26328cfa530ce89b3e58c8db955742ef728f30aeef4bcb3670bb36c6a1",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 57,
+        "minY": 19,
+        "maxX": 280,
+        "maxY": 303,
+        "width": 224,
+        "height": 285
+      }
+    },
+    {
+      "index": 2,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/front/002.png",
+      "sha256": "6a0f91bd8052044c39d4169c23355fefa1d39585516fcd5cef1847a96b03ba19",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 56,
+        "minY": 22,
+        "maxX": 280,
+        "maxY": 303,
+        "width": 225,
+        "height": 282
+      }
+    },
+    {
+      "index": 3,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/front/003.png",
+      "sha256": "0205f9f4b9a6239ff03982ab2d7460efd1c4e4c9c3f108abb97c5972df17fd53",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 56,
+        "minY": 23,
+        "maxX": 280,
+        "maxY": 303,
+        "width": 225,
+        "height": 281
+      }
+    },
+    {
+      "index": 4,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/front/004.png",
+      "sha256": "1321037dcf799bca37e075366ae17b5b78c9aef3d7ba9728f5bbfe93deab44b9",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 56,
+        "minY": 22,
+        "maxX": 280,
+        "maxY": 303,
+        "width": 225,
+        "height": 282
+      }
+    },
+    {
+      "index": 5,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/front/005.png",
+      "sha256": "6d2d752ad521481228deb9d5e49276906ea74986fd476b58989136a3280b2f58",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 56,
+        "minY": 22,
+        "maxX": 281,
+        "maxY": 303,
+        "width": 226,
+        "height": 282
+      }
+    },
+    {
+      "index": 6,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/front/006.png",
+      "sha256": "22b69656d729851c410b372d169605dd7a0b157e60b9a0ce5b072dd04bab162a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 56,
+        "minY": 22,
+        "maxX": 281,
+        "maxY": 303,
+        "width": 226,
+        "height": 282
+      }
+    },
+    {
+      "index": 7,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/front/007.png",
+      "sha256": "86c1d907db6e40aa3f81c21ef35edef15d2e390bf6437baf48c088ef05cee523",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 55,
+        "minY": 20,
+        "maxX": 281,
+        "maxY": 303,
+        "width": 227,
+        "height": 284
+      }
+    },
+    {
+      "index": 8,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/front/008.png",
+      "sha256": "908502f2fc1e2eea976d240319cbf64053477d1b96b0b792d10b047224ef285d",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 54,
+        "minY": 20,
+        "maxX": 281,
+        "maxY": 303,
+        "width": 228,
+        "height": 284
+      }
+    },
+    {
+      "index": 9,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/front/009.png",
+      "sha256": "40bbfae8cdb7b5dc9981fb01a27ce1b18189ee379e3ce8149654db89b85372b1",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 52,
+        "minY": 18,
+        "maxX": 281,
+        "maxY": 303,
+        "width": 230,
+        "height": 286
+      }
+    },
+    {
+      "index": 10,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/front/010.png",
+      "sha256": "e2e54041355705df6e01a8066cde19244e8f3296093e70ef464c89b82e76c495",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 52,
+        "minY": 18,
+        "maxX": 281,
+        "maxY": 302,
+        "width": 230,
+        "height": 285
+      }
+    },
+    {
+      "index": 11,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/front/011.png",
+      "sha256": "fb2e0cacd09cde1ee7971cae9c937ded0113fad971eb674f4a479f11589140cb",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 53,
+        "minY": 19,
+        "maxX": 281,
+        "maxY": 303,
+        "width": 229,
+        "height": 285
+      }
+    },
+    {
+      "index": 12,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/front/012.png",
+      "sha256": "7b4ee97d036215f39057c368f96695b380a0c4f5821830acde9f1597875c23d2",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 53,
+        "minY": 21,
+        "maxX": 280,
+        "maxY": 303,
+        "width": 228,
+        "height": 283
+      }
+    },
+    {
+      "index": 13,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/front/013.png",
+      "sha256": "a48bc19fddd2008f7742379140edf028937b94646521cc32eadbd967f12066b9",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 54,
+        "minY": 21,
+        "maxX": 280,
+        "maxY": 303,
+        "width": 227,
+        "height": 283
+      }
+    },
+    {
+      "index": 14,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/front/014.png",
+      "sha256": "92d2ad1f6eeb8d8165f22f35366506f57c61e2e47b8f3da47692299f877cee90",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 55,
+        "minY": 22,
+        "maxX": 281,
+        "maxY": 303,
+        "width": 227,
+        "height": 282
+      }
+    },
+    {
+      "index": 15,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/front/015.png",
+      "sha256": "259ca9f7dac57ac169cab4d1a1ad1acadf117c2d54805df2f78b915077f20acf",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 55,
+        "minY": 20,
+        "maxX": 280,
+        "maxY": 303,
+        "width": 226,
+        "height": 284
+      }
+    },
+    {
+      "index": 16,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/front/016.png",
+      "sha256": "ef312ea8b583cac349b1d252bd1e5ec1efdfc603882152530d44d87497c630a9",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 55,
+        "minY": 21,
+        "maxX": 280,
+        "maxY": 303,
+        "width": 226,
+        "height": 283
+      }
+    },
+    {
+      "index": 17,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/front/017.png",
+      "sha256": "f34d95fc4adbb481b317d062560658a119eb1028a406081b52b19c3daf11f77e",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 55,
+        "minY": 19,
+        "maxX": 280,
+        "maxY": 303,
+        "width": 226,
+        "height": 285
+      }
+    },
+    {
+      "index": 18,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/front/018.png",
+      "sha256": "0a4d10fe8374a18ec15f0ae022ad6884561a1a31fd3eea32cc04a8f3d07d7766",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 54,
+        "minY": 19,
+        "maxX": 280,
+        "maxY": 303,
+        "width": 227,
+        "height": 285
+      }
+    },
+    {
+      "index": 19,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/front/019.png",
+      "sha256": "d23ae8bdf942c5ccf928ff49577d1114cac62f729f7278670f22bd481b1e9c84",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 54,
+        "minY": 19,
+        "maxX": 280,
+        "maxY": 303,
+        "width": 227,
+        "height": 285
+      }
+    },
+    {
+      "index": 20,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/front/020.png",
+      "sha256": "439a3d738c1a6a1932a51b14e6cf9c9bc80e72c1415f34694bd6e0067d8189c0",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 54,
+        "minY": 19,
+        "maxX": 280,
+        "maxY": 303,
+        "width": 227,
+        "height": 285
+      }
+    },
+    {
+      "index": 1,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/back/001.png",
+      "sha256": "b60d25774f8ac2c4f920046599ab041abda7ed170fd1a5b4d6437f04a53038ca",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 46,
+        "minY": 20,
+        "maxX": 263,
+        "maxY": 303,
+        "width": 218,
+        "height": 284
+      }
+    },
+    {
+      "index": 2,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/back/002.png",
+      "sha256": "e08fb4a1374c86221858e129b47167148df4f8baa8de21614eb892eeecc611fe",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 45,
+        "minY": 21,
+        "maxX": 263,
+        "maxY": 303,
+        "width": 219,
+        "height": 283
+      }
+    },
+    {
+      "index": 3,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/back/003.png",
+      "sha256": "eb24d2510c13861933a3f6c316a53eb5872dbca064f9d73234d2d5c29c30f390",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 45,
+        "minY": 23,
+        "maxX": 264,
+        "maxY": 303,
+        "width": 220,
+        "height": 281
+      }
+    },
+    {
+      "index": 4,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/back/004.png",
+      "sha256": "ee7ed30ab472a9f7e582dc3963364f6c240990d130f6883d37b6a9ac1b71152f",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 46,
+        "minY": 24,
+        "maxX": 264,
+        "maxY": 303,
+        "width": 219,
+        "height": 280
+      }
+    },
+    {
+      "index": 5,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/back/005.png",
+      "sha256": "94cdfdca00d58dd19deac816fb0f1f093b94ebba8293296c6e4ec7357397ec6b",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 47,
+        "minY": 24,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 219,
+        "height": 280
+      }
+    },
+    {
+      "index": 6,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/back/006.png",
+      "sha256": "ca739d2703045f583e6068db757db1f11f6ef51a62f4826d8a348a6345ba06cc",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 47,
+        "minY": 23,
+        "maxX": 266,
+        "maxY": 303,
+        "width": 220,
+        "height": 281
+      }
+    },
+    {
+      "index": 7,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/back/007.png",
+      "sha256": "c7831659dac6ed8ea2e1c177bd6444b4d30c884be299bbf2fd5cc3e165dc80d5",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 47,
+        "minY": 23,
+        "maxX": 266,
+        "maxY": 303,
+        "width": 220,
+        "height": 281
+      }
+    },
+    {
+      "index": 8,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/back/008.png",
+      "sha256": "703a2b3a8d57c0cf57072dd1366bf22f9b073c86819f059e97a6dd459cd8a432",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 47,
+        "minY": 23,
+        "maxX": 268,
+        "maxY": 303,
+        "width": 222,
+        "height": 281
+      }
+    },
+    {
+      "index": 9,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/back/009.png",
+      "sha256": "9c75da326d691b37e1ff773a4542afbf47b2f93f56224248e8ca5d1f8f546624",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 46,
+        "minY": 21,
+        "maxX": 269,
+        "maxY": 303,
+        "width": 224,
+        "height": 283
+      }
+    },
+    {
+      "index": 10,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/back/010.png",
+      "sha256": "28b790ded8717b9224abd357137d80489824bc5facac218b16e65fc94b078e15",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 46,
+        "minY": 21,
+        "maxX": 270,
+        "maxY": 303,
+        "width": 225,
+        "height": 283
+      }
+    },
+    {
+      "index": 11,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/back/011.png",
+      "sha256": "372fe6992d11318101defa96e35b430aa79904f16c2ad92b06152e09f0a43446",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 46,
+        "minY": 21,
+        "maxX": 270,
+        "maxY": 303,
+        "width": 225,
+        "height": 283
+      }
+    },
+    {
+      "index": 12,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/back/012.png",
+      "sha256": "a84b2e8c1fd7de86b1a8e07f22924aab4c1d3751369cc2469f40b08871180c62",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 46,
+        "minY": 23,
+        "maxX": 269,
+        "maxY": 303,
+        "width": 224,
+        "height": 281
+      }
+    },
+    {
+      "index": 13,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/back/013.png",
+      "sha256": "1015d697adb3914751d3b5a89d054c3f4e799afab37f26533aab1fdb411ac7ce",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 46,
+        "minY": 24,
+        "maxX": 267,
+        "maxY": 303,
+        "width": 222,
+        "height": 280
+      }
+    },
+    {
+      "index": 14,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/back/014.png",
+      "sha256": "da6d03d31d06a8da1db93fc54d06606508519a6123bccb7ca4d87e1c05595d3d",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 46,
+        "minY": 23,
+        "maxX": 266,
+        "maxY": 303,
+        "width": 221,
+        "height": 281
+      }
+    },
+    {
+      "index": 15,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/back/015.png",
+      "sha256": "be4dda4beabdef79347d86eead0f76d32677effb5fd33d80719b07e327e47c57",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 46,
+        "minY": 21,
+        "maxX": 265,
+        "maxY": 302,
+        "width": 220,
+        "height": 282
+      }
+    },
+    {
+      "index": 16,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/back/016.png",
+      "sha256": "c460a7dc3c302eb4a4d607977b9d21996711cfd1255129fc752e444b03a28117",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 46,
+        "minY": 21,
+        "maxX": 264,
+        "maxY": 303,
+        "width": 219,
+        "height": 283
+      }
+    },
+    {
+      "index": 17,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/back/017.png",
+      "sha256": "9fa5d8c5c50a51fa5d90e9f7c11622d5f1286ad23a8453d4ecdcf6c71cf926e9",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 45,
+        "minY": 18,
+        "maxX": 263,
+        "maxY": 303,
+        "width": 219,
+        "height": 286
+      }
+    },
+    {
+      "index": 18,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/back/018.png",
+      "sha256": "fef5dbde275d1253ba77bb697a846f0c195fa78625a9a371b9598ee9b755c636",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 45,
+        "minY": 17,
+        "maxX": 263,
+        "maxY": 303,
+        "width": 219,
+        "height": 287
+      }
+    },
+    {
+      "index": 19,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/back/019.png",
+      "sha256": "c0b1700a3748f6fa9df546dfcca0afe786bc310ced12a1237b8758e95c1040ff",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 45,
+        "minY": 18,
+        "maxX": 263,
+        "maxY": 303,
+        "width": 219,
+        "height": 286
+      }
+    },
+    {
+      "index": 20,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/back/020.png",
+      "sha256": "75e7c029b53f2ffa63520b1b6fcb38a53f288d3b5f44a59122656363c599f145",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 45,
+        "minY": 17,
+        "maxX": 263,
+        "maxY": 303,
+        "width": 219,
+        "height": 287
+      }
+    },
+    {
+      "index": 1,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/left/001.png",
+      "sha256": "8b8223888d6053d867b94310d1b41684abb5826a324091824ef32d8fc48a85bc",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 54,
+        "minY": 27,
+        "maxX": 264,
+        "maxY": 303,
+        "width": 211,
+        "height": 277
+      }
+    },
+    {
+      "index": 2,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/left/002.png",
+      "sha256": "1b787cebe90d397adf6ea3220d6394f8a8d35fdfb128fb0defeedb0acd02d9d8",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 55,
+        "minY": 28,
+        "maxX": 264,
+        "maxY": 303,
+        "width": 210,
+        "height": 276
+      }
+    },
+    {
+      "index": 3,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/left/003.png",
+      "sha256": "8649ec016a69adb99d819ff33b31db018b9d2555f7cbb449485ee1a45836b2ee",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 57,
+        "minY": 25,
+        "maxX": 264,
+        "maxY": 302,
+        "width": 208,
+        "height": 278
+      }
+    },
+    {
+      "index": 4,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/left/004.png",
+      "sha256": "29b1c14d889270483e7563fe83842b0060152266cb45062b8b4bb1385d0a8719",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 58,
+        "minY": 24,
+        "maxX": 264,
+        "maxY": 303,
+        "width": 207,
+        "height": 280
+      }
+    },
+    {
+      "index": 5,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/left/005.png",
+      "sha256": "3cabdb3f096d8c8347198b73495607414f3ecadc00590bc63c068e2ffdf153dc",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 59,
+        "minY": 24,
+        "maxX": 264,
+        "maxY": 303,
+        "width": 206,
+        "height": 280
+      }
+    },
+    {
+      "index": 6,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/left/006.png",
+      "sha256": "83f4b4af3ebe8660664fec9dc3d0cc065bfed982a2db23504db570855ac44344",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 60,
+        "minY": 23,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 206,
+        "height": 281
+      }
+    },
+    {
+      "index": 7,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/left/007.png",
+      "sha256": "78cf9109df180841776e038d79e3ac2bdcb5ff28cfda5bec9b8fda8c89d4c39e",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 61,
+        "minY": 24,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 205,
+        "height": 280
+      }
+    },
+    {
+      "index": 8,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/left/008.png",
+      "sha256": "0b83000069b0e0aac77c665d6d9f1a5a69f149defad707c90576572afeefef28",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 61,
+        "minY": 26,
+        "maxX": 266,
+        "maxY": 303,
+        "width": 206,
+        "height": 278
+      }
+    },
+    {
+      "index": 9,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/left/009.png",
+      "sha256": "50df3a0f2f672ecf24a8472ed8acf2f96f849a8d02bc92fa875510e2891606a8",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 61,
+        "minY": 26,
+        "maxX": 267,
+        "maxY": 302,
+        "width": 207,
+        "height": 277
+      }
+    },
+    {
+      "index": 10,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/left/010.png",
+      "sha256": "c89da40c1759ab3b9265d87640ef4ff2553ae02b947d66de44a37482dfc3a11a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 61,
+        "minY": 28,
+        "maxX": 267,
+        "maxY": 303,
+        "width": 207,
+        "height": 276
+      }
+    },
+    {
+      "index": 11,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/left/011.png",
+      "sha256": "151dbbe068ee82e32bcce53fd34717d2064196c06e3ad2f0c4481f0c98933f99",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 61,
+        "minY": 27,
+        "maxX": 267,
+        "maxY": 302,
+        "width": 207,
+        "height": 276
+      }
+    },
+    {
+      "index": 12,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/left/012.png",
+      "sha256": "43dba4e0975b35c1a5caa5921bd4f2a5577a57e1cf979b9e70eab0a5116db109",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 61,
+        "minY": 28,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 205,
+        "height": 276
+      }
+    },
+    {
+      "index": 13,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/left/013.png",
+      "sha256": "44c7815a51729255289e5a7df2cf3861380713ca2f57d78c7b2dbdc238267b73",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 59,
+        "minY": 26,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 207,
+        "height": 278
+      }
+    },
+    {
+      "index": 14,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/left/014.png",
+      "sha256": "6bae0758f54d49b6247aab1f10712846e6bb03e7056da179b00195f9bbd2a167",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 58,
+        "minY": 26,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 208,
+        "height": 278
+      }
+    },
+    {
+      "index": 15,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/left/015.png",
+      "sha256": "451c3f96bb0e4f71249c6742f87209a0fcdc0e8fba469c71340e9cc8be38d804",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 57,
+        "minY": 26,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 209,
+        "height": 278
+      }
+    },
+    {
+      "index": 16,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/left/016.png",
+      "sha256": "9fcae28aa875eec98dc4cf93c87a6c3a1a52ad912a1662059576a581a9eceb04",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 55,
+        "minY": 27,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 211,
+        "height": 277
+      }
+    },
+    {
+      "index": 17,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/left/017.png",
+      "sha256": "897092dcc3276ec62d561e56c3d7f7f928e5f40cab4fcde7162a7d8efeabf775",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 53,
+        "minY": 26,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 213,
+        "height": 278
+      }
+    },
+    {
+      "index": 18,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/left/018.png",
+      "sha256": "d3b92ee5a86098887ab238156a8975ba83894425071f55cc48ff1b2adc608f96",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 52,
+        "minY": 27,
+        "maxX": 266,
+        "maxY": 303,
+        "width": 215,
+        "height": 277
+      }
+    },
+    {
+      "index": 19,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/left/019.png",
+      "sha256": "73fab9bc817de8532853281426793e8765e20272079b58101df19832743d32ae",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 52,
+        "minY": 25,
+        "maxX": 266,
+        "maxY": 303,
+        "width": 215,
+        "height": 279
+      }
+    },
+    {
+      "index": 20,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/left/020.png",
+      "sha256": "b70b540c46667db2b8d250ff6f9465df9307b75c4d424754cdbd07b808490d9d",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 52,
+        "minY": 27,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 214,
+        "height": 277
+      }
+    },
+    {
+      "index": 1,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/right/001.png",
+      "sha256": "3f96751e3bfc39e7d42ef77bad6c37b1a2e5749fa28dc5eee0de114e4bcb40e3",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 55,
+        "minY": 29,
+        "maxX": 261,
+        "maxY": 303,
+        "width": 207,
+        "height": 275
+      }
+    },
+    {
+      "index": 2,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/right/002.png",
+      "sha256": "f9f047c2e29c3edc88c83bc5095aa590354fbe0cc07c4bcbf3a722c0215bf934",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 55,
+        "minY": 31,
+        "maxX": 261,
+        "maxY": 303,
+        "width": 207,
+        "height": 273
+      }
+    },
+    {
+      "index": 3,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/right/003.png",
+      "sha256": "0c1b2630038466ef3517a225b8fce385ead7f6027604bfa9df6cbc541519ae03",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 56,
+        "minY": 28,
+        "maxX": 262,
+        "maxY": 303,
+        "width": 207,
+        "height": 276
+      }
+    },
+    {
+      "index": 4,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/right/004.png",
+      "sha256": "95dab7308cb1a089c4aaa1f0af25b268511a9deaa9054d232cea944fecb6102c",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 56,
+        "minY": 28,
+        "maxX": 262,
+        "maxY": 303,
+        "width": 207,
+        "height": 276
+      }
+    },
+    {
+      "index": 5,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/right/005.png",
+      "sha256": "f0bde186d541abaca0193d3d0c88fb94f4fbf1bf40b267c3d998905172ebe6ff",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 56,
+        "minY": 27,
+        "maxX": 264,
+        "maxY": 303,
+        "width": 209,
+        "height": 277
+      }
+    },
+    {
+      "index": 6,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/right/006.png",
+      "sha256": "f60e139dbca7dd6d79c41c410d86ee18fbdc8c4e9af4e8bb7dac4bd2bad4121b",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 56,
+        "minY": 27,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 210,
+        "height": 277
+      }
+    },
+    {
+      "index": 7,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/right/007.png",
+      "sha256": "58ed720281d8dd7f9574497adddc2cc2d741db485c5ee39a61a70172b75a3cc2",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 55,
+        "minY": 27,
+        "maxX": 266,
+        "maxY": 303,
+        "width": 212,
+        "height": 277
+      }
+    },
+    {
+      "index": 8,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/right/008.png",
+      "sha256": "a8cc79ee0ab63ad0f00c5b8a145f41d4611dac8bfc8d5e314b04649e33642281",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 55,
+        "minY": 27,
+        "maxX": 267,
+        "maxY": 303,
+        "width": 213,
+        "height": 277
+      }
+    },
+    {
+      "index": 9,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/right/009.png",
+      "sha256": "c6d81d856d1b518c83c11b7628eba30649d7148bea7dd7030ce580cb1e390fc9",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 54,
+        "minY": 27,
+        "maxX": 269,
+        "maxY": 303,
+        "width": 216,
+        "height": 277
+      }
+    },
+    {
+      "index": 10,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/right/010.png",
+      "sha256": "c721bd7d88c28b57c546bf702ff6d965119dd790c53e233d75de8a64b71f016e",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 53,
+        "minY": 27,
+        "maxX": 270,
+        "maxY": 303,
+        "width": 218,
+        "height": 277
+      }
+    },
+    {
+      "index": 11,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/right/011.png",
+      "sha256": "7721458c000f4556baa636580b7611b7cafd5b31346c12621cb4ec884f2f7389",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 53,
+        "minY": 27,
+        "maxX": 269,
+        "maxY": 303,
+        "width": 217,
+        "height": 277
+      }
+    },
+    {
+      "index": 12,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/right/012.png",
+      "sha256": "de8ba868b1346c56d7dbe8e7a821e28c8550040e14eb5f458c58fd3d3f583e56",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 55,
+        "minY": 27,
+        "maxX": 268,
+        "maxY": 303,
+        "width": 214,
+        "height": 277
+      }
+    },
+    {
+      "index": 13,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/right/013.png",
+      "sha256": "0dfeb12a58a4f452bde2e71d5b4bf317b3e7a114e83b140186852189a35a8fb8",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 55,
+        "minY": 27,
+        "maxX": 267,
+        "maxY": 303,
+        "width": 213,
+        "height": 277
+      }
+    },
+    {
+      "index": 14,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/right/014.png",
+      "sha256": "abb8a6e43ff10a09d7059977536185c58267458f4740c183b5dfc721f8cbe097",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 56,
+        "minY": 26,
+        "maxX": 265,
+        "maxY": 303,
+        "width": 210,
+        "height": 278
+      }
+    },
+    {
+      "index": 15,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/right/015.png",
+      "sha256": "741a6d38ac8da6427d3f0bcd17109c08305e58242fb0553a8bf7c48528daf656",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 56,
+        "minY": 26,
+        "maxX": 264,
+        "maxY": 303,
+        "width": 209,
+        "height": 278
+      }
+    },
+    {
+      "index": 16,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/right/016.png",
+      "sha256": "fddf165238d7e2f75cf481b6865c72dff75e31c628a4c5858ae6ebed11a5886e",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 56,
+        "minY": 27,
+        "maxX": 262,
+        "maxY": 303,
+        "width": 207,
+        "height": 277
+      }
+    },
+    {
+      "index": 17,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/right/017.png",
+      "sha256": "7ac8150eb610f2a02ff284e8209bd179fc9478b85133ed07565e4a24fd2efccd",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 54,
+        "minY": 28,
+        "maxX": 260,
+        "maxY": 303,
+        "width": 207,
+        "height": 276
+      }
+    },
+    {
+      "index": 18,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/right/018.png",
+      "sha256": "d580e0229c94f6121a1ba2442d3841c51951df482e4acd7189782eab91d17da6",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 54,
+        "minY": 28,
+        "maxX": 260,
+        "maxY": 303,
+        "width": 207,
+        "height": 276
+      }
+    },
+    {
+      "index": 19,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/right/019.png",
+      "sha256": "3d507b6a1030d377a10d839bd0f54328a713875dec40d8b6004fa31617bc0e7a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 53,
+        "minY": 29,
+        "maxX": 260,
+        "maxY": 303,
+        "width": 208,
+        "height": 275
+      }
+    },
+    {
+      "index": 20,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/source/right/020.png",
+      "sha256": "b8ca132dbea440ab6474589bf183b424e7942e56652d5a3a1c88c5882604040d",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 54,
+        "minY": 30,
+        "maxX": 260,
+        "maxY": 303,
+        "width": 207,
+        "height": 274
+      }
+    }
+  ],
+  "frames": [
+    {
+      "index": 1,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/front/001.png",
+      "sha256": "8fbee51844eb83c88259a5a3ad33bcca2764fac261389a2971f7ebb11636a906",
+      "bbox": {
+        "minX": 50,
+        "minY": 30,
+        "maxX": 166,
+        "maxY": 178,
+        "width": 117,
+        "height": 149
+      }
+    },
+    {
+      "index": 2,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/front/002.png",
+      "sha256": "8ebf840e6591ccc1c39c9fd3f08e9e7653becb1053b406879bd87ae04f369f5e",
+      "bbox": {
+        "minX": 50,
+        "minY": 32,
+        "maxX": 166,
+        "maxY": 178,
+        "width": 117,
+        "height": 147
+      }
+    },
+    {
+      "index": 3,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/front/003.png",
+      "sha256": "69ab6a1eec3be4eee10cd43a2aab3fc47cd52ebde06e839e7e6d46183ef34f9b",
+      "bbox": {
+        "minX": 50,
+        "minY": 32,
+        "maxX": 166,
+        "maxY": 178,
+        "width": 117,
+        "height": 147
+      }
+    },
+    {
+      "index": 4,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/front/004.png",
+      "sha256": "858524e51285d114be3db755ac7790427476535cee36136388d52d7f16dc445a",
+      "bbox": {
+        "minX": 50,
+        "minY": 32,
+        "maxX": 166,
+        "maxY": 178,
+        "width": 117,
+        "height": 147
+      }
+    },
+    {
+      "index": 5,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/front/005.png",
+      "sha256": "b098d6be2d07e56417b03ac72ed5cb409021c8393518987ab48378f63005b75d",
+      "bbox": {
+        "minX": 50,
+        "minY": 32,
+        "maxX": 167,
+        "maxY": 178,
+        "width": 118,
+        "height": 147
+      }
+    },
+    {
+      "index": 6,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/front/006.png",
+      "sha256": "32113c1cc1986225e0e7521dfe12323a332aeb03b6845d52a1ca353e0814ce98",
+      "bbox": {
+        "minX": 50,
+        "minY": 32,
+        "maxX": 167,
+        "maxY": 178,
+        "width": 118,
+        "height": 147
+      }
+    },
+    {
+      "index": 7,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/front/007.png",
+      "sha256": "7a34af231d97fe38619f7ae9fd74fef6674780eeccacc0a27fabe92bde7a1c50",
+      "bbox": {
+        "minX": 49,
+        "minY": 31,
+        "maxX": 167,
+        "maxY": 178,
+        "width": 119,
+        "height": 148
+      }
+    },
+    {
+      "index": 8,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/front/008.png",
+      "sha256": "e593ad95085e5c6f81483f7f7aff3403461f346a09cb68950e89aa8ecffb81a9",
+      "bbox": {
+        "minX": 49,
+        "minY": 31,
+        "maxX": 167,
+        "maxY": 178,
+        "width": 119,
+        "height": 148
+      }
+    },
+    {
+      "index": 9,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/front/009.png",
+      "sha256": "83f430ab5f70e4f70e4072ee9b5fc4be9fb4f33a3ce5c94ef0387c3fb80180ca",
+      "bbox": {
+        "minX": 48,
+        "minY": 30,
+        "maxX": 167,
+        "maxY": 178,
+        "width": 120,
+        "height": 149
+      }
+    },
+    {
+      "index": 10,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/front/010.png",
+      "sha256": "4f4f81b444838b3a9c5181d8286465a48ea77ff8c1fe9ce543134e4925a1c605",
+      "bbox": {
+        "minX": 48,
+        "minY": 30,
+        "maxX": 167,
+        "maxY": 178,
+        "width": 120,
+        "height": 149
+      }
+    },
+    {
+      "index": 11,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/front/011.png",
+      "sha256": "cee304395da87b4b8efb8409f0d69fd895e584f9480e9bfb2eccca934ddeef02",
+      "bbox": {
+        "minX": 48,
+        "minY": 30,
+        "maxX": 167,
+        "maxY": 178,
+        "width": 120,
+        "height": 149
+      }
+    },
+    {
+      "index": 12,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/front/012.png",
+      "sha256": "f248e7fb3f78482ab78863ef226806c439ddeae2becaa9edf40558a9d914be0f",
+      "bbox": {
+        "minX": 48,
+        "minY": 31,
+        "maxX": 166,
+        "maxY": 178,
+        "width": 119,
+        "height": 148
+      }
+    },
+    {
+      "index": 13,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/front/013.png",
+      "sha256": "ac2ac4481b8d067cf1ebdb19ef0702fa1c45b9d87b417ae13a54abd82520bd31",
+      "bbox": {
+        "minX": 49,
+        "minY": 31,
+        "maxX": 166,
+        "maxY": 178,
+        "width": 118,
+        "height": 148
+      }
+    },
+    {
+      "index": 14,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/front/014.png",
+      "sha256": "dafdcb1962c3f970024b63775131d98f36d5e20f906e340f1d3da6f41e5298a3",
+      "bbox": {
+        "minX": 49,
+        "minY": 32,
+        "maxX": 166,
+        "maxY": 178,
+        "width": 118,
+        "height": 147
+      }
+    },
+    {
+      "index": 15,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/front/015.png",
+      "sha256": "35aa9df3819bbb894b0af7dcb2ad2953f97fd9a3477adad49a32822b3a0e69bd",
+      "bbox": {
+        "minX": 49,
+        "minY": 31,
+        "maxX": 166,
+        "maxY": 178,
+        "width": 118,
+        "height": 148
+      }
+    },
+    {
+      "index": 16,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/front/016.png",
+      "sha256": "4d989ce331047078821f543caac9ece11973bd4de6acfd4cf7e75564ea7143c2",
+      "bbox": {
+        "minX": 49,
+        "minY": 31,
+        "maxX": 166,
+        "maxY": 178,
+        "width": 118,
+        "height": 148
+      }
+    },
+    {
+      "index": 17,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/front/017.png",
+      "sha256": "806ee3853405dab0189b075b53b4144536c572f00581f4f89365b2b64f1f628f",
+      "bbox": {
+        "minX": 49,
+        "minY": 30,
+        "maxX": 166,
+        "maxY": 178,
+        "width": 118,
+        "height": 149
+      }
+    },
+    {
+      "index": 18,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/front/018.png",
+      "sha256": "be2c40025c70d02618f18ceda63efa2fd97f822d047e731f7c168dda5da83c22",
+      "bbox": {
+        "minX": 49,
+        "minY": 30,
+        "maxX": 166,
+        "maxY": 178,
+        "width": 118,
+        "height": 149
+      }
+    },
+    {
+      "index": 19,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/front/019.png",
+      "sha256": "8466928233ae99656112bf70162ecfa7d4d45c5904b0228aed74b50d45f68678",
+      "bbox": {
+        "minX": 49,
+        "minY": 30,
+        "maxX": 166,
+        "maxY": 178,
+        "width": 118,
+        "height": 149
+      }
+    },
+    {
+      "index": 20,
+      "direction": "front",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/front/020.png",
+      "sha256": "d21c06c4062b77a83fbb29b859c98b6485d829bb97398b8722abacfcaa30feaa",
+      "bbox": {
+        "minX": 49,
+        "minY": 30,
+        "maxX": 166,
+        "maxY": 178,
+        "width": 118,
+        "height": 149
+      }
+    },
+    {
+      "index": 1,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/back/001.png",
+      "sha256": "c1f2969beba61c787440dfbdf2ce6aaedf3735ac5efd35106e98ec72314717a4",
+      "bbox": {
+        "minX": 45,
+        "minY": 31,
+        "maxX": 158,
+        "maxY": 178,
+        "width": 114,
+        "height": 148
+      }
+    },
+    {
+      "index": 2,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/back/002.png",
+      "sha256": "c0b096695a72e1e905c88de1e064178a41e9ba701d3392d31e8b02fe1c33ca1e",
+      "bbox": {
+        "minX": 44,
+        "minY": 31,
+        "maxX": 158,
+        "maxY": 178,
+        "width": 115,
+        "height": 148
+      }
+    },
+    {
+      "index": 3,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/back/003.png",
+      "sha256": "90048373e4f478b23075b7e3fdf0bf65c4ae59138a21a911671a63da8281484f",
+      "bbox": {
+        "minX": 44,
+        "minY": 33,
+        "maxX": 158,
+        "maxY": 178,
+        "width": 115,
+        "height": 146
+      }
+    },
+    {
+      "index": 4,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/back/004.png",
+      "sha256": "967640e1235b4a51624f92b273c8ecf418a3082dd1b7913c170e8f643973b672",
+      "bbox": {
+        "minX": 45,
+        "minY": 33,
+        "maxX": 158,
+        "maxY": 178,
+        "width": 114,
+        "height": 146
+      }
+    },
+    {
+      "index": 5,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/back/005.png",
+      "sha256": "0648f6cdedbf1255e018435eebc36745d682d0294c3a67ea0b85817d6a7eafcc",
+      "bbox": {
+        "minX": 45,
+        "minY": 33,
+        "maxX": 159,
+        "maxY": 178,
+        "width": 115,
+        "height": 146
+      }
+    },
+    {
+      "index": 6,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/back/006.png",
+      "sha256": "87062b3b1eef2fedd1c22da3612ccefb351eabf92ba3e474590c6910c14f047f",
+      "bbox": {
+        "minX": 45,
+        "minY": 32,
+        "maxX": 159,
+        "maxY": 178,
+        "width": 115,
+        "height": 147
+      }
+    },
+    {
+      "index": 7,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/back/007.png",
+      "sha256": "8062527a38291af568d23199bfcfb812d3f8e11ff9736313569893cdf3ecf391",
+      "bbox": {
+        "minX": 45,
+        "minY": 32,
+        "maxX": 159,
+        "maxY": 178,
+        "width": 115,
+        "height": 147
+      }
+    },
+    {
+      "index": 8,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/back/008.png",
+      "sha256": "b8d787bbc728ff21d91f8eaf1c341b3c8483b87980427ebb431e5196b0a2ee2e",
+      "bbox": {
+        "minX": 45,
+        "minY": 32,
+        "maxX": 160,
+        "maxY": 178,
+        "width": 116,
+        "height": 147
+      }
+    },
+    {
+      "index": 9,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/back/009.png",
+      "sha256": "d80d42efb61fa891f81de176db2707d4575bf1f9b309d5922cb7f34d40176f68",
+      "bbox": {
+        "minX": 45,
+        "minY": 32,
+        "maxX": 161,
+        "maxY": 178,
+        "width": 117,
+        "height": 147
+      }
+    },
+    {
+      "index": 10,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/back/010.png",
+      "sha256": "0cf2de0e15994757e56a524e0929f4fec6484a703fb386a3017d431e49a2ab91",
+      "bbox": {
+        "minX": 45,
+        "minY": 31,
+        "maxX": 161,
+        "maxY": 178,
+        "width": 117,
+        "height": 148
+      }
+    },
+    {
+      "index": 11,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/back/011.png",
+      "sha256": "e5eee31846a343795b99e75458fda346282c42c17bee10df4e3f8739f106eef5",
+      "bbox": {
+        "minX": 45,
+        "minY": 31,
+        "maxX": 161,
+        "maxY": 178,
+        "width": 117,
+        "height": 148
+      }
+    },
+    {
+      "index": 12,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/back/012.png",
+      "sha256": "b2c6340c3e6ac3c8b51cf813373b131610d9733fa1cc459637eb58aff5d046d2",
+      "bbox": {
+        "minX": 45,
+        "minY": 32,
+        "maxX": 161,
+        "maxY": 178,
+        "width": 117,
+        "height": 147
+      }
+    },
+    {
+      "index": 13,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/back/013.png",
+      "sha256": "7f39f5ab326287dc957889bd5a3659671564a92de883268c8929f6cfba8201d3",
+      "bbox": {
+        "minX": 45,
+        "minY": 33,
+        "maxX": 160,
+        "maxY": 178,
+        "width": 116,
+        "height": 146
+      }
+    },
+    {
+      "index": 14,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/back/014.png",
+      "sha256": "d40d9e38a374ae8150b5405115b170d27edf52e71c46dbd04baeaa249ea38d00",
+      "bbox": {
+        "minX": 45,
+        "minY": 32,
+        "maxX": 159,
+        "maxY": 178,
+        "width": 115,
+        "height": 147
+      }
+    },
+    {
+      "index": 15,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/back/015.png",
+      "sha256": "d4b2faad6c7f6504ad516a6ad079492082a7c149421a52831b7ff180e9e9fc21",
+      "bbox": {
+        "minX": 45,
+        "minY": 31,
+        "maxX": 159,
+        "maxY": 178,
+        "width": 115,
+        "height": 148
+      }
+    },
+    {
+      "index": 16,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/back/016.png",
+      "sha256": "c944604c04f95c0f08a4b5700da442cdfff8d6b6ceeb010d07fc9808a61f6c0c",
+      "bbox": {
+        "minX": 45,
+        "minY": 31,
+        "maxX": 158,
+        "maxY": 178,
+        "width": 114,
+        "height": 148
+      }
+    },
+    {
+      "index": 17,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/back/017.png",
+      "sha256": "898eb1230d79dca09b3c7f086f163f97f394de65eccb7283d5bf454fde61d856",
+      "bbox": {
+        "minX": 44,
+        "minY": 30,
+        "maxX": 158,
+        "maxY": 178,
+        "width": 115,
+        "height": 149
+      }
+    },
+    {
+      "index": 18,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/back/018.png",
+      "sha256": "73f22997f9b188e2da6a30eefe8424fbf3d0d8de77b77ec85e934da1a2630c9d",
+      "bbox": {
+        "minX": 44,
+        "minY": 29,
+        "maxX": 158,
+        "maxY": 178,
+        "width": 115,
+        "height": 150
+      }
+    },
+    {
+      "index": 19,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/back/019.png",
+      "sha256": "111a9263eeee82ffc868a72ae6aea5c63a89e6f48bf4aaa78f1669d3b3cca0c4",
+      "bbox": {
+        "minX": 44,
+        "minY": 30,
+        "maxX": 158,
+        "maxY": 178,
+        "width": 115,
+        "height": 149
+      }
+    },
+    {
+      "index": 20,
+      "direction": "back",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/back/020.png",
+      "sha256": "07500b3b5e273c9bf82d7886e2baa80122aa2b97c8c6a4eb32c74cc7330cbbbe",
+      "bbox": {
+        "minX": 44,
+        "minY": 29,
+        "maxX": 158,
+        "maxY": 178,
+        "width": 115,
+        "height": 150
+      }
+    },
+    {
+      "index": 1,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/left/001.png",
+      "sha256": "f0dbfb674c9354afc752a1a26f940eed95c6aed34e28a911a2a9672f9613870c",
+      "bbox": {
+        "minX": 49,
+        "minY": 34,
+        "maxX": 158,
+        "maxY": 178,
+        "width": 110,
+        "height": 145
+      }
+    },
+    {
+      "index": 2,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/left/002.png",
+      "sha256": "25625363ed24a585bad021df5f7189ff754dd648e8ed970d098caba1b35cb716",
+      "bbox": {
+        "minX": 49,
+        "minY": 35,
+        "maxX": 158,
+        "maxY": 178,
+        "width": 110,
+        "height": 144
+      }
+    },
+    {
+      "index": 3,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/left/003.png",
+      "sha256": "f09b46161dd1987a2ba0ce18bef8c28a8ca03534a608529573249d7821c97eeb",
+      "bbox": {
+        "minX": 50,
+        "minY": 33,
+        "maxX": 158,
+        "maxY": 178,
+        "width": 109,
+        "height": 146
+      }
+    },
+    {
+      "index": 4,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/left/004.png",
+      "sha256": "ab02eb4413b9f09fc99b813ef14e7994bd47d614d6d017decfb8c067d361350f",
+      "bbox": {
+        "minX": 51,
+        "minY": 33,
+        "maxX": 158,
+        "maxY": 178,
+        "width": 108,
+        "height": 146
+      }
+    },
+    {
+      "index": 5,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/left/005.png",
+      "sha256": "2125013ede7b0c3e5b243e334d415cd0b32533d365f3ece95e920733dadeb6e2",
+      "bbox": {
+        "minX": 51,
+        "minY": 33,
+        "maxX": 158,
+        "maxY": 178,
+        "width": 108,
+        "height": 146
+      }
+    },
+    {
+      "index": 6,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/left/006.png",
+      "sha256": "133692be07e55e0b348cf2404c22b291b3d6c9877d03c2b0a15066fb49b56d6e",
+      "bbox": {
+        "minX": 52,
+        "minY": 32,
+        "maxX": 159,
+        "maxY": 178,
+        "width": 108,
+        "height": 147
+      }
+    },
+    {
+      "index": 7,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/left/007.png",
+      "sha256": "f98678375eb6c20b4de2cca1f9cc1d41fd363d51f7d9d68f094963a00440ed28",
+      "bbox": {
+        "minX": 52,
+        "minY": 33,
+        "maxX": 159,
+        "maxY": 178,
+        "width": 108,
+        "height": 146
+      }
+    },
+    {
+      "index": 8,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/left/008.png",
+      "sha256": "41bc629ccaee18be4c6d00b4edaad677b747c24df0592836d64ee02d2e6b8d51",
+      "bbox": {
+        "minX": 52,
+        "minY": 34,
+        "maxX": 159,
+        "maxY": 178,
+        "width": 108,
+        "height": 145
+      }
+    },
+    {
+      "index": 9,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/left/009.png",
+      "sha256": "d6303eba2eddf40305f39bb8b1b8228515c249589ebfe13e13227b05718373ad",
+      "bbox": {
+        "minX": 52,
+        "minY": 34,
+        "maxX": 160,
+        "maxY": 178,
+        "width": 109,
+        "height": 145
+      }
+    },
+    {
+      "index": 10,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/left/010.png",
+      "sha256": "f19bb1a28ba6a793df440a41e54177f15d939a51846592421e07b31e03257a66",
+      "bbox": {
+        "minX": 52,
+        "minY": 35,
+        "maxX": 160,
+        "maxY": 178,
+        "width": 109,
+        "height": 144
+      }
+    },
+    {
+      "index": 11,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/left/011.png",
+      "sha256": "b4b8a59a45c41cc83f509272fad6c534b6550644d4bee6c19e3840b89c6c3f88",
+      "bbox": {
+        "minX": 52,
+        "minY": 34,
+        "maxX": 160,
+        "maxY": 178,
+        "width": 109,
+        "height": 145
+      }
+    },
+    {
+      "index": 12,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/left/012.png",
+      "sha256": "3c4effe358989ac3a39212f244a3e7948c83e8267a26aa0ed1989c0e4bb3f40c",
+      "bbox": {
+        "minX": 52,
+        "minY": 35,
+        "maxX": 159,
+        "maxY": 178,
+        "width": 108,
+        "height": 144
+      }
+    },
+    {
+      "index": 13,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/left/013.png",
+      "sha256": "73809b562e6dc6d0ca40e6201858cc33e71e6059eabee1c6d310f45ac79fe15d",
+      "bbox": {
+        "minX": 51,
+        "minY": 34,
+        "maxX": 159,
+        "maxY": 178,
+        "width": 109,
+        "height": 145
+      }
+    },
+    {
+      "index": 14,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/left/014.png",
+      "sha256": "8e804bb4a1f1ac473803c2896dc6959c0cb50bf0927ff2ed2c930fae6d89bf81",
+      "bbox": {
+        "minX": 51,
+        "minY": 34,
+        "maxX": 159,
+        "maxY": 178,
+        "width": 109,
+        "height": 145
+      }
+    },
+    {
+      "index": 15,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/left/015.png",
+      "sha256": "9a10f3d4b49c3ea397b9d06dec7ccb097716495ce7b84b1c4a564176a9a41939",
+      "bbox": {
+        "minX": 50,
+        "minY": 34,
+        "maxX": 158,
+        "maxY": 178,
+        "width": 109,
+        "height": 145
+      }
+    },
+    {
+      "index": 16,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/left/016.png",
+      "sha256": "b87c6c2a98a7e55e47ad0a09c1979a3f1c424a55778de11c5642e53213dcdb3f",
+      "bbox": {
+        "minX": 49,
+        "minY": 34,
+        "maxX": 159,
+        "maxY": 178,
+        "width": 111,
+        "height": 145
+      }
+    },
+    {
+      "index": 17,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/left/017.png",
+      "sha256": "a9021ad8d05226d9c146eba88146ce011765241dca6d8bec3e0e268c1707d21a",
+      "bbox": {
+        "minX": 49,
+        "minY": 34,
+        "maxX": 159,
+        "maxY": 178,
+        "width": 111,
+        "height": 145
+      }
+    },
+    {
+      "index": 18,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/left/018.png",
+      "sha256": "e773b0da3fda1840a818c40ddd921f7c852df4152577cd4c1e56af2d6b905904",
+      "bbox": {
+        "minX": 48,
+        "minY": 34,
+        "maxX": 159,
+        "maxY": 178,
+        "width": 112,
+        "height": 145
+      }
+    },
+    {
+      "index": 19,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/left/019.png",
+      "sha256": "36ad76b0112fe6db62f299919123f0fbf6f512e3e68b364c4e8a503f61de9b44",
+      "bbox": {
+        "minX": 48,
+        "minY": 33,
+        "maxX": 159,
+        "maxY": 178,
+        "width": 112,
+        "height": 146
+      }
+    },
+    {
+      "index": 20,
+      "direction": "left",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/left/020.png",
+      "sha256": "d5614be667b4f504f8faf94375c7bf0224c715eb78fe2437d96268fd40c283d2",
+      "bbox": {
+        "minX": 48,
+        "minY": 34,
+        "maxX": 159,
+        "maxY": 178,
+        "width": 112,
+        "height": 145
+      }
+    },
+    {
+      "index": 1,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/right/001.png",
+      "sha256": "16e327c513972d0209fb39d9260e95244e0ecfcd9cd0d8f15e1b5c990c605cda",
+      "bbox": {
+        "minX": 49,
+        "minY": 36,
+        "maxX": 157,
+        "maxY": 178,
+        "width": 109,
+        "height": 143
+      }
+    },
+    {
+      "index": 2,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/right/002.png",
+      "sha256": "945dcbc5bdb3b53c598d8393fa3a0cf552baf07199c97c1f2812722b07c33b06",
+      "bbox": {
+        "minX": 49,
+        "minY": 37,
+        "maxX": 157,
+        "maxY": 178,
+        "width": 109,
+        "height": 142
+      }
+    },
+    {
+      "index": 3,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/right/003.png",
+      "sha256": "65a3072538ef5f0e215b83019e40136259ea60e0caf550debfd514d218a14cd5",
+      "bbox": {
+        "minX": 50,
+        "minY": 35,
+        "maxX": 157,
+        "maxY": 178,
+        "width": 108,
+        "height": 144
+      }
+    },
+    {
+      "index": 4,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/right/004.png",
+      "sha256": "f81f3bfa5803245d3e388ba0d307bd691248a33b6679f30cf2796222a6916d1a",
+      "bbox": {
+        "minX": 50,
+        "minY": 35,
+        "maxX": 157,
+        "maxY": 178,
+        "width": 108,
+        "height": 144
+      }
+    },
+    {
+      "index": 5,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/right/005.png",
+      "sha256": "216276714ebddb1668ee9e4ecc8c6848f07c7dd9fadb5d5a89b03dfcd796861b",
+      "bbox": {
+        "minX": 50,
+        "minY": 34,
+        "maxX": 158,
+        "maxY": 178,
+        "width": 109,
+        "height": 145
+      }
+    },
+    {
+      "index": 6,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/right/006.png",
+      "sha256": "858002d6f41c420210cdf16a255954ebd4860af9b3cf3742b98a6c7943cdbc44",
+      "bbox": {
+        "minX": 50,
+        "minY": 34,
+        "maxX": 159,
+        "maxY": 178,
+        "width": 110,
+        "height": 145
+      }
+    },
+    {
+      "index": 7,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/right/007.png",
+      "sha256": "ef7c77067aaeeeb53228a3a05a650060f4ccdca333a220a0868efde22d6ca7f3",
+      "bbox": {
+        "minX": 50,
+        "minY": 34,
+        "maxX": 159,
+        "maxY": 178,
+        "width": 110,
+        "height": 145
+      }
+    },
+    {
+      "index": 8,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/right/008.png",
+      "sha256": "c8aff4ed59296cab8c5d0f41fcac1d885fe7c1bdad08fef9e63fb50a0e4685cd",
+      "bbox": {
+        "minX": 49,
+        "minY": 34,
+        "maxX": 160,
+        "maxY": 178,
+        "width": 112,
+        "height": 145
+      }
+    },
+    {
+      "index": 9,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/right/009.png",
+      "sha256": "fa50fe0d313b46d0eaec7a44aa1623bfad318a27a10d6b46bea0a5d245677540",
+      "bbox": {
+        "minX": 49,
+        "minY": 34,
+        "maxX": 161,
+        "maxY": 178,
+        "width": 113,
+        "height": 145
+      }
+    },
+    {
+      "index": 10,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/right/010.png",
+      "sha256": "61d23ffd88afbdd1a5e54898505aab61c067e7a7cabe9d78c4f3d4f268d9fc40",
+      "bbox": {
+        "minX": 48,
+        "minY": 34,
+        "maxX": 161,
+        "maxY": 178,
+        "width": 114,
+        "height": 145
+      }
+    },
+    {
+      "index": 11,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/right/011.png",
+      "sha256": "604cb7b031bfaa4cbc6cfbf94633ce09b7778889a04c0b28dc5f4a861cf5a16b",
+      "bbox": {
+        "minX": 49,
+        "minY": 34,
+        "maxX": 161,
+        "maxY": 178,
+        "width": 113,
+        "height": 145
+      }
+    },
+    {
+      "index": 12,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/right/012.png",
+      "sha256": "b7fa5325f1775cd55051a5915525da4605caecf5595bf50ae25b7f649a5b9937",
+      "bbox": {
+        "minX": 49,
+        "minY": 34,
+        "maxX": 160,
+        "maxY": 178,
+        "width": 112,
+        "height": 145
+      }
+    },
+    {
+      "index": 13,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/right/013.png",
+      "sha256": "fd9d34e315577a239d48bc40111da2f9f40514b79ce46fa7942f47510d889d21",
+      "bbox": {
+        "minX": 49,
+        "minY": 34,
+        "maxX": 159,
+        "maxY": 178,
+        "width": 111,
+        "height": 145
+      }
+    },
+    {
+      "index": 14,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/right/014.png",
+      "sha256": "089fbebd9676becba89966a048bd34eeadcc2ab56b12dc12fa78b8cacd5e47c6",
+      "bbox": {
+        "minX": 50,
+        "minY": 34,
+        "maxX": 159,
+        "maxY": 178,
+        "width": 110,
+        "height": 145
+      }
+    },
+    {
+      "index": 15,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/right/015.png",
+      "sha256": "1e715f929fddd8520f4df5fdca9845835dec8c28e65236c1f1b9efd263da815b",
+      "bbox": {
+        "minX": 50,
+        "minY": 34,
+        "maxX": 158,
+        "maxY": 178,
+        "width": 109,
+        "height": 145
+      }
+    },
+    {
+      "index": 16,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/right/016.png",
+      "sha256": "d06b62ebac83a36c1577e1cc5c738ee692182fc9ba28b3e468865225efb6288b",
+      "bbox": {
+        "minX": 50,
+        "minY": 34,
+        "maxX": 157,
+        "maxY": 178,
+        "width": 108,
+        "height": 145
+      }
+    },
+    {
+      "index": 17,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/right/017.png",
+      "sha256": "938ecc3109006b93c7eaf1a7196fc3ebc8749d205880901936ffb4773aeeed89",
+      "bbox": {
+        "minX": 49,
+        "minY": 35,
+        "maxX": 156,
+        "maxY": 178,
+        "width": 108,
+        "height": 144
+      }
+    },
+    {
+      "index": 18,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/right/018.png",
+      "sha256": "3c894b76afcdfb64fcf768367e07030c89eec9c10a7af8ee1a9e43606085f48a",
+      "bbox": {
+        "minX": 49,
+        "minY": 35,
+        "maxX": 156,
+        "maxY": 178,
+        "width": 108,
+        "height": 144
+      }
+    },
+    {
+      "index": 19,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/right/019.png",
+      "sha256": "9c011931ef6daa8f14d4dccb08a4920248d405f0eee09a9e49509c04bac2833f",
+      "bbox": {
+        "minX": 48,
+        "minY": 36,
+        "maxX": 156,
+        "maxY": 178,
+        "width": 109,
+        "height": 143
+      }
+    },
+    {
+      "index": 20,
+      "direction": "right",
+      "file": "src/assets/characters/reimu/sequence-approved-v1/frames/right/020.png",
+      "sha256": "e10602f59bdd1be0050427246a388c96a4ab83d1f1020ab9577b7af9d399c3aa",
+      "bbox": {
+        "minX": 49,
+        "minY": 36,
+        "maxX": 156,
+        "maxY": 178,
+        "width": 108,
+        "height": 143
+      }
+    }
+  ]
+}

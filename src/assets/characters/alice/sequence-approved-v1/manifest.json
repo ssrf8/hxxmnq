@@ -1,0 +1,3260 @@
+{
+  "version": 1,
+  "character": "alice",
+  "status": "owner-approved-sequence-source",
+  "runtimeStatus": "ready-for-runtime-integration",
+  "layout": "variable-sequence-v1",
+  "sourceProject": "../参考素材/New project 11",
+  "sourceDirectory": "characters/alice/aligned-v1",
+  "sourcePolicy": "copied-byte-for-byte-from-owner-approved-frames",
+  "transform": "uniform-nearest-neighbor-fixed-anchor",
+  "cell": [
+    209,
+    209
+  ],
+  "atlas": "src/assets/characters/alice/alice-animation-sequence-approved-v1.png",
+  "atlasSha256": "1f87bac687b2c75e2f18206f581afe4f26faadcf99282a5656cc3ee84dfabd06",
+  "atlasSize": [
+    5225,
+    836
+  ],
+  "frameCount": 25,
+  "rowOrder": [
+    "front",
+    "back",
+    "left",
+    "right"
+  ],
+  "frameDurationMs": 90,
+  "stationaryFrame": "direction-row-column-0",
+  "loopStart": 0,
+  "loopEnd": 24,
+  "sourceAnchorByDirection": {
+    "front": [
+      160,
+      304
+    ],
+    "back": [
+      160,
+      304
+    ],
+    "left": [
+      160,
+      304
+    ],
+    "right": [
+      160,
+      304
+    ]
+  },
+  "targetAnchor": [
+    104,
+    179
+  ],
+  "targetVisibleHeight": 150,
+  "scale": 0.5244755244755245,
+  "sources": [
+    {
+      "index": 1,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/front/001.png",
+      "sha256": "2d07530763af6c5126701577b7206562e0bcb4c7ac20d5b6c61a6a1de9837978",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 15,
+        "maxX": 242,
+        "maxY": 290,
+        "width": 161,
+        "height": 276
+      }
+    },
+    {
+      "index": 2,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/front/002.png",
+      "sha256": "1e092c8e7f31bcef20c3ac67ec81c88dbd1f41d1696c5e631b60d7ecf7a6a426",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 15,
+        "maxX": 243,
+        "maxY": 290,
+        "width": 162,
+        "height": 276
+      }
+    },
+    {
+      "index": 3,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/front/003.png",
+      "sha256": "abb3af8ae99e57dda8a61987ba130bdf0f6de5942f37b7901107abbefae51bdd",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 15,
+        "maxX": 244,
+        "maxY": 290,
+        "width": 163,
+        "height": 276
+      }
+    },
+    {
+      "index": 4,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/front/004.png",
+      "sha256": "807f0b97ca9894d268731b31c04aa05e9b145ea0a4301b04d8595f39fc699626",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 16,
+        "maxX": 243,
+        "maxY": 291,
+        "width": 163,
+        "height": 276
+      }
+    },
+    {
+      "index": 5,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/front/005.png",
+      "sha256": "3a235ca4cc5cc15a49828adbe554917b746abc5bd3824e39df5af59771cc5056",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 18,
+        "maxX": 244,
+        "maxY": 294,
+        "width": 165,
+        "height": 277
+      }
+    },
+    {
+      "index": 6,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/front/006.png",
+      "sha256": "a99bc3f0d7f68a2610e7a4e701bdb01c472375b77a6349a905a717e088c68ed0",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 18,
+        "maxX": 243,
+        "maxY": 295,
+        "width": 164,
+        "height": 278
+      }
+    },
+    {
+      "index": 7,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/front/007.png",
+      "sha256": "32cf898626e0cf52cc62c5219f90de9e765332c5c0a2d3c64592e5c855902b9e",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 18,
+        "maxX": 244,
+        "maxY": 296,
+        "width": 165,
+        "height": 279
+      }
+    },
+    {
+      "index": 8,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/front/008.png",
+      "sha256": "7ae1c7ecdec5899268afe7c1ca6143b705ba955ce4b459f9adaed30a7c27ae78",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 79,
+        "minY": 20,
+        "maxX": 243,
+        "maxY": 296,
+        "width": 165,
+        "height": 277
+      }
+    },
+    {
+      "index": 9,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/front/009.png",
+      "sha256": "f41de9a39d3bd9cce10310eae9c742490d83b45ede27e7ab1a8a35f339781bc2",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 79,
+        "minY": 18,
+        "maxX": 242,
+        "maxY": 296,
+        "width": 164,
+        "height": 279
+      }
+    },
+    {
+      "index": 10,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/front/010.png",
+      "sha256": "537350718c8ecacd87a7246d28b40e0d1e70c37b16d8f14d76497d279db4cee6",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 79,
+        "minY": 18,
+        "maxX": 241,
+        "maxY": 295,
+        "width": 163,
+        "height": 278
+      }
+    },
+    {
+      "index": 11,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/front/011.png",
+      "sha256": "fe7c956cef69c6e1eaae9aa1049956e3f1c8ea19a06a3ecb85fdac1081e7ffc7",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 79,
+        "minY": 17,
+        "maxX": 240,
+        "maxY": 296,
+        "width": 162,
+        "height": 280
+      }
+    },
+    {
+      "index": 12,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/front/012.png",
+      "sha256": "a941f021cdb5b98682a7ccaf62b574ddd5a2714598bc44c961adc57856f8fa95",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 79,
+        "minY": 17,
+        "maxX": 240,
+        "maxY": 294,
+        "width": 162,
+        "height": 278
+      }
+    },
+    {
+      "index": 13,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/front/013.png",
+      "sha256": "cd1c166f3c0dcec53b88f52ae4808db6c062fae7a8b9f3cf70ff03f276f0867a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 78,
+        "minY": 15,
+        "maxX": 239,
+        "maxY": 293,
+        "width": 162,
+        "height": 279
+      }
+    },
+    {
+      "index": 14,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/front/014.png",
+      "sha256": "4200721f78f3451a8be49aeeac731a7ec07dbb5908df085f040dd98828905bc0",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 78,
+        "minY": 14,
+        "maxX": 239,
+        "maxY": 292,
+        "width": 162,
+        "height": 279
+      }
+    },
+    {
+      "index": 15,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/front/015.png",
+      "sha256": "f4446b59302d7eb0af829e4ce901052b6b5191d436a946eaf23d1dc9159a1443",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 77,
+        "minY": 15,
+        "maxX": 240,
+        "maxY": 293,
+        "width": 164,
+        "height": 279
+      }
+    },
+    {
+      "index": 16,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/front/016.png",
+      "sha256": "c7ebbf20979d9a651beffb84eb01848e9dca8d8ab9d63e332c338208f9f81554",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 77,
+        "minY": 15,
+        "maxX": 240,
+        "maxY": 292,
+        "width": 164,
+        "height": 278
+      }
+    },
+    {
+      "index": 17,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/front/017.png",
+      "sha256": "825fd900fd8073e75e673b37005d5a9ee6cfb90afcf0205f6a4c6f033d6c12d5",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 76,
+        "minY": 16,
+        "maxX": 241,
+        "maxY": 295,
+        "width": 166,
+        "height": 280
+      }
+    },
+    {
+      "index": 18,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/front/018.png",
+      "sha256": "7407c9c0ec8a6e309c22cdbc067f04b649dc51274b2837aa46422c8b9d457881",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 76,
+        "minY": 17,
+        "maxX": 242,
+        "maxY": 297,
+        "width": 167,
+        "height": 281
+      }
+    },
+    {
+      "index": 19,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/front/019.png",
+      "sha256": "88f464aa43708b5e2ec3e8469408392d14dc66332f70d6ac2977b950746828b7",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 76,
+        "minY": 17,
+        "maxX": 243,
+        "maxY": 302,
+        "width": 168,
+        "height": 286
+      }
+    },
+    {
+      "index": 20,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/front/020.png",
+      "sha256": "9301cc00bf3d7b7692306c40379f2ba4b3110f2ee41d76c581c4b99ef0caf140",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 76,
+        "minY": 18,
+        "maxX": 243,
+        "maxY": 298,
+        "width": 168,
+        "height": 281
+      }
+    },
+    {
+      "index": 21,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/front/021.png",
+      "sha256": "f91b07474f31eeddb1439abda6fd7b521015e9c6ee62362e48deabdb7d9d3ac6",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 77,
+        "minY": 18,
+        "maxX": 243,
+        "maxY": 303,
+        "width": 167,
+        "height": 286
+      }
+    },
+    {
+      "index": 22,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/front/022.png",
+      "sha256": "6d00c6085c3c314bf202e06a3a3b80ab9aea34850f9a83a3b2dfd25186a350be",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 77,
+        "minY": 18,
+        "maxX": 242,
+        "maxY": 298,
+        "width": 166,
+        "height": 281
+      }
+    },
+    {
+      "index": 23,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/front/023.png",
+      "sha256": "41d3e97f529f8b21c8cf7cdcbbbc0ec8c31828f6044e3864d33e1df0b341129a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 78,
+        "minY": 17,
+        "maxX": 242,
+        "maxY": 297,
+        "width": 165,
+        "height": 281
+      }
+    },
+    {
+      "index": 24,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/front/024.png",
+      "sha256": "8c3c7bdbdf970f181902f956c65a629d5d05a9582aa5799bb0eb0944e7b095a7",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 78,
+        "minY": 16,
+        "maxX": 242,
+        "maxY": 297,
+        "width": 165,
+        "height": 282
+      }
+    },
+    {
+      "index": 25,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/front/025.png",
+      "sha256": "b8cf6f73c3db67d28f0592da27fc6c357c9875a5dec503b61bb912fc807f8eb1",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 79,
+        "minY": 15,
+        "maxX": 242,
+        "maxY": 296,
+        "width": 164,
+        "height": 282
+      }
+    },
+    {
+      "index": 1,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/back/001.png",
+      "sha256": "c9a40e5a0ff961eec883da33adab19dea31dd5873d24f749fefb6e92fc003acb",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 28,
+        "maxX": 236,
+        "maxY": 303,
+        "width": 156,
+        "height": 276
+      }
+    },
+    {
+      "index": 2,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/back/002.png",
+      "sha256": "86f23ac7a2e8c9cca8d03e5b0963aed64b8e4730737068660061f6fb29249396",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 27,
+        "maxX": 236,
+        "maxY": 302,
+        "width": 156,
+        "height": 276
+      }
+    },
+    {
+      "index": 3,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/back/003.png",
+      "sha256": "e3b715f9989a2db3bae76601dc48d69d984b18217e8de91b871d367749246bfb",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 28,
+        "maxX": 235,
+        "maxY": 301,
+        "width": 154,
+        "height": 274
+      }
+    },
+    {
+      "index": 4,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/back/004.png",
+      "sha256": "109be316853bc0867568fba3954761a5558cb76faa789cd41813a3999281cd60",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 26,
+        "maxX": 235,
+        "maxY": 298,
+        "width": 155,
+        "height": 273
+      }
+    },
+    {
+      "index": 5,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/back/005.png",
+      "sha256": "c7dd186d0ec993915bfa4e65b59b473cecea12cc14faf1abe6d657d07d9ca59b",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 25,
+        "maxX": 234,
+        "maxY": 299,
+        "width": 154,
+        "height": 275
+      }
+    },
+    {
+      "index": 6,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/back/006.png",
+      "sha256": "69bdc9801185060d837bb5f3636c689a783b361b4704a1f4c5d95bff4efea5ad",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 25,
+        "maxX": 234,
+        "maxY": 300,
+        "width": 154,
+        "height": 276
+      }
+    },
+    {
+      "index": 7,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/back/007.png",
+      "sha256": "05d722ecb3ed776827b1ee565915bd0af87af75b2e2624882e5b28a281de734a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 25,
+        "maxX": 234,
+        "maxY": 300,
+        "width": 155,
+        "height": 276
+      }
+    },
+    {
+      "index": 8,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/back/008.png",
+      "sha256": "ed7d2cb217744178ab6c058c83dfe3ff388191f0a73046a3ea7d3a9e720e4dde",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 26,
+        "maxX": 234,
+        "maxY": 301,
+        "width": 155,
+        "height": 276
+      }
+    },
+    {
+      "index": 9,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/back/009.png",
+      "sha256": "9b134800ebb581e5e93924c1c89616a4600aa9e0c64c9d8d2b0d82dfdc667163",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 27,
+        "maxX": 235,
+        "maxY": 302,
+        "width": 156,
+        "height": 276
+      }
+    },
+    {
+      "index": 10,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/back/010.png",
+      "sha256": "9c5486ee706a96b3fcf550440ae3736f9cb3a37fa62cd1b156e6ca1b144704b2",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 28,
+        "maxX": 236,
+        "maxY": 303,
+        "width": 157,
+        "height": 276
+      }
+    },
+    {
+      "index": 11,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/back/011.png",
+      "sha256": "51587db64915ee746d464a88b2471321b4ac32a5d3f01248ed23a75ae1505ff3",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 78,
+        "minY": 29,
+        "maxX": 237,
+        "maxY": 303,
+        "width": 160,
+        "height": 275
+      }
+    },
+    {
+      "index": 12,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/back/012.png",
+      "sha256": "61bd9fca9f1e843fe66d34612ab8edace6cb3c6f068506b250ac022fd4e9294b",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 29,
+        "maxX": 238,
+        "maxY": 303,
+        "width": 159,
+        "height": 275
+      }
+    },
+    {
+      "index": 13,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/back/013.png",
+      "sha256": "dfbd0e432b0f82efccf13da8b0224314c66f2729f5441ffe7e293b412609e136",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 30,
+        "maxX": 238,
+        "maxY": 302,
+        "width": 159,
+        "height": 273
+      }
+    },
+    {
+      "index": 14,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/back/014.png",
+      "sha256": "4a092e999c3d31aaf6ac299ca4943c2434964392462784f0fc3ba78f7c40a7c9",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 29,
+        "maxX": 238,
+        "maxY": 301,
+        "width": 157,
+        "height": 273
+      }
+    },
+    {
+      "index": 15,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/back/015.png",
+      "sha256": "21100305af86f507824b3565114e9aa91f4b18380b23e3feefe85fc2481daa91",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 83,
+        "minY": 29,
+        "maxX": 238,
+        "maxY": 301,
+        "width": 156,
+        "height": 273
+      }
+    },
+    {
+      "index": 16,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/back/016.png",
+      "sha256": "66cb018fea72db1b4a346233282c5a4ebef0eaf655a8138306401736d03cc876",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 84,
+        "minY": 28,
+        "maxX": 238,
+        "maxY": 299,
+        "width": 155,
+        "height": 272
+      }
+    },
+    {
+      "index": 17,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/back/017.png",
+      "sha256": "06731db620998b0dc50a53065a8559ab66942cff023d915f49da8ad29f96b236",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 84,
+        "minY": 26,
+        "maxX": 237,
+        "maxY": 298,
+        "width": 154,
+        "height": 273
+      }
+    },
+    {
+      "index": 18,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/back/018.png",
+      "sha256": "178388fb96b9744afbd2081c7c32a3bdeab4a8650db4642abb1163103eb3a2e3",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 84,
+        "minY": 25,
+        "maxX": 238,
+        "maxY": 299,
+        "width": 155,
+        "height": 275
+      }
+    },
+    {
+      "index": 19,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/back/019.png",
+      "sha256": "8fc02743c644713eb0d12c7bb269ba4df3227d3281345d2220000f46bbf7fe03",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 85,
+        "minY": 25,
+        "maxX": 238,
+        "maxY": 299,
+        "width": 154,
+        "height": 275
+      }
+    },
+    {
+      "index": 20,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/back/020.png",
+      "sha256": "a22822d6edf82c6889bebd25558da8cd7539c3f6d2e6cb90815027def63a59c3",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 85,
+        "minY": 25,
+        "maxX": 238,
+        "maxY": 299,
+        "width": 154,
+        "height": 275
+      }
+    },
+    {
+      "index": 21,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/back/021.png",
+      "sha256": "5909c40abb50204d014311f2d4188fd62b1777700088a7685e3c27ef18936187",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 84,
+        "minY": 25,
+        "maxX": 239,
+        "maxY": 300,
+        "width": 156,
+        "height": 276
+      }
+    },
+    {
+      "index": 22,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/back/022.png",
+      "sha256": "dab3d57df65a1f87d3b1ae2e045928edd4ab0a270996022c5dd6ed0d0d8708b2",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 84,
+        "minY": 26,
+        "maxX": 240,
+        "maxY": 301,
+        "width": 157,
+        "height": 276
+      }
+    },
+    {
+      "index": 23,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/back/023.png",
+      "sha256": "05a9c06c699005df5dfd602d955d3d40e572d39f91442ed46cdeab86d5984e87",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 83,
+        "minY": 27,
+        "maxX": 240,
+        "maxY": 302,
+        "width": 158,
+        "height": 276
+      }
+    },
+    {
+      "index": 24,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/back/024.png",
+      "sha256": "ccafd221c2727f1c73f8b4f1b6b4baaa21583ca97073af2b38d40cd116315c47",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 84,
+        "minY": 28,
+        "maxX": 241,
+        "maxY": 302,
+        "width": 158,
+        "height": 275
+      }
+    },
+    {
+      "index": 25,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/back/025.png",
+      "sha256": "24cf80a2bd38fef90f73871291aa3f2bfaa4cd5548c6b453a8ae8f080839636f",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 29,
+        "maxX": 241,
+        "maxY": 303,
+        "width": 160,
+        "height": 275
+      }
+    },
+    {
+      "index": 1,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/left/001.png",
+      "sha256": "f3aaefe8ae1750caf342bbb4f5e28f2a40f34d49c71d0469f4e23a6cf46f32cb",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 86,
+        "minY": 39,
+        "maxX": 226,
+        "maxY": 302,
+        "width": 141,
+        "height": 264
+      }
+    },
+    {
+      "index": 2,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/left/002.png",
+      "sha256": "b86ab6478e01b4fbf533881493b91a0b96947f6d1a6c509cd0098d605cde1370",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 86,
+        "minY": 39,
+        "maxX": 226,
+        "maxY": 303,
+        "width": 141,
+        "height": 265
+      }
+    },
+    {
+      "index": 3,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/left/003.png",
+      "sha256": "2278fc624a4df9b74cffa85179e1f6bfff3c0f0d80d51f485dd891286b0e6d3f",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 86,
+        "minY": 39,
+        "maxX": 225,
+        "maxY": 302,
+        "width": 140,
+        "height": 264
+      }
+    },
+    {
+      "index": 4,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/left/004.png",
+      "sha256": "f75cd8b4690a95ab614af301a1710e363ab72c14418872f352f26a06c7607d96",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 85,
+        "minY": 40,
+        "maxX": 228,
+        "maxY": 301,
+        "width": 144,
+        "height": 262
+      }
+    },
+    {
+      "index": 5,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/left/005.png",
+      "sha256": "2461875bf18496638a4c18df4a7808515c7496c3d1b12a53c637f35535c69960",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 83,
+        "minY": 41,
+        "maxX": 227,
+        "maxY": 301,
+        "width": 145,
+        "height": 261
+      }
+    },
+    {
+      "index": 6,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/left/006.png",
+      "sha256": "18ce70fce71e6bf1a7414fa9c65a9032059638b563de804fbf629563e780a985",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 83,
+        "minY": 42,
+        "maxX": 227,
+        "maxY": 302,
+        "width": 145,
+        "height": 261
+      }
+    },
+    {
+      "index": 7,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/left/007.png",
+      "sha256": "412cd0882869f265387e3ec8643266af984ab238e4078790f335a58d9973205f",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 42,
+        "maxX": 228,
+        "maxY": 302,
+        "width": 147,
+        "height": 261
+      }
+    },
+    {
+      "index": 8,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/left/008.png",
+      "sha256": "1e185ba0fee9fc3152c86521c5ca976e48217676b601a1a1c547bae257f1db28",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 83,
+        "minY": 42,
+        "maxX": 227,
+        "maxY": 301,
+        "width": 145,
+        "height": 260
+      }
+    },
+    {
+      "index": 9,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/left/009.png",
+      "sha256": "e565e3c100d705983386e07fa21430ef6f34de023c1f0ce2efe7109cd60ff2c4",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 42,
+        "maxX": 225,
+        "maxY": 301,
+        "width": 144,
+        "height": 260
+      }
+    },
+    {
+      "index": 10,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/left/010.png",
+      "sha256": "1dd0cf98f8d1a1dc9e2e4af91b9ad98f09e589f0f9759a8cf6d14d2a7697d083",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 83,
+        "minY": 41,
+        "maxX": 225,
+        "maxY": 301,
+        "width": 143,
+        "height": 261
+      }
+    },
+    {
+      "index": 11,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/left/011.png",
+      "sha256": "6daa7cf9919f51ec2f50b81ccb6b2174756ae2145685ae46bb33f7c7cd164f6b",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 41,
+        "maxX": 223,
+        "maxY": 301,
+        "width": 142,
+        "height": 261
+      }
+    },
+    {
+      "index": 12,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/left/012.png",
+      "sha256": "23eb41f3fae9e0156c851cdf21b4b4fe82e406d9c6d2c07acc879bb63afd606e",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 83,
+        "minY": 40,
+        "maxX": 223,
+        "maxY": 301,
+        "width": 141,
+        "height": 262
+      }
+    },
+    {
+      "index": 13,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/left/013.png",
+      "sha256": "037c8d920c00ec0f5f563532d62a3724eea64aaf1136a22aba3acce31ab24707",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 39,
+        "maxX": 222,
+        "maxY": 300,
+        "width": 141,
+        "height": 262
+      }
+    },
+    {
+      "index": 14,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/left/014.png",
+      "sha256": "f7b107262a58d53c3f8ba651bd0ddb95bddcab91c3c6aa8951c7aa01378117c8",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 39,
+        "maxX": 222,
+        "maxY": 300,
+        "width": 142,
+        "height": 262
+      }
+    },
+    {
+      "index": 15,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/left/015.png",
+      "sha256": "2725268fe6529929bf778cd8e9fbe62bb501d7599d8ec8791b55710f51abf772",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 39,
+        "maxX": 222,
+        "maxY": 301,
+        "width": 142,
+        "height": 263
+      }
+    },
+    {
+      "index": 16,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/left/016.png",
+      "sha256": "02f380140429d2cc5ee7a6e6eeac608379405b3318ee252fdf07efb9a829f183",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 39,
+        "maxX": 223,
+        "maxY": 300,
+        "width": 144,
+        "height": 262
+      }
+    },
+    {
+      "index": 17,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/left/017.png",
+      "sha256": "f6ea3c23626394c1c321052cacfa1f563d2aee391ced32ba026472bdcb3df6cf",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 79,
+        "minY": 41,
+        "maxX": 224,
+        "maxY": 301,
+        "width": 146,
+        "height": 261
+      }
+    },
+    {
+      "index": 18,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/left/018.png",
+      "sha256": "59cf7a667f68e138c82666712eab7dc58ec3c549a51e84c4b92bfa41e7219e11",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 79,
+        "minY": 41,
+        "maxX": 225,
+        "maxY": 302,
+        "width": 147,
+        "height": 262
+      }
+    },
+    {
+      "index": 19,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/left/019.png",
+      "sha256": "5556073c595232b05e418beed9700f79af290d91eebc68c56094792fea0e6c7d",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 78,
+        "minY": 42,
+        "maxX": 225,
+        "maxY": 303,
+        "width": 148,
+        "height": 262
+      }
+    },
+    {
+      "index": 20,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/left/020.png",
+      "sha256": "6647c4dbce659bf0ddc2075474cd3a00912b1ab57725cb45ca4f8c1d1df5da9a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 78,
+        "minY": 42,
+        "maxX": 225,
+        "maxY": 303,
+        "width": 148,
+        "height": 262
+      }
+    },
+    {
+      "index": 21,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/left/021.png",
+      "sha256": "47c84d3028d5c21af2a716ab41cc8ceb84617feecd2794f901ee746b2c3b51b3",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 78,
+        "minY": 42,
+        "maxX": 223,
+        "maxY": 303,
+        "width": 146,
+        "height": 262
+      }
+    },
+    {
+      "index": 22,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/left/022.png",
+      "sha256": "ebcffaa44055bae49613fb620d485d740becdc8e390063765227e14aaac9c076",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 78,
+        "minY": 41,
+        "maxX": 222,
+        "maxY": 303,
+        "width": 145,
+        "height": 263
+      }
+    },
+    {
+      "index": 23,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/left/023.png",
+      "sha256": "8766fa068c4b20dfb4148a35799cf09ba3b4e4999b444293dca624249d60e454",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 78,
+        "minY": 41,
+        "maxX": 221,
+        "maxY": 303,
+        "width": 144,
+        "height": 263
+      }
+    },
+    {
+      "index": 24,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/left/024.png",
+      "sha256": "7142cbe4f6e8f1882d9e286d146ed65272371326dabfdd54b03eee07f76aa043",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 78,
+        "minY": 39,
+        "maxX": 220,
+        "maxY": 303,
+        "width": 143,
+        "height": 265
+      }
+    },
+    {
+      "index": 25,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/left/025.png",
+      "sha256": "b8cbebda9e65db5bb89c7c3e5d2cb2d4e35eab47598148445480dc933adb3925",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 77,
+        "minY": 39,
+        "maxX": 220,
+        "maxY": 302,
+        "width": 144,
+        "height": 264
+      }
+    },
+    {
+      "index": 1,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/right/001.png",
+      "sha256": "de5dd9e26869c2bf5d473808787abd472f03a3a2c7fb5e1ee0e82b549b4cebd9",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 93,
+        "minY": 41,
+        "maxX": 234,
+        "maxY": 300,
+        "width": 142,
+        "height": 260
+      }
+    },
+    {
+      "index": 2,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/right/002.png",
+      "sha256": "752268cb3c92245fa20f88b1dc265ee8c7eb09f126f4a3a864368bfa67078e70",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 95,
+        "minY": 40,
+        "maxX": 234,
+        "maxY": 300,
+        "width": 140,
+        "height": 261
+      }
+    },
+    {
+      "index": 3,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/right/003.png",
+      "sha256": "ac39890ab49efcaaaf4ad69d909661ff722cf82ee1100b664a4167af7d11a24b",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 97,
+        "minY": 40,
+        "maxX": 234,
+        "maxY": 301,
+        "width": 138,
+        "height": 262
+      }
+    },
+    {
+      "index": 4,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/right/004.png",
+      "sha256": "4f47e10dea5fdd5ddba503bbd83b4ed1d4a82287110a557c9f2bcd90161794b0",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 96,
+        "minY": 40,
+        "maxX": 235,
+        "maxY": 300,
+        "width": 140,
+        "height": 261
+      }
+    },
+    {
+      "index": 5,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/right/005.png",
+      "sha256": "0f4d95569ac040b00fc291a8959bc0d8f5e74e5dfa51348e1c04d4a20d91223d",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 96,
+        "minY": 39,
+        "maxX": 236,
+        "maxY": 299,
+        "width": 141,
+        "height": 261
+      }
+    },
+    {
+      "index": 6,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/right/006.png",
+      "sha256": "c1b6377d80ae83ea0a0471e91e4d5b42a57496e363089b0a1ed09244383416fc",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 96,
+        "minY": 39,
+        "maxX": 237,
+        "maxY": 299,
+        "width": 142,
+        "height": 261
+      }
+    },
+    {
+      "index": 7,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/right/007.png",
+      "sha256": "e22320b09b4f315521f636ee41e54ac307792fae5410231e5c5f64bf61becd1d",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 96,
+        "minY": 39,
+        "maxX": 237,
+        "maxY": 299,
+        "width": 142,
+        "height": 261
+      }
+    },
+    {
+      "index": 8,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/right/008.png",
+      "sha256": "2b3ddd5b6502414c4757ae603d041a9238bee5ea4280d14a74eeb1f62485f7bf",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 95,
+        "minY": 40,
+        "maxX": 238,
+        "maxY": 299,
+        "width": 144,
+        "height": 260
+      }
+    },
+    {
+      "index": 9,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/right/009.png",
+      "sha256": "bd5a5280267ac1e352380f557587dc7afc0fbac5d62585cbce99e842fdee583b",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 94,
+        "minY": 42,
+        "maxX": 239,
+        "maxY": 301,
+        "width": 146,
+        "height": 260
+      }
+    },
+    {
+      "index": 10,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/right/010.png",
+      "sha256": "9ba0e2b8ddf3c9e462b428c0fad6f7cc9027caccc40250f4c7577261e742eac9",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 94,
+        "minY": 42,
+        "maxX": 239,
+        "maxY": 302,
+        "width": 146,
+        "height": 261
+      }
+    },
+    {
+      "index": 11,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/right/011.png",
+      "sha256": "5dd9479e1dfbdb9d5343d524832d5da0917a94b3433d9b9d02e46ac2f8284489",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 95,
+        "minY": 42,
+        "maxX": 239,
+        "maxY": 303,
+        "width": 145,
+        "height": 262
+      }
+    },
+    {
+      "index": 12,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/right/012.png",
+      "sha256": "633a21a266089d088e7d5ef9e25cb29f77fa4e4a7fa9cba0dc7ef72794d15e88",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 95,
+        "minY": 43,
+        "maxX": 240,
+        "maxY": 303,
+        "width": 146,
+        "height": 261
+      }
+    },
+    {
+      "index": 13,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/right/013.png",
+      "sha256": "a562136d7b77b01d6c84e8c762a6ae6d2f2361e0b6a7b4f03341e807f1acc17b",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 97,
+        "minY": 43,
+        "maxX": 240,
+        "maxY": 303,
+        "width": 144,
+        "height": 261
+      }
+    },
+    {
+      "index": 14,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/right/014.png",
+      "sha256": "1ac9059c2a69433dc396737a81fc97bb0523b04c9228a2233d6837d35068c43e",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 97,
+        "minY": 42,
+        "maxX": 240,
+        "maxY": 303,
+        "width": 144,
+        "height": 262
+      }
+    },
+    {
+      "index": 15,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/right/015.png",
+      "sha256": "200b7e9506fef0749c8ff2aa5b31e353e3a75f22c0365235cd7f2fe3afeefd4f",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 99,
+        "minY": 41,
+        "maxX": 240,
+        "maxY": 303,
+        "width": 142,
+        "height": 263
+      }
+    },
+    {
+      "index": 16,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/right/016.png",
+      "sha256": "35b3a8996b2a3768e7691997106c04b70e56e6d788e2244f4b822ac2ad5ca1c8",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 98,
+        "minY": 40,
+        "maxX": 240,
+        "maxY": 302,
+        "width": 143,
+        "height": 263
+      }
+    },
+    {
+      "index": 17,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/right/017.png",
+      "sha256": "32411d42bccac6d827f8b7bea030b7b1cf1051893d776f6f1480b5df35e7eec0",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 99,
+        "minY": 40,
+        "maxX": 240,
+        "maxY": 302,
+        "width": 142,
+        "height": 263
+      }
+    },
+    {
+      "index": 18,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/right/018.png",
+      "sha256": "79d0e7df4ca6d1076e7626f11b7371a3bc339ee71cb6f495d82c5cddec23aaf2",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 100,
+        "minY": 40,
+        "maxX": 240,
+        "maxY": 301,
+        "width": 141,
+        "height": 262
+      }
+    },
+    {
+      "index": 19,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/right/019.png",
+      "sha256": "0b8be4764b9756006a2f158ac1dec8b18eeaf60418a0516431f207afc7f0e06f",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 100,
+        "minY": 40,
+        "maxX": 241,
+        "maxY": 302,
+        "width": 142,
+        "height": 263
+      }
+    },
+    {
+      "index": 20,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/right/020.png",
+      "sha256": "b1b3e426a6d7d00ded5207ac7e1f602d06d94100dc3cdbb11df8922132003408",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 100,
+        "minY": 39,
+        "maxX": 241,
+        "maxY": 301,
+        "width": 142,
+        "height": 263
+      }
+    },
+    {
+      "index": 21,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/right/021.png",
+      "sha256": "e65d9319b9c037efb093a61c394038a9ef2c90aa59a682a2174ecbc04baa16fb",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 99,
+        "minY": 40,
+        "maxX": 242,
+        "maxY": 301,
+        "width": 144,
+        "height": 262
+      }
+    },
+    {
+      "index": 22,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/right/022.png",
+      "sha256": "073e01413da9b1807984723720ba1d084d8754d64fd60db7c0ba24067a5d3cd6",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 99,
+        "minY": 40,
+        "maxX": 243,
+        "maxY": 301,
+        "width": 145,
+        "height": 262
+      }
+    },
+    {
+      "index": 23,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/right/023.png",
+      "sha256": "af4bc1d8feaf305d0ac706a4efb3c6b7a07a7750837269fa0487bbb77a80f56c",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 98,
+        "minY": 41,
+        "maxX": 243,
+        "maxY": 301,
+        "width": 146,
+        "height": 261
+      }
+    },
+    {
+      "index": 24,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/right/024.png",
+      "sha256": "e771a381f68340cf47cd6d107548b85d1b7c15fed5c42e25e5c2bffde892326d",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 96,
+        "minY": 42,
+        "maxX": 244,
+        "maxY": 301,
+        "width": 149,
+        "height": 260
+      }
+    },
+    {
+      "index": 25,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/source/right/025.png",
+      "sha256": "f7ed3bca7279749a5376a376753e479ef9f31c52d1320ae589d34c1f4b2661f2",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 97,
+        "minY": 41,
+        "maxX": 244,
+        "maxY": 301,
+        "width": 148,
+        "height": 261
+      }
+    }
+  ],
+  "frames": [
+    {
+      "index": 1,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/front/001.png",
+      "sha256": "a3722cdf56969fa3a68b71bd5a8c582309da1c56a32c85d9eeb6c307add6c62f",
+      "bbox": {
+        "minX": 63,
+        "minY": 28,
+        "maxX": 147,
+        "maxY": 171,
+        "width": 85,
+        "height": 144
+      }
+    },
+    {
+      "index": 2,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/front/002.png",
+      "sha256": "1ec1a77bce7e77589391ce311046db2b5a020d9fa754e44a4acc726f9ad7c10c",
+      "bbox": {
+        "minX": 63,
+        "minY": 28,
+        "maxX": 147,
+        "maxY": 171,
+        "width": 85,
+        "height": 144
+      }
+    },
+    {
+      "index": 3,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/front/003.png",
+      "sha256": "94f2060609254988ca10cf12228681ae13a2eeb725c23533374ae94eb8ef18fb",
+      "bbox": {
+        "minX": 63,
+        "minY": 28,
+        "maxX": 148,
+        "maxY": 171,
+        "width": 86,
+        "height": 144
+      }
+    },
+    {
+      "index": 4,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/front/004.png",
+      "sha256": "b670b34055e68eb41438ec163f7d7072457059a7d28ce8dd937729994b6a0fb2",
+      "bbox": {
+        "minX": 63,
+        "minY": 28,
+        "maxX": 147,
+        "maxY": 172,
+        "width": 85,
+        "height": 145
+      }
+    },
+    {
+      "index": 5,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/front/005.png",
+      "sha256": "b36ff522395578bfb24ae0ce5efa146e2e8e38f186ff001c9bb09c53dd925e4f",
+      "bbox": {
+        "minX": 62,
+        "minY": 29,
+        "maxX": 148,
+        "maxY": 174,
+        "width": 87,
+        "height": 146
+      }
+    },
+    {
+      "index": 6,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/front/006.png",
+      "sha256": "a8dca5aec0049c3b8dfa7020c3b8bdb89bc0ef1205ece5697f8ad14b022affdc",
+      "bbox": {
+        "minX": 62,
+        "minY": 29,
+        "maxX": 147,
+        "maxY": 174,
+        "width": 86,
+        "height": 146
+      }
+    },
+    {
+      "index": 7,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/front/007.png",
+      "sha256": "f024020b9b36b0c589a1b2abbdd9bf94c8460d75ebec9946143e1e052d83173b",
+      "bbox": {
+        "minX": 62,
+        "minY": 30,
+        "maxX": 148,
+        "maxY": 175,
+        "width": 87,
+        "height": 146
+      }
+    },
+    {
+      "index": 8,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/front/008.png",
+      "sha256": "518cd050b7701804fedc0e9a80364b07913e07ff46eca48e67a9ecd9fa6ca36b",
+      "bbox": {
+        "minX": 62,
+        "minY": 30,
+        "maxX": 147,
+        "maxY": 175,
+        "width": 86,
+        "height": 146
+      }
+    },
+    {
+      "index": 9,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/front/009.png",
+      "sha256": "aadb6ae04fce8ab7a65b896083e0eff314c8a962172502bccf6c1daac69ef46a",
+      "bbox": {
+        "minX": 62,
+        "minY": 30,
+        "maxX": 147,
+        "maxY": 175,
+        "width": 86,
+        "height": 146
+      }
+    },
+    {
+      "index": 10,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/front/010.png",
+      "sha256": "48324a4fe1ce9175ee4b5625e12040f0e608c6a12bc953ebe2a93aa65e231e06",
+      "bbox": {
+        "minX": 62,
+        "minY": 29,
+        "maxX": 146,
+        "maxY": 174,
+        "width": 85,
+        "height": 146
+      }
+    },
+    {
+      "index": 11,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/front/011.png",
+      "sha256": "b4583bf6a343fba2a9db0bb6b1ec0f8361a8db0edefa1798872ce4c431410fc9",
+      "bbox": {
+        "minX": 62,
+        "minY": 29,
+        "maxX": 146,
+        "maxY": 175,
+        "width": 85,
+        "height": 147
+      }
+    },
+    {
+      "index": 12,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/front/012.png",
+      "sha256": "af652db1fe5b2ebfaa8d25385d213d6b1961d92e169cd426d968bcaec1434bb4",
+      "bbox": {
+        "minX": 62,
+        "minY": 29,
+        "maxX": 145,
+        "maxY": 174,
+        "width": 84,
+        "height": 146
+      }
+    },
+    {
+      "index": 13,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/front/013.png",
+      "sha256": "531decc82bf4849a3efc39f68baa491f556b217575ca3bcb198914b0d269a4b3",
+      "bbox": {
+        "minX": 61,
+        "minY": 28,
+        "maxX": 145,
+        "maxY": 173,
+        "width": 85,
+        "height": 146
+      }
+    },
+    {
+      "index": 14,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/front/014.png",
+      "sha256": "3d057113b49d11a1b01c7147639d2fd576c38e3eb9daf9b41ffc82df6cc5180d",
+      "bbox": {
+        "minX": 61,
+        "minY": 27,
+        "maxX": 145,
+        "maxY": 172,
+        "width": 85,
+        "height": 146
+      }
+    },
+    {
+      "index": 15,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/front/015.png",
+      "sha256": "cbf9dba19c9835577fb5819ec249c66a3c05b09c19b9a4b6d0d15545dd52d546",
+      "bbox": {
+        "minX": 61,
+        "minY": 28,
+        "maxX": 146,
+        "maxY": 172,
+        "width": 86,
+        "height": 145
+      }
+    },
+    {
+      "index": 16,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/front/016.png",
+      "sha256": "935ff1794037cf3f4e8dff253751c9683d99b5e4d7511c4a3fd8cd057ab38374",
+      "bbox": {
+        "minX": 61,
+        "minY": 28,
+        "maxX": 146,
+        "maxY": 172,
+        "width": 86,
+        "height": 145
+      }
+    },
+    {
+      "index": 17,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/front/017.png",
+      "sha256": "40bfe9ea80474789712f176859d78b1c5d006ee3262815bcc37d13e71e0a316e",
+      "bbox": {
+        "minX": 60,
+        "minY": 29,
+        "maxX": 146,
+        "maxY": 174,
+        "width": 87,
+        "height": 146
+      }
+    },
+    {
+      "index": 18,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/front/018.png",
+      "sha256": "b8418192a38c0dd82700b639dbbd1434f0d7d7befc7fe68faecae8ab5b782d18",
+      "bbox": {
+        "minX": 60,
+        "minY": 29,
+        "maxX": 147,
+        "maxY": 175,
+        "width": 88,
+        "height": 147
+      }
+    },
+    {
+      "index": 19,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/front/019.png",
+      "sha256": "5090ba81cda0ad12dfa28b8ea621fc10514562f2a8de2afef44eb953a2fe7347",
+      "bbox": {
+        "minX": 60,
+        "minY": 29,
+        "maxX": 147,
+        "maxY": 178,
+        "width": 88,
+        "height": 150
+      }
+    },
+    {
+      "index": 20,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/front/020.png",
+      "sha256": "c74daa6deb75855b7c1b876b2c8d0e920cc50fc9727e00ac31c504b559222a6d",
+      "bbox": {
+        "minX": 60,
+        "minY": 29,
+        "maxX": 147,
+        "maxY": 176,
+        "width": 88,
+        "height": 148
+      }
+    },
+    {
+      "index": 21,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/front/021.png",
+      "sha256": "51d4316019a9a95467f07460594dc0f1f160ee4621aba456d5a86c8c1abdbbad",
+      "bbox": {
+        "minX": 61,
+        "minY": 29,
+        "maxX": 147,
+        "maxY": 178,
+        "width": 87,
+        "height": 150
+      }
+    },
+    {
+      "index": 22,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/front/022.png",
+      "sha256": "16e56d610b4b62f6dd486aac8e3e837a61f1cde9733db86cfc6d66f14f1c8fec",
+      "bbox": {
+        "minX": 61,
+        "minY": 29,
+        "maxX": 147,
+        "maxY": 176,
+        "width": 87,
+        "height": 148
+      }
+    },
+    {
+      "index": 23,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/front/023.png",
+      "sha256": "6a37f552a12c4ffe0f5444cb6c16e6ab2fcdd06dc14ca9077627b19727a54cbb",
+      "bbox": {
+        "minX": 61,
+        "minY": 29,
+        "maxX": 147,
+        "maxY": 175,
+        "width": 87,
+        "height": 147
+      }
+    },
+    {
+      "index": 24,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/front/024.png",
+      "sha256": "246eceb63d34f0ab90d9cb1d3c4bef2efd598278afae5165cdd64051190ed517",
+      "bbox": {
+        "minX": 62,
+        "minY": 28,
+        "maxX": 146,
+        "maxY": 175,
+        "width": 85,
+        "height": 148
+      }
+    },
+    {
+      "index": 25,
+      "direction": "front",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/front/025.png",
+      "sha256": "5bbccb13ef08b461fd7f90be57e4f93e7cbab0efb5af73b4d235be2036183b3e",
+      "bbox": {
+        "minX": 62,
+        "minY": 28,
+        "maxX": 147,
+        "maxY": 175,
+        "width": 86,
+        "height": 148
+      }
+    },
+    {
+      "index": 1,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/back/001.png",
+      "sha256": "05c77d1287cd03186fbde4408007fd9430aac634475d62fa877c5c41e0533eed",
+      "bbox": {
+        "minX": 63,
+        "minY": 34,
+        "maxX": 144,
+        "maxY": 178,
+        "width": 82,
+        "height": 145
+      }
+    },
+    {
+      "index": 2,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/back/002.png",
+      "sha256": "d1bde6de10672e6a0afaefb707a296a62283a17c77b496596adcd8a228ace5d7",
+      "bbox": {
+        "minX": 63,
+        "minY": 34,
+        "maxX": 144,
+        "maxY": 178,
+        "width": 82,
+        "height": 145
+      }
+    },
+    {
+      "index": 3,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/back/003.png",
+      "sha256": "5dfc00bba811cbbd3e5c15bdf8189d63241ec866e9ee980ff768622a53cf920a",
+      "bbox": {
+        "minX": 63,
+        "minY": 34,
+        "maxX": 143,
+        "maxY": 177,
+        "width": 81,
+        "height": 144
+      }
+    },
+    {
+      "index": 4,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/back/004.png",
+      "sha256": "920b269b48c362c81c18fe7d0eb10080f8a1e695933eafc942ec4661210258e4",
+      "bbox": {
+        "minX": 63,
+        "minY": 33,
+        "maxX": 143,
+        "maxY": 176,
+        "width": 81,
+        "height": 144
+      }
+    },
+    {
+      "index": 5,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/back/005.png",
+      "sha256": "dca2e07027e6b841d70670a3fd228b8c57d2878f83722d2bde81c5d58831087d",
+      "bbox": {
+        "minX": 63,
+        "minY": 33,
+        "maxX": 143,
+        "maxY": 176,
+        "width": 81,
+        "height": 144
+      }
+    },
+    {
+      "index": 6,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/back/006.png",
+      "sha256": "128251310fac3505c6dc7038fff790a277aed89fd900976a125ad738f43e60a0",
+      "bbox": {
+        "minX": 63,
+        "minY": 33,
+        "maxX": 143,
+        "maxY": 177,
+        "width": 81,
+        "height": 145
+      }
+    },
+    {
+      "index": 7,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/back/007.png",
+      "sha256": "2030eb1cba1551244d81837d2a8b3eedba8c3bbdcb075501302c58682d95beae",
+      "bbox": {
+        "minX": 62,
+        "minY": 33,
+        "maxX": 143,
+        "maxY": 177,
+        "width": 82,
+        "height": 145
+      }
+    },
+    {
+      "index": 8,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/back/008.png",
+      "sha256": "153b667b80589f8fffbadc6f511b3e204a83c345fe6741476446877c4cc8734a",
+      "bbox": {
+        "minX": 62,
+        "minY": 33,
+        "maxX": 143,
+        "maxY": 177,
+        "width": 82,
+        "height": 145
+      }
+    },
+    {
+      "index": 9,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/back/009.png",
+      "sha256": "610f3a2bc1e954318ce321b1c8286cd37f08252659ba7b86cb351245f883f059",
+      "bbox": {
+        "minX": 62,
+        "minY": 34,
+        "maxX": 143,
+        "maxY": 178,
+        "width": 82,
+        "height": 145
+      }
+    },
+    {
+      "index": 10,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/back/010.png",
+      "sha256": "84c71ea974bfbaa6b7fec726d25480f1cb99439ae789af7124189dffd078080f",
+      "bbox": {
+        "minX": 62,
+        "minY": 34,
+        "maxX": 144,
+        "maxY": 178,
+        "width": 83,
+        "height": 145
+      }
+    },
+    {
+      "index": 11,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/back/011.png",
+      "sha256": "c546af0579db943a8c778245974d2b2da80135d154cc41b1975a830705e08ea7",
+      "bbox": {
+        "minX": 61,
+        "minY": 35,
+        "maxX": 144,
+        "maxY": 178,
+        "width": 84,
+        "height": 144
+      }
+    },
+    {
+      "index": 12,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/back/012.png",
+      "sha256": "fa19ebffaae4e841b11ee9db65b71550496abec63ec5f9de96d12c61029e0c03",
+      "bbox": {
+        "minX": 62,
+        "minY": 35,
+        "maxX": 145,
+        "maxY": 178,
+        "width": 84,
+        "height": 144
+      }
+    },
+    {
+      "index": 13,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/back/013.png",
+      "sha256": "e8e04fdba91f28bdc824cea040c61d4809dd8fd86191041d5b9dc0c04c7664b4",
+      "bbox": {
+        "minX": 62,
+        "minY": 36,
+        "maxX": 145,
+        "maxY": 178,
+        "width": 84,
+        "height": 143
+      }
+    },
+    {
+      "index": 14,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/back/014.png",
+      "sha256": "c179c0cfc13fe805a3ca212bc653c86b218d7667f1ab6bab0b6c0423d2c99991",
+      "bbox": {
+        "minX": 63,
+        "minY": 35,
+        "maxX": 145,
+        "maxY": 177,
+        "width": 83,
+        "height": 143
+      }
+    },
+    {
+      "index": 15,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/back/015.png",
+      "sha256": "3baa9b915e86af10b4c29868de817f99893748ed190d73df3062f3209141f895",
+      "bbox": {
+        "minX": 64,
+        "minY": 35,
+        "maxX": 145,
+        "maxY": 177,
+        "width": 82,
+        "height": 143
+      }
+    },
+    {
+      "index": 16,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/back/016.png",
+      "sha256": "5d69cf6cb712631aeedbb305bb00902d8c3ae0493ba52ab01b2ea45728ae9266",
+      "bbox": {
+        "minX": 64,
+        "minY": 34,
+        "maxX": 145,
+        "maxY": 176,
+        "width": 82,
+        "height": 143
+      }
+    },
+    {
+      "index": 17,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/back/017.png",
+      "sha256": "dfb2aa8c87ac5e30ef2ce615c0c5be749eb19932e2cf3e2b51a55e606d38a8a2",
+      "bbox": {
+        "minX": 64,
+        "minY": 33,
+        "maxX": 144,
+        "maxY": 176,
+        "width": 81,
+        "height": 144
+      }
+    },
+    {
+      "index": 18,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/back/018.png",
+      "sha256": "eacde5c99d6e704f6d456fcedf75189e379f631aba1e4fefe37d3bfe957232f3",
+      "bbox": {
+        "minX": 64,
+        "minY": 33,
+        "maxX": 145,
+        "maxY": 176,
+        "width": 82,
+        "height": 144
+      }
+    },
+    {
+      "index": 19,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/back/019.png",
+      "sha256": "6bb71d9ba43ae8b9fd2afec0105c4d630ac954d6bf662c05318e755d3c368a06",
+      "bbox": {
+        "minX": 65,
+        "minY": 33,
+        "maxX": 145,
+        "maxY": 176,
+        "width": 81,
+        "height": 144
+      }
+    },
+    {
+      "index": 20,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/back/020.png",
+      "sha256": "30074165750ed246b93bc86089c80f9e4fce7643da67adcaea9a5d5d1d9ea4c2",
+      "bbox": {
+        "minX": 65,
+        "minY": 33,
+        "maxX": 145,
+        "maxY": 176,
+        "width": 81,
+        "height": 144
+      }
+    },
+    {
+      "index": 21,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/back/021.png",
+      "sha256": "0f855ba83f0188fa0b4837e475183f52b9f8a04102f735e384d44902e144f905",
+      "bbox": {
+        "minX": 64,
+        "minY": 33,
+        "maxX": 145,
+        "maxY": 177,
+        "width": 82,
+        "height": 145
+      }
+    },
+    {
+      "index": 22,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/back/022.png",
+      "sha256": "7c477a311fbbc1dff1f4bd761f3aa1e4eb74b29c6f6a3f0e45ddbc4863180b46",
+      "bbox": {
+        "minX": 64,
+        "minY": 33,
+        "maxX": 146,
+        "maxY": 177,
+        "width": 83,
+        "height": 145
+      }
+    },
+    {
+      "index": 23,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/back/023.png",
+      "sha256": "c60a9bc7af5fd6a79cd40c14fc2490091846d8b4afcf1bb92730c279a1fa8115",
+      "bbox": {
+        "minX": 64,
+        "minY": 34,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 83,
+        "height": 145
+      }
+    },
+    {
+      "index": 24,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/back/024.png",
+      "sha256": "5010570a806a04dc8f06b25b631293c357e59ed7b55be3497c7bf62493226717",
+      "bbox": {
+        "minX": 64,
+        "minY": 34,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 83,
+        "height": 145
+      }
+    },
+    {
+      "index": 25,
+      "direction": "back",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/back/025.png",
+      "sha256": "4bdb145ca31f3e200a0fb416e9fd7f91d3aa416337620b8f8a1c57ea22a8906f",
+      "bbox": {
+        "minX": 63,
+        "minY": 35,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 84,
+        "height": 144
+      }
+    },
+    {
+      "index": 1,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/left/001.png",
+      "sha256": "9bd15e62bb232cc328f9f89babfd3004d4162f5069777f6c707e42190771b405",
+      "bbox": {
+        "minX": 65,
+        "minY": 40,
+        "maxX": 138,
+        "maxY": 178,
+        "width": 74,
+        "height": 139
+      }
+    },
+    {
+      "index": 2,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/left/002.png",
+      "sha256": "820dbcd925731a13bc0163c17e687fc65129b5e0a54c1f47612cb568303696ad",
+      "bbox": {
+        "minX": 65,
+        "minY": 40,
+        "maxX": 138,
+        "maxY": 178,
+        "width": 74,
+        "height": 139
+      }
+    },
+    {
+      "index": 3,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/left/003.png",
+      "sha256": "c7b71c273cfee2cdec0a28d6290ccabdbf51b33c8e382cf242bbe8c8152d319e",
+      "bbox": {
+        "minX": 65,
+        "minY": 40,
+        "maxX": 138,
+        "maxY": 178,
+        "width": 74,
+        "height": 139
+      }
+    },
+    {
+      "index": 4,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/left/004.png",
+      "sha256": "ff61512a203e00bb38d4b55f7284ebd47fea805d6a3700b605f9b784d6192198",
+      "bbox": {
+        "minX": 65,
+        "minY": 41,
+        "maxX": 139,
+        "maxY": 177,
+        "width": 75,
+        "height": 137
+      }
+    },
+    {
+      "index": 5,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/left/005.png",
+      "sha256": "e23df62e45bc0a387564f844111e283ca1c23d032ccb7b430365ddee4037a78d",
+      "bbox": {
+        "minX": 64,
+        "minY": 41,
+        "maxX": 139,
+        "maxY": 177,
+        "width": 76,
+        "height": 137
+      }
+    },
+    {
+      "index": 6,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/left/006.png",
+      "sha256": "be598557c754b86bb46f768dc333dd5b59f2062a9f3d3f64e7c0093c9d73cd0e",
+      "bbox": {
+        "minX": 64,
+        "minY": 42,
+        "maxX": 139,
+        "maxY": 178,
+        "width": 76,
+        "height": 137
+      }
+    },
+    {
+      "index": 7,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/left/007.png",
+      "sha256": "550a52035f3378ec94ec31059b6abc6b0a143a4da9b197dc2628547fe9317b36",
+      "bbox": {
+        "minX": 63,
+        "minY": 42,
+        "maxX": 139,
+        "maxY": 178,
+        "width": 77,
+        "height": 137
+      }
+    },
+    {
+      "index": 8,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/left/008.png",
+      "sha256": "38b906685f4abae0be61ce17d9e639792f51bf03f1092d7a011b9d3ee0c362d5",
+      "bbox": {
+        "minX": 64,
+        "minY": 42,
+        "maxX": 139,
+        "maxY": 177,
+        "width": 76,
+        "height": 136
+      }
+    },
+    {
+      "index": 9,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/left/009.png",
+      "sha256": "d6e6a4bc3d1ca7e5247b30b638fefa5e6fbe18fde077a32bf968b393414be4e1",
+      "bbox": {
+        "minX": 63,
+        "minY": 42,
+        "maxX": 138,
+        "maxY": 177,
+        "width": 76,
+        "height": 136
+      }
+    },
+    {
+      "index": 10,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/left/010.png",
+      "sha256": "d55dab65809b545f7ac38f36af4dde8184b3e0a16d99b90673389875d23f44f7",
+      "bbox": {
+        "minX": 64,
+        "minY": 41,
+        "maxX": 137,
+        "maxY": 177,
+        "width": 74,
+        "height": 137
+      }
+    },
+    {
+      "index": 11,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/left/011.png",
+      "sha256": "ee6a2778d38004a165e6cad91ab0a5104193d56c937e466faa6d0e7092c210ca",
+      "bbox": {
+        "minX": 63,
+        "minY": 41,
+        "maxX": 137,
+        "maxY": 177,
+        "width": 75,
+        "height": 137
+      }
+    },
+    {
+      "index": 12,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/left/012.png",
+      "sha256": "690cc3815fb969d8578782da827486b52e3c0655f53e159d6aadfe217657edb4",
+      "bbox": {
+        "minX": 64,
+        "minY": 41,
+        "maxX": 136,
+        "maxY": 177,
+        "width": 73,
+        "height": 137
+      }
+    },
+    {
+      "index": 13,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/left/013.png",
+      "sha256": "0844da9a7d5dda137a8559c8d6da6ca9086ac93c651535d65730bd839cd15295",
+      "bbox": {
+        "minX": 63,
+        "minY": 40,
+        "maxX": 136,
+        "maxY": 177,
+        "width": 74,
+        "height": 138
+      }
+    },
+    {
+      "index": 14,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/left/014.png",
+      "sha256": "918b836eb3824f7b16df2e10ab46cd7b3d6f4853c2baa21c1e8eee07ff792d56",
+      "bbox": {
+        "minX": 63,
+        "minY": 40,
+        "maxX": 136,
+        "maxY": 177,
+        "width": 74,
+        "height": 138
+      }
+    },
+    {
+      "index": 15,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/left/015.png",
+      "sha256": "cd73d0948a66fcb1a399ef39b0fcebc3559c29a48680a70ca3bcd6def3c92b5a",
+      "bbox": {
+        "minX": 63,
+        "minY": 40,
+        "maxX": 136,
+        "maxY": 177,
+        "width": 74,
+        "height": 138
+      }
+    },
+    {
+      "index": 16,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/left/016.png",
+      "sha256": "e467014fd7f805bbea3bd9e3365473a1e5aef60e5bbd50167505fc0dc08d1a41",
+      "bbox": {
+        "minX": 62,
+        "minY": 41,
+        "maxX": 137,
+        "maxY": 177,
+        "width": 76,
+        "height": 137
+      }
+    },
+    {
+      "index": 17,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/left/017.png",
+      "sha256": "b3e6486a20846f462d3bbfa2747731ddeb94312b9889d9403861e6aae27222eb",
+      "bbox": {
+        "minX": 62,
+        "minY": 41,
+        "maxX": 137,
+        "maxY": 177,
+        "width": 76,
+        "height": 137
+      }
+    },
+    {
+      "index": 18,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/left/018.png",
+      "sha256": "e8b4e4228de1da163357bee8360b646499272a53f752f532b65dcd8b46c7fe71",
+      "bbox": {
+        "minX": 62,
+        "minY": 41,
+        "maxX": 138,
+        "maxY": 178,
+        "width": 77,
+        "height": 138
+      }
+    },
+    {
+      "index": 19,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/left/019.png",
+      "sha256": "e57345520d8f3e64cefa6361e89eb41c8aa7a5c58b87bad4b4dddbc4e7d890fa",
+      "bbox": {
+        "minX": 61,
+        "minY": 42,
+        "maxX": 138,
+        "maxY": 178,
+        "width": 78,
+        "height": 137
+      }
+    },
+    {
+      "index": 20,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/left/020.png",
+      "sha256": "5750db388e255cc538ea845d0411e6b8d31cd41221bb044b4931701d06816ba6",
+      "bbox": {
+        "minX": 61,
+        "minY": 42,
+        "maxX": 138,
+        "maxY": 178,
+        "width": 78,
+        "height": 137
+      }
+    },
+    {
+      "index": 21,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/left/021.png",
+      "sha256": "c35218af0d8c1a8524d298c5f502b5d2cf982bb4e0e6ea16376f3ac42e02473a",
+      "bbox": {
+        "minX": 61,
+        "minY": 42,
+        "maxX": 136,
+        "maxY": 178,
+        "width": 76,
+        "height": 137
+      }
+    },
+    {
+      "index": 22,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/left/022.png",
+      "sha256": "078f92126da7eab7eeb17bf23b208b4cebbd41a01a36fa2be015ea4dbd4f5ca1",
+      "bbox": {
+        "minX": 61,
+        "minY": 41,
+        "maxX": 136,
+        "maxY": 178,
+        "width": 76,
+        "height": 138
+      }
+    },
+    {
+      "index": 23,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/left/023.png",
+      "sha256": "d220f716cf92cf4049cd0afcd8ab2152118d0558e3fb9bcc2977055aba33cbc3",
+      "bbox": {
+        "minX": 61,
+        "minY": 41,
+        "maxX": 136,
+        "maxY": 178,
+        "width": 76,
+        "height": 138
+      }
+    },
+    {
+      "index": 24,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/left/024.png",
+      "sha256": "32f6b4a4c5e1ccc993a0a9341e5fbf716cd42390c267ada2fd236993504996c5",
+      "bbox": {
+        "minX": 61,
+        "minY": 40,
+        "maxX": 135,
+        "maxY": 178,
+        "width": 75,
+        "height": 139
+      }
+    },
+    {
+      "index": 25,
+      "direction": "left",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/left/025.png",
+      "sha256": "5bc71ba70edab2886ec0ab8835f1c2a7d247797ecc9fa6cedec4af732ee5f7f2",
+      "bbox": {
+        "minX": 61,
+        "minY": 40,
+        "maxX": 135,
+        "maxY": 178,
+        "width": 75,
+        "height": 139
+      }
+    },
+    {
+      "index": 1,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/right/001.png",
+      "sha256": "07d0e704a1b21386d8d5c0002d219193a7d480db944ab0be7e3abf66c3a2a62e",
+      "bbox": {
+        "minX": 69,
+        "minY": 41,
+        "maxX": 143,
+        "maxY": 177,
+        "width": 75,
+        "height": 137
+      }
+    },
+    {
+      "index": 2,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/right/002.png",
+      "sha256": "84e57c98e9def9831ebe988c6ddb38e7faeea912fd8c4eb80436e365133568f6",
+      "bbox": {
+        "minX": 70,
+        "minY": 41,
+        "maxX": 143,
+        "maxY": 177,
+        "width": 74,
+        "height": 137
+      }
+    },
+    {
+      "index": 3,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/right/003.png",
+      "sha256": "c610a82003061342bc06c478235bb489100eceaa4e90908e56b9b6e8666621d6",
+      "bbox": {
+        "minX": 71,
+        "minY": 41,
+        "maxX": 143,
+        "maxY": 177,
+        "width": 73,
+        "height": 137
+      }
+    },
+    {
+      "index": 4,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/right/004.png",
+      "sha256": "254577d75267a42ba34e91e5514d387f8371385db7454462bce6172ce158cdef",
+      "bbox": {
+        "minX": 71,
+        "minY": 41,
+        "maxX": 143,
+        "maxY": 177,
+        "width": 73,
+        "height": 137
+      }
+    },
+    {
+      "index": 5,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/right/005.png",
+      "sha256": "b730cc20ee51433b6edc1c9db5518a7002b50b860ab9d5794b1dc43e7248d4b5",
+      "bbox": {
+        "minX": 71,
+        "minY": 40,
+        "maxX": 144,
+        "maxY": 176,
+        "width": 74,
+        "height": 137
+      }
+    },
+    {
+      "index": 6,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/right/006.png",
+      "sha256": "9e9942c9e41e359e70a69c33eedb1386936e9dba3dc2badae5bbb1433be99d53",
+      "bbox": {
+        "minX": 71,
+        "minY": 40,
+        "maxX": 144,
+        "maxY": 176,
+        "width": 74,
+        "height": 137
+      }
+    },
+    {
+      "index": 7,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/right/007.png",
+      "sha256": "c56abf7bc9735de80d308e6f387a9955535679733286c54540ea8532e7b96103",
+      "bbox": {
+        "minX": 71,
+        "minY": 40,
+        "maxX": 144,
+        "maxY": 176,
+        "width": 74,
+        "height": 137
+      }
+    },
+    {
+      "index": 8,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/right/008.png",
+      "sha256": "a1a6bfdd3e81c0a2a542aa66a080e45c1ae56a7ed329ee70ac88fc96e176f937",
+      "bbox": {
+        "minX": 70,
+        "minY": 41,
+        "maxX": 145,
+        "maxY": 176,
+        "width": 76,
+        "height": 136
+      }
+    },
+    {
+      "index": 9,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/right/009.png",
+      "sha256": "c6195d5ca92de553a22891619026b85bfda6b29e17695376d620ecf8de76dac8",
+      "bbox": {
+        "minX": 70,
+        "minY": 42,
+        "maxX": 145,
+        "maxY": 177,
+        "width": 76,
+        "height": 136
+      }
+    },
+    {
+      "index": 10,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/right/010.png",
+      "sha256": "ddda1a6d243029dca15e0908bd5ea19b7edb438902622408a95ca725f04fc249",
+      "bbox": {
+        "minX": 70,
+        "minY": 42,
+        "maxX": 145,
+        "maxY": 177,
+        "width": 76,
+        "height": 136
+      }
+    },
+    {
+      "index": 11,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/right/011.png",
+      "sha256": "02ff94fafabdb5a1a0ce4c3324a4d69302299130c254bfc43a711df3be193508",
+      "bbox": {
+        "minX": 70,
+        "minY": 42,
+        "maxX": 145,
+        "maxY": 178,
+        "width": 76,
+        "height": 137
+      }
+    },
+    {
+      "index": 12,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/right/012.png",
+      "sha256": "de0c329168d456ccb8292c67a42b196ecd743c52db43f5c9e2df1f4965663ba9",
+      "bbox": {
+        "minX": 70,
+        "minY": 43,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 77,
+        "height": 136
+      }
+    },
+    {
+      "index": 13,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/right/013.png",
+      "sha256": "e574daf37af687f3a2d785737365216f8e2c2cee4d65dbf9c781a961c20dd39a",
+      "bbox": {
+        "minX": 71,
+        "minY": 42,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 76,
+        "height": 137
+      }
+    },
+    {
+      "index": 14,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/right/014.png",
+      "sha256": "f89422c7fb9dfce214ac7f99a420511b4d17352e5a58eb7b3c125bb35a54fd0d",
+      "bbox": {
+        "minX": 71,
+        "minY": 42,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 76,
+        "height": 137
+      }
+    },
+    {
+      "index": 15,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/right/015.png",
+      "sha256": "d781d3f33ff259cdb1c928be483cd5084dd7c5a4b875ed38938a4adcdb829994",
+      "bbox": {
+        "minX": 72,
+        "minY": 41,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 75,
+        "height": 138
+      }
+    },
+    {
+      "index": 16,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/right/016.png",
+      "sha256": "e7fa8582056cb34bb88b643a8b352f9669b55ad624f7df81f58efd30bcc4865a",
+      "bbox": {
+        "minX": 72,
+        "minY": 41,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 75,
+        "height": 138
+      }
+    },
+    {
+      "index": 17,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/right/017.png",
+      "sha256": "c3b2cc9ecd76b1bf9677141d625b47d5cb1e8db56b881ba666fdd60e2e78fad5",
+      "bbox": {
+        "minX": 72,
+        "minY": 41,
+        "maxX": 146,
+        "maxY": 177,
+        "width": 75,
+        "height": 137
+      }
+    },
+    {
+      "index": 18,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/right/018.png",
+      "sha256": "6fad602a35624be735e9570ae050eb24557a1d78a7de68535115f5eab2bdb72d",
+      "bbox": {
+        "minX": 73,
+        "minY": 41,
+        "maxX": 146,
+        "maxY": 177,
+        "width": 74,
+        "height": 137
+      }
+    },
+    {
+      "index": 19,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/right/019.png",
+      "sha256": "233582860591354c11d348d2c5117aeb1f587bf39196b7c69bf0539924ecebfe",
+      "bbox": {
+        "minX": 73,
+        "minY": 41,
+        "maxX": 146,
+        "maxY": 177,
+        "width": 74,
+        "height": 137
+      }
+    },
+    {
+      "index": 20,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/right/020.png",
+      "sha256": "04938ce9766c894c757791e368d9a0f5418eefffa6e838a6699adf8374b386c8",
+      "bbox": {
+        "minX": 73,
+        "minY": 40,
+        "maxX": 146,
+        "maxY": 177,
+        "width": 74,
+        "height": 138
+      }
+    },
+    {
+      "index": 21,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/right/021.png",
+      "sha256": "67683eafedd44172664b4f04ba80da64b74524359eb148f7c7c6f90803d5b84a",
+      "bbox": {
+        "minX": 72,
+        "minY": 41,
+        "maxX": 147,
+        "maxY": 177,
+        "width": 76,
+        "height": 137
+      }
+    },
+    {
+      "index": 22,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/right/022.png",
+      "sha256": "0f7e37015995c0c5bc4c5e7977f777e447d844e102950658bf99532497d1abe7",
+      "bbox": {
+        "minX": 72,
+        "minY": 41,
+        "maxX": 147,
+        "maxY": 177,
+        "width": 76,
+        "height": 137
+      }
+    },
+    {
+      "index": 23,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/right/023.png",
+      "sha256": "00e7372442e87692636f751baf6a63fec98fb1deb3349c560dc2ba8dfaeb8b9d",
+      "bbox": {
+        "minX": 72,
+        "minY": 41,
+        "maxX": 147,
+        "maxY": 177,
+        "width": 76,
+        "height": 137
+      }
+    },
+    {
+      "index": 24,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/right/024.png",
+      "sha256": "808b5fff40f97a89b6f307ea821d684aff80e4bf742541ac7eda93d6b1f8b4af",
+      "bbox": {
+        "minX": 71,
+        "minY": 42,
+        "maxX": 148,
+        "maxY": 177,
+        "width": 78,
+        "height": 136
+      }
+    },
+    {
+      "index": 25,
+      "direction": "right",
+      "file": "src/assets/characters/alice/sequence-approved-v1/frames/right/025.png",
+      "sha256": "661af40b66eb3593d3c7aceb8d5b7596d63159613a48df80565994508a853fd8",
+      "bbox": {
+        "minX": 71,
+        "minY": 42,
+        "maxX": 148,
+        "maxY": 177,
+        "width": 78,
+        "height": 136
+      }
+    }
+  ]
+}

@@ -1,0 +1,3132 @@
+{
+  "version": 1,
+  "character": "mystia",
+  "status": "owner-approved-sequence-source",
+  "runtimeStatus": "ready-for-runtime-integration",
+  "layout": "variable-sequence-v1",
+  "sourceProject": "../参考素材/New project 11",
+  "sourceDirectory": "characters/mystia/验收通过版/frames",
+  "sourcePolicy": "copied-byte-for-byte-from-owner-approved-frames",
+  "transform": "uniform-nearest-neighbor-fixed-anchor",
+  "cell": [
+    209,
+    209
+  ],
+  "atlas": "src/assets/characters/mystia/mystia-animation-sequence-approved-v1.png",
+  "atlasSha256": "866ba9d5f91439841e6389bc462ff79727b89cc1cd0c5776058a2629d35b81b4",
+  "atlasSize": [
+    5016,
+    836
+  ],
+  "frameCount": 24,
+  "rowOrder": [
+    "front",
+    "back",
+    "left",
+    "right"
+  ],
+  "frameDurationMs": 80,
+  "stationaryFrame": "direction-row-column-0",
+  "loopStart": 0,
+  "loopEnd": 23,
+  "sourceAnchorByDirection": {
+    "front": [
+      160,
+      304
+    ],
+    "back": [
+      160,
+      304
+    ],
+    "left": [
+      160,
+      304
+    ],
+    "right": [
+      160,
+      304
+    ]
+  },
+  "targetAnchor": [
+    104,
+    179
+  ],
+  "targetVisibleHeight": 150,
+  "scale": 0.5119453924914675,
+  "sources": [
+    {
+      "index": 1,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/front/001.png",
+      "sha256": "6b1f0d7e36ecd31f28ce2a8fdbcf7a5e2175b790a3b979a4650e7b694fae891c",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 20,
+        "minY": 9,
+        "maxX": 299,
+        "maxY": 297,
+        "width": 280,
+        "height": 289
+      }
+    },
+    {
+      "index": 2,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/front/002.png",
+      "sha256": "28ab2749e6de3aecd80380721b1bf5318ca45d5fc18e65200f5ab3717b46c3ba",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 20,
+        "minY": 9,
+        "maxX": 299,
+        "maxY": 296,
+        "width": 280,
+        "height": 288
+      }
+    },
+    {
+      "index": 3,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/front/003.png",
+      "sha256": "74edfbe2e836f75075b93c072513e504a022abdc929e7ddb2620dc3f773a82bc",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 20,
+        "minY": 10,
+        "maxX": 300,
+        "maxY": 296,
+        "width": 281,
+        "height": 287
+      }
+    },
+    {
+      "index": 4,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/front/004.png",
+      "sha256": "dde652653eac692bd82c8d8a8cbe70e8bf2f4db1897e85e885747c149dcab5ab",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 20,
+        "minY": 10,
+        "maxX": 299,
+        "maxY": 298,
+        "width": 280,
+        "height": 289
+      }
+    },
+    {
+      "index": 5,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/front/005.png",
+      "sha256": "b4b0ecc4c1912b1386f29264ad30d8ffa9b8cf80f3561734f721d559ba22651a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 20,
+        "minY": 11,
+        "maxX": 299,
+        "maxY": 301,
+        "width": 280,
+        "height": 291
+      }
+    },
+    {
+      "index": 6,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/front/006.png",
+      "sha256": "8b7c7595ba635b5597a28a4da4a255dcdbb5c1e2d655f49ac8b13e71edaf9660",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 22,
+        "minY": 12,
+        "maxX": 297,
+        "maxY": 301,
+        "width": 276,
+        "height": 290
+      }
+    },
+    {
+      "index": 7,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/front/007.png",
+      "sha256": "2b4579babb7fb30b9127dda5b46ed87df94dc642fb41f40060f4d4a4e9529dc6",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 22,
+        "minY": 12,
+        "maxX": 298,
+        "maxY": 301,
+        "width": 277,
+        "height": 290
+      }
+    },
+    {
+      "index": 8,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/front/008.png",
+      "sha256": "cc1ab56cd60a1109e2771cc74d19c5cfcdb7ef731100fb67b034e9ce4843c022",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 23,
+        "minY": 11,
+        "maxX": 297,
+        "maxY": 301,
+        "width": 275,
+        "height": 291
+      }
+    },
+    {
+      "index": 9,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/front/009.png",
+      "sha256": "55670c94d68241d80ab0445454ad638e4a3f96e2d6eb567d0d3ec3f19f59193d",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 24,
+        "minY": 9,
+        "maxX": 295,
+        "maxY": 300,
+        "width": 272,
+        "height": 292
+      }
+    },
+    {
+      "index": 10,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/front/010.png",
+      "sha256": "5c147a190d6c665aef04eb796e13da2fc1138ecaae8f79580defe37813c2648a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 24,
+        "minY": 9,
+        "maxX": 295,
+        "maxY": 299,
+        "width": 272,
+        "height": 291
+      }
+    },
+    {
+      "index": 11,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/front/011.png",
+      "sha256": "471e4dd3285db898e274b7325fab3f014dc22fe2a81e22a755992094dd39c3a1",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 25,
+        "minY": 8,
+        "maxX": 295,
+        "maxY": 299,
+        "width": 271,
+        "height": 292
+      }
+    },
+    {
+      "index": 12,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/front/012.png",
+      "sha256": "520759dc32b1b38eedf21b7087d56270c17ca8c4e1c222850439d955acd4b220",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 26,
+        "minY": 9,
+        "maxX": 294,
+        "maxY": 298,
+        "width": 269,
+        "height": 290
+      }
+    },
+    {
+      "index": 13,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/front/013.png",
+      "sha256": "53493ccc528b15ff8d1e5322cd908b527aab894d0441098397bff001373760ec",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 24,
+        "minY": 9,
+        "maxX": 294,
+        "maxY": 301,
+        "width": 271,
+        "height": 293
+      }
+    },
+    {
+      "index": 14,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/front/014.png",
+      "sha256": "7c04100cdaef2318e06965f032093c4fd5ae54f9029dc40a4a3ceaa8db415fa4",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 24,
+        "minY": 10,
+        "maxX": 294,
+        "maxY": 301,
+        "width": 271,
+        "height": 292
+      }
+    },
+    {
+      "index": 15,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/front/015.png",
+      "sha256": "0792f6aa0434e3e7be9ec6666a5a41c9bb83774d5fa57efe8145bd5bb75ee9af",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 24,
+        "minY": 10,
+        "maxX": 293,
+        "maxY": 302,
+        "width": 270,
+        "height": 293
+      }
+    },
+    {
+      "index": 16,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/front/016.png",
+      "sha256": "d1c6ed717270697cc71baefbd46fded6a5797a0499deaaa85fe59d6a572632d6",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 23,
+        "minY": 11,
+        "maxX": 294,
+        "maxY": 303,
+        "width": 272,
+        "height": 293
+      }
+    },
+    {
+      "index": 17,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/front/017.png",
+      "sha256": "61dca5230de9da4f006d412704ef17279a5873c27152e3ec950b4ff4a1875283",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 21,
+        "minY": 11,
+        "maxX": 296,
+        "maxY": 303,
+        "width": 276,
+        "height": 293
+      }
+    },
+    {
+      "index": 18,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/front/018.png",
+      "sha256": "bbd442a9a42850dd9fa738c04cfd5887484446c8e9f08b1d29481463af9224c8",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 21,
+        "minY": 11,
+        "maxX": 296,
+        "maxY": 303,
+        "width": 276,
+        "height": 293
+      }
+    },
+    {
+      "index": 19,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/front/019.png",
+      "sha256": "11b80ccc46f53d57cfff22621d222afab58f8142250ea17f2183e24dc4d2dd60",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 20,
+        "minY": 11,
+        "maxX": 297,
+        "maxY": 303,
+        "width": 278,
+        "height": 293
+      }
+    },
+    {
+      "index": 20,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/front/020.png",
+      "sha256": "ceeaec8290a47fbd6c486e49490a360cf4bd08e21a5d6217424f3f3a04cc65f6",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 18,
+        "minY": 9,
+        "maxX": 299,
+        "maxY": 301,
+        "width": 282,
+        "height": 293
+      }
+    },
+    {
+      "index": 21,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/front/021.png",
+      "sha256": "462cfcd18385fb60c18952b1f8b33b4cc4312fd92013f1a94af8ce2044f8be23",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 18,
+        "minY": 8,
+        "maxX": 299,
+        "maxY": 300,
+        "width": 282,
+        "height": 293
+      }
+    },
+    {
+      "index": 22,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/front/022.png",
+      "sha256": "0ec6b4bcf82a99113382d4a90a94271a3e154ef602af269f0633cf20744f0ed4",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 19,
+        "minY": 8,
+        "maxX": 299,
+        "maxY": 300,
+        "width": 281,
+        "height": 293
+      }
+    },
+    {
+      "index": 23,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/front/023.png",
+      "sha256": "cc7acf17f31040121d357313396f91678e2f1214c2e910c2213ac9f4bb2c75da",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 18,
+        "minY": 8,
+        "maxX": 300,
+        "maxY": 300,
+        "width": 283,
+        "height": 293
+      }
+    },
+    {
+      "index": 24,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/front/024.png",
+      "sha256": "943086cb893ec65599892b1d52ae323322b6fc8a19ab3d4c7124b190406385ad",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 18,
+        "minY": 9,
+        "maxX": 300,
+        "maxY": 299,
+        "width": 283,
+        "height": 291
+      }
+    },
+    {
+      "index": 1,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/back/001.png",
+      "sha256": "518498c3186cdc2300305d773f41175f2bb6b7a7a2c6e41d54c4aee6514bcafa",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 48,
+        "minY": 37,
+        "maxX": 274,
+        "maxY": 303,
+        "width": 227,
+        "height": 267
+      }
+    },
+    {
+      "index": 2,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/back/002.png",
+      "sha256": "8c645dfe7261bcc7588db5767455f31504922892a75e418695120d102fe8f051",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 48,
+        "minY": 37,
+        "maxX": 275,
+        "maxY": 303,
+        "width": 228,
+        "height": 267
+      }
+    },
+    {
+      "index": 3,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/back/003.png",
+      "sha256": "06d20310681c13a9c2f0f4f5b604c82019a7136507ce9286a3618f01575a79c8",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 48,
+        "minY": 37,
+        "maxX": 273,
+        "maxY": 303,
+        "width": 226,
+        "height": 267
+      }
+    },
+    {
+      "index": 4,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/back/004.png",
+      "sha256": "6a232e201acc442b63a0741ac8a08a3e85f32a1add177a12f6bb77d7022a1dab",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 48,
+        "minY": 37,
+        "maxX": 273,
+        "maxY": 302,
+        "width": 226,
+        "height": 266
+      }
+    },
+    {
+      "index": 5,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/back/005.png",
+      "sha256": "05fa952d6e5b84ed7a65529bc80a964491fbc85bf4f468b22f7b2b66375bab65",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 49,
+        "minY": 36,
+        "maxX": 271,
+        "maxY": 299,
+        "width": 223,
+        "height": 264
+      }
+    },
+    {
+      "index": 6,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/back/006.png",
+      "sha256": "25f0c972fbdec8b4e4704c5c24b80b143a512ff962d78681b89652d505bce08c",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 50,
+        "minY": 36,
+        "maxX": 271,
+        "maxY": 299,
+        "width": 222,
+        "height": 264
+      }
+    },
+    {
+      "index": 7,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/back/007.png",
+      "sha256": "1c05da569a39ca6b9a81adb345bfca804741101e00e5ac2b5369b28fbfe803f2",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 49,
+        "minY": 34,
+        "maxX": 271,
+        "maxY": 300,
+        "width": 223,
+        "height": 267
+      }
+    },
+    {
+      "index": 8,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/back/008.png",
+      "sha256": "808e35f375666cd98ecb19d9c072f6ac074f315006fe72c8c21bcdbc48149b89",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 51,
+        "minY": 35,
+        "maxX": 271,
+        "maxY": 300,
+        "width": 221,
+        "height": 266
+      }
+    },
+    {
+      "index": 9,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/back/009.png",
+      "sha256": "aaaaec0efbf0b712e18a804402c004e420deb8530d005382419fb2de1ee4ba79",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 51,
+        "minY": 35,
+        "maxX": 271,
+        "maxY": 302,
+        "width": 221,
+        "height": 268
+      }
+    },
+    {
+      "index": 10,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/back/010.png",
+      "sha256": "91a49b6e4a0f2f062319ef6b52611ab98958acf3c8cd43999c60499b07eedf83",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 51,
+        "minY": 36,
+        "maxX": 271,
+        "maxY": 303,
+        "width": 221,
+        "height": 268
+      }
+    },
+    {
+      "index": 11,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/back/011.png",
+      "sha256": "dac7364be6d3cb4e0d5d00bdf8bc560bde95cf39495f4d9c65cbbb74f314e85c",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 51,
+        "minY": 36,
+        "maxX": 271,
+        "maxY": 303,
+        "width": 221,
+        "height": 268
+      }
+    },
+    {
+      "index": 12,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/back/012.png",
+      "sha256": "b1efe1ee769a138be2fbacd39b5b0e46f388907c854f93e9f97fe4fcb97985c4",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 52,
+        "minY": 38,
+        "maxX": 271,
+        "maxY": 303,
+        "width": 220,
+        "height": 266
+      }
+    },
+    {
+      "index": 13,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/back/013.png",
+      "sha256": "cc75ecc0332ade27f5db9799e8dbe681e1b4c9016dcc09920e1e61001b649264",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 51,
+        "minY": 39,
+        "maxX": 271,
+        "maxY": 303,
+        "width": 221,
+        "height": 265
+      }
+    },
+    {
+      "index": 14,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/back/014.png",
+      "sha256": "8341055caed872188f982d395e61c419d4c3c48d5927549959b0475e5537d68c",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 49,
+        "minY": 38,
+        "maxX": 272,
+        "maxY": 303,
+        "width": 224,
+        "height": 266
+      }
+    },
+    {
+      "index": 15,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/back/015.png",
+      "sha256": "0f1ff63efa778030462c3a5a9b6a74ca3cd130b9f618824b2df43e336b7ae4f4",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 48,
+        "minY": 38,
+        "maxX": 274,
+        "maxY": 303,
+        "width": 227,
+        "height": 266
+      }
+    },
+    {
+      "index": 16,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/back/016.png",
+      "sha256": "d6e38205bf2fe59b9d4e2d42583df6e63cc24dc16fd4034fc8d799822f9f1bb5",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 48,
+        "minY": 38,
+        "maxX": 273,
+        "maxY": 302,
+        "width": 226,
+        "height": 265
+      }
+    },
+    {
+      "index": 17,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/back/017.png",
+      "sha256": "13978312d7acb9b187320d852054bbabfb1b8ff111d17f60d38ebe35914f1604",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 47,
+        "minY": 36,
+        "maxX": 275,
+        "maxY": 298,
+        "width": 229,
+        "height": 263
+      }
+    },
+    {
+      "index": 18,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/back/018.png",
+      "sha256": "73f9224f6c8a00c488baa8a19ea9c1d8f353f504b71d697397f06e3098b6e118",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 47,
+        "minY": 36,
+        "maxX": 275,
+        "maxY": 297,
+        "width": 229,
+        "height": 262
+      }
+    },
+    {
+      "index": 19,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/back/019.png",
+      "sha256": "d5f959f764acfdc9b90bee7d0f7515d383ddb9c6d879ca113912fca9b5e35c3c",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 46,
+        "minY": 35,
+        "maxX": 276,
+        "maxY": 297,
+        "width": 231,
+        "height": 263
+      }
+    },
+    {
+      "index": 20,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/back/020.png",
+      "sha256": "9754c95411022787942141781fd27bbada71881b7f1c1dacdc5b5495570d9610",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 47,
+        "minY": 36,
+        "maxX": 276,
+        "maxY": 298,
+        "width": 230,
+        "height": 263
+      }
+    },
+    {
+      "index": 21,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/back/021.png",
+      "sha256": "c824ce4543b2f73b6830a6aca0bff7699273c1b109b31a493cf4b2d7fa42401e",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 48,
+        "minY": 37,
+        "maxX": 275,
+        "maxY": 299,
+        "width": 228,
+        "height": 263
+      }
+    },
+    {
+      "index": 22,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/back/022.png",
+      "sha256": "09a10a8da79935ce4f3f51b99cfa7e92bf0e52b1fde47a263bd87f4ccaf5a1ea",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 48,
+        "minY": 37,
+        "maxX": 275,
+        "maxY": 299,
+        "width": 228,
+        "height": 263
+      }
+    },
+    {
+      "index": 23,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/back/023.png",
+      "sha256": "e444bb9091ea17c4465bf8d1c9f11e4b9eb7a801de1f76614f7bb150c6a90569",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 48,
+        "minY": 37,
+        "maxX": 274,
+        "maxY": 300,
+        "width": 227,
+        "height": 264
+      }
+    },
+    {
+      "index": 24,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/back/024.png",
+      "sha256": "f1e9888507901ab71418d325a3fc022f5402cbb9d69d3f5abb332885c69e7c00",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 49,
+        "minY": 38,
+        "maxX": 274,
+        "maxY": 300,
+        "width": 226,
+        "height": 263
+      }
+    },
+    {
+      "index": 1,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/left/001.png",
+      "sha256": "84acc531ebc2844e78ade332901b2ee33c97c4159e28d3750ef1f313ca48e919",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 90,
+        "minY": 25,
+        "maxX": 272,
+        "maxY": 298,
+        "width": 183,
+        "height": 274
+      }
+    },
+    {
+      "index": 2,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/left/002.png",
+      "sha256": "c58395c64a7b73423fbc4a6226a187e31f39079bdf8d449d419b3e05d5d0fec4",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 89,
+        "minY": 25,
+        "maxX": 271,
+        "maxY": 298,
+        "width": 183,
+        "height": 274
+      }
+    },
+    {
+      "index": 3,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/left/003.png",
+      "sha256": "264e44572acad3ec30bd67333e07186428651544a437e0e3366e2433ec448298",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 88,
+        "minY": 26,
+        "maxX": 271,
+        "maxY": 299,
+        "width": 184,
+        "height": 274
+      }
+    },
+    {
+      "index": 4,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/left/004.png",
+      "sha256": "457dc42827d9f99ef5d9e60aea92f02807a6f20b42727791759fc8f5d889eb63",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 88,
+        "minY": 27,
+        "maxX": 271,
+        "maxY": 299,
+        "width": 184,
+        "height": 273
+      }
+    },
+    {
+      "index": 5,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/left/005.png",
+      "sha256": "3673a5897769ee6d19d83066e702ef0a922f83671c9dd991a4c503d1045784bc",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 88,
+        "minY": 29,
+        "maxX": 271,
+        "maxY": 300,
+        "width": 184,
+        "height": 272
+      }
+    },
+    {
+      "index": 6,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/left/006.png",
+      "sha256": "6128e5583171b84507a2c7a2e2a059d516cd8d80a0798209cf324776409c4e86",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 87,
+        "minY": 29,
+        "maxX": 272,
+        "maxY": 300,
+        "width": 186,
+        "height": 272
+      }
+    },
+    {
+      "index": 7,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/left/007.png",
+      "sha256": "4636600b5f87bf1d8d07a1412566419cbaa8427ec0d51cb42c8ca432ea791862",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 87,
+        "minY": 28,
+        "maxX": 272,
+        "maxY": 300,
+        "width": 186,
+        "height": 273
+      }
+    },
+    {
+      "index": 8,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/left/008.png",
+      "sha256": "9705673b1c690a13d5e9c8b15e4ea080c68f683d960572218dfdb8863e4dfa25",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 87,
+        "minY": 27,
+        "maxX": 273,
+        "maxY": 300,
+        "width": 187,
+        "height": 274
+      }
+    },
+    {
+      "index": 9,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/left/009.png",
+      "sha256": "4c751e7e5f3c57cb880df3f9fec188c204c1bb3008b1ba20cdbd02de66060778",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 85,
+        "minY": 24,
+        "maxX": 274,
+        "maxY": 298,
+        "width": 190,
+        "height": 275
+      }
+    },
+    {
+      "index": 10,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/left/010.png",
+      "sha256": "451045acd8c27360fd131aacd244b57f42514ea1cb122a2b1511fd98c269a003",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 86,
+        "minY": 25,
+        "maxX": 275,
+        "maxY": 298,
+        "width": 190,
+        "height": 274
+      }
+    },
+    {
+      "index": 11,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/left/011.png",
+      "sha256": "9fa7b08be4753a887ea5de1b51ecd48b2f0749715df6625720eaff5f5811894c",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 84,
+        "minY": 25,
+        "maxX": 275,
+        "maxY": 298,
+        "width": 192,
+        "height": 274
+      }
+    },
+    {
+      "index": 12,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/left/012.png",
+      "sha256": "7c1e1af8987d57f4776e989d1448fc0cb8230a49520dcf1796558d79a31e4d6f",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 85,
+        "minY": 25,
+        "maxX": 275,
+        "maxY": 298,
+        "width": 191,
+        "height": 274
+      }
+    },
+    {
+      "index": 13,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/left/013.png",
+      "sha256": "1d6b23ed77de737cdd79080ca15691ca00ba86dd1683e5da41c8971759f08171",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 85,
+        "minY": 26,
+        "maxX": 276,
+        "maxY": 299,
+        "width": 192,
+        "height": 274
+      }
+    },
+    {
+      "index": 14,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/left/014.png",
+      "sha256": "ef0218e04eba605e46043e41510af24540e0e3de2a9818fe4e3b7e751c4f79a4",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 84,
+        "minY": 26,
+        "maxX": 276,
+        "maxY": 300,
+        "width": 193,
+        "height": 275
+      }
+    },
+    {
+      "index": 15,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/left/015.png",
+      "sha256": "554e8587da42090fcb4ed93bee28e5e60e2f5e6abf04338ca58bac882f29cfb3",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 84,
+        "minY": 26,
+        "maxX": 276,
+        "maxY": 301,
+        "width": 193,
+        "height": 276
+      }
+    },
+    {
+      "index": 16,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/left/016.png",
+      "sha256": "0d7b0b80489a895c8ba57e6874c9c2a37ecdcc998bd2b67a42465d07a3fd436c",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 84,
+        "minY": 28,
+        "maxX": 276,
+        "maxY": 302,
+        "width": 193,
+        "height": 275
+      }
+    },
+    {
+      "index": 17,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/left/017.png",
+      "sha256": "79e582e4f7b68debec5affba35139dfccd0f812b4b0b3ea46f6dabd099984a3a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 27,
+        "maxX": 275,
+        "maxY": 303,
+        "width": 194,
+        "height": 277
+      }
+    },
+    {
+      "index": 18,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/left/018.png",
+      "sha256": "40b304b695c7a693bcd2296eca3d76e5ed54cee87b10a394731e0aad2f9b1838",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 83,
+        "minY": 27,
+        "maxX": 274,
+        "maxY": 303,
+        "width": 192,
+        "height": 277
+      }
+    },
+    {
+      "index": 19,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/left/019.png",
+      "sha256": "c100b927bfc80e6322da22015bef74d040ffd654a6eed8ba6a6dc597ea24729a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 83,
+        "minY": 27,
+        "maxX": 274,
+        "maxY": 303,
+        "width": 192,
+        "height": 277
+      }
+    },
+    {
+      "index": 20,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/left/020.png",
+      "sha256": "03c1e48a25a344d5a2a0c8aaa0f92820957bd25bfc48ef5e1b8a5fa2c6d69f70",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 83,
+        "minY": 26,
+        "maxX": 272,
+        "maxY": 302,
+        "width": 190,
+        "height": 277
+      }
+    },
+    {
+      "index": 21,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/left/021.png",
+      "sha256": "9b305a34ded223740872aaecbf23329e77f2c57ae24862be46b30b7279723e9e",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 19,
+        "maxX": 269,
+        "maxY": 302,
+        "width": 189,
+        "height": 284
+      }
+    },
+    {
+      "index": 22,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/left/022.png",
+      "sha256": "e30f99e4a33e7f33cffdcdbc5886844b292a8db23aa8237d646502e227db5604",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 19,
+        "maxX": 268,
+        "maxY": 302,
+        "width": 188,
+        "height": 284
+      }
+    },
+    {
+      "index": 23,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/left/023.png",
+      "sha256": "218df641f083cfac2177bdc5da6acf171fb3b256cd5d7b080782c957fb85fbb6",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 19,
+        "maxX": 267,
+        "maxY": 302,
+        "width": 188,
+        "height": 284
+      }
+    },
+    {
+      "index": 24,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/left/024.png",
+      "sha256": "ff1caadc3dece90cbd6f051b53f39e9431d2ddb98e1b2086fa6c329bc6a3dc5d",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 25,
+        "maxX": 266,
+        "maxY": 301,
+        "width": 186,
+        "height": 277
+      }
+    },
+    {
+      "index": 1,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/right/001.png",
+      "sha256": "08fb128df336aa476fb066eb879a33ba75de6312a2209bbe00e09b3af089e7cb",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 45,
+        "minY": 32,
+        "maxX": 230,
+        "maxY": 303,
+        "width": 186,
+        "height": 272
+      }
+    },
+    {
+      "index": 2,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/right/002.png",
+      "sha256": "e95829177df58fa1901684f8d180b9fa912b6d20913a846004a4bf1409774ab7",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 46,
+        "minY": 32,
+        "maxX": 231,
+        "maxY": 303,
+        "width": 186,
+        "height": 272
+      }
+    },
+    {
+      "index": 3,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/right/003.png",
+      "sha256": "c076525c0f782f8085fa8a426037ec9a1c406c55dc7ab8a485ebd48a6061eadf",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 46,
+        "minY": 31,
+        "maxX": 231,
+        "maxY": 303,
+        "width": 186,
+        "height": 273
+      }
+    },
+    {
+      "index": 4,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/right/004.png",
+      "sha256": "0ef614ad5c9a6bb4870c8e524b5d8f8ef2033c8d6b74808bf4faa4d96e40b9bd",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 47,
+        "minY": 30,
+        "maxX": 231,
+        "maxY": 302,
+        "width": 185,
+        "height": 273
+      }
+    },
+    {
+      "index": 5,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/right/005.png",
+      "sha256": "3876568954bd269e1282a832b5800f36cd775023c628b8978f7b30f9d224dc60",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 47,
+        "minY": 29,
+        "maxX": 232,
+        "maxY": 302,
+        "width": 186,
+        "height": 274
+      }
+    },
+    {
+      "index": 6,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/right/006.png",
+      "sha256": "38ad9a28f06c8fe7cc0ee07b69395a240cea93d19a08cf5210627e32f8e47cea",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 48,
+        "minY": 29,
+        "maxX": 231,
+        "maxY": 302,
+        "width": 184,
+        "height": 274
+      }
+    },
+    {
+      "index": 7,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/right/007.png",
+      "sha256": "234f967e959f725c0bb05f546e73f072f46282600c1643af18463bd059fab0fc",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 49,
+        "minY": 29,
+        "maxX": 232,
+        "maxY": 302,
+        "width": 184,
+        "height": 274
+      }
+    },
+    {
+      "index": 8,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/right/008.png",
+      "sha256": "39b005ac57af849362fe4feb03edef30e8d97be8ba79d460e4599709f616286a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 50,
+        "minY": 28,
+        "maxX": 233,
+        "maxY": 302,
+        "width": 184,
+        "height": 275
+      }
+    },
+    {
+      "index": 9,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/right/009.png",
+      "sha256": "09e6ba52536efede9b8498bcf40d91a9a4d371f28ef72f30a3342d5af5040e51",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 51,
+        "minY": 29,
+        "maxX": 234,
+        "maxY": 302,
+        "width": 184,
+        "height": 274
+      }
+    },
+    {
+      "index": 10,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/right/010.png",
+      "sha256": "c0f5030481744192e1acc649043c03c6486280368a6db3e3afc792caabcbbf33",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 51,
+        "minY": 29,
+        "maxX": 234,
+        "maxY": 302,
+        "width": 184,
+        "height": 274
+      }
+    },
+    {
+      "index": 11,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/right/011.png",
+      "sha256": "8bbe84b8081a2039b661d883e375c1f673d81c0c4b57e741583466c06d8f0b25",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 52,
+        "minY": 29,
+        "maxX": 234,
+        "maxY": 302,
+        "width": 183,
+        "height": 274
+      }
+    },
+    {
+      "index": 12,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/right/012.png",
+      "sha256": "2b1aa1a847c6a5fc1f3461e41c974d5df482b0f9f01eedf6e2aa67e8275c081d",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 53,
+        "minY": 30,
+        "maxX": 235,
+        "maxY": 301,
+        "width": 183,
+        "height": 272
+      }
+    },
+    {
+      "index": 13,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/right/013.png",
+      "sha256": "6c7d13b1dd91996cd1e0546e47380b1e8518b860c96332e9a36820aff220262f",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 53,
+        "minY": 32,
+        "maxX": 235,
+        "maxY": 301,
+        "width": 183,
+        "height": 270
+      }
+    },
+    {
+      "index": 14,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/right/014.png",
+      "sha256": "3e467063d279c07dd7c88fe6a15389bf294130d6c6858d5b52f89ef24d83fe47",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 53,
+        "minY": 32,
+        "maxX": 235,
+        "maxY": 301,
+        "width": 183,
+        "height": 270
+      }
+    },
+    {
+      "index": 15,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/right/015.png",
+      "sha256": "187d7cf23d4505374aaeb08ce97c88e07d50f1d821629048412382031559638b",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 51,
+        "minY": 31,
+        "maxX": 235,
+        "maxY": 302,
+        "width": 185,
+        "height": 272
+      }
+    },
+    {
+      "index": 16,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/right/016.png",
+      "sha256": "f1499d75256a794e6fd8122b1d2323f438f4b31984d27a434405d6a3bb79c8d2",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 52,
+        "minY": 31,
+        "maxX": 235,
+        "maxY": 301,
+        "width": 184,
+        "height": 271
+      }
+    },
+    {
+      "index": 17,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/right/017.png",
+      "sha256": "934eeb499e4091ea97307cb5c5cf83ae588e9fd7cceb0c6b42cb08d19eaf5bd3",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 51,
+        "minY": 29,
+        "maxX": 236,
+        "maxY": 301,
+        "width": 186,
+        "height": 273
+      }
+    },
+    {
+      "index": 18,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/right/018.png",
+      "sha256": "3607d9bfd1b44114b4f8eb0236b4e458043961d4a3ee6e4b42012b498a76ac85",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 51,
+        "minY": 29,
+        "maxX": 237,
+        "maxY": 301,
+        "width": 187,
+        "height": 273
+      }
+    },
+    {
+      "index": 19,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/right/019.png",
+      "sha256": "280afd55d9baa2b2bd9ab448746b1366a63be680b98728c6c8659f6a5ce18cb9",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 51,
+        "minY": 27,
+        "maxX": 237,
+        "maxY": 301,
+        "width": 187,
+        "height": 275
+      }
+    },
+    {
+      "index": 20,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/right/020.png",
+      "sha256": "7758a5d3560ba7b72e7134f86698e0a037dced0b0b8d58ffac6eedf5cbbf5668",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 51,
+        "minY": 27,
+        "maxX": 237,
+        "maxY": 301,
+        "width": 187,
+        "height": 275
+      }
+    },
+    {
+      "index": 21,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/right/021.png",
+      "sha256": "6c797759e266969e9a27b422ba84a75a812633bc2d811c9c859500b65629ce10",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 51,
+        "minY": 27,
+        "maxX": 238,
+        "maxY": 300,
+        "width": 188,
+        "height": 274
+      }
+    },
+    {
+      "index": 22,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/right/022.png",
+      "sha256": "8c27a3740ab846d16b649f0d43c80cadd4cf570bab53f85487abcb6a6f3466d0",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 51,
+        "minY": 27,
+        "maxX": 238,
+        "maxY": 300,
+        "width": 188,
+        "height": 274
+      }
+    },
+    {
+      "index": 23,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/right/023.png",
+      "sha256": "0a180c21b7d1530573e6c2b4481a6f57dce9607a2efc1d9457408a6d11c223f1",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 51,
+        "minY": 28,
+        "maxX": 239,
+        "maxY": 301,
+        "width": 189,
+        "height": 274
+      }
+    },
+    {
+      "index": 24,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/source/right/024.png",
+      "sha256": "cde84a4e2b1b919c71b7f83de7b4db20a33d7bdc9f2b5dbb471eac69f30e6ac9",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 51,
+        "minY": 29,
+        "maxX": 238,
+        "maxY": 302,
+        "width": 188,
+        "height": 274
+      }
+    }
+  ],
+  "frames": [
+    {
+      "index": 1,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/front/001.png",
+      "sha256": "626050ce7181b60495c0db015f2977c006b9dc07962773418a1ea5a776c708c9",
+      "bbox": {
+        "minX": 33,
+        "minY": 28,
+        "maxX": 174,
+        "maxY": 175,
+        "width": 142,
+        "height": 148
+      }
+    },
+    {
+      "index": 2,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/front/002.png",
+      "sha256": "128c134dd7996c46aaf1ffc5e176be069e9b7967849e33019af92d7731dd119a",
+      "bbox": {
+        "minX": 33,
+        "minY": 28,
+        "maxX": 174,
+        "maxY": 175,
+        "width": 142,
+        "height": 148
+      }
+    },
+    {
+      "index": 3,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/front/003.png",
+      "sha256": "fc828d8a0f64aeab0665623276dcf73a2f142048290a0135336885a2402f053d",
+      "bbox": {
+        "minX": 33,
+        "minY": 29,
+        "maxX": 175,
+        "maxY": 175,
+        "width": 143,
+        "height": 147
+      }
+    },
+    {
+      "index": 4,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/front/004.png",
+      "sha256": "4e14d25b8f43a5259611d055180f77863c6d7fc4eb185d5ba2f2a7b2770845e8",
+      "bbox": {
+        "minX": 33,
+        "minY": 29,
+        "maxX": 174,
+        "maxY": 176,
+        "width": 142,
+        "height": 148
+      }
+    },
+    {
+      "index": 5,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/front/005.png",
+      "sha256": "c04ea11a9a4966fe9094d89e89c77b14ef09e5fcb368326e9d2501fd19139a76",
+      "bbox": {
+        "minX": 33,
+        "minY": 30,
+        "maxX": 174,
+        "maxY": 177,
+        "width": 142,
+        "height": 148
+      }
+    },
+    {
+      "index": 6,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/front/006.png",
+      "sha256": "1c705ef5b7c26dcc7c31428cdc81bf710e498c3014c1291e0f6059a37bcaca2e",
+      "bbox": {
+        "minX": 34,
+        "minY": 30,
+        "maxX": 174,
+        "maxY": 177,
+        "width": 141,
+        "height": 148
+      }
+    },
+    {
+      "index": 7,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/front/007.png",
+      "sha256": "1e326da8e9a47edff3e323c33a874563cd87385c6b6bb37f948dea333f5fe860",
+      "bbox": {
+        "minX": 34,
+        "minY": 30,
+        "maxX": 174,
+        "maxY": 177,
+        "width": 141,
+        "height": 148
+      }
+    },
+    {
+      "index": 8,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/front/008.png",
+      "sha256": "8135415f3c4e8627be6b3df48f273b034478c6d82f2bed6e9b6cd2a2c3683b48",
+      "bbox": {
+        "minX": 34,
+        "minY": 29,
+        "maxX": 174,
+        "maxY": 177,
+        "width": 141,
+        "height": 149
+      }
+    },
+    {
+      "index": 9,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/front/009.png",
+      "sha256": "aaa2438c945379b882ef7c551c3e42d4077b551034135c1459ac99555bd86b62",
+      "bbox": {
+        "minX": 35,
+        "minY": 28,
+        "maxX": 173,
+        "maxY": 177,
+        "width": 139,
+        "height": 150
+      }
+    },
+    {
+      "index": 10,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/front/010.png",
+      "sha256": "e47bcd2866372f5af7b8e619339794b893cd14235d693be7089c9ad1ac59eb51",
+      "bbox": {
+        "minX": 35,
+        "minY": 28,
+        "maxX": 173,
+        "maxY": 176,
+        "width": 139,
+        "height": 149
+      }
+    },
+    {
+      "index": 11,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/front/011.png",
+      "sha256": "af8c040a566e5886d311c309838a77d5e52dae026f56e60bb1da009e6c18ea0e",
+      "bbox": {
+        "minX": 35,
+        "minY": 28,
+        "maxX": 173,
+        "maxY": 176,
+        "width": 139,
+        "height": 149
+      }
+    },
+    {
+      "index": 12,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/front/012.png",
+      "sha256": "37efe0a3857d2c648ad6e2381268d93f8dd76ab54b9acfcc9fc5cd18a83da78e",
+      "bbox": {
+        "minX": 36,
+        "minY": 28,
+        "maxX": 172,
+        "maxY": 176,
+        "width": 137,
+        "height": 149
+      }
+    },
+    {
+      "index": 13,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/front/013.png",
+      "sha256": "fd6741f072f3cee1e1ba03571a508818d4eb46ad2ca091c311797b5e2c9c4039",
+      "bbox": {
+        "minX": 35,
+        "minY": 28,
+        "maxX": 172,
+        "maxY": 177,
+        "width": 138,
+        "height": 150
+      }
+    },
+    {
+      "index": 14,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/front/014.png",
+      "sha256": "f720481cbe7f72448720600a06a5846205e0973621413b2890a9562350852d8b",
+      "bbox": {
+        "minX": 35,
+        "minY": 29,
+        "maxX": 172,
+        "maxY": 177,
+        "width": 138,
+        "height": 149
+      }
+    },
+    {
+      "index": 15,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/front/015.png",
+      "sha256": "1a89a617591cef6708e1640c41753d027b59c710a89488a3324217565548c317",
+      "bbox": {
+        "minX": 35,
+        "minY": 29,
+        "maxX": 172,
+        "maxY": 178,
+        "width": 138,
+        "height": 150
+      }
+    },
+    {
+      "index": 16,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/front/016.png",
+      "sha256": "a4a195325aa3cd2eafdbacc13ef5d21329e4795bb3f6d1c3a092c093c2bc14cd",
+      "bbox": {
+        "minX": 34,
+        "minY": 29,
+        "maxX": 172,
+        "maxY": 178,
+        "width": 139,
+        "height": 150
+      }
+    },
+    {
+      "index": 17,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/front/017.png",
+      "sha256": "bb24f0c9ecf224abed0c5cb58cae116fe5e3b04aef92f00ba8c46053efa8c834",
+      "bbox": {
+        "minX": 33,
+        "minY": 29,
+        "maxX": 173,
+        "maxY": 178,
+        "width": 141,
+        "height": 150
+      }
+    },
+    {
+      "index": 18,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/front/018.png",
+      "sha256": "4c0e0a685ee1d3aad56f8efc347fb0e12658cad15243a24facaef51f1cadb50d",
+      "bbox": {
+        "minX": 33,
+        "minY": 29,
+        "maxX": 173,
+        "maxY": 178,
+        "width": 141,
+        "height": 150
+      }
+    },
+    {
+      "index": 19,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/front/019.png",
+      "sha256": "0f9a7df506a2b6eeea8926e8b2bb3c4a556b8085942f07b09d1fc64d952fb1e8",
+      "bbox": {
+        "minX": 33,
+        "minY": 29,
+        "maxX": 174,
+        "maxY": 178,
+        "width": 142,
+        "height": 150
+      }
+    },
+    {
+      "index": 20,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/front/020.png",
+      "sha256": "5b8da7cb0e33103b0f765540a65408b89a7d3ef883f0b59a2f1bf786d213a03a",
+      "bbox": {
+        "minX": 32,
+        "minY": 28,
+        "maxX": 175,
+        "maxY": 177,
+        "width": 144,
+        "height": 150
+      }
+    },
+    {
+      "index": 21,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/front/021.png",
+      "sha256": "c585e70cbb484f5255cd78cabbc749b11cef00142a1e3bcd0f3f2db11336f7de",
+      "bbox": {
+        "minX": 32,
+        "minY": 28,
+        "maxX": 175,
+        "maxY": 177,
+        "width": 144,
+        "height": 150
+      }
+    },
+    {
+      "index": 22,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/front/022.png",
+      "sha256": "fc576446dcd0dce20b8096e48ffe50102f867c1634c22fe1ed3d9abe2755635d",
+      "bbox": {
+        "minX": 32,
+        "minY": 28,
+        "maxX": 175,
+        "maxY": 177,
+        "width": 144,
+        "height": 150
+      }
+    },
+    {
+      "index": 23,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/front/023.png",
+      "sha256": "d17d69754c47f2d1638c329dafee5de232713f8fd4c0bdd56bc5d48b2bb8a474",
+      "bbox": {
+        "minX": 32,
+        "minY": 28,
+        "maxX": 175,
+        "maxY": 177,
+        "width": 144,
+        "height": 150
+      }
+    },
+    {
+      "index": 24,
+      "direction": "front",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/front/024.png",
+      "sha256": "e3887dc0550035aa8040d3730540fd99816a0b19a04125442cda08e7a10093ad",
+      "bbox": {
+        "minX": 32,
+        "minY": 28,
+        "maxX": 175,
+        "maxY": 176,
+        "width": 144,
+        "height": 149
+      }
+    },
+    {
+      "index": 1,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/back/001.png",
+      "sha256": "519d6320d89051247cea62064c3599a46c8d3a899384157900f02e7a750db0ce",
+      "bbox": {
+        "minX": 47,
+        "minY": 43,
+        "maxX": 162,
+        "maxY": 178,
+        "width": 116,
+        "height": 136
+      }
+    },
+    {
+      "index": 2,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/back/002.png",
+      "sha256": "fc0aac4a2a02766a0ac2ccdad1a800d1c00884344838546dcb042e1d1824c7c7",
+      "bbox": {
+        "minX": 47,
+        "minY": 43,
+        "maxX": 162,
+        "maxY": 178,
+        "width": 116,
+        "height": 136
+      }
+    },
+    {
+      "index": 3,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/back/003.png",
+      "sha256": "ee9cb0c370515e700c59b304690beb750ab76d74f27344d4ec9b17d83b399a35",
+      "bbox": {
+        "minX": 47,
+        "minY": 43,
+        "maxX": 162,
+        "maxY": 178,
+        "width": 116,
+        "height": 136
+      }
+    },
+    {
+      "index": 4,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/back/004.png",
+      "sha256": "e1ad0fa1d2b04d78d0ce90d923e10c917535a3924c74d57ba2f0df529a322ea0",
+      "bbox": {
+        "minX": 47,
+        "minY": 43,
+        "maxX": 161,
+        "maxY": 178,
+        "width": 115,
+        "height": 136
+      }
+    },
+    {
+      "index": 5,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/back/005.png",
+      "sha256": "3aaeb8f23030543c61397d713f5d6a5c674daddfba0ccf2eb49e428f73f8d6f5",
+      "bbox": {
+        "minX": 47,
+        "minY": 42,
+        "maxX": 161,
+        "maxY": 176,
+        "width": 115,
+        "height": 135
+      }
+    },
+    {
+      "index": 6,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/back/006.png",
+      "sha256": "7391c4cc8b5916dadee9f5ad2d14aae7816cfe5f3438e1cfe472550254961c47",
+      "bbox": {
+        "minX": 48,
+        "minY": 42,
+        "maxX": 161,
+        "maxY": 176,
+        "width": 114,
+        "height": 135
+      }
+    },
+    {
+      "index": 7,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/back/007.png",
+      "sha256": "57cb342af78e6f38f554532f2fea33affecf2a481294d8a80eaa2ea988b51a40",
+      "bbox": {
+        "minX": 47,
+        "minY": 42,
+        "maxX": 161,
+        "maxY": 177,
+        "width": 115,
+        "height": 136
+      }
+    },
+    {
+      "index": 8,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/back/008.png",
+      "sha256": "64a643aa885ac7d41c6a22bac1f7a4d14979284040df71f062103437ff6e2cb2",
+      "bbox": {
+        "minX": 48,
+        "minY": 42,
+        "maxX": 161,
+        "maxY": 177,
+        "width": 114,
+        "height": 136
+      }
+    },
+    {
+      "index": 9,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/back/009.png",
+      "sha256": "3747d82a6477b29e1e4749560703742b734f5813ff1b57189d8b56703e13da19",
+      "bbox": {
+        "minX": 48,
+        "minY": 42,
+        "maxX": 161,
+        "maxY": 178,
+        "width": 114,
+        "height": 137
+      }
+    },
+    {
+      "index": 10,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/back/010.png",
+      "sha256": "b3d49735ef9cd6da2f2e281b74c03725bcb50758fe8f6d42b2180d70b75403e1",
+      "bbox": {
+        "minX": 48,
+        "minY": 42,
+        "maxX": 161,
+        "maxY": 178,
+        "width": 114,
+        "height": 137
+      }
+    },
+    {
+      "index": 11,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/back/011.png",
+      "sha256": "8b6881eca5f7693f688cde6ab72b6e3071f0fb840e62ca83df3a2fb5f1cbdd3a",
+      "bbox": {
+        "minX": 48,
+        "minY": 42,
+        "maxX": 161,
+        "maxY": 178,
+        "width": 114,
+        "height": 137
+      }
+    },
+    {
+      "index": 12,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/back/012.png",
+      "sha256": "9c5f344e22d394f8fccffb1a27866a0d043e37408a678d806943fc225be04743",
+      "bbox": {
+        "minX": 49,
+        "minY": 43,
+        "maxX": 161,
+        "maxY": 178,
+        "width": 113,
+        "height": 136
+      }
+    },
+    {
+      "index": 13,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/back/013.png",
+      "sha256": "0df95ec32e076a7c42ba9c9e3bf17ba0f82503fc10919b1fee9f552ea18cfe7f",
+      "bbox": {
+        "minX": 48,
+        "minY": 44,
+        "maxX": 161,
+        "maxY": 178,
+        "width": 114,
+        "height": 135
+      }
+    },
+    {
+      "index": 14,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/back/014.png",
+      "sha256": "e55f61096c7bced184526f339ce7e079c5367989d02377d26b78779b98db96f1",
+      "bbox": {
+        "minX": 47,
+        "minY": 44,
+        "maxX": 161,
+        "maxY": 178,
+        "width": 115,
+        "height": 135
+      }
+    },
+    {
+      "index": 15,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/back/015.png",
+      "sha256": "594144d3e3df289dae5db67d45cdaa5d78cdef7fe1d3f014dc35080cf016f8a5",
+      "bbox": {
+        "minX": 47,
+        "minY": 44,
+        "maxX": 162,
+        "maxY": 178,
+        "width": 116,
+        "height": 135
+      }
+    },
+    {
+      "index": 16,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/back/016.png",
+      "sha256": "2ec93232fe036632d2710eab80214869ab8aa7cf25f011329d38529da5d32477",
+      "bbox": {
+        "minX": 47,
+        "minY": 43,
+        "maxX": 162,
+        "maxY": 178,
+        "width": 116,
+        "height": 136
+      }
+    },
+    {
+      "index": 17,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/back/017.png",
+      "sha256": "a322d9630ca385a37d591536c47fd0d2197b550dea938b839302f838b74f017d",
+      "bbox": {
+        "minX": 46,
+        "minY": 42,
+        "maxX": 163,
+        "maxY": 176,
+        "width": 118,
+        "height": 135
+      }
+    },
+    {
+      "index": 18,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/back/018.png",
+      "sha256": "b2713c5519179a66bf8ee71a4b9885cf74ba1444d0e8883daf74757def1a21c2",
+      "bbox": {
+        "minX": 46,
+        "minY": 42,
+        "maxX": 163,
+        "maxY": 175,
+        "width": 118,
+        "height": 134
+      }
+    },
+    {
+      "index": 19,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/back/019.png",
+      "sha256": "75bd1bd385993a495d4ea919f3a7769fda54e4fb28b967cfcd5833e2c107003a",
+      "bbox": {
+        "minX": 46,
+        "minY": 42,
+        "maxX": 163,
+        "maxY": 175,
+        "width": 118,
+        "height": 134
+      }
+    },
+    {
+      "index": 20,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/back/020.png",
+      "sha256": "9a0e7ea23eb198aa4607b291a5eb892e967114eaea217c8149c4d9550d46dc1a",
+      "bbox": {
+        "minX": 46,
+        "minY": 42,
+        "maxX": 163,
+        "maxY": 176,
+        "width": 118,
+        "height": 135
+      }
+    },
+    {
+      "index": 21,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/back/021.png",
+      "sha256": "f563c10d80015ad7ec8994bd5478e878fc43b60494a32a9db39a17a4e1bb0666",
+      "bbox": {
+        "minX": 47,
+        "minY": 43,
+        "maxX": 163,
+        "maxY": 176,
+        "width": 117,
+        "height": 134
+      }
+    },
+    {
+      "index": 22,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/back/022.png",
+      "sha256": "3b7564e8891aa8e86df6ba098982864df64071e42552b3dcfbc2c940e5d5d04c",
+      "bbox": {
+        "minX": 47,
+        "minY": 43,
+        "maxX": 163,
+        "maxY": 176,
+        "width": 117,
+        "height": 134
+      }
+    },
+    {
+      "index": 23,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/back/023.png",
+      "sha256": "c3514138dbb9fb886d049c15ee1cefe5033d7609a840ef0681aefedd63480533",
+      "bbox": {
+        "minX": 47,
+        "minY": 43,
+        "maxX": 162,
+        "maxY": 177,
+        "width": 116,
+        "height": 135
+      }
+    },
+    {
+      "index": 24,
+      "direction": "back",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/back/024.png",
+      "sha256": "7a129e20e7ac66dd898068c36cc5b6beab558bb43f7c14f0366fcbf3d7f88620",
+      "bbox": {
+        "minX": 47,
+        "minY": 43,
+        "maxX": 162,
+        "maxY": 177,
+        "width": 116,
+        "height": 135
+      }
+    },
+    {
+      "index": 1,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/left/001.png",
+      "sha256": "dcb1666b8fa6efe25b11581dced66012d9faa9e6a977616fe628ca08449f499c",
+      "bbox": {
+        "minX": 68,
+        "minY": 36,
+        "maxX": 161,
+        "maxY": 176,
+        "width": 94,
+        "height": 141
+      }
+    },
+    {
+      "index": 2,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/left/002.png",
+      "sha256": "ec0e48272c5348dcb5f0ca6e540a0ccea8d8aee07b99580ff1290a8f7863c036",
+      "bbox": {
+        "minX": 68,
+        "minY": 36,
+        "maxX": 161,
+        "maxY": 176,
+        "width": 94,
+        "height": 141
+      }
+    },
+    {
+      "index": 3,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/left/003.png",
+      "sha256": "339a36c339e11d9fb7c6121286fbf84cc1cef8d4c2fa26867c578da4f8343cdf",
+      "bbox": {
+        "minX": 68,
+        "minY": 37,
+        "maxX": 161,
+        "maxY": 176,
+        "width": 94,
+        "height": 140
+      }
+    },
+    {
+      "index": 4,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/left/004.png",
+      "sha256": "2821e17877752015c5011772596511ee22be654ea1aa5e8bef74f0bde31a863d",
+      "bbox": {
+        "minX": 68,
+        "minY": 37,
+        "maxX": 161,
+        "maxY": 176,
+        "width": 94,
+        "height": 140
+      }
+    },
+    {
+      "index": 5,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/left/005.png",
+      "sha256": "c35cbfc70ff27277f653ee65da941c96a341a64c3a26b695462467c697b5543d",
+      "bbox": {
+        "minX": 67,
+        "minY": 38,
+        "maxX": 161,
+        "maxY": 177,
+        "width": 95,
+        "height": 140
+      }
+    },
+    {
+      "index": 6,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/left/006.png",
+      "sha256": "89e25fe455f7a98b58554a4ff0863e1c2d25740f993f51a81e5704aee43d2347",
+      "bbox": {
+        "minX": 67,
+        "minY": 38,
+        "maxX": 161,
+        "maxY": 177,
+        "width": 95,
+        "height": 140
+      }
+    },
+    {
+      "index": 7,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/left/007.png",
+      "sha256": "404f6f2f949ff8e294ccdcc038ba8e4d36073458e359c862d90c264485306997",
+      "bbox": {
+        "minX": 67,
+        "minY": 38,
+        "maxX": 161,
+        "maxY": 177,
+        "width": 95,
+        "height": 140
+      }
+    },
+    {
+      "index": 8,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/left/008.png",
+      "sha256": "78254fe7c090929af12846281bbb747c9a4fa4edd1d8eaca9eb2423718fd4398",
+      "bbox": {
+        "minX": 67,
+        "minY": 37,
+        "maxX": 162,
+        "maxY": 177,
+        "width": 96,
+        "height": 141
+      }
+    },
+    {
+      "index": 9,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/left/009.png",
+      "sha256": "4e7833a96e41c3fa365b97452ca3488f89de3e168771f0c4b8faf69f6c8f18a4",
+      "bbox": {
+        "minX": 66,
+        "minY": 36,
+        "maxX": 162,
+        "maxY": 176,
+        "width": 97,
+        "height": 141
+      }
+    },
+    {
+      "index": 10,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/left/010.png",
+      "sha256": "ff304c5619dacba102124da6f61acb58ea55a7788b0e4778d9989181a95c5af9",
+      "bbox": {
+        "minX": 66,
+        "minY": 37,
+        "maxX": 163,
+        "maxY": 176,
+        "width": 98,
+        "height": 140
+      }
+    },
+    {
+      "index": 11,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/left/011.png",
+      "sha256": "ae2d65e210bedf7dfe6528e0ffb6caed0af8725a2dba655571a7cb85c6755771",
+      "bbox": {
+        "minX": 66,
+        "minY": 36,
+        "maxX": 163,
+        "maxY": 176,
+        "width": 98,
+        "height": 141
+      }
+    },
+    {
+      "index": 12,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/left/012.png",
+      "sha256": "81a9376a2f94d9c0294636469dfd9103e0a0879e6ab83200f3d7e676d3855f23",
+      "bbox": {
+        "minX": 66,
+        "minY": 36,
+        "maxX": 163,
+        "maxY": 176,
+        "width": 98,
+        "height": 141
+      }
+    },
+    {
+      "index": 13,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/left/013.png",
+      "sha256": "74e844dba18df012ec24e0720568167e1f1c53df940936be56647585c1ccf821",
+      "bbox": {
+        "minX": 66,
+        "minY": 37,
+        "maxX": 163,
+        "maxY": 176,
+        "width": 98,
+        "height": 140
+      }
+    },
+    {
+      "index": 14,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/left/014.png",
+      "sha256": "53a3e507cbaba0e3124107bb35d10c79c96549816cdc07a83fc1b2b725160138",
+      "bbox": {
+        "minX": 65,
+        "minY": 37,
+        "maxX": 163,
+        "maxY": 177,
+        "width": 99,
+        "height": 141
+      }
+    },
+    {
+      "index": 15,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/left/015.png",
+      "sha256": "21b98c2bdfea356e91862c9809cc83527220f2c01e49e73630654092774e8a38",
+      "bbox": {
+        "minX": 66,
+        "minY": 37,
+        "maxX": 163,
+        "maxY": 177,
+        "width": 98,
+        "height": 141
+      }
+    },
+    {
+      "index": 16,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/left/016.png",
+      "sha256": "08a74dcb49a6860687cb327aeb5f87b918695622daa9bcd50a615c6ea69fbeda",
+      "bbox": {
+        "minX": 65,
+        "minY": 38,
+        "maxX": 163,
+        "maxY": 178,
+        "width": 99,
+        "height": 141
+      }
+    },
+    {
+      "index": 17,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/left/017.png",
+      "sha256": "8f3ce5e2cf0c5306eb62e01db05504078b6c4d0188d11c947297cf1124dcc2dd",
+      "bbox": {
+        "minX": 65,
+        "minY": 37,
+        "maxX": 163,
+        "maxY": 178,
+        "width": 99,
+        "height": 142
+      }
+    },
+    {
+      "index": 18,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/left/018.png",
+      "sha256": "990370072b24bec8918c2afae728476fd436c5a5ae95097c048901c1a9a9850d",
+      "bbox": {
+        "minX": 65,
+        "minY": 37,
+        "maxX": 162,
+        "maxY": 178,
+        "width": 98,
+        "height": 142
+      }
+    },
+    {
+      "index": 19,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/left/019.png",
+      "sha256": "4f38d071484a9c89def592e4b55ff08e58985019a546c264a90046958a7f2b86",
+      "bbox": {
+        "minX": 65,
+        "minY": 37,
+        "maxX": 162,
+        "maxY": 178,
+        "width": 98,
+        "height": 142
+      }
+    },
+    {
+      "index": 20,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/left/020.png",
+      "sha256": "cb48080894731f33f4fad1fbc953a6fbd6a486c89a8e60b1e37fc7368806236c",
+      "bbox": {
+        "minX": 65,
+        "minY": 37,
+        "maxX": 161,
+        "maxY": 178,
+        "width": 97,
+        "height": 142
+      }
+    },
+    {
+      "index": 21,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/left/021.png",
+      "sha256": "ab2fd22ae516c62e9f40481efccefd96402c6ca37c30ae990bcf377d461cf698",
+      "bbox": {
+        "minX": 64,
+        "minY": 33,
+        "maxX": 160,
+        "maxY": 178,
+        "width": 97,
+        "height": 146
+      }
+    },
+    {
+      "index": 22,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/left/022.png",
+      "sha256": "19a30cb8411df1c2a0fe9e96ecf67981d3918956e8a4b91f658fd6ed9b64e530",
+      "bbox": {
+        "minX": 64,
+        "minY": 33,
+        "maxX": 159,
+        "maxY": 178,
+        "width": 96,
+        "height": 146
+      }
+    },
+    {
+      "index": 23,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/left/023.png",
+      "sha256": "dec4e0f43752d1221c3ee0379d5ecab8ac9f2b1d1df4e624a4f28aa70f71b51e",
+      "bbox": {
+        "minX": 63,
+        "minY": 33,
+        "maxX": 159,
+        "maxY": 178,
+        "width": 97,
+        "height": 146
+      }
+    },
+    {
+      "index": 24,
+      "direction": "left",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/left/024.png",
+      "sha256": "46d48ecf7f2334fc4d08d5ad78d7add6048374d2bec3be0f59c35ef8bfd6403d",
+      "bbox": {
+        "minX": 64,
+        "minY": 37,
+        "maxX": 158,
+        "maxY": 177,
+        "width": 95,
+        "height": 141
+      }
+    },
+    {
+      "index": 1,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/right/001.png",
+      "sha256": "2a56b433c15f9a43709aea213d862128e8a4616d897cd5107c3e9edf98f6c388",
+      "bbox": {
+        "minX": 45,
+        "minY": 40,
+        "maxX": 140,
+        "maxY": 178,
+        "width": 96,
+        "height": 139
+      }
+    },
+    {
+      "index": 2,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/right/002.png",
+      "sha256": "8cd4f04a491ac28574019590ac1f3a29116cd4c35826c0e791015aedccabb67e",
+      "bbox": {
+        "minX": 46,
+        "minY": 40,
+        "maxX": 140,
+        "maxY": 178,
+        "width": 95,
+        "height": 139
+      }
+    },
+    {
+      "index": 3,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/right/003.png",
+      "sha256": "f0444f779da1ea80613a8e81db9680011067cc90ffabc45b6bb72125d8561c6f",
+      "bbox": {
+        "minX": 46,
+        "minY": 39,
+        "maxX": 140,
+        "maxY": 178,
+        "width": 95,
+        "height": 140
+      }
+    },
+    {
+      "index": 4,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/right/004.png",
+      "sha256": "ebcc53ffa44d93ac8bc63e6da2c95f0c0654371a36bc4214477de695ee2de27b",
+      "bbox": {
+        "minX": 46,
+        "minY": 39,
+        "maxX": 140,
+        "maxY": 178,
+        "width": 95,
+        "height": 140
+      }
+    },
+    {
+      "index": 5,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/right/005.png",
+      "sha256": "8bd457dad3ecad5a5a25ed1d885fbbbb52b5b6ef80d922c23d0eb9c768715561",
+      "bbox": {
+        "minX": 47,
+        "minY": 38,
+        "maxX": 140,
+        "maxY": 178,
+        "width": 94,
+        "height": 141
+      }
+    },
+    {
+      "index": 6,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/right/006.png",
+      "sha256": "3d2be00a960e3be0d81ac2d43e48747c34867d3ef6f3f21a7616c108d255f28f",
+      "bbox": {
+        "minX": 47,
+        "minY": 38,
+        "maxX": 140,
+        "maxY": 178,
+        "width": 94,
+        "height": 141
+      }
+    },
+    {
+      "index": 7,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/right/007.png",
+      "sha256": "e9eac13185c1b5b9ddd53d056ffcb56d10f3bed6c41b5176fd0feee61251fe49",
+      "bbox": {
+        "minX": 47,
+        "minY": 38,
+        "maxX": 141,
+        "maxY": 178,
+        "width": 95,
+        "height": 141
+      }
+    },
+    {
+      "index": 8,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/right/008.png",
+      "sha256": "5980302a4af69d3df7dc8b024b04f96318a66ac7a8dd9e5f7c03f039296f9fb9",
+      "bbox": {
+        "minX": 48,
+        "minY": 38,
+        "maxX": 141,
+        "maxY": 178,
+        "width": 94,
+        "height": 141
+      }
+    },
+    {
+      "index": 9,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/right/009.png",
+      "sha256": "1c093b05f9915e22f5c64a95ed2579bd7533a3b4bbba70551b46a95cd9e58e22",
+      "bbox": {
+        "minX": 48,
+        "minY": 38,
+        "maxX": 142,
+        "maxY": 178,
+        "width": 95,
+        "height": 141
+      }
+    },
+    {
+      "index": 10,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/right/010.png",
+      "sha256": "605dcf0926d7eddbbb4fea3ec1e7de3eb3082eb751a5f9927bca78ba8ea5048b",
+      "bbox": {
+        "minX": 48,
+        "minY": 38,
+        "maxX": 142,
+        "maxY": 178,
+        "width": 95,
+        "height": 141
+      }
+    },
+    {
+      "index": 11,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/right/011.png",
+      "sha256": "d5414aa16fcf71ba05e5f72b4638f1b2a50910a0e0f849ff73fa39768db44d68",
+      "bbox": {
+        "minX": 49,
+        "minY": 39,
+        "maxX": 142,
+        "maxY": 178,
+        "width": 94,
+        "height": 140
+      }
+    },
+    {
+      "index": 12,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/right/012.png",
+      "sha256": "3f486ee498c5a87f326ae234c75d485707f067a006f21e6f92e8d549ce1e5cd9",
+      "bbox": {
+        "minX": 49,
+        "minY": 39,
+        "maxX": 142,
+        "maxY": 177,
+        "width": 94,
+        "height": 139
+      }
+    },
+    {
+      "index": 13,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/right/013.png",
+      "sha256": "ddba6464021fe246b5b78ed2a0c2fa0b66548694f43ba6a3a83f6a1af49f7fe3",
+      "bbox": {
+        "minX": 49,
+        "minY": 40,
+        "maxX": 142,
+        "maxY": 177,
+        "width": 94,
+        "height": 138
+      }
+    },
+    {
+      "index": 14,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/right/014.png",
+      "sha256": "445027c90e0427bbe986961601862ff5129433f98c280a91d7124010ea5c3554",
+      "bbox": {
+        "minX": 49,
+        "minY": 40,
+        "maxX": 142,
+        "maxY": 177,
+        "width": 94,
+        "height": 138
+      }
+    },
+    {
+      "index": 15,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/right/015.png",
+      "sha256": "3185b8535c5c3c5d429a02b91fb5403f6cc00fdc6e0b70144c0803b25d1691a8",
+      "bbox": {
+        "minX": 48,
+        "minY": 39,
+        "maxX": 142,
+        "maxY": 178,
+        "width": 95,
+        "height": 140
+      }
+    },
+    {
+      "index": 16,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/right/016.png",
+      "sha256": "c143cbd2cbfea5c42509b475612f5ab37431339a635b06e09b5c95cc878816a8",
+      "bbox": {
+        "minX": 49,
+        "minY": 39,
+        "maxX": 142,
+        "maxY": 177,
+        "width": 94,
+        "height": 139
+      }
+    },
+    {
+      "index": 17,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/right/017.png",
+      "sha256": "be7d3fc9fd90f32adaebc763962f106547b54a726022843975fe675a8210b9ba",
+      "bbox": {
+        "minX": 48,
+        "minY": 38,
+        "maxX": 143,
+        "maxY": 177,
+        "width": 96,
+        "height": 140
+      }
+    },
+    {
+      "index": 18,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/right/018.png",
+      "sha256": "12f467027f3f846aa385d05867e4c8c6111c6b22400197537c49ea82aceae6b3",
+      "bbox": {
+        "minX": 48,
+        "minY": 38,
+        "maxX": 143,
+        "maxY": 177,
+        "width": 96,
+        "height": 140
+      }
+    },
+    {
+      "index": 19,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/right/019.png",
+      "sha256": "d291216a49e644250047c307a4124b2225543eec212e3520c083c063de1a29dc",
+      "bbox": {
+        "minX": 48,
+        "minY": 37,
+        "maxX": 143,
+        "maxY": 177,
+        "width": 96,
+        "height": 141
+      }
+    },
+    {
+      "index": 20,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/right/020.png",
+      "sha256": "c812c29c86dd40c240df59d3badf9cd97dda3017cca4d55a31578317ad913d81",
+      "bbox": {
+        "minX": 48,
+        "minY": 37,
+        "maxX": 143,
+        "maxY": 177,
+        "width": 96,
+        "height": 141
+      }
+    },
+    {
+      "index": 21,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/right/021.png",
+      "sha256": "68142882a5300126a39a29e25073e94494d466bc0c047bab76ef52cf37e1d9c4",
+      "bbox": {
+        "minX": 48,
+        "minY": 37,
+        "maxX": 143,
+        "maxY": 177,
+        "width": 96,
+        "height": 141
+      }
+    },
+    {
+      "index": 22,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/right/022.png",
+      "sha256": "c5203d48ff1f27a47e7ae384ee259b4f4e6193a5ad2715c6c05347e16881d5f1",
+      "bbox": {
+        "minX": 48,
+        "minY": 37,
+        "maxX": 144,
+        "maxY": 177,
+        "width": 97,
+        "height": 141
+      }
+    },
+    {
+      "index": 23,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/right/023.png",
+      "sha256": "2d2ace728ef37e362ac32c8ea6a17185ca640e4fb96272abde16e2abf16f02fe",
+      "bbox": {
+        "minX": 48,
+        "minY": 38,
+        "maxX": 144,
+        "maxY": 177,
+        "width": 97,
+        "height": 140
+      }
+    },
+    {
+      "index": 24,
+      "direction": "right",
+      "file": "src/assets/characters/mystia/sequence-approved-v1/frames/right/024.png",
+      "sha256": "fde292d1156f0c7750ac9b8717d7f451784790242355290bca3aeee88ea754be",
+      "bbox": {
+        "minX": 48,
+        "minY": 38,
+        "maxX": 144,
+        "maxY": 178,
+        "width": 97,
+        "height": 141
+      }
+    }
+  ]
+}

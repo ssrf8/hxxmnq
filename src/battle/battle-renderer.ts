@@ -12,6 +12,7 @@ import { BOSS_DAMAGE_LABELS, bossDamageLevel, ITEM_POC_RATIO, POWER_MAX } from '
 import {
   drawAtlasFrame,
   type BattleAtlas,
+  type BattleSheetKey,
 } from './battle-atlas';
 
 /** Spell/nonspell declaration banner + boss cut-in lifetime at each phase start. */
@@ -112,14 +113,18 @@ export function renderBattleFrame(
     if (phase.kind === 'spell' && boss.hp > 0) {
       drawSpellCircle(ctx, boss.x, boss.y, gameTimeMs, reduced, phase.captureFailed);
     }
-    // Boss uses phase form only — no hit-flash sprite swap. Damage is read from
-    // the HP bar; shot impacts add a brief additive brighten on the same frame.
-    const bossFrame = boss.hp <= 0
-      ? 'boss_break' as const
-      : phase.index === 0
-        ? 'boss_phase1' as const
-        : 'boss_phase2' as const;
-    const bossDrawn = drawAtlasFrame(ctx, atlas, bossFrame, boss.x, boss.y, { scale: 1, alpha: 1 });
+    const characterBossSheet = ({
+      cirno: 'boss_cirno',
+      alice: 'boss_alice',
+      sakuya: 'boss_sakuya',
+    } as const)[sim.config.presentation?.boss_id as 'cirno' | 'alice' | 'sakuya'] as BattleSheetKey | undefined;
+    const hitActive = !reduced && gameTimeMs < boss.hitFlashUntil;
+    const bossPose = boss.hp <= 0 ? 'break' : hitActive ? 'hit' : phase.index === 0 ? 'phase1' : 'phase2';
+    const bossFrame = characterBossSheet
+      ? (`boss_character_${bossPose}` as const)
+      : (`boss_${bossPose}` as const);
+    const bossDrawOptions = { scale: 1, alpha: 1, ...(characterBossSheet ? { sheet: characterBossSheet } : {}) };
+    const bossDrawn = drawAtlasFrame(ctx, atlas, bossFrame, boss.x, boss.y, bossDrawOptions);
     if (!bossDrawn) {
       ctx.beginPath();
       ctx.arc(boss.x, boss.y, 30, 0, Math.PI * 2);
@@ -133,7 +138,7 @@ export function renderBattleFrame(
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
       if (bossDrawn) {
-        drawAtlasFrame(ctx, atlas, bossFrame, boss.x, boss.y, { scale: 1, alpha: 0.22 });
+        drawAtlasFrame(ctx, atlas, bossFrame, boss.x, boss.y, { ...bossDrawOptions, alpha: 0.22 });
       } else {
         ctx.globalAlpha = 0.25;
         ctx.fillStyle = '#ffffff';

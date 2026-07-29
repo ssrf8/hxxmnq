@@ -1,5 +1,7 @@
 # 弹幕小游戏交接文档
 
+> 2026-07-29：三副本 Boss 独立战斗图已接入。琪露诺、爱丽丝、咲夜各使用一张 `1254×1254`、`2×2` 四状态透明图集，四格对应待机／施法／受击／击破；渲染器按 `presentation.boss_id` 选择图集，加载失败回退温室妖花。构建器只复制／内嵌透明版，宿主通过独立 dataset 交给 iframe。琪露诺已在本地浏览器实跑至 Boss 到场，尺寸、锚点与透明背景正常；爱丽丝、咲夜尚待逐场目视。离线门禁为 `check:ui`、`npm test` 134/134、`build:ui` 全绿。**未打包，未做真实 SillyTavern 验收**。
+>
 > 2026-07-26：完成 TH06 参考对齐优化（方向 A/B/C）与一处 P0 修复。离线门禁 `check:ui` 通过、`npm test` 100/100、`build:ui` 通过、产物自包含。**真实 SillyTavern 实机验收（协议 §7.3）仍未执行**，不得据此声称"酒馆已验收"。
 >
 > 执行边界见 `project/bullet-hell-minigame-optimization-protocol.md`（本文件不覆盖它，只记录当前状态与后续）。参考仓库为 `GensokyoClub/th06`（东方红魔郷 1.02h C++ 反编译）——只取机制与数学，不取其 etama 弹图/ECL/资源。
@@ -8,6 +10,7 @@
 
 - 战斗本体已从单文件重构为模块：`battle-types` / `battle-atlas` / `battle-input` / `battle-patterns` / `battle-renderer` / `battle-simulation`，`src/ui/battle-engine.ts` 为稳定门面。
 - 已实现 TH06 风格扩展：120Hz 定步长 + 自适应绘制、Power(0–128)/Bomb/决死补弹/被弹无敌/复活控制锁、杂鱼波 + 道具 POC、弹型 **11 种**、shape×hue 视觉文法、素材内嵌链（build→data URL→dataset→app，含几何 fallback）。
+- 主线继续使用温室妖花图集；三个副本已按 `boss_id` 分别使用琪露诺、爱丽丝、咲夜四状态图集，不再视觉串台。
 - `BattleResult` 10 字段形状未变；主线（`stageBattleResult`→剧情）与副本（`settleDungeonResult`→本地金币，无 LLM）双结算链未变。
 
 ## 本轮改动（2026-07-26）
@@ -49,16 +52,18 @@
 
 ## 验证状态
 
-- `npm run check:ui` 通过；`npm test` 100/100（新增 dirChange / 出膛态 / 随机抖动 3 个测试，并修复"自机弹击破小怪"脆弱用例）。
-- `npm run build:ui` 通过；`dist/runtime/ui-mount.js` 内嵌战斗三图 data URL；严格路径正则无 `localhost`/本机盘符/远程 URL；无 chroma 重复大图。
+- `npm run check:ui` 通过；`npm test` 134/134。
+- `npm run build:ui` 通过；`dist/runtime/ui-mount.js` 内嵌自机、妖花、三副本 Boss 与通用特效透明图 data URL；严格路径正则无 `localhost`/本机盘符/远程 URL；无 chroma 重复大图。
+- 本地浏览器已实跑妖精弹幕练习至琪露诺到场，独立图集选择、尺寸、锚点与透明背景正常，控制台无警告／错误；爱丽丝、咲夜未逐场目视。
 - **未打包、未导入、未推送**。真实酒馆 §7.3 矩阵未跑。
 
 ## 后续待办（按优先级）
 
 1. **真实 SillyTavern 实机验收**（硬门禁）：新聊天单实例、主线可信 `battle.current` 写入/复读/剧情消息、三副本本地结算与金币/时段/rewarded_ids、取消/Escape/关闭不结算、后台恢复不偷跑、素材断链 fallback、320px/触控/200% 缩放/焦点可见。用含本轮改动的新候选产物，留证据；不得把 dry-run 写成 accepted。
 2. **判定半径决策**：4 份配置 `hitbox_radius=4`（比 TH06 比例偏大）本轮**刻意未改**，属所有者已接受手感。若要更 TH06 化可下调至 ~3，但是跨 4 配置的平衡改动，需所有者定夺。
-3. **atlas 像素核对**：`battle-atlas.ts` 裁切表本轮未改；出膛放大只是缩放现有裁切，未在真实分辨率逐像素核对。
-4. 可选：把 dirChange / 随机抖动接入更多符卡（目前各只接 1 处示范）。
+3. **Boss 图集视觉复核**：逐场查看爱丽丝、咲夜的四种姿态，并在真实 SillyTavern 检查三张图放大可见的轻微洋红边缘；必要时只返修透明蒙版，不改裁切和战斗语义。
+4. **atlas 像素核对**：继续核对旧自机／妖花／特效裁切与新 Boss 四宫格在各视口的实际显示比例。
+5. 可选：把 dirChange / 随机抖动接入更多符卡（目前各只接 1 处示范）。
 
 ## 关键文件
 

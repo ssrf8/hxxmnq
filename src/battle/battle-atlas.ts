@@ -14,7 +14,7 @@ export interface AtlasRect {
 }
 
 export interface AtlasFrame {
-  sheet: 'player' | 'boss' | 'effects';
+  sheet: BattleSheetKey;
   rect: AtlasRect;
   /** Logical on-arena draw size (width/height). */
   drawW: number;
@@ -24,10 +24,15 @@ export interface AtlasFrame {
   pivotY?: number;
 }
 
+export type BattleSheetKey = 'player' | 'boss' | 'boss_cirno' | 'boss_alice' | 'boss_sakuya' | 'effects';
+
 /** Source sheets are the transparent *-v1.png assets only. */
 export const BATTLE_SHEET_PATHS = {
   player: 'battle/player/keycraft-player-sheet-v1.png',
   boss: 'battle/boss/greenhouse-flower-core-sheet-v1.png',
+  boss_cirno: 'battle/boss/cirno-battle-sheet-v1.png',
+  boss_alice: 'battle/boss/alice-battle-sheet-v1.png',
+  boss_sakuya: 'battle/boss/sakuya-battle-sheet-v1.png',
   effects: 'battle/effects/battle-effects-sheet-v1.png',
 } as const;
 
@@ -114,6 +119,34 @@ export const ATLAS_FRAMES = {
     drawH: 72,
     pivotX: 0.5,
     pivotY: 0.55,
+  },
+
+  // Character boss sheets 1254x1254 — full 2x2 quadrants preserve authored
+  // spell effects and satellites around each pose. The renderer overrides the
+  // source sheet from presentation.boss_id.
+  boss_character_phase1: {
+    sheet: 'boss_cirno',
+    rect: { x: 0, y: 0, w: 627, h: 627 },
+    drawW: 138,
+    drawH: 138,
+  },
+  boss_character_phase2: {
+    sheet: 'boss_cirno',
+    rect: { x: 627, y: 0, w: 627, h: 627 },
+    drawW: 138,
+    drawH: 138,
+  },
+  boss_character_hit: {
+    sheet: 'boss_cirno',
+    rect: { x: 0, y: 627, w: 627, h: 627 },
+    drawW: 138,
+    drawH: 138,
+  },
+  boss_character_break: {
+    sheet: 'boss_cirno',
+    rect: { x: 627, y: 627, w: 627, h: 627 },
+    drawW: 138,
+    drawH: 138,
   },
 
   // effects sheet 1536×1024 — measured cell contents
@@ -220,12 +253,15 @@ export type AtlasFrameId = keyof typeof ATLAS_FRAMES;
 export interface BattleAtlasSources {
   player?: string;
   boss?: string;
+  boss_cirno?: string;
+  boss_alice?: string;
+  boss_sakuya?: string;
   effects?: string;
 }
 
 export interface BattleAtlas {
   ready: boolean;
-  images: Partial<Record<'player' | 'boss' | 'effects', CanvasImageSource>>;
+  images: Partial<Record<BattleSheetKey, CanvasImageSource>>;
   failed: boolean;
 }
 
@@ -248,9 +284,12 @@ function loadImage(src: string): Promise<HTMLImageElement | null> {
 /** Non-blocking atlas load. Missing/broken sources simply leave frames unavailable. */
 export async function loadBattleAtlas(sources: BattleAtlasSources = {}): Promise<BattleAtlas> {
   const atlas = emptyAtlas();
-  const entries: Array<['player' | 'boss' | 'effects', string | undefined]> = [
+  const entries: Array<[BattleSheetKey, string | undefined]> = [
     ['player', sources.player],
     ['boss', sources.boss],
+    ['boss_cirno', sources.boss_cirno],
+    ['boss_alice', sources.boss_alice],
+    ['boss_sakuya', sources.boss_sakuya],
     ['effects', sources.effects],
   ];
   const results = await Promise.all(entries.map(async ([key, src]) => {
@@ -307,11 +346,11 @@ export function drawAtlasFrame(
   frameId: AtlasFrameId,
   x: number,
   y: number,
-  options?: { scale?: number; alpha?: number; rotation?: number },
+  options?: { scale?: number; alpha?: number; rotation?: number; sheet?: BattleSheetKey },
 ): boolean {
   if (!atlas?.ready) return false;
   const frame = ATLAS_FRAMES[frameId];
-  const image = atlas.images[frame.sheet];
+  const image = atlas.images[options?.sheet ?? frame.sheet];
   if (!image) return false;
   const scale = options?.scale ?? 1;
   const alpha = options?.alpha ?? 1;

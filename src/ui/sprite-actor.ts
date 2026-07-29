@@ -3,6 +3,22 @@ import type { CharacterView } from './types';
 export type SpriteFacing = 'front' | 'back' | 'left' | 'right';
 export type SpriteMotion = 'idle' | 'walk';
 export type SpriteMovementStyle = 'walk' | 'hover' | 'flutter';
+type ActorPhase = 'rest' | 'turn' | 'travel' | 'settle';
+
+export interface SpriteFrameTransform {
+  scale: number;
+  x: number;
+  y: number;
+}
+
+export interface SpriteSequenceConfig {
+  source: string;
+  columns: number;
+  rows: 4;
+  frameDurationMs: number;
+  loopStart: number;
+  loopEnd: number;
+}
 
 export interface SpriteActorConfig {
   label: string;
@@ -10,18 +26,34 @@ export interface SpriteActorConfig {
   motionSource?: string;
   /** Optional 9×4 V2 atlas; it overrides legacy sheets once loaded. */
   animationSource?: string;
+  /** Owner-approved variable-length atlas; falls back to V2/legacy sheets on load failure. */
+  sequence?: SpriteSequenceConfig;
   movementStyle: SpriteMovementStyle;
   frameDurationMs: number;
-  idleBob: number;
   motionBob: number;
   motionSway: number;
   travelSpeed: number;
   travelRadius: number;
+  travelRadiusY: number;
+  travelDistanceMin: number;
+  travelDistanceMax: number;
+  restDurationMs: readonly [number, number];
+  turnDurationMs: readonly [number, number];
+  settleDurationMs: readonly [number, number];
+  /** Per-facing visual fit from the turnaround cells to the approved motion frames. */
+  idleFrameTransforms?: Record<SpriteFacing, SpriteFrameTransform>;
+  /** Per-facing luminance correction for a dedicated idle sheet. */
+  idleFrameBrightness?: Record<SpriteFacing, number>;
 }
 
 interface Point {
   x: number;
   y: number;
+}
+
+export interface WanderMove {
+  facing: SpriteFacing;
+  target: Point;
 }
 
 interface RenderFrame {
@@ -32,6 +64,8 @@ interface RenderFrame {
   row: number;
   animated: boolean;
   v2: boolean;
+  transform?: SpriteFrameTransform;
+  brightness?: number;
 }
 
 const facingCell: Record<SpriteFacing, Point> = {
@@ -48,6 +82,102 @@ const facingRow: Record<SpriteFacing, number> = {
   right: 3,
 };
 
+const defaultFrameTransform: SpriteFrameTransform = { scale: 1, x: -0.5, y: -0.82 };
+
+export function resolveSpriteDrawRect(size: number, transform = defaultFrameTransform) {
+  return {
+    x: size * transform.x,
+    y: size * transform.y,
+    width: size * transform.scale,
+    height: size * transform.scale,
+  };
+}
+
+const oppositeFacing: Record<SpriteFacing, SpriteFacing> = {
+  front: 'back',
+  back: 'front',
+  left: 'right',
+  right: 'left',
+};
+
+const clampRandom = (value: number) => Math.min(0.999999, Math.max(0, value));
+
+export function chooseWanderMove(
+  position: Point,
+  radius: Point,
+  minDistance: number,
+  maxDistance: number,
+  lastFacing: SpriteFacing | undefined,
+  random: () => number = Math.random,
+): WanderMove | null {
+  const safeX = Math.max(0.000001, radius.x);
+  const safeY = Math.max(0.000001, radius.y);
+  const xLimit = safeX * Math.sqrt(Math.max(0, 1 - (position.y / safeY) ** 2));
+  const yLimit = safeY * Math.sqrt(Math.max(0, 1 - (position.x / safeX) ** 2));
+  const candidates = [
+    { facing: 'left' as const, available: position.x + xLimit },
+    { facing: 'right' as const, available: xLimit - position.x },
+    { facing: 'back' as const, available: position.y + yLimit },
+    { facing: 'front' as const, available: yLimit - position.y },
+  ].filter((candidate) => candidate.available >= minDistance);
+  if (!candidates.length) return null;
+  const weighted = candidates.map((candidate) => ({
+    ...candidate,
+    weight: candidate.facing === lastFacing
+      ? 1.1
+      : lastFacing && candidate.facing === oppositeFacing[lastFacing] ? 0.35 : 1,
+  }));
+  const weightTotal = weighted.reduce((total, candidate) => total + candidate.weight, 0);
+  let choice = clampRandom(random()) * weightTotal;
+  const selected = weighted.find((candidate) => {
+    choice -= candidate.weight;
+    return choice < 0;
+  }) ?? weighted[weighted.length - 1];
+  const available = Math.min(selected.available, Math.max(minDistance, maxDistance));
+  const distance = minDistance
+    + clampRandom(random()) * Math.max(0, available - minDistance);
+  const target = { ...position };
+  if (selected.facing === 'left') target.x -= distance;
+  if (selected.facing === 'right') target.x += distance;
+  if (selected.facing === 'back') target.y -= distance;
+  if (selected.facing === 'front') target.y += distance;
+  return { facing: selected.facing, target };
+}
+
+export function resolveSequenceCell(
+  sequence: Omit<SpriteSequenceConfig, 'source'>,
+  motion: SpriteMotion,
+  facing: SpriteFacing,
+  animationTime: number,
+  phaseOffset = 0,
+) {
+  if (motion === 'idle') return { frame: 0, row: facingRow[facing] };
+  const loopLength = sequence.loopEnd - sequence.loopStart + 1;
+  const elapsedFrame = Math.floor((animationTime + phaseOffset) / sequence.frameDurationMs);
+  return {
+    frame: sequence.loopStart + elapsedFrame % loopLength,
+    row: facingRow[facing],
+  };
+}
+
+export function resolveV2Cell(
+  motion: SpriteMotion,
+  facing: SpriteFacing,
+  animationTime: number,
+  frameDurationMs: number,
+  phaseOffset = 0,
+) {
+  if (motion === 'idle') {
+    if (facing === 'back') return { frame: 4, row: 0 };
+    if (facing === 'front') return { frame: 0, row: 1 };
+    return { frame: 0, row: facing === 'left' ? 2 : 3 };
+  }
+  const frame = Math.floor((animationTime + phaseOffset) / frameDurationMs);
+  if (facing === 'back') return { frame: 5 + frame % 4, row: 0 };
+  if (facing === 'front') return { frame: 1 + frame % 4, row: 1 };
+  return { frame: 1 + frame % 8, row: facing === 'left' ? 2 : 3 };
+}
+
 const phaseFor = (id: string) => [...id]
   .reduce((value, character) => value * 31 + character.charCodeAt(0), 17) % 997;
 
@@ -55,18 +185,30 @@ export class SpriteActor {
   readonly idleImage = new Image();
   readonly motionImage = new Image();
   readonly animationImage = new Image();
+  readonly sequenceImage = new Image();
   readonly id: string;
   readonly label: string;
   imageReady = false;
   imageFailed = false;
   motionImageReady = false;
   animationImageReady = false;
+  sequenceImageReady = false;
   offsetX = 0;
+  offsetY = 0;
   facing: SpriteFacing = 'front';
   motion: SpriteMotion = 'idle';
-  private direction: -1 | 1 = 1;
-  private idleRemaining = 700;
+  private authoritativeFacing: SpriteFacing = 'front';
+  private phase: ActorPhase = 'rest';
+  private phaseRemaining = 0;
+  private travelStart: Point = { x: 0, y: 0 };
+  private travelTarget: Point = { x: 0, y: 0 };
+  private travelElapsed = 0;
+  private travelDuration = 1;
+  private lastFacing: SpriteFacing | undefined;
+  private areaId: string | undefined;
+  private present = false;
   private animationTime = 0;
+  private sequenceTime = 0;
   private reducedMotion = false;
   private readonly phaseOffset: number;
 
@@ -74,11 +216,11 @@ export class SpriteActor {
     id: string,
     private readonly config: SpriteActorConfig,
     onAssetStateChanged: () => void,
+    private readonly random: () => number = Math.random,
   ) {
     this.id = id;
     this.label = config.label;
     this.phaseOffset = phaseFor(id);
-    this.idleRemaining += this.phaseOffset % 520;
     this.idleImage.onload = () => {
       this.imageReady = true;
       this.imageFailed = false;
@@ -112,35 +254,108 @@ export class SpriteActor {
       };
       this.animationImage.src = config.animationSource;
     }
+    if (config.sequence) {
+      this.sequenceImage.onload = () => {
+        this.sequenceImageReady = true;
+        onAssetStateChanged();
+      };
+      this.sequenceImage.onerror = () => {
+        this.sequenceImageReady = false;
+        onAssetStateChanged();
+      };
+      this.sequenceImage.src = config.sequence.source;
+    }
   }
 
-  sync(view: CharacterView | undefined, reducedMotion: boolean) {
+  sync(view: CharacterView | undefined, reducedMotion: boolean, present = true) {
+    const wasPresent = this.present;
+    const areaChanged = Boolean(view?.area_id && view.area_id !== this.areaId);
+    this.present = present;
     this.reducedMotion = reducedMotion;
-    if (view?.facing) this.facing = view.facing;
-    if (reducedMotion) {
-      this.motion = 'idle';
-      this.offsetX = 0;
-    }
+    if (view?.facing) this.authoritativeFacing = view.facing;
+    if (view?.area_id) this.areaId = view.area_id;
+    if (!present || reducedMotion || !wasPresent || areaChanged) this.resetAtAnchor();
   }
 
   update(deltaMs: number) {
+    if (!this.present || this.reducedMotion) return;
     this.animationTime += deltaMs;
-    if (this.reducedMotion) return;
-    if (this.motion === 'idle') {
-      this.idleRemaining -= deltaMs;
-      if (this.idleRemaining <= 0) {
+    if (this.phase === 'rest') {
+      this.phaseRemaining -= deltaMs;
+      if (this.phaseRemaining <= 0) this.prepareTravel();
+      return;
+    }
+    if (this.phase === 'turn') {
+      this.phaseRemaining -= deltaMs;
+      if (this.phaseRemaining <= 0) {
+        this.phase = 'travel';
         this.motion = 'walk';
-        this.facing = this.direction > 0 ? 'right' : 'left';
+        this.sequenceTime = 0;
       }
       return;
     }
-    this.offsetX += this.direction * deltaMs * this.config.travelSpeed;
-    if (Math.abs(this.offsetX) < this.config.travelRadius) return;
-    this.offsetX = Math.sign(this.offsetX) * this.config.travelRadius;
-    this.direction = this.direction > 0 ? -1 : 1;
+    if (this.phase === 'travel') {
+      this.sequenceTime += deltaMs;
+      this.travelElapsed = Math.min(this.travelDuration, this.travelElapsed + deltaMs);
+      const progress = this.travelElapsed / this.travelDuration;
+      this.offsetX = this.travelStart.x + (this.travelTarget.x - this.travelStart.x) * progress;
+      this.offsetY = this.travelStart.y + (this.travelTarget.y - this.travelStart.y) * progress;
+      if (progress < 1) return;
+      this.phase = 'settle';
+      this.motion = 'idle';
+      this.phaseRemaining = this.randomBetween(this.config.settleDurationMs);
+      return;
+    }
+    this.phaseRemaining -= deltaMs;
+    if (this.phaseRemaining <= 0) {
+      this.phase = 'rest';
+      this.phaseRemaining = this.randomBetween(this.config.restDurationMs);
+    }
+  }
+
+  private resetAtAnchor() {
+    this.offsetX = 0;
+    this.offsetY = 0;
+    this.facing = this.authoritativeFacing;
     this.motion = 'idle';
-    this.idleRemaining = 760 + this.phaseOffset % 460;
-    this.facing = this.direction > 0 ? 'right' : 'left';
+    this.phase = 'rest';
+    this.phaseRemaining = this.randomBetween(this.config.restDurationMs);
+    this.travelElapsed = 0;
+    this.sequenceTime = 0;
+    this.lastFacing = undefined;
+  }
+
+  private prepareTravel() {
+    const move = chooseWanderMove(
+      { x: this.offsetX, y: this.offsetY },
+      { x: this.config.travelRadius, y: this.config.travelRadiusY },
+      this.config.travelDistanceMin,
+      this.config.travelDistanceMax,
+      this.lastFacing,
+      this.random,
+    );
+    if (!move) {
+      this.phaseRemaining = this.randomBetween(this.config.restDurationMs);
+      return;
+    }
+    this.travelStart = { x: this.offsetX, y: this.offsetY };
+    this.travelTarget = move.target;
+    this.travelElapsed = 0;
+    this.travelDuration = Math.max(
+      1,
+      Math.hypot(move.target.x - this.offsetX, move.target.y - this.offsetY) / this.config.travelSpeed,
+    );
+    this.facing = move.facing;
+    this.lastFacing = move.facing;
+    this.motion = 'idle';
+    this.phase = 'turn';
+    this.phaseRemaining = this.randomBetween(this.config.turnDurationMs);
+  }
+
+  private randomBetween(range: readonly [number, number]) {
+    const [minimum, maximum] = range;
+    if (maximum <= minimum) return minimum;
+    return minimum + clampRandom(this.random()) * Math.max(0, maximum - minimum);
   }
 
   /**
@@ -157,9 +372,10 @@ export class SpriteActor {
   ): boolean {
     const renderFrame = this.resolveRenderFrame();
     if (!renderFrame) return false;
-    const { image, columns, rows, frame, row, animated, v2 } = renderFrame;
+    const { image, columns, rows, frame, row, animated, v2, transform } = renderFrame;
     const sourceWidth = image.naturalWidth / columns;
     const sourceHeight = image.naturalHeight / rows;
+    const destination = resolveSpriteDrawRect(size, transform);
     const scratch = SpriteActor.glowScratch ?? (SpriteActor.glowScratch = document.createElement('canvas'));
     const pad = Math.ceil(size * 0.25);
     const scratchSize = Math.ceil(size + pad * 2);
@@ -177,22 +393,20 @@ export class SpriteActor {
       row * sourceHeight,
       sourceWidth,
       sourceHeight,
-      pad,
-      pad,
-      size,
-      size,
+      pad + destination.x + size / 2,
+      pad + destination.y + size * 0.82,
+      destination.width,
+      destination.height,
     );
     scratchContext.globalCompositeOperation = 'source-in';
     scratchContext.fillStyle = color;
     scratchContext.fillRect(0, 0, scratchSize, scratchSize);
     scratchContext.globalCompositeOperation = 'source-over';
     // 与 draw() 同步的浮动/摆动，使光晕严格跟随本体。
-    const idleCycle = (this.animationTime + this.phaseOffset) / 470;
     const motionCycle = (this.animationTime + this.phaseOffset) / this.config.frameDurationMs;
-    const bob = this.reducedMotion || v2
+    const bob = this.reducedMotion || !animated || v2
       ? 0
-      : Math.sin(animated ? motionCycle * Math.PI : idleCycle)
-        * (animated ? this.config.motionBob : this.config.idleBob);
+      : Math.sin(motionCycle * Math.PI) * this.config.motionBob;
     const sway = this.reducedMotion || !animated || v2
       ? 0
       : Math.sin(motionCycle * Math.PI * 0.5) * this.config.motionSway;
@@ -218,50 +432,87 @@ export class SpriteActor {
   ): boolean {
     const renderFrame = this.resolveRenderFrame();
     if (!renderFrame) return false;
-    const { image, columns, rows, frame, row, animated, v2 } = renderFrame;
+    const { image, columns, rows, frame, row, animated, v2, transform, brightness } = renderFrame;
     const sourceWidth = image.naturalWidth / columns;
     const sourceHeight = image.naturalHeight / rows;
-    const idleCycle = (this.animationTime + this.phaseOffset) / 470;
+    const destination = resolveSpriteDrawRect(size, transform);
     const motionCycle = (this.animationTime + this.phaseOffset) / this.config.frameDurationMs;
-    const bob = this.reducedMotion || v2
+    const bob = this.reducedMotion || !animated || v2
       ? 0
-      : Math.sin(animated ? motionCycle * Math.PI : idleCycle)
-        * (animated ? this.config.motionBob : this.config.idleBob);
+      : Math.sin(motionCycle * Math.PI) * this.config.motionBob;
     const sway = this.reducedMotion || !animated || v2
       ? 0
       : Math.sin(motionCycle * Math.PI * 0.5) * this.config.motionSway;
-    const idleBreath = this.reducedMotion || animated || v2
-      ? 1
-      : 1 + Math.sin(idleCycle) * 0.007;
     context.save();
     context.translate(x, y + bob);
     context.rotate(sway);
-    context.scale(1, idleBreath);
     context.imageSmoothingEnabled = false;
+    context.filter = brightness === undefined ? 'none' : `brightness(${brightness})`;
     context.drawImage(
       image,
       frame * sourceWidth,
       row * sourceHeight,
       sourceWidth,
       sourceHeight,
-      -size / 2,
-      -size * 0.82,
-      size,
-      size,
+      destination.x,
+      destination.y,
+      destination.width,
+      destination.height,
     );
     context.restore();
     return true;
   }
 
   private resolveRenderFrame(): RenderFrame | null {
+    // Rest, turn and settle all use the dedicated four-facing turnaround sheet.
+    // Approved motion sequences remain a fallback when that static asset fails.
+    if (this.motion === 'idle' && this.imageReady && this.idleImage.naturalWidth > 0) {
+      return {
+        image: this.idleImage,
+        columns: 2,
+        rows: 2,
+        frame: facingCell[this.facing].x,
+        row: facingCell[this.facing].y,
+        animated: false,
+        v2: false,
+        transform: this.config.idleFrameTransforms?.[this.facing],
+        brightness: this.config.idleFrameBrightness?.[this.facing],
+      };
+    }
+    if (this.config.sequence && this.sequenceImageReady && this.sequenceImage.naturalWidth > 0) {
+      const cell = resolveSequenceCell(
+        this.config.sequence,
+        this.motion,
+        this.facing,
+        this.sequenceTime,
+      );
+      return {
+        image: this.sequenceImage,
+        columns: this.config.sequence.columns,
+        rows: this.config.sequence.rows,
+        frame: cell.frame,
+        row: cell.row,
+        animated: this.motion === 'walk',
+        v2: true,
+      };
+    }
     if (this.animationImageReady && this.animationImage.naturalWidth > 0) {
-      if (this.motion === 'walk') {
-        const frame = Math.floor((this.animationTime + this.phaseOffset) / this.config.frameDurationMs);
-        if (this.facing === 'back') return { image: this.animationImage, columns: 9, rows: 4, frame: 5 + frame % 4, row: 0, animated: true, v2: true };
-        if (this.facing === 'front') return { image: this.animationImage, columns: 9, rows: 4, frame: 1 + frame % 4, row: 1, animated: true, v2: true };
-        return { image: this.animationImage, columns: 9, rows: 4, frame: 1 + frame % 8, row: this.facing === 'left' ? 2 : 3, animated: true, v2: true };
-      }
-      return { image: this.animationImage, columns: 9, rows: 4, frame: Math.floor((this.animationTime + this.phaseOffset) / 520) % 4, row: 0, animated: false, v2: true };
+      const cell = resolveV2Cell(
+        this.motion,
+        this.facing,
+        this.animationTime,
+        this.config.frameDurationMs,
+        this.phaseOffset,
+      );
+      return {
+        image: this.animationImage,
+        columns: 9,
+        rows: 4,
+        frame: cell.frame,
+        row: cell.row,
+        animated: this.motion === 'walk',
+        v2: true,
+      };
     }
     if (!this.imageReady || !this.idleImage.naturalWidth) return null;
     const useMotionSheet = this.motion === 'walk' && this.motionImageReady && this.motionImage.naturalWidth > 0;

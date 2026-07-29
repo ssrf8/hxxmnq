@@ -25,13 +25,16 @@
   ④ `ui-host-shell.js` dataset 转交；⑤ `drawBossCutIn` 中用 `drawAtlasFrame` 替换
   占位卡体（徽章/名牌保留），并删水印行。
 
-### 1.2 三副本 boss 战斗形象（当前=共用温室妖花 sheet）
+### 1.2 三副本 boss 战斗形象（✅ 2026-07-29 已接入，待实机视觉验收）
 
-- **需求**：每 boss 一张 2×2 网格 sheet（待机1 / 待机2或施法 / 受击 / 击破），
-  透明底，网格约 1254×1254 或等比更小；画风与既有 `greenhouse-flower-core-sheet-v1.png` 一致。
-- **命名**：`src/assets/battle/boss/<boss_id>-battle-sheet-v1.png`。
-- **接入**：atlas 增加 per-boss sheet 选择（按 `presentation.boss_id` 取 sheet，
-  缺省回退妖花 sheet），其余链路同 1.1 ③④。
+- **现状**：所有者提供琪露诺、爱丽丝、咲夜三张 `1254×1254` 四状态图；已转为透明底，
+  按 `presentation.boss_id` 选择独立图集，加载失败仍回退温室妖花 sheet。
+- **已满足规格**：每 boss 一张 2×2 网格 sheet，四格依次为待机／施法／受击／击破；
+  透明版命名为 `src/assets/battle/boss/<boss_id>-battle-sheet-v1.png`，chroma 版仅作维护源。
+- **已接入链**：asset manifest → atlas 四宫格与 per-boss sheet → build data URL →
+  host dataset → app atlas source → renderer `boss_id` 选择；缺省回退妖花。
+- **剩余验收**：琪露诺已完成本地浏览器到场目视；爱丽丝、咲夜待逐场目视。三套源图放大时
+  有轻微洋红边缘，实际战斗缩放下不明显，真实 SillyTavern 中仍须复核。
 
 ### 1.3 妖精小怪 sprite（当前=几何圆脸+翅膀）
 

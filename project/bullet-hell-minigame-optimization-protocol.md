@@ -84,9 +84,12 @@ BattleEngine.onFinish(result)
 |---|---:|---|
 | `src/assets/battle/player/keycraft-player-sheet-v1.png` | 1536 × 1024 | 玩家机、射击与护盾状态 |
 | `src/assets/battle/boss/greenhouse-flower-core-sheet-v1.png` | 1254 × 1254 | 妖花核心阶段／受击／击破表现 |
+| `src/assets/battle/boss/cirno-battle-sheet-v1.png` | 1254 × 1254 | 妖精练习 Boss：待机／施法／受击／击破 |
+| `src/assets/battle/boss/alice-battle-sheet-v1.png` | 1254 × 1254 | 森林残响 Boss：待机／施法／受击／击破 |
+| `src/assets/battle/boss/sakuya-battle-sheet-v1.png` | 1254 × 1254 | 境界试炼 Boss：待机／施法／受击／击破 |
 | `src/assets/battle/effects/battle-effects-sheet-v1.png` | 1536 × 1024 | 敌弹、玩家弹、命中、爆发与护盾效果 |
 
-这些素材已在 `src/assets/asset-manifest.json` 登记为战斗用途，但当前 `scripts/build-ui.mjs` 没有复制或内嵌它们，`src/runtime/ui-host-shell.js` 也没有把战斗素材 URL 转交给游戏 iframe。离线预览里“能显示”不等于酒馆角色卡里能显示，必须补齐这条链并做产物检查。
+上述透明素材均已在 `src/assets/asset-manifest.json` 登记，并由 `scripts/build-ui.mjs` 复制／内嵌、`src/runtime/ui-host-shell.js` 转交给游戏 iframe；`*-chroma.png` 只作维护源，不得进入产物。离线链已验证，但仍不能据此替代真实 SillyTavern 验收。
 
 ## 3. 严格改动白名单
 

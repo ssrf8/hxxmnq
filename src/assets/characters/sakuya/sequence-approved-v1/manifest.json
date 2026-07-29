@@ -1,0 +1,3132 @@
+{
+  "version": 1,
+  "character": "sakuya",
+  "status": "owner-approved-sequence-source",
+  "runtimeStatus": "ready-for-runtime-integration",
+  "layout": "variable-sequence-v1",
+  "sourceProject": "../参考素材/New project 11",
+  "sourceDirectory": "characters/sakuya/定位结果",
+  "sourcePolicy": "copied-byte-for-byte-from-owner-approved-frames",
+  "transform": "uniform-nearest-neighbor-fixed-anchor",
+  "cell": [
+    209,
+    209
+  ],
+  "atlas": "src/assets/characters/sakuya/sakuya-animation-sequence-approved-v1.png",
+  "atlasSha256": "c575932a30312b336259c221153d5bcdff21c62672b710b1b321d9ff712f4204",
+  "atlasSize": [
+    5016,
+    836
+  ],
+  "frameCount": 24,
+  "rowOrder": [
+    "front",
+    "back",
+    "left",
+    "right"
+  ],
+  "frameDurationMs": 100,
+  "stationaryFrame": "direction-row-column-0",
+  "loopStart": 0,
+  "loopEnd": 23,
+  "sourceAnchorByDirection": {
+    "front": [
+      160,
+      304
+    ],
+    "back": [
+      160,
+      304
+    ],
+    "left": [
+      160,
+      304
+    ],
+    "right": [
+      160,
+      304
+    ]
+  },
+  "targetAnchor": [
+    104,
+    179
+  ],
+  "targetVisibleHeight": 150,
+  "scale": 0.5263157894736842,
+  "sources": [
+    {
+      "index": 1,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/front/001.png",
+      "sha256": "86a9df82d6c55abe5ffe9107ffe5119ca1ecb6a1f059bcc84efdc1d005d329d9",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 26,
+        "maxX": 239,
+        "maxY": 299,
+        "width": 160,
+        "height": 274
+      }
+    },
+    {
+      "index": 2,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/front/002.png",
+      "sha256": "d8f88014d0bcd8875a5b64bac49744656bce0f2119b85d84a8390ffe75f94a96",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 25,
+        "maxX": 239,
+        "maxY": 300,
+        "width": 160,
+        "height": 276
+      }
+    },
+    {
+      "index": 3,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/front/003.png",
+      "sha256": "f52b5ecb18d3b754dc8cbc91b44e22b3707f591d7fad2a6a82a05d6bc9722a52",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 79,
+        "minY": 24,
+        "maxX": 240,
+        "maxY": 300,
+        "width": 162,
+        "height": 277
+      }
+    },
+    {
+      "index": 4,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/front/004.png",
+      "sha256": "3298395bb546c014ac6bab67cc0c324a860925fdd31fb65d15d27ff83a3098b6",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 79,
+        "minY": 25,
+        "maxX": 240,
+        "maxY": 300,
+        "width": 162,
+        "height": 276
+      }
+    },
+    {
+      "index": 5,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/front/005.png",
+      "sha256": "bc3d3165fe0bda9bece578af9c7e220bda14f8861e32110e87fbf169e2801818",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 79,
+        "minY": 25,
+        "maxX": 241,
+        "maxY": 301,
+        "width": 163,
+        "height": 277
+      }
+    },
+    {
+      "index": 6,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/front/006.png",
+      "sha256": "1a909bcc9bad280a2bc984b3c5847ea327a1329a93d41b587dea804a11e1a2d1",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 79,
+        "minY": 26,
+        "maxX": 241,
+        "maxY": 301,
+        "width": 163,
+        "height": 276
+      }
+    },
+    {
+      "index": 7,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/front/007.png",
+      "sha256": "348f2b55f21838a467180d1b1afcc4681f774295457be58422bd3efe9f18e4ce",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 79,
+        "minY": 26,
+        "maxX": 241,
+        "maxY": 301,
+        "width": 163,
+        "height": 276
+      }
+    },
+    {
+      "index": 8,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/front/008.png",
+      "sha256": "7ec5dca7146dbfef6df372880fdc40915d3bfc838f6ab6af14ee57f8f0089dc7",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 79,
+        "minY": 27,
+        "maxX": 241,
+        "maxY": 301,
+        "width": 163,
+        "height": 275
+      }
+    },
+    {
+      "index": 9,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/front/009.png",
+      "sha256": "21a1fa4f3242dac8a952a8925470300ffb76b8f27e75faaf4213ba407273844e",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 79,
+        "minY": 28,
+        "maxX": 241,
+        "maxY": 302,
+        "width": 163,
+        "height": 275
+      }
+    },
+    {
+      "index": 10,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/front/010.png",
+      "sha256": "60bd96a8b2a34303ffb8f186e2283618f4aa477f4b7998df47f51e8af60d9ae1",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 79,
+        "minY": 26,
+        "maxX": 242,
+        "maxY": 302,
+        "width": 164,
+        "height": 277
+      }
+    },
+    {
+      "index": 11,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/front/011.png",
+      "sha256": "c7216a74cf5d8a59c5711f0b5f71d7762eaf13c5ae2d902cf4173c18d4f3d047",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 79,
+        "minY": 25,
+        "maxX": 242,
+        "maxY": 302,
+        "width": 164,
+        "height": 278
+      }
+    },
+    {
+      "index": 12,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/front/012.png",
+      "sha256": "a79a6ff016d863d604e1baa5ef336d473d22fe2757d1518c702d415a83535013",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 79,
+        "minY": 25,
+        "maxX": 242,
+        "maxY": 303,
+        "width": 164,
+        "height": 279
+      }
+    },
+    {
+      "index": 13,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/front/013.png",
+      "sha256": "639c75c6a912e8006ab2b0fb2aa8cff1538debfe58c6aeeffbfadbde9b8cbf66",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 78,
+        "minY": 24,
+        "maxX": 242,
+        "maxY": 303,
+        "width": 165,
+        "height": 280
+      }
+    },
+    {
+      "index": 14,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/front/014.png",
+      "sha256": "c43f91fe755c12fb5e0d0c1847cf8c334d360582984f64ef5feb7cbe3bf3594b",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 78,
+        "minY": 24,
+        "maxX": 242,
+        "maxY": 304,
+        "width": 165,
+        "height": 281
+      }
+    },
+    {
+      "index": 15,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/front/015.png",
+      "sha256": "e10dca927681e6ac0e6677d2278b90c8635f4a24454b4b8a00f8fbef1d2b3f63",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 77,
+        "minY": 25,
+        "maxX": 242,
+        "maxY": 304,
+        "width": 166,
+        "height": 280
+      }
+    },
+    {
+      "index": 16,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/front/016.png",
+      "sha256": "36b088a4c1d2267830ff25e622d3bb1c7fabc38bc0a5291cd5bd6d2d81551d7b",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 77,
+        "minY": 26,
+        "maxX": 242,
+        "maxY": 304,
+        "width": 166,
+        "height": 279
+      }
+    },
+    {
+      "index": 17,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/front/017.png",
+      "sha256": "9e0b152e35afabab401c647cb680e97d285815ba3e1b430e79bba72930a5c483",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 76,
+        "minY": 27,
+        "maxX": 242,
+        "maxY": 305,
+        "width": 167,
+        "height": 279
+      }
+    },
+    {
+      "index": 18,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/front/018.png",
+      "sha256": "656bed576ca106c5dfbfb20f63c5dbdda398602ba360c2f751800340b21b8a13",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 76,
+        "minY": 26,
+        "maxX": 242,
+        "maxY": 305,
+        "width": 167,
+        "height": 280
+      }
+    },
+    {
+      "index": 19,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/front/019.png",
+      "sha256": "38989862744646e30fb00e8f8f860b999516a5b8a63f4131266381b2bd9f07e0",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 76,
+        "minY": 26,
+        "maxX": 242,
+        "maxY": 305,
+        "width": 167,
+        "height": 280
+      }
+    },
+    {
+      "index": 20,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/front/020.png",
+      "sha256": "9cbab36f0eee66792c271e3727cb6352c9650f18af2528f922c29426d61b8b37",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 76,
+        "minY": 25,
+        "maxX": 242,
+        "maxY": 305,
+        "width": 167,
+        "height": 281
+      }
+    },
+    {
+      "index": 21,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/front/021.png",
+      "sha256": "deca0f757598379e39fb15dde00e72532eb312900108d1dafa7ff35b76f0c667",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 76,
+        "minY": 25,
+        "maxX": 242,
+        "maxY": 305,
+        "width": 167,
+        "height": 281
+      }
+    },
+    {
+      "index": 22,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/front/022.png",
+      "sha256": "6d867cc4bc633321e87c1718c75f8683517400ed52bee89372b94bc5c4fd2038",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 76,
+        "minY": 23,
+        "maxX": 242,
+        "maxY": 305,
+        "width": 167,
+        "height": 283
+      }
+    },
+    {
+      "index": 23,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/front/023.png",
+      "sha256": "22188345124cc6cff55cd39e25727a0eb90219d53c5a6346f6f6fd8782581458",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 76,
+        "minY": 23,
+        "maxX": 242,
+        "maxY": 307,
+        "width": 167,
+        "height": 285
+      }
+    },
+    {
+      "index": 24,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/front/024.png",
+      "sha256": "dcd8c5575fa722488e2641386c45a43230390d7f24ce04ab8a5a1464948341d1",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 76,
+        "minY": 24,
+        "maxX": 243,
+        "maxY": 307,
+        "width": 168,
+        "height": 284
+      }
+    },
+    {
+      "index": 1,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/back/001.png",
+      "sha256": "bdf4339d5b5317265c11cc4513909376975adab4f3c74614ea454273365325e0",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 76,
+        "minY": 26,
+        "maxX": 236,
+        "maxY": 305,
+        "width": 161,
+        "height": 280
+      }
+    },
+    {
+      "index": 2,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/back/002.png",
+      "sha256": "a1690d60e983b386ab10c883d5a463e921edd1a72d469eb9c8d0ca0de02ae7fd",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 77,
+        "minY": 28,
+        "maxX": 236,
+        "maxY": 305,
+        "width": 160,
+        "height": 278
+      }
+    },
+    {
+      "index": 3,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/back/003.png",
+      "sha256": "d8a4aed14c440b4ffe094230ef64a152ba9a715a4c10e38dc50fa36f5d6ab7b3",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 77,
+        "minY": 28,
+        "maxX": 237,
+        "maxY": 305,
+        "width": 161,
+        "height": 278
+      }
+    },
+    {
+      "index": 4,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/back/004.png",
+      "sha256": "c6a22fbf5d9447b9d6bcbb021717fcf398b1093af046e54de2afa2124c962bb6",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 78,
+        "minY": 30,
+        "maxX": 238,
+        "maxY": 305,
+        "width": 161,
+        "height": 276
+      }
+    },
+    {
+      "index": 5,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/back/005.png",
+      "sha256": "667aad8eca8166617af5e47164be10d995c906191a30c09e210970b170154272",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 78,
+        "minY": 29,
+        "maxX": 238,
+        "maxY": 305,
+        "width": 161,
+        "height": 277
+      }
+    },
+    {
+      "index": 6,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/back/006.png",
+      "sha256": "2e358ff75b4ab61858bb67c2d8136bbf55fc5cc07761646f934a4a81927b7950",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 79,
+        "minY": 29,
+        "maxX": 238,
+        "maxY": 305,
+        "width": 160,
+        "height": 277
+      }
+    },
+    {
+      "index": 7,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/back/007.png",
+      "sha256": "80e9cc75881d3ae4f72b41ef8f657b39d9fe74936df14505e2298db9435e3f2c",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 79,
+        "minY": 28,
+        "maxX": 238,
+        "maxY": 304,
+        "width": 160,
+        "height": 277
+      }
+    },
+    {
+      "index": 8,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/back/008.png",
+      "sha256": "7403c08d958670621fc45eb50e6d80a4a245944f2da528a1b92a37975266dd4e",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 79,
+        "minY": 27,
+        "maxX": 238,
+        "maxY": 304,
+        "width": 160,
+        "height": 278
+      }
+    },
+    {
+      "index": 9,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/back/009.png",
+      "sha256": "c28acc7176e633a5d97a0307ddf6d35c893f91702a6af0b144bc9773e7073626",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 79,
+        "minY": 26,
+        "maxX": 238,
+        "maxY": 303,
+        "width": 160,
+        "height": 278
+      }
+    },
+    {
+      "index": 10,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/back/010.png",
+      "sha256": "22ecfe95d3775bbd63e61336622e37ee5358166ae2f95eceaa7e201b8b11d42a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 26,
+        "maxX": 239,
+        "maxY": 303,
+        "width": 160,
+        "height": 278
+      }
+    },
+    {
+      "index": 11,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/back/011.png",
+      "sha256": "41f097a87dde4797f21dfd8400bb6b3a538319e8ce23762d7b8514d0c1748e36",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 26,
+        "maxX": 239,
+        "maxY": 303,
+        "width": 160,
+        "height": 278
+      }
+    },
+    {
+      "index": 12,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/back/012.png",
+      "sha256": "485ff186be6efff1d699448731eb4345390aae6c69a9a63d8d3e1fe836789b9a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 27,
+        "maxX": 239,
+        "maxY": 303,
+        "width": 160,
+        "height": 277
+      }
+    },
+    {
+      "index": 13,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/back/013.png",
+      "sha256": "bf4f8af4cf63a9766aa6feb3cd045548fa2a1bd17530580ac86a4b197d96ff83",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 27,
+        "maxX": 239,
+        "maxY": 303,
+        "width": 160,
+        "height": 277
+      }
+    },
+    {
+      "index": 14,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/back/014.png",
+      "sha256": "7ba58fa2de5d24329539582b83128eb16ba9bf2d1b68e35993fb632b7f8a2675",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 29,
+        "maxX": 239,
+        "maxY": 303,
+        "width": 160,
+        "height": 275
+      }
+    },
+    {
+      "index": 15,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/back/015.png",
+      "sha256": "23fb530ee266a4696ea31e35cadc3e17271f4c6be3af13eb9cf7ca5cfafdb9ea",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 29,
+        "maxX": 239,
+        "maxY": 303,
+        "width": 160,
+        "height": 275
+      }
+    },
+    {
+      "index": 16,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/back/016.png",
+      "sha256": "0919c2fdc4f2044536113d8fddbbb9ef6ac4156e3f222f02e48d0dab3516fd9c",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 28,
+        "maxX": 239,
+        "maxY": 302,
+        "width": 160,
+        "height": 275
+      }
+    },
+    {
+      "index": 17,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/back/017.png",
+      "sha256": "f30f5c9adfc37fddce2796c1f10074be9f6df63730c17de3cf580ef6f38318a2",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 27,
+        "maxX": 239,
+        "maxY": 302,
+        "width": 159,
+        "height": 276
+      }
+    },
+    {
+      "index": 18,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/back/018.png",
+      "sha256": "7a500dcfcda65d69084a75edbb0182e7546f2f060b92f899366785d6dfee52c3",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 26,
+        "maxX": 239,
+        "maxY": 301,
+        "width": 159,
+        "height": 276
+      }
+    },
+    {
+      "index": 19,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/back/019.png",
+      "sha256": "7bffeae67ae66d0a92b1e0315f088a4bbe5a887c8a3c8c3d8be8b53a74c744c8",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 26,
+        "maxX": 239,
+        "maxY": 301,
+        "width": 159,
+        "height": 276
+      }
+    },
+    {
+      "index": 20,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/back/020.png",
+      "sha256": "544306e8ef89288606e2dabd37140d20bdd8a745ac60916d30ba5aa133fbcda3",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 25,
+        "maxX": 239,
+        "maxY": 301,
+        "width": 159,
+        "height": 277
+      }
+    },
+    {
+      "index": 21,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/back/021.png",
+      "sha256": "49217142641de538cdd49eece634dc328cf8f53b0ff2b886b2f8dc8d0f123e0b",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 26,
+        "maxX": 239,
+        "maxY": 301,
+        "width": 159,
+        "height": 276
+      }
+    },
+    {
+      "index": 22,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/back/022.png",
+      "sha256": "4fc746f0bc7aa9289ed37eee1f16f4e5273e28276e70112b11d6bc7e54547dad",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 27,
+        "maxX": 240,
+        "maxY": 300,
+        "width": 160,
+        "height": 274
+      }
+    },
+    {
+      "index": 23,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/back/023.png",
+      "sha256": "51f445b3b63d83ce2113e965c70c723760789a38d36d7e72b2e8689d414e75ee",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 28,
+        "maxX": 240,
+        "maxY": 300,
+        "width": 159,
+        "height": 273
+      }
+    },
+    {
+      "index": 24,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/back/024.png",
+      "sha256": "c67cfb6344c4795d08c5a53c6dafcf1100e4aa2a572ad78067b659c39fdcffea",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 82,
+        "minY": 29,
+        "maxX": 240,
+        "maxY": 300,
+        "width": 159,
+        "height": 272
+      }
+    },
+    {
+      "index": 1,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/left/001.png",
+      "sha256": "514e76a6bc4d260cdabd003452c4e7f88692b750be199e5b5edaba340da6f399",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 92,
+        "minY": 36,
+        "maxX": 241,
+        "maxY": 302,
+        "width": 150,
+        "height": 267
+      }
+    },
+    {
+      "index": 2,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/left/002.png",
+      "sha256": "690750fa40bc37774bd1a8fb96c5a8a9d8c54756327e952beee428f96e86677a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 91,
+        "minY": 36,
+        "maxX": 241,
+        "maxY": 302,
+        "width": 151,
+        "height": 267
+      }
+    },
+    {
+      "index": 3,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/left/003.png",
+      "sha256": "d5f926f9c34336886fb2b590eee50597c9be7093d0707586ae7913199497ca04",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 90,
+        "minY": 36,
+        "maxX": 241,
+        "maxY": 302,
+        "width": 152,
+        "height": 267
+      }
+    },
+    {
+      "index": 4,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/left/004.png",
+      "sha256": "59a97d29a57e6d93d1bb0743061c5a503d3d8d74346599656d503bfc5aa5f200",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 89,
+        "minY": 36,
+        "maxX": 240,
+        "maxY": 302,
+        "width": 152,
+        "height": 267
+      }
+    },
+    {
+      "index": 5,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/left/005.png",
+      "sha256": "02f1e6ae21372896952ab8892a0b919b2f1fbad7ad50d0dd8490dd92cdc3cbd6",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 89,
+        "minY": 36,
+        "maxX": 240,
+        "maxY": 302,
+        "width": 152,
+        "height": 267
+      }
+    },
+    {
+      "index": 6,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/left/006.png",
+      "sha256": "54c8fba32ee17c2268eb1e9f7c97aa1b58985a8210339c1ec0fe62436212324a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 88,
+        "minY": 36,
+        "maxX": 240,
+        "maxY": 303,
+        "width": 153,
+        "height": 268
+      }
+    },
+    {
+      "index": 7,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/left/007.png",
+      "sha256": "7689631abc4791f62a2c3605a26a8d71dd38e5e953b5b0a0385fbb6f31289767",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 88,
+        "minY": 36,
+        "maxX": 239,
+        "maxY": 303,
+        "width": 152,
+        "height": 268
+      }
+    },
+    {
+      "index": 8,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/left/008.png",
+      "sha256": "cba0d63042c702ee57d01a4b5e61cb0fe68be6366b0492414aa26878e0a4a0ad",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 87,
+        "minY": 36,
+        "maxX": 239,
+        "maxY": 303,
+        "width": 153,
+        "height": 268
+      }
+    },
+    {
+      "index": 9,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/left/009.png",
+      "sha256": "7609e7c36f5c515aa37c5e7748f64c6b0fc22ea6d438809af8daf4fe2c0cd013",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 86,
+        "minY": 37,
+        "maxX": 238,
+        "maxY": 303,
+        "width": 153,
+        "height": 267
+      }
+    },
+    {
+      "index": 10,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/left/010.png",
+      "sha256": "3b8f508b92bc3dae021edf39ec78cba42953ec1be150d3328dda2e5d4158484f",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 85,
+        "minY": 36,
+        "maxX": 236,
+        "maxY": 303,
+        "width": 152,
+        "height": 268
+      }
+    },
+    {
+      "index": 11,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/left/011.png",
+      "sha256": "a8facc5878ef7d4edef01cedb5f91b4c2a76f1ad5a8b18cab3bd205bb8a48be2",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 85,
+        "minY": 36,
+        "maxX": 236,
+        "maxY": 303,
+        "width": 152,
+        "height": 268
+      }
+    },
+    {
+      "index": 12,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/left/012.png",
+      "sha256": "433480ab9ef2b338849ce0b61c9961792be9ecd95a2eac92fd7d8377070a50c8",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 84,
+        "minY": 36,
+        "maxX": 236,
+        "maxY": 303,
+        "width": 153,
+        "height": 268
+      }
+    },
+    {
+      "index": 13,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/left/013.png",
+      "sha256": "6ddb60a74d87b0d8ea22c99070d83766db43f5004c109f9ea1a2f167234fb780",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 83,
+        "minY": 36,
+        "maxX": 236,
+        "maxY": 303,
+        "width": 154,
+        "height": 268
+      }
+    },
+    {
+      "index": 14,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/left/014.png",
+      "sha256": "0db6b0e25fd617f079e6156f994947e3cc11b1306933309715754fd02c02992b",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 83,
+        "minY": 36,
+        "maxX": 235,
+        "maxY": 303,
+        "width": 153,
+        "height": 268
+      }
+    },
+    {
+      "index": 15,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/left/015.png",
+      "sha256": "ef6af8147ae3fff976a7f8c7bc9e45622022aeb1544f00913cd78d99c7add29a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 36,
+        "maxX": 235,
+        "maxY": 304,
+        "width": 155,
+        "height": 269
+      }
+    },
+    {
+      "index": 16,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/left/016.png",
+      "sha256": "6830fd28326a47008567d6a056f4460ba4d6326710d5accb49d3b03294d55824",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 37,
+        "maxX": 234,
+        "maxY": 304,
+        "width": 155,
+        "height": 268
+      }
+    },
+    {
+      "index": 17,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/left/017.png",
+      "sha256": "4a06ebad38199f765e4587e1a97e5ed196e9f1ff43e88c44a8312a83a7877031",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 37,
+        "maxX": 234,
+        "maxY": 304,
+        "width": 155,
+        "height": 268
+      }
+    },
+    {
+      "index": 18,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/left/018.png",
+      "sha256": "3ac562cb3fc7c36d65d96d2a8c18011aa250b9348afec3b5143a37c58b464240",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 79,
+        "minY": 38,
+        "maxX": 232,
+        "maxY": 305,
+        "width": 154,
+        "height": 268
+      }
+    },
+    {
+      "index": 19,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/left/019.png",
+      "sha256": "71beff52e2ae24b369fde6240407dc20272faf9c1a329952fbc4772c2de5629b",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 78,
+        "minY": 36,
+        "maxX": 232,
+        "maxY": 305,
+        "width": 155,
+        "height": 270
+      }
+    },
+    {
+      "index": 20,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/left/020.png",
+      "sha256": "f5fd5019aae7efcda66b545c6d59f21c502e9bf1a6ec9179ee30be2c78baf1e5",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 78,
+        "minY": 36,
+        "maxX": 232,
+        "maxY": 305,
+        "width": 155,
+        "height": 270
+      }
+    },
+    {
+      "index": 21,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/left/021.png",
+      "sha256": "d54789e8746130129ad4b6dcbe37bbbfdc3d99017ef07b0e62be910c0502e512",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 78,
+        "minY": 36,
+        "maxX": 231,
+        "maxY": 305,
+        "width": 154,
+        "height": 270
+      }
+    },
+    {
+      "index": 22,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/left/022.png",
+      "sha256": "bdf00f25fd1e803d24c14db6980dbc4e19e03a1372d9160a4c72fb32d9f7fc2b",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 76,
+        "minY": 36,
+        "maxX": 230,
+        "maxY": 306,
+        "width": 155,
+        "height": 271
+      }
+    },
+    {
+      "index": 23,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/left/023.png",
+      "sha256": "7ed7b10d74379ced51f6501f2fe10c95c57cbd6f2bd4d3d7718e9888dfd7bbd5",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 76,
+        "minY": 36,
+        "maxX": 230,
+        "maxY": 306,
+        "width": 155,
+        "height": 271
+      }
+    },
+    {
+      "index": 24,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/left/024.png",
+      "sha256": "6025adae1b8359a80a869a145f12aec825237b70a125360c581484c8149e155f",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 75,
+        "minY": 36,
+        "maxX": 230,
+        "maxY": 306,
+        "width": 156,
+        "height": 271
+      }
+    },
+    {
+      "index": 1,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/right/001.png",
+      "sha256": "267e835c4a5b129abc607ea259ab76a1d400e8ca1a727f1b69889ed36b227de0",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 76,
+        "minY": 36,
+        "maxX": 226,
+        "maxY": 302,
+        "width": 151,
+        "height": 267
+      }
+    },
+    {
+      "index": 2,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/right/002.png",
+      "sha256": "d29007c08aaa3fc5e59e7c8421460ff724fb73921de4ae2d089a7318551f1478",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 76,
+        "minY": 36,
+        "maxX": 228,
+        "maxY": 302,
+        "width": 153,
+        "height": 267
+      }
+    },
+    {
+      "index": 3,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/right/003.png",
+      "sha256": "5e300fa197d2fe0405da388c2fbbc311357cf1a2d516596b678f55fb879ca665",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 76,
+        "minY": 36,
+        "maxX": 228,
+        "maxY": 302,
+        "width": 153,
+        "height": 267
+      }
+    },
+    {
+      "index": 4,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/right/004.png",
+      "sha256": "af001280003930cc5cd19b78a5b5b699675c294d67590845e5b874dd3c39b459",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 77,
+        "minY": 37,
+        "maxX": 229,
+        "maxY": 303,
+        "width": 153,
+        "height": 267
+      }
+    },
+    {
+      "index": 5,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/right/005.png",
+      "sha256": "6154dfb8b3a75b8243b5cc36c08a10e3a1e9e5722738f7dd2323e04db458bfcc",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 77,
+        "minY": 37,
+        "maxX": 230,
+        "maxY": 303,
+        "width": 154,
+        "height": 267
+      }
+    },
+    {
+      "index": 6,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/right/006.png",
+      "sha256": "200aa5ca4ffa281514858525937dbe3f1a32947cb77c2b78b8d2b2804ab565d3",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 78,
+        "minY": 36,
+        "maxX": 230,
+        "maxY": 303,
+        "width": 153,
+        "height": 268
+      }
+    },
+    {
+      "index": 7,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/right/007.png",
+      "sha256": "94d596f8bfce42bc5c66d005d419b4a6b5fddf49448b9b35813faead5b2b0763",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 79,
+        "minY": 36,
+        "maxX": 230,
+        "maxY": 303,
+        "width": 152,
+        "height": 268
+      }
+    },
+    {
+      "index": 8,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/right/008.png",
+      "sha256": "f9d05d4c9acca635249959ad9161f8835255a7622c0a48c52f3c2df650cb29db",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 80,
+        "minY": 36,
+        "maxX": 231,
+        "maxY": 303,
+        "width": 152,
+        "height": 268
+      }
+    },
+    {
+      "index": 9,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/right/009.png",
+      "sha256": "f688a1c5909f8b5cc5d165fd49dde51467a9550304709e3c63ab9d332a68c33b",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 81,
+        "minY": 36,
+        "maxX": 232,
+        "maxY": 303,
+        "width": 152,
+        "height": 268
+      }
+    },
+    {
+      "index": 10,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/right/010.png",
+      "sha256": "3761806b588a19f4b4bc13cced7f08ac6915b27c28d7e5208698defa1f8dc97e",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 84,
+        "minY": 36,
+        "maxX": 234,
+        "maxY": 303,
+        "width": 151,
+        "height": 268
+      }
+    },
+    {
+      "index": 11,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/right/011.png",
+      "sha256": "33ef376fa990dd17d6b8b6f8c2bdb63749fca97b3b1b1e85aa5e9ba8c8394be0",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 83,
+        "minY": 36,
+        "maxX": 234,
+        "maxY": 303,
+        "width": 152,
+        "height": 268
+      }
+    },
+    {
+      "index": 12,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/right/012.png",
+      "sha256": "7b3b39d79f1f267b22b7034eb1ddb49a216cad59ba55d27878f5d70726ab34e6",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 84,
+        "minY": 36,
+        "maxX": 235,
+        "maxY": 303,
+        "width": 152,
+        "height": 268
+      }
+    },
+    {
+      "index": 13,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/right/013.png",
+      "sha256": "58f86c91dc37c9b394b5d48abb12ceb73f11260fae0d7d2cacfb18955dcf53f5",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 83,
+        "minY": 36,
+        "maxX": 236,
+        "maxY": 304,
+        "width": 154,
+        "height": 269
+      }
+    },
+    {
+      "index": 14,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/right/014.png",
+      "sha256": "03cea023af5995a6b657baaeeb1c30d95e773a21f6e94a884536c23562e39b77",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 84,
+        "minY": 38,
+        "maxX": 237,
+        "maxY": 304,
+        "width": 154,
+        "height": 267
+      }
+    },
+    {
+      "index": 15,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/right/015.png",
+      "sha256": "212d693ec988fd9c381aa111079be79be5b5af0fe56cccb216f6052b753c0cef",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 85,
+        "minY": 38,
+        "maxX": 238,
+        "maxY": 304,
+        "width": 154,
+        "height": 267
+      }
+    },
+    {
+      "index": 16,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/right/016.png",
+      "sha256": "5d36a285b6c260ecc153bca78a77ee7816ba309ad8c054be86ca61a84057de4c",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 86,
+        "minY": 36,
+        "maxX": 238,
+        "maxY": 304,
+        "width": 153,
+        "height": 269
+      }
+    },
+    {
+      "index": 17,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/right/017.png",
+      "sha256": "c92dc91a2a7fb0fb1d0053e56464a3b9ef5df2c0ea0acea6076c2baa9c8abfc0",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 87,
+        "minY": 36,
+        "maxX": 239,
+        "maxY": 304,
+        "width": 153,
+        "height": 269
+      }
+    },
+    {
+      "index": 18,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/right/018.png",
+      "sha256": "491b1ebbbb1b17a2c70503c8c62d182a77af725369fc08ddb0938794136c086a",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 88,
+        "minY": 36,
+        "maxX": 240,
+        "maxY": 304,
+        "width": 153,
+        "height": 269
+      }
+    },
+    {
+      "index": 19,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/right/019.png",
+      "sha256": "294c310a246dd91c49ffd37007d9536551b55e6b04fa1d44bff27af6b8522708",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 89,
+        "minY": 36,
+        "maxX": 241,
+        "maxY": 304,
+        "width": 153,
+        "height": 269
+      }
+    },
+    {
+      "index": 20,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/right/020.png",
+      "sha256": "4dec2088b9e06447d4a469636fb455659181134e2e1a4f675958827cd385cdca",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 89,
+        "minY": 36,
+        "maxX": 241,
+        "maxY": 304,
+        "width": 153,
+        "height": 269
+      }
+    },
+    {
+      "index": 21,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/right/021.png",
+      "sha256": "8caca1ff558bf03acf01ff82f3241b524b4abbaba00ebfac5e0726e312a78dd0",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 89,
+        "minY": 36,
+        "maxX": 242,
+        "maxY": 304,
+        "width": 154,
+        "height": 269
+      }
+    },
+    {
+      "index": 22,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/right/022.png",
+      "sha256": "e99b33ab820ade68d9c100ddeae6279eddd6d1f157cd0b536e39fadacf15f9b2",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 90,
+        "minY": 36,
+        "maxX": 243,
+        "maxY": 305,
+        "width": 154,
+        "height": 270
+      }
+    },
+    {
+      "index": 23,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/right/023.png",
+      "sha256": "35a05a1f827fc1a366fdc2c95a4f1ab9d248da1e7776e34cc2db71de6fb659a2",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 91,
+        "minY": 36,
+        "maxX": 244,
+        "maxY": 305,
+        "width": 154,
+        "height": 270
+      }
+    },
+    {
+      "index": 24,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/source/right/024.png",
+      "sha256": "714fc4ba582fcaa0948b541f515faed1ca52d6981c6fd134743eedb28f7d0e69",
+      "size": [
+        320,
+        320
+      ],
+      "bbox": {
+        "minX": 91,
+        "minY": 37,
+        "maxX": 245,
+        "maxY": 305,
+        "width": 155,
+        "height": 269
+      }
+    }
+  ],
+  "frames": [
+    {
+      "index": 1,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/front/001.png",
+      "sha256": "56a7181e4906f1345740d70a389951efb04c9a74620c0b45cb4a11307f8f5647",
+      "bbox": {
+        "minX": 62,
+        "minY": 33,
+        "maxX": 145,
+        "maxY": 176,
+        "width": 84,
+        "height": 144
+      }
+    },
+    {
+      "index": 2,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/front/002.png",
+      "sha256": "95fbbb3c8313d94da37777167eebc96c753edff3a74d880a14db7e35ed525639",
+      "bbox": {
+        "minX": 62,
+        "minY": 32,
+        "maxX": 145,
+        "maxY": 177,
+        "width": 84,
+        "height": 146
+      }
+    },
+    {
+      "index": 3,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/front/003.png",
+      "sha256": "c81a3cac5e312f8e04912c58c927c8cc317876cbb723aa4fa7b95579b9228d01",
+      "bbox": {
+        "minX": 62,
+        "minY": 32,
+        "maxX": 146,
+        "maxY": 177,
+        "width": 85,
+        "height": 146
+      }
+    },
+    {
+      "index": 4,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/front/004.png",
+      "sha256": "4b8ef2d44614eaa892d44553b745476bbb1d499b019d033a11326a29b2377e76",
+      "bbox": {
+        "minX": 62,
+        "minY": 32,
+        "maxX": 146,
+        "maxY": 177,
+        "width": 85,
+        "height": 146
+      }
+    },
+    {
+      "index": 5,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/front/005.png",
+      "sha256": "aa20913cce48f3a12ab85ce66261c4b2e68ea2ef0af8f96e00dff845d029a4f4",
+      "bbox": {
+        "minX": 62,
+        "minY": 32,
+        "maxX": 146,
+        "maxY": 177,
+        "width": 85,
+        "height": 146
+      }
+    },
+    {
+      "index": 6,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/front/006.png",
+      "sha256": "01da6f333251531a5611c020053cd248a84b2b69df8ca3638ad431292222283f",
+      "bbox": {
+        "minX": 62,
+        "minY": 33,
+        "maxX": 146,
+        "maxY": 177,
+        "width": 85,
+        "height": 145
+      }
+    },
+    {
+      "index": 7,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/front/007.png",
+      "sha256": "3fad2d98971737d43b7b96eb0f0b0f9c8dd542d01b0f9a585238bc4de6b6c5e1",
+      "bbox": {
+        "minX": 62,
+        "minY": 33,
+        "maxX": 146,
+        "maxY": 177,
+        "width": 85,
+        "height": 145
+      }
+    },
+    {
+      "index": 8,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/front/008.png",
+      "sha256": "ce314f3d81b2e173fc2b5d17d76cb8ee73f333d8e4b3d260f26501412e17bf01",
+      "bbox": {
+        "minX": 62,
+        "minY": 33,
+        "maxX": 146,
+        "maxY": 177,
+        "width": 85,
+        "height": 145
+      }
+    },
+    {
+      "index": 9,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/front/009.png",
+      "sha256": "f8ff18b6468388587eed779fcd7d3d3b942cd452ef93b3a7893b34e800cb2fd5",
+      "bbox": {
+        "minX": 62,
+        "minY": 34,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 85,
+        "height": 145
+      }
+    },
+    {
+      "index": 10,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/front/010.png",
+      "sha256": "03ed91ee7f95941b48b4218f433204a3fe1f610fb5cd0dc928c79da177a694ec",
+      "bbox": {
+        "minX": 62,
+        "minY": 33,
+        "maxX": 147,
+        "maxY": 178,
+        "width": 86,
+        "height": 146
+      }
+    },
+    {
+      "index": 11,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/front/011.png",
+      "sha256": "4687e7a8a9612361c5e3c64fbfef65a5c174d934d0f7ea9079eaa06cdcfcf4f3",
+      "bbox": {
+        "minX": 62,
+        "minY": 32,
+        "maxX": 147,
+        "maxY": 178,
+        "width": 86,
+        "height": 147
+      }
+    },
+    {
+      "index": 12,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/front/012.png",
+      "sha256": "6eaa12b6dd45a9c46ca185ca7ad02ab5bab0d4f3fc99d0c837ddb684a1e11341",
+      "bbox": {
+        "minX": 62,
+        "minY": 32,
+        "maxX": 147,
+        "maxY": 178,
+        "width": 86,
+        "height": 147
+      }
+    },
+    {
+      "index": 13,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/front/013.png",
+      "sha256": "7ee2f6b1604edece7b268976c0981572312bc57619b943aeb64512283dfbbd8e",
+      "bbox": {
+        "minX": 62,
+        "minY": 32,
+        "maxX": 147,
+        "maxY": 178,
+        "width": 86,
+        "height": 147
+      }
+    },
+    {
+      "index": 14,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/front/014.png",
+      "sha256": "d153de7d51e1123b2bdb38c1bf9ae94087d1bb6d5862edd2046bd3bba82b7f5b",
+      "bbox": {
+        "minX": 62,
+        "minY": 32,
+        "maxX": 147,
+        "maxY": 179,
+        "width": 86,
+        "height": 148
+      }
+    },
+    {
+      "index": 15,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/front/015.png",
+      "sha256": "408ab4c1f6fdc11f11af8d9dc3b57e293c99669799a411af145487324a560e98",
+      "bbox": {
+        "minX": 61,
+        "minY": 32,
+        "maxX": 147,
+        "maxY": 179,
+        "width": 87,
+        "height": 148
+      }
+    },
+    {
+      "index": 16,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/front/016.png",
+      "sha256": "fbc67b2c4848cf1aca66b4396da57f8e0d8a1da6990314ac495d705f062411b2",
+      "bbox": {
+        "minX": 61,
+        "minY": 33,
+        "maxX": 147,
+        "maxY": 177,
+        "width": 87,
+        "height": 145
+      }
+    },
+    {
+      "index": 17,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/front/017.png",
+      "sha256": "f9f094bb95b4ee87f0cd30086e747bdae9be046d478829cbbe516fc500ec1b40",
+      "bbox": {
+        "minX": 60,
+        "minY": 33,
+        "maxX": 147,
+        "maxY": 179,
+        "width": 88,
+        "height": 147
+      }
+    },
+    {
+      "index": 18,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/front/018.png",
+      "sha256": "94f0042ab8a3eb6158f89f8d2fcc584297822accd29c3af013eb6be98f1be289",
+      "bbox": {
+        "minX": 60,
+        "minY": 33,
+        "maxX": 147,
+        "maxY": 179,
+        "width": 88,
+        "height": 147
+      }
+    },
+    {
+      "index": 19,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/front/019.png",
+      "sha256": "cac7a06a0aa39fbe6cf189d61ce5a0d28c02093af5956c4a83015717613f28e8",
+      "bbox": {
+        "minX": 60,
+        "minY": 33,
+        "maxX": 147,
+        "maxY": 179,
+        "width": 88,
+        "height": 147
+      }
+    },
+    {
+      "index": 20,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/front/020.png",
+      "sha256": "0bea774fbc6dc976cb05f678b0947260b90cf836983d46562a9b6d98b5370ea9",
+      "bbox": {
+        "minX": 60,
+        "minY": 32,
+        "maxX": 147,
+        "maxY": 179,
+        "width": 88,
+        "height": 148
+      }
+    },
+    {
+      "index": 21,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/front/021.png",
+      "sha256": "b175b1984073ec2d6e17ab9d3612305f20c795f157bae7efabf101fd75b22417",
+      "bbox": {
+        "minX": 60,
+        "minY": 32,
+        "maxX": 147,
+        "maxY": 179,
+        "width": 88,
+        "height": 148
+      }
+    },
+    {
+      "index": 22,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/front/022.png",
+      "sha256": "32ac88ca8a19f89d4f3f98aa67e91ceb1e74ca7ef37027fa2cbddbfbdcd8ee32",
+      "bbox": {
+        "minX": 60,
+        "minY": 31,
+        "maxX": 147,
+        "maxY": 178,
+        "width": 88,
+        "height": 148
+      }
+    },
+    {
+      "index": 23,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/front/023.png",
+      "sha256": "0c11c9a70335dc8345a8a1aef2c48481a5c38c69021fa1c4538cc4bef3fa6612",
+      "bbox": {
+        "minX": 60,
+        "minY": 31,
+        "maxX": 147,
+        "maxY": 180,
+        "width": 88,
+        "height": 150
+      }
+    },
+    {
+      "index": 24,
+      "direction": "front",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/front/024.png",
+      "sha256": "f8eeb32f3c891f72b04e817602408827aa4fa50e52cee66de7643fa7f27fb896",
+      "bbox": {
+        "minX": 60,
+        "minY": 32,
+        "maxX": 147,
+        "maxY": 179,
+        "width": 88,
+        "height": 148
+      }
+    },
+    {
+      "index": 1,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/back/001.png",
+      "sha256": "604913dc08c6474f0bed2606a15ec56c691d197efdeb934a0aa7b4337393fc0b",
+      "bbox": {
+        "minX": 60,
+        "minY": 33,
+        "maxX": 144,
+        "maxY": 178,
+        "width": 85,
+        "height": 146
+      }
+    },
+    {
+      "index": 2,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/back/002.png",
+      "sha256": "83b327062fd7ec1f2f104748a39ca13250075ad79416a31b5bda69a34a3b3c2b",
+      "bbox": {
+        "minX": 61,
+        "minY": 34,
+        "maxX": 144,
+        "maxY": 178,
+        "width": 84,
+        "height": 145
+      }
+    },
+    {
+      "index": 3,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/back/003.png",
+      "sha256": "8e5904482cfa925b1a724c07cd95d8b21f6267c4ab84927c9de05fd1446dc3b4",
+      "bbox": {
+        "minX": 61,
+        "minY": 34,
+        "maxX": 144,
+        "maxY": 177,
+        "width": 84,
+        "height": 144
+      }
+    },
+    {
+      "index": 4,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/back/004.png",
+      "sha256": "442829d2e59bc083b3e36ee29e3bd286c6442cc405c74ebfe5070fb5e063725b",
+      "bbox": {
+        "minX": 61,
+        "minY": 35,
+        "maxX": 145,
+        "maxY": 176,
+        "width": 85,
+        "height": 142
+      }
+    },
+    {
+      "index": 5,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/back/005.png",
+      "sha256": "fc525012330cb64f0fcb8fa1713e507c21c44de6b1e0d14c8166cc915da5251a",
+      "bbox": {
+        "minX": 62,
+        "minY": 34,
+        "maxX": 145,
+        "maxY": 177,
+        "width": 84,
+        "height": 144
+      }
+    },
+    {
+      "index": 6,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/back/006.png",
+      "sha256": "7f0ddac12fb89d336518edc7bfb63249d8241420169d6b52d6abdd6728a0da03",
+      "bbox": {
+        "minX": 62,
+        "minY": 34,
+        "maxX": 145,
+        "maxY": 179,
+        "width": 84,
+        "height": 146
+      }
+    },
+    {
+      "index": 7,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/back/007.png",
+      "sha256": "f6a94f30c91cffbc1cc40b9351c6cd9ce7baa004980240fed408c9c1993cf1be",
+      "bbox": {
+        "minX": 62,
+        "minY": 34,
+        "maxX": 145,
+        "maxY": 179,
+        "width": 84,
+        "height": 146
+      }
+    },
+    {
+      "index": 8,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/back/008.png",
+      "sha256": "8aa55250ec30ea2dd789220787b5fec71a33805f17b68d2d4927504db210d878",
+      "bbox": {
+        "minX": 62,
+        "minY": 33,
+        "maxX": 145,
+        "maxY": 179,
+        "width": 84,
+        "height": 147
+      }
+    },
+    {
+      "index": 9,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/back/009.png",
+      "sha256": "739e1a48986953def54bc6f37276573de240889d83e8af3468cdb91589487402",
+      "bbox": {
+        "minX": 62,
+        "minY": 33,
+        "maxX": 145,
+        "maxY": 178,
+        "width": 84,
+        "height": 146
+      }
+    },
+    {
+      "index": 10,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/back/010.png",
+      "sha256": "bc5ee6c781c2825330e6c1e093115b7ee2bd7806a034cd71e38f19463b5007cf",
+      "bbox": {
+        "minX": 62,
+        "minY": 33,
+        "maxX": 145,
+        "maxY": 177,
+        "width": 84,
+        "height": 145
+      }
+    },
+    {
+      "index": 11,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/back/011.png",
+      "sha256": "1fa43efa2d0a48a7068f228d95097add598bab2531a61aae32e4e6bfbbeeb669",
+      "bbox": {
+        "minX": 62,
+        "minY": 33,
+        "maxX": 145,
+        "maxY": 178,
+        "width": 84,
+        "height": 146
+      }
+    },
+    {
+      "index": 12,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/back/012.png",
+      "sha256": "9ca1c2f41ba1c71dd87059c275ba480a91b89bb934a2d0f532de5265a4be76ea",
+      "bbox": {
+        "minX": 62,
+        "minY": 33,
+        "maxX": 145,
+        "maxY": 177,
+        "width": 84,
+        "height": 145
+      }
+    },
+    {
+      "index": 13,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/back/013.png",
+      "sha256": "3d4ec48a358ac13ef5805a479c88bf9f89dbfb16a8c7e3feab035b3d29f74512",
+      "bbox": {
+        "minX": 62,
+        "minY": 33,
+        "maxX": 145,
+        "maxY": 178,
+        "width": 84,
+        "height": 146
+      }
+    },
+    {
+      "index": 14,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/back/014.png",
+      "sha256": "196978ab8983a91116d389e6b52a13c53fc77dc6eb5ecc1d162da44718df7706",
+      "bbox": {
+        "minX": 62,
+        "minY": 34,
+        "maxX": 145,
+        "maxY": 176,
+        "width": 84,
+        "height": 143
+      }
+    },
+    {
+      "index": 15,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/back/015.png",
+      "sha256": "d370c7f8bff184cc8e7403dbee7c1ee933bb77297424bac39e81d50132727222",
+      "bbox": {
+        "minX": 62,
+        "minY": 34,
+        "maxX": 145,
+        "maxY": 178,
+        "width": 84,
+        "height": 145
+      }
+    },
+    {
+      "index": 16,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/back/016.png",
+      "sha256": "71d866b02afd7c23d4523a11ac7afd7db672ee70864915119d8c89b29623ba7c",
+      "bbox": {
+        "minX": 62,
+        "minY": 34,
+        "maxX": 145,
+        "maxY": 178,
+        "width": 84,
+        "height": 145
+      }
+    },
+    {
+      "index": 17,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/back/017.png",
+      "sha256": "0e8e7ad2a3e1764b3c2fd67b45039b5b6fc4c6216da5e92710542d0b61cb0b20",
+      "bbox": {
+        "minX": 63,
+        "minY": 33,
+        "maxX": 145,
+        "maxY": 178,
+        "width": 83,
+        "height": 146
+      }
+    },
+    {
+      "index": 18,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/back/018.png",
+      "sha256": "9fb18066ccf2e4ba7dc5ad4cc2da2217af9ace903d93c29aa7f34ebbebeeda3f",
+      "bbox": {
+        "minX": 63,
+        "minY": 33,
+        "maxX": 145,
+        "maxY": 176,
+        "width": 83,
+        "height": 144
+      }
+    },
+    {
+      "index": 19,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/back/019.png",
+      "sha256": "a2bc56140c10356347bbe41dd4454688ad7becb1d71a1c4c52a5c72f8365f2d6",
+      "bbox": {
+        "minX": 63,
+        "minY": 33,
+        "maxX": 145,
+        "maxY": 176,
+        "width": 83,
+        "height": 144
+      }
+    },
+    {
+      "index": 20,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/back/020.png",
+      "sha256": "b69d1b3f19f97f09e3d4419acf1098d246a595cb5d610684602fda4cf971e617",
+      "bbox": {
+        "minX": 63,
+        "minY": 32,
+        "maxX": 145,
+        "maxY": 176,
+        "width": 83,
+        "height": 145
+      }
+    },
+    {
+      "index": 21,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/back/021.png",
+      "sha256": "7b5459445f006630d86dacd6ddc26eb98b9aca9c9954b25caff4c5d7cc0c994c",
+      "bbox": {
+        "minX": 63,
+        "minY": 33,
+        "maxX": 145,
+        "maxY": 177,
+        "width": 83,
+        "height": 145
+      }
+    },
+    {
+      "index": 22,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/back/022.png",
+      "sha256": "ca3174e644ffb9486c917a9a641f89f270c19813e183e8e4f7d133cd6c96fd05",
+      "bbox": {
+        "minX": 64,
+        "minY": 33,
+        "maxX": 145,
+        "maxY": 177,
+        "width": 82,
+        "height": 145
+      }
+    },
+    {
+      "index": 23,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/back/023.png",
+      "sha256": "864cc0b8252ce0aa61adbc06445b4068e13bf4a74dac6adb8b1879032af41e3a",
+      "bbox": {
+        "minX": 63,
+        "minY": 34,
+        "maxX": 146,
+        "maxY": 177,
+        "width": 84,
+        "height": 144
+      }
+    },
+    {
+      "index": 24,
+      "direction": "back",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/back/024.png",
+      "sha256": "4a176ff70cbf7d9a69a03675b194fd21f3cf307f05f555bf365e3fcfaca11651",
+      "bbox": {
+        "minX": 64,
+        "minY": 34,
+        "maxX": 146,
+        "maxY": 177,
+        "width": 83,
+        "height": 144
+      }
+    },
+    {
+      "index": 1,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/left/001.png",
+      "sha256": "196763d0fbda0470455e2e1f3cf104e6d3abbb204a5b9d27a7efbe00d07b00c4",
+      "bbox": {
+        "minX": 68,
+        "minY": 38,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 79,
+        "height": 141
+      }
+    },
+    {
+      "index": 2,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/left/002.png",
+      "sha256": "bdfcbfb7147a8eec8fbe92faf13e973be06e09f9be9364295208172682f3790f",
+      "bbox": {
+        "minX": 68,
+        "minY": 38,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 79,
+        "height": 141
+      }
+    },
+    {
+      "index": 3,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/left/003.png",
+      "sha256": "a21edf6cd27594d7f20ac5603c8b9cf6bab80e20dbadc5ccb47d6980a347a8c8",
+      "bbox": {
+        "minX": 67,
+        "minY": 38,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 80,
+        "height": 141
+      }
+    },
+    {
+      "index": 4,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/left/004.png",
+      "sha256": "ba62e542f36a5897419f819cc312e94dcab4240130974b506d4ec1f75fdcd258",
+      "bbox": {
+        "minX": 67,
+        "minY": 38,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 80,
+        "height": 141
+      }
+    },
+    {
+      "index": 5,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/left/005.png",
+      "sha256": "81183859566d171838a308c0ab2ac534e259ef01fd8056cca12e25e441a59509",
+      "bbox": {
+        "minX": 67,
+        "minY": 38,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 80,
+        "height": 141
+      }
+    },
+    {
+      "index": 6,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/left/006.png",
+      "sha256": "5b634166465e306d4d62eb03fe33c7c0662a146e23f8732fb1af2954cccb33ff",
+      "bbox": {
+        "minX": 66,
+        "minY": 38,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 81,
+        "height": 141
+      }
+    },
+    {
+      "index": 7,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/left/007.png",
+      "sha256": "a7c1b5c1eb0a6ac3ac485a422cc8c7d72eb14078caf739a5edd7a858e966959c",
+      "bbox": {
+        "minX": 66,
+        "minY": 38,
+        "maxX": 145,
+        "maxY": 178,
+        "width": 80,
+        "height": 141
+      }
+    },
+    {
+      "index": 8,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/left/008.png",
+      "sha256": "21899b9ec6057f0c0a302774cafbafd126c75cbe8aed60f37b8ed3a3830bad28",
+      "bbox": {
+        "minX": 66,
+        "minY": 38,
+        "maxX": 145,
+        "maxY": 178,
+        "width": 80,
+        "height": 141
+      }
+    },
+    {
+      "index": 9,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/left/009.png",
+      "sha256": "144f395a01ecced8e0ac1dc5e569207ee4e761d652570798cb4d838e2faf801d",
+      "bbox": {
+        "minX": 65,
+        "minY": 39,
+        "maxX": 145,
+        "maxY": 178,
+        "width": 81,
+        "height": 140
+      }
+    },
+    {
+      "index": 10,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/left/010.png",
+      "sha256": "15a7be639fea2e64ad2a00a0396448c66f916768b6707c1683ad46a46eb9078f",
+      "bbox": {
+        "minX": 65,
+        "minY": 38,
+        "maxX": 144,
+        "maxY": 178,
+        "width": 80,
+        "height": 141
+      }
+    },
+    {
+      "index": 11,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/left/011.png",
+      "sha256": "7fc535bd7a3dae1fe8f834c2a5bbcb8e5dbad55a0e4c56e7a50cdfd46cd56c69",
+      "bbox": {
+        "minX": 65,
+        "minY": 38,
+        "maxX": 144,
+        "maxY": 178,
+        "width": 80,
+        "height": 141
+      }
+    },
+    {
+      "index": 12,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/left/012.png",
+      "sha256": "5dbbff3d1c0813b628b567c190a5b669b55a5ebf7063847a428bb99b09f643b0",
+      "bbox": {
+        "minX": 65,
+        "minY": 38,
+        "maxX": 144,
+        "maxY": 178,
+        "width": 80,
+        "height": 141
+      }
+    },
+    {
+      "index": 13,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/left/013.png",
+      "sha256": "e23a250692c678ff04e426472b5a57a111b87ffd72676f9155313bf32b0ba67a",
+      "bbox": {
+        "minX": 64,
+        "minY": 38,
+        "maxX": 144,
+        "maxY": 178,
+        "width": 81,
+        "height": 141
+      }
+    },
+    {
+      "index": 14,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/left/014.png",
+      "sha256": "ab30d2ab5a9fa949afcfcd0d8ad949aa338ae9032a77c99ce29271f0251d8c24",
+      "bbox": {
+        "minX": 64,
+        "minY": 38,
+        "maxX": 143,
+        "maxY": 178,
+        "width": 80,
+        "height": 141
+      }
+    },
+    {
+      "index": 15,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/left/015.png",
+      "sha256": "7c24568a821c5d08ea8bc8ffd6f3083e0f155e1948cfc93ed56ff5dbd1ad2457",
+      "bbox": {
+        "minX": 63,
+        "minY": 38,
+        "maxX": 143,
+        "maxY": 179,
+        "width": 81,
+        "height": 142
+      }
+    },
+    {
+      "index": 16,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/left/016.png",
+      "sha256": "0b54003bdb2fe69d3f6534aac15bad2e70cb7cd9034ff05845caff8fc99f4bd8",
+      "bbox": {
+        "minX": 62,
+        "minY": 39,
+        "maxX": 143,
+        "maxY": 179,
+        "width": 82,
+        "height": 141
+      }
+    },
+    {
+      "index": 17,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/left/017.png",
+      "sha256": "2490bc764b8c778ec3244d6c019edef15673107ad114a818590d2ceb5418e67f",
+      "bbox": {
+        "minX": 62,
+        "minY": 39,
+        "maxX": 143,
+        "maxY": 179,
+        "width": 82,
+        "height": 141
+      }
+    },
+    {
+      "index": 18,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/left/018.png",
+      "sha256": "778a3584c6729d66c7c20d802c0fb25941ac4ba59955391127944b6873f69274",
+      "bbox": {
+        "minX": 62,
+        "minY": 39,
+        "maxX": 142,
+        "maxY": 179,
+        "width": 81,
+        "height": 141
+      }
+    },
+    {
+      "index": 19,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/left/019.png",
+      "sha256": "b06046417820545ecf130d5ca9e79e8bb05d6d1aa74811d0918131e1f6e0d138",
+      "bbox": {
+        "minX": 61,
+        "minY": 38,
+        "maxX": 142,
+        "maxY": 179,
+        "width": 82,
+        "height": 142
+      }
+    },
+    {
+      "index": 20,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/left/020.png",
+      "sha256": "5cccacd2c999e6b7d94e905bc4a1c332160c281240725067122c4840ad916d45",
+      "bbox": {
+        "minX": 61,
+        "minY": 38,
+        "maxX": 142,
+        "maxY": 179,
+        "width": 82,
+        "height": 142
+      }
+    },
+    {
+      "index": 21,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/left/021.png",
+      "sha256": "3bc18f7bc39d81081e58ba8513bdaa8ec3a01c16ad4be221deaf590881e6ac61",
+      "bbox": {
+        "minX": 61,
+        "minY": 38,
+        "maxX": 141,
+        "maxY": 179,
+        "width": 81,
+        "height": 142
+      }
+    },
+    {
+      "index": 22,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/left/022.png",
+      "sha256": "930780d3d6569cb7bcac52a1a40447ef75fe74dcc179f700af1c9e126e06efa8",
+      "bbox": {
+        "minX": 60,
+        "minY": 38,
+        "maxX": 141,
+        "maxY": 180,
+        "width": 82,
+        "height": 143
+      }
+    },
+    {
+      "index": 23,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/left/023.png",
+      "sha256": "2761f4c729cab91e362612b3be953aa5f12881192ca98cb7a09cdf4c4b94daa3",
+      "bbox": {
+        "minX": 60,
+        "minY": 38,
+        "maxX": 141,
+        "maxY": 180,
+        "width": 82,
+        "height": 143
+      }
+    },
+    {
+      "index": 24,
+      "direction": "left",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/left/024.png",
+      "sha256": "7a17868511ecefd57cab33919fb81bfa74c3959f3b22bc6b689911556de49834",
+      "bbox": {
+        "minX": 59,
+        "minY": 38,
+        "maxX": 141,
+        "maxY": 180,
+        "width": 83,
+        "height": 143
+      }
+    },
+    {
+      "index": 1,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/right/001.png",
+      "sha256": "7d2a78aa314636e6f0f4fd605216811a0e3b7c0b0a33f3112af5a44add282930",
+      "bbox": {
+        "minX": 60,
+        "minY": 38,
+        "maxX": 138,
+        "maxY": 177,
+        "width": 79,
+        "height": 140
+      }
+    },
+    {
+      "index": 2,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/right/002.png",
+      "sha256": "4f42951aa3d70cf7e5ef0f8ddb146f364b97bfe5f85e196e5f1c88979c37ee66",
+      "bbox": {
+        "minX": 61,
+        "minY": 38,
+        "maxX": 140,
+        "maxY": 178,
+        "width": 80,
+        "height": 141
+      }
+    },
+    {
+      "index": 3,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/right/003.png",
+      "sha256": "2f3c11cc6ceae7ef36ccf0336927fa2fbc50b83fc1f2c1de59926da6ee383458",
+      "bbox": {
+        "minX": 60,
+        "minY": 38,
+        "maxX": 140,
+        "maxY": 178,
+        "width": 81,
+        "height": 141
+      }
+    },
+    {
+      "index": 4,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/right/004.png",
+      "sha256": "bab3176315d52759f2d5d353c3c61f73007a3395036f589ee9f56821a82f0fdd",
+      "bbox": {
+        "minX": 61,
+        "minY": 39,
+        "maxX": 140,
+        "maxY": 178,
+        "width": 80,
+        "height": 140
+      }
+    },
+    {
+      "index": 5,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/right/005.png",
+      "sha256": "7e209d0d0a6b001c53585f3803533b65f1ea714b2abaac33bf88d83612b8b477",
+      "bbox": {
+        "minX": 61,
+        "minY": 39,
+        "maxX": 141,
+        "maxY": 178,
+        "width": 81,
+        "height": 140
+      }
+    },
+    {
+      "index": 6,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/right/006.png",
+      "sha256": "adbcb1c3c0a8a68d3ebb952b343ed619f22c7c0936170f63a8dc179ca9dfb662",
+      "bbox": {
+        "minX": 61,
+        "minY": 38,
+        "maxX": 141,
+        "maxY": 178,
+        "width": 81,
+        "height": 141
+      }
+    },
+    {
+      "index": 7,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/right/007.png",
+      "sha256": "486bc11780c4f56c414d2294ff6c976ccbd063de62d5d42f3f65114f3878b14e",
+      "bbox": {
+        "minX": 62,
+        "minY": 38,
+        "maxX": 141,
+        "maxY": 178,
+        "width": 80,
+        "height": 141
+      }
+    },
+    {
+      "index": 8,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/right/008.png",
+      "sha256": "e0ed390738dd3e69c4bfd67d05d182333a08e002d86d318dacb76f4195fefc91",
+      "bbox": {
+        "minX": 62,
+        "minY": 38,
+        "maxX": 141,
+        "maxY": 178,
+        "width": 80,
+        "height": 141
+      }
+    },
+    {
+      "index": 9,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/right/009.png",
+      "sha256": "aa301e4d02049d4f544aa720244b98a55fce3a0324737fde7198a6c00a3a6254",
+      "bbox": {
+        "minX": 63,
+        "minY": 38,
+        "maxX": 142,
+        "maxY": 178,
+        "width": 80,
+        "height": 141
+      }
+    },
+    {
+      "index": 10,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/right/010.png",
+      "sha256": "a202b051a3289a609619004c74258680012bf69c6156ec67e6e6e1de597de574",
+      "bbox": {
+        "minX": 64,
+        "minY": 38,
+        "maxX": 143,
+        "maxY": 177,
+        "width": 80,
+        "height": 140
+      }
+    },
+    {
+      "index": 11,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/right/011.png",
+      "sha256": "4281f5eafa3eadf20fc612f7ddcccff72a52fbbf6375f46ab83636c2d1c05ab2",
+      "bbox": {
+        "minX": 64,
+        "minY": 38,
+        "maxX": 143,
+        "maxY": 178,
+        "width": 80,
+        "height": 141
+      }
+    },
+    {
+      "index": 12,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/right/012.png",
+      "sha256": "872fd81e525229eb4d4c8532e391dd327329da7018e40dec7b9591b3da8bd70e",
+      "bbox": {
+        "minX": 64,
+        "minY": 38,
+        "maxX": 143,
+        "maxY": 178,
+        "width": 80,
+        "height": 141
+      }
+    },
+    {
+      "index": 13,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/right/013.png",
+      "sha256": "80a487d78196b000f1ffbec1b938af4671f25e46f4858eee14f2ba46877c8f24",
+      "bbox": {
+        "minX": 64,
+        "minY": 38,
+        "maxX": 144,
+        "maxY": 179,
+        "width": 81,
+        "height": 142
+      }
+    },
+    {
+      "index": 14,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/right/014.png",
+      "sha256": "b2c6934ed455eae7a31a19720a27a13d2577be3fa730e5fbdb93560749cd4f63",
+      "bbox": {
+        "minX": 64,
+        "minY": 39,
+        "maxX": 144,
+        "maxY": 179,
+        "width": 81,
+        "height": 141
+      }
+    },
+    {
+      "index": 15,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/right/015.png",
+      "sha256": "b013b570e0ca8150f3f87edf7a09796d802f386097acd641b734e72f30ddebde",
+      "bbox": {
+        "minX": 65,
+        "minY": 39,
+        "maxX": 145,
+        "maxY": 179,
+        "width": 81,
+        "height": 141
+      }
+    },
+    {
+      "index": 16,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/right/016.png",
+      "sha256": "2e07c3ffef3c1e44a07cad1058c56284de87c1d0475f09e00dbed89bb814ccc9",
+      "bbox": {
+        "minX": 65,
+        "minY": 38,
+        "maxX": 145,
+        "maxY": 179,
+        "width": 81,
+        "height": 142
+      }
+    },
+    {
+      "index": 17,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/right/017.png",
+      "sha256": "f1ff3c44a5e182146042dfc901be536a95dae57ee9914476878b5786a7246ea4",
+      "bbox": {
+        "minX": 66,
+        "minY": 38,
+        "maxX": 145,
+        "maxY": 179,
+        "width": 80,
+        "height": 142
+      }
+    },
+    {
+      "index": 18,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/right/018.png",
+      "sha256": "9fa2bac2c90482fbe70863e956e48faaf818f2e3ed830a21505315bf88236dc1",
+      "bbox": {
+        "minX": 66,
+        "minY": 38,
+        "maxX": 146,
+        "maxY": 179,
+        "width": 81,
+        "height": 142
+      }
+    },
+    {
+      "index": 19,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/right/019.png",
+      "sha256": "c4140e3c0d1abf24b481555b78b4f730bb8f2518bfbf45df23c990ef4487dad6",
+      "bbox": {
+        "minX": 67,
+        "minY": 38,
+        "maxX": 146,
+        "maxY": 178,
+        "width": 80,
+        "height": 141
+      }
+    },
+    {
+      "index": 20,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/right/020.png",
+      "sha256": "ff23dac0a15513f82e4c8110654fa65dd9def2eae2c5f1970faae4912328a836",
+      "bbox": {
+        "minX": 67,
+        "minY": 38,
+        "maxX": 146,
+        "maxY": 179,
+        "width": 80,
+        "height": 142
+      }
+    },
+    {
+      "index": 21,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/right/021.png",
+      "sha256": "faa7d1c9ed7394402596d27e89b4ee173f3c151660b85462414768a6f450c997",
+      "bbox": {
+        "minX": 67,
+        "minY": 38,
+        "maxX": 147,
+        "maxY": 179,
+        "width": 81,
+        "height": 142
+      }
+    },
+    {
+      "index": 22,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/right/022.png",
+      "sha256": "2ca06626af6fd267fb15a309b1ae8a286d487d8a6c80afc889bdd0fe25464d92",
+      "bbox": {
+        "minX": 67,
+        "minY": 38,
+        "maxX": 147,
+        "maxY": 179,
+        "width": 81,
+        "height": 142
+      }
+    },
+    {
+      "index": 23,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/right/023.png",
+      "sha256": "837a8b438e7924ad63ff3d5f960c69f72d846b3b99e911620edd720d4909b2d1",
+      "bbox": {
+        "minX": 68,
+        "minY": 38,
+        "maxX": 148,
+        "maxY": 179,
+        "width": 81,
+        "height": 142
+      }
+    },
+    {
+      "index": 24,
+      "direction": "right",
+      "file": "src/assets/characters/sakuya/sequence-approved-v1/frames/right/024.png",
+      "sha256": "5ea174b6b01256baaf7d29682e29fe13485fe0ae02b2752d6d82052034f65930",
+      "bbox": {
+        "minX": 68,
+        "minY": 39,
+        "maxX": 148,
+        "maxY": 179,
+        "width": 81,
+        "height": 141
+      }
+    }
+  ]
+}

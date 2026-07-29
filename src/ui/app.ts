@@ -53,12 +53,28 @@ const byId = <T extends HTMLElement>(id: string) => {
 };
 
 const app = byId<HTMLElement>('gg-app');
+const galBackgroundSource = document.documentElement.dataset.galBackgroundSrc
+  || '../assets/ui/gensokyo-gal-shrine-background-v1.png';
+app.style.setProperty('--gg-gal-background-image', `url(${JSON.stringify(galBackgroundSource)})`);
+const initialDevicePixelRatio = Math.max(0.5, globalThis.devicePixelRatio || 1);
+function browserZoomCompensation() {
+  const current = Math.max(0.5, globalThis.devicePixelRatio || 1);
+  return Math.max(0.5, Math.min(2, initialDevicePixelRatio / current));
+}
+function updateBrowserZoomCompensation() {
+  app.style.setProperty('--gg-browser-zoom-compensation', browserZoomCompensation().toFixed(3));
+}
+updateBrowserZoomCompensation();
+globalThis.addEventListener('resize', updateBrowserZoomCompensation);
+globalThis.visualViewport?.addEventListener('resize', updateBrowserZoomCompensation);
 const liveStatus = byId<HTMLElement>('gg-live-status');
 const targetMenu = byId<HTMLElement>('gg-target-menu');
 const targetActionList = byId<HTMLElement>('gg-target-actions');
 const galInput = byId<HTMLTextAreaElement>('gg-gal-input');
 const galCompose = byId<HTMLFormElement>('gg-gal-compose');
 const sceneItemSelect = byId<HTMLSelectElement>('gg-scene-item');
+const sceneItemPicker = byId<HTMLElement>('gg-scene-item-picker');
+const sceneItemHint = byId<HTMLElement>('gg-scene-item-hint');
 const replyPanel = byId<HTMLElement>('gg-reply-panel');
 const suggestedReplies = byId<HTMLElement>('gg-suggested-replies');
 const dialogueBox = byId<HTMLButtonElement>('gg-dialogue-box');
@@ -69,16 +85,39 @@ const portraitStage = byId<HTMLElement>('gg-portrait-stage');
 const generationIndicator = byId<HTMLElement>('gg-generation-indicator');
 const pendingTasksPanel = byId<HTMLElement>('gg-pending-tasks');
 const pendingTaskList = byId<HTMLElement>('gg-pending-task-list');
+const facilityView = byId<HTMLElement>('gg-view-facility');
+const facilityVisual = byId<HTMLElement>('gg-facility-visual');
 const facilityImage = byId<HTMLImageElement>('gg-facility-image');
 const workAnimation = byId<HTMLElement>('gg-work-animation');
 const facilityConfirm = byId<HTMLButtonElement>('gg-facility-confirm');
+const launcherDialog = byId<HTMLDialogElement>('gg-launcher-dialog');
+const launcherButton = byId<HTMLButtonElement>('gg-open-launcher');
 const battleDialog = byId<HTMLDialogElement>('gg-battle-dialog');
 const dungeonDialog = byId<HTMLDialogElement>('gg-dungeon-dialog');
 const battleCanvas = byId<HTMLCanvasElement>('gg-battle-canvas');
 const battleFocusBtn = byId<HTMLButtonElement>('gg-battle-focus');
 const battleBombBtn = byId<HTMLButtonElement>('gg-battle-bomb');
 const battleBombCount = byId<HTMLElement>('gg-battle-bomb-count');
+const dungeonButtonImage = byId<HTMLImageElement>('gg-dungeon-button-image');
+const shopButtonImage = byId<HTMLImageElement>('gg-shop-button-image');
+const inventoryButtonImage = byId<HTMLImageElement>('gg-inventory-button-image');
+const shopBackgroundImage = byId<HTMLImageElement>('gg-shop-background');
 const assetBase = document.documentElement.dataset.assetBase ?? '../assets';
+type TargetActionVisualKind = 'talk' | 'leave' | 'pat-head' | 'quest';
+const targetActionSymbols: Record<TargetActionVisualKind, string> = {
+  talk: '···',
+  leave: '×',
+  'pat-head': '♡',
+  quest: '!',
+};
+dungeonButtonImage.src = document.documentElement.dataset.dungeonButtonSrc
+  || `${assetBase}/ui/reimu-dungeon-button-v1.png`;
+shopButtonImage.src = document.documentElement.dataset.shopButtonSrc
+  || `${assetBase}/ui/reimu-shop-button-v1.png`;
+inventoryButtonImage.src = document.documentElement.dataset.inventoryButtonSrc
+  || `${assetBase}/ui/marisa-inventory-button-v1.png`;
+shopBackgroundImage.src = document.documentElement.dataset.shopBackgroundSrc
+  || `${assetBase}/ui/reimu-shop-ui-background-v1.png`;
 const mapSource = document.documentElement.dataset.mapSrc || `${assetBase}/maps/garden-base-spring-v1.png`;
 const mapFacilitySprites = (() => {
   try {
@@ -100,11 +139,20 @@ const battlePlayerSheetSource = document.documentElement.dataset.battlePlayerSrc
   || `${assetBase}/battle/player/keycraft-player-sheet-v1.png`;
 const battleBossSheetSource = document.documentElement.dataset.battleBossSrc
   || `${assetBase}/battle/boss/greenhouse-flower-core-sheet-v1.png`;
+const battleBossCirnoSheetSource = document.documentElement.dataset.battleBossCirnoSrc
+  || `${assetBase}/battle/boss/cirno-battle-sheet-v1.png`;
+const battleBossAliceSheetSource = document.documentElement.dataset.battleBossAliceSrc
+  || `${assetBase}/battle/boss/alice-battle-sheet-v1.png`;
+const battleBossSakuyaSheetSource = document.documentElement.dataset.battleBossSakuyaSrc
+  || `${assetBase}/battle/boss/sakuya-battle-sheet-v1.png`;
 const battleEffectsSheetSource = document.documentElement.dataset.battleEffectsSrc
   || `${assetBase}/battle/effects/battle-effects-sheet-v1.png`;
 const battleAtlasSources = {
   player: battlePlayerSheetSource,
   boss: battleBossSheetSource,
+  boss_cirno: battleBossCirnoSheetSource,
+  boss_alice: battleBossAliceSheetSource,
+  boss_sakuya: battleBossSakuyaSheetSource,
   effects: battleEffectsSheetSource,
 };
 
@@ -170,12 +218,39 @@ function returnFromSettings() {
   if (returnView === 'gal') void refresh();
 }
 
+let launcherOpener: HTMLElement | null = null;
+
+function updateLauncherSummary() {
+  byId('gg-launcher-summary').textContent = [
+    byId('gg-time').textContent,
+    byId('gg-weather').textContent,
+    byId('gg-resources').textContent,
+  ].filter(Boolean).join(' · ');
+}
+
+function openLauncher() {
+  updateLauncherSummary();
+  if (launcherDialog.open) return;
+  launcherOpener = document.activeElement instanceof HTMLElement ? document.activeElement : launcherButton;
+  launcherDialog.showModal();
+}
+
+function closeLauncher() {
+  if (launcherDialog.open) launcherDialog.close();
+}
+
+function navigateFromLauncher(action: () => void) {
+  closeLauncher();
+  action();
+}
+
 function renderHeader() {
   const environment = state.environment ?? {};
   byId('gg-garden-name').textContent = state.garden?.name ?? '无名庭园';
   byId('gg-time').textContent = `${environment.season ?? '春'}·第${environment.day ?? 1}日·${environment.time_period ?? '清晨'}`;
   byId('gg-weather').textContent = [environment.weather ?? '晴', environment.anomaly_weather].filter(Boolean).join(' / ');
   byId('gg-resources').textContent = `物资 ${state.resources?.materials ?? 0} · 灵感 ${state.resources?.inspiration ?? 0} · 金币 ${state.resources?.coins ?? 0}`;
+  updateLauncherSummary();
 }
 
 function taskActionLabel(task: PendingTask) {
@@ -367,6 +442,7 @@ function setGenerating(active: boolean, label = '对方正在回应……', stop
   byId<HTMLButtonElement>('gg-send').disabled = active || closurePresented;
   galInput.disabled = active || closurePresented;
   sceneItemSelect.disabled = active || singleShotEventPresentation || closurePending;
+  updateSceneItemPickerState();
   suggestedReplies.querySelectorAll<HTMLButtonElement>('button').forEach((button) => {
     button.disabled = active;
   });
@@ -553,35 +629,51 @@ function hideTargetMenu() {
   gardenMap.setSelected(null);
 }
 
-// 圆点气泡菜单的图案；全部使用文本呈现字形，避免彩色 emoji 破坏像素风。
-const BUBBLE_GLYPHS: Record<string, string> = {
-  gal: '❀',
-  facility: '⌂',
-  battle: '★',
-  battle_narrative: '✦',
-  close: '×',
-  default: '◆',
-};
+function targetActionVisualKind(action?: TargetAction): TargetActionVisualKind {
+  if (!action) return 'talk';
+  if (action.mode === 'close' || action.id === 'leave') return 'leave';
+  if (action.id === 'pat_head') return 'pat-head';
+  if (action.eventId || action.mode === 'facility' || action.mode === 'battle' || action.mode === 'battle_narrative') {
+    return 'quest';
+  }
+  return 'talk';
+}
 
 function createBubbleButton(
   label: string,
   mode: string,
-  options: { title?: string; disabled?: boolean } = {},
+  options: {
+    title?: string;
+    disabled?: boolean;
+    action?: TargetAction;
+    visualKind?: TargetActionVisualKind;
+  } = {},
 ) {
+  const visualKind = options.visualKind ?? targetActionVisualKind(options.action);
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'gg-bubble';
   button.dataset.mode = mode;
+  button.dataset.visualKind = visualKind;
   const dot = document.createElement('span');
   dot.className = 'gg-bubble-dot';
   dot.setAttribute('aria-hidden', 'true');
-  dot.textContent = BUBBLE_GLYPHS[mode] ?? BUBBLE_GLYPHS.default;
+  const symbol = document.createElement('span');
+  symbol.className = 'gg-bubble-symbol';
+  symbol.textContent = targetActionSymbols[visualKind];
+  dot.append(symbol);
   const text = document.createElement('span');
   text.className = 'gg-bubble-label';
   text.textContent = label;
   button.append(dot, text);
   if (options.title) button.title = options.title;
   button.disabled = Boolean(options.disabled);
+  if (button.disabled && options.title) {
+    const reason = document.createElement('span');
+    reason.className = 'gg-bubble-reason';
+    reason.textContent = options.title;
+    button.append(reason);
+  }
   return button;
 }
 
@@ -593,8 +685,9 @@ function positionTargetMenu(anchor: { x: number; y: number }) {
   const shell = targetMenu.parentElement;
   if (!matchMedia('(max-width: 700px)').matches && shell) {
     const rect = shell.getBoundingClientRect();
-    anchorX = Math.max(150, Math.min(rect.width - 150, anchor.x));
-    anchorY = Math.max(160, Math.min(rect.height - 120, anchor.y));
+    const compensation = browserZoomCompensation();
+    anchorX = Math.max(245 * compensation, Math.min(rect.width - 245 * compensation, anchor.x));
+    anchorY = Math.max(245 * compensation, Math.min(rect.height - 140 * compensation, anchor.y));
   }
   targetMenu.style.setProperty('--gg-anchor-x', `${anchorX}px`);
   targetMenu.style.setProperty('--gg-anchor-y', `${anchorY}px`);
@@ -625,10 +718,14 @@ function renderTargetMenu(target: InteractionTarget, anchor: { x: number; y: num
     });
     fragment.append(note, resume);
   } else {
-    for (const item of targetActions(target, state)) {
+    // 菜单右上角已经提供关闭入口；不再重复渲染语义相同的“离开”。
+    for (const item of targetActions(target, state).filter((candidate) => (
+      candidate.mode !== 'close' && candidate.id !== 'leave'
+    ))) {
       const button = createBubbleButton(item.label, item.mode, {
         title: item.disabledReason || item.description,
         disabled: item.disabled,
+        action: item,
       });
       button.addEventListener('click', () => void chooseTargetAction(item));
       fragment.append(button);
@@ -638,9 +735,9 @@ function renderTargetMenu(target: InteractionTarget, anchor: { x: number; y: num
   // 桌面端：把气泡摆在锚点上方的半环上（-160° 到 -20°），标题与状态牌留在锚点下方。
   if (radialLayout) {
     const bubbles = Array.from(targetActionList.querySelectorAll<HTMLButtonElement>('.gg-bubble'));
-    const startAngle = -160;
-    const endAngle = -20;
-    const reach = 96;
+    const startAngle = -165;
+    const endAngle = -15;
+    const reach = Math.min(168, 122 + Math.max(0, bubbles.length - 3) * 15);
     bubbles.forEach((bubble, index) => {
       const angle = bubbles.length === 1
         ? -90
@@ -687,6 +784,9 @@ async function chooseTargetAction(action: TargetAction) {
 
 function openFacilityAction(action: TargetAction) {
   setView('facility');
+  const isInspectView = action.id === 'inspect';
+  facilityView.dataset.presentation = isInspectView ? 'details' : 'action';
+  facilityVisual.hidden = isInspectView;
   byId('gg-facility-title').textContent = action.target.label;
   byId('gg-facility-description').textContent = action.description;
   const cost = document.createDocumentFragment();
@@ -703,10 +803,15 @@ function openFacilityAction(action: TargetAction) {
     cost.append(dt, dd);
   }
   byId('gg-facility-cost').replaceChildren(cost);
-  facilityImage.src = action.target.id === 'greenhouse_plot' || action.target.id === 'magic_greenhouse'
-    ? greenhouseSource
-    : mainHouseSource;
-  facilityImage.alt = `${action.target.label}状态占位图`;
+  if (isInspectView) {
+    facilityImage.removeAttribute('src');
+    facilityImage.alt = '';
+  } else {
+    facilityImage.src = action.target.id === 'greenhouse_plot' || action.target.id === 'magic_greenhouse'
+      ? greenhouseSource
+      : mainHouseSource;
+    facilityImage.alt = `${action.target.label}状态占位图`;
+  }
   facilityConfirm.disabled = Boolean(action.disabled);
   facilityConfirm.textContent = action.disabled ? action.disabledReason || '当前不可用' : `确认${action.label}`;
   workAnimation.hidden = true;
@@ -774,6 +879,7 @@ async function submitGalMessage(
         targetCharacterId: activeTarget?.type === 'character' ? activeTarget.id : undefined,
       });
       sceneItemSelect.value = '';
+      updateSceneItemPickerState();
     }
     if (kind === 'interaction'
       && activeTarget?.type === 'facility'
@@ -899,7 +1005,7 @@ function refresh() {
 
 function renderSceneItemPicker() {
   const selected = sceneItemSelect.value;
-  const options = [new Option('不新增道具', '')];
+  const options = [new Option('不使用道具', '')];
   for (const item of listInventoryCatalog()) {
     if (item.use_mode !== 'scene_chat' || item.item_id === 'emergency_repair_kit') continue;
     const count = consumableCount(state, item.item_id);
@@ -909,6 +1015,21 @@ function renderSceneItemPicker() {
   sceneItemSelect.replaceChildren(...options);
   if (options.some((option) => option.value === selected)) sceneItemSelect.value = selected;
   sceneItemSelect.disabled = Boolean(singleShotEventPresentation || closurePending);
+  updateSceneItemPickerState();
+}
+
+function updateSceneItemPickerState() {
+  const selected = sceneItemSelect.value;
+  sceneItemPicker.dataset.hasSelection = String(Boolean(selected));
+  sceneItemPicker.dataset.disabled = String(sceneItemSelect.disabled);
+  if (sceneItemSelect.disabled) {
+    sceneItemHint.textContent = '当前剧情阶段不可追加道具';
+    return;
+  }
+  const label = sceneItemSelect.selectedOptions[0]?.textContent?.trim();
+  sceneItemHint.textContent = selected && label
+    ? `已装备：${label} · 发送时消耗 1 个`
+    : '未选择道具 · 不会消耗库存';
 }
 
 const gardenMap = new GardenMap(
@@ -946,6 +1067,15 @@ dialogueBox.addEventListener('click', () => {
   renderSceneBeat();
 });
 byId('gg-target-close').addEventListener('click', hideTargetMenu);
+launcherButton.addEventListener('click', openLauncher);
+byId('gg-close-launcher').addEventListener('click', closeLauncher);
+launcherDialog.addEventListener('click', (event) => {
+  if (event.target === launcherDialog) closeLauncher();
+});
+launcherDialog.addEventListener('close', () => {
+  if (document.activeElement === document.body && launcherOpener?.isConnected) launcherOpener.focus();
+  launcherOpener = null;
+});
 byId('gg-fullscreen').addEventListener('click', () => {
   void (async () => {
     try {
@@ -957,7 +1087,7 @@ byId('gg-fullscreen').addEventListener('click', () => {
   })();
 });
 document.addEventListener('fullscreenchange', () => {
-  byId('gg-fullscreen').textContent = document.fullscreenElement ? '退出全屏' : '全屏';
+  byId('gg-fullscreen').textContent = document.fullscreenElement ? '退出全屏' : '全屏显示';
 });
 // 开场页动态光源：光晕跟随指针，仅做装饰，不参与任何状态。
 {
@@ -1032,7 +1162,7 @@ byId('gg-swipe-right').addEventListener('click', async () => {
     setStatus(`下一条 Swipe 失败：${String(error)}`, true);
   }
 });
-byId('gg-open-settings').addEventListener('click', openSettings);
+byId('gg-open-settings').addEventListener('click', () => navigateFromLauncher(openSettings));
 byId('gg-settings-back').addEventListener('click', returnFromSettings);
 byId('gg-show-native').addEventListener('click', async () => {
   const restored = await bridge.showNativeChat();
@@ -1046,6 +1176,13 @@ async function runTestJump(jump: import('./test-tools').TestJumpId) {
     await bridge.applyTestJump(jump);
     await refresh();
     const messages: Record<import('./test-tools').TestJumpId, string> = {
+      tutorial_boundary_ready: '教程断点已就绪：点击灵梦检查结界。',
+      tutorial_house_repair_ready: '教程断点已就绪：结界已确认，旧主屋等待维修。',
+      tutorial_greenhouse_investigation_ready: '教程断点已就绪：主屋已修复，温室魔力痕迹等待调查。',
+      tutorial_greenhouse_build_ready: '教程断点已就绪：温室地基已清理，可开始施工。',
+      tutorial_flower_core_ready: '教程断点已就绪：温室研究完成，妖花核心等待调查。',
+      tutorial_proposals_ready: '教程断点已就绪：自由生长方案已登记，等待爱丽丝与荷取。',
+      tutorial_form_selection_ready: '教程断点已就绪：三套方案齐备，等待首次选型。',
       greenhouse_ready: '测试快进完成：基础魔法温室已可用。',
       r29_after_flower_core: '测试快进完成：已到妖花战后，符卡副本已解锁。',
       r30_shop_ready: '小店测试状态已就绪：已解锁，金币为 50。',
@@ -1055,21 +1192,29 @@ async function runTestJump(jump: import('./test-tools').TestJumpId) {
       m2_facilities_ready: '设施验收状态已就绪：三设施建成并解锁全部形态。',
       m2_visitors_ready: '来访与活动验收状态已就绪：三名角色在场，全部角色已认识。',
       m2_items_recovery_ready: '道具与修复验收状态已就绪：场景道具充足，妖精花园已损坏。',
+      presence_reimu: '角色测试：灵梦已加入中央庭院。',
+      presence_marisa: '角色测试：魔理沙已加入中央庭院。',
+      presence_alice: '角色测试：爱丽丝已加入中央庭院。',
+      presence_nitori: '角色测试：荷取已加入中央庭院。',
+      presence_cirno: '角色测试：琪露诺已加入中央庭院。',
+      presence_mystia: '角色测试：米斯蒂娅已加入中央庭院。',
+      presence_suika: '角色测试：萃香已加入中央庭院。',
+      presence_sakuya: '角色测试：咲夜已加入中央庭院。',
+      presence_all: '角色测试：八名角色已全部加入中央庭院。',
+      presence_clear: '角色测试：当前在场角色已全部清空。',
     };
     setStatus(messages[jump]);
   } catch (error) {
     setStatus(`测试快进失败：${error instanceof Error ? error.message : String(error)}`, true);
   }
 }
-byId('gg-test-greenhouse-ready').addEventListener('click', () => void runTestJump('greenhouse_ready'));
-byId('gg-test-r29-ready').addEventListener('click', () => void runTestJump('r29_after_flower_core'));
-byId('gg-test-r30-ready').addEventListener('click', () => void runTestJump('r30_shop_ready'));
-byId('gg-test-m2-open').addEventListener('click', () => void runTestJump('m2_open_garden'));
-byId('gg-test-m2-anomaly').addEventListener('click', () => void runTestJump('m2_anomaly_ready'));
-byId('gg-test-m2-anomaly-end').addEventListener('click', () => void runTestJump('m2_anomaly_resolution_ready'));
-byId('gg-test-m2-facilities').addEventListener('click', () => void runTestJump('m2_facilities_ready'));
-byId('gg-test-m2-visitors').addEventListener('click', () => void runTestJump('m2_visitors_ready'));
-byId('gg-test-m2-items').addEventListener('click', () => void runTestJump('m2_items_recovery_ready'));
+document.querySelectorAll<HTMLButtonElement>('[data-test-jump]').forEach((button) => {
+  button.addEventListener('click', () => {
+    const jump = button.dataset.testJump as import('./test-tools').TestJumpId;
+    void runTestJump(jump);
+  });
+});
+sceneItemSelect.addEventListener('change', updateSceneItemPickerState);
 
 function setBattleStatus(text: string, error = false) {
   const element = byId('gg-battle-status');
@@ -1261,7 +1406,7 @@ function startBattle() {
   bindBattleSession();
 }
 byId('gg-battle-narrative').addEventListener('click', () => void settleBattleResult(narrativeBattleResult()));
-byId('gg-open-dungeon').addEventListener('click', openDungeonMenu);
+byId('gg-open-dungeon').addEventListener('click', () => navigateFromLauncher(openDungeonMenu));
 byId('gg-close-dungeon').addEventListener('click', () => dungeonDialog.close());
 function renderShop() {
   renderShopView(
@@ -1281,6 +1426,61 @@ function renderOpportunities() {
   const title = document.createElement('h2');
   title.textContent = panel.title;
   root.append(title);
+  if (panel.tutorial) {
+    const tutorial = document.createElement('section');
+    tutorial.className = 'gg-tutorial-progress';
+    tutorial.setAttribute('aria-labelledby', 'gg-tutorial-current-title');
+
+    const overview = document.createElement('div');
+    overview.className = 'gg-tutorial-overview';
+    const count = document.createElement('p');
+    count.textContent = `${panel.tutorial.completedCount} / ${panel.tutorial.totalCount} 步完成`;
+    const progress = document.createElement('progress');
+    progress.max = panel.tutorial.totalCount;
+    progress.value = panel.tutorial.completedCount;
+    progress.setAttribute('aria-label', '新手教程完成进度');
+    overview.append(count, progress);
+    tutorial.append(overview);
+
+    if (panel.tutorial.currentStep) {
+      const current = document.createElement('article');
+      current.className = 'gg-tutorial-current';
+      const eyebrow = document.createElement('p');
+      eyebrow.className = 'gg-eyebrow';
+      eyebrow.textContent = '现在要做';
+      const currentTitle = document.createElement('h3');
+      currentTitle.id = 'gg-tutorial-current-title';
+      currentTitle.textContent = panel.tutorial.currentStep.title;
+      const instruction = document.createElement('p');
+      instruction.textContent = panel.tutorial.currentStep.instruction;
+      current.append(eyebrow, currentTitle, instruction);
+      tutorial.append(current);
+    }
+
+    if (panel.tutorial.nextStep) {
+      const next = document.createElement('p');
+      next.className = 'gg-tutorial-next';
+      next.textContent = `随后：${panel.tutorial.nextStep.title}`;
+      tutorial.append(next);
+    }
+
+    const stepList = document.createElement('ol');
+    stepList.className = 'gg-tutorial-steps';
+    for (const step of panel.tutorial.steps) {
+      const item = document.createElement('li');
+      item.dataset.state = step.completed ? 'complete' : step.id === panel.tutorial.currentStep?.id ? 'current' : 'upcoming';
+      const marker = document.createElement('span');
+      marker.className = 'gg-tutorial-step-marker';
+      marker.setAttribute('aria-hidden', 'true');
+      marker.textContent = step.completed ? '✓' : '';
+      const label = document.createElement('span');
+      label.textContent = step.title;
+      item.append(marker, label);
+      stepList.append(item);
+    }
+    tutorial.append(stepList);
+    root.append(tutorial);
+  }
   if (panel.graduation) {
     const grad = document.createElement('p');
     grad.textContent = panel.graduation;
@@ -1730,11 +1930,11 @@ async function useShopItem(itemId: string) {
     setStatus(error instanceof Error ? error.message : String(error), true);
   }
 }
-byId('gg-open-shop').addEventListener('click', () => { setView('shop'); renderShop(); });
+byId('gg-open-shop').addEventListener('click', () => navigateFromLauncher(() => { setView('shop'); renderShop(); }));
 byId('gg-shop-back').addEventListener('click', () => setView('garden'));
-byId('gg-open-inventory').addEventListener('click', () => { setView('inventory'); renderInventory(); });
+byId('gg-open-inventory').addEventListener('click', () => navigateFromLauncher(() => { setView('inventory'); renderInventory(); }));
 byId('gg-inventory-back').addEventListener('click', () => setView('garden'));
-byId('gg-open-opportunities').addEventListener('click', () => { setView('opportunities'); renderOpportunities(); });
+byId('gg-open-opportunities').addEventListener('click', () => navigateFromLauncher(() => { setView('opportunities'); renderOpportunities(); }));
 byId('gg-opportunities-back').addEventListener('click', () => setView('garden'));
 byId('gg-battle-retry').addEventListener('click', () => {
   if (pendingBattleResult) void settleBattleResult(pendingBattleResult);

@@ -63,12 +63,7 @@
           <span id="gg-weather">晴</span>
           <span id="gg-resources">物资 6 · 灵感 1 · 金币 0</span>
         </div>
-        <button type="button" id="gg-open-dungeon" class="gg-icon-button">符卡副本</button>
-        <button type="button" id="gg-open-shop" class="gg-icon-button">灵梦小店</button>
-        <button type="button" id="gg-open-inventory" class="gg-icon-button">背包</button>
-        <button type="button" id="gg-open-opportunities" class="gg-icon-button">开放庭园</button>
-        <button type="button" id="gg-fullscreen" class="gg-icon-button" aria-label="切换全屏显示">全屏</button>
-        <button type="button" id="gg-open-settings" class="gg-icon-button" aria-label="打开设置与恢复">设置</button>
+        <button type="button" id="gg-open-launcher" class="gg-icon-button" aria-haspopup="dialog" aria-controls="gg-launcher-dialog">幻想乡案内</button>
       </header>
 
       <section id="gg-view-garden" class="gg-view gg-view-garden" aria-labelledby="gg-garden-name">
@@ -128,9 +123,20 @@
               <button type="button" id="gg-end-chat">结束聊天</button>
               <button type="button" id="gg-retry-transaction" hidden>继续上次生成</button>
             </div>
-            <div class="gg-actions">
-              <label for="gg-scene-item">本轮使用道具</label>
-              <select id="gg-scene-item"><option value="">不新增道具</option></select>
+            <div id="gg-scene-item-picker" class="gg-scene-item-picker" data-has-selection="false">
+              <label for="gg-scene-item" class="gg-scene-item-label">
+                <span class="gg-scene-item-mark" aria-hidden="true">御</span>
+                <span class="gg-scene-item-label-copy">
+                  <strong>本轮使用道具</strong>
+                  <small>每轮至多携带一件</small>
+                </span>
+              </label>
+              <div class="gg-scene-item-control">
+                <select id="gg-scene-item" aria-describedby="gg-scene-item-hint">
+                  <option value="">不使用道具</option>
+                </select>
+              </div>
+              <p id="gg-scene-item-hint" class="gg-scene-item-hint" aria-live="polite">未选择道具</p>
             </div>
           </form>
         </div>
@@ -168,18 +174,19 @@
         </article>
       </section>
 
-      <section id="gg-view-shop" class="gg-view gg-settings" aria-label="灵梦小店" hidden>
-        <header class="gg-scene-toolbar"><button type="button" id="gg-shop-back">返回庭院</button><p class="gg-eyebrow">本地交易 · 不调用 LLM</p></header>
+      <section id="gg-view-shop" class="gg-view gg-shop" aria-label="灵梦小店" hidden>
+        <img id="gg-shop-background" alt="" aria-hidden="true">
         <div id="gg-shop-content"></div>
+        <button type="button" id="gg-shop-back" class="gg-shop-leave">离开小店</button>
       </section>
 
-      <section id="gg-view-inventory" class="gg-view gg-settings" aria-label="背包" hidden>
-        <header class="gg-scene-toolbar"><button type="button" id="gg-inventory-back">返回庭院</button><p class="gg-eyebrow">本地登记物品 · 不可自建</p></header>
+      <section id="gg-view-inventory" class="gg-view gg-settings gg-inventory" aria-label="背包" hidden>
+        <header class="gg-scene-toolbar gg-inventory-toolbar"><button type="button" id="gg-inventory-back">返回庭院</button><p class="gg-eyebrow">幻想乡道具整理帖</p></header>
         <div id="gg-inventory-content"></div>
       </section>
 
-      <section id="gg-view-opportunities" class="gg-view gg-settings" aria-label="开放庭园机会" hidden>
-        <header class="gg-scene-toolbar"><button type="button" id="gg-opportunities-back">返回庭院</button><p class="gg-eyebrow">教程毕业后的并行机会</p></header>
+      <section id="gg-view-opportunities" class="gg-view gg-settings gg-opportunities" aria-label="教程与开放庭园机会" hidden>
+        <header class="gg-scene-toolbar"><button type="button" id="gg-opportunities-back">返回庭院</button><p class="gg-eyebrow">教程进度 · 开放庭园</p></header>
         <div id="gg-opportunities-content"></div>
       </section>
 
@@ -195,18 +202,52 @@
         </div>
         <section class="gg-test-tools" aria-labelledby="gg-test-tools-title">
           <p class="gg-eyebrow">验收辅助</p>
-          <h3 id="gg-test-tools-title">测试快进（直接写入 MVU）</h3>
-          <p class="gg-note">仅用于测试；不会创建聊天消息或调用 LLM。</p>
-          <div class="gg-actions">
-            <button type="button" id="gg-test-greenhouse-ready">跳至温室可用</button>
-            <button type="button" id="gg-test-r29-ready">跳至妖花战后／副本解锁</button>
-            <button type="button" id="gg-test-r30-ready">跳至小店测试状态（50 金币）</button>
-            <button type="button" id="gg-test-m2-open">跳至开放庭园（设施未建）</button>
-            <button type="button" id="gg-test-m2-anomaly">跳至异变卡验收</button>
-            <button type="button" id="gg-test-m2-anomaly-end">跳至异变第 7 日收束</button>
-            <button type="button" id="gg-test-m2-facilities">跳至三设施全建成</button>
-            <button type="button" id="gg-test-m2-visitors">跳至来访与活动验收</button>
-            <button type="button" id="gg-test-m2-items">跳至道具与设施修复</button>
+          <h3 id="gg-test-tools-title">测试控制面板</h3>
+          <p class="gg-note">以下操作直接写入当前 assistant 楼层的 MVU 测试快照，不创建聊天消息、不调用 LLM。请勿用于正式游玩存档。</p>
+          <div class="gg-test-dashboard">
+            <section class="gg-test-group" aria-labelledby="gg-test-tutorial-title">
+              <header><span aria-hidden="true">Ⅰ</span><div><h4 id="gg-test-tutorial-title">教程断点</h4><p>把教程置于目标行动之前，用来验证按钮、剧情入口与进度导航。</p></div></header>
+              <div class="gg-test-grid">
+                <button type="button" data-test-jump="tutorial_boundary_ready"><strong>结界检查</strong><small>灵梦任务尚未完成</small></button>
+                <button type="button" data-test-jump="tutorial_house_repair_ready"><strong>主屋维修</strong><small>结界已确认，主屋损坏</small></button>
+                <button type="button" data-test-jump="tutorial_greenhouse_investigation_ready"><strong>温室调查</strong><small>主屋已修好，等待魔力线索</small></button>
+                <button type="button" data-test-jump="tutorial_greenhouse_build_ready"><strong>温室施工</strong><small>地基已清理，资源充足</small></button>
+                <button type="button" id="gg-test-greenhouse-ready" data-test-jump="greenhouse_ready"><strong>基础温室可用</strong><small>试运行与研究已完成</small></button>
+                <button type="button" data-test-jump="tutorial_flower_core_ready"><strong>妖花核心</strong><small>等待调查与战斗结算</small></button>
+                <button type="button" id="gg-test-r29-ready" data-test-jump="r29_after_flower_core"><strong>妖花战后</strong><small>副本与小店已解锁</small></button>
+                <button type="button" data-test-jump="tutorial_proposals_ready"><strong>方案收集</strong><small>自由生长已登记，等待两人</small></button>
+                <button type="button" data-test-jump="tutorial_form_selection_ready"><strong>首次选型</strong><small>三套方案齐备，尚未选择</small></button>
+                <button type="button" id="gg-test-m2-open" data-test-jump="m2_open_garden"><strong>教程毕业</strong><small>开放庭园，后续设施未建</small></button>
+              </div>
+            </section>
+
+            <section class="gg-test-group" aria-labelledby="gg-test-systems-title">
+              <header><span aria-hidden="true">Ⅱ</span><div><h4 id="gg-test-systems-title">系统场景</h4><p>准备商店、异变、设施、道具和来访系统的组合验收状态。</p></div></header>
+              <div class="gg-test-grid">
+                <button type="button" id="gg-test-r30-ready" data-test-jump="r30_shop_ready"><strong>小店测试</strong><small>解锁并持有 50 金币</small></button>
+                <button type="button" id="gg-test-m2-anomaly" data-test-jump="m2_anomaly_ready"><strong>异变卡</strong><small>持有 3 张，无活动异变</small></button>
+                <button type="button" id="gg-test-m2-anomaly-end" data-test-jump="m2_anomaly_resolution_ready"><strong>异变收束</strong><small>第七日，进入解决阶段</small></button>
+                <button type="button" id="gg-test-m2-facilities" data-test-jump="m2_facilities_ready"><strong>设施全建成</strong><small>三形态全部解锁</small></button>
+                <button type="button" id="gg-test-m2-visitors" data-test-jump="m2_visitors_ready"><strong>来访组合</strong><small>灵梦、魔理沙、爱丽丝在场</small></button>
+                <button type="button" id="gg-test-m2-items" data-test-jump="m2_items_recovery_ready"><strong>修复与道具</strong><small>妖精花园损坏，背包补齐</small></button>
+              </div>
+            </section>
+
+            <section class="gg-test-group" aria-labelledby="gg-test-presence-title">
+              <header><span aria-hidden="true">Ⅲ</span><div><h4 id="gg-test-presence-title">角色在场编排</h4><p>将角色直接加入中央庭院；保留已在场角色，适合检查动画、菜单与多人遮挡。</p></div></header>
+              <div class="gg-test-character-grid">
+                <button type="button" data-test-jump="presence_reimu">灵梦</button>
+                <button type="button" data-test-jump="presence_marisa">魔理沙</button>
+                <button type="button" data-test-jump="presence_alice">爱丽丝</button>
+                <button type="button" data-test-jump="presence_nitori">荷取</button>
+                <button type="button" data-test-jump="presence_cirno">琪露诺</button>
+                <button type="button" data-test-jump="presence_mystia">米斯蒂娅</button>
+                <button type="button" data-test-jump="presence_suika">萃香</button>
+                <button type="button" data-test-jump="presence_sakuya">咲夜</button>
+                <button type="button" class="gg-test-wide" data-test-jump="presence_all">全员入场 · 拥挤测试</button>
+                <button type="button" class="gg-test-wide gg-test-danger" data-test-jump="presence_clear">清空全部在场角色</button>
+              </div>
+            </section>
           </div>
         </section>
         <p class="gg-note">正常游戏只显示这一份常驻界面；后台楼层仍是真实消息。发生故障时可以临时恢复原生聊天。</p>
@@ -215,6 +256,40 @@
 
     <p id="gg-live-status" class="gg-live-status" role="status" aria-live="polite"></p>
   </main>
+
+  <dialog id="gg-launcher-dialog" class="gg-launcher-dialog" aria-labelledby="gg-launcher-title">
+    <div class="gg-launcher-shell">
+      <header class="gg-launcher-header">
+        <div>
+          <p class="gg-eyebrow">移动庭园功能入口</p>
+          <h2 id="gg-launcher-title">幻想乡案内</h2>
+          <p id="gg-launcher-summary" class="gg-launcher-summary">春·第1日·清晨 · 晴 · 物资 6 · 灵感 1 · 金币 0</p>
+        </div>
+        <button type="button" id="gg-close-launcher" class="gg-launcher-close" aria-label="关闭幻想乡案内">关闭</button>
+      </header>
+
+      <div class="gg-launcher-grid" aria-label="主要玩法入口">
+        <button type="button" id="gg-open-dungeon" class="gg-launcher-card gg-launcher-card-dungeon" aria-label="打开符卡副本">
+          <span class="gg-launcher-art"><img id="gg-dungeon-button-image" alt="" aria-hidden="true"></span>
+          <span class="gg-launcher-copy"><strong>符卡副本</strong><small>挑战弹幕、练习符卡与领取本地结算奖励</small></span>
+        </button>
+        <button type="button" id="gg-open-shop" class="gg-launcher-card gg-launcher-card-shop" aria-label="打开灵梦小店">
+          <span class="gg-launcher-art"><img id="gg-shop-button-image" alt="" aria-hidden="true"></span>
+          <span class="gg-launcher-copy"><strong>灵梦小店</strong><small>用金币购买庭园物资与特殊道具</small></span>
+        </button>
+        <button type="button" id="gg-open-inventory" class="gg-launcher-card gg-launcher-card-inventory" aria-label="打开背包">
+          <span class="gg-launcher-art"><img id="gg-inventory-button-image" alt="" aria-hidden="true"></span>
+          <span class="gg-launcher-copy"><strong>背包</strong><small>整理持有物并使用受控道具</small></span>
+        </button>
+      </div>
+
+      <nav class="gg-launcher-secondary" aria-label="庭园辅助功能">
+        <button type="button" id="gg-open-opportunities">开放庭园</button>
+        <button type="button" id="gg-fullscreen" aria-label="切换全屏显示">全屏显示</button>
+        <button type="button" id="gg-open-settings" aria-label="打开设置与恢复">设置与恢复</button>
+      </nav>
+    </div>
+  </dialog>
 
   <dialog id="gg-battle-dialog" class="gg-battle-dialog" aria-labelledby="gg-battle-title">
     <header class="gg-battle-header">

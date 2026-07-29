@@ -7,9 +7,12 @@
     "default_expression": "closed mouth, neutral or slight closed-mouth smile"
   },
   "character_animation_contract": {
-    "layout": "4x4",
+    "legacy_layout": "4x4",
+    "approved_sequence_layout": "variable-sequence-v1",
     "row_order": ["front", "back", "left", "right"],
-    "column_order": ["contact-a", "passing", "contact-b", "passing"],
+    "approved_sequence_cell": [209, 209],
+    "approved_sequence_stationary_frame": "direction-row-column-0",
+    "approved_sequence_loop": "001-to-N",
     "runtime_fallback": "static-turnaround",
     "reduced_motion": "static-frame"
   },
@@ -21,14 +24,19 @@
       "source_alpha": "characters/reimu/reimu-turnaround-v1.png",
       "views": ["front", "back", "left", "right"],
       "expression": "closed-mouth slight smile",
-      "animation_prototype": ["procedural-idle", "procedural-walk", "four-direction-crop"],
+      "animation_prototype": ["procedural-walk", "four-direction-crop"],
       "animation_status": "pending-unified-review",
       "animation_source_chroma": "characters/reimu/reimu-walk-cycle-chroma-v1.png",
       "animation_source_alpha": "characters/reimu/reimu-walk-cycle-v1.png",
       "animation_v2_source_alpha": "characters/reimu/reimu-animation-v2-r6.png",
       "animation_v2_status": "runtime-pilot-approved",
+      "animation_sequence_source_alpha": "characters/reimu/reimu-animation-sequence-approved-v1.png",
+      "animation_sequence_manifest": "characters/reimu/sequence-approved-v1/manifest.json",
+      "animation_sequence_status": "owner-approved-runtime-integrated",
+      "animation_sequence_frame_count": 20,
+      "animation_sequence_frame_duration_ms": 110,
       "animation_ready": ["walk-4-frame", "gohei-sway"],
-      "animation_pending": ["blink", "dedicated-idle"]
+      "animation_pending": ["blink"]
     },
     "marisa": {
       "status": "approved",
@@ -49,7 +57,7 @@
       "animation_v2_status": "runtime-pilot-approved",
       "animation_v2_notes": "hover keyframe r2: 9x4 sheet from low/high references; bob baked into atlas; legacy hover-cycle remains fallback",
       "animation_ready": ["hover-4-frame", "hat-bob", "broom-sway", "v2-hover-atlas-r2"],
-      "animation_pending": ["blink", "dedicated-idle", "aseprite-inbetween-polish"]
+      "animation_pending": ["blink", "aseprite-inbetween-polish"]
     },
     "cirno": {
       "status": "approved",
@@ -62,11 +70,16 @@
       "animation_status": "pending-unified-review",
       "animation_source_chroma": "characters/cirno/cirno-walk-cycle-chroma-v1.png",
       "animation_source_alpha": "characters/cirno/cirno-walk-cycle-v1.png",
+      "animation_sequence_source_alpha": "characters/cirno/cirno-animation-sequence-approved-v1.png",
+      "animation_sequence_manifest": "characters/cirno/sequence-approved-v1/manifest.json",
+      "animation_sequence_status": "owner-approved-runtime-integrated-with-direction-anchors",
+      "animation_sequence_frame_count": 17,
+      "animation_sequence_frame_duration_ms": 100,
       "animation_ready": ["walk-4-frame", "wing-shimmer"],
-      "animation_pending": ["blink", "dedicated-idle"]
+      "animation_pending": ["blink"]
     },
     "alice": {
-      "status": "pending-unified-review",
+      "status": "approved",
       "map_usage": true,
       "source_chroma": "characters/alice/alice-turnaround-chroma-v1.png",
       "source_alpha": "characters/alice/alice-turnaround-v1.png",
@@ -76,11 +89,16 @@
       "animation_status": "pending-unified-review",
       "animation_source_chroma": "characters/alice/alice-walk-cycle-chroma-v1.png",
       "animation_source_alpha": "characters/alice/alice-walk-cycle-v1.png",
+      "animation_sequence_source_alpha": "characters/alice/alice-animation-sequence-approved-v1.png",
+      "animation_sequence_manifest": "characters/alice/sequence-approved-v1/manifest.json",
+      "animation_sequence_status": "owner-approved-runtime-integrated",
+      "animation_sequence_frame_count": 25,
+      "animation_sequence_frame_duration_ms": 90,
       "animation_ready": ["walk-4-frame", "book-sway"],
-      "animation_pending": ["blink", "dedicated-idle"]
+      "animation_pending": ["blink"]
     },
     "mystia": {
-      "status": "pending-unified-review",
+      "status": "approved",
       "map_usage": true,
       "source_chroma": "characters/mystia/mystia-turnaround-chroma-v2.png",
       "source_alpha": "characters/mystia/mystia-turnaround-v2.png",
@@ -91,11 +109,16 @@
       "animation_status": "pending-unified-review",
       "animation_source_chroma": "characters/mystia/mystia-walk-cycle-chroma-v1.png",
       "animation_source_alpha": "characters/mystia/mystia-walk-cycle-v1.png",
+      "animation_sequence_source_alpha": "characters/mystia/mystia-animation-sequence-approved-v1.png",
+      "animation_sequence_manifest": "characters/mystia/sequence-approved-v1/manifest.json",
+      "animation_sequence_status": "owner-approved-runtime-integrated",
+      "animation_sequence_frame_count": 24,
+      "animation_sequence_frame_duration_ms": 80,
       "animation_ready": ["walk-4-frame", "wing-flutter"],
-      "animation_pending": ["blink", "dedicated-idle"]
+      "animation_pending": ["blink"]
     },
     "suika": {
-      "status": "pending-unified-review",
+      "status": "approved",
       "map_usage": true,
       "source_chroma": "characters/suika/suika-turnaround-chroma-v1.png",
       "source_alpha": "characters/suika/suika-turnaround-v1.png",
@@ -105,11 +128,16 @@
       "animation_status": "pending-unified-review",
       "animation_source_chroma": "characters/suika/suika-walk-cycle-chroma-v1.png",
       "animation_source_alpha": "characters/suika/suika-walk-cycle-v1.png",
+      "animation_sequence_source_alpha": "characters/suika/suika-animation-sequence-approved-v1.png",
+      "animation_sequence_manifest": "characters/suika/sequence-approved-v1/manifest.json",
+      "animation_sequence_status": "owner-approved-runtime-integrated-with-suika-anchor",
+      "animation_sequence_frame_count": 19,
+      "animation_sequence_frame_duration_ms": 100,
       "animation_ready": ["walk-4-frame", "chain-sway"],
-      "animation_pending": ["blink", "dedicated-idle"]
+      "animation_pending": ["blink"]
     },
     "nitori": {
-      "status": "pending-unified-review",
+      "status": "approved",
       "map_usage": true,
       "source_chroma": "characters/nitori/nitori-turnaround-chroma-v1.png",
       "source_alpha": "characters/nitori/nitori-turnaround-v1.png",
@@ -119,11 +147,16 @@
       "animation_status": "pending-unified-review",
       "animation_source_chroma": "characters/nitori/nitori-walk-cycle-chroma-v1.png",
       "animation_source_alpha": "characters/nitori/nitori-walk-cycle-v1.png",
+      "animation_sequence_source_alpha": "characters/nitori/nitori-animation-sequence-approved-v1.png",
+      "animation_sequence_manifest": "characters/nitori/sequence-approved-v1/manifest.json",
+      "animation_sequence_status": "owner-approved-runtime-integrated",
+      "animation_sequence_frame_count": 22,
+      "animation_sequence_frame_duration_ms": 90,
       "animation_ready": ["walk-4-frame", "backpack-bob"],
-      "animation_pending": ["blink", "dedicated-idle"]
+      "animation_pending": ["blink"]
     },
     "sakuya": {
-      "status": "pending-unified-review",
+      "status": "approved",
       "map_usage": true,
       "source_chroma": "characters/sakuya/sakuya-turnaround-chroma-v1.png",
       "source_alpha": "characters/sakuya/sakuya-turnaround-v1.png",
@@ -133,8 +166,13 @@
       "animation_status": "pending-unified-review",
       "animation_source_chroma": "characters/sakuya/sakuya-walk-cycle-chroma-v1.png",
       "animation_source_alpha": "characters/sakuya/sakuya-walk-cycle-v1.png",
+      "animation_sequence_source_alpha": "characters/sakuya/sakuya-animation-sequence-approved-v1.png",
+      "animation_sequence_manifest": "characters/sakuya/sequence-approved-v1/manifest.json",
+      "animation_sequence_status": "owner-approved-runtime-integrated",
+      "animation_sequence_frame_count": 24,
+      "animation_sequence_frame_duration_ms": 100,
       "animation_ready": ["walk-4-frame", "apron-sway"],
-      "animation_pending": ["blink", "dedicated-idle"]
+      "animation_pending": ["blink"]
     }
   },
   "player": {
@@ -153,6 +191,27 @@
       "source_alpha": "battle/boss/greenhouse-flower-core-sheet-v1.png",
       "runtime_embed": "alpha-only"
     },
+    "cirno_battle": {
+      "status": "owner-provided-integrated-pending-runtime-validation",
+      "source_chroma": "battle/boss/cirno-battle-sheet-v1-chroma.png",
+      "source_alpha": "battle/boss/cirno-battle-sheet-v1.png",
+      "runtime_embed": "alpha-only",
+      "layout": "2x2-phase1-phase2-hit-break"
+    },
+    "alice_battle": {
+      "status": "owner-provided-integrated-pending-runtime-validation",
+      "source_chroma": "battle/boss/alice-battle-sheet-v1-chroma.png",
+      "source_alpha": "battle/boss/alice-battle-sheet-v1.png",
+      "runtime_embed": "alpha-only",
+      "layout": "2x2-phase1-phase2-hit-break"
+    },
+    "sakuya_battle": {
+      "status": "owner-provided-integrated-pending-runtime-validation",
+      "source_chroma": "battle/boss/sakuya-battle-sheet-v1-chroma.png",
+      "source_alpha": "battle/boss/sakuya-battle-sheet-v1.png",
+      "runtime_embed": "alpha-only",
+      "layout": "2x2-phase1-phase2-hit-break"
+    },
     "common_effects": {
       "status": "wired-runtime-alpha-only",
       "source_chroma": "battle/effects/battle-effects-sheet-v1-chroma.png",
@@ -162,93 +221,137 @@
   },
   "maps": {
     "garden_base": {
-      "status": "owner-approved-runtime",
-      "source": "maps/garden-base-expanded-empty-v1.png",
-      "canvas": [1536, 1024],
-      "composition": "expanded-view-empty-garden",
+      "status": "owner-approved-integrated-pending-runtime-validation",
+      "source": "maps/garden-base-owner-candidate-v2.png",
+      "canvas": [1448, 1086],
+      "composition": "owner-supplied-spring-garden-v2",
       "runtime_role": "base-layer",
       "facility_layer_policy": "separate-transparent-sprites",
       "character_visual_scale": 0.73,
       "facility_visual_scale": 0.76,
-      "provenance": "owner-supplied 2026-07-27; SHA-256 19a88b71e4119300c5ca012aeb03cd12a13f57d3482e55bb8e9eb4a823fd52fd"
+      "provenance": "owner-supplied and owner-approved with v2 facility overlays 2026-07-29; SHA-256 df32c010c64cc34ab1ef77109b0c32938f85b40008fb1ba8f045bd4d9a65961c"
     }
   },
   "map_facility_assets": {
     "main_house": {
-      "status": "owner-approved-pending-runtime",
-      "map_usage": false,
+      "status": "owner-approved-integrated-pending-runtime-validation",
+      "map_usage": true,
+      "area_id": "main_house",
       "source_chroma": {
         "damaged": "world/map-facilities/main-house/main-house-damaged-v1-chroma.png",
         "restored": "world/map-facilities/main-house/main-house-restored-v1-chroma.png"
       },
       "source_alpha": {
-        "damaged": "world/map-facilities/main-house/main-house-damaged-v1.png",
-        "restored": "world/map-facilities/main-house/main-house-restored-v1.png"
+        "损坏": "world/map-facilities/main-house/main-house-damaged-v1.png",
+        "临时修复": "world/map-facilities/main-house/main-house-restored-v1.png",
+        "启用": "world/map-facilities/main-house/main-house-restored-v1.png"
       },
-      "render_contract": "separate transparent map sprite; owner-approved visual candidate, no runtime wiring until anchor, visual scale and hit boundary pass",
+      "render_contract": "separate transparent map sprite selected from areas.main_house.state; integrated with explicit area anchor, pending SillyTavern visual scale and hit-boundary validation",
       "provenance": "generated 2026-07-27 from the owner-supplied expanded empty garden map as camera/palette reference; owner-approved 2026-07-27; chroma-key removal validated locally"
     },
     "magic_greenhouse": {
-      "status": "owner-approved-pending-runtime",
-      "map_usage": false,
-      "source_chroma": "world/map-facilities/magic-greenhouse/magic-greenhouse-operational-v1-chroma.png",
-      "source_alpha": "world/map-facilities/magic-greenhouse/magic-greenhouse-operational-v1.png",
-      "render_contract": "separate transparent operational map sprite; owner-approved visual candidate, no runtime wiring until anchor, visual scale and hit boundary pass",
-      "provenance": "generated 2026-07-27 from the owner-supplied expanded empty garden map as camera/palette reference; owner-approved 2026-07-27; chroma-key removal validated locally"
+      "status": "owner-approved-v2-integrated-pending-runtime-validation",
+      "map_usage": true,
+      "area_id": "greenhouse_plot",
+      "source_chroma": {
+        "基础魔法温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-base-v2-chroma.png",
+        "自由生长型温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-free-growth-v2-chroma.png",
+        "人偶维护型温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-doll-maintained-v2-chroma.png",
+        "河童自动化型温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-kappa-automated-v2-chroma.png"
+      },
+      "source_alpha": {
+        "基础魔法温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-base-v2.png",
+        "自由生长型温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-free-growth-v2.png",
+        "人偶维护型温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-doll-maintained-v2.png",
+        "河童自动化型温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-kappa-automated-v2.png"
+      },
+      "geometry": {
+        "width_ratio": 0.2275,
+        "render_center": [0.6098, 0.2198],
+        "ground_anchor": [0.565, 0.287],
+        "label_anchor": [0.61, 0.105],
+        "hit_polygon": [[0.527, 0.208], [0.557, 0.145], [0.63, 0.126], [0.688, 0.17], [0.699, 0.258], [0.626, 0.307], [0.548, 0.286]]
+      },
+      "render_contract": "four owner-approved v2 transparent sprites selected from facilities.magic_greenhouse.current_form; geometry is normalized to the v2 garden base; real-SillyTavern anchor, occlusion and hit validation pending",
+      "provenance": "v2 base sample approved 2026-07-28; three dedicated forms owner-approved 2026-07-29; chroma-key removal and deterministic overlay checks passed"
     },
     "fairy_garden": {
-      "status": "owner-approved-integrated-pending-runtime-validation",
+      "status": "owner-approved-v2-integrated-pending-runtime-validation",
       "map_usage": true,
-      "damage_overlay_chroma": "world/map-facilities/fairy-garden/fairy-garden-damaged-overlay-v1-chroma.png",
-      "damage_overlay_alpha": "world/map-facilities/fairy-garden/fairy-garden-damaged-overlay-v1.png",
+      "area_id": "fairy_garden_plot",
+      "damage_overlay_chroma": "world/map-facilities/fairy-garden/fairy-garden-damaged-overlay-v2-chroma.png",
+      "damage_overlay_alpha": "world/map-facilities/fairy-garden/fairy-garden-damaged-overlay-v2.png",
       "source_chroma": {
-        "four_season_flower_garden": "world/map-facilities/fairy-garden/fairy-garden-four-season-flower-garden-v1-chroma.png",
-        "fairy_playground": "world/map-facilities/fairy-garden/fairy-garden-playground-v1-chroma.png",
-        "ice_dew_maze": "world/map-facilities/fairy-garden/fairy-garden-ice-dew-maze-v1-chroma.png"
+        "四季花境": "world/map-facilities/fairy-garden/fairy-garden-four-season-v2-chroma.png",
+        "妖精游乐庭": "world/map-facilities/fairy-garden/fairy-garden-playground-v2-chroma.png",
+        "冰露迷宫": "world/map-facilities/fairy-garden/fairy-garden-ice-dew-maze-v2-chroma.png"
       },
       "source_alpha": {
-        "four_season_flower_garden": "world/map-facilities/fairy-garden/fairy-garden-four-season-flower-garden-v1.png",
-        "fairy_playground": "world/map-facilities/fairy-garden/fairy-garden-playground-v1.png",
-        "ice_dew_maze": "world/map-facilities/fairy-garden/fairy-garden-ice-dew-maze-v1.png"
+        "四季花境": "world/map-facilities/fairy-garden/fairy-garden-four-season-v2.png",
+        "妖精游乐庭": "world/map-facilities/fairy-garden/fairy-garden-playground-v2.png",
+        "冰露迷宫": "world/map-facilities/fairy-garden/fairy-garden-ice-dew-maze-v2.png"
       },
-      "render_contract": "three separate transparent map sprites sharing one footprint and camera plus one low-occlusion damaged overlay; map draw branch is integrated, pending SillyTavern anchor, visual scale, current_form mapping and hit-boundary validation",
-      "provenance": "generated 2026-07-27 as a coherent three-form set from the approved fairy-garden camera reference; owner-approved 2026-07-27; chroma-key removal validated locally"
+      "geometry": {
+        "width_ratio": 0.2273,
+        "render_center": [0.7409, 0.4199],
+        "ground_anchor": [0.65, 0.5],
+        "label_anchor": [0.741, 0.308],
+        "hit_polygon": [[0.661, 0.345], [0.759, 0.326], [0.834, 0.374], [0.846, 0.46], [0.776, 0.516], [0.676, 0.506], [0.637, 0.438]]
+      },
+      "render_contract": "three owner-approved v2 transparent sprites sharing normalized geometry plus one low-occlusion v2 damaged overlay; real-SillyTavern anchor, occlusion and hit validation pending",
+      "provenance": "v2 four-season sample approved 2026-07-28; remaining forms and damage overlay owner-approved 2026-07-29; chroma-key removal and deterministic overlay checks passed"
     },
     "moon_spring": {
-      "status": "owner-approved-integrated-pending-runtime-validation",
+      "status": "owner-approved-v2-integrated-pending-runtime-validation",
       "map_usage": true,
-      "damage_overlay_chroma": "world/map-facilities/moon-spring/moon-spring-damaged-overlay-v1-chroma.png",
-      "damage_overlay_alpha": "world/map-facilities/moon-spring/moon-spring-damaged-overlay-v1.png",
+      "area_id": "moon_spring_plot",
+      "damage_overlay_chroma": "world/map-facilities/moon-spring/moon-spring-damaged-overlay-v2-chroma.png",
+      "damage_overlay_alpha": "world/map-facilities/moon-spring/moon-spring-damaged-overlay-v2.png",
       "source_chroma": {
-        "open_air_moon_viewing_bath": "world/map-facilities/moon-spring/moon-spring-open-air-moon-viewing-bath-v1-chroma.png",
-        "still_water_observation_pool": "world/map-facilities/moon-spring/moon-spring-still-water-observation-pool-v1-chroma.png",
-        "mist_hidden_bathhouse": "world/map-facilities/moon-spring/moon-spring-mist-hidden-bathhouse-v1-chroma.png"
+        "露天月见汤": "world/map-facilities/moon-spring/moon-spring-open-air-v2-chroma.png",
+        "静水观测池": "world/map-facilities/moon-spring/moon-spring-still-water-observation-v2-chroma.png",
+        "雾隐汤屋": "world/map-facilities/moon-spring/moon-spring-mist-hidden-bathhouse-v2-chroma.png"
       },
       "source_alpha": {
-        "open_air_moon_viewing_bath": "world/map-facilities/moon-spring/moon-spring-open-air-moon-viewing-bath-v1.png",
-        "still_water_observation_pool": "world/map-facilities/moon-spring/moon-spring-still-water-observation-pool-v1.png",
-        "mist_hidden_bathhouse": "world/map-facilities/moon-spring/moon-spring-mist-hidden-bathhouse-v1.png"
+        "露天月见汤": "world/map-facilities/moon-spring/moon-spring-open-air-v2.png",
+        "静水观测池": "world/map-facilities/moon-spring/moon-spring-still-water-observation-v2.png",
+        "雾隐汤屋": "world/map-facilities/moon-spring/moon-spring-mist-hidden-bathhouse-v2.png"
       },
-      "render_contract": "three separate transparent map sprites sharing one footprint and camera plus one low-occlusion damaged overlay; map draw branch is integrated, pending SillyTavern anchor, visual scale, current_form mapping and hit-boundary validation",
-      "provenance": "generated 2026-07-27 as a coherent three-form set; owner-approved 2026-07-27; chroma-key removal validated locally"
+      "geometry": {
+        "width_ratio": 0.2278,
+        "render_center": [0.2199, 0.4506],
+        "ground_anchor": [0.285, 0.525],
+        "label_anchor": [0.22, 0.315],
+        "hit_polygon": [[0.15, 0.357], [0.245, 0.333], [0.305, 0.382], [0.316, 0.482], [0.273, 0.544], [0.171, 0.54], [0.119, 0.461]]
+      },
+      "render_contract": "three owner-approved v2 transparent sprites sharing normalized geometry plus one low-occlusion v2 damaged overlay; real-SillyTavern anchor, occlusion and hit validation pending",
+      "provenance": "v2 open-air sample approved 2026-07-28; remaining forms and damage overlay owner-approved 2026-07-29; chroma-key removal and deterministic overlay checks passed"
     },
     "banquet_plaza": {
-      "status": "owner-approved-integrated-pending-runtime-validation",
+      "status": "owner-approved-v2-integrated-pending-runtime-validation",
       "map_usage": true,
-      "damage_overlay_chroma": "world/map-facilities/banquet-plaza/banquet-plaza-damaged-overlay-v1-chroma.png",
-      "damage_overlay_alpha": "world/map-facilities/banquet-plaza/banquet-plaza-damaged-overlay-v1.png",
+      "area_id": "banquet_plaza_plot",
+      "damage_overlay_chroma": "world/map-facilities/banquet-plaza/banquet-plaza-damaged-overlay-v2-chroma.png",
+      "damage_overlay_alpha": "world/map-facilities/banquet-plaza/banquet-plaza-damaged-overlay-v2.png",
       "source_chroma": {
-        "lantern_night_market": "world/map-facilities/banquet-plaza/banquet-plaza-lantern-night-market-v1-chroma.png",
-        "oni_grand_feast_stage": "world/map-facilities/banquet-plaza/banquet-plaza-oni-grand-feast-stage-v1-chroma.png",
-        "spell_card_duel_arena": "world/map-facilities/banquet-plaza/banquet-plaza-spell-card-duel-arena-v1-chroma.png"
+        "灯火夜市": "world/map-facilities/banquet-plaza/banquet-plaza-lantern-market-v2-chroma.png",
+        "鬼之大宴台": "world/map-facilities/banquet-plaza/banquet-plaza-oni-grand-feast-v2-chroma.png",
+        "符卡演武场": "world/map-facilities/banquet-plaza/banquet-plaza-spell-card-arena-v2-chroma.png"
       },
       "source_alpha": {
-        "lantern_night_market": "world/map-facilities/banquet-plaza/banquet-plaza-lantern-night-market-v1.png",
-        "oni_grand_feast_stage": "world/map-facilities/banquet-plaza/banquet-plaza-oni-grand-feast-stage-v1.png",
-        "spell_card_duel_arena": "world/map-facilities/banquet-plaza/banquet-plaza-spell-card-duel-arena-v1.png"
+        "灯火夜市": "world/map-facilities/banquet-plaza/banquet-plaza-lantern-market-v2.png",
+        "鬼之大宴台": "world/map-facilities/banquet-plaza/banquet-plaza-oni-grand-feast-v2.png",
+        "符卡演武场": "world/map-facilities/banquet-plaza/banquet-plaza-spell-card-arena-v2.png"
       },
-      "render_contract": "three separate transparent map sprites sharing one footprint and camera plus one low-occlusion damaged overlay; map draw branch is integrated, pending SillyTavern anchor, visual scale, current_form mapping and hit-boundary validation",
-      "provenance": "generated 2026-07-27 as a coherent three-form set; owner-approved 2026-07-27; chroma-key removal validated locally"
+      "geometry": {
+        "width_ratio": 0.2623,
+        "render_center": [0.6498, 0.66],
+        "ground_anchor": [0.548, 0.575],
+        "label_anchor": [0.65, 0.52],
+        "hit_polygon": [[0.55, 0.559], [0.696, 0.542], [0.771, 0.592], [0.779, 0.693], [0.718, 0.759], [0.606, 0.773], [0.535, 0.718], [0.523, 0.625]]
+      },
+      "render_contract": "three owner-approved v2 transparent sprites sharing normalized geometry plus one low-occlusion v2 damaged overlay; real-SillyTavern anchor, occlusion and hit validation pending",
+      "provenance": "v2 lantern-market sample approved 2026-07-28; remaining forms and damage overlay owner-approved 2026-07-29; chroma-key removal and deterministic overlay checks passed"
     }
   },
   "world_assets": {
@@ -293,6 +396,12 @@
       "status": "pending-unified-review",
       "source_chroma": "ui/ui-icons-sheet-v1-chroma.png",
       "source_alpha": "ui/ui-icons-sheet-v1.png"
+    },
+    "gal_shrine_background": {
+      "status": "owner-provided-ui-background",
+      "source_alpha": "ui/gensokyo-gal-shrine-background-v1.png",
+      "runtime_role": "gal-stage-background",
+      "sha256": "b1b998f50219824af4340e70285097534c3355e3ebd98bd813ed1b2d0745df44"
     }
   }
 }

@@ -18,6 +18,204 @@ const importTypescript = async (path) => {
   return import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
 };
 
+test('角色点击菜单由代码绘制、去除重复离开入口并保持语义映射', async () => {
+  const controller = await read('../src/ui/app.ts');
+  const styles = await read('../src/ui/styles.css');
+  const build = await read('../scripts/build-ui.mjs');
+  const host = await read('../src/runtime/ui-host-shell.js');
+  assert.match(controller, /type TargetActionVisualKind = 'talk' \| 'leave' \| 'pat-head' \| 'quest'/);
+  assert.match(controller, /const targetActionSymbols/);
+  assert.match(controller, /action\.mode === 'close' \|\| action\.id === 'leave'/);
+  assert.match(controller, /action\.id === 'pat_head'/);
+  assert.match(controller, /action\.eventId \|\| action\.mode === 'facility'/);
+  assert.match(controller, /button\.dataset\.visualKind = visualKind/);
+  assert.match(controller, /className = 'gg-bubble-symbol'/);
+  assert.match(controller, /className = 'gg-bubble-reason'/);
+  assert.match(controller, /options\.disabled[\s\S]*?action: item/);
+  assert.match(controller, /candidate\.mode !== 'close' && candidate\.id !== 'leave'/);
+  assert.doesNotMatch(build, /target-action-(?:talk|leave|pat-head|quest)-v1\.png/);
+  assert.doesNotMatch(build, /targetActionBadgeDataUrls/);
+  assert.doesNotMatch(host, /dataset\.targetAction(?:Talk|Leave|PatHead|Quest)Src/);
+  assert.doesNotMatch(controller, /gg-bubble-image|targetActionBadgeSources/);
+  assert.match(styles, /\.gg-bubble-dot::before/);
+  assert.match(styles, /\.gg-bubble-dot::after/);
+  assert.match(styles, /\.gg-bubble-symbol/);
+  assert.match(styles, /\[data-visual-kind="quest"\]/);
+  assert.match(styles, /@media \(max-width: 700px\)[\s\S]*?grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(styles, /@media \(max-width: 360px\)[\s\S]*?grid-template-columns: 1fr/);
+  assert.match(styles, /#gg-target-menu \.gg-bubble-dot \{[\s\S]*?width: 82px;[\s\S]*?height: 82px;/);
+});
+
+test('浏览器缩放补偿只服务地图交互，三项玩法入口进入大型案内面板', async () => {
+  const controller = await read('../src/ui/app.ts');
+  const document = await read('../src/ui/index.html');
+  const map = await read('../src/ui/garden-map.ts');
+  const styles = await read('../src/ui/styles.css');
+  assert.match(controller, /const initialDevicePixelRatio/);
+  assert.match(controller, /--gg-browser-zoom-compensation/);
+  assert.match(controller, /visualViewport\?\.addEventListener\('resize'/);
+  assert.match(map, /initialDevicePixelRatio \/ currentDevicePixelRatio/);
+  assert.match(map, /dataset\.browserZoomCompensation/);
+  assert.match(map, /this\.pixelRatio \* this\.browserZoomCompensation/);
+  assert.match(styles, /#gg-target-menu \{[\s\S]*?transform: scale\(var\(--gg-browser-zoom-compensation, 1\)\)/);
+  assert.match(styles, /顶栏：博丽符纸色 \+ 像素结界纹[\s\S]*?\.gg-header \{[\s\S]*?--gg-header-paper:[\s\S]*?border: 0;[\s\S]*?repeating-linear-gradient/);
+  assert.match(styles, /\.gg-header \.gg-title-wrap \{[\s\S]*?clip-path: polygon/);
+  assert.match(styles, /\.gg-header \.gg-status-line span \{[\s\S]*?border-radius: 2px;[\s\S]*?box-shadow:/);
+  assert.match(document, /id="gg-open-launcher"[^>]*aria-controls="gg-launcher-dialog"/);
+  assert.match(document, /id="gg-launcher-dialog"[^>]*aria-labelledby="gg-launcher-title"/);
+  assert.match(document, /class="gg-launcher-grid"[\s\S]*?id="gg-open-dungeon"[\s\S]*?id="gg-open-shop"[\s\S]*?id="gg-open-inventory"/);
+  assert.match(controller, /function openLauncher\(\)[\s\S]*?launcherDialog\.showModal\(\)/);
+  assert.match(controller, /function navigateFromLauncher\(action: \(\) => void\)/);
+  assert.match(styles, /\.gg-launcher-grid \{[\s\S]*?grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
+  assert.match(styles, /@media \(max-width: 559px\)[\s\S]*?\.gg-launcher-grid \{ grid-template-columns: 1fr/);
+});
+
+test('设施查看视图隐藏图片且不影响其他设施行动', async () => {
+  const controller = await read('../src/ui/app.ts');
+  const styles = await read('../src/ui/styles.css');
+  assert.match(controller, /const isInspectView = action\.id === 'inspect'/);
+  assert.match(controller, /facilityView\.dataset\.presentation = isInspectView \? 'details' : 'action'/);
+  assert.match(controller, /facilityVisual\.hidden = isInspectView/);
+  assert.match(controller, /if \(isInspectView\) \{[\s\S]*?facilityImage\.removeAttribute\('src'\)/);
+  assert.match(styles, /\.gg-facility-visual\[hidden\] \{ display: none; \}/);
+  assert.match(styles, /\.gg-facility\[data-presentation="details"\] \.gg-facility-card/);
+});
+
+test('背包使用独立道具袋视图并保留受控使用入口', async () => {
+  const view = await read('../src/ui/inventory-view.ts');
+  const document = await read('../src/ui/index.html');
+  const styles = await read('../src/ui/styles.css');
+  assert.match(document, /id="gg-view-inventory" class="gg-view gg-settings gg-inventory"/);
+  assert.match(view, /const itemMarks: Record<string, string>/);
+  assert.match(view, /className = 'gg-inventory-intro'/);
+  assert.match(view, /className = 'gg-inventory-grid'/);
+  assert.match(view, /card\.dataset\.itemId = row\.item_id/);
+  assert.match(view, /row\.item_id === 'incident_trigger_card' \|\| row\.item_id === 'sakuya_watch'/);
+  assert.match(view, /button\.disabled = !row\.usable/);
+  assert.match(styles, /\.gg-inventory-item\[data-item-id="sakuya_watch"\]/);
+  assert.match(styles, /@media \(max-width: 700px\)[\s\S]*?\.gg-inventory-item-side/);
+});
+
+test('GAL 道具选择使用御札式单选槽并同步选择提示', async () => {
+  const document = await read('../src/ui/index.html');
+  const controller = await read('../src/ui/app.ts');
+  const styles = await read('../src/ui/styles.css');
+  assert.match(document, /id="gg-scene-item-picker" class="gg-scene-item-picker" data-has-selection="false"/);
+  assert.match(document, /class="gg-scene-item-mark"[^>]*>御<\/span>/);
+  assert.match(document, /id="gg-scene-item" aria-describedby="gg-scene-item-hint"/);
+  assert.doesNotMatch(document, /id="gg-scene-item"[^>]*\bmultiple\b/);
+  assert.match(document, /id="gg-scene-item-hint"[^>]*aria-live="polite"/);
+  assert.match(controller, /function updateSceneItemPickerState\(\)/);
+  assert.match(controller, /sceneItemPicker\.dataset\.hasSelection = String\(Boolean\(selected\)\)/);
+  assert.match(controller, /已装备：\$\{label\} · 发送时消耗 1 个/);
+  assert.match(controller, /sceneItemSelect\.addEventListener\('change', updateSceneItemPickerState\)/);
+  assert.match(styles, /\.gg-scene-item-picker \{[\s\S]*?clip-path: polygon/);
+  assert.match(styles, /#gg-scene-item \{[\s\S]*?appearance: none;/);
+  assert.match(styles, /\.gg-scene-item-picker\[data-has-selection="true"\]/);
+  assert.match(styles, /@media \(max-width: 520px\)[\s\S]*?\.gg-scene-item-picker \{ grid-template-columns: 1fr;/);
+});
+
+test('开放庭园页面从正式状态派生教程进度与下一步', async () => {
+  const rules = await importTypescript('../src/ui/open-garden-rules.ts');
+  const initial = JSON.parse(await read('../src/schema/initial-state.json'));
+  let progress = rules.tutorialProgress(initial);
+  assert.equal(progress.currentStep.id, 'opening');
+  assert.equal(progress.totalCount, 13);
+
+  initial.meta.opening_committed = true;
+  progress = rules.tutorialProgress(initial);
+  assert.equal(progress.currentStep.id, 'boundary');
+  assert.match(progress.currentStep.instruction, /点击灵梦/);
+
+  Object.assign(initial.events.completed_key_events, {
+    reimu_boundary_inspection: 'temporary_permission',
+    main_house_repair: 'main_house_enabled',
+    marisa_material_rumor: 'greenhouse_clue_found',
+    gain_second_inspiration: 'growth_pattern_understood',
+    clear_greenhouse_foundation: 'foundation_cleared',
+    build_basic_magic_greenhouse: 'basic_greenhouse_enabled',
+    greenhouse_first_use: 'stable_first_growth',
+    greenhouse_multiturn_conversation: 'conversation_settled_after_multiple_turns',
+    greenhouse_flower_core: 'clean_win',
+    greenhouse_free_growth_proposal: 'wild_growth_plan_registered',
+    nitori_greenhouse_automation_proposal: 'kappa_automation_plan_registered',
+  });
+  progress = rules.tutorialProgress(initial);
+  assert.equal(progress.currentStep.id, 'parallel-proposals');
+  assert.match(progress.currentStep.instruction, /爱丽丝/);
+  assert.doesNotMatch(progress.currentStep.instruction, /荷取/);
+
+  initial.events.completed_key_events.alice_greenhouse_maintenance_proposal = 'doll_maintenance_plan_registered';
+  progress = rules.tutorialProgress(initial);
+  assert.equal(progress.currentStep.id, 'select-form');
+
+  const controller = await read('../src/ui/app.ts');
+  const styles = await read('../src/ui/styles.css');
+  assert.match(controller, /className = 'gg-tutorial-current'/);
+  assert.match(controller, /progress\.value = panel\.tutorial\.completedCount/);
+  assert.match(controller, /step\.completed \? 'complete'/);
+  assert.match(styles, /\.gg-tutorial-steps li\[data-state="current"\]/);
+});
+
+test('三张玩法入口使用大型平滑插画并同时进入预览与内嵌构建', async () => {
+  const document = await read('../src/ui/index.html');
+  const controller = await read('../src/ui/app.ts');
+  const styles = await read('../src/ui/styles.css');
+  const build = await read('../scripts/build-ui.mjs');
+  const host = await read('../src/runtime/ui-host-shell.js');
+  assert.match(document, /id="gg-open-shop"[^>]*aria-label="打开灵梦小店"/);
+  assert.match(document, /id="gg-shop-button-image"/);
+  assert.match(controller, /dataset\.shopButtonSrc/);
+  assert.match(controller, /reimu-shop-button-v1\.png/);
+  assert.match(styles, /\.gg-launcher-dialog #gg-open-shop img/);
+  assert.match(styles, /\.gg-launcher-dialog #gg-open-dungeon img,[\s\S]*?image-rendering: auto/);
+  assert.match(build, /shopButtonDataUrl/);
+  assert.match(build, /ui\/reimu-shop-button-v1\.png/);
+  assert.match(host, /dataset\.shopButtonSrc = embedded\.shopButtonDataUrl/);
+  assert.match(document, /id="gg-open-inventory"[^>]*aria-label="打开背包"[\s\S]*?id="gg-inventory-button-image"/);
+  assert.match(controller, /inventoryButtonImage\.src[\s\S]*?marisa-inventory-button-v1\.png/);
+  assert.match(styles, /\.gg-launcher-dialog #gg-open-inventory img/);
+  assert.match(build, /inventoryButtonDataUrl/);
+  assert.match(build, /ui\/marisa-inventory-button-v1\.png/);
+  assert.match(host, /dataset\.inventoryButtonSrc = embedded\.inventoryButtonDataUrl/);
+  assert.match(document, /id="gg-open-dungeon"[^>]*aria-label="打开符卡副本"[\s\S]*?id="gg-dungeon-button-image"/);
+  assert.match(controller, /dungeonButtonImage\.src[\s\S]*?reimu-dungeon-button-v1\.png/);
+  assert.match(styles, /\.gg-launcher-dialog #gg-open-dungeon img/);
+  assert.match(build, /dungeonButtonDataUrl/);
+  assert.match(build, /ui\/reimu-dungeon-button-v1\.png/);
+  assert.match(host, /dataset\.dungeonButtonSrc = embedded\.dungeonButtonDataUrl/);
+});
+
+test('灵梦小店底图、十槽商品层和窄屏回流共同进入构建', async () => {
+  const document = await read('../src/ui/index.html');
+  const controller = await read('../src/ui/app.ts');
+  const view = await read('../src/ui/shop-view.ts');
+  const styles = await read('../src/ui/styles.css');
+  const build = await read('../scripts/build-ui.mjs');
+  const host = await read('../src/runtime/ui-host-shell.js');
+  assert.match(document, /id="gg-shop-background"/);
+  assert.match(controller, /dataset\.shopBackgroundSrc/);
+  assert.match(view, /className = 'gg-shop-tabs'/);
+  assert.match(view, /className = 'gg-shop-item-select'/);
+  assert.match(view, /className = 'gg-shop-wallet'/);
+  assert.match(view, /className = 'gg-shop-item gg-shop-item-empty'/);
+  assert.match(view, /Math\.max\(0, 10 - visible\.length\)/);
+  assert.match(view, /toLocaleString\('zh-CN'\)/);
+  assert.match(view, /aria-pressed/);
+  assert.match(styles, /\.gg-shop-detail/);
+  assert.match(styles, /--gg-shop-pixel-font/);
+  assert.match(styles, /\.gg-shop-tabs button\[aria-pressed="true"\]/);
+  assert.match(styles, /radial-gradient\(circle at 50% 24%/);
+  assert.match(styles, /clip-path: polygon\(7px 0/);
+  assert.match(styles, /\.gg-shop-buy, \.gg-shop-sell, \.gg-shop-leave \{[^}]*top: 77\.35%[^}]*height: 13\.1%[^}]*transform: none/s);
+  assert.match(styles, /\.gg-shop-buy:active:not\(:disabled\), \.gg-shop-leave:active:not\(:disabled\) \{[^}]*transform: none/s);
+  assert.match(styles, /\.gg-shop-status \{[^}]*top: 92\.25%/s);
+  assert.match(styles, /@media \(max-width: 620px\)/);
+  assert.match(build, /reimu-shop-ui-background-v1\.png/);
+  assert.match(build, /shopBackgroundDataUrl/);
+  assert.match(host, /dataset\.shopBackgroundSrc = embedded\.shopBackgroundDataUrl/);
+});
+
 test('庭园地图只读取访客快照，不渲染玩家占位小人', async () => {
   const source = await read('../src/ui/garden-map.ts');
   assert.match(source, /present_character_ids/);
@@ -25,7 +223,7 @@ test('庭园地图只读取访客快照，不渲染玩家占位小人', async ()
   assert.doesNotMatch(source, /state\.player/);
 });
 
-test('八名来访角色保留旧图集回退，灵梦与魔理沙可使用 V2 图集', async () => {
+test('七名验收序列优先运行并保留旧图集回退，魔理沙继续使用 V2 图集', async () => {
   const map = await read('../src/ui/garden-map.ts');
   const actor = await read('../src/ui/sprite-actor.ts');
   const registry = await read('../src/ui/character-sprite-registry.ts');
@@ -41,7 +239,9 @@ test('八名来访角色保留旧图集回退，灵梦与魔理沙可使用 V2 �
   assert.match(actor, /motionImageReady/);
   assert.match(actor, /resolveRenderFrame/);
   assert.match(actor, /columns: useMotionSheet \? 4 : 2/);
-  assert.match(actor, /columns: 9, rows: 4/);
+  assert.match(actor, /resolveV2Cell/);
+  assert.match(actor, /sequenceImageReady/);
+  assert.match(actor, /resolveSequenceCell/);
   assert.match(actor, /frameDurationMs/);
   for (const id of ['reimu', 'marisa', 'cirno', 'alice', 'mystia', 'suika', 'nitori', 'sakuya']) {
     assert.match(registry, new RegExp(`${id}: \\{`));
@@ -50,13 +250,179 @@ test('八名来访角色保留旧图集回退，灵梦与魔理沙可使用 V2 �
   assert.match(registry, /marisa-hover-cycle-v1\.png/);
   assert.match(registry, /marisa-animation-v2-r2\.png/);
   assert.match(registry, /reimu-animation-v2-r6\.png/);
+  for (const id of ['reimu', 'cirno', 'alice', 'mystia', 'suika', 'nitori', 'sakuya']) {
+    assert.match(registry, new RegExp(`${id}-animation-sequence-approved-v1\\.png`));
+  }
   assert.match(build, /asset-manifest\.json/);
   assert.match(build, /animation_source_alpha/);
+  assert.match(build, /animation_sequence_source_alpha/);
   assert.match(build, /characterSpriteDataUrls/);
   assert.doesNotMatch(build, /animation_source_chroma/);
   assert.match(host, /characterSpriteDataUrls/);
   assert.match(host, /MotionSrc/);
   assert.match(host, /AnimationSrc/);
+  assert.match(host, /SequenceSrc/);
+});
+
+test('可变长序列按方向行、独立速度和完整循环区间选帧', async () => {
+  const actor = await importTypescript('../src/ui/sprite-actor.ts');
+  const sequence = { columns: 17, rows: 4, frameDurationMs: 100, loopStart: 0, loopEnd: 16 };
+  assert.deepEqual(actor.resolveSequenceCell(sequence, 'idle', 'back', 9999), { frame: 0, row: 1 });
+  assert.deepEqual(actor.resolveSequenceCell(sequence, 'walk', 'front', 0), { frame: 0, row: 0 });
+  assert.deepEqual(actor.resolveSequenceCell(sequence, 'walk', 'left', 1600), { frame: 16, row: 2 });
+  assert.deepEqual(actor.resolveSequenceCell(sequence, 'walk', 'right', 1700), { frame: 0, row: 3 });
+});
+
+test('动作图回退在静止时固定方向首帧，不播放待机循环或程序化呼吸', async () => {
+  const actor = await importTypescript('../src/ui/sprite-actor.ts');
+  const sequence = { columns: 25, rows: 4, frameDurationMs: 90, loopStart: 0, loopEnd: 24 };
+  for (const [facing, row] of [['front', 0], ['back', 1], ['left', 2], ['right', 3]]) {
+    assert.deepEqual(actor.resolveSequenceCell(sequence, 'idle', facing, 99999), { frame: 0, row });
+  }
+  assert.deepEqual(actor.resolveV2Cell('idle', 'front', 99999, 148), { frame: 0, row: 1 });
+  assert.deepEqual(actor.resolveV2Cell('idle', 'back', 99999, 148), { frame: 4, row: 0 });
+  assert.deepEqual(actor.resolveV2Cell('idle', 'left', 99999, 148), { frame: 0, row: 2 });
+  assert.deepEqual(actor.resolveV2Cell('idle', 'right', 99999, 148), { frame: 0, row: 3 });
+  const source = await read('../src/ui/sprite-actor.ts');
+  assert.doesNotMatch(source, /idleBob|idleBreath|idleCycle/);
+  assert.doesNotMatch(source, /520\) % 4/);
+});
+
+test('角色随机巡游生成上下左右四方向的单轴目标，并始终留在椭圆范围内', async () => {
+  const actor = await importTypescript('../src/ui/sprite-actor.ts');
+  const radius = { x: 0.04, y: 0.026 };
+  const expected = [
+    [0, 'left'],
+    [0.26, 'right'],
+    [0.51, 'back'],
+    [0.76, 'front'],
+  ];
+  for (const [choice, facing] of expected) {
+    const values = [choice, 0.5];
+    const move = actor.chooseWanderMove({ x: 0, y: 0 }, radius, 0.012, 0.035, undefined, () => values.shift());
+    assert.equal(move.facing, facing);
+    if (facing === 'left' || facing === 'right') assert.equal(move.target.y, 0);
+    else assert.equal(move.target.x, 0);
+    assert.ok((move.target.x / radius.x) ** 2 + (move.target.y / radius.y) ** 2 <= 1 + Number.EPSILON);
+  }
+});
+
+test('默认巡游使用更长单段距离和相应扩大的活动范围', async () => {
+  const registry = await read('../src/ui/character-sprite-registry.ts');
+  assert.match(registry, /travelDistanceMin: 0\.034/);
+  assert.match(registry, /travelDistanceMax: 0\.08/);
+  assert.match(registry, /travelRadiusY: 0\.065/);
+  assert.match(registry, /travelRadiusY: 0\.075/);
+  const radii = [...registry.matchAll(/travelRadius: (0\.\d+)/g)].map((match) => Number(match[1]));
+  assert.equal(radii.length, 8);
+  assert.ok(radii.every((radius) => radius >= 0.09));
+});
+
+test('角色完成一次二维移动后强制休息，状态刷新不会覆盖巡游朝向', async () => {
+  const actorModule = await importTypescript('../src/ui/sprite-actor.ts');
+  const PreviousImage = globalThis.Image;
+  globalThis.Image = class {
+    naturalWidth = 1;
+    naturalHeight = 1;
+    complete = true;
+    set src(value) { this.value = value; this.onload?.(); }
+  };
+  try {
+    const randomValues = [0.99, 0, 0];
+    const sprite = new actorModule.SpriteActor('test', {
+      label: '测试角色', idleSource: 'idle.png', motionSource: 'walk.png', movementStyle: 'walk',
+      frameDurationMs: 100, motionBob: 0, motionSway: 0, travelSpeed: 0.000012,
+      travelRadius: 0.04, travelRadiusY: 0.026, travelDistanceMin: 0.012, travelDistanceMax: 0.035,
+      restDurationMs: [1000, 1000], turnDurationMs: [50, 50], settleDurationMs: [100, 100],
+    }, () => {}, () => randomValues.shift() ?? 0);
+    sprite.sync({ area_id: 'central_courtyard', facing: 'left' }, false, true);
+    sprite.update(1000);
+    assert.equal(sprite.facing, 'front');
+    assert.equal(sprite.motion, 'idle');
+    sprite.sync({ area_id: 'central_courtyard', facing: 'right' }, false, true);
+    assert.equal(sprite.facing, 'front');
+    sprite.update(50);
+    assert.equal(sprite.motion, 'walk');
+    sprite.update(1000);
+    assert.equal(sprite.motion, 'idle');
+    assert.equal(sprite.offsetX, 0);
+    assert.ok(sprite.offsetY > 0);
+    const stoppedAt = sprite.offsetY;
+    sprite.update(100);
+    sprite.update(999);
+    assert.equal(sprite.offsetY, stoppedAt);
+    assert.equal(sprite.motion, 'idle');
+  } finally {
+    globalThis.Image = PreviousImage;
+  }
+});
+
+test('角色休息、转向和收步优先使用四方向静态待机图，动作图只作加载失败回退', async () => {
+  const actorModule = await importTypescript('../src/ui/sprite-actor.ts');
+  const PreviousImage = globalThis.Image;
+  globalThis.Image = class {
+    naturalWidth = 2;
+    naturalHeight = 2;
+    complete = true;
+    set src(value) { this.value = value; this.onload?.(); }
+  };
+  try {
+    const sprite = new actorModule.SpriteActor('idle-test', {
+      label: '待机测试', idleSource: 'turnaround.png', motionSource: 'walk.png', movementStyle: 'walk',
+      frameDurationMs: 100, motionBob: 0, motionSway: 0, travelSpeed: 0.000012,
+      travelRadius: 0.04, travelRadiusY: 0.026, travelDistanceMin: 0.012, travelDistanceMax: 0.035,
+      restDurationMs: [1000, 1000], turnDurationMs: [50, 50], settleDurationMs: [100, 100],
+    }, () => {}, () => 0);
+    const expected = {
+      front: { frame: 0, row: 0 },
+      back: { frame: 1, row: 0 },
+      left: { frame: 0, row: 1 },
+      right: { frame: 1, row: 1 },
+    };
+    for (const [facing, cell] of Object.entries(expected)) {
+      sprite.facing = facing;
+      sprite.motion = 'idle';
+      const renderFrame = sprite.resolveRenderFrame();
+      assert.equal(renderFrame.image, sprite.idleImage);
+      assert.deepEqual({ frame: renderFrame.frame, row: renderFrame.row }, cell);
+      assert.equal(renderFrame.animated, false);
+    }
+    sprite.imageReady = false;
+    sprite.animationImageReady = true;
+    sprite.animationImage.naturalWidth = 18;
+    const fallback = sprite.resolveRenderFrame();
+    assert.equal(fallback.image, sprite.animationImage);
+  } finally {
+    globalThis.Image = PreviousImage;
+  }
+});
+
+test('待机四视图按实测变换与移动帧统一视觉尺寸和脚底线', async () => {
+  const actor = await importTypescript('../src/ui/sprite-actor.ts');
+  assert.deepEqual(actor.resolveSpriteDrawRect(100), { x: -50, y: -82, width: 100, height: 100 });
+  assert.deepEqual(
+    actor.resolveSpriteDrawRect(100, { scale: 0.8, x: -0.4, y: -0.7 }),
+    { x: -40, y: -70, width: 80, height: 80 },
+  );
+  const registry = await read('../src/ui/character-sprite-registry.ts');
+  for (const id of ['reimu', 'marisa', 'cirno', 'alice', 'mystia', 'suika', 'nitori', 'sakuya']) {
+    assert.match(registry, new RegExp(`idleFrameTransforms: turnaroundFits\\.${id}`));
+  }
+  assert.match(registry, /cirno: idleFits\(\[\.7604, -\.4402, -\.7418\], \[\.7656, -\.3338, -\.747\], \[\.7169, -\.4168, -\.5939\], \[\.7113, -\.2945, -\.5939\]\)/);
+});
+
+test('琪露诺休息帧按方向校正亮度且不影响动作序列', async () => {
+  const actor = await read('../src/ui/sprite-actor.ts');
+  const registry = await read('../src/ui/character-sprite-registry.ts');
+  assert.match(actor, /idleFrameBrightness\?: Record<SpriteFacing, number>/);
+  assert.match(actor, /brightness: this\.config\.idleFrameBrightness\?\.\[this\.facing\]/);
+  assert.match(actor, /context\.filter = brightness === undefined \? 'none' : `brightness\(\$\{brightness\}\)`/);
+  assert.match(registry, /const cirnoIdleBrightness:[\s\S]*?front: 0\.69,[\s\S]*?back: 0\.64,[\s\S]*?left: 0\.68,[\s\S]*?right: 0\.68/);
+  assert.match(registry, /cirno: \{[\s\S]*?idleFrameBrightness: cirnoIdleBrightness/);
+  for (const id of ['reimu', 'marisa', 'alice', 'mystia', 'suika', 'nitori', 'sakuya']) {
+    const definition = registry.match(new RegExp(`${id}: \\{([\\s\\S]*?)\\n  \\},`))?.[1] ?? '';
+    assert.doesNotMatch(definition, /idleFrameBrightness/);
+  }
 });
 
 test('庭园地图滚轮缩放不被绘制尺寸抵消，并保持指针锚点', async () => {
@@ -74,12 +440,13 @@ test('庭园地图滚轮缩放不被绘制尺寸抵消，并保持指针锚点',
   assert.doesNotMatch(styles, /#gg-garden-map \{[^}]*min-height: 480px/);
 });
 
-test('扩大视角空庭园底图由素材清单驱动，人物与设施标记按远景比例收缩', async () => {
+test('所有者批准的新庭园底图由素材清单驱动，人物与旧主屋回退比例保持稳定', async () => {
   const manifest = await read('../src/assets/asset-manifest.json');
   const build = await read('../scripts/build-ui.mjs');
   const map = await read('../src/ui/garden-map.ts');
   const spatial = await read('../src/ui/garden-spatial.ts');
-  assert.match(manifest, /garden-base-expanded-empty-v1\.png/);
+  assert.match(manifest, /garden-base-owner-candidate-v2\.png/);
+  assert.match(manifest, /"canvas": \[1448, 1086\]/);
   assert.match(manifest, /"runtime_role": "base-layer"/);
   assert.match(manifest, /"facility_layer_policy": "separate-transparent-sprites"/);
   assert.match(build, /assetManifest\.maps\?\.garden_base/);
@@ -89,19 +456,84 @@ test('扩大视角空庭园底图由素材清单驱动，人物与设施标记�
   assert.match(spatial, /GARDEN_AREA_OUTLINES[^=]*= Object\.freeze\(\{\}\)/);
 });
 
-test('已验收的三座可换型设施以透明图层接入地图，并在损坏时叠加覆盖层', async () => {
-  const manifest = await read('../src/assets/asset-manifest.json');
+test('五座已验收设施按正式状态键和显式区域锚点接入地图', async () => {
+  const manifest = JSON.parse(await read('../src/assets/asset-manifest.json'));
   const build = await read('../scripts/build-ui.mjs');
   const host = await read('../src/runtime/ui-host-shell.js');
   const map = await read('../src/ui/garden-map.ts');
-  for (const id of ['fairy_garden', 'moon_spring', 'banquet_plaza']) {
-    assert.match(manifest, new RegExp(`"${id}": \\{[\\s\\S]*?"map_usage": true`));
+  const expectedForms = {
+    main_house: ['损坏', '临时修复', '启用'],
+    magic_greenhouse: ['基础魔法温室', '自由生长型温室', '人偶维护型温室', '河童自动化型温室'],
+    fairy_garden: ['四季花境', '妖精游乐庭', '冰露迷宫'],
+    moon_spring: ['露天月见汤', '静水观测池', '雾隐汤屋'],
+    banquet_plaza: ['灯火夜市', '鬼之大宴台', '符卡演武场'],
+  };
+  for (const [id, forms] of Object.entries(expectedForms)) {
+    const asset = manifest.map_facility_assets[id];
+    assert.equal(asset.map_usage, true);
+    assert.ok(asset.area_id);
+    assert.deepEqual(Object.keys(asset.source_alpha), forms);
+    for (const source of Object.values(asset.source_alpha)) await read(`../src/assets/${source}`);
   }
+  for (const id of ['magic_greenhouse', 'fairy_garden', 'moon_spring', 'banquet_plaza']) {
+    const geometry = manifest.map_facility_assets[id].geometry;
+    assert.ok(geometry.width_ratio > 0.2 && geometry.width_ratio < 0.3);
+    for (const point of [geometry.render_center, geometry.ground_anchor, geometry.label_anchor, ...geometry.hit_polygon]) {
+      assert.equal(point.length, 2);
+      assert.ok(point.every((coordinate) => coordinate >= 0 && coordinate <= 1));
+    }
+    assert.ok(geometry.hit_polygon.length >= 6);
+    assert.match(manifest.map_facility_assets[id].status, /^owner-approved-v2-integrated/);
+  }
+  assert.equal(manifest.map_facility_assets.main_house.geometry, undefined);
   assert.match(build, /mapFacilityDataUrls/);
+  assert.match(build, /areaId: facility\.area_id/);
+  assert.match(build, /validateFacilityGeometry/);
+  assert.match(build, /geometry: facility\.geometry/);
+  assert.match(build, /data-map-facility-sprites/);
+  assert.match(build, /gardenBaseAsset\.source/);
   assert.match(host, /mapFacilitySprites/);
   assert.match(map, /drawFacilityLayer/);
-  assert.match(map, /runtime\?\.status === 'damaged'/);
-  assert.match(map, /runtime\?\.current_form \?\? facility\?\.current_form/);
+  assert.match(map, /resolveMapFacilitySprite/);
+  assert.match(map, /geometry\?\.width_ratio/);
+  assert.match(map, /facilityGeometryForArea/);
+  assert.match(map, /geometry\.ground_anchor/);
+  assert.match(map, /facilityGeometry\.label_anchor/);
+  assert.match(map, /facilityGeometry\?\.hit_polygon/);
+  assert.match(map, /item\.polygon && this\.targetContains/);
+});
+
+test('设施命中优先使用精确多边形，避免中央庭院的宽泛圆形抢占点击', async () => {
+  const map = await importTypescript('../src/ui/garden-map.ts');
+  const polygon = [
+    { x: 10, y: 10 },
+    { x: 30, y: 10 },
+    { x: 30, y: 30 },
+    { x: 10, y: 30 },
+  ];
+  assert.equal(map.pointInPolygon({ x: 20, y: 20 }, polygon), true);
+  assert.equal(map.pointInPolygon({ x: 40, y: 20 }, polygon), false);
+});
+
+test('设施贴图解析覆盖主屋状态、温室形态、可换型设施与损坏叠层', async () => {
+  const map = await importTypescript('../src/ui/garden-map.ts');
+  const mainHouse = { areaId: 'main_house', forms: { 损坏: 'house-damaged', 启用: 'house-restored' } };
+  assert.deepEqual(map.resolveMapFacilitySprite({
+    areas: { main_house: { unlocked: true, state: '损坏' } },
+  }, 'main_house', mainHouse), { source: 'house-damaged', damageOverlay: undefined });
+
+  const greenhouse = { areaId: 'greenhouse_plot', forms: { 基础魔法温室: 'greenhouse' } };
+  assert.deepEqual(map.resolveMapFacilitySprite({
+    facilities: { magic_greenhouse: { state: '启用', current_form: '基础魔法温室' } },
+  }, 'magic_greenhouse', greenhouse), { source: 'greenhouse', damageOverlay: undefined });
+
+  const fairyGarden = { areaId: 'fairy_garden_plot', forms: { 四季花境: 'flowers' }, damageOverlay: 'damage' };
+  assert.deepEqual(map.resolveMapFacilitySprite({
+    facility_runtime: { fairy_garden: { built: true, current_form: '四季花境', status: 'damaged' } },
+  }, 'fairy_garden', fairyGarden), { source: 'flowers', damageOverlay: 'damage' });
+  assert.equal(map.resolveMapFacilitySprite({
+    facility_runtime: { fairy_garden: { built: false, current_form: '四季花境' } },
+  }, 'fairy_garden', fairyGarden), null);
 });
 
 test('互动使用单壳 GAL、自定义输入与零模型本地结束', async () => {
@@ -120,6 +552,36 @@ test('互动使用单壳 GAL、自定义输入与零模型本地结束', async (
   assert.match(controller, /聊天已直接结束，没有调用模型/);
   assert.match(actions, /action_id: 'end_conversation'/);
   assert.match(settlement, /interaction!\.settled_ids/);
+});
+
+test('GAL 使用月下结界舞台、和纸对白框与窄屏回流', async () => {
+  const document = await read('../src/ui/index.html');
+  const controller = await read('../src/ui/app.ts');
+  const styles = await read('../src/ui/styles.css');
+  const build = await read('../scripts/build-ui.mjs');
+  const host = await read('../src/runtime/ui-host-shell.js');
+  const assets = JSON.parse(await read('../src/assets/asset-manifest.json'));
+  assert.match(document, /id="gg-view-gal" class="gg-view gg-gal"/);
+  assert.match(document, /id="gg-portrait-stage" class="gg-portrait-stage" data-reaction="neutral"/);
+  assert.match(document, /id="gg-dialogue-box" class="gg-dialogue-box"/);
+  assert.match(styles, /GAL 最终主题：月下结界、博丽红漆与和纸对白框/);
+  assert.match(styles, /\.gg-portrait-stage \{[\s\S]*?var\(--gg-gal-background-image, none\) center center \/ cover no-repeat/);
+  assert.match(styles, /\.gg-gal::before \{\s*content: none;/);
+  assert.match(styles, /\.gg-portrait-stage::after \{\s*content: none;/);
+  assert.doesNotMatch(styles.match(/GAL 最终主题[\s\S]*?R4 主视觉/)?.[0] ?? '', /radial-gradient\(circle at (?:78% 17%|74% 23%)/);
+  assert.match(styles, /\.gg-dialogue-box \{[\s\S]*?background:[\s\S]*?rgba\(255, 244, 215, \.97\)/);
+  assert.match(styles, /\.gg-dialogue-box \{[\s\S]*?padding: 3\.25rem 1\.45rem \.85rem/);
+  assert.match(styles, /\.gg-scene-speaker \{[\s\S]*?top: \.72rem;[\s\S]*?background: linear-gradient\(180deg, #b74a53, #842e38\)/);
+  assert.match(styles, /\.gg-suggested-replies button \{[\s\S]*?background: linear-gradient\(180deg, #f0d9ae, #d8b681\)/);
+  assert.match(styles, /@media \(max-width: 420px\)[\s\S]*?\.gg-suggested-replies \{ grid-template-columns: 1fr; \}/);
+  assert.match(styles, /@media \(max-height: 650px\) and \(min-width: 701px\)/);
+  assert.doesNotMatch(styles.match(/GAL 最终主题[\s\S]*?R4 主视觉/)?.[0] ?? '', /backdrop-filter/);
+  assert.match(controller, /--gg-gal-background-image/);
+  assert.match(build, /data-gal-background-src/);
+  assert.match(build, /galBackgroundDataUrl/);
+  assert.match(host, /dataset\.galBackgroundSrc = embedded\.galBackgroundDataUrl/);
+  assert.equal(assets.ui_assets.gal_shrine_background.source_alpha, 'ui/gensokyo-gal-shrine-background-v1.png');
+  assert.equal(assets.ui_assets.gal_shrine_background.runtime_role, 'gal-stage-background');
 });
 
 test('符卡配置限制敌弹模式与参数上限', async () => {
@@ -943,7 +1405,7 @@ test('验收快进只写受控测试快照，能直达温室与妖花战后', as
   const app = await read('../src/ui/app.ts');
   const html = await read('../src/ui/index.html');
   assert.match(app, /applyTestJump/);
-  assert.match(html, /测试快进/);
+  assert.match(html, /测试控制面板/);
 });
 
 test('M2 验收快进可独立抵达开放庭园、异变、设施、来访和修复检查点', async () => {
@@ -969,6 +1431,9 @@ test('M2 验收快进可独立抵达开放庭园、异变、设施、来访和�
   }
   const open = tools.applyTestJump(initial, 'm2_open_garden');
   assert.equal(open.facility_runtime.fairy_garden.built, false);
+  const sparsePreview = structuredClone(initial);
+  delete sparsePreview.facility_runtime;
+  assert.equal(tools.applyTestJump(sparsePreview, 'm2_facilities_ready').facility_runtime.fairy_garden.built, true);
   const anomaly = tools.applyTestJump(initial, 'm2_anomaly_ready');
   assert.equal(anomaly.inventory.consumables.incident_trigger_card, 3);
   assert.equal(anomaly.anomaly_cycle.active, null);
@@ -988,8 +1453,47 @@ test('M2 验收快进可独立抵达开放庭园、异变、设施、来访和�
   const html = await read('../src/ui/index.html');
   for (const id of ['gg-test-m2-open', 'gg-test-m2-anomaly', 'gg-test-m2-anomaly-end', 'gg-test-m2-facilities', 'gg-test-m2-visitors', 'gg-test-m2-items']) {
     assert.match(html, new RegExp(`id="${id}"`));
-    assert.match(app, new RegExp(id));
   }
+  assert.match(app, /querySelectorAll<HTMLButtonElement>\('\[data-test-jump\]'\)/);
+});
+
+test('测试控制面板覆盖教程断点与八名角色在场编排', async () => {
+  const tools = await importTypescript('../src/ui/test-tools.ts');
+  const initial = JSON.parse(await read('../src/schema/initial-state.json'));
+  const tutorialJumps = [
+    'tutorial_boundary_ready',
+    'tutorial_house_repair_ready',
+    'tutorial_greenhouse_investigation_ready',
+    'tutorial_greenhouse_build_ready',
+    'tutorial_flower_core_ready',
+    'tutorial_proposals_ready',
+    'tutorial_form_selection_ready',
+  ];
+  for (const jump of tutorialJumps) {
+    assert.equal(tools.testJumpReached(tools.applyTestJump(initial, jump), jump), true, jump);
+  }
+
+  let presence = tools.applyTestJump(initial, 'presence_sakuya');
+  assert.deepEqual(presence.presence_snapshot.present_character_ids, ['reimu', 'sakuya']);
+  assert.equal(presence.presence_snapshot.character_views.sakuya.area_id, 'central_courtyard');
+  assert.equal(presence.presence_snapshot.character_views.sakuya.action, '测试入场');
+  assert.ok(presence.visit_scheduler.known_characters.includes('sakuya'));
+  presence = tools.applyTestJump(presence, 'presence_all');
+  assert.equal(presence.presence_snapshot.present_character_ids.length, 8);
+  assert.equal(tools.testJumpReached(presence, 'presence_all'), true);
+  presence = tools.applyTestJump(presence, 'presence_clear');
+  assert.deepEqual(presence.presence_snapshot.present_character_ids, []);
+
+  const html = await read('../src/ui/index.html');
+  const styles = await read('../src/ui/styles.css');
+  assert.match(html, /id="gg-test-tutorial-title"/);
+  assert.match(html, /id="gg-test-systems-title"/);
+  assert.match(html, /id="gg-test-presence-title"/);
+  for (const id of ['reimu', 'marisa', 'alice', 'nitori', 'cirno', 'mystia', 'suika', 'sakuya']) {
+    assert.match(html, new RegExp(`data-test-jump="presence_${id}"`));
+  }
+  assert.match(styles, /\.gg-test-dashboard/);
+  assert.match(styles, /\.gg-test-character-grid/);
 });
 
 test('助手楼层已经出现时会清除漏掉结束事件留下的宿主忙碌标志', async () => {

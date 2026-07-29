@@ -165,11 +165,17 @@
     childDoc.write('<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body></body></html>');
     childDoc.close();
     childDoc.documentElement.dataset.mapSrc = embedded.mapDataUrl;
+    if (embedded.dungeonButtonDataUrl) childDoc.documentElement.dataset.dungeonButtonSrc = embedded.dungeonButtonDataUrl;
+    if (embedded.shopButtonDataUrl) childDoc.documentElement.dataset.shopButtonSrc = embedded.shopButtonDataUrl;
+    if (embedded.inventoryButtonDataUrl) childDoc.documentElement.dataset.inventoryButtonSrc = embedded.inventoryButtonDataUrl;
+    if (embedded.shopBackgroundDataUrl) childDoc.documentElement.dataset.shopBackgroundSrc = embedded.shopBackgroundDataUrl;
+    if (embedded.galBackgroundDataUrl) childDoc.documentElement.dataset.galBackgroundSrc = embedded.galBackgroundDataUrl;
     const characterSprites = embedded.characterSpriteDataUrls || {};
     Object.entries(characterSprites).forEach(([id, sources]) => {
       if (sources?.idle) childDoc.documentElement.dataset[`${id}SpriteSrc`] = sources.idle;
       if (sources?.motion) childDoc.documentElement.dataset[`${id}MotionSrc`] = sources.motion;
       if (sources?.animation) childDoc.documentElement.dataset[`${id}AnimationSrc`] = sources.animation;
+      if (sources?.sequence) childDoc.documentElement.dataset[`${id}SequenceSrc`] = sources.sequence;
     });
     if (characterSprites.reimu?.idle) childDoc.documentElement.dataset.reimuPortraitSrc = characterSprites.reimu.idle;
     if (characterSprites.marisa?.idle) childDoc.documentElement.dataset.marisaPortraitSrc = characterSprites.marisa.idle;
@@ -179,6 +185,9 @@
     // Transparent battle sheets only (no chroma duplicates).
     if (embedded.battlePlayerDataUrl) childDoc.documentElement.dataset.battlePlayerSrc = embedded.battlePlayerDataUrl;
     if (embedded.battleBossDataUrl) childDoc.documentElement.dataset.battleBossSrc = embedded.battleBossDataUrl;
+    if (embedded.battleBossCirnoDataUrl) childDoc.documentElement.dataset.battleBossCirnoSrc = embedded.battleBossCirnoDataUrl;
+    if (embedded.battleBossAliceDataUrl) childDoc.documentElement.dataset.battleBossAliceSrc = embedded.battleBossAliceDataUrl;
+    if (embedded.battleBossSakuyaDataUrl) childDoc.documentElement.dataset.battleBossSakuyaSrc = embedded.battleBossSakuyaDataUrl;
     if (embedded.battleEffectsDataUrl) childDoc.documentElement.dataset.battleEffectsSrc = embedded.battleEffectsDataUrl;
     const style = childDoc.createElement('style');
     style.textContent = embedded.css;

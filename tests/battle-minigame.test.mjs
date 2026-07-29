@@ -705,6 +705,8 @@ test('战斗 atlas 裁切表完整且 build 只嵌入透明素材', async () => 
   const ids = listAtlasFrameIds();
   assert.ok(ids.includes('player_normal'));
   assert.ok(ids.includes('boss_phase1'));
+  assert.ok(ids.includes('boss_character_phase1'));
+  assert.ok(ids.includes('boss_character_hit'));
   assert.ok(ids.includes('fx_petal'));
   for (const id of ids) {
     const frame = ATLAS_FRAMES[id];
@@ -724,12 +726,18 @@ test('战斗 atlas 裁切表完整且 build 只嵌入透明素材', async () => 
   const build = await read('../scripts/build-ui.mjs');
   assert.match(build, /keycraft-player-sheet-v1\.png/);
   assert.match(build, /greenhouse-flower-core-sheet-v1\.png/);
+  assert.match(build, /cirno-battle-sheet-v1\.png/);
+  assert.match(build, /alice-battle-sheet-v1\.png/);
+  assert.match(build, /sakuya-battle-sheet-v1\.png/);
   assert.match(build, /battle-effects-sheet-v1\.png/);
   assert.match(build, /battlePlayerDataUrl/);
   assert.doesNotMatch(build, /sheet-v1-chroma\.png|copyFile\([^)]*chroma/);
   const host = await read('../src/runtime/ui-host-shell.js');
   assert.match(host, /battlePlayerSrc/);
   assert.match(host, /battleBossSrc/);
+  assert.match(host, /battleBossCirnoSrc/);
+  assert.match(host, /battleBossAliceSrc/);
+  assert.match(host, /battleBossSakuyaSrc/);
   assert.match(host, /battleEffectsSrc/);
   const app = await read('../src/ui/app.ts');
   assert.match(app, /atlasSources: battleAtlasSources/);

@@ -21,12 +21,123 @@ export function acknowledgeGraduation(before: GardenState): GardenState {
   return state;
 }
 
+export interface TutorialProgressStep {
+  id: string;
+  title: string;
+  instruction: string;
+  completed: boolean;
+}
+
+export function tutorialProgress(state: GardenState) {
+  const completed = state.events?.completed_key_events ?? {};
+  const proposalNames = [
+    ['alice_greenhouse_maintenance_proposal', '爱丽丝'],
+    ['nitori_greenhouse_automation_proposal', '荷取'],
+  ] as const;
+  const missingProposalNames = proposalNames
+    .filter(([eventId]) => !completed[eventId])
+    .map(([, name]) => name);
+  const steps: TutorialProgressStep[] = [
+    {
+      id: 'opening',
+      title: '继承移动庭园',
+      instruction: '完成开场资料并进入庭园。',
+      completed: Boolean(state.meta?.opening_committed),
+    },
+    {
+      id: 'boundary',
+      title: '确认结界异常',
+      instruction: '在庭园点击灵梦，选择“检查结界”。',
+      completed: Boolean(completed.reimu_boundary_inspection),
+    },
+    {
+      id: 'main-house',
+      title: '修复旧主屋',
+      instruction: '点击旧主屋，选择维修并完成结算。',
+      completed: Boolean(completed.main_house_repair),
+    },
+    {
+      id: 'magic-trace',
+      title: '追查温室线索',
+      instruction: '点击温室旧地基，调查残留的魔力痕迹。',
+      completed: Boolean(completed.marisa_material_rumor),
+    },
+    {
+      id: 'inspiration',
+      title: '取得第二点灵感',
+      instruction: '在温室旧址选择异常生长、魔理沙方案或祖父图纸中的一个入口。',
+      completed: Boolean(completed.gain_second_inspiration),
+    },
+    {
+      id: 'foundation',
+      title: '清理温室地基',
+      instruction: '返回温室旧址，选择“清理旧地基”。',
+      completed: Boolean(completed.clear_greenhouse_foundation),
+    },
+    {
+      id: 'greenhouse',
+      title: '建成基础魔法温室',
+      instruction: '准备 4 物资与 2 灵感，在温室旧址开始建造。',
+      completed: Boolean(completed.build_basic_magic_greenhouse),
+    },
+    {
+      id: 'first-use',
+      title: '完成温室试运行',
+      instruction: '点击建成的魔法温室，选择“第一次使用”。',
+      completed: Boolean(completed.greenhouse_first_use),
+    },
+    {
+      id: 'research',
+      title: '进行温室研究交流',
+      instruction: '与魔理沙完成两段式温室研究交流。',
+      completed: Boolean(completed.greenhouse_multiturn_conversation),
+    },
+    {
+      id: 'flower-core',
+      title: '解决妖花核心',
+      instruction: '调查温室深处的妖花核心，并用符卡战或剧情方式完成结算。',
+      completed: Boolean(completed.greenhouse_flower_core),
+    },
+    {
+      id: 'free-growth',
+      title: '整理自由生长方案',
+      instruction: '点击魔法温室，与魔理沙整理第一套改造方案。',
+      completed: Boolean(completed.greenhouse_free_growth_proposal),
+    },
+    {
+      id: 'parallel-proposals',
+      title: '收集另外两套方案',
+      instruction: missingProposalNames.length
+        ? `在魔法温室完成${missingProposalNames.join('与')}的方案；两者顺序自由。`
+        : '爱丽丝与荷取的方案均已登记。',
+      completed: missingProposalNames.length === 0,
+    },
+    {
+      id: 'select-form',
+      title: '完成首次温室选型',
+      instruction: '三套方案齐备后，在魔法温室比较方案并选择首次改造形态。',
+      completed: Boolean(completed.select_greenhouse_form),
+    },
+  ];
+  const completedCount = steps.filter((step) => step.completed).length;
+  const currentIndex = steps.findIndex((step) => !step.completed);
+  return {
+    steps,
+    completedCount,
+    totalCount: steps.length,
+    currentStep: currentIndex >= 0 ? steps[currentIndex] : null,
+    nextStep: currentIndex >= 0 ? steps[currentIndex + 1] ?? null : null,
+  };
+}
+
 export function openGardenOpportunityPanel(state: GardenState) {
   if (!isTutorialGraduated(state)) {
+    const tutorial = tutorialProgress(state);
     return {
       graduated: false,
       title: '教程进行中',
-      items: ['完成魔理沙、爱丽丝、荷取三套温室方案后，进行首次选型。'],
+      tutorial,
+      items: tutorial.currentStep ? [tutorial.currentStep.instruction] : [],
     };
   }
   const facilities = listFacilityCatalog().map((facility) => {

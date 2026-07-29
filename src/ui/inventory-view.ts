@@ -1,47 +1,117 @@
 import { inventoryDisplayRows } from './inventory-rules';
 import type { GardenState } from './types';
 
+const itemMarks: Record<string, string> = {
+  incident_trigger_card: '异',
+  fairy_candy_pack: '糖',
+  moon_viewing_tea: '月',
+  hot_spring_sachet: '香',
+  banquet_bento: '膳',
+  oni_sake_flask: '酒',
+  emergency_repair_kit: '修',
+  sakuya_watch: '刻',
+};
+
 export function renderInventoryView(
   root: HTMLElement,
   state: GardenState,
   useItem: (itemId: string) => void,
 ) {
   root.replaceChildren();
+  const rows = inventoryDisplayRows(state);
+  const totalQuantity = rows.reduce((total, row) => total + row.quantity, 0);
+
+  const introduction = document.createElement('header');
+  introduction.className = 'gg-inventory-intro';
+  const introductionCopy = document.createElement('div');
+  const eyebrow = document.createElement('p');
+  eyebrow.className = 'gg-eyebrow';
+  eyebrow.textContent = 'TRAVELLER’S POUCH';
   const heading = document.createElement('h2');
-  heading.textContent = '背包';
+  heading.textContent = '旅人背包';
   const note = document.createElement('p');
   note.className = 'gg-note';
-  note.textContent = '只显示本地登记物品。玩家不能创建目录外物品；聊天道具需在合法场景中使用。';
+  note.textContent = '庭园承认的物品会收在这里；场景道具需要前往对应地点使用。';
+  introductionCopy.append(eyebrow, heading, note);
+
+  const summary = document.createElement('div');
+  summary.className = 'gg-inventory-summary';
+  summary.setAttribute('aria-label', `持有 ${rows.length} 类物品，共 ${totalQuantity} 件`);
+  const kindCount = document.createElement('strong');
+  kindCount.textContent = String(rows.length);
+  const kindLabel = document.createElement('span');
+  kindLabel.textContent = '类物品';
+  const totalCount = document.createElement('strong');
+  totalCount.textContent = String(totalQuantity);
+  const totalLabel = document.createElement('span');
+  totalLabel.textContent = '件持有';
+  summary.append(kindCount, kindLabel, totalCount, totalLabel);
+  introduction.append(introductionCopy, summary);
+
   const list = document.createElement('div');
-  list.className = 'gg-shop-list';
-  const rows = inventoryDisplayRows(state);
+  list.className = 'gg-inventory-grid';
   if (!rows.length) {
-    const empty = document.createElement('p');
-    empty.className = 'gg-note gg-empty';
-    empty.textContent = '背包还是空的。可在灵梦小店购买物资、异变卡或后续设施道具。';
-    root.append(heading, note, empty);
+    const empty = document.createElement('div');
+    empty.className = 'gg-inventory-empty';
+    const emptyMark = document.createElement('span');
+    emptyMark.setAttribute('aria-hidden', 'true');
+    emptyMark.textContent = '空';
+    const emptyText = document.createElement('p');
+    emptyText.textContent = '背包还是空的。去灵梦小店看看，或从庭园活动中取得新物品。';
+    empty.append(emptyMark, emptyText);
+    root.append(introduction, empty);
     return;
   }
+
   for (const row of rows) {
     const card = document.createElement('article');
-    card.className = 'gg-shop-item';
+    card.className = 'gg-inventory-item';
+    card.dataset.kind = row.kind;
+    card.dataset.usable = String(row.usable);
+    card.dataset.itemId = row.item_id;
+
+    const mark = document.createElement('div');
+    mark.className = 'gg-inventory-mark';
+    mark.setAttribute('aria-hidden', 'true');
+    mark.textContent = itemMarks[row.item_id] ?? '物';
+
+    const content = document.createElement('div');
+    content.className = 'gg-inventory-item-content';
+    const titleLine = document.createElement('div');
+    titleLine.className = 'gg-inventory-title-line';
     const title = document.createElement('h3');
-    title.textContent = `${row.title}${row.kind === 'consumable' ? ` ×${row.quantity}` : ''}`;
+    title.textContent = row.title;
+    const kind = document.createElement('span');
+    kind.className = 'gg-inventory-kind';
+    kind.textContent = row.kind === 'consumable' ? '消耗品' : '重要物';
+    titleLine.append(title, kind);
     const details = document.createElement('p');
+    details.className = 'gg-inventory-description';
     details.textContent = row.description;
     const status = document.createElement('p');
-    status.className = 'gg-note';
-    status.textContent = row.usable ? (row.kind === 'key_item' ? '可使用' : '可在合法入口使用') : row.disabledReason;
-    card.append(title, details, status);
+    status.className = 'gg-inventory-status';
+    status.dataset.available = String(row.usable);
+    status.textContent = row.usable ? (row.kind === 'key_item' ? '现在可以使用' : '可在对应入口使用') : row.disabledReason;
+    content.append(titleLine, details, status);
+
+    const side = document.createElement('div');
+    side.className = 'gg-inventory-item-side';
+    const quantity = document.createElement('span');
+    quantity.className = 'gg-inventory-quantity';
+    quantity.setAttribute('aria-label', `数量 ${row.quantity}`);
+    quantity.textContent = row.kind === 'key_item' ? '唯一' : `×${row.quantity}`;
+    side.append(quantity);
     if (row.item_id === 'incident_trigger_card' || row.item_id === 'sakuya_watch') {
       const button = document.createElement('button');
       button.type = 'button';
+      button.className = 'gg-inventory-use';
       button.textContent = row.item_id === 'sakuya_watch' ? '使用怀表' : '启用异变';
       button.disabled = !row.usable;
       button.addEventListener('click', () => useItem(row.item_id));
-      card.append(button);
+      side.append(button);
     }
+    card.append(mark, content, side);
     list.append(card);
   }
-  root.append(heading, note, list);
+  root.append(introduction, list);
 }

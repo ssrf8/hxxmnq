@@ -18,21 +18,45 @@
 | R6.5 | 修复「默认进庭院不全屏」：启动即初始化 `data-active-view='garden'` | 所有者报 bug | 106/106 |
 | R7 | 区域高亮从矩形角括 → 底图手描轮廓多边形描边发光（主屋/水井/田地/山门），空地块贴地光环；两轮叠图校验 | 所有者反馈 | 106/106 |
 | R8 | 扩大视角无设施底图接入；地图素材改为 manifest 驱动；人物 73% / 设施占位 76% 远景缩放；停用旧底图轮廓 | 所有者供图与规划 | 109/109 |
+| R9 | 灵梦小店入口与 4:3 十槽商店界面、魔理沙背包入口、灵梦符卡副本入口换图；分类双态、资金牌、商品说明与底部热区校准 | 所有者素材与逐项反馈 | 124/124（异常恢复后复跑） |
+| R10 | 角色点击菜单四徽章：动作对象派生对话／离开／摸头／任务视觉语义；最终采用纯 HTML/CSS 东方御守风，不加载徽章图片；桌面半环、390px 双列与 320px 单列网格，禁用原因改为可见文本 | 异常任务续接 + 所有者调整 | 125/125 |
+| R11 | 角色／设施弹窗收紧按钮，过滤与关闭重复的“离开”；设施查看隐藏视觉图；背包重构为独立道具袋界面 | 所有者逐项反馈 | 后续总门禁复跑 134/134 |
+| R12 | 开放庭园教程进度与下一步；详细测试控制面板（教程断点、M1/M2、道具、八角色在场编排）；浏览器缩放补偿；三项顶栏入口放大下移并移除旧外层黑框；琪露诺待机亮度校准；GAL 道具御札式选择槽 | 所有者逐项反馈与报错 | 后续总门禁复跑 134/134 |
+| R13 | GAL 东方幻想乡视觉收尾：所有者神社背景进入预览／内嵌链路，移除旧月亮与雾气，修复姓名牌被对白框 `clip-path` 裁切 | 所有者供图与报 bug | 后续总门禁复跑 134/134 |
+| R14 | 新庭园底图与设施全形态接入：13 种正式形态、3 张损坏层、四组渲染／落脚／标签／命中几何；精确设施多边形优先于旧区域圆形 | 异常任务续接 + 所有者“全过” | 134/134；宽／窄屏离线通过 |
+| R15 | 三副本 Boss 独立四状态图集：琪露诺／爱丽丝／咲夜按 `boss_id` 切换待机、施法、受击、击破；透明资源进入预览与内嵌链，妖花保留断链回退 | 所有者供图 | 134/134；琪露诺本地到场目视通过 |
+| R16 | 顶栏三张缩略玩法入口收拢为「幻想乡案内」；原生大面板内提供符卡副本／灵梦小店／背包三张平滑渲染大卡及三项辅助操作；桌面、390px、320px 响应式与入口跳转检查 | 所有者反馈 | 134/134；宽／窄屏离线通过 |
 
 ## 变更文件
 
 | 文件 | 变更 |
 |---|---|
 | `src/ui/styles.css` | token 层、符卡框、气泡、开场 R3-R5、HUD、全屏、主题按钮、副本夜空；内嵌 base64 主视觉与 SVG 占位素材 |
-| `src/ui/index.html` | 开场重排（三输入 + 场景层 + sr-only 契约句）、全屏按钮、气泡菜单结构不变仅消费 |
+| `src/ui/index.html` | 开场重排（三输入 + 场景层 + sr-only 契约句）；新增单例「幻想乡案内」dialog 与大尺寸玩法卡结构 |
+| `project/large-entry-panel-plan.md` | 大型案内面板的信息架构、响应式尺寸、交互边界、施工顺序与验收标准 |
+| `src/ui/app.ts` | 统一案内入口转场、动态状态摘要、关闭与焦点返回；原业务入口函数保持唯一 |
+| `src/ui/styles.css` | 新增 `.gg-launcher-*` 大面板、大卡与三档响应式样式；三张入口插画在面板内改用平滑采样 |
+| `tests/ui-contract.test.mjs` | 固化案内入口唯一性、三卡顺序、平滑渲染、桌面三列与窄屏单列契约 |
 | `src/ui/app.ts` | `createBubbleButton`、半环绕定位、`positionTargetMenu` 跟随、`setStatus` tone、全屏开关、启动视图标记、鼠标光源、正文逐拍淡入 |
 | `src/ui/garden-map.ts` | DPR 补偿、药丸标签、悬停/选中态、轮廓多边形发光、贴地光环、锚点跟随回调、指针切换、imageSmoothing 关闭 |
 | `src/ui/garden-spatial.ts` | 新增 `GARDEN_AREA_OUTLINES` 手描轮廓（换底图必须重描） |
-| `src/assets/maps/garden-base-expanded-empty-v1.png` | 所有者提供的 1536×1024 扩大视角无设施运行时底图；设施改走后续独立透明贴图层 |
+| `旧素材/src/assets/maps/garden-base-expanded-empty-v1.png` | R8 历史运行时底图，已归档，不再由当前 manifest 使用 |
+| `src/assets/maps/garden-base-owner-candidate-v2.png` | 当前 `1448×1086` 正式运行时底图；所有者已批准其设施叠图方向 |
+| `src/assets/world/map-facilities/{magic-greenhouse,fairy-garden,moon-spring,banquet-plaza}/*-v2.png` | 所有者批准的 13 种正式设施形态与 3 张损坏覆盖层；由 manifest 几何和运行态正式键驱动 |
 | `src/assets/asset-manifest.json` / `scripts/build-ui.mjs` | 登记 `maps.garden_base` 并由清单选择、复制和内嵌运行时底图 |
 | `src/ui/sprite-actor.ts` | 新增 `drawOutlineGlow`（source-in 染色 + 模糊双叠，含浮动/摆动同步） |
 | `src/ui/shop-view.ts` / `inventory-view.ts` | 价签 `gg-price`、空状态 `gg-empty` |
 | `src/assets/ui/opening-hero-source-v1.png` | 所有者主视觉原图存档（2.9MB，未入清单，不进卡） |
+| `src/assets/ui/reimu-shop-button-v1.png` / `marisa-inventory-button-v1.png` / `reimu-dungeon-button-v1.png` | 顶栏小店、背包、符卡副本独立像素入口；预览与内嵌运行时使用同一资源链 |
+| `src/assets/ui/reimu-shop-ui-background-v1.png` | 灵梦小店 4:3 底图；桌面端覆盖十槽、资金牌与透明操作热区，窄屏回流为可读卡片布局 |
+| `src/ui/shop-view.ts` | 固定 5×2 商品槽、分类筛选、资金显示、商品详情与购买/离开逻辑的视觉适配 |
+| `旧素材/src/assets/ui/target-action-*.png` | 角色点击菜单四张历史参考原图；已归档，最终运行时不读取、不复制、不内嵌，徽章完全由 HTML/CSS 绘制 |
+| `src/assets/ui/gensokyo-gal-shrine-background-v1.png` | 所有者提供的 GAL 神社背景原图；由清单登记，离线预览复制文件，嵌入式运行时注入 data URL |
+| `src/assets/battle/boss/{cirno,alice,sakuya}-battle-sheet-v1.png` | 三副本独立 `2×2` 四状态 Boss 透明图集；按 `presentation.boss_id` 选择，chroma 维护源不进产物 |
+| `src/ui/open-garden-rules.ts` | 只从正式状态派生教程步骤、完成数、当前步骤与下一步，不新增持久化 UI 状态 |
+| `src/ui/test-tools.ts` | 教程断点、M1/M2、道具恢复及八名角色在场编排的受控测试快照 |
+| `src/ui/inventory-view.ts` | 独立背包介绍、分类统计、物品网格、详情与受控使用入口 |
+| `src/runtime/ui-host-shell.js` | 向 iframe 传递 GAL 背景 data URL，并保持资源链在宿主边界内 |
 
 ## 关键决策与约束
 
@@ -42,10 +66,15 @@
 - 所有动效统一走全局 `prefers-reduced-motion` 豁免；像素素材永远 `imageSmoothingEnabled=false` / `pixelated`。
 - 体积纪律：主视觉压缩至 430KB 再嵌入；灯笼/星芒/鸟居等全部内嵌 SVG 零位图。
 - world_assets 的既有 states 图集（RGBA）与新底图透视不一致，继续只服务设施页；地图设施必须重新制作独立透明贴图。空底图阶段统一使用缩小后的贴地光环，旧手描轮廓停用。
+- 浏览器页面缩放与地图世界缩放是两条独立链路：前者通过 `--gg-browser-zoom-compensation` 只补偿角色与目标菜单的视觉尺寸，后者继续由地图滚轮逻辑处理并保持指针锚点；不要再用统一 transform 把弹窗和地图一起缩放。
+- “离开”与弹窗关闭属于同一语义，目标动作列表必须过滤 `mode=close`／`id=leave`，不得重新呈现第二个退出按钮。
+- GAL 背景唯一来源为 `asset-manifest.json/ui_assets.gal_shrine_background`；`.gg-gal::before` 与舞台 `::after` 不再生成月亮、雾气或条纹遮罩。姓名牌必须位于对白框裁切多边形内部。
 
 ## 待办 / 待素材 / 待验收
 
 - **实机验收（sillytavern-runtime-debug，最高优先）**：轮廓发光悬停手感、全阶段全屏、气泡视角跟随、移动端 320px、reduced-motion、ST 类名改写抽查。
 - ~~升 r54 打包~~ **已完成**：原 2026-07-26 产物 `ee8587e7…57ac73` 已归档；当前 r54 为 `d654424` 基准测试包，SHA-256 `4af870fa…501214`、38,392,452 字节。R8 扩大视角地图尚未正式打包。
-- **待所有者素材**：鼠标指针（已声明暂缓）、灯笼真素材、开场按钮完整绘制版（参考图未嵌卡）、细腻立绘线（方案 §7）、与新空底图对位的独立设施透明贴图（底图已完成接入）。
+- **待所有者素材**：鼠标指针（已声明暂缓）、灯笼真素材、开场按钮完整绘制版（参考图未嵌卡）、细腻立绘线（方案 §7）。新底图设施透明贴图已于 R14 完成，不再列入待素材。
+- ~~**角色点击菜单徽章（异常任务续接）**~~ **离线实现已完成**：`app.ts` 只从既有 `TargetAction` 派生 `talk / leave / pat-head / quest` 视觉类别，不修改注册表、剧情条件、bridge 或结算；四类徽章最终改为纯 HTML/CSS 御守风，原 PNG 不进入构建。桌面半环、390px 双列、320px 单列已在本地浏览器检查，无控制台警告／错误；任务按钮仍显示具体剧情名，禁用原因不再只依赖 `title`。仍需真实 SillyTavern 复查类名改写、角色移动中锚点跟随、键盘焦点与 reduced-motion。
+- **R11–R14 实机验收**：在真实 SillyTavern 检查 100%／125%／200% 浏览器缩放、地图滚轮缩放、320px 与短视口、角色／设施菜单跟随、设施点击和损坏层、设施查看、背包长文本、测试面板滚动、GAL 姓名牌、道具键盘操作、背景内嵌加载、重挂载和聊天切换；当前具备静态契约、类型检查、134/134 测试、离线构建及宽／窄屏预览证据。
 - **方案剩余阶段**：D 季节时段主题、E 微交互收尾与截图归档、F 素材接入。

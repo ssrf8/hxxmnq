@@ -4,10 +4,58 @@ import { greenhouseDiscoveryVisible } from './greenhouse-rules';
 import { GARDEN_AREA_OUTLINES, GARDEN_AREA_POSITIONS, gardenAreaPoint } from './garden-spatial';
 
 interface Point { x: number; y: number }
-export interface HitTarget extends Point { id: string; label: string; kind: 'area' | 'character'; radius: number }
+export interface HitTarget extends Point {
+  id: string;
+  label: string;
+  kind: 'area' | 'character';
+  radius: number;
+  polygon?: Point[];
+}
+export interface MapFacilityGeometry {
+  width_ratio: number;
+  render_center: [number, number];
+  ground_anchor: [number, number];
+  label_anchor: [number, number];
+  hit_polygon: [number, number][];
+}
 export interface MapFacilitySpriteSet {
+  areaId: string;
   forms?: Record<string, string>;
   damageOverlay?: string;
+  geometry?: MapFacilityGeometry;
+}
+
+export function pointInPolygon(point: Point, polygon: Point[]): boolean {
+  let inside = false;
+  for (let current = 0, previous = polygon.length - 1; current < polygon.length; previous = current++) {
+    const a = polygon[current];
+    const b = polygon[previous];
+    const crosses = (a.y > point.y) !== (b.y > point.y)
+      && point.x < ((b.x - a.x) * (point.y - a.y)) / (b.y - a.y) + a.x;
+    if (crosses) inside = !inside;
+  }
+  return inside;
+}
+
+export function resolveMapFacilitySprite(
+  state: GardenState,
+  facilityId: string,
+  spriteSet: MapFacilitySpriteSet | undefined,
+): { source: string; damageOverlay?: string } | null {
+  if (!spriteSet) return null;
+  const runtime = state.facility_runtime?.[facilityId];
+  const facility = state.facilities?.[facilityId];
+  const area = state.areas?.[spriteSet.areaId];
+  const form = runtime?.current_form ?? facility?.current_form ?? area?.state;
+  const source = form ? spriteSet.forms?.[form] : undefined;
+  const built = facilityId === 'main_house'
+    ? Boolean(area?.unlocked && source)
+    : runtime?.built ?? Boolean(facility?.current_form || facility?.state === '启用');
+  if (!built || !source) return null;
+  return {
+    source,
+    damageOverlay: runtime?.status === 'damaged' ? spriteSet.damageOverlay : undefined,
+  };
 }
 
 const areaPositions = GARDEN_AREA_POSITIONS;
@@ -31,6 +79,8 @@ export class GardenMap {
   private lastFrameTime = 0;
   private visible = !document.hidden;
   private pixelRatio = 1;
+  private readonly initialDevicePixelRatio = Math.max(0.5, globalThis.devicePixelRatio || 1);
+  private browserZoomCompensation = 1;
   private selectedId: string | null = null;
   private hoveredId: string | null = null;
   private frameClock = 0;
@@ -68,8 +118,9 @@ export class GardenMap {
 
   update(state: GardenState) {
     this.state = state;
+    const present = new Set(state.presence_snapshot?.present_character_ids ?? []);
     const views = state.presence_snapshot?.character_views ?? {};
-    this.actors.forEach((actor, id) => actor.sync(views[id], this.reducedMotion.matches));
+    this.actors.forEach((actor, id) => actor.sync(views[id], this.reducedMotion.matches, present.has(id)));
     this.draw();
   }
 
@@ -118,15 +169,19 @@ export class GardenMap {
   };
 
   private onReducedMotionChanged = () => {
+    const present = new Set(this.state.presence_snapshot?.present_character_ids ?? []);
     const views = this.state.presence_snapshot?.character_views ?? {};
-    this.actors.forEach((actor, id) => actor.sync(views[id], this.reducedMotion.matches));
+    this.actors.forEach((actor, id) => actor.sync(views[id], this.reducedMotion.matches, present.has(id)));
     this.draw();
   };
 
   private resize() {
     const rect = this.canvas.getBoundingClientRect();
-    const ratio = Math.min(devicePixelRatio || 1, 2);
+    const currentDevicePixelRatio = Math.max(0.5, globalThis.devicePixelRatio || 1);
+    const ratio = Math.min(currentDevicePixelRatio, 2);
     this.pixelRatio = ratio;
+    this.browserZoomCompensation = Math.max(0.5, Math.min(2, this.initialDevicePixelRatio / currentDevicePixelRatio));
+    this.canvas.dataset.browserZoomCompensation = this.browserZoomCompensation.toFixed(3);
     const width = Math.max(1, Math.round(rect.width * ratio));
     const height = Math.max(1, Math.round(rect.height * ratio));
     if (this.canvas.width === width && this.canvas.height === height) return;
@@ -164,14 +219,19 @@ export class GardenMap {
 
     this.drawFacilityLayer(ctx, drawWidth, drawHeight);
     this.targets = [];
-    const px = this.pixelRatio;
+    // Browser zoom changes devicePixelRatio. Keep actors and interaction chrome
+    // near their launch-time physical size while the map itself still reflows.
+    const px = this.pixelRatio * this.browserZoomCompensation;
     const areas = this.state.areas ?? {};
     for (const [id, area] of Object.entries(areas)) {
       const discoveryMarker = id === 'greenhouse_plot'
         && !area.unlocked
         && greenhouseDiscoveryVisible(this.state);
       if (!area.unlocked && !discoveryMarker) continue;
-      const point = areaPositions[id];
+      const facilityGeometry = this.facilityGeometryForArea(id);
+      const point = facilityGeometry
+        ? { x: facilityGeometry.ground_anchor[0], y: facilityGeometry.ground_anchor[1] }
+        : areaPositions[id];
       if (!point) continue;
       const x = -drawWidth / 2 + point.x * drawWidth;
       const y = -drawHeight / 2 + point.y * drawHeight;
@@ -181,7 +241,9 @@ export class GardenMap {
       // 手描多边形描边发光，空地块回退贴地光环。
       const active = this.hoveredId === id || this.selectedId === id;
       const accent = discoveryMarker ? '#d9b9e8' : '#f3c86c';
-      const outline = GARDEN_AREA_OUTLINES[id];
+      const outline = facilityGeometry?.hit_polygon
+        ?.map(([outlineX, outlineY]) => ({ x: outlineX, y: outlineY }))
+        ?? GARDEN_AREA_OUTLINES[id];
       const pulse = this.reducedMotion.matches || this.selectedId === id
         ? .95
         : 0.6 + 0.4 * Math.abs(Math.sin(this.frameClock / 420));
@@ -192,8 +254,13 @@ export class GardenMap {
           y: -drawHeight / 2 + point.y * drawHeight,
         }));
         this.drawAreaOutlineGlow(ctx, worldPoints, accent, pulse);
-        const topY = Math.min(...worldPoints.map((point) => point.y));
-        this.drawLabel(ctx, x, topY - 16 * px, `${label} · ${markerState}`);
+        const labelX = facilityGeometry
+          ? -drawWidth / 2 + facilityGeometry.label_anchor[0] * drawWidth
+          : x;
+        const labelY = facilityGeometry
+          ? -drawHeight / 2 + facilityGeometry.label_anchor[1] * drawHeight
+          : Math.min(...worldPoints.map((point) => point.y)) - 16 * px;
+        this.drawLabel(ctx, labelX, labelY, `${label} · ${markerState}`);
       } else if (active) {
         this.drawGroundGlow(
           ctx,
@@ -204,14 +271,19 @@ export class GardenMap {
           pulse,
         );
         this.drawLabel(ctx, x, y - drawHeight * 0.05 * FACILITY_VISUAL_SCALE - 18 * px, `${label} · ${markerState}`);
-      } else if (!this.resolveFacilitySprite(id.endsWith('_plot') ? id.slice(0, -5) : id)) {
+      } else if (!this.resolveFacilitySprite(this.facilityIdForArea(id))) {
         this.drawDiamond(ctx, x, y, 7 * px, discoveryMarker ? '#d9b9e8' : '#f3d58a');
       }
       let hitX = x;
       let hitY = y;
+      let hitPolygon: Point[] | undefined;
       if (outline) {
         const xs = outline.map((point) => point.x);
         const ys = outline.map((point) => point.y);
+        hitPolygon = outline.map((point) => ({
+          x: -drawWidth / 2 + point.x * drawWidth,
+          y: -drawHeight / 2 + point.y * drawHeight,
+        }));
         hitRadius = Math.max(
           (Math.max(...xs) - Math.min(...xs)) * drawWidth,
           (Math.max(...ys) - Math.min(...ys)) * drawHeight,
@@ -220,7 +292,7 @@ export class GardenMap {
         hitX = -drawWidth / 2 + ((Math.min(...xs) + Math.max(...xs)) / 2) * drawWidth;
         hitY = -drawHeight / 2 + ((Math.min(...ys) + Math.max(...ys)) / 2) * drawHeight;
       }
-      this.targets.push({ id, label, kind: 'area', x: hitX, y: hitY, radius: hitRadius });
+      this.targets.push({ id, label, kind: 'area', x: hitX, y: hitY, radius: hitRadius, polygon: hitPolygon });
     }
 
     // Only visiting characters are rendered. There is intentionally no player marker.
@@ -228,13 +300,14 @@ export class GardenMap {
     const views = this.state.presence_snapshot?.character_views ?? {};
     present.forEach((id, index) => {
       const view = views[id] ?? {};
-      const base = gardenAreaPoint(view.area_id);
+      const base = this.areaPoint(view.area_id);
       const actor = this.actors.get(id);
       const actorOffset = actor?.offsetX ?? 0;
+      const actorOffsetY = actor?.offsetY ?? 0;
       const x = -drawWidth / 2 + (base.x + actorOffset) * drawWidth + (index % 3 - 1) * 38 * px;
-      const y = -drawHeight / 2 + base.y * drawHeight + 54 * px + Math.floor(index / 3) * 35 * px;
+      const y = -drawHeight / 2 + (base.y + actorOffsetY) * drawHeight + 54 * px + Math.floor(index / 3) * 35 * px;
       const label = this.state.characters?.[id]?.name ?? id;
-      const spriteSize = Math.min(132 * px, drawWidth * 0.12) * CHARACTER_VISUAL_SCALE;
+      const spriteSize = Math.min(132 * px, drawWidth * 0.12 * this.browserZoomCompensation) * CHARACTER_VISUAL_SCALE;
       const characterActive = this.hoveredId === id || this.selectedId === id;
       // 轮廓发光：染色剪影垫底，精确贴合人物形状；无 sprite 时回退圆环。
       let glowDrawn = false;
@@ -283,11 +356,15 @@ export class GardenMap {
   private drawFacilityLayer(ctx: CanvasRenderingContext2D, drawWidth: number, drawHeight: number) {
     for (const facilityId of Object.keys(this.facilitySprites)) {
       const sprite = this.resolveFacilitySprite(facilityId);
-      const point = areaPositions[`${facilityId}_plot`];
+      const spriteSet = this.facilitySprites[facilityId];
+      const geometry = spriteSet?.geometry;
+      const point = geometry
+        ? { x: geometry.render_center[0], y: geometry.render_center[1] }
+        : areaPositions[spriteSet?.areaId];
       if (!sprite || !point) continue;
       const image = this.imageFor(sprite.source);
       if (!image.complete || !image.naturalWidth) continue;
-      const width = drawWidth * 0.23 * FACILITY_VISUAL_SCALE;
+      const width = drawWidth * (geometry?.width_ratio ?? 0.23 * FACILITY_VISUAL_SCALE);
       const height = width * image.naturalHeight / image.naturalWidth;
       const x = -drawWidth / 2 + point.x * drawWidth - width / 2;
       const y = -drawHeight / 2 + point.y * drawHeight - height / 2;
@@ -300,16 +377,24 @@ export class GardenMap {
   }
 
   private resolveFacilitySprite(facilityId: string): { source: string; damageOverlay?: string } | null {
-    const runtime = this.state.facility_runtime?.[facilityId];
-    const facility = this.state.facilities?.[facilityId];
-    const built = runtime?.built ?? Boolean(facility?.current_form || facility?.state === '启用');
-    const form = runtime?.current_form ?? facility?.current_form;
-    const source = form ? this.facilitySprites[facilityId]?.forms?.[form] : undefined;
-    if (!built || !source) return null;
-    return {
-      source,
-      damageOverlay: runtime?.status === 'damaged' ? this.facilitySprites[facilityId]?.damageOverlay : undefined,
-    };
+    return resolveMapFacilitySprite(this.state, facilityId, this.facilitySprites[facilityId]);
+  }
+
+  private facilityIdForArea(areaId: string): string {
+    return Object.entries(this.facilitySprites)
+      .find(([, spriteSet]) => spriteSet.areaId === areaId)?.[0] ?? areaId;
+  }
+
+  private facilityGeometryForArea(areaId: string): MapFacilityGeometry | undefined {
+    const facilityId = this.facilityIdForArea(areaId);
+    return this.facilitySprites[facilityId]?.geometry;
+  }
+
+  private areaPoint(areaId: string | undefined | null): Point {
+    const geometry = areaId ? this.facilityGeometryForArea(areaId) : undefined;
+    return geometry
+      ? { x: geometry.ground_anchor[0], y: geometry.ground_anchor[1] }
+      : gardenAreaPoint(areaId);
   }
 
   private imageFor(source: string): HTMLImageElement {
@@ -322,7 +407,7 @@ export class GardenMap {
     return image;
   }
 
-  /** Idle waypoint: a small pixel diamond that keeps the map uncluttered. */
+  /** Empty-area waypoint: a small pixel diamond that keeps the map uncluttered. */
   private drawDiamond(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, color: string) {
     ctx.beginPath();
     ctx.moveTo(x, y - size);
@@ -333,7 +418,7 @@ export class GardenMap {
     ctx.fillStyle = color;
     ctx.fill();
     ctx.strokeStyle = '#543f2a';
-    ctx.lineWidth = Math.max(1, 2 * this.pixelRatio);
+    ctx.lineWidth = Math.max(1, 2 * this.pixelRatio * this.browserZoomCompensation);
     ctx.stroke();
   }
 
@@ -345,7 +430,7 @@ export class GardenMap {
     pulse: number,
   ) {
     if (points.length < 3) return;
-    const px = this.pixelRatio;
+    const px = this.pixelRatio * this.browserZoomCompensation;
     ctx.save();
     ctx.globalAlpha = pulse;
     ctx.beginPath();
@@ -386,14 +471,14 @@ export class GardenMap {
     ctx.fillStyle = gradient;
     ctx.fill();
     ctx.strokeStyle = 'rgba(243, 200, 108, .55)';
-    ctx.lineWidth = 2 * this.pixelRatio;
+    ctx.lineWidth = 2 * this.pixelRatio * this.browserZoomCompensation;
     ctx.stroke();
     ctx.restore();
   }
 
   /** Draw text on a translucent pill so labels stay readable over the map art. */
   private drawLabel(ctx: CanvasRenderingContext2D, x: number, y: number, text: string) {
-    const px = this.pixelRatio;
+    const px = this.pixelRatio * this.browserZoomCompensation;
     const size = 13 * px;
     ctx.font = `600 ${size}px system-ui`;
     ctx.textAlign = 'center';
@@ -419,7 +504,7 @@ export class GardenMap {
   }
 
   private drawSelectionRing(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number) {
-    const px = this.pixelRatio;
+    const px = this.pixelRatio * this.browserZoomCompensation;
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, Math.PI * 2);
     ctx.strokeStyle = 'rgba(243, 200, 108, .95)';
@@ -476,7 +561,20 @@ export class GardenMap {
   private hitTarget(point: Point): HitTarget | undefined {
     const worldX = (point.x - this.canvas.width / 2 - this.camera.x) / this.camera.zoom;
     const worldY = (point.y - this.canvas.height / 2 - this.camera.y) / this.camera.zoom;
-    return [...this.targets].reverse().find((item) => Math.hypot(item.x - worldX, item.y - worldY) <= item.radius);
+    const worldPoint = { x: worldX, y: worldY };
+    const reversed = [...this.targets].reverse();
+    // Characters stay topmost. Exact facility polygons then win over the broad
+    // circular fallbacks used by legacy/empty areas such as the central lawn.
+    return reversed.find((item) => item.kind === 'character' && this.targetContains(item, worldPoint))
+      ?? reversed.find((item) => item.polygon && this.targetContains(item, worldPoint))
+      ?? reversed.find((item) => !item.polygon && this.targetContains(item, worldPoint));
+  }
+
+  private targetContains(target: HitTarget, point: Point): boolean {
+    if (!target.polygon?.length) {
+      return Math.hypot(target.x - point.x, target.y - point.y) <= target.radius;
+    }
+    return pointInPolygon(point, target.polygon);
   }
 
   private onPointerUp = (event: PointerEvent) => {
