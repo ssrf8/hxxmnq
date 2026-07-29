@@ -52,10 +52,12 @@
     {
       "id": "character_profiles",
       "label": "当前相关角色人设",
-      "activation": "conditional-by-character-id",
+      "activation": "greenlight-by-character-id",
       "target": "plot-model",
       "source": "characters/{character_id}.xml",
-      "budget": "dynamic"
+      "routing_source": "character-routing.json",
+      "budget": "dynamic",
+      "contract": "绿灯只由本地剧情上下文根据正式在场、当前会话、当前事件或显式代码选角写入；姓名、别名、历史记录与未在场名单不触发；角色条目不参与递归扫描。"
     },
     {
       "id": "event_configs",

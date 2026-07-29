@@ -4,7 +4,7 @@ export interface GardenPoint { x: number; y: number }
 
 /** Stable Chinese display names for built-in map areas. */
 export const GARDEN_AREA_LABELS: Readonly<Record<string, string>> = Object.freeze({
-  main_house: '旧主屋',
+  main_house: '主屋',
   central_courtyard: '中央庭院',
   greenhouse_plot: '魔法温室',
   fairy_garden_plot: '妖精花园',
@@ -14,14 +14,14 @@ export const GARDEN_AREA_LABELS: Readonly<Record<string, string>> = Object.freez
 
 /** Shared logical map coordinates used by both rendering and local proximity rules. */
 export const GARDEN_AREA_POSITIONS: Readonly<Record<string, GardenPoint>> = Object.freeze({
-  // The v2 base map already paints the main residence into the upper-left courtyard.
-  // Keep the interaction/visitor anchor on its forecourt instead of the old overlay site.
-  main_house: { x: 0.16, y: 0.15 },
-  central_courtyard: { x: 0.48, y: 0.55 },
-  greenhouse_plot: { x: 0.72, y: 0.35 },
-  fairy_garden_plot: { x: 0.76, y: 0.68 },
-  moon_spring_plot: { x: 0.28, y: 0.76 },
-  banquet_plaza_plot: { x: 0.50, y: 0.82 },
+  // The v3 base paints the residence into the upper-center. Other facilities
+  // remain interactive plot markers until matching transparent v3 sprites arrive.
+  main_house: { x: 0.50, y: 0.43 },
+  central_courtyard: { x: 0.50, y: 0.58 },
+  greenhouse_plot: { x: 0.19, y: 0.27 },
+  fairy_garden_plot: { x: 0.81, y: 0.36 },
+  moon_spring_plot: { x: 0.22, y: 0.70 },
+  banquet_plaza_plot: { x: 0.78, y: 0.69 },
 });
 
 /**

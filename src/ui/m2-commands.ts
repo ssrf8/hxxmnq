@@ -88,6 +88,7 @@ export function applyM2Command(
       const invited = inviteCharacter(state, command.characterId, command.inviteId, chatId);
       state = invited.state;
       result.message = invited.message;
+      result.invitationOutcome = invited.result;
       break;
     }
     case 'consume_visit_notices': {

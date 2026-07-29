@@ -1,0 +1,378 @@
+{
+  "ok": true,
+  "method": "shared alpha-union crop, 24px minimum transparent padding, 16px canvas alignment",
+  "source_directory": "旧素材/素材处理/抠图结果",
+  "output_directory": "src/assets/world/map-facilities",
+  "asset_count": 13,
+  "groups": {
+    "magic-greenhouse": {
+      "source_canvas": [
+        560,
+        490
+      ],
+      "source_union_bbox": [
+        10,
+        6,
+        556,
+        474
+      ],
+      "target_canvas": [
+        608,
+        528
+      ],
+      "minimum_transparent_padding": 24
+    },
+    "fairy-garden": {
+      "source_canvas": [
+        553,
+        430
+      ],
+      "source_union_bbox": [
+        4,
+        16,
+        537,
+        426
+      ],
+      "target_canvas": [
+        592,
+        464
+      ],
+      "minimum_transparent_padding": 24
+    },
+    "moon-spring": {
+      "source_canvas": [
+        590,
+        424
+      ],
+      "source_union_bbox": [
+        4,
+        16,
+        576,
+        420
+      ],
+      "target_canvas": [
+        624,
+        464
+      ],
+      "minimum_transparent_padding": 24
+    },
+    "banquet-plaza": {
+      "source_canvas": [
+        633,
+        432
+      ],
+      "source_union_bbox": [
+        16,
+        16,
+        617,
+        426
+      ],
+      "target_canvas": [
+        656,
+        464
+      ],
+      "minimum_transparent_padding": 24
+    }
+  },
+  "assets": [
+    {
+      "group": "magic-greenhouse",
+      "source": "基础温室.png",
+      "target": "src/assets/world/map-facilities/magic-greenhouse/magic-greenhouse-base-v3.png",
+      "canvas": [
+        608,
+        528
+      ],
+      "alpha_bbox": [
+        77,
+        145,
+        508,
+        455
+      ],
+      "transparent_padding": {
+        "left": 77,
+        "top": 145,
+        "right": 100,
+        "bottom": 73
+      },
+      "bytes": 248965,
+      "sha256": "24a76802da13a55a89154b34ece0d7f65cb25d2be5486c585dfa8f48ea271d0d"
+    },
+    {
+      "group": "magic-greenhouse",
+      "source": "自由生成温室.png",
+      "target": "src/assets/world/map-facilities/magic-greenhouse/magic-greenhouse-free-growth-v3.png",
+      "canvas": [
+        608,
+        528
+      ],
+      "alpha_bbox": [
+        74,
+        93,
+        537,
+        455
+      ],
+      "transparent_padding": {
+        "left": 74,
+        "top": 93,
+        "right": 71,
+        "bottom": 73
+      },
+      "bytes": 337604,
+      "sha256": "f166851d89008ba92544f770c66125cdd6c7538e9e96997f0c09f37b989cc8fa"
+    },
+    {
+      "group": "magic-greenhouse",
+      "source": "人偶温室.png",
+      "target": "src/assets/world/map-facilities/magic-greenhouse/magic-greenhouse-doll-maintained-v3.png",
+      "canvas": [
+        608,
+        528
+      ],
+      "alpha_bbox": [
+        74,
+        58,
+        575,
+        490
+      ],
+      "transparent_padding": {
+        "left": 74,
+        "top": 58,
+        "right": 33,
+        "bottom": 38
+      },
+      "bytes": 434535,
+      "sha256": "5cdd7c484b0da736777fea4c0d903cd5d4f9af1c04c61dafb28a2e49f6e396b2"
+    },
+    {
+      "group": "magic-greenhouse",
+      "source": "河童温室.png",
+      "target": "src/assets/world/map-facilities/magic-greenhouse/magic-greenhouse-kappa-automated-v3.png",
+      "canvas": [
+        608,
+        528
+      ],
+      "alpha_bbox": [
+        31,
+        30,
+        577,
+        498
+      ],
+      "transparent_padding": {
+        "left": 31,
+        "top": 30,
+        "right": 31,
+        "bottom": 30
+      },
+      "bytes": 491152,
+      "sha256": "5b12d408c3b878f8d254ff23cf1702fd166109a946603ef9f7216967999b0956"
+    },
+    {
+      "group": "fairy-garden",
+      "source": "四季花园.png",
+      "target": "src/assets/world/map-facilities/fairy-garden/fairy-garden-four-season-v3.png",
+      "canvas": [
+        592,
+        464
+      ],
+      "alpha_bbox": [
+        29,
+        28,
+        562,
+        437
+      ],
+      "transparent_padding": {
+        "left": 29,
+        "top": 28,
+        "right": 30,
+        "bottom": 27
+      },
+      "bytes": 429302,
+      "sha256": "e56b436e09e937c1ed81bb7086cbd9130952cc2aa0725c50fcd70bcfe7093530"
+    },
+    {
+      "group": "fairy-garden",
+      "source": "妖精游乐园.png",
+      "target": "src/assets/world/map-facilities/fairy-garden/fairy-garden-playground-v3.png",
+      "canvas": [
+        592,
+        464
+      ],
+      "alpha_bbox": [
+        29,
+        41,
+        562,
+        437
+      ],
+      "transparent_padding": {
+        "left": 29,
+        "top": 41,
+        "right": 30,
+        "bottom": 27
+      },
+      "bytes": 436255,
+      "sha256": "be4a5c79e41d0af8730f7fe4aa4c44cbc99c26ba1135cd2969c98dbac7effc0a"
+    },
+    {
+      "group": "fairy-garden",
+      "source": "冰迷宫.png",
+      "target": "src/assets/world/map-facilities/fairy-garden/fairy-garden-ice-dew-maze-v3.png",
+      "canvas": [
+        592,
+        464
+      ],
+      "alpha_bbox": [
+        35,
+        27,
+        562,
+        422
+      ],
+      "transparent_padding": {
+        "left": 35,
+        "top": 27,
+        "right": 30,
+        "bottom": 42
+      },
+      "bytes": 390889,
+      "sha256": "8e6b10a9a47707d94b67cf489b14400a636a2d60c2c88c0e0df3197d492ae9d1"
+    },
+    {
+      "group": "moon-spring",
+      "source": "露天月见汤.png",
+      "target": "src/assets/world/map-facilities/moon-spring/moon-spring-open-air-v3.png",
+      "canvas": [
+        624,
+        464
+      ],
+      "alpha_bbox": [
+        26,
+        37,
+        594,
+        434
+      ],
+      "transparent_padding": {
+        "left": 26,
+        "top": 37,
+        "right": 30,
+        "bottom": 30
+      },
+      "bytes": 414155,
+      "sha256": "43143eac53cb39753b2606804e112d80a63d1e0cff9e00536e149f590ce9c553"
+    },
+    {
+      "group": "moon-spring",
+      "source": "静水观测池.png",
+      "target": "src/assets/world/map-facilities/moon-spring/moon-spring-still-water-observation-v3.png",
+      "canvas": [
+        624,
+        464
+      ],
+      "alpha_bbox": [
+        26,
+        30,
+        591,
+        415
+      ],
+      "transparent_padding": {
+        "left": 26,
+        "top": 30,
+        "right": 33,
+        "bottom": 49
+      },
+      "bytes": 379712,
+      "sha256": "4dfbcb6f40efbb6e9e4c5ae83c7b5104ce1dbd617f74c6b560426ceae4398485"
+    },
+    {
+      "group": "moon-spring",
+      "source": "雾隐汤屋.png",
+      "target": "src/assets/world/map-facilities/moon-spring/moon-spring-mist-hidden-bathhouse-v3.png",
+      "canvas": [
+        624,
+        464
+      ],
+      "alpha_bbox": [
+        38,
+        51,
+        598,
+        434
+      ],
+      "transparent_padding": {
+        "left": 38,
+        "top": 51,
+        "right": 26,
+        "bottom": 30
+      },
+      "bytes": 390840,
+      "sha256": "86d5cec3f070058f90948b56ecc303a6cadd34900a49ee2fec37b7b2a385c0a6"
+    },
+    {
+      "group": "banquet-plaza",
+      "source": "灯火夜市.png",
+      "target": "src/assets/world/map-facilities/banquet-plaza/banquet-plaza-lantern-market-v3.png",
+      "canvas": [
+        656,
+        464
+      ],
+      "alpha_bbox": [
+        27,
+        40,
+        628,
+        411
+      ],
+      "transparent_padding": {
+        "left": 27,
+        "top": 40,
+        "right": 28,
+        "bottom": 53
+      },
+      "bytes": 410646,
+      "sha256": "00797c9d3f66c7511782b112805bb1bc10558ffe167817e3f170ee5a89117f3d"
+    },
+    {
+      "group": "banquet-plaza",
+      "source": "鬼之大宴台.png",
+      "target": "src/assets/world/map-facilities/banquet-plaza/banquet-plaza-oni-grand-feast-v3.png",
+      "canvas": [
+        656,
+        464
+      ],
+      "alpha_bbox": [
+        27,
+        27,
+        628,
+        437
+      ],
+      "transparent_padding": {
+        "left": 27,
+        "top": 27,
+        "right": 28,
+        "bottom": 27
+      },
+      "bytes": 455185,
+      "sha256": "884dfaccb33ac36108da8a6f369d8a424bd7b3c4a3e8f874364e8c02ce6bf716"
+    },
+    {
+      "group": "banquet-plaza",
+      "source": "符卡演武场.png",
+      "target": "src/assets/world/map-facilities/banquet-plaza/banquet-plaza-spell-card-arena-v3.png",
+      "canvas": [
+        656,
+        464
+      ],
+      "alpha_bbox": [
+        27,
+        49,
+        628,
+        411
+      ],
+      "transparent_padding": {
+        "left": 27,
+        "top": 49,
+        "right": 28,
+        "bottom": 53
+      },
+      "bytes": 390018,
+      "sha256": "0aa0a2272fa0749a656840d2582668bfd977fd2aafcdd2dc6950aaa38aa3cbac"
+    }
+  ]
+}

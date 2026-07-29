@@ -1,7 +1,9 @@
 import type { GardenState, InteractionTarget, TargetAction } from './types';
 import { GREENHOUSE_EVENTS, greenhouseActionBlock } from './greenhouse-rules';
 import { buildEventPromptProjection } from './event-projection';
+import { eventById } from './event-registry';
 import { buildPromptContext } from './prompt-context';
+import { characterGreenlightContext, stripCharacterGreenlights } from './character-greenlights';
 
 const action = (
   target: InteractionTarget,
@@ -39,8 +41,12 @@ function presenceNarrativeContext(state?: GardenState) {
   ].join('\n');
 }
 
-export function withGardenNarrativeContract(message: string, state?: GardenState) {
-  const value = message.trim();
+export function withGardenNarrativeContract(
+  message: string,
+  state?: GardenState,
+  explicitCharacterIds: readonly string[] = [],
+) {
+  const value = stripCharacterGreenlights(message).trim();
   if (!value) return value;
   const hasContract = /[【\[]\s*庭园正文协议\s*[】\]]/u.test(value);
   const hasPresence = /[【\[]\s*庭园在场快照/u.test(value);
@@ -50,6 +56,7 @@ export function withGardenNarrativeContract(message: string, state?: GardenState
     hasContract ? '' : gardenNarrativeContract,
     hasPresence ? '' : presenceNarrativeContext(state),
     state && !hasSceneFacts ? buildPromptContext(state, { kind: 'ordinary' }) : '',
+    characterGreenlightContext(state, explicitCharacterIds),
   ].filter(Boolean).join('\n\n');
 }
 
@@ -563,6 +570,13 @@ export function buildActionMessage(action: TargetAction, state: GardenState) {
   const eventProjection = action.eventId
     ? buildEventPromptProjection(action.eventId, action.id, state)
     : '';
+  const event = action.eventId ? eventById.get(action.eventId) : undefined;
+  const explicitCharacterIds = [
+    ...(action.target.type === 'character' ? [action.target.id] : []),
+    ...(event?.action_results?.[action.id]
+      ? [event.action_results[action.id]!.proposer_id]
+      : event?.participants ?? []),
+  ];
   return withGardenNarrativeContract([
     '【庭园行动】',
     action.intent,
@@ -570,7 +584,7 @@ export function buildActionMessage(action: TargetAction, state: GardenState) {
     settlementNotice,
     '',
     `<GensokyoAction>${JSON.stringify(marker)}</GensokyoAction>`,
-  ].join('\n'), state);
+  ].join('\n'), state, explicitCharacterIds);
 }
 
 export function buildSettlementMessage(

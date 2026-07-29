@@ -494,6 +494,7 @@ export type M2Command =
 export interface M2CommandResult {
   message: string;
   selectedCharacterId?: string | null;
+  invitationOutcome?: 'accept_now' | 'reschedule' | 'decline';
   risk?: { triggered: boolean; severity?: 'abnormal' | 'damaged'; conditionId?: string };
 }
 

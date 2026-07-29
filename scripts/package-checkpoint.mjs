@@ -51,6 +51,7 @@ const [
   mvuLoader,
   mvuSchema,
   uiMount,
+  characterRouting,
 ] = await Promise.all([
   source('src/card/identity.xml'),
   source('src/card/opening-first-response.xml'),
@@ -64,20 +65,29 @@ const [
   source('src/runtime/01-mvu-loader.js'),
   source('src/schema/02-mvu-schema.js'),
   source('dist/runtime/ui-mount.js'),
+  json('src/lorebook/character-routing.json'),
 ]);
 
-const characterRoutes = {
-  reimu: ['博丽灵梦', '灵梦', '博丽神社'],
-  marisa: ['雾雨魔理沙', '魔理沙', '扫把'],
-  cirno: ['琪露诺', '冰之妖精', '冰妖精'],
-  alice: ['爱丽丝·玛格特洛依德', '爱丽丝', '人偶师'],
-  mystia: ['米斯蒂娅·萝蕾拉', '米斯蒂娅', '夜雀'],
-  suika: ['伊吹萃香', '萃香', '鬼族'],
-  nitori: ['河城荷取', '荷取', '河童'],
-  sakuya: ['十六夜咲夜', '咲夜', '红魔馆女仆'],
-};
-
-const characterContents = await Promise.all(Object.keys(characterRoutes).map(id => source(`src/lorebook/characters/${id}.xml`)));
+if (characterRouting.version !== 'character-greenlight.v1' || !Array.isArray(characterRouting.profiles)) {
+  throw new Error('角色绿灯路由表版本或结构非法');
+}
+const characterProfiles = characterRouting.profiles;
+const characterIds = new Set();
+const characterGreenlights = new Set();
+for (const profile of characterProfiles) {
+  if (!/^[a-z0-9_]{1,32}$/u.test(profile.id) || !profile.label) {
+    throw new Error(`角色绿灯路由项非法：${JSON.stringify(profile)}`);
+  }
+  if (!/^GSK_CHAR_[A-Z0-9_]+_ACTIVE$/u.test(profile.greenlight)) {
+    throw new Error(`角色绿灯格式非法：${profile.id}`);
+  }
+  if (characterIds.has(profile.id) || characterGreenlights.has(profile.greenlight)) {
+    throw new Error(`角色绿灯路由重复：${profile.id}`);
+  }
+  characterIds.add(profile.id);
+  characterGreenlights.add(profile.greenlight);
+}
+const characterContents = await Promise.all(characterProfiles.map(({ id }) => source(`src/lorebook/characters/${id}.xml`)));
 const entry = (
   id,
   comment,
@@ -134,7 +144,18 @@ const loreEntries = [
   entry(7, '[mvu_plot][interaction] GAL 表现与会话协议', galPresentation, [], true, 'after_char'),
   entry(4, '[mvu_plot][opening] 确定性开场后的首次行动引导', `${openingGuidance}\n\n旧版开场兼容格式：\n${openingTemplate}`, ['庭守钥', '荒废庭园', '第一次行动'], false),
   entry(6, '[initvar] 移动庭园初始状态', `<initvar>\n${JSON.stringify(initialState, null, 2)}\n</initvar>`),
-  ...Object.entries(characterRoutes).map(([id, keys], index) => entry(10 + index, `[mvu_plot][character] ${keys[0]}`, characterContents[index], keys, false)),
+  ...characterProfiles.map((profile, index) => {
+    const result = entry(
+      10 + index,
+      `[mvu_plot][character] ${profile.label}`,
+      characterContents[index],
+      [profile.greenlight],
+      false,
+    );
+    result.extensions.exclude_recursion = true;
+    result.extensions.prevent_recursion = true;
+    return result;
+  }),
 ];
 
 const script = (name, id, content) => ({

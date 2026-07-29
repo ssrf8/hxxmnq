@@ -1,0 +1,325 @@
+{
+  "ok": true,
+  "method": "V3 base-map difference seeds + GrabCut + seeded component cleanup",
+  "input_directory": "F:\\agent airp\\卡\\幻想乡物语\\旧素材\\素材处理",
+  "base_image": "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\maps\\garden-base-owner-v3.png",
+  "output_directory": "F:\\agent airp\\卡\\幻想乡物语\\旧素材\\素材处理\\抠图结果",
+  "source_files_preserved": true,
+  "file_count": 13,
+  "shared_canvas_per_facility_group": true,
+  "preview": "透明抠图总览.png",
+  "files": [
+    {
+      "source": "基础温室.png",
+      "group": "magic-greenhouse",
+      "source_roi": [
+        0,
+        35,
+        560,
+        525
+      ],
+      "shared_crop_in_roi": [
+        0,
+        0,
+        560,
+        490
+      ],
+      "output_size": [
+        560,
+        490
+      ],
+      "visible_pixels": 86776,
+      "partial_alpha_pixels": 5249,
+      "opaque_pixels": 81527,
+      "transparent_corners": true
+    },
+    {
+      "source": "自由生成温室.png",
+      "group": "magic-greenhouse",
+      "source_roi": [
+        0,
+        35,
+        560,
+        525
+      ],
+      "shared_crop_in_roi": [
+        0,
+        0,
+        560,
+        490
+      ],
+      "output_size": [
+        560,
+        490
+      ],
+      "visible_pixels": 118036,
+      "partial_alpha_pixels": 6502,
+      "opaque_pixels": 111534,
+      "transparent_corners": true
+    },
+    {
+      "source": "人偶温室.png",
+      "group": "magic-greenhouse",
+      "source_roi": [
+        0,
+        35,
+        560,
+        525
+      ],
+      "shared_crop_in_roi": [
+        0,
+        0,
+        560,
+        490
+      ],
+      "output_size": [
+        560,
+        490
+      ],
+      "visible_pixels": 162786,
+      "partial_alpha_pixels": 5139,
+      "opaque_pixels": 157647,
+      "transparent_corners": true
+    },
+    {
+      "source": "河童温室.png",
+      "group": "magic-greenhouse",
+      "source_roi": [
+        0,
+        35,
+        560,
+        525
+      ],
+      "shared_crop_in_roi": [
+        0,
+        0,
+        560,
+        490
+      ],
+      "output_size": [
+        560,
+        490
+      ],
+      "visible_pixels": 184884,
+      "partial_alpha_pixels": 6333,
+      "opaque_pixels": 178551,
+      "transparent_corners": true
+    },
+    {
+      "source": "四季花园.png",
+      "group": "fairy-garden",
+      "source_roi": [
+        1080,
+        65,
+        1635,
+        510
+      ],
+      "shared_crop_in_roi": [
+        0,
+        15,
+        553,
+        445
+      ],
+      "output_size": [
+        553,
+        430
+      ],
+      "visible_pixels": 155222,
+      "partial_alpha_pixels": 6886,
+      "opaque_pixels": 148336,
+      "transparent_corners": true
+    },
+    {
+      "source": "妖精游乐园.png",
+      "group": "fairy-garden",
+      "source_roi": [
+        1080,
+        65,
+        1635,
+        510
+      ],
+      "shared_crop_in_roi": [
+        0,
+        15,
+        553,
+        445
+      ],
+      "output_size": [
+        553,
+        430
+      ],
+      "visible_pixels": 153956,
+      "partial_alpha_pixels": 13607,
+      "opaque_pixels": 140349,
+      "transparent_corners": true
+    },
+    {
+      "source": "冰迷宫.png",
+      "group": "fairy-garden",
+      "source_roi": [
+        1080,
+        65,
+        1635,
+        510
+      ],
+      "shared_crop_in_roi": [
+        0,
+        15,
+        553,
+        445
+      ],
+      "output_size": [
+        553,
+        430
+      ],
+      "visible_pixels": 137383,
+      "partial_alpha_pixels": 6468,
+      "opaque_pixels": 130915,
+      "transparent_corners": true
+    },
+    {
+      "source": "露天月见汤.png",
+      "group": "moon-spring",
+      "source_roi": [
+        35,
+        435,
+        625,
+        880
+      ],
+      "shared_crop_in_roi": [
+        0,
+        21,
+        590,
+        445
+      ],
+      "output_size": [
+        590,
+        424
+      ],
+      "visible_pixels": 164221,
+      "partial_alpha_pixels": 10187,
+      "opaque_pixels": 154034,
+      "transparent_corners": true
+    },
+    {
+      "source": "静水观测池.png",
+      "group": "moon-spring",
+      "source_roi": [
+        35,
+        435,
+        625,
+        880
+      ],
+      "shared_crop_in_roi": [
+        0,
+        21,
+        590,
+        445
+      ],
+      "output_size": [
+        590,
+        424
+      ],
+      "visible_pixels": 150064,
+      "partial_alpha_pixels": 7260,
+      "opaque_pixels": 142804,
+      "transparent_corners": true
+    },
+    {
+      "source": "雾隐汤屋.png",
+      "group": "moon-spring",
+      "source_roi": [
+        35,
+        435,
+        625,
+        880
+      ],
+      "shared_crop_in_roi": [
+        0,
+        21,
+        590,
+        445
+      ],
+      "output_size": [
+        590,
+        424
+      ],
+      "visible_pixels": 158738,
+      "partial_alpha_pixels": 7700,
+      "opaque_pixels": 151038,
+      "transparent_corners": true
+    },
+    {
+      "source": "灯火夜市.png",
+      "group": "banquet-plaza",
+      "source_roi": [
+        895,
+        450,
+        1590,
+        920
+      ],
+      "shared_crop_in_roi": [
+        30,
+        38,
+        663,
+        470
+      ],
+      "output_size": [
+        633,
+        432
+      ],
+      "visible_pixels": 151547,
+      "partial_alpha_pixels": 9658,
+      "opaque_pixels": 141889,
+      "transparent_corners": true
+    },
+    {
+      "source": "鬼之大宴台.png",
+      "group": "banquet-plaza",
+      "source_roi": [
+        895,
+        450,
+        1590,
+        920
+      ],
+      "shared_crop_in_roi": [
+        30,
+        38,
+        663,
+        470
+      ],
+      "output_size": [
+        633,
+        432
+      ],
+      "visible_pixels": 168204,
+      "partial_alpha_pixels": 8152,
+      "opaque_pixels": 160052,
+      "transparent_corners": true
+    },
+    {
+      "source": "符卡演武场.png",
+      "group": "banquet-plaza",
+      "source_roi": [
+        895,
+        450,
+        1590,
+        920
+      ],
+      "shared_crop_in_roi": [
+        30,
+        38,
+        663,
+        470
+      ],
+      "output_size": [
+        633,
+        432
+      ],
+      "visible_pixels": 145116,
+      "partial_alpha_pixels": 8865,
+      "opaque_pixels": 136251,
+      "transparent_corners": true
+    }
+  ]
+}

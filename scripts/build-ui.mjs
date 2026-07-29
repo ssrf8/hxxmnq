@@ -1,6 +1,7 @@
 import { build } from 'esbuild';
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
+import { PNG } from 'pngjs';
 
 const assetManifest = JSON.parse(await readFile('src/assets/asset-manifest.json', 'utf8'));
 const localBulletAsset = assetManifest.battle_assets?.local_etama3_bullets;
@@ -73,6 +74,37 @@ const mapFacilityAssets = Object.entries(assetManifest.map_facility_assets ?? {}
       geometry: facility.geometry,
     };
   });
+const validateFacilityPngGroup = async ({ id, sources, damageOverlay }) => {
+  const paths = [...sources, ...(damageOverlay ? [damageOverlay] : [])];
+  const decoded = await Promise.all(paths.map(async (source) => {
+    const png = PNG.sync.read(await readFile(`src/assets/${source}`));
+    if (png.colorType !== 6) throw new Error(`地图设施 ${id} 的 ${source} 必须是 RGBA PNG`);
+    if (png.width < 512 || png.width > 768) {
+      throw new Error(`地图设施 ${id} 的 ${source} 宽度 ${png.width} 不在 512–768px`);
+    }
+    const border = 16;
+    for (let y = 0; y < png.height; y += 1) {
+      for (let x = 0; x < png.width; x += 1) {
+        const offset = (y * png.width + x) * 4;
+        const alpha = png.data[offset + 3];
+        if (alpha === 0 && (png.data[offset] || png.data[offset + 1] || png.data[offset + 2])) {
+          throw new Error(`地图设施 ${id} 的 ${source} 透明像素保留隐藏 RGB`);
+        }
+        if ((x < border || x >= png.width - border || y < border || y >= png.height - border) && alpha !== 0) {
+          throw new Error(`地图设施 ${id} 的 ${source} 不足 ${border}px 透明安全边`);
+        }
+      }
+    }
+    return { source, width: png.width, height: png.height };
+  }));
+  const [{ width, height }] = decoded;
+  for (const image of decoded) {
+    if (image.width !== width || image.height !== height) {
+      throw new Error(`地图设施 ${id} 的同组形态或损坏层画布不一致`);
+    }
+  }
+};
+await Promise.all(mapFacilityAssets.map(validateFacilityPngGroup));
 
 await mkdir('dist/ui', { recursive: true });
 await build({

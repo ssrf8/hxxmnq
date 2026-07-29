@@ -1,0 +1,45 @@
+{
+  "version": "character-greenlight.v1",
+  "profiles": [
+    {
+      "id": "reimu",
+      "label": "博丽灵梦",
+      "greenlight": "GSK_CHAR_REIMU_ACTIVE"
+    },
+    {
+      "id": "marisa",
+      "label": "雾雨魔理沙",
+      "greenlight": "GSK_CHAR_MARISA_ACTIVE"
+    },
+    {
+      "id": "cirno",
+      "label": "琪露诺",
+      "greenlight": "GSK_CHAR_CIRNO_ACTIVE"
+    },
+    {
+      "id": "alice",
+      "label": "爱丽丝·玛格特洛依德",
+      "greenlight": "GSK_CHAR_ALICE_ACTIVE"
+    },
+    {
+      "id": "mystia",
+      "label": "米斯蒂娅·萝蕾拉",
+      "greenlight": "GSK_CHAR_MYSTIA_ACTIVE"
+    },
+    {
+      "id": "suika",
+      "label": "伊吹萃香",
+      "greenlight": "GSK_CHAR_SUIKA_ACTIVE"
+    },
+    {
+      "id": "nitori",
+      "label": "河城荷取",
+      "greenlight": "GSK_CHAR_NITORI_ACTIVE"
+    },
+    {
+      "id": "sakuya",
+      "label": "十六夜咲夜",
+      "greenlight": "GSK_CHAR_SAKUYA_ACTIVE"
+    }
+  ]
+}

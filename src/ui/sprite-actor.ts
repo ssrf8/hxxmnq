@@ -42,8 +42,8 @@ export interface SpriteActorConfig {
   settleDurationMs: readonly [number, number];
   /** Per-facing visual fit from the turnaround cells to the approved motion frames. */
   idleFrameTransforms?: Record<SpriteFacing, SpriteFrameTransform>;
-  /** Per-facing luminance correction for a dedicated idle sheet. */
-  idleFrameBrightness?: Record<SpriteFacing, number>;
+  /** Per-facing luminance correction applied only while a movement frame is rendered. */
+  motionFrameBrightness?: Record<SpriteFacing, number>;
 }
 
 interface Point {
@@ -476,7 +476,6 @@ export class SpriteActor {
         animated: false,
         v2: false,
         transform: this.config.idleFrameTransforms?.[this.facing],
-        brightness: this.config.idleFrameBrightness?.[this.facing],
       };
     }
     if (this.config.sequence && this.sequenceImageReady && this.sequenceImage.naturalWidth > 0) {
@@ -494,6 +493,7 @@ export class SpriteActor {
         row: cell.row,
         animated: this.motion === 'walk',
         v2: true,
+        brightness: this.motion === 'walk' ? this.config.motionFrameBrightness?.[this.facing] : undefined,
       };
     }
     if (this.animationImageReady && this.animationImage.naturalWidth > 0) {
@@ -512,6 +512,7 @@ export class SpriteActor {
         row: cell.row,
         animated: this.motion === 'walk',
         v2: true,
+        brightness: this.motion === 'walk' ? this.config.motionFrameBrightness?.[this.facing] : undefined,
       };
     }
     if (!this.imageReady || !this.idleImage.naturalWidth) return null;
@@ -524,6 +525,7 @@ export class SpriteActor {
       row: useMotionSheet ? facingRow[this.facing] : facingCell[this.facing].y,
       animated: useMotionSheet,
       v2: false,
+      brightness: useMotionSheet ? this.config.motionFrameBrightness?.[this.facing] : undefined,
     };
   }
 }

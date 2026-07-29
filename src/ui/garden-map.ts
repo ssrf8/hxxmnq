@@ -9,6 +9,7 @@ import {
 } from './garden-spatial';
 
 interface Point { x: number; y: number }
+export interface CameraBounds { minX: number; maxX: number; minY: number; maxY: number }
 export interface HitTarget extends Point {
   id: string;
   label: string;
@@ -64,21 +65,90 @@ export function resolveMapFacilitySprite(
 }
 
 const areaPositions = GARDEN_AREA_POSITIONS;
-const CHARACTER_VISUAL_SCALE = 0.73;
+const CHARACTER_VISUAL_SCALE = 0.64;
 const FACILITY_VISUAL_SCALE = 0.76;
+
+export function resolveCharacterViewportScale(canvasCssWidth: number): number {
+  if (!Number.isFinite(canvasCssWidth) || canvasCssWidth <= 0) return 1;
+  if (canvasCssWidth <= 360) return 1.18;
+  if (canvasCssWidth <= 520) return 1.12;
+  return 1;
+}
+
+export function resolveCharacterLayoutScale(canvasCssWidth: number): number {
+  if (!Number.isFinite(canvasCssWidth) || canvasCssWidth <= 0) return 0.92;
+  if (canvasCssWidth <= 360) return 1.08;
+  if (canvasCssWidth <= 520) return 1.04;
+  return 0.92;
+}
+
+export function resolveCoveredMapSize(
+  canvasWidth: number,
+  canvasHeight: number,
+  imageWidth: number,
+  imageHeight: number,
+): { width: number; height: number } {
+  const safeCanvasWidth = Math.max(1, canvasWidth);
+  const safeCanvasHeight = Math.max(1, canvasHeight);
+  const imageRatio = Math.max(1, imageWidth) / Math.max(1, imageHeight);
+  const canvasRatio = safeCanvasWidth / safeCanvasHeight;
+  return canvasRatio > imageRatio
+    ? { width: safeCanvasWidth, height: safeCanvasWidth / imageRatio }
+    : { width: safeCanvasHeight * imageRatio, height: safeCanvasHeight };
+}
+
+export function resolveCameraBounds(
+  canvasWidth: number,
+  canvasHeight: number,
+  mapWidth: number,
+  mapHeight: number,
+  zoom: number,
+): CameraBounds {
+  const limitX = Math.max(0, mapWidth * zoom / 2 - canvasWidth / 2);
+  const limitY = Math.max(0, mapHeight * zoom / 2 - canvasHeight / 2);
+  return {
+    minX: limitX ? -limitX : 0,
+    maxX: limitX,
+    minY: limitY ? -limitY : 0,
+    maxY: limitY,
+  };
+}
+
+export function rubberBandAxis(value: number, min: number, max: number, limit: number): number {
+  const safeLimit = Math.max(1, limit);
+  if (value < min) return min - safeLimit * (1 - Math.exp((value - min) / safeLimit));
+  if (value > max) return max + safeLimit * (1 - Math.exp((max - value) / safeLimit));
+  return value;
+}
+
+export function resolveAxisOverscrollLimit(
+  min: number,
+  max: number,
+  pixelRatio: number,
+  canvasSpan: number,
+): number {
+  const ratio = Math.max(.5, pixelRatio);
+  // An axis with no legal travel (normally vertical on a tall phone canvas)
+  // only gets a small tactile pull, so it cannot expose a conspicuous empty strip.
+  if (max - min < .5) return Math.min(16 * ratio, canvasSpan * .025);
+  return Math.min(120 * ratio, Math.max(48 * ratio, canvasSpan * .12));
+}
 
 export class GardenMap {
   private readonly context: CanvasRenderingContext2D;
   private state: GardenState = {};
   private background = new Image();
   private camera = { x: 0, y: 0, zoom: 1 };
+  private cameraVelocity: Point = { x: 0, y: 0 };
   private targets: HitTarget[] = [];
   private dragging = false;
   private lastPointer: Point = { x: 0, y: 0 };
   private pointerOrigin: Point = { x: 0, y: 0 };
+  private dragOriginCamera: Point = { x: 0, y: 0 };
   private readonly resizeObserver: ResizeObserver;
   private readonly reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   private readonly actors = new Map<string, SpriteActor>();
+  private readonly actorLabels = new Map<string, string>();
   private readonly facilityImages = new Map<string, HTMLImageElement>();
   private animationFrame = 0;
   private lastFrameTime = 0;
@@ -116,6 +186,7 @@ export class GardenMap {
     document.addEventListener('visibilitychange', this.onVisibilityChanged);
     Object.entries(actorSprites).forEach(([id, actor]) => {
       this.actors.set(id, new SpriteActor(id, actor, () => this.draw()));
+      this.actorLabels.set(id, actor.label);
     });
     this.resize();
     this.startAnimation();
@@ -159,6 +230,7 @@ export class GardenMap {
     const delta = this.lastFrameTime ? Math.min(50, time - this.lastFrameTime) : 16;
     this.lastFrameTime = time;
     this.frameClock = time;
+    this.updateCameraSpring(delta);
     const present = new Set(this.state.presence_snapshot?.present_character_ids ?? []);
     this.actors.forEach((actor, id) => {
       if (present.has(id)) actor.update(delta);
@@ -192,7 +264,66 @@ export class GardenMap {
     if (this.canvas.width === width && this.canvas.height === height) return;
     this.canvas.width = width;
     this.canvas.height = height;
+    this.settleCameraToBounds();
     this.draw();
+  }
+
+  private mapDrawSize() {
+    return resolveCoveredMapSize(
+      this.canvas.width,
+      this.canvas.height,
+      this.background.naturalWidth || this.canvas.width,
+      this.background.naturalHeight || this.canvas.height,
+    );
+  }
+
+  private cameraBounds(): CameraBounds {
+    const size = this.mapDrawSize();
+    return resolveCameraBounds(this.canvas.width, this.canvas.height, size.width, size.height, this.camera.zoom);
+  }
+
+  private clampedCamera(): Point {
+    const bounds = this.cameraBounds();
+    return {
+      x: Math.min(bounds.maxX, Math.max(bounds.minX, this.camera.x)),
+      y: Math.min(bounds.maxY, Math.max(bounds.minY, this.camera.y)),
+    };
+  }
+
+  private settleCameraToBounds() {
+    const target = this.clampedCamera();
+    if (this.reducedMotion.matches) {
+      this.camera.x = target.x;
+      this.camera.y = target.y;
+      this.cameraVelocity = { x: 0, y: 0 };
+    }
+  }
+
+  private updateCameraSpring(deltaMs: number) {
+    if (this.dragging) return;
+    const target = this.clampedCamera();
+    const dx = target.x - this.camera.x;
+    const dy = target.y - this.camera.y;
+    if (this.reducedMotion.matches) {
+      this.camera.x = target.x;
+      this.camera.y = target.y;
+      this.cameraVelocity = { x: 0, y: 0 };
+      return;
+    }
+    if (Math.abs(dx) < .08 && Math.abs(dy) < .08
+      && Math.abs(this.cameraVelocity.x) < .08 && Math.abs(this.cameraVelocity.y) < .08) {
+      this.camera.x = target.x;
+      this.camera.y = target.y;
+      this.cameraVelocity = { x: 0, y: 0 };
+      return;
+    }
+    const delta = Math.min(.032, deltaMs / 1000);
+    const stiffness = 180;
+    const damping = 18;
+    this.cameraVelocity.x += (dx * stiffness - this.cameraVelocity.x * damping) * delta;
+    this.cameraVelocity.y += (dy * stiffness - this.cameraVelocity.y * damping) * delta;
+    this.camera.x += this.cameraVelocity.x * delta;
+    this.camera.y += this.cameraVelocity.y * delta;
   }
 
   private draw() {
@@ -200,21 +331,35 @@ export class GardenMap {
     // Expose the effective camera scale for runtime diagnostics without
     // coupling callers to the GardenMap instance.
     canvas.dataset.zoom = this.camera.zoom.toFixed(3);
+    const characterViewportScale = resolveCharacterViewportScale(canvas.clientWidth);
+    const characterLayoutScale = resolveCharacterLayoutScale(canvas.clientWidth);
+    canvas.dataset.characterScale = characterViewportScale.toFixed(2);
+    canvas.dataset.characterEffectiveScale = (CHARACTER_VISUAL_SCALE * characterViewportScale).toFixed(2);
     const width = canvas.width;
     const height = canvas.height;
     ctx.clearRect(0, 0, width, height);
+    const edgeFill = ctx.createLinearGradient(0, 0, 0, height);
+    edgeFill.addColorStop(0, '#31473a');
+    edgeFill.addColorStop(.55, '#758554');
+    edgeFill.addColorStop(1, '#657a59');
+    ctx.fillStyle = edgeFill;
+    ctx.fillRect(0, 0, width, height);
     ctx.save();
     // Pixel-art assets must stay crisp when the backing store is scaled.
     ctx.imageSmoothingEnabled = false;
     ctx.translate(width / 2 + this.camera.x, height / 2 + this.camera.y);
     ctx.scale(this.camera.zoom, this.camera.zoom);
-    const imageRatio = this.background.naturalWidth / Math.max(1, this.background.naturalHeight);
-    const canvasRatio = width / height;
     // Keep the world size independent from camera.zoom. Dividing these cover
     // dimensions by zoom would be cancelled by ctx.scale(), making the map
     // appear fixed while only marker strokes changed size.
-    const drawWidth = canvasRatio > imageRatio ? width : height * imageRatio;
-    const drawHeight = canvasRatio > imageRatio ? width / imageRatio : height;
+    const mapSize = this.mapDrawSize();
+    const drawWidth = mapSize.width;
+    const drawHeight = mapSize.height;
+    const cameraBounds = this.cameraBounds();
+    canvas.dataset.cameraX = this.camera.x.toFixed(2);
+    canvas.dataset.cameraY = this.camera.y.toFixed(2);
+    canvas.dataset.cameraLimitX = cameraBounds.maxX.toFixed(2);
+    canvas.dataset.cameraLimitY = cameraBounds.maxY.toFixed(2);
     if (this.background.complete && this.background.naturalWidth) {
       ctx.drawImage(this.background, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
     } else {
@@ -315,10 +460,15 @@ export class GardenMap {
       const actor = this.actors.get(id);
       const actorOffset = actor?.offsetX ?? 0;
       const actorOffsetY = actor?.offsetY ?? 0;
-      const x = -drawWidth / 2 + (base.x + actorOffset) * drawWidth + (index % 3 - 1) * 38 * px;
-      const y = -drawHeight / 2 + (base.y + actorOffsetY) * drawHeight + 54 * px + Math.floor(index / 3) * 35 * px;
-      const label = this.state.characters?.[id]?.name ?? id;
-      const spriteSize = Math.min(132 * px, drawWidth * 0.12 * this.browserZoomCompensation) * CHARACTER_VISUAL_SCALE;
+      const characterSpacingScale = characterLayoutScale;
+      const x = -drawWidth / 2 + (base.x + actorOffset) * drawWidth
+        + (index % 3 - 1) * 38 * px * characterSpacingScale;
+      const y = -drawHeight / 2 + (base.y + actorOffsetY) * drawHeight + 54 * px
+        + Math.floor(index / 3) * 35 * px * characterSpacingScale;
+      const label = this.state.characters?.[id]?.name ?? this.actorLabels.get(id) ?? id;
+      const spriteSize = Math.min(132 * px, drawWidth * 0.12 * this.browserZoomCompensation)
+        * CHARACTER_VISUAL_SCALE
+        * characterViewportScale;
       const characterActive = this.hoveredId === id || this.selectedId === id;
       // 轮廓发光：染色剪影垫底，精确贴合人物形状；无 sprite 时回退圆环。
       let glowDrawn = false;
@@ -331,7 +481,7 @@ export class GardenMap {
       const drawnAsSprite = actor?.draw(ctx, x, y, spriteSize) ?? false;
       if (!drawnAsSprite) {
       ctx.beginPath();
-      ctx.arc(x, y, 18 * px, 0, Math.PI * 2);
+      ctx.arc(x, y, 16 * px * characterLayoutScale, 0, Math.PI * 2);
       ctx.fillStyle = id === 'reimu' ? '#b82f36' : id === 'marisa' ? '#293246' : id === 'cirno' ? '#4a9fd8' : '#6c5c82';
       ctx.fill();
       ctx.strokeStyle = '#fff8df';
@@ -339,10 +489,25 @@ export class GardenMap {
       ctx.stroke();
       }
       if (characterActive) {
-        this.drawLabel(ctx, x, y + 32 * px, label);
-        if (!glowDrawn) this.drawSelectionRing(ctx, x, y, (drawnAsSprite ? 36 : 24) * px);
+        this.drawLabel(ctx, x, y + 28 * px * characterLayoutScale, label);
+        if (!glowDrawn) {
+          const ringRadius = drawnAsSprite
+            ? Math.max(spriteSize * 0.37, 24 * px)
+            : Math.max(22 * px * characterLayoutScale, 22 * px);
+          this.drawSelectionRing(ctx, x, y, ringRadius);
+        }
       }
-      this.targets.push({ id, label, kind: 'character', x, y, radius: (drawnAsSprite ? 34 : 24) * px });
+      const hitRadius = drawnAsSprite
+        ? Math.max(spriteSize * 0.31, 22 * px)
+        : Math.max(20 * px * characterLayoutScale, 22 * px);
+      this.targets.push({
+        id,
+        label,
+        kind: 'character',
+        x,
+        y,
+        radius: hitRadius,
+      });
     });
     ctx.restore();
 
@@ -565,8 +730,10 @@ export class GardenMap {
 
   private onPointerDown = (event: PointerEvent) => {
     this.dragging = true;
+    this.cameraVelocity = { x: 0, y: 0 };
     this.lastPointer = this.eventPoint(event);
     this.pointerOrigin = this.lastPointer;
+    this.dragOriginCamera = { x: this.camera.x, y: this.camera.y };
     this.canvas.setPointerCapture(event.pointerId);
   };
 
@@ -584,8 +751,23 @@ export class GardenMap {
       return;
     }
     this.canvas.style.cursor = 'grabbing';
-    this.camera.x += point.x - this.lastPointer.x;
-    this.camera.y += point.y - this.lastPointer.y;
+    const bounds = this.cameraBounds();
+    const overscrollLimitX = resolveAxisOverscrollLimit(
+      bounds.minX,
+      bounds.maxX,
+      this.pixelRatio,
+      this.canvas.width,
+    );
+    const overscrollLimitY = resolveAxisOverscrollLimit(
+      bounds.minY,
+      bounds.maxY,
+      this.pixelRatio,
+      this.canvas.height,
+    );
+    const proposedX = this.dragOriginCamera.x + point.x - this.pointerOrigin.x;
+    const proposedY = this.dragOriginCamera.y + point.y - this.pointerOrigin.y;
+    this.camera.x = rubberBandAxis(proposedX, bounds.minX, bounds.maxX, overscrollLimitX);
+    this.camera.y = rubberBandAxis(proposedY, bounds.minY, bounds.maxY, overscrollLimitY);
     this.lastPointer = point;
     this.draw();
   };
@@ -621,6 +803,7 @@ export class GardenMap {
     const movement = Math.hypot(point.x - this.pointerOrigin.x, point.y - this.pointerOrigin.y);
     this.dragging = false;
     this.canvas.style.cursor = 'grab';
+    this.settleCameraToBounds();
     if (movement > 8) return;
     const target = this.hitTarget(point);
     if (target) {
@@ -640,12 +823,14 @@ export class GardenMap {
     const worldX = (point.x - this.canvas.width / 2 - this.camera.x) / previousZoom;
     const worldY = (point.y - this.canvas.height / 2 - this.camera.y) / previousZoom;
     const factor = Math.exp(-event.deltaY * 0.0015);
-    const nextZoom = Math.min(2, Math.max(0.8, previousZoom * factor));
+    const nextZoom = Math.min(2, Math.max(1, previousZoom * factor));
     if (nextZoom === previousZoom) return;
     this.camera.zoom = nextZoom;
     // Preserve the world coordinate currently under the pointer.
     this.camera.x = point.x - this.canvas.width / 2 - worldX * nextZoom;
     this.camera.y = point.y - this.canvas.height / 2 - worldY * nextZoom;
+    this.cameraVelocity = { x: 0, y: 0 };
+    this.settleCameraToBounds();
     this.draw();
   };
 }

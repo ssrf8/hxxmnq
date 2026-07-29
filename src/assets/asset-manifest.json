@@ -230,15 +230,15 @@
   },
   "maps": {
     "garden_base": {
-      "status": "owner-approved-integrated-pending-runtime-validation",
-      "source": "maps/garden-base-owner-candidate-v2.png",
-      "canvas": [1448, 1086],
-      "composition": "owner-supplied-spring-garden-v2",
+      "status": "owner-approved-v3-integrated-pending-runtime-validation",
+      "source": "maps/garden-base-owner-v3.png",
+      "canvas": [1672, 941],
+      "composition": "owner-supplied-spring-residence-garden-v3",
       "runtime_role": "base-layer",
-      "facility_layer_policy": "separate-transparent-sprites",
-      "character_visual_scale": 0.73,
+      "facility_layer_policy": "v3-transparent-sprites-integrated-damage-overlays-pending",
+      "character_visual_scale": 0.64,
       "facility_visual_scale": 0.76,
-      "provenance": "owner-supplied and owner-approved with v2 facility overlays 2026-07-29; SHA-256 df32c010c64cc34ab1ef77109b0c32938f85b40008fb1ba8f045bd4d9a65961c"
+      "provenance": "owner-supplied 2026-07-29; SHA-256 b5d89e347fa448ecf82690a43a5639649d44956d544e4295a72ec08c62926c13"
     }
   },
   "map_facility_assets": {
@@ -259,108 +259,81 @@
       "provenance": "generated 2026-07-27 and owner-approved for the previous map; removed from runtime map usage by owner request on 2026-07-29 because it conflicts with the residence already painted into the v2 base"
     },
     "magic_greenhouse": {
-      "status": "owner-approved-v2-integrated-pending-runtime-validation",
+      "status": "owner-provided-v3-integrated-pending-runtime-validation",
       "map_usage": true,
       "area_id": "greenhouse_plot",
-      "source_chroma": {
-        "基础魔法温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-base-v2-chroma.png",
-        "自由生长型温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-free-growth-v2-chroma.png",
-        "人偶维护型温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-doll-maintained-v2-chroma.png",
-        "河童自动化型温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-kappa-automated-v2-chroma.png"
-      },
       "source_alpha": {
-        "基础魔法温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-base-v2.png",
-        "自由生长型温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-free-growth-v2.png",
-        "人偶维护型温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-doll-maintained-v2.png",
-        "河童自动化型温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-kappa-automated-v2.png"
+        "基础魔法温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-base-v3.png",
+        "自由生长型温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-free-growth-v3.png",
+        "人偶维护型温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-doll-maintained-v3.png",
+        "河童自动化型温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-kappa-automated-v3.png"
       },
       "geometry": {
-        "width_ratio": 0.2275,
-        "render_center": [0.6098, 0.2198],
-        "ground_anchor": [0.565, 0.287],
-        "label_anchor": [0.61, 0.105],
-        "hit_polygon": [[0.527, 0.208], [0.557, 0.145], [0.63, 0.126], [0.688, 0.17], [0.699, 0.258], [0.626, 0.307], [0.548, 0.286]]
+        "width_ratio": 0.291,
+        "render_center": [0.19, 0.274],
+        "ground_anchor": [0.20, 0.42],
+        "label_anchor": [0.19, 0.105],
+        "hit_polygon": [[0.08, 0.34], [0.09, 0.22], [0.13, 0.14], [0.22, 0.12], [0.29, 0.18], [0.30, 0.33], [0.25, 0.41], [0.15, 0.42]]
       },
-      "render_contract": "four owner-approved v2 transparent sprites selected from facilities.magic_greenhouse.current_form; geometry is normalized to the v2 garden base; real-SillyTavern anchor, occlusion and hit validation pending",
-      "provenance": "v2 base sample approved 2026-07-28; three dedicated forms owner-approved 2026-07-29; chroma-key removal and deterministic overlay checks passed"
+      "render_contract": "four V3 transparent sprites selected from facilities.magic_greenhouse.current_form; all forms share one normalized canvas and V3 geometry; real-SillyTavern anchor, occlusion and hit validation pending",
+      "provenance": "owner-supplied V3 full-map differences extracted against garden-base-owner-v3, normalized with a 24px transparent safety border, and integrated 2026-07-30"
     },
     "fairy_garden": {
-      "status": "owner-approved-v2-integrated-pending-runtime-validation",
+      "status": "owner-provided-v3-integrated-pending-runtime-validation",
       "map_usage": true,
       "area_id": "fairy_garden_plot",
-      "damage_overlay_chroma": "world/map-facilities/fairy-garden/fairy-garden-damaged-overlay-v2-chroma.png",
-      "damage_overlay_alpha": "world/map-facilities/fairy-garden/fairy-garden-damaged-overlay-v2.png",
-      "source_chroma": {
-        "四季花境": "world/map-facilities/fairy-garden/fairy-garden-four-season-v2-chroma.png",
-        "妖精游乐庭": "world/map-facilities/fairy-garden/fairy-garden-playground-v2-chroma.png",
-        "冰露迷宫": "world/map-facilities/fairy-garden/fairy-garden-ice-dew-maze-v2-chroma.png"
-      },
       "source_alpha": {
-        "四季花境": "world/map-facilities/fairy-garden/fairy-garden-four-season-v2.png",
-        "妖精游乐庭": "world/map-facilities/fairy-garden/fairy-garden-playground-v2.png",
-        "冰露迷宫": "world/map-facilities/fairy-garden/fairy-garden-ice-dew-maze-v2.png"
+        "四季花境": "world/map-facilities/fairy-garden/fairy-garden-four-season-v3.png",
+        "妖精游乐庭": "world/map-facilities/fairy-garden/fairy-garden-playground-v3.png",
+        "冰露迷宫": "world/map-facilities/fairy-garden/fairy-garden-ice-dew-maze-v3.png"
       },
       "geometry": {
-        "width_ratio": 0.2273,
-        "render_center": [0.7409, 0.4199],
-        "ground_anchor": [0.65, 0.5],
-        "label_anchor": [0.741, 0.308],
-        "hit_polygon": [[0.661, 0.345], [0.759, 0.326], [0.834, 0.374], [0.846, 0.46], [0.776, 0.516], [0.676, 0.506], [0.637, 0.438]]
+        "width_ratio": 0.255,
+        "render_center": [0.81, 0.36],
+        "ground_anchor": [0.82, 0.51],
+        "label_anchor": [0.81, 0.20],
+        "hit_polygon": [[0.68, 0.43], [0.69, 0.30], [0.72, 0.23], [0.84, 0.21], [0.92, 0.27], [0.94, 0.40], [0.90, 0.50], [0.76, 0.52]]
       },
-      "render_contract": "three owner-approved v2 transparent sprites sharing normalized geometry plus one low-occlusion v2 damaged overlay; real-SillyTavern anchor, occlusion and hit validation pending",
-      "provenance": "v2 four-season sample approved 2026-07-28; remaining forms and damage overlay owner-approved 2026-07-29; chroma-key removal and deterministic overlay checks passed"
+      "render_contract": "three V3 transparent sprites sharing one normalized canvas and V3 geometry; the incompatible V2 damage overlay is retired and a V3 overlay remains pending; real-SillyTavern validation pending",
+      "provenance": "owner-supplied V3 full-map differences extracted against garden-base-owner-v3, normalized with a 24px transparent safety border, and integrated 2026-07-30"
     },
     "moon_spring": {
-      "status": "owner-approved-v2-integrated-pending-runtime-validation",
+      "status": "owner-provided-v3-integrated-pending-runtime-validation",
       "map_usage": true,
       "area_id": "moon_spring_plot",
-      "damage_overlay_chroma": "world/map-facilities/moon-spring/moon-spring-damaged-overlay-v2-chroma.png",
-      "damage_overlay_alpha": "world/map-facilities/moon-spring/moon-spring-damaged-overlay-v2.png",
-      "source_chroma": {
-        "露天月见汤": "world/map-facilities/moon-spring/moon-spring-open-air-v2-chroma.png",
-        "静水观测池": "world/map-facilities/moon-spring/moon-spring-still-water-observation-v2-chroma.png",
-        "雾隐汤屋": "world/map-facilities/moon-spring/moon-spring-mist-hidden-bathhouse-v2-chroma.png"
-      },
       "source_alpha": {
-        "露天月见汤": "world/map-facilities/moon-spring/moon-spring-open-air-v2.png",
-        "静水观测池": "world/map-facilities/moon-spring/moon-spring-still-water-observation-v2.png",
-        "雾隐汤屋": "world/map-facilities/moon-spring/moon-spring-mist-hidden-bathhouse-v2.png"
+        "露天月见汤": "world/map-facilities/moon-spring/moon-spring-open-air-v3.png",
+        "静水观测池": "world/map-facilities/moon-spring/moon-spring-still-water-observation-v3.png",
+        "雾隐汤屋": "world/map-facilities/moon-spring/moon-spring-mist-hidden-bathhouse-v3.png"
       },
       "geometry": {
-        "width_ratio": 0.2278,
-        "render_center": [0.2199, 0.4506],
-        "ground_anchor": [0.285, 0.525],
-        "label_anchor": [0.22, 0.315],
-        "hit_polygon": [[0.15, 0.357], [0.245, 0.333], [0.305, 0.382], [0.316, 0.482], [0.273, 0.544], [0.171, 0.54], [0.119, 0.461]]
+        "width_ratio": 0.255,
+        "render_center": [0.22, 0.70],
+        "ground_anchor": [0.23, 0.60],
+        "label_anchor": [0.22, 0.55],
+        "hit_polygon": [[0.10, 0.76], [0.11, 0.63], [0.16, 0.57], [0.29, 0.56], [0.40, 0.61], [0.46, 0.72], [0.42, 0.82], [0.31, 0.85], [0.16, 0.84]]
       },
-      "render_contract": "three owner-approved v2 transparent sprites sharing normalized geometry plus one low-occlusion v2 damaged overlay; real-SillyTavern anchor, occlusion and hit validation pending",
-      "provenance": "v2 open-air sample approved 2026-07-28; remaining forms and damage overlay owner-approved 2026-07-29; chroma-key removal and deterministic overlay checks passed"
+      "render_contract": "three V3 transparent sprites sharing one normalized canvas and V3 geometry; the incompatible V2 damage overlay is retired and a V3 overlay remains pending; real-SillyTavern validation pending",
+      "provenance": "owner-supplied V3 full-map differences extracted against garden-base-owner-v3, normalized with a 24px transparent safety border, and integrated 2026-07-30"
     },
     "banquet_plaza": {
-      "status": "owner-approved-v2-integrated-pending-runtime-validation",
+      "status": "owner-provided-v3-integrated-pending-runtime-validation",
       "map_usage": true,
       "area_id": "banquet_plaza_plot",
-      "damage_overlay_chroma": "world/map-facilities/banquet-plaza/banquet-plaza-damaged-overlay-v2-chroma.png",
-      "damage_overlay_alpha": "world/map-facilities/banquet-plaza/banquet-plaza-damaged-overlay-v2.png",
-      "source_chroma": {
-        "灯火夜市": "world/map-facilities/banquet-plaza/banquet-plaza-lantern-market-v2-chroma.png",
-        "鬼之大宴台": "world/map-facilities/banquet-plaza/banquet-plaza-oni-grand-feast-v2-chroma.png",
-        "符卡演武场": "world/map-facilities/banquet-plaza/banquet-plaza-spell-card-arena-v2-chroma.png"
-      },
       "source_alpha": {
-        "灯火夜市": "world/map-facilities/banquet-plaza/banquet-plaza-lantern-market-v2.png",
-        "鬼之大宴台": "world/map-facilities/banquet-plaza/banquet-plaza-oni-grand-feast-v2.png",
-        "符卡演武场": "world/map-facilities/banquet-plaza/banquet-plaza-spell-card-arena-v2.png"
+        "灯火夜市": "world/map-facilities/banquet-plaza/banquet-plaza-lantern-market-v3.png",
+        "鬼之大宴台": "world/map-facilities/banquet-plaza/banquet-plaza-oni-grand-feast-v3.png",
+        "符卡演武场": "world/map-facilities/banquet-plaza/banquet-plaza-spell-card-arena-v3.png"
       },
       "geometry": {
-        "width_ratio": 0.2623,
-        "render_center": [0.6498, 0.66],
-        "ground_anchor": [0.548, 0.575],
-        "label_anchor": [0.65, 0.52],
-        "hit_polygon": [[0.55, 0.559], [0.696, 0.542], [0.771, 0.592], [0.779, 0.693], [0.718, 0.759], [0.606, 0.773], [0.535, 0.718], [0.523, 0.625]]
+        "width_ratio": 0.265,
+        "render_center": [0.78, 0.69],
+        "ground_anchor": [0.70, 0.79],
+        "label_anchor": [0.78, 0.53],
+        "hit_polygon": [[0.65, 0.75], [0.66, 0.61], [0.70, 0.55], [0.83, 0.54], [0.91, 0.59], [0.94, 0.70], [0.91, 0.81], [0.82, 0.85], [0.70, 0.83]]
       },
-      "render_contract": "three owner-approved v2 transparent sprites sharing normalized geometry plus one low-occlusion v2 damaged overlay; real-SillyTavern anchor, occlusion and hit validation pending",
-      "provenance": "v2 lantern-market sample approved 2026-07-28; remaining forms and damage overlay owner-approved 2026-07-29; chroma-key removal and deterministic overlay checks passed"
+      "render_contract": "three V3 transparent sprites sharing one normalized canvas and V3 geometry; the incompatible V2 damage overlay is retired and a V3 overlay remains pending; real-SillyTavern validation pending",
+      "provenance": "owner-supplied V3 full-map differences extracted against garden-base-owner-v3, normalized with a 24px transparent safety border, and integrated 2026-07-30"
     }
   },
   "world_assets": {

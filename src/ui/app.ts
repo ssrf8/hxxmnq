@@ -70,6 +70,7 @@ globalThis.visualViewport?.addEventListener('resize', updateBrowserZoomCompensat
 const liveStatus = byId<HTMLElement>('gg-live-status');
 const targetMenu = byId<HTMLElement>('gg-target-menu');
 const targetActionList = byId<HTMLElement>('gg-target-actions');
+const gardenMapCanvas = byId<HTMLCanvasElement>('gg-garden-map');
 const galInput = byId<HTMLTextAreaElement>('gg-gal-input');
 const galCompose = byId<HTMLFormElement>('gg-gal-compose');
 const sceneItemSelect = byId<HTMLSelectElement>('gg-scene-item');
@@ -181,6 +182,11 @@ let activeBattleKind: 'flower_core' | 'dungeon' | 'practice' = 'flower_core';
 let activeSceneId = '';
 let submissionInFlight = false;
 let automaticTaskInFlight = false;
+let inviteFeedback: {
+  tone: 'accepted' | 'rescheduled' | 'declined' | 'error';
+  title: string;
+  message: string;
+} | null = null;
 
 const GREENHOUSE_RESEARCH_INPUT_MAX_LENGTH = 120;
 
@@ -316,7 +322,7 @@ function maybeStartAutomaticAnomalyResolution(transactionPhase: string) {
 
 function characterName(id: string | null) {
   if (!id) return '旁白';
-  return state.characters?.[id]?.name ?? id;
+  return state.characters?.[id]?.name ?? characterSprites[id]?.label ?? id;
 }
 
 function inferSessionTarget(): InteractionTarget | null {
@@ -331,7 +337,7 @@ function inferSessionTarget(): InteractionTarget | null {
     return {
       type: 'character',
       id: participant,
-      label: state.characters?.[participant]?.name ?? participant,
+      label: characterName(participant),
     };
   }
   if (session.facility_id) {
@@ -356,7 +362,7 @@ function inferRecentGalContext(messages: ChatMessageView[]) {
         target: {
           type: 'character' as const,
           id: action.target_id,
-          label: state.characters?.[action.target_id]?.name ?? action.target_id,
+          label: characterName(action.target_id),
         },
         actionId: action.action_id,
       };
@@ -438,10 +444,8 @@ function setGenerating(active: boolean, label = '对方正在回应……', stop
     byId('gg-scene-progress').textContent = '';
   }
   byId<HTMLButtonElement>('gg-stop').disabled = !active || !stoppable;
-  byId<HTMLButtonElement>('gg-gal-back').disabled = active;
   byId<HTMLButtonElement>('gg-end-chat').disabled = active;
   byId<HTMLButtonElement>('gg-regenerate').disabled = active;
-  byId<HTMLButtonElement>('gg-swipe-right').disabled = active;
   byId<HTMLButtonElement>('gg-send').disabled = active || closurePresented;
   galInput.disabled = active || closurePresented;
   sceneItemSelect.disabled = active || singleShotEventPresentation || closurePending;
@@ -589,7 +593,7 @@ async function renderGal() {
   }
   if (!scene?.beats.length) {
     byId('gg-scene-speaker').textContent = characterName(activeTarget?.type === 'character' ? activeTarget.id : null);
-    byId('gg-scene-text').textContent = '本轮回复没有可播放的正文，请查看本次对话记录或重新生成。';
+    byId('gg-scene-text').textContent = '本轮回复没有可播放的正文，请重新生成。';
     byId('gg-scene-progress').textContent = '';
     replyPanel.hidden = false;
     return;
@@ -628,6 +632,7 @@ function renderDiagnostics(transactionPhase: string, transactionError?: string) 
 
 function hideTargetMenu() {
   targetMenu.hidden = true;
+  delete targetMenu.dataset.targetType;
   targetActionList.replaceChildren();
   gardenMap.setSelected(null);
 }
@@ -698,6 +703,7 @@ function positionTargetMenu(anchor: { x: number; y: number }) {
 
 function renderTargetMenu(target: InteractionTarget, anchor: { x: number; y: number }) {
   activeTarget = target;
+  targetMenu.dataset.targetType = target.type;
   byId('gg-target-title').textContent = target.label;
   byId('gg-target-status').textContent = target.type === 'character'
     ? state.presence_snapshot?.character_views?.[target.id]?.action ?? '当前在庭园中'
@@ -751,6 +757,9 @@ function renderTargetMenu(target: InteractionTarget, anchor: { x: number; y: num
     });
   }
   targetMenu.hidden = false;
+  if (matchMedia('(max-width: 700px)').matches) {
+    byId<HTMLButtonElement>('gg-target-close').focus({ preventScroll: true });
+  }
   gardenMap.setSelected(target.id);
 }
 
@@ -788,8 +797,10 @@ async function chooseTargetAction(action: TargetAction) {
 function openFacilityAction(action: TargetAction) {
   setView('facility');
   const isInspectView = action.id === 'inspect';
+  const hidesFacilityVisual = isInspectView || action.target.id === 'main_house';
   facilityView.dataset.presentation = isInspectView ? 'details' : 'action';
-  facilityVisual.hidden = isInspectView;
+  facilityView.dataset.hasVisual = hidesFacilityVisual ? 'false' : 'true';
+  facilityVisual.hidden = hidesFacilityVisual;
   byId('gg-facility-title').textContent = action.target.label;
   byId('gg-facility-description').textContent = action.description;
   const cost = document.createDocumentFragment();
@@ -806,7 +817,7 @@ function openFacilityAction(action: TargetAction) {
     cost.append(dt, dd);
   }
   byId('gg-facility-cost').replaceChildren(cost);
-  if (isInspectView) {
+  if (hidesFacilityVisual) {
     facilityImage.removeAttribute('src');
     facilityImage.alt = '';
   } else {
@@ -927,7 +938,6 @@ async function endConversation() {
   }
   submissionInFlight = true;
   byId<HTMLButtonElement>('gg-end-chat').disabled = true;
-  byId<HTMLButtonElement>('gg-gal-back').disabled = true;
   try {
     await bridge.applyM2Command({ type: 'end_conversation_local' });
     await refresh();
@@ -939,7 +949,6 @@ async function endConversation() {
   } finally {
     submissionInFlight = false;
     byId<HTMLButtonElement>('gg-end-chat').disabled = false;
-    byId<HTMLButtonElement>('gg-gal-back').disabled = false;
     renderPendingTasks();
   }
 }
@@ -1036,7 +1045,7 @@ function updateSceneItemPickerState() {
 }
 
 const gardenMap = new GardenMap(
-  byId<HTMLCanvasElement>('gg-garden-map'),
+  gardenMapCanvas,
   mapSource,
   characterSprites,
   mapFacilitySprites,
@@ -1069,7 +1078,16 @@ dialogueBox.addEventListener('click', () => {
   beatIndex += 1;
   renderSceneBeat();
 });
-byId('gg-target-close').addEventListener('click', hideTargetMenu);
+byId('gg-target-close').addEventListener('click', () => {
+  hideTargetMenu();
+  gardenMapCanvas.focus({ preventScroll: true });
+});
+globalThis.addEventListener('keydown', (event) => {
+  if (event.key !== 'Escape' || targetMenu.hidden) return;
+  event.preventDefault();
+  hideTargetMenu();
+  gardenMapCanvas.focus({ preventScroll: true });
+});
 launcherButton.addEventListener('click', openLauncher);
 byId('gg-close-launcher').addEventListener('click', closeLauncher);
 launcherDialog.addEventListener('click', (event) => {
@@ -1107,7 +1125,6 @@ document.addEventListener('fullscreenchange', () => {
     });
   }
 }
-byId('gg-gal-back').addEventListener('click', () => void endConversation());
 byId('gg-facility-back').addEventListener('click', () => setView('garden'));
 facilityConfirm.addEventListener('click', () => void confirmFacilityAction());
 byId<HTMLFormElement>('gg-gal-compose').addEventListener('submit', (event) => {
@@ -1142,28 +1159,9 @@ byId('gg-regenerate').addEventListener('click', async () => {
     setStatus(`重新生成失败：${String(error)}`, true);
   }
 });
-byId('gg-session-history').addEventListener('click', async () => {
-  try {
-    await openSessionHistory();
-  } catch (error) {
-    setStatus(`读取本次对话记录失败：${String(error)}`, true);
-  }
-});
 byId('gg-session-history-close').addEventListener('click', () => sessionHistoryDialog.close());
 sessionHistoryDialog.addEventListener('click', (event) => {
   if (event.target === sessionHistoryDialog) sessionHistoryDialog.close();
-});
-byId('gg-swipe-right').addEventListener('click', async () => {
-  try {
-    setGenerating(true, '正在切换或生成下一条 Swipe……');
-    await bridge.swipeLatest('right');
-    scene = null;
-    sceneSignature = '';
-    await refresh();
-  } catch (error) {
-    setGenerating(false);
-    setStatus(`下一条 Swipe 失败：${String(error)}`, true);
-  }
 });
 byId('gg-open-settings').addEventListener('click', () => navigateFromLauncher(openSettings));
 byId('gg-settings-back').addEventListener('click', returnFromSettings);
@@ -1476,6 +1474,11 @@ function renderInventory() {
 }
 function renderOpportunities() {
   const root = byId('gg-opportunities-content');
+  const expandedDrawers = new Set(
+    Array.from(root.querySelectorAll<HTMLDetailsElement>('details[data-opportunity-drawer][open]'))
+      .map((drawer) => drawer.dataset.opportunityDrawer)
+      .filter((drawer): drawer is string => Boolean(drawer)),
+  );
   root.replaceChildren();
   const panel = openGardenOpportunityPanel(state);
   const title = document.createElement('h2');
@@ -1537,20 +1540,22 @@ function renderOpportunities() {
     root.append(tutorial);
   }
   if (panel.graduation) {
+    const graduation = document.createElement('section');
+    graduation.className = 'gg-opportunity-graduation';
     const grad = document.createElement('p');
     grad.textContent = panel.graduation;
-    root.append(grad);
     const ack = document.createElement('button');
     ack.type = 'button';
     ack.textContent = '知道了';
     ack.addEventListener('click', () => {
       void bridge.applyM2Command({ type: 'acknowledge_graduation' }).then(() => refresh());
     });
-    root.append(ack);
+    graduation.append(grad, ack);
+    root.append(graduation);
   }
   if (state.garden_activities?.banquet) {
     const activeBanquet = document.createElement('article');
-    activeBanquet.className = 'gg-shop-item';
+    activeBanquet.className = 'gg-opportunity-banner';
     const heading = document.createElement('h3');
     const detail = document.createElement('p');
     const enter = document.createElement('button');
@@ -1563,29 +1568,73 @@ function renderOpportunities() {
     root.append(activeBanquet);
   }
   if (panel.facilities) {
+    const facilitySection = document.createElement('details');
+    facilitySection.className = 'gg-opportunity-section gg-opportunity-facilities';
+    facilitySection.dataset.opportunityDrawer = 'facilities';
+    facilitySection.open = expandedDrawers.has('facilities');
+    facilitySection.setAttribute('aria-labelledby', 'gg-opportunity-facilities-title');
+    const sectionHeader = document.createElement('summary');
+    sectionHeader.className = 'gg-opportunity-section-header';
+    const sectionCopy = document.createElement('div');
+    const eyebrow = document.createElement('p');
+    eyebrow.className = 'gg-eyebrow';
+    eyebrow.textContent = '设施施工与经营';
+    const sectionTitle = document.createElement('h3');
+    sectionTitle.id = 'gg-opportunity-facilities-title';
+    sectionTitle.textContent = '庭园设施';
+    const sectionDescription = document.createElement('p');
+    sectionDescription.textContent = '选择建设方案；建成后可切换形态、处理异常并执行日常行动。';
+    sectionCopy.append(eyebrow, sectionTitle, sectionDescription);
+    const facilityCount = document.createElement('span');
+    facilityCount.className = 'gg-opportunity-count';
+    facilityCount.textContent = `${panel.facilities.filter((facility) => facility.built).length} / ${panel.facilities.length} 已建成`;
+    sectionHeader.append(sectionCopy, facilityCount);
+    facilitySection.append(sectionHeader);
+
     const list = document.createElement('div');
-    list.className = 'gg-shop-list';
+    list.className = 'gg-opportunity-facility-grid';
     for (const facility of panel.facilities) {
       const card = document.createElement('article');
-      card.className = 'gg-shop-item';
-      const heading = document.createElement('h3');
+      card.className = 'gg-opportunity-facility';
+      card.dataset.state = facility.built ? facility.status : 'planned';
+      const cardHeader = document.createElement('header');
+      const heading = document.createElement('h4');
       heading.textContent = facility.title;
+      const status = document.createElement('span');
+      status.className = 'gg-opportunity-status';
+      status.textContent = facility.built
+        ? facility.status === 'normal' ? '运转正常' : facility.status === 'damaged' ? '需要修复' : '等待调查'
+        : '等待施工';
+      cardHeader.append(heading, status);
       const detail = document.createElement('p');
+      detail.className = 'gg-opportunity-facility-summary';
       detail.textContent = facility.built
         ? `已建成 · 当前形态 ${facility.current_form ?? '未知'} · 状态 ${facility.status}`
         : `可规划 · 建设消耗 ${facility.build_cost} 物资`;
-      card.append(heading, detail);
+      const forms = document.createElement('div');
+      forms.className = 'gg-opportunity-form-list';
+      card.append(cardHeader, detail, forms);
       for (const form of facility.forms) {
         const row = document.createElement('section');
-        row.className = 'gg-shop-item';
-        const formTitle = document.createElement('h4');
+        row.className = 'gg-opportunity-form';
+        row.dataset.current = form.current ? 'true' : 'false';
+        row.dataset.unlocked = form.unlocked ? 'true' : 'false';
+        const formHeader = document.createElement('header');
+        const formTitle = document.createElement('h5');
         formTitle.textContent = form.form_id;
+        formHeader.append(formTitle);
+        if (form.current) {
+          const current = document.createElement('span');
+          current.textContent = '当前形态';
+          formHeader.append(current);
+        }
         const summary = document.createElement('p');
         summary.textContent = form.summary;
-        row.append(formTitle, summary);
+        row.append(formHeader, summary);
         if (!facility.built) {
           const build = document.createElement('button');
           build.type = 'button';
+          build.className = 'gg-opportunity-primary';
           build.textContent = `选择此方案施工（${facility.build_cost} 物资）`;
           build.addEventListener('click', () => void runFacilityBuild(facility.id, form.form_id));
           row.append(build);
@@ -1604,7 +1653,7 @@ function renderOpportunities() {
         }
         if (form.current) {
           const actions = document.createElement('div');
-          actions.className = 'gg-actions';
+          actions.className = 'gg-opportunity-actions';
           for (const item of form.quick_actions) {
             const action = document.createElement('button');
             action.type = 'button';
@@ -1614,18 +1663,19 @@ function renderOpportunities() {
           }
           row.append(actions);
         }
-        card.append(row);
+        forms.append(row);
       }
       if (facility.built && (facility.status === 'abnormal' || facility.status === 'damaged')) {
         const repair = document.createElement('button');
         repair.type = 'button';
+        repair.className = 'gg-opportunity-warning';
         repair.textContent = facility.status === 'damaged' ? '修复设施' : '调查异常';
         repair.addEventListener('click', () => void runFacilityRecovery(facility.id));
         card.append(repair);
       }
       if (facility.id === 'moon_spring' && facility.built) {
         const modes = document.createElement('div');
-        modes.className = 'gg-actions';
+        modes.className = 'gg-opportunity-actions';
         for (const mode of [['public', '公开泡汤'], ['invite_only', '仅邀请'], ['alone', '独处']] as const) {
           const button = document.createElement('button');
           button.type = 'button';
@@ -1637,7 +1687,7 @@ function renderOpportunities() {
       }
       if (facility.id === 'banquet_plaza' && facility.built) {
         const modes = document.createElement('div');
-        modes.className = 'gg-actions';
+        modes.className = 'gg-opportunity-actions';
         for (const mode of [['public', '立即举办公开宴会'], ['invite_only', '立即举办邀请宴会']] as const) {
           const button = document.createElement('button');
           button.type = 'button';
@@ -1651,25 +1701,79 @@ function renderOpportunities() {
       }
       list.append(card);
     }
-    root.append(list);
+    facilitySection.append(list);
+    root.append(facilitySection);
   }
   if (panel.known_characters) {
+    const inviteSection = document.createElement('details');
+    inviteSection.className = 'gg-opportunity-section gg-opportunity-invites';
+    inviteSection.dataset.opportunityDrawer = 'invites';
+    inviteSection.open = expandedDrawers.has('invites');
+    inviteSection.setAttribute('aria-labelledby', 'gg-opportunity-invites-title');
+    const inviteHeader = document.createElement('summary');
+    inviteHeader.className = 'gg-opportunity-section-header';
+    const inviteCopy = document.createElement('div');
+    const eyebrow = document.createElement('p');
+    eyebrow.className = 'gg-eyebrow';
+    eyebrow.textContent = '访客调度';
+    const inviteTitle = document.createElement('h3');
+    inviteTitle.id = 'gg-opportunity-invites-title';
+    inviteTitle.textContent = '邀请角色';
+    const inviteDescription = document.createElement('p');
+    inviteDescription.textContent = '邀请已认识的角色来访；是否接受仍由时段、职责与人数上限决定。';
+    inviteCopy.append(eyebrow, inviteTitle, inviteDescription);
+    inviteHeader.append(inviteCopy);
+    inviteSection.append(inviteHeader);
+    if (inviteFeedback) {
+      const feedback = document.createElement('div');
+      feedback.className = 'gg-opportunity-invite-feedback';
+      feedback.dataset.tone = inviteFeedback.tone;
+      feedback.setAttribute('role', 'status');
+      feedback.setAttribute('aria-live', 'polite');
+      const marker = document.createElement('span');
+      marker.className = 'gg-opportunity-invite-feedback-marker';
+      marker.textContent = inviteFeedback.tone === 'accepted'
+        ? '成功'
+        : inviteFeedback.tone === 'rescheduled'
+          ? '改约'
+          : inviteFeedback.tone === 'declined'
+            ? '未成'
+            : '受阻';
+      const feedbackCopy = document.createElement('div');
+      const feedbackTitle = document.createElement('strong');
+      feedbackTitle.textContent = inviteFeedback.title;
+      const feedbackMessage = document.createElement('p');
+      feedbackMessage.textContent = inviteFeedback.message;
+      feedbackCopy.append(feedbackTitle, feedbackMessage);
+      feedback.append(marker, feedbackCopy);
+      inviteSection.append(feedback);
+    }
     const known = document.createElement('p');
-    known.className = 'gg-note';
-    known.textContent = `已认识并可调度：${panel.known_characters.join('、') || '无'}`;
-    root.append(known);
+    known.className = 'gg-opportunity-known';
+    known.textContent = panel.known_characters.length
+      ? `已认识 ${panel.known_characters.length} 名角色`
+      : '尚未认识可邀请角色';
+    inviteSection.append(known);
     const invites = document.createElement('div');
-    invites.className = 'gg-actions';
+    invites.className = 'gg-opportunity-invite-grid';
     for (const characterId of panel.known_characters) {
       const button = document.createElement('button');
       button.type = 'button';
-      button.textContent = `邀请 ${state.characters?.[characterId]?.name ?? characterId}`;
+      button.className = 'gg-opportunity-invite';
+      const name = document.createElement('strong');
+      name.textContent = characterName(characterId);
+      const hint = document.createElement('small');
+      hint.textContent = '发送庭园邀请';
+      button.append(name, hint);
       button.addEventListener('click', () => void runInvite(characterId));
       invites.append(button);
     }
-    root.append(invites);
+    inviteSection.append(invites);
+    root.append(inviteSection);
   }
   if (panel.notices?.length) {
+    const noticeSection = document.createElement('section');
+    noticeSection.className = 'gg-opportunity-section gg-opportunity-notices';
     const noticeTitle = document.createElement('h3');
     noticeTitle.textContent = '来访通知';
     const notices = document.createElement('ul');
@@ -1682,14 +1786,17 @@ function renderOpportunities() {
     clear.type = 'button';
     clear.textContent = '标记通知为已读';
     clear.addEventListener('click', () => void bridge.applyM2Command({ type: 'consume_visit_notices' }).then(() => refresh()));
-    root.append(noticeTitle, notices, clear);
+    noticeSection.append(noticeTitle, notices, clear);
+    root.append(noticeSection);
   }
   if (panel.anomaly) {
+    const anomalySection = document.createElement('section');
+    anomalySection.className = 'gg-opportunity-section gg-opportunity-anomaly';
     const anomaly = document.createElement('p');
     anomaly.textContent = `活动异变「${panel.anomaly.title}」· 剩余 ${panel.anomaly.remaining} 时段 · ${panel.anomaly.status}`;
-    root.append(anomaly);
+    anomalySection.append(anomaly);
     const actions = document.createElement('div');
-    actions.className = 'gg-actions';
+    actions.className = 'gg-opportunity-actions';
     const active = state.anomaly_cycle?.active;
     if (active?.status === 'resolving') {
       const resolve = document.createElement('button');
@@ -1704,10 +1811,11 @@ function renderOpportunities() {
       investigate.addEventListener('click', () => void runDailyAnomalyInvestigation());
       actions.append(investigate);
     }
-    if (actions.childElementCount) root.append(actions);
+    if (actions.childElementCount) anomalySection.append(actions);
+    root.append(anomalySection);
   } else if (panel.anomaly_card_block) {
     const block = document.createElement('p');
-    block.className = 'gg-note';
+    block.className = 'gg-opportunity-anomaly-note';
     block.textContent = panel.anomaly_card_block;
     root.append(block);
   }
@@ -1745,7 +1853,11 @@ async function runFacilityRemodel(facilityId: string, formId: string) {
       buildPromptContext(state, { kind: 'refit', facilityId, selectedCharacterId: started.selectedCharacterId, actionIntent: `装修切换为 ${formId}` }),
       '写一段简短装修过渡。代码选定角色已经锁定，不得替换；没有角色时写独自装修。不要决定成本、成功与正式形态。',
     ].join('\n\n');
-    await bridge.sendUserMessage(withGardenNarrativeContract(prompt, state), 'interaction');
+    await bridge.sendUserMessage(withGardenNarrativeContract(
+      prompt,
+      state,
+      started.selectedCharacterId ? [started.selectedCharacterId] : [],
+    ), 'interaction');
     await bridge.applyM2Command({ type: 'commit_refit', transactionId });
     await refresh();
   } catch (error) {
@@ -1800,10 +1912,21 @@ async function runFacilityRecovery(facilityId: string) {
 async function runInvite(characterId: string) {
   try {
     const result = await bridge.applyM2Command({ type: 'invite_character', characterId, inviteId: `invite:${characterId}:${Date.now().toString(36)}` });
+    const presentation = result.invitationOutcome === 'accept_now'
+      ? { tone: 'accepted' as const, title: '邀请成功，对方现在就来' }
+      : result.invitationOutcome === 'reschedule'
+        ? { tone: 'rescheduled' as const, title: '已改约到之后的时段' }
+        : { tone: 'declined' as const, title: '本次邀请未成' };
+    inviteFeedback = { ...presentation, message: result.message };
     await refresh();
     renderOpportunities();
-    setStatus(result.message);
-  } catch (error) { setStatus(error instanceof Error ? error.message : String(error), true); }
+    setStatus(result.message, false, result.invitationOutcome === 'accept_now' ? 'success' : 'info');
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    inviteFeedback = { tone: 'error', title: `${characterName(characterId)}暂时无法邀请`, message };
+    renderOpportunities();
+    setStatus(message, true);
+  }
 }
 
 async function runMoonSpring(mode: 'public' | 'invite_only' | 'alone') {
@@ -1899,7 +2022,7 @@ async function runDailyAnomalyInvestigation() {
       '写一段简短调查剧情，不完整揭露源头。正文结束后严格输出：',
       '<GensokyoAnomalyClue>{"version":"anomaly-clue.v1","summary":"本日新增的一条简短线索"}</GensokyoAnomalyClue>',
     ].join('\n\n');
-    await bridge.sendUserMessage(withGardenNarrativeContract(prompt, state), 'interaction');
+    await bridge.sendUserMessage(withGardenNarrativeContract(prompt, state, ['reimu']), 'interaction');
     const reply = await latestAssistantReply();
     if (!reply) throw new Error('没有找到调查回复');
     await bridge.recordAnomalyClue(parseAnomalyClueReceipt(reply.text));

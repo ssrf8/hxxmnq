@@ -77,7 +77,7 @@
         <div class="gg-map-shell">
           <canvas id="gg-garden-map" tabindex="0" aria-label="庭园地图；拖动、缩放并点击角色或区域互动"></canvas>
           <div class="gg-map-hint">点击角色或区域 · 拖动地图 · 滚轮缩放</div>
-          <section id="gg-target-menu" class="gg-target-menu" aria-labelledby="gg-target-title" hidden>
+          <section id="gg-target-menu" class="gg-target-menu" role="dialog" aria-modal="false" aria-labelledby="gg-target-title" hidden>
             <header>
               <div>
                 <p class="gg-eyebrow">可执行操作</p>
@@ -93,11 +93,8 @@
 
       <section id="gg-view-gal" class="gg-view gg-gal" aria-labelledby="gg-scene-speaker" hidden>
         <header class="gg-scene-toolbar">
-          <button type="button" id="gg-gal-back">返回庭院</button>
           <div class="gg-scene-tools">
-            <button type="button" id="gg-session-history" aria-haspopup="dialog">本次对话记录</button>
             <button type="button" id="gg-regenerate">重新生成</button>
-            <button type="button" id="gg-swipe-right" aria-label="下一条 Swipe">▶</button>
             <button type="button" id="gg-stop">停止</button>
           </div>
         </header>

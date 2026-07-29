@@ -3,8 +3,10 @@ import { build } from 'esbuild';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
+import { PNG } from 'pngjs';
 
 const read = (path) => readFile(new URL(path, import.meta.url), 'utf8');
+const readBuffer = (path) => readFile(new URL(path, import.meta.url));
 const importTypescript = async (path) => {
   const result = await build({
     entryPoints: [fileURLToPath(new URL(path, import.meta.url))],
@@ -29,6 +31,8 @@ test('角色点击菜单由代码绘制、去除重复离开入口并保持语�
   assert.match(controller, /action\.id === 'pat_head'/);
   assert.match(controller, /action\.eventId \|\| action\.mode === 'facility'/);
   assert.match(controller, /button\.dataset\.visualKind = visualKind/);
+  assert.match(controller, /targetMenu\.dataset\.targetType = target\.type/);
+  assert.match(controller, /delete targetMenu\.dataset\.targetType/);
   assert.match(controller, /className = 'gg-bubble-symbol'/);
   assert.match(controller, /className = 'gg-bubble-reason'/);
   assert.match(controller, /options\.disabled[\s\S]*?action: item/);
@@ -41,8 +45,14 @@ test('角色点击菜单由代码绘制、去除重复离开入口并保持语�
   assert.match(styles, /\.gg-bubble-dot::after/);
   assert.match(styles, /\.gg-bubble-symbol/);
   assert.match(styles, /\[data-visual-kind="quest"\]/);
-  assert.match(styles, /@media \(max-width: 700px\)[\s\S]*?grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
-  assert.match(styles, /@media \(max-width: 360px\)[\s\S]*?grid-template-columns: 1fr/);
+  assert.match(styles, /#gg-target-menu\[data-target-type="character"\] \.gg-target-actions \{[\s\S]*?grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(styles, /#gg-target-menu\[data-target-type="facility"\] \.gg-target-actions \{[\s\S]*?grid-template-columns: 1fr/);
+  assert.match(styles, /手机端目标菜单是地图内的底部操作抽屉/);
+  assert.match(styles, /@media \(max-width: 700px\)[\s\S]*?#gg-target-menu \{[\s\S]*?position: fixed/);
+  assert.match(styles, /#gg-target-menu\[hidden\] \{ display: none; \}/);
+  assert.match(styles, /overscroll-behavior: contain/);
+  assert.match(styles, /env\(safe-area-inset-bottom\)/);
+  assert.match(controller, /event\.key !== 'Escape' \|\| targetMenu\.hidden/);
   assert.match(styles, /#gg-target-menu \.gg-bubble-dot \{[\s\S]*?width: 82px;[\s\S]*?height: 82px;/);
 });
 
@@ -66,19 +76,25 @@ test('浏览器缩放补偿只服务地图交互，三项玩法入口进入大�
   assert.match(document, /class="gg-launcher-grid"[\s\S]*?id="gg-open-dungeon"[\s\S]*?id="gg-open-shop"[\s\S]*?id="gg-open-inventory"/);
   assert.match(controller, /function openLauncher\(\)[\s\S]*?launcherDialog\.showModal\(\)/);
   assert.match(controller, /function navigateFromLauncher\(action: \(\) => void\)/);
+  assert.match(styles, /\.gg-header #gg-open-launcher \{[\s\S]*?-webkit-tap-highlight-color: transparent;[\s\S]*?touch-action: manipulation;/);
+  assert.match(styles, /\.gg-header #gg-open-launcher:focus-visible \{[\s\S]*?outline: 3px solid var\(--gg-focus\)/);
   assert.match(styles, /\.gg-launcher-grid \{[\s\S]*?grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
   assert.match(styles, /@media \(max-width: 559px\)[\s\S]*?\.gg-launcher-grid \{ grid-template-columns: 1fr/);
 });
 
-test('设施查看视图隐藏图片且不影响其他设施行动', async () => {
+test('设施查看与主屋维修隐藏图片且不影响其他设施行动', async () => {
   const controller = await read('../src/ui/app.ts');
   const styles = await read('../src/ui/styles.css');
   assert.match(controller, /const isInspectView = action\.id === 'inspect'/);
+  assert.match(controller, /const hidesFacilityVisual = isInspectView \|\| action\.target\.id === 'main_house'/);
   assert.match(controller, /facilityView\.dataset\.presentation = isInspectView \? 'details' : 'action'/);
-  assert.match(controller, /facilityVisual\.hidden = isInspectView/);
-  assert.match(controller, /if \(isInspectView\) \{[\s\S]*?facilityImage\.removeAttribute\('src'\)/);
+  assert.match(controller, /facilityView\.dataset\.hasVisual = hidesFacilityVisual \? 'false' : 'true'/);
+  assert.match(controller, /facilityVisual\.hidden = hidesFacilityVisual/);
+  assert.match(controller, /if \(hidesFacilityVisual\) \{[\s\S]*?facilityImage\.removeAttribute\('src'\)/);
+  assert.match(controller, /action\.target\.id === 'greenhouse_plot' \|\| action\.target\.id === 'magic_greenhouse'/);
   assert.match(styles, /\.gg-facility-visual\[hidden\] \{ display: none; \}/);
-  assert.match(styles, /\.gg-facility\[data-presentation="details"\] \.gg-facility-card/);
+  assert.match(styles, /\.gg-facility\[data-has-visual="false"\] \.gg-facility-card \{ margin: var\(--gg-space-4\) auto 0; \}/);
+  assert.match(styles, /@media \(max-width: 700px\) \{[\s\S]*?\.gg-facility > \.gg-scene-toolbar \{[\s\S]*?z-index: 2;[\s\S]*?\.gg-facility\[data-has-visual="false"\] \.gg-facility-card \{[\s\S]*?margin-top: 0;/);
 });
 
 test('背包使用独立道具袋视图并保留受控使用入口', async () => {
@@ -110,8 +126,11 @@ test('GAL 道具选择使用御札式单选槽并同步选择提示', async () =
   assert.match(controller, /已装备：\$\{label\} · 发送时消耗 1 个/);
   assert.match(controller, /sceneItemSelect\.addEventListener\('change', updateSceneItemPickerState\)/);
   assert.match(styles, /\.gg-scene-item-picker \{[\s\S]*?clip-path: polygon/);
-  assert.match(styles, /#gg-scene-item \{[\s\S]*?appearance: none;/);
+  assert.match(styles, /#gg-scene-item \{[\s\S]*?appearance: none;[\s\S]*?color-scheme: light;/);
+  assert.match(styles, /\.gg-scene-item-control::after \{[\s\S]*?border-right: 2px solid #78313a;[\s\S]*?transform: rotate\(45deg\)/);
+  assert.match(styles, /#gg-scene-item \{[\s\S]*?linear-gradient\(180deg, #f5e3bd, #dbbd84\)/);
   assert.match(styles, /\.gg-scene-item-picker\[data-has-selection="true"\]/);
+  assert.match(styles, /\.gg-scene-item-picker\[data-has-selection="true"\] #gg-scene-item \{[\s\S]*?linear-gradient\(180deg, #8f3942, #64262e\)/);
   assert.match(styles, /@media \(max-width: 520px\)[\s\S]*?\.gg-scene-item-picker \{ grid-template-columns: 1fr;/);
 });
 
@@ -154,7 +173,29 @@ test('开放庭园页面从正式状态派生教程进度与下一步', async ()
   assert.match(controller, /className = 'gg-tutorial-current'/);
   assert.match(controller, /progress\.value = panel\.tutorial\.completedCount/);
   assert.match(controller, /step\.completed \? 'complete'/);
+  assert.match(controller, /className = 'gg-opportunity-section gg-opportunity-facilities'/);
+  assert.match(controller, /className = 'gg-opportunity-facility-grid'/);
+  assert.match(controller, /className = 'gg-opportunity-section gg-opportunity-invites'/);
+  assert.match(controller, /className = 'gg-opportunity-invite-grid'/);
+  assert.match(controller, /className = 'gg-opportunity-invite-feedback'/);
+  assert.match(controller, /result\.invitationOutcome === 'reschedule'[\s\S]*?title: '已改约到之后的时段'/);
+  assert.match(controller, /feedback\.setAttribute\('role', 'status'\)/);
+  assert.match(controller, /querySelectorAll<HTMLDetailsElement>\('details\[data-opportunity-drawer\]\[open\]'\)/);
+  assert.match(controller, /createElement\('details'\)[\s\S]*?dataset\.opportunityDrawer = 'facilities'[\s\S]*?open = expandedDrawers\.has\('facilities'\)/);
+  assert.match(controller, /createElement\('details'\)[\s\S]*?dataset\.opportunityDrawer = 'invites'[\s\S]*?open = expandedDrawers\.has\('invites'\)/);
+  assert.match(controller, /name\.textContent = characterName\(characterId\)/);
+  const opportunityRenderer = controller.match(/function renderOpportunities\(\) \{[\s\S]*?\n\}\n\nasync function runFacilityBuild/)?.[0] ?? '';
+  assert.doesNotMatch(opportunityRenderer, /gg-shop-(?:item|list)/);
   assert.match(styles, /\.gg-tutorial-steps li\[data-state="current"\]/);
+  assert.match(styles, /\.gg-opportunity-invite-feedback \{[\s\S]*?border-left-width: 5px/);
+  assert.match(styles, /\.gg-opportunity-invite-feedback\[data-tone="accepted"\]/);
+  assert.match(styles, /\.gg-opportunity-invite-feedback\[data-tone="declined"\],[\s\S]*?\.gg-opportunity-invite-feedback\[data-tone="error"\]/);
+  assert.match(styles, /\.gg-opportunity-facility \{[\s\S]*?background: linear-gradient\(150deg, #f2dfbb, #dcbf91\);[\s\S]*?color: #452b24;/);
+  assert.match(styles, /\.gg-opportunity-invite \{[\s\S]*?color: #4f3027;/);
+  assert.match(styles, /details\.gg-opportunity-section > \.gg-opportunity-section-header \{[\s\S]*?cursor: pointer;[\s\S]*?list-style: none;/);
+  assert.match(styles, /details\.gg-opportunity-section:not\(\[open\]\) > \.gg-opportunity-section-header \{[\s\S]*?margin-bottom: 0;/);
+  assert.match(styles, /@media \(max-width: 520px\) \{[\s\S]*?\.gg-opportunity-facility-grid \{ grid-template-columns: 1fr;[\s\S]*?\.gg-opportunity-invite-grid \{ grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/);
+  assert.match(styles, /@media \(max-width: 360px\) \{[\s\S]*?\.gg-opportunity-invite-grid \{ grid-template-columns: 1fr;/);
 });
 
 test('三张玩法入口使用大型平滑插画并同时进入预览与内嵌构建', async () => {
@@ -220,6 +261,8 @@ test('庭园地图只读取访客快照，不渲染玩家占位小人', async ()
   const source = await read('../src/ui/garden-map.ts');
   assert.match(source, /present_character_ids/);
   assert.match(source, /intentionally no player marker/);
+  assert.match(source, /actorLabels\.set\(id, actor\.label\)/);
+  assert.match(source, /this\.state\.characters\?\.\[id\]\?\.name \?\? this\.actorLabels\.get\(id\) \?\? id/);
   assert.doesNotMatch(source, /state\.player/);
 });
 
@@ -408,27 +451,29 @@ test('待机四视图按实测变换与移动帧统一视觉尺寸和脚底线',
   for (const id of ['reimu', 'marisa', 'cirno', 'alice', 'mystia', 'suika', 'nitori', 'sakuya']) {
     assert.match(registry, new RegExp(`idleFrameTransforms: turnaroundFits\\.${id}`));
   }
-  assert.match(registry, /cirno: idleFits\(\[\.7604, -\.4402, -\.7418\], \[\.7656, -\.3338, -\.747\], \[\.7169, -\.4168, -\.5939\], \[\.7113, -\.2945, -\.5939\]\)/);
+  assert.match(registry, /cirno: idleFits\(\[\.6844, -\.3964, -\.6659\], \[\.689, -\.3009, -\.6706\], \[\.6452, -\.3754, -\.5318\], \[\.6402, -\.2653, -\.5323\]\)/);
 });
 
-test('琪露诺休息帧按方向校正亮度且不影响动作序列', async () => {
+test('琪露诺移动帧按方向提亮且不影响待机图', async () => {
   const actor = await read('../src/ui/sprite-actor.ts');
   const registry = await read('../src/ui/character-sprite-registry.ts');
-  assert.match(actor, /idleFrameBrightness\?: Record<SpriteFacing, number>/);
-  assert.match(actor, /brightness: this\.config\.idleFrameBrightness\?\.\[this\.facing\]/);
+  assert.match(actor, /motionFrameBrightness\?: Record<SpriteFacing, number>/);
+  assert.match(actor, /brightness: this\.motion === 'walk' \? this\.config\.motionFrameBrightness\?\.\[this\.facing\] : undefined/);
+  assert.match(actor, /brightness: useMotionSheet \? this\.config\.motionFrameBrightness\?\.\[this\.facing\] : undefined/);
   assert.match(actor, /context\.filter = brightness === undefined \? 'none' : `brightness\(\$\{brightness\}\)`/);
-  assert.match(registry, /const cirnoIdleBrightness:[\s\S]*?front: 0\.69,[\s\S]*?back: 0\.64,[\s\S]*?left: 0\.68,[\s\S]*?right: 0\.68/);
-  assert.match(registry, /cirno: \{[\s\S]*?idleFrameBrightness: cirnoIdleBrightness/);
+  assert.match(registry, /const cirnoMotionBrightness:[\s\S]*?front: 1\.45,[\s\S]*?back: 1\.56,[\s\S]*?left: 1\.47,[\s\S]*?right: 1\.47/);
+  assert.match(registry, /cirno: \{[\s\S]*?motionFrameBrightness: cirnoMotionBrightness/);
   for (const id of ['reimu', 'marisa', 'alice', 'mystia', 'suika', 'nitori', 'sakuya']) {
     const definition = registry.match(new RegExp(`${id}: \\{([\\s\\S]*?)\\n  \\},`))?.[1] ?? '';
-    assert.doesNotMatch(definition, /idleFrameBrightness/);
+    assert.doesNotMatch(definition, /motionFrameBrightness/);
   }
 });
 
 test('庭园地图滚轮缩放不被绘制尺寸抵消，并保持指针锚点', async () => {
   const source = await read('../src/ui/garden-map.ts');
   const styles = await read('../src/ui/styles.css');
-  assert.match(source, /const drawWidth = canvasRatio > imageRatio \? width : height \* imageRatio/);
+  assert.match(source, /const mapSize = this\.mapDrawSize\(\)/);
+  assert.match(source, /const drawWidth = mapSize\.width/);
   assert.doesNotMatch(source, /const viewWidth = width \/ this\.camera\.zoom/);
   assert.match(source, /const worldX = \(point\.x - this\.canvas\.width \/ 2 - this\.camera\.x\) \/ previousZoom/);
   assert.match(source, /this\.camera\.x = point\.x - this\.canvas\.width \/ 2 - worldX \* nextZoom/);
@@ -440,23 +485,77 @@ test('庭园地图滚轮缩放不被绘制尺寸抵消，并保持指针锚点',
   assert.doesNotMatch(styles, /#gg-garden-map \{[^}]*min-height: 480px/);
 });
 
-test('所有者批准的新庭园底图由素材清单驱动，人物与旧主屋回退比例保持稳定', async () => {
+test('地图相机具有软边界、拖拽阻力和减少动态效果回退', async () => {
+  const map = await importTypescript('../src/ui/garden-map.ts');
+  const source = await read('../src/ui/garden-map.ts');
+  const size = map.resolveCoveredMapSize(390, 700, 1672, 941);
+  assert.equal(size.height, 700);
+  assert.ok(size.width > 1243 && size.width < 1244);
+  assert.deepEqual(map.resolveCameraBounds(390, 700, size.width, size.height, 1), {
+    minX: -(size.width - 390) / 2,
+    maxX: (size.width - 390) / 2,
+    minY: 0,
+    maxY: 0,
+  });
+  assert.deepEqual(map.resolveCameraBounds(390, 700, size.width, size.height, 2), {
+    minX: -(size.width - 195),
+    maxX: size.width - 195,
+    minY: -350,
+    maxY: 350,
+  });
+  const overscrolled = map.rubberBandAxis(180, -100, 100, 60);
+  assert.ok(overscrolled > 100 && overscrolled < 160);
+  assert.equal(map.rubberBandAxis(40, -100, 100, 60), 40);
+  assert.equal(map.resolveAxisOverscrollLimit(0, 0, 1, 700), 16);
+  assert.equal(map.resolveAxisOverscrollLimit(0, 0, 2, 1400), 32);
+  assert.equal(map.resolveAxisOverscrollLimit(-400, 400, 1, 390), 48);
+  assert.match(source, /updateCameraSpring\(delta\)/);
+  assert.match(source, /stiffness = 180/);
+  assert.match(source, /damping = 18/);
+  assert.match(source, /this\.reducedMotion\.matches/);
+  assert.match(source, /Math\.max\(1, previousZoom \* factor\)/);
+  assert.match(source, /canvas\.dataset\.cameraLimitX/);
+  assert.match(source, /const overscrollLimitY = resolveAxisOverscrollLimit/);
+  assert.match(source, /edgeFill\.addColorStop/);
+});
+
+test('人物响应式缩放同步命中、标签与多人间距', async () => {
+  const map = await importTypescript('../src/ui/garden-map.ts');
+  const source = await read('../src/ui/garden-map.ts');
+  assert.equal(map.resolveCharacterViewportScale(320), 1.18);
+  assert.equal(map.resolveCharacterViewportScale(360), 1.18);
+  assert.equal(map.resolveCharacterViewportScale(390), 1.12);
+  assert.equal(map.resolveCharacterViewportScale(520), 1.12);
+  assert.equal(map.resolveCharacterViewportScale(521), 1);
+  assert.equal(map.resolveCharacterViewportScale(0), 1);
+  assert.equal(map.resolveCharacterLayoutScale(320), 1.08);
+  assert.equal(map.resolveCharacterLayoutScale(390), 1.04);
+  assert.equal(map.resolveCharacterLayoutScale(521), 0.92);
+  assert.match(source, /canvas\.dataset\.characterScale = characterViewportScale\.toFixed\(2\)/);
+  assert.match(source, /canvas\.dataset\.characterEffectiveScale = \(CHARACTER_VISUAL_SCALE \* characterViewportScale\)\.toFixed\(2\)/);
+  assert.match(source, /spriteSize = [\s\S]*?CHARACTER_VISUAL_SCALE[\s\S]*?characterViewportScale/);
+  assert.match(source, /drawLabel\(ctx, x, y \+ 28 \* px \* characterLayoutScale, label\)/);
+  assert.match(source, /hitRadius = drawnAsSprite[\s\S]*?Math\.max\(spriteSize \* 0\.31, 22 \* px\)/);
+  assert.match(source, /characterSpacingScale = characterLayoutScale/);
+});
+
+test('所有者提供的 v3 横向庭园底图由素材清单驱动，人物比例保持稳定', async () => {
   const manifest = await read('../src/assets/asset-manifest.json');
   const build = await read('../scripts/build-ui.mjs');
   const map = await read('../src/ui/garden-map.ts');
   const spatial = await read('../src/ui/garden-spatial.ts');
-  assert.match(manifest, /garden-base-owner-candidate-v2\.png/);
-  assert.match(manifest, /"canvas": \[1448, 1086\]/);
+  assert.match(manifest, /garden-base-owner-v3\.png/);
+  assert.match(manifest, /"canvas": \[1672, 941\]/);
   assert.match(manifest, /"runtime_role": "base-layer"/);
-  assert.match(manifest, /"facility_layer_policy": "separate-transparent-sprites"/);
+  assert.match(manifest, /"facility_layer_policy": "v3-transparent-sprites-integrated-damage-overlays-pending"/);
   assert.match(build, /assetManifest\.maps\?\.garden_base/);
   assert.match(build, /gardenBaseAsset\.source/);
-  assert.match(map, /CHARACTER_VISUAL_SCALE = 0\.73/);
+  assert.match(map, /CHARACTER_VISUAL_SCALE = 0\.64/);
   assert.match(map, /FACILITY_VISUAL_SCALE = 0\.76/);
   assert.match(spatial, /GARDEN_AREA_OUTLINES[^=]*= Object\.freeze\(\{\}\)/);
 });
 
-test('四座独立设施接入地图，主屋复用新底图左上庭院', async () => {
+test('v3 底图启用同画布透明设施并拒绝复用不匹配的 v2 损坏层', async () => {
   const manifest = JSON.parse(await read('../src/assets/asset-manifest.json'));
   const build = await read('../scripts/build-ui.mjs');
   const host = await read('../src/runtime/ui-host-shell.js');
@@ -467,18 +566,46 @@ test('四座独立设施接入地图，主屋复用新底图左上庭院', async
     moon_spring: ['露天月见汤', '静水观测池', '雾隐汤屋'],
     banquet_plaza: ['灯火夜市', '鬼之大宴台', '符卡演武场'],
   };
+  const expectedCanvases = {
+    magic_greenhouse: [608, 528],
+    fairy_garden: [592, 464],
+    moon_spring: [624, 464],
+    banquet_plaza: [656, 464],
+  };
   for (const [id, forms] of Object.entries(expectedForms)) {
     const asset = manifest.map_facility_assets[id];
     assert.equal(asset.map_usage, true);
     assert.ok(asset.area_id);
     assert.deepEqual(Object.keys(asset.source_alpha), forms);
-    for (const source of Object.values(asset.source_alpha)) await read(`../src/assets/${source}`);
+    assert.equal(asset.damage_overlay_alpha, undefined);
+    for (const source of Object.values(asset.source_alpha)) {
+      assert.match(source, /-v3\.png$/);
+      const png = PNG.sync.read(await readBuffer(`../src/assets/${source}`));
+      assert.deepEqual([png.width, png.height], expectedCanvases[id]);
+      assert.equal(png.colorType, 6);
+      let transparentRgbClean = true;
+      let borderClean = true;
+      for (let y = 0; y < png.height; y += 1) {
+        for (let x = 0; x < png.width; x += 1) {
+          const offset = (y * png.width + x) * 4;
+          const alpha = png.data[offset + 3];
+          if (alpha === 0 && (png.data[offset] || png.data[offset + 1] || png.data[offset + 2])) {
+            transparentRgbClean = false;
+          }
+          if (x < 16 || x >= png.width - 16 || y < 16 || y >= png.height - 16) {
+            if (alpha !== 0) borderClean = false;
+          }
+        }
+      }
+      assert.equal(transparentRgbClean, true);
+      assert.equal(borderClean, true);
+    }
   }
   assert.equal(manifest.map_facility_assets.main_house.map_usage, false);
   assert.deepEqual(Object.keys(manifest.map_facility_assets.main_house.source_alpha), ['损坏', '临时修复', '启用']);
   assert.match(manifest.map_facility_assets.main_house.status, /^retired-from-map/);
   const spatial = await read('../src/ui/garden-spatial.ts');
-  assert.match(spatial, /main_house:\s*\{\s*x:\s*0\.16,\s*y:\s*0\.15\s*\}/);
+  assert.match(spatial, /main_house:\s*\{\s*x:\s*0\.50,\s*y:\s*0\.43\s*\}/);
   for (const id of ['magic_greenhouse', 'fairy_garden', 'moon_spring', 'banquet_plaza']) {
     const geometry = manifest.map_facility_assets[id].geometry;
     assert.ok(geometry.width_ratio > 0.2 && geometry.width_ratio < 0.3);
@@ -487,11 +614,14 @@ test('四座独立设施接入地图，主屋复用新底图左上庭院', async
       assert.ok(point.every((coordinate) => coordinate >= 0 && coordinate <= 1));
     }
     assert.ok(geometry.hit_polygon.length >= 6);
-    assert.match(manifest.map_facility_assets[id].status, /^owner-approved-v2-integrated/);
+    assert.match(manifest.map_facility_assets[id].status, /^owner-provided-v3-integrated-pending-runtime-validation/);
   }
   assert.match(build, /mapFacilityDataUrls/);
   assert.match(build, /areaId: facility\.area_id/);
   assert.match(build, /validateFacilityGeometry/);
+  assert.match(build, /validateFacilityPngGroup/);
+  assert.match(build, /不足 \$\{border\}px 透明安全边/);
+  assert.match(build, /同组形态或损坏层画布不一致/);
   assert.match(build, /geometry: facility\.geometry/);
   assert.match(build, /data-map-facility-sprites/);
   assert.match(build, /gardenBaseAsset\.source/);
@@ -601,6 +731,8 @@ test('GAL 使用月下结界舞台、和纸对白框与窄屏回流', async () =
   assert.match(document, /id="gg-view-gal" class="gg-view gg-gal"/);
   assert.match(document, /id="gg-portrait-stage" class="gg-portrait-stage" data-reaction="neutral"/);
   assert.match(document, /id="gg-dialogue-box" class="gg-dialogue-box"/);
+  assert.doesNotMatch(document, /id="gg-gal-back"|id="gg-session-history"|id="gg-swipe-right"/);
+  assert.match(document, /class="gg-scene-tools"[\s\S]*?id="gg-regenerate"[\s\S]*?id="gg-stop"/);
   assert.match(styles, /GAL 最终主题：月下结界、博丽红漆与和纸对白框/);
   assert.match(styles, /\.gg-portrait-stage \{[\s\S]*?var\(--gg-gal-background-image, none\) center center \/ cover no-repeat/);
   assert.match(styles, /\.gg-gal::before \{\s*content: none;/);
@@ -609,8 +741,13 @@ test('GAL 使用月下结界舞台、和纸对白框与窄屏回流', async () =
   assert.match(styles, /\.gg-dialogue-box \{[\s\S]*?background:[\s\S]*?rgba\(255, 244, 215, \.97\)/);
   assert.match(styles, /\.gg-dialogue-box \{[\s\S]*?padding: 3\.25rem 1\.45rem \.85rem/);
   assert.match(styles, /\.gg-scene-speaker \{[\s\S]*?top: \.72rem;[\s\S]*?background: linear-gradient\(180deg, #b74a53, #842e38\)/);
+  assert.match(styles, /@media \(max-width: 700px\)[\s\S]*?\.gg-reply-panel \{ width: 100%; margin-top: \.5rem; padding: \.45rem; \}/);
+  assert.match(styles, /@media \(max-width: 700px\)[\s\S]*?\.gg-suggested-replies \{ grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);[\s\S]*?\.gg-gal-compose textarea \{ height: 68px; min-height: 68px;/);
+  assert.match(styles, /@media \(max-width: 700px\)[\s\S]*?\.gg-gal-compose > \.gg-actions \{ display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(styles, /@media \(max-width: 700px\)[\s\S]*?\.gg-scene-item-picker \{ grid-template-columns: auto minmax\(0, 1fr\);[\s\S]*?#gg-scene-item \{ min-height: 42px;/);
+  assert.match(styles, /\.gg-gal \.gg-scene-tools \{[\s\S]*?grid-template-columns: repeat\(2, minmax\(120px, 1fr\)\);[\s\S]*?width: min\(100%, 320px\);/);
   assert.match(styles, /\.gg-suggested-replies button \{[\s\S]*?background: linear-gradient\(180deg, #f0d9ae, #d8b681\)/);
-  assert.match(styles, /@media \(max-width: 420px\)[\s\S]*?\.gg-suggested-replies \{ grid-template-columns: 1fr; \}/);
+  assert.match(styles, /@media \(max-width: 700px\)[\s\S]*?\.gg-suggested-replies \{ grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
   assert.match(styles, /@media \(max-height: 650px\) and \(min-width: 701px\)/);
   assert.doesNotMatch(styles.match(/GAL 最终主题[\s\S]*?R4 主视觉/)?.[0] ?? '', /backdrop-filter/);
   assert.match(controller, /--gg-gal-background-image/);
@@ -953,16 +1090,16 @@ test('庭园行动追加正文协议，维修固定结算且不开放续聊', as
   assert.match(app, /if \(singleShotEventPresentation\) returnToGardenAfterFixedScene\(\)/);
 });
 
-test('GAL 加载清空旧正文，并以本次对话记录替换左 Swipe', async () => {
+test('GAL 加载清空旧正文，顶栏不再暴露历史与 Swipe 入口', async () => {
   const document = await read('../src/ui/index.html');
   const app = await read('../src/ui/app.ts');
-  assert.match(document, /id="gg-session-history"/);
+  assert.doesNotMatch(document, /id="gg-session-history"|id="gg-swipe-right"|id="gg-gal-back"/);
   assert.match(document, /id="gg-session-history-dialog"/);
   assert.doesNotMatch(document, /id="gg-swipe-left"/);
   assert.match(app, /function sessionHistoryMessages/);
   assert.match(app, /activeSessionActionId/);
   assert.match(app, /parseGardenAction\(message\.text\)/);
-  assert.match(app, /await openSessionHistory\(\)/);
+  assert.doesNotMatch(app, /byId\('gg-session-history'\)|byId\('gg-swipe-right'\)|byId\('gg-gal-back'\)/);
   assert.match(app, /gg-scene-text'\)\.textContent = ''/);
 });
 
@@ -1344,9 +1481,8 @@ test('返回原生聊天后重新打开游戏会主动校正事务状态', async
   assert.match(app, /addEventListener\('gensokyo-garden:resume'/);
   assert.match(app, /if \(returnView === 'gal'\) void refresh\(\)/);
   assert.match(app, /回复已收到，正在同步游戏状态/);
-  assert.match(app, /gg-gal-back'\)\.disabled = active/);
   assert.match(app, /gg-regenerate'\)\.disabled = active/);
-  assert.match(app, /gg-swipe-right'\)\.disabled = active/);
+  assert.match(app, /gg-stop'\)\.disabled = !active \|\| !stoppable/);
   assert.match(styles, /\.gg-dialogue-box\[hidden\]\s*\{\s*display:\s*none\s*!important/);
   assert.match(bridge, /gensokyoSystemOperation/);
   assert.match(bridge, /recoverRecordedAnomalyResolution/);
