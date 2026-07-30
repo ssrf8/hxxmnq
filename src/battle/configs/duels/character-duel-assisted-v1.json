@@ -1,0 +1,68 @@
+{
+  "config_id": "character_duel_assisted_v1",
+  "version": 1,
+  "arena": { "width": 480, "height": 640 },
+  "presentation": {
+    "stage_title": "符卡对决 · 援助",
+    "stage_subtitle": "三枚以上标签 · 降低压力"
+  },
+  "player": {
+    "lives": 5,
+    "move_speed": 235,
+    "focus_speed": 120,
+    "hitbox_radius": 3,
+    "invulnerability_ms": 1900,
+    "auto_fire": false,
+    "bombs": 5,
+    "deathbomb_ms": 190,
+    "normal_shot": { "pattern": "forward_wide", "damage": 1, "interval_ms": 88 },
+    "focus_shot": { "pattern": "forward_narrow", "damage": 2, "interval_ms": 100 }
+  },
+  "phases": [
+    {
+      "id": "assisted_opening",
+      "kind": "nonspell",
+      "name": "缓行弹幕",
+      "objective": "defeat",
+      "hp": 180,
+      "duration_ms": 26000,
+      "patterns": [
+        { "pattern_id": "fixed_seed_ring", "interval_ms": 1900, "speed": 78, "count": 12, "rotate_deg_per_volley": 7 },
+        { "pattern_id": "aimed_stream", "interval_ms": 2500, "speed": 100, "count": 1, "start_ms": 3600 }
+      ]
+    },
+    {
+      "id": "assisted_spell",
+      "kind": "spell",
+      "name": "符卡「疏星回转」",
+      "objective": "defeat",
+      "hp": 210,
+      "duration_ms": 29000,
+      "patterns": [
+        { "pattern_id": "rotating_ring", "interval_ms": 1900, "speed": 82, "count": 12, "rotate_deg_per_volley": 9 },
+        { "pattern_id": "wave_fan", "interval_ms": 2400, "speed": 88, "count": 7, "arc_deg": 68, "start_ms": 3200 }
+      ]
+    },
+    {
+      "id": "assisted_last_spell",
+      "kind": "spell",
+      "name": "终符「宽隙境界」",
+      "objective": "defeat",
+      "hp": 240,
+      "duration_ms": 32000,
+      "patterns": [
+        { "pattern_id": "laser_warning", "interval_ms": 3600, "count": 1, "warning_ms": 1300, "active_ms": 450, "speed": 90 },
+        { "pattern_id": "falling_lanes", "interval_ms": 5200, "speed": 90, "warning_ms": 1400, "gaps": 3, "start_ms": 3000 },
+        { "pattern_id": "petal_fan", "interval_ms": 2300, "speed": 84, "count": 7, "arc_deg": 72, "start_ms": 5600 }
+      ]
+    }
+  ],
+  "parameter_limits": {
+    "speed": [40, 260],
+    "count": [1, 32],
+    "interval_ms": [80, 10000],
+    "duration_ms": [500, 120000],
+    "damage": [1, 10]
+  },
+  "allowed_outcomes": ["clean_win", "narrow_win", "loss"]
+}

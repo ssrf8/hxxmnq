@@ -1,0 +1,327 @@
+{
+  "version": "character-boss-sheet-preparation.v1",
+  "method": "deterministic black-background alpha derivation; black floor 8, alpha gain 3.5, RGB un-premultiplication, hidden RGB cleared",
+  "pose_order": [
+    "idle",
+    "spell",
+    "hit",
+    "break"
+  ],
+  "assets": [
+    {
+      "character_id": "mystia",
+      "source_attachment_name": "image-1.png",
+      "source_sha256": "26d7a68087bfe6180c1fb261cfa70837a2f3d0f6ac61836d7c077d51c9656682",
+      "archive_path": "旧素材/素材处理/battle-boss-owner-source-v1/mystia-battle-sheet-owner-black-v1.png",
+      "archive_sha256": "26d7a68087bfe6180c1fb261cfa70837a2f3d0f6ac61836d7c077d51c9656682",
+      "output_path": "src/assets/battle/boss/mystia-battle-sheet-v1.png",
+      "output_sha256": "33e43b04fc135577275e1f02aa45eddfc078830ac893878b2c532beaac994ba9",
+      "canvas": [
+        1254,
+        1254
+      ],
+      "layout": "2x2-idle-spell-hit-break",
+      "transparent_pixels": 949655,
+      "partial_alpha_pixels": 144260,
+      "opaque_pixels": 478601,
+      "cells": [
+        {
+          "pose": "idle",
+          "visible_bbox_in_cell": [
+            50,
+            31,
+            574,
+            621
+          ],
+          "visible_pixels": 134529,
+          "opaque_pixels": 106304
+        },
+        {
+          "pose": "spell",
+          "visible_bbox_in_cell": [
+            6,
+            31,
+            627,
+            627
+          ],
+          "visible_pixels": 235322,
+          "opaque_pixels": 173425
+        },
+        {
+          "pose": "hit",
+          "visible_bbox_in_cell": [
+            46,
+            32,
+            627,
+            580
+          ],
+          "visible_pixels": 128129,
+          "opaque_pixels": 99125
+        },
+        {
+          "pose": "break",
+          "visible_bbox_in_cell": [
+            0,
+            0,
+            608,
+            539
+          ],
+          "visible_pixels": 124881,
+          "opaque_pixels": 99747
+        }
+      ]
+    },
+    {
+      "character_id": "nitori",
+      "source_attachment_name": "image-2.png",
+      "source_sha256": "2105997105bdb844b2e91b513ebd7ddef7cb49123cf54ebd527e73f944f97601",
+      "archive_path": "旧素材/素材处理/battle-boss-owner-source-v1/nitori-battle-sheet-owner-black-v1.png",
+      "archive_sha256": "2105997105bdb844b2e91b513ebd7ddef7cb49123cf54ebd527e73f944f97601",
+      "output_path": "src/assets/battle/boss/nitori-battle-sheet-v1.png",
+      "output_sha256": "b6944000f61f787c6c685f303afe67e04db003205a501840787679d42dc98051",
+      "canvas": [
+        1254,
+        1254
+      ],
+      "layout": "2x2-idle-spell-hit-break",
+      "transparent_pixels": 817262,
+      "partial_alpha_pixels": 192493,
+      "opaque_pixels": 562761,
+      "cells": [
+        {
+          "pose": "idle",
+          "visible_bbox_in_cell": [
+            46,
+            41,
+            627,
+            627
+          ],
+          "visible_pixels": 143179,
+          "opaque_pixels": 112610
+        },
+        {
+          "pose": "spell",
+          "visible_bbox_in_cell": [
+            0,
+            18,
+            627,
+            619
+          ],
+          "visible_pixels": 274155,
+          "opaque_pixels": 198346
+        },
+        {
+          "pose": "hit",
+          "visible_bbox_in_cell": [
+            36,
+            0,
+            627,
+            590
+          ],
+          "visible_pixels": 157714,
+          "opaque_pixels": 119286
+        },
+        {
+          "pose": "break",
+          "visible_bbox_in_cell": [
+            0,
+            172,
+            627,
+            595
+          ],
+          "visible_pixels": 180206,
+          "opaque_pixels": 132519
+        }
+      ]
+    },
+    {
+      "character_id": "marisa",
+      "source_attachment_name": "image-3.png",
+      "source_sha256": "79dfbf882f2eed2258426508ef2ca0e762b4721d629b63eb6a66c2cfad384275",
+      "archive_path": "旧素材/素材处理/battle-boss-owner-source-v1/marisa-battle-sheet-owner-black-v1.png",
+      "archive_sha256": "79dfbf882f2eed2258426508ef2ca0e762b4721d629b63eb6a66c2cfad384275",
+      "output_path": "src/assets/battle/boss/marisa-battle-sheet-v1.png",
+      "output_sha256": "bd9757993b53e82f4dc19091bcb181755577e6e753eb80975f945ab18db1e06d",
+      "canvas": [
+        1254,
+        1254
+      ],
+      "layout": "2x2-idle-spell-hit-break",
+      "transparent_pixels": 810781,
+      "partial_alpha_pixels": 260379,
+      "opaque_pixels": 501356,
+      "cells": [
+        {
+          "pose": "idle",
+          "visible_bbox_in_cell": [
+            7,
+            19,
+            627,
+            627
+          ],
+          "visible_pixels": 170570,
+          "opaque_pixels": 119517
+        },
+        {
+          "pose": "spell",
+          "visible_bbox_in_cell": [
+            0,
+            8,
+            627,
+            627
+          ],
+          "visible_pixels": 276624,
+          "opaque_pixels": 178966
+        },
+        {
+          "pose": "hit",
+          "visible_bbox_in_cell": [
+            14,
+            0,
+            627,
+            594
+          ],
+          "visible_pixels": 153243,
+          "opaque_pixels": 100736
+        },
+        {
+          "pose": "break",
+          "visible_bbox_in_cell": [
+            0,
+            0,
+            627,
+            627
+          ],
+          "visible_pixels": 161298,
+          "opaque_pixels": 102137
+        }
+      ]
+    },
+    {
+      "character_id": "reimu",
+      "source_attachment_name": "image-4.png",
+      "source_sha256": "b6ac283585efeb641b4754b3f382005a2d06e5ea8a114c333d883e007d85d35e",
+      "archive_path": "旧素材/素材处理/battle-boss-owner-source-v1/reimu-battle-sheet-owner-black-v1.png",
+      "archive_sha256": "b6ac283585efeb641b4754b3f382005a2d06e5ea8a114c333d883e007d85d35e",
+      "output_path": "src/assets/battle/boss/reimu-battle-sheet-v1.png",
+      "output_sha256": "01bd322dcbce786c184aa0a4bccc88446a255f921e0186e6dd912c9dad31aba0",
+      "canvas": [
+        1254,
+        1254
+      ],
+      "layout": "2x2-idle-spell-hit-break",
+      "transparent_pixels": 835342,
+      "partial_alpha_pixels": 131931,
+      "opaque_pixels": 605243,
+      "cells": [
+        {
+          "pose": "idle",
+          "visible_bbox_in_cell": [
+            43,
+            27,
+            584,
+            627
+          ],
+          "visible_pixels": 166640,
+          "opaque_pixels": 141326
+        },
+        {
+          "pose": "spell",
+          "visible_bbox_in_cell": [
+            3,
+            40,
+            615,
+            627
+          ],
+          "visible_pixels": 215695,
+          "opaque_pixels": 183919
+        },
+        {
+          "pose": "hit",
+          "visible_bbox_in_cell": [
+            23,
+            0,
+            598,
+            568
+          ],
+          "visible_pixels": 185658,
+          "opaque_pixels": 160184
+        },
+        {
+          "pose": "break",
+          "visible_bbox_in_cell": [
+            1,
+            0,
+            615,
+            596
+          ],
+          "visible_pixels": 169181,
+          "opaque_pixels": 119814
+        }
+      ]
+    },
+    {
+      "character_id": "suika",
+      "source_attachment_name": "image-5.png",
+      "source_sha256": "f4bca13213f135dbbda981007f94a7a43988f19551444b97cde9b0848954bc09",
+      "archive_path": "旧素材/素材处理/battle-boss-owner-source-v1/suika-battle-sheet-owner-black-v1.png",
+      "archive_sha256": "f4bca13213f135dbbda981007f94a7a43988f19551444b97cde9b0848954bc09",
+      "output_path": "src/assets/battle/boss/suika-battle-sheet-v1.png",
+      "output_sha256": "1ccecc02c2e4e907b9c8eb03deb7351b7debcac512fc936a468d40d8d8ce3f31",
+      "canvas": [
+        1254,
+        1254
+      ],
+      "layout": "2x2-idle-spell-hit-break",
+      "transparent_pixels": 854860,
+      "partial_alpha_pixels": 175709,
+      "opaque_pixels": 541947,
+      "cells": [
+        {
+          "pose": "idle",
+          "visible_bbox_in_cell": [
+            26,
+            59,
+            627,
+            605
+          ],
+          "visible_pixels": 162772,
+          "opaque_pixels": 121438
+        },
+        {
+          "pose": "spell",
+          "visible_bbox_in_cell": [
+            0,
+            24,
+            624,
+            627
+          ],
+          "visible_pixels": 245084,
+          "opaque_pixels": 200387
+        },
+        {
+          "pose": "hit",
+          "visible_bbox_in_cell": [
+            26,
+            31,
+            627,
+            578
+          ],
+          "visible_pixels": 161087,
+          "opaque_pixels": 112205
+        },
+        {
+          "pose": "break",
+          "visible_bbox_in_cell": [
+            0,
+            0,
+            623,
+            567
+          ],
+          "visible_pixels": 148713,
+          "opaque_pixels": 107917
+        }
+      ]
+    }
+  ]
+}

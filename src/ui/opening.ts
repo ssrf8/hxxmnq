@@ -5,7 +5,7 @@ const DRAFT_VERSION = 1;
 export function buildOpeningMessage(draft: OpeningDraft): string {
   const appearance = draft.playerAppearance.trim() || '未作特别说明';
   const appearanceSentence = /[。！？.!?]$/u.test(appearance) ? appearance : `${appearance}。`;
-  return `我叫「${draft.playerName.trim()}」，希望他人使用「${draft.playerPronouns.trim()}」称呼我。我的外貌大致是：${appearanceSentence}\n\n我依照祖父留下的安排，带着那件被称为“庭守钥”的遗物，从外界穿过一道不稳定的结界，来到这座已经荒废许久的庭园。我暂时把它称作「${draft.gardenName.trim()}」。\n\n这是我第一次真正踏入庭园。我还不了解这里的规则，也没有预设自己拥有成熟的超自然能力。请从我穿过结界、站在荒废庭园入口后的自由观察开始；不要替我决定接下来调查哪里、相信谁或说什么。`;
+  return `我叫「${draft.playerName.trim()}」，希望他人使用「${draft.playerPronouns.trim()}」称呼我。我的外貌大致是：${appearanceSentence}\n\n我依照祖父留下的安排，收到一个没有寄件地址的旧木匣。匣中有一封写给我的遗信，以及一件被称为“庭守钥”的沉睡遗物；信里提到一座会在结界间移动、已经荒废许久的庭园，我暂时把它称作「${draft.gardenName.trim()}」。\n\n我尚未正式继承这座庭园，也还没有穿过它的结界。请用一段沉浸式聊天序章介绍祖父留下庭园的缘由、这份遗产的边界与代价，以及庭守钥将如何带我抵达移动庭园。不要替我接受继承，不要提前写成继承成功，也不要让其他角色闯入；请把故事停在庭守钥于我面前苏醒、等待我亲手接过的时刻。`;
 }
 
 function storageKey(chatId: string) {
@@ -36,10 +36,8 @@ export class OpeningController {
     this.form.addEventListener('input', () => { this.saveDraft(); this.renderPreview(); });
     this.form.addEventListener('submit', (event) => { event.preventDefault(); void this.commit(); });
     this.button('gg-opening-quick').addEventListener('click', () => this.applyPersona());
-    this.button('gg-opening-retry').addEventListener('click', () => void this.retry());
     this.button('gg-opening-enter').addEventListener('click', () => void this.enterGarden());
     this.button('gg-opening-repair').addEventListener('click', () => void this.repair());
-    this.button('gg-opening-native').addEventListener('click', () => void this.showNative());
   }
 
   async render(state: GardenState) {
@@ -105,9 +103,11 @@ export class OpeningController {
     const recovery = document.getElementById('gg-opening-recovery') as HTMLElement;
     recovery.hidden = !this.progress.messageSubmitted;
     this.form.hidden = this.progress.messageSubmitted;
+    const story = document.getElementById('gg-opening-story') as HTMLElement;
+    story.textContent = this.progress.storyText || '旧木匣已经打开。祖父留下的文字正在从泛黄信纸上浮现……';
     document.getElementById('gg-opening-progress')!.textContent = this.progress.assistantResponded
-      ? '开场消息和首轮正文已经存在，但 MVU 未确认开场。可以直接从原始玩家消息恢复开场字段并进入庭院。'
-      : '开场消息已经提交，但尚未收到完整回复。可以安全地再次触发生成。';
+      ? '故事已经来到选择的门前。继承尚未完成，是否接过庭守钥由你决定。'
+      : '祖父留下的故事仍在展开。若长时间没有回应，可以重新尝试生成。';
     this.button('gg-opening-enter').disabled = !this.progress.assistantResponded;
     this.button('gg-opening-repair').disabled = !this.progress.assistantResponded;
   }
@@ -134,40 +134,16 @@ export class OpeningController {
     this.form.setAttribute('aria-busy', 'true');
     const frozenChatId = this.context.chatId;
     try {
-      const result = await this.bridge.initializeOpening(draft, frozenChatId);
-      sessionStorage.removeItem(storageKey(frozenChatId));
-      this.setStatus(result.alreadyCommitted
-        ? '这组开场资料已经写入，正在进入庭院'
-        : result.initializedFromDefaults
-          ? '已载入完整初始状态并确认开场资料，正在进入庭院'
-          : '开场资料已写入并复读确认，正在进入庭院');
+      this.saveDraft();
+      await this.bridge.commitOpening(draft, buildOpeningMessage(draft), frozenChatId);
+      this.setStatus('祖父留下的序章已经展开，读完后再决定是否继承庭园');
       this.requestRefresh();
     } catch (error) {
-      this.setStatus(`开局初始化失败：${error instanceof Error ? error.message : String(error)}。没有调用 LLM，草稿仍在。`, true);
+      this.setStatus(`序章载入失败：${error instanceof Error ? error.message : String(error)}。草稿仍在，可以安全重试。`, true);
     } finally {
       this.busy = false;
       this.button('gg-opening-commit').disabled = false;
       this.form.setAttribute('aria-busy', 'false');
-    }
-  }
-
-  private async retry() {
-    if (!this.context || this.busy) return;
-    this.busy = true;
-    try {
-      if (this.progress.assistantResponded) {
-        await this.bridge.regenerateLatest();
-        this.setStatus('已请求重新生成首轮回复；等待 MVU 完成开场变量写入');
-      } else {
-        const draft = this.readDraft();
-        await this.bridge.commitOpening(draft, buildOpeningMessage(draft), this.context.chatId);
-        this.setStatus('已安全地再次触发首轮生成');
-      }
-      this.requestRefresh();
-    } catch (error) {
-      this.setStatus(`重新生成失败：${error instanceof Error ? error.message : String(error)}`, true);
-    } finally {
-      this.busy = false;
     }
   }
 
@@ -191,9 +167,10 @@ export class OpeningController {
     this.button('gg-opening-enter').disabled = true;
     try {
       const result = await this.bridge.enterGarden(this.context.chatId);
+      sessionStorage.removeItem(storageKey(this.context.chatId));
       this.setStatus(result.initializedFromDefaults
-        ? '已补齐完整初始状态，并从原始玩家消息确认开场字段'
-        : '已从原始玩家消息确认开场字段，正在进入庭院');
+        ? '你接过了庭守钥。初始状态已经补齐，移动庭园正在回应'
+        : '你接过了庭守钥，移动庭园的结界已经开启');
       this.requestRefresh();
     } catch (error) {
       this.setStatus(`进入庭院失败：${error instanceof Error ? error.message : String(error)}`, true);
@@ -203,8 +180,4 @@ export class OpeningController {
     }
   }
 
-  private async showNative() {
-    const restored = await this.bridge.showNativeChat();
-    this.setStatus(restored ? '已请求显示原生聊天' : '离线预览没有原生聊天');
-  }
 }

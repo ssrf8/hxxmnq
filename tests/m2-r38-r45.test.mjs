@@ -202,6 +202,7 @@ test('R40 妖精花园建造/换型/12-24 解锁与糖果商店', async () => {
   assert.equal(state.facilities.fairy_garden.state, '启用');
   const candy = shop.purchaseShopItem(state, 'fairy_candy_pack', 'candy-1');
   assert.equal(candy.inventory.consumables.fairy_candy_pack, 1);
+  assert.equal(candy.resources.coins, 44);
 
   // 12-period fallback unlocks second-form choice
   let advanced = state;
@@ -270,6 +271,7 @@ test('R41 月见温泉模式与茶/香包解锁', async () => {
   const sachet = shop.purchaseShopItem(tea, 'hot_spring_sachet', 'sachet-1');
   assert.equal(sachet.inventory.consumables.moon_viewing_tea, 1);
   assert.equal(sachet.inventory.consumables.hot_spring_sachet, 1);
+  assert.equal(sachet.resources.coins, 24);
   state = activity.startMoonSpringSession(sachet, 'public');
   assert.equal(state.garden_activities.moon_spring_session.participation_mode, 'public');
   assert.throws(() => activity.startMoonSpringSession(state, 'public'), /正在进行/);
@@ -299,6 +301,7 @@ test('R42 宴会排期、6 人上限与食盒/鬼酒', async () => {
   const food = shop.purchaseShopItem(state, 'banquet_bento', 'bento-1');
   const sake = shop.purchaseShopItem(food, 'oni_sake_flask', 'sake-1');
   assert.equal(sake.inventory.consumables.banquet_bento, 1);
+  assert.equal(sake.resources.coins, 28);
   assert.throws(() => activity.scheduleBanquet(sake, {
     activityId: 'banquet:too-far',
     mode: 'public',

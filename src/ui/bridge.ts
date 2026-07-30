@@ -9,12 +9,22 @@ import type {
 } from './types';
 import initialState from '../schema/initial-state.json';
 import { MessageTransactionCoordinator } from './message-transaction';
+import { cleanNarrativeText } from './gal-scene';
 import { reconcileHostGenerationActivity, SettlementAttemptCoordinator } from './async-coordination';
 import { validateFlowerCoreBattleResult } from './greenhouse-rules';
 import { dungeonReward, settleDungeonResult as settleLocalDungeonResult } from './dungeon-rules';
 import { migrateGardenState } from './state-migrations';
 import { applyTestJump, testJumpReached, type TestJumpId } from './test-tools';
 import { purchaseShopItem } from './shop-rules';
+import { useOpportunityCard as applyOpportunityCardUse } from './card-item-rules';
+import {
+  beginDuelCard as beginLocalDuelCard,
+  cancelDuelCard as cancelLocalDuelCard,
+  completeDuelVictoryDialogue,
+  settleDuelCard as settleLocalDuelCard,
+  stageDuelVictoryRequest,
+} from './duel-card-rules';
+import { getLockedDuelBattleConfig } from '../battle/duel-configs';
 import {
   useSpecialItem as applySpecialItemUse,
   finalizeAnomalyCardUse,
@@ -280,11 +290,16 @@ function persistedStateBefore(mvu: HostGlobals['Mvu'], messageId: number): Garde
 function openingProgress(rawMessages = activeMessages()) {
   const openingIndex = rawMessages.findIndex((item) =>
     item.role === 'user' && String(item.message ?? '').includes(OPENING_MARKER));
+  const assistant = openingIndex >= 0
+    ? rawMessages
+      .slice(openingIndex + 1)
+      .filter((item) => item.role !== 'user' && String(item.message ?? '').trim().length > 0)
+      .at(-1)
+    : undefined;
   return {
     messageSubmitted: openingIndex >= 0,
-    assistantResponded: openingIndex >= 0 && rawMessages
-      .slice(openingIndex + 1)
-      .some((item) => item.role !== 'user' && String(item.message ?? '').trim().length > 0),
+    assistantResponded: Boolean(assistant),
+    storyText: assistant ? cleanNarrativeText(String(assistant.message ?? '')) : undefined,
   };
 }
 
@@ -341,19 +356,38 @@ export function createHostBridge(): GardenBridge | null {
   } | null = null;
   let pendingOwnershipBefore: GardenState | null = null;
   let pendingSystemOperation: {
-    type: 'anomaly_resolution';
+    type: 'anomaly_resolution' | 'duel_victory_dialogue';
     operationId: string;
+    settlementId?: string;
   } | null = null;
   const settlementAttempts = new SettlementAttemptCoordinator();
   let transactionOperationInFlight = false;
   let variableUpdateEpoch = 0;
   let pendingVariableEpoch = 0;
   let assistantObservedAt = 0;
+  let cardOperationInFlight = false;
 
   const readTransaction = () => {
     const snapshot = transactions.read();
     hostGenerationActive = reconcileHostGenerationActivity(hostGenerationActive, snapshot);
     return snapshot;
+  };
+
+  const runCardOperation = async <T>(operation: () => Promise<T>): Promise<T> => {
+    const transaction = readTransaction();
+    if (cardOperationInFlight
+      || transactionOperationInFlight
+      || hostGenerationActive
+      || regenerationPhase !== 'idle'
+      || ['submitting_user', 'generating', 'settling'].includes(transaction.phase)) {
+      throw new Error('当前回复或卡片事务仍在处理中，请稍候');
+    }
+    cardOperationInFlight = true;
+    try {
+      return await operation();
+    } finally {
+      cardOperationInFlight = false;
+    }
   };
 
   const variableStageReady = (mvu: HostGlobals['Mvu']) => {
@@ -501,6 +535,11 @@ export function createHostBridge(): GardenBridge | null {
           operationId,
         ])).slice(-256);
       }
+    } else if (pendingSystemOperation?.type === 'duel_victory_dialogue') {
+      protectedState = completeDuelVictoryDialogue(
+        protectedState,
+        pendingSystemOperation.settlementId ?? '',
+      );
     }
     if (JSON.stringify(current) === JSON.stringify(protectedState)) {
       pendingOwnershipBefore = null;
@@ -557,6 +596,36 @@ export function createHostBridge(): GardenBridge | null {
     return false;
   };
 
+  const recoverRecordedDuelVictory = async (mvu: HostGlobals['Mvu'], current: GardenState) => {
+    const pending = current.inventory?.card_runtime?.duel?.pending_victory_dialogue;
+    if (!pending || pending.status !== 'generating') return false;
+    const messages = activeMessages();
+    for (let index = messages.length - 1; index >= 0; index -= 1) {
+      const user = messages[index];
+      if (messageRole(user) !== 'user') continue;
+      const extra = isRecord(user.extra) ? user.extra : {};
+      const operation = isRecord(extra.gensokyoSystemOperation) ? extra.gensokyoSystemOperation : null;
+      if (operation?.version !== 'system-operation.v1'
+        || operation.type !== 'duel_victory_dialogue'
+        || operation.settlementId !== pending.settlement_id) continue;
+      const assistant = messages.slice(index + 1).find((message) => (
+        messageRole(message) === 'assistant' && String(message.message ?? message.mes ?? '').trim()
+      ));
+      const assistantMessageId = Number(assistant?.message_id);
+      if (!assistant || !Number.isInteger(assistantMessageId) || assistantMessageId < 0) return false;
+      if (mvu?.isDuringExtraAnalysis?.()) return false;
+      const before = persistedStateBefore(mvu, assistantMessageId) ?? current;
+      const options = { type: 'message', message_id: assistantMessageId };
+      const data = structuredClone(mvu!.getMvuData(options)) as Record<string, unknown>;
+      const assistantState = isRecord(data.stat_data) ? data.stat_data as GardenState : current;
+      const protectedState = restoreLocalEventOwnership(before, assistantState);
+      data.stat_data = completeDuelVictoryDialogue(protectedState, pending.settlement_id);
+      await mvu!.replaceMvuData(data, options);
+      return true;
+    }
+    return false;
+  };
+
   const recoverCompletedCurrentTransaction = (current: GardenState) => {
     const snapshot = transactions.read();
     const assistantMessageId = Number(snapshot.assistantMessageId);
@@ -595,6 +664,7 @@ export function createHostBridge(): GardenBridge | null {
         const current = latestPersistedState(mvu);
         if (recoverCompletedCurrentTransaction(current)) return true;
         if (await recoverRecordedAnomalyResolution(mvu, current)) return true;
+        if (await recoverRecordedDuelVictory(mvu, current)) return true;
         const recorded = findRecordedLocalSettlement(activeMessages(), current);
         if (!recorded) return false;
         const before = persistedStateBefore(mvu, recorded.assistantMessageId) ?? current;
@@ -861,6 +931,65 @@ export function createHostBridge(): GardenBridge | null {
         transactionOperationInFlight = false;
       }
     },
+    async sendDuelVictoryRequest(requestText: string, message: string) {
+      if (transactionOperationInFlight) throw new Error('上一条消息仍在生成或结算中，请稍候');
+      transactionOperationInFlight = true;
+      const value = message.trim();
+      try {
+        if (!value || value.length > 6000) throw new Error('消息应为 1–6000 个字符');
+        const mvu = await requireMvu();
+        const before = latestPersistedState(mvu);
+        const pending = before.inventory?.card_runtime?.duel?.pending_victory_dialogue;
+        if (!pending) throw new Error('没有待提交的胜利要求');
+        const settlementId = pending.settlement_id;
+        const operationId = `duel-victory:${settlementId}`;
+        const staged = stageDuelVictoryRequest(before, settlementId, requestText);
+        const latest = latestPersistedMessage(mvu);
+        if (!latest || !mvu.replaceMvuData) throw new Error('当前 MVU 不支持胜利要求锁定');
+        latest.data.stat_data = staged;
+        await mvu.replaceMvuData(latest.data, latest.options);
+        const reread = migrateGardenState(mvu.getMvuData(latest.options).stat_data ?? {});
+        const rereadPending = reread.inventory?.card_runtime?.duel?.pending_victory_dialogue;
+        if (rereadPending?.settlement_id !== settlementId
+          || rereadPending.status !== 'generating'
+          || rereadPending.request_text !== requestText.trim()) {
+          throw new Error('胜利要求锁定复读校验失败');
+        }
+        pendingOwnershipBefore = structuredClone(reread);
+        pendingSettlement = null;
+        pendingSystemOperation = { type: 'duel_victory_dialogue', operationId, settlementId };
+        pendingVariableEpoch = variableUpdateEpoch;
+        assistantObservedAt = 0;
+        const snapshot = await transactions.submit({
+          kind: 'battle',
+          message: value,
+          transactionId: operationId,
+          extra: {
+            gensokyoSystemOperation: {
+              version: 'system-operation.v1',
+              operationId,
+              type: 'duel_victory_dialogue',
+              settlementId,
+            },
+          },
+        });
+        if (!snapshot.assistantResponded) {
+          throw new Error(snapshot.lastError || '没有收到 assistant 回复，可以安全重试');
+        }
+        assistantObservedAt = Date.now();
+        await waitForVariableStage();
+        return await requirePendingSettlement();
+      } catch (error) {
+        lastError = error instanceof Error ? error.message : String(error);
+        const snapshot = transactions.read();
+        if (snapshot.assistantResponded || snapshot.phase === 'settling') {
+          transactions.markSettlementFailed(error);
+        }
+        throw error;
+      } finally {
+        transactionOperationInFlight = false;
+      }
+    },
     async getTransactionState() {
       const current = readTransaction();
       if (regenerationPhase !== 'idle') {
@@ -974,6 +1103,92 @@ export function createHostBridge(): GardenBridge | null {
       await mvu.replaceMvuData(latest.data, latest.options);
       const reread = migrateGardenState(mvu.getMvuData(latest.options).stat_data ?? {});
       if (!reread.shop?.purchase_settled_ids?.includes(purchaseId)) throw new Error('小店购买复读校验失败');
+    },
+    async useOpportunityCard(useId: string) {
+      return runCardOperation(async () => {
+        const mvu = await requireMvu();
+        if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持机遇卡本地结算');
+        const latest = latestPersistedMessage(mvu);
+        if (!latest) throw new Error('没有可承载机遇卡结算的 assistant 楼层');
+        const result = applyOpportunityCardUse(migrateGardenState(latest.state), useId, currentChatId());
+        latest.data.stat_data = result.state;
+        await mvu.replaceMvuData(latest.data, latest.options);
+        const reread = migrateGardenState(mvu.getMvuData(latest.options).stat_data ?? {});
+        const recorded = reread.inventory?.card_runtime?.opportunity?.last_result;
+        if (!reread.inventory?.card_runtime?.settled_use_ids?.includes(useId)
+          || recorded?.use_id !== useId
+          || recorded.selected_character_id !== result.selectedCharacterId
+          || !reread.presence_snapshot?.present_character_ids?.includes(result.selectedCharacterId)) {
+          throw new Error('机遇卡结算复读校验失败');
+        }
+        return {
+          selectedCharacterId: result.selectedCharacterId,
+          message: result.message,
+          alreadySettled: result.alreadySettled,
+        };
+      });
+    },
+    async beginDuelCard(targetCharacterId: string, useId: string) {
+      return runCardOperation(async () => {
+        const mvu = await requireMvu();
+        if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持对战卡预留');
+        const latest = latestPersistedMessage(mvu);
+        if (!latest) throw new Error('没有可承载对战卡预留的 assistant 楼层');
+        const result = beginLocalDuelCard(migrateGardenState(latest.state), targetCharacterId, useId);
+        latest.data.stat_data = result.state;
+        await mvu.replaceMvuData(latest.data, latest.options);
+        const reread = migrateGardenState(mvu.getMvuData(latest.options).stat_data ?? {});
+        const pending = reread.inventory?.card_runtime?.duel?.pending_battle;
+        if (pending?.use_id !== useId
+          || pending.target_character_id !== targetCharacterId
+          || pending.config_id !== result.configId
+          || pending.difficulty_tier !== result.difficultyTier) {
+          throw new Error('对战卡预留复读校验失败');
+        }
+        return {
+          targetCharacterId,
+          configId: result.configId,
+          difficultyTier: result.difficultyTier,
+          alreadyStarted: result.alreadyStarted,
+          config: getLockedDuelBattleConfig(targetCharacterId, result.difficultyTier, result.configId),
+        };
+      });
+    },
+    async cancelDuelCard(useId: string) {
+      return runCardOperation(async () => {
+        const mvu = await requireMvu();
+        if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持取消对战卡');
+        const latest = latestPersistedMessage(mvu);
+        if (!latest) throw new Error('没有可承载对战卡取消的 assistant 楼层');
+        latest.data.stat_data = cancelLocalDuelCard(migrateGardenState(latest.state), useId);
+        await mvu.replaceMvuData(latest.data, latest.options);
+        const reread = migrateGardenState(mvu.getMvuData(latest.options).stat_data ?? {});
+        if (reread.inventory?.card_runtime?.duel?.pending_battle?.use_id === useId) {
+          throw new Error('对战卡取消复读校验失败');
+        }
+      });
+    },
+    async settleDuelCard(result: BattleResult) {
+      return runCardOperation(async () => {
+        const mvu = await requireMvu();
+        if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持对战卡本地结算');
+        const latest = latestPersistedMessage(mvu);
+        if (!latest) throw new Error('没有可承载对战卡结算的 assistant 楼层');
+        const settled = settleLocalDuelCard(migrateGardenState(latest.state), result);
+        latest.data.stat_data = settled.state;
+        await mvu.replaceMvuData(latest.data, latest.options);
+        const reread = migrateGardenState(mvu.getMvuData(latest.options).stat_data ?? {});
+        if (!reread.inventory?.card_runtime?.duel?.settled_result_ids?.includes(result.settlement_id)
+          || reread.inventory.card_runtime.duel.pending_battle) {
+          throw new Error('对战卡结算复读校验失败');
+        }
+        return {
+          won: settled.won,
+          zakoTagCount: settled.zakoTagCount,
+          message: settled.message,
+          alreadySettled: settled.alreadySettled,
+        };
+      });
     },
     async useSpecialItem(itemId: string, useId: string, form?: Partial<AnomalyActivationForm>) {
       const mvu = await requireMvu();
@@ -1210,7 +1425,7 @@ const previewState: GardenState = {
     },
   },
   interaction: { current_session: null, settled_ids: [] },
-  events: { completed_key_events: { reimu_boundary_inspection: 'temporary_permission' } },
+  events: { completed_key_events: {} },
 };
 
 export function createPreviewBridge(): GardenBridge {
@@ -1225,10 +1440,18 @@ export function createPreviewBridge(): GardenBridge {
     userMessageCreated: false,
     assistantResponded: false,
   };
+  let previewOpeningDraft: OpeningDraft | undefined;
+  let previewOpeningStory = '';
   return {
     async readState() { return structuredClone(previewState); },
     async getOpeningContext() { return { chatId: 'offline-preview-chat', personaName: '预览玩家', personaDescription: '来自外界的年轻旅人。' }; },
-    async getOpeningProgress() { return { messageSubmitted: false, assistantResponded: false }; },
+    async getOpeningProgress() {
+      return {
+        messageSubmitted: Boolean(previewOpeningDraft),
+        assistantResponded: Boolean(previewOpeningStory),
+        storyText: previewOpeningStory || undefined,
+      };
+    },
     async initializeOpening(draft) {
       const alreadyCommitted = Boolean(previewState.meta?.opening_committed);
       previewState.player = { ...previewState.player, name: draft.playerName, pronouns: draft.playerPronouns, appearance: draft.playerAppearance };
@@ -1238,18 +1461,36 @@ export function createPreviewBridge(): GardenBridge {
     },
     async commitOpening(draft, message) {
       messages.push({ id: messages.length, role: 'user', name: draft.playerName, text: message });
-      previewState.player = { ...previewState.player, name: draft.playerName, pronouns: draft.playerPronouns, appearance: draft.playerAppearance };
-      previewState.garden = { ...previewState.garden, name: draft.gardenName };
-      previewState.meta = { ...previewState.meta, initialized: true, opening_committed: true };
+      previewOpeningDraft = structuredClone(draft);
+      previewOpeningStory = `木匣是在祖父失踪后的第七天送到你手里的。\n\n遗信没有解释他去了哪里，只说那座庭园从来不是一块普通土地。它依靠“庭守钥”锚定在结界之间，会随着主人的选择迁徙，也会把每一次承诺记进荒废的砖石与草木。祖父没有把它直接留给你——因为庭园能提供容身之所，也要求继承者亲自修复结界、照料来客，并承担错误选择留下的痕迹。\n\n信纸燃起一圈柔和的金光。沉睡的钥匙悬到你面前，钥齿间映出一座荒废庭园的轮廓。只要你伸手接过它，结界便会承认新的庭守，将你送往那座会移动的庭园。\n\n钥匙静静等待着。最后一步，仍由你决定。`;
+      messages.push({ id: messages.length, role: 'assistant', name: '幻想乡物语', text: previewOpeningStory });
       return { messageCreated: true, generationTriggered: true };
     },
     async enterGarden() {
+      if (!previewOpeningDraft || !previewOpeningStory) throw new Error('继承序章尚未完成');
+      previewState.player = {
+        ...previewState.player,
+        name: previewOpeningDraft.playerName,
+        pronouns: previewOpeningDraft.playerPronouns,
+        appearance: previewOpeningDraft.playerAppearance,
+      };
+      previewState.garden = { ...previewState.garden, name: previewOpeningDraft.gardenName };
+      previewState.key_items = {
+        ...previewState.key_items,
+        garden_keeper_key: {
+          id: 'garden_keeper_key',
+          name: '庭守钥',
+          obtained: true,
+          state: '苏醒',
+        },
+      };
       previewState.meta = { ...previewState.meta, initialized: true, opening_committed: true };
       return { initializedFromDefaults: false };
     },
     async repairOpening() { throw new Error('离线预览不支持修复真实开场'); },
     async listMessages() { return structuredClone(messages); },
     async sendUserMessage(text, kind = 'interaction') {
+      const previewAction = localSettlementAction(text, previewState);
       transaction = {
         transactionId: `preview-${Date.now()}`,
         chatId: 'offline-preview-chat',
@@ -1263,9 +1504,26 @@ export function createPreviewBridge(): GardenBridge {
       messages.push({ id: messages.length, role: 'user', name: '预览玩家', text });
       const isEnding = text.includes('"action_id":"end_conversation"');
       const isRepair = text.includes('"action_id":"repair"');
+      const previewActionId = previewAction?.action_id ?? '';
+      const tutorialBeats = previewActionId === 'inspect_boundary'
+        ? [
+            { kind: 'speech', speaker_id: 'reimu', reaction_id: 'serious', pose_id: 'default', text: '这道结界确实被什么东西从里面扯动过。先给你临时通行许可，别擅自碰边缘的裂隙。' },
+            { kind: 'action', speaker_id: 'reimu', reaction_id: 'neutral', pose_id: 'default', text: '灵梦收起御札，指向还能遮风的旧主屋，让你先把落脚处修好。' },
+          ]
+        : previewActionId === 'investigate_magic_trace'
+          ? [
+              { kind: 'action', speaker_id: null, reaction_id: 'serious', pose_id: 'default', text: '你沿结界残痕走到温室旧址，发现焦黑砖缝里仍有微弱魔力循环。' },
+              { kind: 'speech', speaker_id: 'marisa', reaction_id: 'happy', pose_id: 'default', text: '这可不是普通杂草留下的痕迹。要重建温室，先弄明白它为什么还在生长。' },
+            ]
+          : ['investigate_growth', 'hear_marisa_plan', 'study_grandfather_blueprint'].includes(previewActionId)
+            ? [
+                { kind: 'action', speaker_id: null, reaction_id: 'neutral', pose_id: 'default', text: '零散痕迹终于拼成一条可行思路，庭守钥随之亮起第二道微光。' },
+                { kind: 'speech', speaker_id: 'marisa', reaction_id: 'happy', pose_id: 'default', text: '很好，这下不只是猜想了。两点灵感，足够决定怎么清理旧地基。' },
+              ]
+            : null;
       const scene = {
         version: 'scene.v1',
-        beats: isEnding
+        beats: tutorialBeats ?? (isEnding
           ? [
             { kind: 'speech', speaker_id: 'reimu', reaction_id: 'neutral', pose_id: 'default', text: '那就先到这里吧。别忘了庭园还有一堆麻烦等着你。' },
             { kind: 'narration', speaker_id: null, reaction_id: 'neutral', pose_id: 'default', text: '短暂的交谈告一段落，庭园重新安静下来。' },
@@ -1278,23 +1536,40 @@ export function createPreviewBridge(): GardenBridge {
             : [
               { kind: 'speech', speaker_id: 'reimu', reaction_id: text.includes('pat_head') ? 'annoyed' : 'neutral', pose_id: 'default', text: text.includes('pat_head') ? '……你的手是不是伸得太自然了一点？' : '有话就说。我还得检查这里的结界。' },
               { kind: 'action', speaker_id: 'reimu', reaction_id: 'neutral', pose_id: 'default', text: '灵梦看了你一眼，没有立刻离开。' },
-            ],
+            ]),
         suggested_replies: isEnding ? [] : [
           { id: 'ask-more', label: '继续询问', intent: '我顺着她刚才的话继续问下去。' },
           { id: 'change-topic', label: '换个话题', intent: '我稍微换了一个轻松些的话题。' },
         ],
       };
+      const assistantMessageId = messages.length;
+      const assistantText = `<GensokyoScene>${JSON.stringify(scene)}</GensokyoScene>`;
       messages.push({
-        id: messages.length,
+        id: assistantMessageId,
         role: 'assistant',
         name: '幻想乡物语',
-        text: `<GensokyoScene>${JSON.stringify(scene)}</GensokyoScene>`,
+        text: assistantText,
       });
+      if (previewAction) {
+        const staged = stageLocalSession(previewState, previewAction);
+        Object.assign(
+          previewState,
+          applyLocalSettlement(staged, previewAction, assistantMessageId, assistantText),
+        );
+      }
       return structuredClone(transaction);
     },
     async sendAnomalyResolution(text) {
       const snapshot = await this.sendUserMessage(text, 'settlement');
       Object.assign(previewState, resolveAnomaly(previewState, snapshot.assistantMessageId ?? null));
+      return snapshot;
+    },
+    async sendDuelVictoryRequest(requestText: string, text: string) {
+      const pending = previewState.inventory?.card_runtime?.duel?.pending_victory_dialogue;
+      if (!pending) throw new Error('没有待提交的胜利要求');
+      Object.assign(previewState, stageDuelVictoryRequest(previewState, pending.settlement_id, requestText));
+      const snapshot = await this.sendUserMessage(text, 'battle');
+      Object.assign(previewState, completeDuelVictoryDialogue(previewState, pending.settlement_id));
       return snapshot;
     },
     async getTransactionState() { return structuredClone(transaction); },
@@ -1327,6 +1602,39 @@ export function createPreviewBridge(): GardenBridge {
     },
     async purchaseShopItem(itemId: string, purchaseId: string) {
       Object.assign(previewState, purchaseShopItem(previewState, itemId, purchaseId));
+    },
+    async useOpportunityCard(useId: string) {
+      const result = applyOpportunityCardUse(previewState, useId, 'offline-preview-chat');
+      Object.assign(previewState, result.state);
+      return {
+        selectedCharacterId: result.selectedCharacterId,
+        message: result.message,
+        alreadySettled: result.alreadySettled,
+      };
+    },
+    async beginDuelCard(targetCharacterId: string, useId: string) {
+      const result = beginLocalDuelCard(previewState, targetCharacterId, useId);
+      Object.assign(previewState, result.state);
+      return {
+        targetCharacterId,
+        configId: result.configId,
+        difficultyTier: result.difficultyTier,
+        alreadyStarted: result.alreadyStarted,
+        config: getLockedDuelBattleConfig(targetCharacterId, result.difficultyTier, result.configId),
+      };
+    },
+    async cancelDuelCard(useId: string) {
+      Object.assign(previewState, cancelLocalDuelCard(previewState, useId));
+    },
+    async settleDuelCard(result: BattleResult) {
+      const settled = settleLocalDuelCard(previewState, result);
+      Object.assign(previewState, settled.state);
+      return {
+        won: settled.won,
+        zakoTagCount: settled.zakoTagCount,
+        message: settled.message,
+        alreadySettled: settled.alreadySettled,
+      };
     },
     async useSpecialItem(itemId: string, useId: string, form?: Partial<AnomalyActivationForm>) {
       const result = applySpecialItemUse(previewState, itemId, useId, form);

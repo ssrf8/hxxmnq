@@ -1,18 +1,22 @@
 # 弹幕小游戏交接文档
 
-> 2026-07-29：个人本地弹幕素材与手机操作已收口。所有者提供的 `etama3.png` 已归档为 `battle-bullets-etama3-local-v1.png`，只用于本机预览并在 manifest 标记 `personal-local-only-do-not-package-or-distribute`；渲染器按已登记 shape×hue 取图，未知组合回退几何弹。触控主指实际拖动超过轻触阈值后自动连射，抬起／取消停火；轻触不射、第二指专注、双击 Bomb、鼠标拖动与键盘 Z 均保持原语义。`check:ui`、`npm test` 136/136、`build:ui` 全绿；`390×844` 下画布约 `350×467`，战斗 dialog 无溢出、控制台无错误。**未打包；当前 `build:ui` 会为个人本地预览复制并内嵌 etama3，任何可分发检查点都必须先显式移除或替换该素材；真实 SillyTavern 多点触控仍待验收**。
+> 2026-07-30：灵梦与魔理沙的对战卡 BOSS 四状态图已升级为所有者提供的新版。稳定运行路径和 `2×2` 待机／施法／受击／击破合同不变，新版黑底源图以确定性算法透明化，原始字节归档于 `旧素材/素材处理/battle-boss-owner-source-v2/`，旧 v1 原档保留；处理报告与透明总览分别为 `project/character-boss-sheet-replacement-report-2026-07-30.json`、`project/character-boss-sheet-replacement-preview.png`。离线浏览器已分别开启灵梦、魔理沙极难对战并立即暂停，确认新版人物、透明背景、尺寸与锚点正常，页面控制台无 warning/error；证据为 `project/runtime-qa/boss-{reimu,marisa}-v2-paused.png`。完整门禁 `check:ui`、`npm test` 154/154、`build:ui`、r54 dry-run 全绿；演练产物 `101,878,951` bytes、SHA-256 `a0605c9c…7586cf`。**未正式打包；真实 SillyTavern 四状态切换、宿主缩放和移动端显示仍待验收。**
+>
+> 2026-07-30：任意角色对战卡的八人 BOSS 视觉已补齐。所有者新增提供灵梦、魔理沙、荷取、米斯蒂娅、萃香五张 `1254×1254` 黑底四状态图；确定性透明化后与既有琪露诺、爱丽丝、咲夜统一使用 `2×2` 待机／施法／受击／击破合同。五份原始字节、透明输出哈希与逐格统计可从 `project/character-boss-sheet-preparation-report.json` 追溯。构建、宿主 dataset、app atlas source、渲染选择和对战档案已全部接通；对战档案旧 `boss_alice`／`boss_cirno`／`boss_sakuya` 已校正为渲染器实际使用的角色 ID。离线浏览器逐一打开五名新增角色的对战卡战斗并暂停目视，均显示正确独立人物、无黑底方块，控制台无 warning/error。完整门禁 `check:ui`、`npm test` 154/154、`build:ui`、r54 dry-run 全绿。**未正式打包；真实 SillyTavern 八角色逐场及四状态切换仍待验收。**
+>
+> 2026-07-30：所有者澄清 `etama3.png` 是其此前使用 AI 生成并修改的项目素材，允许随项目打包分发；原错误的用途限制和构建门槛已撤销。文件继续沿用稳定路径 `battle-bullets-etama3-local-v1.png`，渲染器按已登记 shape×hue 取图，未知组合回退几何弹。真实 SillyTavern 多点触控仍待验收。
 >
 > 2026-07-29：三副本 Boss 独立战斗图已接入。琪露诺、爱丽丝、咲夜各使用一张 `1254×1254`、`2×2` 四状态透明图集，四格对应待机／施法／受击／击破；渲染器按 `presentation.boss_id` 选择图集，加载失败回退温室妖花。构建器只复制／内嵌透明版，宿主通过独立 dataset 交给 iframe。琪露诺已在本地浏览器实跑至 Boss 到场，尺寸、锚点与透明背景正常；爱丽丝、咲夜尚待逐场目视。离线门禁为 `check:ui`、`npm test` 134/134、`build:ui` 全绿。**未打包，未做真实 SillyTavern 验收**。
 >
 > 2026-07-26：完成 TH06 参考对齐优化（方向 A/B/C）与一处 P0 修复。离线门禁 `check:ui` 通过、`npm test` 100/100、`build:ui` 通过、产物自包含。**真实 SillyTavern 实机验收（协议 §7.3）仍未执行**，不得据此声称"酒馆已验收"。
 >
-> 执行边界见 `project/bullet-hell-minigame-optimization-protocol.md`（本文件不覆盖它，只记录当前状态与后续）。参考仓库为 `GensokyoClub/th06`（东方红魔郷 1.02h C++ 反编译）——代码参考仍只取机制与数学，不从仓库提取 ECL／资源；当前 etama3 图由所有者另行提供，只允许个人本地预览。
+> 执行边界见 `project/bullet-hell-minigame-optimization-protocol.md`（本文件不覆盖它，只记录当前状态与后续）。参考仓库为 `GensokyoClub/th06`（东方红魔郷 1.02h C++ 反编译）——代码参考仍只取机制与数学，不从仓库提取 ECL／资源；当前 etama3 图为所有者提供并经 AI 生成修改的项目素材。
 
 ## 当前状态总览
 
 - 战斗本体已从单文件重构为模块：`battle-types` / `battle-atlas` / `battle-input` / `battle-patterns` / `battle-renderer` / `battle-simulation`，`src/ui/battle-engine.ts` 为稳定门面。
 - 已实现 TH06 风格扩展：120Hz 定步长 + 自适应绘制、Power(0–128)/Bomb/决死补弹/被弹无敌/复活控制锁、杂鱼波 + 道具 POC、弹型 **11 种**、shape×hue 视觉文法、素材内嵌链（build→data URL→dataset→app，含几何 fallback）。
-- 主线继续使用温室妖花图集；三个副本已按 `boss_id` 分别使用琪露诺、爱丽丝、咲夜四状态图集，不再视觉串台。
+- 主线继续使用温室妖花图集；三个固定副本使用琪露诺、爱丽丝、咲夜，任意角色对战卡的八名角色均按 `boss_id` 使用各自独立四状态图集，不再视觉串台或回退妖花。
 - `BattleResult` 10 字段形状未变；主线（`stageBattleResult`→剧情）与副本（`settleDungeonResult`→本地金币，无 LLM）双结算链未变。
 
 ## 本轮改动（2026-07-26）
@@ -58,13 +62,13 @@
 ## 验证状态
 
 - `npm run check:ui` 通过；`npm test` 136/136。
-- `npm run build:ui` 通过；个人本地构建的 `dist/runtime/ui-mount.js` 内嵌自机、妖花、三副本 Boss、通用特效与本地 etama3 data URL；严格路径正则无 `localhost`/本机盘符/远程 URL，且无 chroma 重复大图。该结果仅证明本地预览自包含，不代表可分发。
+- `npm run build:ui` 通过；`dist/runtime/ui-mount.js` 内嵌自机、妖花、三副本 Boss、通用特效与 etama3 data URL；严格路径正则无 `localhost`/本机盘符/远程 URL，且无 chroma 重复大图。该结果证明资源链自包含；正式候选仍须取得当次打包授权并完成对应验收。
 - 本地浏览器已实跑妖精弹幕练习至琪露诺到场，独立图集选择、尺寸、锚点与透明背景正常，控制台无警告／错误；爱丽丝、咲夜未逐场目视。
 - **未打包、未导入、未推送**。真实酒馆 §7.3 矩阵未跑。
 
 ## 后续待办（按优先级）
 
-1. **真实 SillyTavern 实机验收**（硬门禁）：新聊天单实例、主线可信 `battle.current` 写入/复读/剧情消息、三副本本地结算与金币/时段/rewarded_ids、取消/Escape/关闭不结算、后台恢复不偷跑、素材断链 fallback、320px/触控拖动自动射击/双指专注/双击 Bomb/200% 缩放/焦点可见。个人本地验收可使用 etama3；若要形成可分发候选，必须先移除或替换该素材再留证据。不得把 dry-run 写成 accepted。
+1. **真实 SillyTavern 实机验收**（硬门禁）：新聊天单实例、主线可信 `battle.current` 写入/复读/剧情消息、三副本本地结算与金币/时段/rewarded_ids、取消/Escape/关闭不结算、后台恢复不偷跑、素材断链 fallback、320px/触控拖动自动射击/双指专注/双击 Bomb/200% 缩放/焦点可见。验收与后续获授权的项目候选均可包含 etama3；不得把 dry-run 写成 accepted。
 2. **判定半径决策**：4 份配置 `hitbox_radius=4`（比 TH06 比例偏大）本轮**刻意未改**，属所有者已接受手感。若要更 TH06 化可下调至 ~3，但是跨 4 配置的平衡改动，需所有者定夺。
 3. **Boss 图集视觉复核**：逐场查看爱丽丝、咲夜的四种姿态，并在真实 SillyTavern 检查三张图放大可见的轻微洋红边缘；必要时只返修透明蒙版，不改裁切和战斗语义。
 4. **atlas 像素核对**：继续核对旧自机／妖花／特效裁切与新 Boss 四宫格在各视口的实际显示比例。

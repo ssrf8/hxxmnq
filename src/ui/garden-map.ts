@@ -28,6 +28,7 @@ export interface MapFacilitySpriteSet {
   areaId: string;
   forms?: Record<string, string>;
   damageOverlay?: string;
+  damageReplacement?: string;
   geometry?: MapFacilityGeometry;
 }
 
@@ -58,9 +59,10 @@ export function resolveMapFacilitySprite(
     ? Boolean(area?.unlocked && source)
     : runtime?.built ?? Boolean(facility?.current_form || facility?.state === '启用');
   if (!built || !source) return null;
+  const damaged = runtime?.status === 'damaged';
   return {
-    source,
-    damageOverlay: runtime?.status === 'damaged' ? spriteSet.damageOverlay : undefined,
+    source: damaged && spriteSet.damageReplacement ? spriteSet.damageReplacement : source,
+    damageOverlay: damaged && !spriteSet.damageReplacement ? spriteSet.damageOverlay : undefined,
   };
 }
 
@@ -158,6 +160,7 @@ export class GardenMap {
   private browserZoomCompensation = 1;
   private selectedId: string | null = null;
   private hoveredId: string | null = null;
+  private tutorialTargetId: string | null = null;
   private frameClock = 0;
   private lastAnchor: Point | null = null;
 
@@ -203,6 +206,13 @@ export class GardenMap {
   setSelected(id: string | null) {
     if (this.selectedId === id) return;
     this.selectedId = id;
+    this.draw();
+  }
+
+  setTutorialTarget(id: string | null) {
+    if (this.tutorialTargetId === id) return;
+    this.tutorialTargetId = id;
+    this.canvas.dataset.tutorialTarget = id ?? '';
     this.draw();
   }
 
@@ -389,7 +399,7 @@ export class GardenMap {
       const markerState = discoveryMarker ? '待调查' : area.state ?? '未知';
       // 悬停/选中前只留一枚低调的菱形路标；有实景轮廓的区域沿底图
       // 手描多边形描边发光，空地块回退贴地光环。
-      const active = this.hoveredId === id || this.selectedId === id;
+      const active = this.hoveredId === id || this.selectedId === id || this.tutorialTargetId === id;
       const facilityId = this.facilityIdForArea(id);
       const facilitySprite = this.resolveFacilitySprite(facilityId);
       const accent = discoveryMarker ? '#d9b9e8' : '#f3c86c';
@@ -469,7 +479,7 @@ export class GardenMap {
       const spriteSize = Math.min(132 * px, drawWidth * 0.12 * this.browserZoomCompensation)
         * CHARACTER_VISUAL_SCALE
         * characterViewportScale;
-      const characterActive = this.hoveredId === id || this.selectedId === id;
+      const characterActive = this.hoveredId === id || this.selectedId === id || this.tutorialTargetId === id;
       // 轮廓发光：染色剪影垫底，精确贴合人物形状；无 sprite 时回退圆环。
       let glowDrawn = false;
       if (characterActive && actor) {
@@ -547,7 +557,9 @@ export class GardenMap {
       const active = this.hoveredId === facilityId
         || this.selectedId === facilityId
         || this.hoveredId === spriteSet.areaId
-        || this.selectedId === spriteSet.areaId;
+        || this.selectedId === spriteSet.areaId
+        || this.tutorialTargetId === facilityId
+        || this.tutorialTargetId === spriteSet.areaId;
       this.drawFacilityImage(ctx, image, x, y, width, height, active);
       if (sprite.damageOverlay) {
         const overlay = this.imageFor(sprite.damageOverlay);

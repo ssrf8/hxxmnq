@@ -7,7 +7,7 @@ export interface CharacterView {
 }
 
 export type ParticipationMode = 'public' | 'invite_only' | 'alone';
-export type VisitSource = 'random' | 'invitation' | 'event';
+export type VisitSource = 'random' | 'invitation' | 'event' | 'opportunity_card';
 export type VisitPlanStatus = 'scheduled' | 'arrived' | 'cancelled' | 'deferred';
 export type FacilityStructureStatus = 'normal' | 'abnormal' | 'damaged';
 
@@ -153,6 +153,44 @@ export interface SceneItemContext {
   closing_transaction_id?: string | null;
 }
 
+export type DuelDifficultyTier = 'hard' | 'standard' | 'assisted';
+
+export interface OpportunityCardPending {
+  use_id: string;
+  selected_character_id: string;
+  roll_seed: string;
+  status: 'reserved' | 'arrived';
+}
+
+export interface DuelCardPendingBattle {
+  use_id: string;
+  target_character_id: string;
+  config_id: string;
+  difficulty_tier: DuelDifficultyTier;
+  started_zako_tag_count: number;
+}
+
+export interface DuelVictoryDialogue {
+  settlement_id: string;
+  target_character_id: string;
+  status: 'waiting_request' | 'generating' | 'completed';
+  request_text: string;
+}
+
+export interface CardRuntimeState {
+  settled_use_ids?: string[];
+  opportunity?: {
+    pending?: OpportunityCardPending | null;
+    last_result?: { use_id: string; selected_character_id: string } | null;
+  };
+  duel?: {
+    zako_tag_count?: number;
+    pending_battle?: DuelCardPendingBattle | null;
+    settled_result_ids?: string[];
+    pending_victory_dialogue?: DuelVictoryDialogue | null;
+  };
+}
+
 export interface GardenState {
   meta?: { initialized?: boolean; opening_committed?: boolean; schema_version?: string };
   environment?: { day?: number; time_period?: TimePeriod; season?: string; weather?: string; anomaly_weather?: string | null };
@@ -228,7 +266,10 @@ export interface GardenState {
     rewarded_ids?: string[];
   };
   shop?: { unlocked?: boolean; purchase_settled_ids?: string[]; static_dialogue_seen_ids?: string[] };
-  inventory?: { consumables?: Record<string, number> };
+  inventory?: {
+    consumables?: Record<string, number>;
+    card_runtime?: CardRuntimeState;
+  };
   key_items?: Record<string, {
     id?: string;
     name?: string;
@@ -407,6 +448,7 @@ export interface OpeningInitializeResult {
 export interface OpeningProgress {
   messageSubmitted: boolean;
   assistantResponded: boolean;
+  storyText?: string;
 }
 
 export type MessageTransactionKind = 'opening' | 'interaction' | 'settlement' | 'battle';
@@ -431,6 +473,27 @@ export interface MessageTransactionSnapshot {
   lastError?: string;
 }
 
+export interface OpportunityCardBridgeResult {
+  selectedCharacterId: string | null;
+  message: string;
+  alreadySettled: boolean;
+}
+
+export interface DuelCardBridgeStartResult {
+  targetCharacterId: string;
+  configId: string;
+  difficultyTier: DuelDifficultyTier;
+  alreadyStarted: boolean;
+  config: import('../battle/battle-types').BattleConfig;
+}
+
+export interface DuelCardBridgeSettlementResult {
+  won: boolean;
+  zakoTagCount: number;
+  message: string;
+  alreadySettled: boolean;
+}
+
 export interface GardenBridge {
   readState(): Promise<GardenState>;
   getOpeningContext(): Promise<OpeningContext>;
@@ -442,12 +505,17 @@ export interface GardenBridge {
   listMessages(): Promise<ChatMessageView[]>;
   sendUserMessage(text: string, kind?: MessageTransactionKind): Promise<MessageTransactionSnapshot>;
   sendAnomalyResolution(text: string): Promise<MessageTransactionSnapshot>;
+  sendDuelVictoryRequest(requestText: string, message: string): Promise<MessageTransactionSnapshot>;
   getTransactionState(): Promise<MessageTransactionSnapshot>;
   retryLastTransaction(): Promise<MessageTransactionSnapshot>;
   stageBattleResult(result: BattleResult): Promise<{ messageId: number; alreadyStaged: boolean }>;
   settleDungeonResult(result: BattleResult): Promise<{ rewardCoins: number; alreadySettled: boolean }>;
   applyTestJump(jump: import('./test-tools').TestJumpId): Promise<void>;
   purchaseShopItem(itemId: string, purchaseId: string): Promise<void>;
+  useOpportunityCard(useId: string): Promise<OpportunityCardBridgeResult>;
+  beginDuelCard(targetCharacterId: string, useId: string): Promise<DuelCardBridgeStartResult>;
+  cancelDuelCard(useId: string): Promise<void>;
+  settleDuelCard(result: BattleResult): Promise<DuelCardBridgeSettlementResult>;
   useSpecialItem(
     itemId: string,
     useId: string,

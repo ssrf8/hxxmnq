@@ -27,7 +27,7 @@
 | R15 | 三副本 Boss 独立四状态图集：琪露诺／爱丽丝／咲夜按 `boss_id` 切换待机、施法、受击、击破；透明资源进入预览与内嵌链，妖花保留断链回退 | 所有者供图 | 134/134；琪露诺本地到场目视通过 |
 | R16 | 顶栏三张缩略玩法入口收拢为「幻想乡案内」；原生大面板内提供符卡副本／灵梦小店／背包三张平滑渲染大卡及三项辅助操作；桌面、390px、320px 响应式与入口跳转检查 | 所有者反馈 | 134/134；宽／窄屏离线通过 |
 | R17 | 符卡副本选关改为妖精／森林／结界三卷主题绘卷；正式挑战与无结算演练建立主次层级，桌面三栏、窄屏单列 | 所有者反馈 | 136/136；宽／窄屏离线通过 |
-| R18 | 个人本地版接入所有者提供的 `etama3.png` 敌弹图集，登记为禁止打包／分发的本机素材；敌弹按 shape×hue 取图，未知组合保留几何回退 | 所有者供图与本地用途裁定 | 136/136；弹幕测试 30/30 |
+| R18 | 接入所有者提供并经 AI 生成修改的 `etama3.png` 敌弹图集；敌弹按 shape×hue 取图，未知组合保留几何回退；该素材允许随项目打包分发 | 所有者供图与后续授权澄清 | 136/136；弹幕测试 30/30 |
 | R19 | 顶部 HUD 先提升状态文字可读性，再压缩标签与顶栏高度；手机弹幕主指拖动自动射击，轻触不射、松手停火，双指专注／双击 Bomb／桌面键盘语义保持 | 所有者连续反馈 | 136/136；390×844 实测无溢出 |
 | R20 | 手机端人物／设施目标菜单由透明气泡叠层改为视口固定的底部操作抽屉；人物双列快捷卡、设施单列操作、禁用原因独立显示，操作区支持内部滚动与安全区；关闭／Escape 返回地图焦点，桌面半环保持不变 | 所有者反馈 | 136/136；390×844 设施五操作完整可见、无横向溢出 |
 | R21 | 手机端地图人物按画布宽度独立放大：≤360px 为 1.35 倍、361–520px 为 1.25 倍，桌面保持 1.00 倍；同步放大命中半径、选中光环与活动标签，并轻度扩展多人间距 | 所有者反馈 | 137/137；320×720 与 390×844 离线实看通过，桌面 1200×900 回归通过 |
@@ -36,6 +36,9 @@
 | R23 | 地图相机增加按 cover 尺寸、缩放和画布动态计算的软边界；拖拽越界使用指数阻力，松手后由阻尼弹簧回弹，缩放下限收紧为 1，减少动态效果时直接归位 | 所有者反馈 | 138/138；390×844 横向约 45px、纵向约 47px 软越界后 0.9s 内回稳 |
 | R24 | 修正手机端上下软边界：无合法平移空间的轴改用独立小额度，纵向拉伸由约 47px 降到约 16px；画布先铺设地图边缘渐变底色，避免回弹瞬间闪透明／黑边 | 所有者报错 | 138/138；390×844 纵向峰值 15.73px、0.5s 回稳，横向反馈保持 |
 | R25 | 桌面／手机地图人物比例回调：全局视觉基准由 0.73 调为 0.64；≤360px 视口倍率由 1.35 调为 1.18，361–520px 由 1.25 调为 1.12，形成桌面 0.64／普通手机约 0.72／窄手机约 0.76 的现行有效比例；标签、选中光环、命中半径与多人间距同步收紧，手机命中保留 44px 级下限 | 所有者反馈 + 验收通过 | `check:ui`、138/138、`build:ui` 全绿；人物缩放／待机对齐／琪露诺亮度定向测试通过；桌面／手机目视验收通过 |
+| R26 | 所有者提供的完整透明废墟图确定性正规化为妖精花园／月见温泉／宴会广场三组同画布素材；三座设施进入 `damaged` 时以废墟完整替换正常形态，修复后恢复当前正常形态，不再使用 V3 损坏覆盖层方案 | 所有者供图 | `check:ui`、153/153、`build:ui`、r54 dry-run 全绿；地图合成预览通过，真实 SillyTavern 待验收 |
+| R27 | 补齐灵梦／魔理沙／荷取／米斯蒂娅／萃香五套 `2×2` BOSS 四状态透明图集；八角色对战卡统一按角色 ID 选择独立 sheet，修复爱丽丝／琪露诺／咲夜旧视觉 ID 与渲染映射不一致；原图归档、透明处理报告和五张浏览器实显证据落盘 | 所有者供图 + 确定性透明化 | `check:ui`、154/154、`build:ui`、r54 dry-run 全绿；五名新增角色离线对战弹窗目视通过，控制台无 warning/error；真实 SillyTavern 四状态切换待验收 |
+| R28 | 灵梦／魔理沙 BOSS 四状态图升级为新版；处理脚本支持指定角色增量替换和版本化原图归档，稳定运行路径不变；manifest 记录 v2 当前档、v1 被替代档和哈希报告 | 所有者供图 + 确定性透明化 | `check:ui`、154/154、`build:ui`、r54 dry-run 全绿；两场新版对战暂停态目视通过，页面控制台无 warning/error |
 
 ## 变更文件
 
@@ -53,7 +56,9 @@
 | `旧素材/src/assets/maps/garden-base-expanded-empty-v1.png` | R8 历史运行时底图，已归档，不再由当前 manifest 使用 |
 | `src/assets/maps/garden-base-owner-candidate-v2.png` | 当前 `1448×1086` 正式运行时底图；所有者已批准其设施叠图方向 |
 | `src/assets/world/map-facilities/{magic-greenhouse,fairy-garden,moon-spring,banquet-plaza}/*-v2.png` | 所有者批准的 13 种正式设施形态与 3 张损坏覆盖层；由 manifest 几何和运行态正式键驱动 |
+| `src/assets/world/map-facilities/{fairy-garden,moon-spring,banquet-plaza}/*-ruins-v3.png` | 所有者废墟源图按三组现行画布正规化后的完整损坏替换图；只在 `damaged` 状态替换当前正常形态 |
 | `src/assets/asset-manifest.json` / `scripts/build-ui.mjs` | 登记 `maps.garden_base` 并由清单选择、复制和内嵌运行时底图 |
+| `scripts/prepare-shared-facility-ruins.py` / `project/shared-facility-ruin-report.json` | 共享废墟的可复现预乘 alpha 缩放、透明像素清理、落位与完整输入／输出哈希报告 |
 | `src/ui/sprite-actor.ts` | 新增 `drawOutlineGlow`（source-in 染色 + 模糊双叠，含浮动/摆动同步） |
 | `src/ui/shop-view.ts` / `inventory-view.ts` | 价签 `gg-price`、空状态 `gg-empty` |
 | `src/assets/ui/opening-hero-source-v1.png` | 所有者主视觉原图存档（2.9MB，未入清单，不进卡） |
@@ -63,7 +68,10 @@
 | `旧素材/src/assets/ui/target-action-*.png` | 角色点击菜单四张历史参考原图；已归档，最终运行时不读取、不复制、不内嵌，徽章完全由 HTML/CSS 绘制 |
 | `src/assets/ui/gensokyo-gal-shrine-background-v1.png` | 所有者提供的 GAL 神社背景原图；由清单登记，离线预览复制文件，嵌入式运行时注入 data URL |
 | `src/assets/battle/boss/{cirno,alice,sakuya}-battle-sheet-v1.png` | 三副本独立 `2×2` 四状态 Boss 透明图集；按 `presentation.boss_id` 选择，chroma 维护源不进产物 |
-| `src/assets/battle/effects/battle-bullets-etama3-local-v1.png` | 所有者提供的个人本地敌弹图集；仅供本机预览，manifest 明确禁止公开打包或分发；运行时未知裁切组合回退几何绘制 |
+| `src/assets/battle/boss/{reimu,marisa,nitori,mystia,suika}-battle-sheet-v1.png` | 任意角色对战卡新增的五套 `2×2` 四状态 Boss 透明图集；与既有三人共同组成八角色独立视觉 |
+| `scripts/prepare-character-boss-sheets.py` / `project/character-boss-sheet-preparation-report.json` / `project/runtime-qa/` | 五套所有者黑底源图的可复现透明化、输入／输出哈希与逐格统计，以及离线浏览器逐角色实显截图 |
+| `project/character-boss-sheet-replacement-report-2026-07-30.json` / `project/character-boss-sheet-replacement-preview.png` / `旧素材/素材处理/battle-boss-owner-source-v2/` | 灵梦／魔理沙新版源图归档、运行时输出哈希、逐格统计与透明总览；旧 v1 归档不覆盖 |
+| `src/assets/battle/effects/battle-bullets-etama3-local-v1.png` | 所有者提供并经 AI 生成修改的敌弹图集，允许随项目打包分发；运行时未知裁切组合回退几何绘制 |
 | `src/battle/battle-input.ts` | 手机主指拖动超过轻触阈值后自动连射，抬起／取消停止；第二指专注、双击 Bomb、鼠标与键盘行为保持 |
 | `src/ui/open-garden-rules.ts` | 只从正式状态派生教程步骤、完成数、当前步骤与下一步，不新增持久化 UI 状态 |
 | `src/ui/test-tools.ts` | 教程断点、M1/M2、道具恢复及八名角色在场编排的受控测试快照 |
@@ -80,6 +88,7 @@
 - world_assets 的既有 states 图集（RGBA）与新底图透视不一致，继续只服务设施页；地图设施必须重新制作独立透明贴图。空底图阶段统一使用缩小后的贴地光环，旧手描轮廓停用。
 - 浏览器页面缩放与地图世界缩放是两条独立链路：前者通过 `--gg-browser-zoom-compensation` 只补偿角色与目标菜单的视觉尺寸，后者继续由地图滚轮逻辑处理并保持指针锚点；不要再用统一 transform 把弹窗和地图一起缩放。
 - R25 是当前地图人物尺寸基线：桌面有效比例 0.64、361–520px 约 0.72、≤360px 约 0.76。视觉尺寸与交互命中解耦，手机命中直径保留约 44 CSS px 下限；R21 的 1.35／1.25 仅为历史参数，不再代表现行方案。
+- R26 是当前三座可损坏设施的素材语义：妖精花园、月见温泉、宴会广场在 `damaged` 时画完整废墟替换图，不能再把正常建筑与废墟叠加；魔法温室没有独立损坏替换图。
 - “离开”与弹窗关闭属于同一语义，目标动作列表必须过滤 `mode=close`／`id=leave`，不得重新呈现第二个退出按钮。
 - GAL 背景唯一来源为 `asset-manifest.json/ui_assets.gal_shrine_background`；`.gg-gal::before` 与舞台 `::after` 不再生成月亮、雾气或条纹遮罩。姓名牌必须位于对白框裁切多边形内部。
 

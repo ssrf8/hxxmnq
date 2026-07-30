@@ -22,6 +22,21 @@ const BANNER_MS = 2400;
 /** Damage-tier accents: S0 intact / S1 light / S2 heavy. */
 const DAMAGE_ACCENTS = ['#7ad0ff', '#ffc94f', '#ff5a6b'] as const;
 
+export const CHARACTER_BOSS_SHEETS: Readonly<Record<string, BattleSheetKey>> = {
+  reimu: 'boss_reimu',
+  marisa: 'boss_marisa',
+  alice: 'boss_alice',
+  nitori: 'boss_nitori',
+  cirno: 'boss_cirno',
+  mystia: 'boss_mystia',
+  suika: 'boss_suika',
+  sakuya: 'boss_sakuya',
+};
+
+export function characterBossSheet(bossId: string | undefined): BattleSheetKey | undefined {
+  return bossId ? CHARACTER_BOSS_SHEETS[bossId] : undefined;
+}
+
 function prefersReducedMotion() {
   try {
     return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -114,17 +129,13 @@ export function renderBattleFrame(
     if (phase.kind === 'spell' && boss.hp > 0) {
       drawSpellCircle(ctx, boss.x, boss.y, gameTimeMs, reduced, phase.captureFailed);
     }
-    const characterBossSheet = ({
-      cirno: 'boss_cirno',
-      alice: 'boss_alice',
-      sakuya: 'boss_sakuya',
-    } as const)[sim.config.presentation?.boss_id as 'cirno' | 'alice' | 'sakuya'] as BattleSheetKey | undefined;
+    const characterSheet = characterBossSheet(sim.config.presentation?.boss_id);
     const hitActive = !reduced && gameTimeMs < boss.hitFlashUntil;
     const bossPose = boss.hp <= 0 ? 'break' : hitActive ? 'hit' : phase.index === 0 ? 'phase1' : 'phase2';
-    const bossFrame = characterBossSheet
+    const bossFrame = characterSheet
       ? (`boss_character_${bossPose}` as const)
       : (`boss_${bossPose}` as const);
-    const bossDrawOptions = { scale: 1, alpha: 1, ...(characterBossSheet ? { sheet: characterBossSheet } : {}) };
+    const bossDrawOptions = { scale: 1, alpha: 1, ...(characterSheet ? { sheet: characterSheet } : {}) };
     const bossDrawn = drawAtlasFrame(ctx, atlas, bossFrame, boss.x, boss.y, bossDrawOptions);
     if (!bossDrawn) {
       ctx.beginPath();

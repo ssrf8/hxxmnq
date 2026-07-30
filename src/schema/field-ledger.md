@@ -31,6 +31,12 @@
 | `battle.run_count` / `last_run` / `rewarded_ids` | 副本次数、最近结果、最多 256 个奖励 ID | 本地副本事务 | 顶栏、结果页、幂等校验 | 每个 ID 只能奖励并推进时段一次；FIFO 清理 |
 | `shop` | 解锁、最多 256 个购买 ID、最多 128 个静态对话 ID | 本地商店事务、迁移器 | 小店入口与视图 | 妖花核心完成后解锁；未知商品和重复 ID 拒绝 |
 | `inventory.consumables` | 消耗品 ID 到 0..99 数量 | 本地商店与道具事务 | 小店、背包、道具使用 | 购买与使用原子增减；异变卡失败时不消费；玩家不能自建 item ID |
+| `inventory.card_runtime.settled_use_ids` | 最多 256 个卡片使用 ID | 本地卡片事务、迁移器 | 卡片幂等校验 | 只追加已复读成功的机遇卡／对战卡使用；去重并 FIFO 裁剪 |
+| `inventory.card_runtime.opportunity` | null pending + 最近一次使用结果 | 本地机遇卡事务、迁移器 | 机遇卡恢复与结果提示 | 失败整笔回滚；成功到场后清空 pending；模型禁写 |
+| `inventory.card_runtime.duel.zako_tag_count` | integer/0，范围 0..99 | 本地对战卡结算、迁移器 | 对战难度派生、背包与结果提示 | 失败 +1、胜利 -1 且不越界；0 枚为极难、1–2 枚为标准、3 枚起为援助 |
+| `inventory.card_runtime.duel.pending_battle` | null 或唯一对战卡战斗预留 | 本地对战卡事务、迁移器 | 战斗入口、可信结果校验与刷新恢复 | 开战前锁定目标/配置/`hard-standard-assisted` 难度；取消不扣卡并清空；非法旧值迁移清理 |
+| `inventory.card_runtime.duel.settled_result_ids` | 最多 256 个对战卡结果 ID | 本地对战卡结算、迁移器 | 结果幂等校验 | 不复用副本奖励 ID；去重并 FIFO 裁剪 |
+| `inventory.card_runtime.duel.pending_victory_dialogue` | null 或唯一胜利要求事务 | 本地对战卡结算与胜利消息事务 | 胜利要求 UI、最小剧情投影 | 只有胜利创建；要求提交后正文与事务 ID 锁定为 generating；完整 assistant 回复及变量阶段结束后清空；刷新可按真实 user 消息恢复；失败只重试对话，不重复结算战斗 |
 | `key_items` | 关键物品字典 | 确定性开场 bridge、模型 | 模型、UI | 开场只确认庭守钥取得与苏醒；关键物不得无因删除 |
 | `key_items.sakuya_watch` | 获得、日冷却、累计使用、最近地点/时段、时间痕迹与察觉者 | 本地商店、怀表使用与迁移器 | 小店、背包、登记事件投影 | 每日最多一次；不推进或回滚时段；不缩短 12/24/28 派生计时 |
 | `anomaly_cycle.pending_activation` | null 或预留启用事务 | bridge 异变预留 | 启用调用、背包 | 成功提交或取消后置空；失败不扣卡；旧存档默认 null |

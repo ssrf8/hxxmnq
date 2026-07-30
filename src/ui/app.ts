@@ -17,10 +17,17 @@ import {
   narrativeBattleResult,
 } from './greenhouse-rules';
 import { dungeonBlock } from './dungeon-rules';
+import { duelCardBlock, duelDifficultyForTags, getDuelProfile, listDuelProfiles } from './duel-card-rules';
+import { buildDuelVictoryMessage } from './duel-victory-projection';
 import { renderShopView } from './shop-view';
 import { renderInventoryView } from './inventory-view';
-import { shopBlock, shopMessage } from './shop-rules';
-import { openGardenOpportunityPanel, acknowledgeGraduation, graduationMessage } from './open-garden-rules';
+import { listShopItems, shopBlock, shopMessage } from './shop-rules';
+import {
+  openGardenOpportunityPanel,
+  acknowledgeGraduation,
+  graduationMessage,
+  tutorialProgress,
+} from './open-garden-rules';
 import { buildPromptContext } from './prompt-context';
 import { parseAnomalyClueReceipt } from './anomaly-rules';
 import { consumableCount, listInventoryCatalog } from './inventory-rules';
@@ -91,10 +98,29 @@ const facilityVisual = byId<HTMLElement>('gg-facility-visual');
 const facilityImage = byId<HTMLImageElement>('gg-facility-image');
 const workAnimation = byId<HTMLElement>('gg-work-animation');
 const facilityConfirm = byId<HTMLButtonElement>('gg-facility-confirm');
+const tutorialGuide = byId<HTMLElement>('gg-tutorial-guide');
+const tutorialGuideProgress = byId<HTMLElement>('gg-tutorial-guide-progress');
+const tutorialGuideTitle = byId<HTMLElement>('gg-tutorial-guide-title');
+const tutorialGuideText = byId<HTMLElement>('gg-tutorial-guide-text');
+const tutorialGuideSkip = byId<HTMLButtonElement>('gg-tutorial-guide-skip');
 const launcherDialog = byId<HTMLDialogElement>('gg-launcher-dialog');
 const launcherButton = byId<HTMLButtonElement>('gg-open-launcher');
 const battleDialog = byId<HTMLDialogElement>('gg-battle-dialog');
 const dungeonDialog = byId<HTMLDialogElement>('gg-dungeon-dialog');
+const duelDialog = byId<HTMLDialogElement>('gg-duel-dialog');
+const duelVictoryDialog = byId<HTMLDialogElement>('gg-duel-victory-dialog');
+const duelVictoryForm = byId<HTMLFormElement>('gg-duel-victory-form');
+const duelVictoryRequest = byId<HTMLTextAreaElement>('gg-duel-victory-request');
+const internalDialog = byId<HTMLDialogElement>('gg-internal-dialog');
+const internalDialogForm = byId<HTMLFormElement>('gg-internal-dialog-form');
+const internalDialogTitle = byId<HTMLElement>('gg-internal-dialog-title');
+const internalDialogMessage = byId<HTMLElement>('gg-internal-dialog-message');
+const internalDialogInputWrap = byId<HTMLElement>('gg-internal-dialog-input-wrap');
+const internalDialogLabel = byId<HTMLLabelElement>('gg-internal-dialog-label');
+const internalDialogInput = byId<HTMLInputElement>('gg-internal-dialog-input');
+const internalDialogTextarea = byId<HTMLTextAreaElement>('gg-internal-dialog-textarea');
+const internalDialogCancel = byId<HTMLButtonElement>('gg-internal-dialog-cancel');
+const internalDialogConfirm = byId<HTMLButtonElement>('gg-internal-dialog-confirm');
 const battleCanvas = byId<HTMLCanvasElement>('gg-battle-canvas');
 const battleFocusBtn = byId<HTMLButtonElement>('gg-battle-focus');
 const battleBombBtn = byId<HTMLButtonElement>('gg-battle-bomb');
@@ -127,6 +153,97 @@ const mapFacilitySprites = (() => {
     return {};
   }
 })();
+
+interface InternalDialogOptions {
+  title: string;
+  message: string;
+  confirmLabel?: string;
+  input?: {
+    label: string;
+    value?: string;
+    maxLength?: number;
+    multiline?: boolean;
+    required?: boolean;
+  };
+}
+
+let internalDialogResolve: ((value: string | null) => void) | null = null;
+let internalDialogOpener: HTMLElement | null = null;
+
+function finishInternalDialog(value: string | null) {
+  const resolve = internalDialogResolve;
+  if (!resolve) return;
+  internalDialogResolve = null;
+  if (internalDialog.open) internalDialog.close();
+  const opener = internalDialogOpener;
+  internalDialogOpener = null;
+  resolve(value);
+  queueMicrotask(() => opener?.focus());
+}
+
+function showInternalDialog(options: InternalDialogOptions): Promise<string | null> {
+  if (internalDialogResolve) {
+    return Promise.reject(new Error('已有一个内置弹窗正在等待处理'));
+  }
+  internalDialogOpener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  internalDialogTitle.textContent = options.title;
+  internalDialogMessage.textContent = options.message;
+  internalDialogConfirm.textContent = options.confirmLabel ?? '确认';
+  internalDialogInputWrap.hidden = !options.input;
+  internalDialogInput.hidden = true;
+  internalDialogInput.disabled = true;
+  internalDialogInput.required = false;
+  internalDialogTextarea.hidden = true;
+  internalDialogTextarea.disabled = true;
+  internalDialogTextarea.required = false;
+
+  let activeInput: HTMLInputElement | HTMLTextAreaElement | null = null;
+  if (options.input) {
+    internalDialogLabel.textContent = options.input.label;
+    activeInput = options.input.multiline ? internalDialogTextarea : internalDialogInput;
+    internalDialogLabel.htmlFor = activeInput.id;
+    activeInput.hidden = false;
+    activeInput.disabled = false;
+    activeInput.required = options.input.required ?? false;
+    activeInput.maxLength = options.input.maxLength ?? 2048;
+    activeInput.value = options.input.value ?? '';
+  }
+
+  return new Promise((resolve, reject) => {
+    internalDialogResolve = resolve;
+    try {
+      internalDialog.showModal();
+      queueMicrotask(() => (activeInput ?? internalDialogConfirm).focus());
+    } catch (error) {
+      internalDialogResolve = null;
+      internalDialogOpener = null;
+      reject(error);
+    }
+  });
+}
+
+async function confirmInApp(options: Omit<InternalDialogOptions, 'input'>) {
+  return (await showInternalDialog(options)) !== null;
+}
+
+function promptInApp(options: InternalDialogOptions & { input: NonNullable<InternalDialogOptions['input']> }) {
+  return showInternalDialog(options);
+}
+
+internalDialogForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  if (!internalDialogForm.reportValidity()) return;
+  const activeInput = internalDialogTextarea.disabled ? internalDialogInput : internalDialogTextarea;
+  finishInternalDialog(internalDialogInputWrap.hidden ? 'confirmed' : activeInput.value);
+});
+internalDialogCancel.addEventListener('click', () => finishInternalDialog(null));
+internalDialog.addEventListener('cancel', (event) => {
+  event.preventDefault();
+  finishInternalDialog(null);
+});
+internalDialog.addEventListener('click', (event) => {
+  if (event.target === internalDialog) finishInternalDialog(null);
+});
 const characterSprites = resolveCharacterSprites(assetBase, document.documentElement.dataset);
 const reimuSpriteSource = characterSprites.reimu.idleSource;
 const reimuPortraitSource = document.documentElement.dataset.reimuPortraitSrc || reimuSpriteSource;
@@ -140,10 +257,20 @@ const battlePlayerSheetSource = document.documentElement.dataset.battlePlayerSrc
   || `${assetBase}/battle/player/keycraft-player-sheet-v1.png`;
 const battleBossSheetSource = document.documentElement.dataset.battleBossSrc
   || `${assetBase}/battle/boss/greenhouse-flower-core-sheet-v1.png`;
+const battleBossReimuSheetSource = document.documentElement.dataset.battleBossReimuSrc
+  || `${assetBase}/battle/boss/reimu-battle-sheet-v1.png`;
+const battleBossMarisaSheetSource = document.documentElement.dataset.battleBossMarisaSrc
+  || `${assetBase}/battle/boss/marisa-battle-sheet-v1.png`;
 const battleBossCirnoSheetSource = document.documentElement.dataset.battleBossCirnoSrc
   || `${assetBase}/battle/boss/cirno-battle-sheet-v1.png`;
 const battleBossAliceSheetSource = document.documentElement.dataset.battleBossAliceSrc
   || `${assetBase}/battle/boss/alice-battle-sheet-v1.png`;
+const battleBossNitoriSheetSource = document.documentElement.dataset.battleBossNitoriSrc
+  || `${assetBase}/battle/boss/nitori-battle-sheet-v1.png`;
+const battleBossMystiaSheetSource = document.documentElement.dataset.battleBossMystiaSrc
+  || `${assetBase}/battle/boss/mystia-battle-sheet-v1.png`;
+const battleBossSuikaSheetSource = document.documentElement.dataset.battleBossSuikaSrc
+  || `${assetBase}/battle/boss/suika-battle-sheet-v1.png`;
 const battleBossSakuyaSheetSource = document.documentElement.dataset.battleBossSakuyaSrc
   || `${assetBase}/battle/boss/sakuya-battle-sheet-v1.png`;
 const battleEffectsSheetSource = document.documentElement.dataset.battleEffectsSrc
@@ -153,8 +280,13 @@ const battleBulletsLocalSheetSource = document.documentElement.dataset.battleBul
 const battleAtlasSources = {
   player: battlePlayerSheetSource,
   boss: battleBossSheetSource,
-  boss_cirno: battleBossCirnoSheetSource,
+  boss_reimu: battleBossReimuSheetSource,
+  boss_marisa: battleBossMarisaSheetSource,
   boss_alice: battleBossAliceSheetSource,
+  boss_nitori: battleBossNitoriSheetSource,
+  boss_cirno: battleBossCirnoSheetSource,
+  boss_mystia: battleBossMystiaSheetSource,
+  boss_suika: battleBossSuikaSheetSource,
   boss_sakuya: battleBossSakuyaSheetSource,
   effects: battleEffectsSheetSource,
   bullets_local: battleBulletsLocalSheetSource,
@@ -178,7 +310,8 @@ let closurePresented = false;
 let singleShotEventPresentation = false;
 let bootRestoredSession = false;
 let pendingBattleResult: BattleResult | null = null;
-let activeBattleKind: 'flower_core' | 'dungeon' | 'practice' = 'flower_core';
+let activeBattleKind: 'flower_core' | 'dungeon' | 'practice' | 'duel' = 'flower_core';
+let activeDuelUseId = '';
 let activeSceneId = '';
 let submissionInFlight = false;
 let automaticTaskInFlight = false;
@@ -187,6 +320,9 @@ let inviteFeedback: {
   title: string;
   message: string;
 } | null = null;
+let tutorialGuideChatId = '';
+let tutorialGuideStorageKey = '';
+let tutorialGuideSkipped = false;
 
 const GREENHOUSE_RESEARCH_INPUT_MAX_LENGTH = 120;
 
@@ -203,6 +339,104 @@ function setStatus(text: string, error = false, tone?: 'success' | 'info') {
   else delete liveStatus.dataset.tone;
 }
 
+interface TutorialGuideRoute {
+  targetId: string;
+  targetLabel: string;
+  actionIds: string[];
+  actionLabel: string;
+}
+
+const TUTORIAL_GUIDE_ROUTES: Record<string, TutorialGuideRoute> = {
+  boundary: { targetId: 'reimu', targetLabel: '博丽灵梦', actionIds: ['inspect_boundary'], actionLabel: '检查结界' },
+  'main-house': { targetId: 'main_house', targetLabel: '旧主屋', actionIds: ['repair'], actionLabel: '维修' },
+  'magic-trace': { targetId: 'greenhouse_plot', targetLabel: '温室旧地基', actionIds: ['investigate_magic_trace'], actionLabel: '调查魔力痕迹' },
+  inspiration: {
+    targetId: 'greenhouse_plot',
+    targetLabel: '温室旧地基',
+    actionIds: ['investigate_growth', 'hear_marisa_plan', 'study_grandfather_blueprint'],
+    actionLabel: '任意一个灵感入口',
+  },
+  foundation: { targetId: 'greenhouse_plot', targetLabel: '温室旧地基', actionIds: ['clear_greenhouse_foundation'], actionLabel: '清理旧地基' },
+  greenhouse: { targetId: 'greenhouse_plot', targetLabel: '温室旧地基', actionIds: ['build_basic_magic_greenhouse'], actionLabel: '建造基础温室' },
+  'first-use': { targetId: 'greenhouse_plot', targetLabel: '魔法温室', actionIds: ['greenhouse_first_use'], actionLabel: '第一次使用' },
+  research: { targetId: 'greenhouse_plot', targetLabel: '魔法温室', actionIds: ['greenhouse_research_talk'], actionLabel: '温室研究交流' },
+  'flower-core': { targetId: 'greenhouse_plot', targetLabel: '魔法温室', actionIds: ['investigate_flower_core'], actionLabel: '调查妖花核心' },
+  'free-growth': { targetId: 'greenhouse_plot', targetLabel: '魔法温室', actionIds: ['organize_free_growth_proposal'], actionLabel: '整理自由生长方案' },
+  'parallel-proposals': {
+    targetId: 'greenhouse_plot',
+    targetLabel: '魔法温室',
+    actionIds: ['invite_alice_maintenance_assessment', 'commission_nitori_engineering_survey'],
+    actionLabel: '尚未完成的方案',
+  },
+  'select-form': {
+    targetId: 'greenhouse_plot',
+    targetLabel: '魔法温室',
+    actionIds: ['select_free_growth', 'select_doll_maintenance', 'select_kappa_automation'],
+    actionLabel: '任意一个首次选型方案',
+  },
+};
+
+function clearTutorialFocus() {
+  document.querySelectorAll('.gg-tutorial-focus').forEach((node) => node.classList.remove('gg-tutorial-focus'));
+}
+
+function renderTutorialGuide() {
+  clearTutorialFocus();
+  gardenMap.setTutorialTarget(null);
+  const progress = tutorialProgress(state);
+  const activeActionId = pendingAction?.id ?? activeSessionActionId ?? '';
+  const actionStep = currentView !== 'garden'
+    ? progress.steps.find((item) => TUTORIAL_GUIDE_ROUTES[item.id]?.actionIds.includes(activeActionId))
+    : null;
+  const step = actionStep ?? progress.currentStep;
+  if (tutorialGuideSkipped || !state.meta?.opening_committed || !step || step.id === 'opening') {
+    tutorialGuide.hidden = true;
+    return;
+  }
+  const route = TUTORIAL_GUIDE_ROUTES[step.id];
+  if (!route) {
+    tutorialGuide.hidden = true;
+    return;
+  }
+
+  tutorialGuide.hidden = false;
+  const stepIndex = progress.steps.findIndex((item) => item.id === step.id) + 1;
+  tutorialGuideProgress.textContent = `新手指引 · 第 ${stepIndex}/${progress.totalCount} 步`;
+  tutorialGuideTitle.textContent = step.title;
+
+  let instruction = step.instruction;
+  if (currentView === 'gal') {
+    instruction = '阅读当前剧情并点击对白框继续。剧情播放完毕后会返回庭园，再指向下一项目标。';
+    dialogueBox.classList.add('gg-tutorial-focus');
+  } else if (currentView === 'facility' && pendingAction && route.actionIds.includes(pendingAction.id)) {
+    instruction = `确认行动信息后，点击“${facilityConfirm.textContent || `确认${pendingAction.label}`}”。`;
+    facilityConfirm.classList.add('gg-tutorial-focus');
+  } else if (currentView !== 'garden') {
+    instruction = '先返回庭园地图，指引会继续标出下一目标。';
+  } else if (!targetMenu.hidden && activeTarget?.id === route.targetId) {
+    instruction = `在${route.targetLabel}的操作菜单中点击“${route.actionLabel}”。`;
+    Array.from(targetActionList.querySelectorAll<HTMLButtonElement>('[data-action-id]'))
+      .filter((button) => route.actionIds.includes(button.dataset.actionId ?? ''))
+      .forEach((button) => button.classList.add('gg-tutorial-focus'));
+  } else {
+    instruction = `点击地图上的${route.targetLabel}。`;
+    gardenMap.setTutorialTarget(route.targetId);
+  }
+  tutorialGuideText.textContent = instruction;
+}
+
+async function syncTutorialGuidePreference() {
+  const context = await bridge.getOpeningContext();
+  if (context.chatId === tutorialGuideChatId) return;
+  tutorialGuideChatId = context.chatId;
+  tutorialGuideStorageKey = `gensokyo-garden:tutorial-guide-skipped:${encodeURIComponent(context.chatId || 'unknown')}`;
+  try {
+    tutorialGuideSkipped = localStorage.getItem(tutorialGuideStorageKey) === '1';
+  } catch {
+    tutorialGuideSkipped = false;
+  }
+}
+
 function setView(view: SceneMode) {
   currentView = view;
   // 供 CSS 按当前视图切换外壳形态（庭园视图去边框、地图撑满）。
@@ -212,6 +446,7 @@ function setView(view: SceneMode) {
     if (node) node.hidden = name !== view;
   }
   if (view !== 'garden') hideTargetMenu();
+  renderTutorialGuide();
 }
 
 function openSettings() {
@@ -675,6 +910,7 @@ function createBubbleButton(
   text.textContent = label;
   button.append(dot, text);
   if (options.title) button.title = options.title;
+  if (options.action) button.dataset.actionId = options.action.id;
   button.disabled = Boolean(options.disabled);
   if (button.disabled && options.title) {
     const reason = document.createElement('span');
@@ -761,6 +997,7 @@ function renderTargetMenu(target: InteractionTarget, anchor: { x: number; y: num
     byId<HTMLButtonElement>('gg-target-close').focus({ preventScroll: true });
   }
   gardenMap.setSelected(target.id);
+  renderTutorialGuide();
 }
 
 async function chooseTargetAction(action: TargetAction) {
@@ -969,11 +1206,13 @@ function returnToGardenAfterFixedScene() {
 async function performRefresh() {
   app.setAttribute('aria-busy', 'true');
   try {
+    await syncTutorialGuidePreference();
     state = await bridge.readState();
     await opening.render(state);
     renderHeader();
     renderPendingTasks();
     gardenMap.update(state);
+    renderTutorialGuide();
     databaseSync = await syncOpeningDatabase(state);
     const transaction = await bridge.getTransactionState();
     await renderDiagnostics(transaction.phase, transaction.lastError);
@@ -984,6 +1223,8 @@ async function performRefresh() {
     if (currentView === 'shop') renderShop();
     if (currentView === 'inventory') renderInventory();
     if (currentView === 'opportunities') renderOpportunities();
+    const pendingVictory = state.inventory?.card_runtime?.duel?.pending_victory_dialogue;
+    if (pendingVictory && !duelVictoryDialog.open && !battleDialog.open) openDuelVictoryDialog();
     const graduated = graduationMessage(state);
     if (graduated && !state.ui_flags?.graduation_acknowledged) {
       setStatus(graduated);
@@ -1063,6 +1304,15 @@ const opening = new OpeningController(
   setStatus,
   () => void refresh(),
 );
+
+tutorialGuideSkip.addEventListener('click', () => {
+  tutorialGuideSkipped = true;
+  try {
+    if (tutorialGuideStorageKey) localStorage.setItem(tutorialGuideStorageKey, '1');
+  } catch { /* The guide still stays hidden for the current session. */ }
+  renderTutorialGuide();
+  setStatus('已跳过界面指引；剧情进度与可执行任务不会被跳过。');
+});
 
 // 运行壳的默认视图是庭园，但启动路径不经过 setView；
 // 这里先写入视图标记，保证首次进入庭院就应用全屏地图布局，
@@ -1275,6 +1525,22 @@ async function settleBattleResult(result: BattleResult) {
   }
   setBattleStatus('正在把唯一结算结果写入 battle.current 并复读校验……');
   try {
+    if (activeBattleKind === 'duel') {
+      const settled = await bridge.settleDuelCard(result);
+      pendingBattleResult = null;
+      activeDuelUseId = '';
+      if (battleDialog.open) battleDialog.close();
+      await refresh();
+      if (settled.won) {
+        openDuelVictoryDialog();
+        setStatus('符卡对战胜利。请提出一项对方必须答应的要求。', false, 'success');
+      } else {
+        setView('inventory');
+        renderInventory();
+        setStatus(settled.message);
+      }
+      return;
+    }
     if (activeBattleKind === 'dungeon') {
       const settled = await bridge.settleDungeonResult(result);
       pendingBattleResult = null;
@@ -1434,6 +1700,145 @@ function startDungeonBattle(title: string, config: BattleConfig, kind: 'dungeon'
   );
   battle.start();
   bindBattleSession();
+}
+
+function duelDifficultyCopy(tagCount: number) {
+  const tier = duelDifficultyForTags(tagCount);
+  return tier === 'hard'
+    ? { tier, label: '极难', detail: '0 枚标签 · 原作 Hard 风格五阶段 · 低容错高密度' }
+    : tier === 'assisted'
+      ? { tier, label: '援助', detail: '3 枚以上标签 · 三阶段并提高生命、Bomb 与决死容错' }
+      : { tier, label: '标准', detail: '1–2 枚标签 · 四阶段标准压力' };
+}
+
+function launchDuelBattle(title: string, config: BattleConfig, useId: string) {
+  activeDuelUseId = useId;
+  activeBattleKind = 'duel';
+  if (duelDialog.open) duelDialog.close();
+  destroyBattleSession();
+  battleDialog.showModal();
+  byId('gg-battle-title').textContent = title;
+  byId<HTMLButtonElement>('gg-battle-narrative').hidden = true;
+  byId<HTMLButtonElement>('gg-battle-retry').hidden = true;
+  setBattleStatus('对战卡挑战：方向键/WASD 移动，Z 射击，Shift 专注，X Bomb；有效结算后才消费卡片。失败只增加杂鱼标签。');
+  battle = new BattleEngine(
+    battleCanvas,
+    config,
+    async (result) => { await settleBattleResult(result); },
+    { atlasSources: battleAtlasSources },
+  );
+  battle.start();
+  bindBattleSession();
+}
+
+async function beginDuelAgainst(characterId: string, useId = `duel:${characterId}:${Date.now().toString(36)}`) {
+  try {
+    const started = await bridge.beginDuelCard(characterId, useId);
+    const profile = getDuelProfile(characterId);
+    launchDuelBattle(
+      `对战卡 · ${profile?.display_name ?? characterId} · ${duelDifficultyCopy(state.inventory?.card_runtime?.duel?.zako_tag_count ?? 0).label}`,
+      started.config as BattleConfig,
+      useId,
+    );
+    await refresh();
+  } catch (error) {
+    setStatus(`无法开始对战卡：${error instanceof Error ? error.message : String(error)}`, true);
+  }
+}
+
+function openDuelChooser() {
+  const targets = byId('gg-duel-targets');
+  const summary = byId('gg-duel-summary');
+  const tagCount = state.inventory?.card_runtime?.duel?.zako_tag_count ?? 0;
+  const difficulty = duelDifficultyCopy(tagCount);
+  summary.textContent = `杂鱼标签 ${tagCount} 枚 · 本次锁定为${difficulty.label}难度。${difficulty.detail}`;
+  const fragment = document.createDocumentFragment();
+  const pending = state.inventory?.card_runtime?.duel?.pending_battle;
+  if (pending) {
+    const profile = getDuelProfile(pending.target_character_id);
+    const resume = document.createElement('button');
+    resume.type = 'button';
+    resume.className = 'gg-duel-resume';
+    resume.textContent = `恢复与${profile?.display_name ?? pending.target_character_id}的${duelDifficultyCopy(pending.started_zako_tag_count).label}对战`;
+    resume.addEventListener('click', () => void beginDuelAgainst(pending.target_character_id, pending.use_id));
+    fragment.append(resume);
+  } else {
+    for (const profile of listDuelProfiles()) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'gg-duel-target';
+      button.dataset.characterId = profile.character_id;
+      const name = document.createElement('strong');
+      name.textContent = profile.display_name;
+      const detail = document.createElement('small');
+      detail.textContent = `${difficulty.label}难度 · 胜利进入要求剧情，失败标签 +1`;
+      button.append(name, detail);
+      const blocked = duelCardBlock(state, profile.character_id);
+      button.disabled = Boolean(blocked);
+      if (blocked) button.title = blocked;
+      button.addEventListener('click', () => void beginDuelAgainst(profile.character_id));
+      fragment.append(button);
+    }
+  }
+  targets.replaceChildren(fragment);
+  duelDialog.showModal();
+}
+
+function openDuelVictoryDialog() {
+  const pending = state.inventory?.card_runtime?.duel?.pending_victory_dialogue;
+  if (!pending) return;
+  const profile = getDuelProfile(pending.target_character_id);
+  byId('gg-duel-victory-summary').textContent = `你已战胜${profile?.display_name ?? pending.target_character_id}。本次要求在提交后锁定，对方必须接受。`;
+  duelVictoryRequest.value = pending.request_text;
+  duelVictoryRequest.disabled = pending.status === 'generating';
+  byId<HTMLButtonElement>('gg-duel-victory-submit').textContent = pending.status === 'generating'
+    ? '继续未完成的胜利剧情'
+    : '提交要求并进入剧情';
+  byId('gg-duel-victory-status').textContent = pending.status === 'generating'
+    ? '要求已锁定；如上一轮生成中断，可从这里安全继续。'
+    : '';
+  if (!duelVictoryDialog.open) duelVictoryDialog.showModal();
+  if (!duelVictoryRequest.disabled) duelVictoryRequest.focus();
+}
+
+async function submitDuelVictoryRequest() {
+  const pending = state.inventory?.card_runtime?.duel?.pending_victory_dialogue;
+  if (!pending) return;
+  const requestText = (pending.status === 'generating' ? pending.request_text : duelVictoryRequest.value).trim();
+  const status = byId('gg-duel-victory-status');
+  const submit = byId<HTMLButtonElement>('gg-duel-victory-submit');
+  if (!requestText) {
+    status.textContent = '请先填写一项要求。';
+    duelVictoryRequest.focus();
+    return;
+  }
+  submit.disabled = true;
+  status.textContent = pending.status === 'generating' ? '正在恢复胜利剧情……' : '要求已锁定，正在等待对方回应……';
+  try {
+    const message = buildDuelVictoryMessage(state, requestText);
+    if (pending.status === 'generating') {
+      try {
+        await bridge.retryLastTransaction();
+      } catch {
+        await bridge.sendDuelVictoryRequest(requestText, message);
+      }
+    } else {
+      await bridge.sendDuelVictoryRequest(requestText, message);
+    }
+    if (duelVictoryDialog.open) duelVictoryDialog.close();
+    activeTarget = { type: 'character', id: pending.target_character_id, label: getDuelProfile(pending.target_character_id)?.display_name ?? pending.target_character_id };
+    scene = null;
+    sceneSignature = '';
+    setView('gal');
+    await refresh();
+    setStatus('胜利要求剧情已完成并写入真实聊天。', false, 'success');
+  } catch (error) {
+    status.textContent = `胜利剧情未完成：${error instanceof Error ? error.message : String(error)}`;
+    await refresh().catch(() => undefined);
+    openDuelVictoryDialog();
+  } finally {
+    submit.disabled = false;
+  }
 }
 
 function startBattle() {
@@ -1935,7 +2340,17 @@ async function runMoonSpring(mode: 'public' | 'invite_only' | 'alone') {
     if (mode === 'invite_only') {
       const present = [...(state.presence_snapshot?.present_character_ids ?? [])];
       if (!present.length) throw new Error('当前没有已经到场、可接受邀请的角色');
-      const raw = window.prompt(`输入参加者 ID（逗号分隔，最多 3 人）\n当前到场：${present.join(', ')}`, present.join(', '));
+      const raw = await promptInApp({
+        title: '月见温泉 · 仅邀请',
+        message: `当前到场：${present.join('、')}`,
+        confirmLabel: '确认参加者',
+        input: {
+          label: '参加者 ID（逗号分隔，最多 3 人）',
+          value: present.join(', '),
+          maxLength: 240,
+          required: true,
+        },
+      });
       if (raw == null) return;
       accepted = Array.from(new Set(raw.split(/[,，\s]+/u).map((id) => id.trim()).filter(Boolean))).slice(0, 3);
       if (!accepted.length) throw new Error('仅邀请模式至少需要选择一名到场角色');
@@ -1953,7 +2368,17 @@ async function runMoonSpring(mode: 'public' | 'invite_only' | 'alone') {
 
 async function runBanquet(mode: 'public' | 'invite_only') {
   try {
-    const offsetText = window.prompt('宴会从几个标准时段后开始？请输入 0—4（0 表示当前时段）', '0');
+    const offsetText = await promptInApp({
+      title: '安排宴会时间',
+      message: '请输入 0—4；0 表示当前时段，之后会从待办事项进入宴会。',
+      confirmLabel: '确认时间',
+      input: {
+        label: '几个标准时段后开始',
+        value: '0',
+        maxLength: 1,
+        required: true,
+      },
+    });
     if (offsetText == null) return;
     const startOffsetPeriods = Number(offsetText);
     if (!Number.isInteger(startOffsetPeriods) || startOffsetPeriods < 0 || startOffsetPeriods > 4) {
@@ -1963,7 +2388,17 @@ async function runBanquet(mode: 'public' | 'invite_only') {
     if (mode === 'invite_only') {
       const known = [...(state.visit_scheduler?.known_characters ?? [])];
       if (!known.length) throw new Error('还没有可邀请的已认识角色');
-      const raw = window.prompt(`输入邀请对象 ID（逗号分隔，最多 6 人）\n已认识：${known.join(', ')}`, known.join(', '));
+      const raw = await promptInApp({
+        title: '宴会 · 邀请名单',
+        message: `已认识：${known.join('、')}`,
+        confirmLabel: '确认邀请',
+        input: {
+          label: '邀请对象 ID（逗号分隔，最多 6 人）',
+          value: known.join(', '),
+          maxLength: 480,
+          required: true,
+        },
+      });
       if (raw == null) return;
       invitedCharacterIds = Array.from(new Set(raw.split(/[,，\s]+/u).map((id) => id.trim()).filter(Boolean))).slice(0, 6);
       if (!invitedCharacterIds.length) throw new Error('邀请制宴会至少需要选择一名角色');
@@ -2060,8 +2495,16 @@ async function runAnomalyResolution(taskId?: string) {
 async function buyShopItem(itemId: string) {
   const blocked = shopBlock(state);
   if (blocked) { setStatus(blocked, true); return; }
+  const item = listShopItems(state).find((candidate) => candidate.item_id === itemId);
+  const confirmed = await confirmInApp({
+    title: '确认购买',
+    message: item
+      ? `购买「${item.title}」将花费 ${item.price} 金币。`
+      : '确认以登记价格购买这件商品吗？',
+    confirmLabel: '确认购买',
+  });
+  if (!confirmed) return;
   const purchaseId = `shop:${itemId}:${Date.now().toString(36)}`;
-  if (!globalThis.confirm('确认以登记价格购买这件商品吗？')) return;
   try {
     await bridge.purchaseShopItem(itemId, purchaseId);
     await refresh();
@@ -2073,26 +2516,95 @@ async function buyShopItem(itemId: string) {
 async function useShopItem(itemId: string) {
   const useId = `item:${itemId}:${Date.now().toString(36)}`;
   try {
+    if (itemId === 'opportunity_card') {
+      const result = await bridge.useOpportunityCard(`opportunity:${Date.now().toString(36)}`);
+      await refresh();
+      setView('garden');
+      setStatus(result.message, false, 'success');
+      return;
+    }
+    if (itemId === 'spell_duel_card') {
+      openDuelChooser();
+      return;
+    }
     let form: { title: string; rule_text: string; scope_mode: 'all' | 'present' | 'specified'; character_ids: string[]; presentation_tone: string; excluded_content: string } | undefined;
     if (itemId === 'incident_trigger_card') {
-      const title = globalThis.prompt('异变名称（最多 40 字）', '未命名异变') ?? '';
-      const rule_text = globalThis.prompt('异变核心规则（最多 600 字）', '') ?? '';
-      if (!title.trim() || !rule_text.trim()) {
+      const title = await promptInApp({
+        title: '自定义异变 · 名称',
+        message: '为这次异变填写一个简短名称。',
+        confirmLabel: '下一步',
+        input: { label: '异变名称（最多 40 字）', value: '未命名异变', maxLength: 40, required: true },
+      });
+      if (title == null) {
         setStatus('已取消异变表单', true);
         return;
       }
-      const scopeRaw = (globalThis.prompt('影响范围：all（所有人）/ present（当前在场）/ specified（指定角色）', 'all') ?? 'all').trim();
+      const rule_text = await promptInApp({
+        title: '自定义异变 · 核心规则',
+        message: '描述异变会怎样影响庭院中的故事表现。',
+        confirmLabel: '下一步',
+        input: { label: '异变核心规则（最多 600 字）', maxLength: 600, multiline: true, required: true },
+      });
+      if (rule_text == null) {
+        setStatus('已取消异变表单', true);
+        return;
+      }
+      if (!title.trim() || !rule_text.trim()) {
+        setStatus('异变名称与核心规则不能为空', true);
+        return;
+      }
+      const scopeRawValue = await promptInApp({
+        title: '自定义异变 · 影响范围',
+        message: '可填写 all（所有人）、present（当前在场）或 specified（指定角色）。',
+        confirmLabel: '下一步',
+        input: { label: '影响范围', value: 'all', maxLength: 9, required: true },
+      });
+      if (scopeRawValue == null) {
+        setStatus('已取消异变表单', true);
+        return;
+      }
+      const scopeRaw = scopeRawValue.trim();
       const scope_mode = scopeRaw === 'present' || scopeRaw === 'specified' ? scopeRaw : 'all';
-      const character_ids = scope_mode === 'specified'
-        ? (globalThis.prompt('指定角色 ID，用逗号分隔', '') ?? '').split(/[,，]/u).map((value) => value.trim()).filter(Boolean)
-        : [];
+      const specifiedCharacters = scope_mode === 'specified'
+        ? await promptInApp({
+          title: '自定义异变 · 指定角色',
+          message: '填写本次异变影响的已登记角色 ID。',
+          confirmLabel: '下一步',
+          input: { label: '角色 ID（用逗号分隔）', maxLength: 480, required: true },
+        })
+        : '';
+      if (specifiedCharacters == null) {
+        setStatus('已取消异变表单', true);
+        return;
+      }
+      const character_ids = specifiedCharacters.split(/[,，]/u).map((value) => value.trim()).filter(Boolean);
+      const presentation_tone = await promptInApp({
+        title: '自定义异变 · 表现倾向',
+        message: '可选。留空则由剧情根据核心规则自然表现。',
+        confirmLabel: '下一步',
+        input: { label: '表现倾向', maxLength: 120 },
+      });
+      if (presentation_tone == null) {
+        setStatus('已取消异变表单', true);
+        return;
+      }
+      const excluded_content = await promptInApp({
+        title: '自定义异变 · 排除内容',
+        message: '可选。填写明确不希望剧情出现的内容。',
+        confirmLabel: '启用异变',
+        input: { label: '排除内容', maxLength: 240, multiline: true },
+      });
+      if (excluded_content == null) {
+        setStatus('已取消异变表单', true);
+        return;
+      }
       form = {
         title,
         rule_text,
         scope_mode,
         character_ids,
-        presentation_tone: globalThis.prompt('表现倾向（可空）', '') ?? '',
-        excluded_content: globalThis.prompt('排除内容（可空）', '') ?? '',
+        presentation_tone,
+        excluded_content,
       };
     }
     const message = await bridge.useSpecialItem(itemId, useId, form);
@@ -2112,25 +2624,49 @@ byId('gg-open-shop').addEventListener('click', () => navigateFromLauncher(() => 
 byId('gg-shop-back').addEventListener('click', () => setView('garden'));
 byId('gg-open-inventory').addEventListener('click', () => navigateFromLauncher(() => { setView('inventory'); renderInventory(); }));
 byId('gg-inventory-back').addEventListener('click', () => setView('garden'));
+byId('gg-close-duel').addEventListener('click', () => duelDialog.close());
+duelDialog.addEventListener('cancel', (event) => {
+  event.preventDefault();
+  duelDialog.close();
+});
+duelVictoryForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  void submitDuelVictoryRequest();
+});
+duelVictoryDialog.addEventListener('cancel', (event) => {
+  event.preventDefault();
+  setStatus('胜利要求尚未完成，必须提交后才能继续。', true);
+});
 byId('gg-open-opportunities').addEventListener('click', () => navigateFromLauncher(() => { setView('opportunities'); renderOpportunities(); }));
 byId('gg-opportunities-back').addEventListener('click', () => setView('garden'));
 byId('gg-battle-retry').addEventListener('click', () => {
   if (pendingBattleResult) void settleBattleResult(pendingBattleResult);
 });
-function closeBattleDialog() {
+async function closeBattleDialog() {
   destroyBattleSession();
   pendingBattleResult = null;
+  const cancelledUseId = activeBattleKind === 'duel' ? activeDuelUseId : '';
+  activeDuelUseId = '';
+  if (cancelledUseId) {
+    try {
+      await bridge.cancelDuelCard(cancelledUseId);
+      await refresh();
+      setStatus('已取消对战卡挑战，卡片没有消费。');
+    } catch (error) {
+      setStatus(`取消对战卡失败：${error instanceof Error ? error.message : String(error)}`, true);
+    }
+  }
   if (battleDialog.open) battleDialog.close();
   // Belt-and-suspenders: if a stylesheet ever forces display, still remove [open].
   battleDialog.removeAttribute('open');
 }
 
 byId('gg-close-battle').addEventListener('click', () => {
-  closeBattleDialog();
+  void closeBattleDialog();
 });
 battleDialog.addEventListener('cancel', (event) => {
   event.preventDefault();
-  closeBattleDialog();
+  void closeBattleDialog();
 });
 battleDialog.addEventListener('close', () => {
   // Defensive: any non-settling close path must drop focus/bomb hold state.

@@ -1,5 +1,6 @@
 import itemCatalog from '../items/catalog.json';
 import type { GardenState } from './types';
+import { listOpportunityCandidateProfiles } from './visitor-rules';
 
 export type ItemUseMode = 'local' | 'scene_chat' | 'anomaly_authoring';
 export type ItemConsumePolicy = 'on_commit' | 'never';
@@ -55,6 +56,10 @@ export function itemShopUnlocked(state: GardenState, itemId: string): boolean {
       return isFacilityBuilt(state, 'fairy_garden')
         || isFacilityBuilt(state, 'moon_spring')
         || isFacilityBuilt(state, 'banquet_plaza');
+    case 'opportunity_candidates_available':
+      return listOpportunityCandidateProfiles(state).length > 0;
+    case 'battle_dungeon_unlocked':
+      return Boolean(state.battle?.dungeon_unlocked);
     case 'shop_unique':
     case 'always_when_shop_open':
     default:

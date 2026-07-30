@@ -1,0 +1,72 @@
+{
+  "version": "shared-facility-ruin.v1",
+  "source": "旧素材/素材处理/facility-ruin-shared-v3/facility-ruin-owner-source-v1.png",
+  "source_sha256": "9a00186d0694f44d4d8404f33291f5d31c2082a261cc437f3945ca78f0b5b1e7",
+  "source_size": [
+    1536,
+    1024
+  ],
+  "source_crop_bbox_alpha_8": [
+    68,
+    210,
+    1467,
+    784
+  ],
+  "outputs": {
+    "fairy_garden": {
+      "canvas": [
+        592,
+        464
+      ],
+      "visible_bbox_alpha_2": [
+        24,
+        214,
+        566,
+        437
+      ],
+      "visible_pixels": 85248,
+      "opaque_pixels": 18441,
+      "path": "src/assets/world/map-facilities/fairy-garden/fairy-garden-ruins-v3.png",
+      "sha256": "df8427f353d2838f61730215b3696e760c37070000bb34d52ead732ec8b07b11",
+      "content_bottom": 437
+    },
+    "moon_spring": {
+      "canvas": [
+        624,
+        464
+      ],
+      "visible_bbox_alpha_2": [
+        24,
+        198,
+        600,
+        434
+      ],
+      "visible_pixels": 95410,
+      "opaque_pixels": 21144,
+      "path": "src/assets/world/map-facilities/moon-spring/moon-spring-ruins-v3.png",
+      "sha256": "f08bd97047ba0e9a543131a917bbed3fc0a9f78c72d18aa234ebf8756e78d98c",
+      "content_bottom": 434
+    },
+    "banquet_plaza": {
+      "canvas": [
+        656,
+        464
+      ],
+      "visible_bbox_alpha_2": [
+        24,
+        188,
+        632,
+        437
+      ],
+      "visible_pixels": 106071,
+      "opaque_pixels": 24195,
+      "path": "src/assets/world/map-facilities/banquet-plaza/banquet-plaza-ruins-v3.png",
+      "sha256": "7160e202594964d6b0872b6ef86d02f0b861b0992f6db911cfdfe9344e16f0dd",
+      "content_bottom": 437
+    }
+  },
+  "map_preview": {
+    "path": "旧素材/素材处理/facility-ruin-shared-v3/shared-ruins-map-preview.png",
+    "sha256": "09b24ea5c551256e1ad6b6e9a525a8f8d63e7a7ac671b524503d069807fd2c09"
+  }
+}

@@ -206,6 +206,38 @@ const Schema = z.object({
   }).passthrough().prefault({}),
   inventory: z.object({
     consumables: dictionary(integer(0, 0, 99)),
+    card_runtime: z.object({
+      settled_use_ids: list(text('', 96), 256),
+      opportunity: z.object({
+        pending: z.union([z.object({
+          use_id: text('', 96),
+          selected_character_id: text('', 48),
+          roll_seed: text('', 160),
+          status: z.enum(['reserved', 'arrived']).prefault('reserved').catch('reserved'),
+        }).passthrough(), z.null()]).prefault(null).catch(null),
+        last_result: z.union([z.object({
+          use_id: text('', 96),
+          selected_character_id: text('', 48),
+        }).passthrough(), z.null()]).prefault(null).catch(null),
+      }).passthrough().prefault({}),
+      duel: z.object({
+        zako_tag_count: integer(0, 0, 99),
+        pending_battle: z.union([z.object({
+          use_id: text('', 96),
+          target_character_id: text('', 48),
+          config_id: text('', 80),
+          difficulty_tier: z.enum(['hard', 'standard', 'assisted']).prefault('hard').catch('hard'),
+          started_zako_tag_count: integer(0, 0, 99),
+        }).passthrough(), z.null()]).prefault(null).catch(null),
+        settled_result_ids: list(text('', 96), 256),
+        pending_victory_dialogue: z.union([z.object({
+          settlement_id: text('', 96),
+          target_character_id: text('', 48),
+          status: z.enum(['waiting_request', 'generating', 'completed']).prefault('waiting_request').catch('waiting_request'),
+          request_text: text('', 240),
+        }).passthrough(), z.null()]).prefault(null).catch(null),
+      }).passthrough().prefault({}),
+    }).passthrough().prefault({}),
   }).passthrough().prefault({}),
   key_items: dictionary(z.object({
     id: text('', 48),

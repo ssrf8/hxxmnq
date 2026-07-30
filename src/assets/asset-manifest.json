@@ -191,6 +191,24 @@
       "source_alpha": "battle/boss/greenhouse-flower-core-sheet-v1.png",
       "runtime_embed": "alpha-only"
     },
+    "reimu_battle": {
+      "status": "owner-provided-v2-integrated-offline-validated-pending-sillytavern",
+      "source_alpha": "battle/boss/reimu-battle-sheet-v1.png",
+      "owner_source_archive": "旧素材/素材处理/battle-boss-owner-source-v2/reimu-battle-sheet-owner-black-v2.png",
+      "supersedes_owner_source_archive": "旧素材/素材处理/battle-boss-owner-source-v1/reimu-battle-sheet-owner-black-v1.png",
+      "replacement_report": "project/character-boss-sheet-replacement-report-2026-07-30.json",
+      "runtime_embed": "alpha-only",
+      "layout": "2x2-phase1-phase2-hit-break"
+    },
+    "marisa_battle": {
+      "status": "owner-provided-v2-integrated-offline-validated-pending-sillytavern",
+      "source_alpha": "battle/boss/marisa-battle-sheet-v1.png",
+      "owner_source_archive": "旧素材/素材处理/battle-boss-owner-source-v2/marisa-battle-sheet-owner-black-v2.png",
+      "supersedes_owner_source_archive": "旧素材/素材处理/battle-boss-owner-source-v1/marisa-battle-sheet-owner-black-v1.png",
+      "replacement_report": "project/character-boss-sheet-replacement-report-2026-07-30.json",
+      "runtime_embed": "alpha-only",
+      "layout": "2x2-phase1-phase2-hit-break"
+    },
     "cirno_battle": {
       "status": "owner-provided-integrated-pending-runtime-validation",
       "source_chroma": "battle/boss/cirno-battle-sheet-v1-chroma.png",
@@ -202,6 +220,27 @@
       "status": "owner-provided-integrated-pending-runtime-validation",
       "source_chroma": "battle/boss/alice-battle-sheet-v1-chroma.png",
       "source_alpha": "battle/boss/alice-battle-sheet-v1.png",
+      "runtime_embed": "alpha-only",
+      "layout": "2x2-phase1-phase2-hit-break"
+    },
+    "nitori_battle": {
+      "status": "owner-provided-integrated-offline-validated-pending-sillytavern",
+      "source_alpha": "battle/boss/nitori-battle-sheet-v1.png",
+      "owner_source_archive": "旧素材/素材处理/battle-boss-owner-source-v1/nitori-battle-sheet-owner-black-v1.png",
+      "runtime_embed": "alpha-only",
+      "layout": "2x2-phase1-phase2-hit-break"
+    },
+    "mystia_battle": {
+      "status": "owner-provided-integrated-offline-validated-pending-sillytavern",
+      "source_alpha": "battle/boss/mystia-battle-sheet-v1.png",
+      "owner_source_archive": "旧素材/素材处理/battle-boss-owner-source-v1/mystia-battle-sheet-owner-black-v1.png",
+      "runtime_embed": "alpha-only",
+      "layout": "2x2-phase1-phase2-hit-break"
+    },
+    "suika_battle": {
+      "status": "owner-provided-integrated-offline-validated-pending-sillytavern",
+      "source_alpha": "battle/boss/suika-battle-sheet-v1.png",
+      "owner_source_archive": "旧素材/素材处理/battle-boss-owner-source-v1/suika-battle-sheet-owner-black-v1.png",
       "runtime_embed": "alpha-only",
       "layout": "2x2-phase1-phase2-hit-break"
     },
@@ -219,13 +258,13 @@
       "runtime_embed": "alpha-only"
     },
     "local_etama3_bullets": {
-      "status": "owner-authorized-local-only-integrated",
+      "status": "owner-provided-ai-generated-edited-integrated",
       "source_alpha": "battle/effects/battle-bullets-etama3-local-v1.png",
       "runtime_embed": "alpha-only",
-      "runtime_scope": "personal-local-only-do-not-package-or-distribute",
+      "runtime_scope": "project-package-and-distribution",
       "layout": "8-hues-x-8-families-32px-cells",
       "sha256": "a7b9b322857f73bbb945f7296c6fcc41c3d5a7fa8972e6991a527267456b2bfd",
-      "note": "Normalized from the owner-supplied local etama3.png for personal use; star and load-failure paths retain procedural rendering."
+      "note": "Owner-provided AI-generated and edited etama3 sheet, authorized for project runtime, packaging, and distribution; star and load-failure paths retain procedural rendering."
     }
   },
   "maps": {
@@ -235,7 +274,7 @@
       "canvas": [1672, 941],
       "composition": "owner-supplied-spring-residence-garden-v3",
       "runtime_role": "base-layer",
-      "facility_layer_policy": "v3-transparent-sprites-integrated-damage-overlays-pending",
+      "facility_layer_policy": "v3-transparent-sprites-with-damaged-ruin-replacements-integrated",
       "character_visual_scale": 0.64,
       "facility_visual_scale": 0.76,
       "provenance": "owner-supplied 2026-07-29; SHA-256 b5d89e347fa448ecf82690a43a5639649d44956d544e4295a72ec08c62926c13"
@@ -279,7 +318,7 @@
       "provenance": "owner-supplied V3 full-map differences extracted against garden-base-owner-v3, normalized with a 24px transparent safety border, and integrated 2026-07-30"
     },
     "fairy_garden": {
-      "status": "owner-provided-v3-integrated-pending-runtime-validation",
+      "status": "owner-provided-v3-with-shared-ruin-integrated-pending-runtime-validation",
       "map_usage": true,
       "area_id": "fairy_garden_plot",
       "source_alpha": {
@@ -287,6 +326,7 @@
         "妖精游乐庭": "world/map-facilities/fairy-garden/fairy-garden-playground-v3.png",
         "冰露迷宫": "world/map-facilities/fairy-garden/fairy-garden-ice-dew-maze-v3.png"
       },
+      "damage_replacement_alpha": "world/map-facilities/fairy-garden/fairy-garden-ruins-v3.png",
       "geometry": {
         "width_ratio": 0.255,
         "render_center": [0.81, 0.36],
@@ -294,11 +334,11 @@
         "label_anchor": [0.81, 0.20],
         "hit_polygon": [[0.68, 0.43], [0.69, 0.30], [0.72, 0.23], [0.84, 0.21], [0.92, 0.27], [0.94, 0.40], [0.90, 0.50], [0.76, 0.52]]
       },
-      "render_contract": "three V3 transparent sprites sharing one normalized canvas and V3 geometry; the incompatible V2 damage overlay is retired and a V3 overlay remains pending; real-SillyTavern validation pending",
-      "provenance": "owner-supplied V3 full-map differences extracted against garden-base-owner-v3, normalized with a 24px transparent safety border, and integrated 2026-07-30"
+      "render_contract": "three V3 transparent normal sprites plus one owner-provided shared ruin replacement on the same normalized canvas and V3 geometry; damaged replaces the normal form instead of overlaying it; real-SillyTavern validation pending",
+      "provenance": "normal forms are owner-supplied V3 full-map differences; the damaged replacement is deterministically normalized from the owner-provided 2026-07-30 transparent ruin image without generative redraw"
     },
     "moon_spring": {
-      "status": "owner-provided-v3-integrated-pending-runtime-validation",
+      "status": "owner-provided-v3-with-shared-ruin-integrated-pending-runtime-validation",
       "map_usage": true,
       "area_id": "moon_spring_plot",
       "source_alpha": {
@@ -306,6 +346,7 @@
         "静水观测池": "world/map-facilities/moon-spring/moon-spring-still-water-observation-v3.png",
         "雾隐汤屋": "world/map-facilities/moon-spring/moon-spring-mist-hidden-bathhouse-v3.png"
       },
+      "damage_replacement_alpha": "world/map-facilities/moon-spring/moon-spring-ruins-v3.png",
       "geometry": {
         "width_ratio": 0.255,
         "render_center": [0.22, 0.70],
@@ -313,11 +354,11 @@
         "label_anchor": [0.22, 0.55],
         "hit_polygon": [[0.10, 0.76], [0.11, 0.63], [0.16, 0.57], [0.29, 0.56], [0.40, 0.61], [0.46, 0.72], [0.42, 0.82], [0.31, 0.85], [0.16, 0.84]]
       },
-      "render_contract": "three V3 transparent sprites sharing one normalized canvas and V3 geometry; the incompatible V2 damage overlay is retired and a V3 overlay remains pending; real-SillyTavern validation pending",
-      "provenance": "owner-supplied V3 full-map differences extracted against garden-base-owner-v3, normalized with a 24px transparent safety border, and integrated 2026-07-30"
+      "render_contract": "three V3 transparent normal sprites plus one owner-provided shared ruin replacement on the same normalized canvas and V3 geometry; damaged replaces the normal form instead of overlaying it; real-SillyTavern validation pending",
+      "provenance": "normal forms are owner-supplied V3 full-map differences; the damaged replacement is deterministically normalized from the owner-provided 2026-07-30 transparent ruin image without generative redraw"
     },
     "banquet_plaza": {
-      "status": "owner-provided-v3-integrated-pending-runtime-validation",
+      "status": "owner-provided-v3-with-shared-ruin-integrated-pending-runtime-validation",
       "map_usage": true,
       "area_id": "banquet_plaza_plot",
       "source_alpha": {
@@ -325,6 +366,7 @@
         "鬼之大宴台": "world/map-facilities/banquet-plaza/banquet-plaza-oni-grand-feast-v3.png",
         "符卡演武场": "world/map-facilities/banquet-plaza/banquet-plaza-spell-card-arena-v3.png"
       },
+      "damage_replacement_alpha": "world/map-facilities/banquet-plaza/banquet-plaza-ruins-v3.png",
       "geometry": {
         "width_ratio": 0.265,
         "render_center": [0.78, 0.69],
@@ -332,8 +374,8 @@
         "label_anchor": [0.78, 0.53],
         "hit_polygon": [[0.65, 0.75], [0.66, 0.61], [0.70, 0.55], [0.83, 0.54], [0.91, 0.59], [0.94, 0.70], [0.91, 0.81], [0.82, 0.85], [0.70, 0.83]]
       },
-      "render_contract": "three V3 transparent sprites sharing one normalized canvas and V3 geometry; the incompatible V2 damage overlay is retired and a V3 overlay remains pending; real-SillyTavern validation pending",
-      "provenance": "owner-supplied V3 full-map differences extracted against garden-base-owner-v3, normalized with a 24px transparent safety border, and integrated 2026-07-30"
+      "render_contract": "three V3 transparent normal sprites plus one owner-provided shared ruin replacement on the same normalized canvas and V3 geometry; damaged replaces the normal form instead of overlaying it; real-SillyTavern validation pending",
+      "provenance": "normal forms are owner-supplied V3 full-map differences; the damaged replacement is deterministically normalized from the owner-provided 2026-07-30 transparent ruin image without generative redraw"
     }
   },
   "world_assets": {

@@ -185,8 +185,13 @@
     // Transparent battle sheets only (no chroma duplicates).
     if (embedded.battlePlayerDataUrl) childDoc.documentElement.dataset.battlePlayerSrc = embedded.battlePlayerDataUrl;
     if (embedded.battleBossDataUrl) childDoc.documentElement.dataset.battleBossSrc = embedded.battleBossDataUrl;
+    if (embedded.battleBossReimuDataUrl) childDoc.documentElement.dataset.battleBossReimuSrc = embedded.battleBossReimuDataUrl;
+    if (embedded.battleBossMarisaDataUrl) childDoc.documentElement.dataset.battleBossMarisaSrc = embedded.battleBossMarisaDataUrl;
     if (embedded.battleBossCirnoDataUrl) childDoc.documentElement.dataset.battleBossCirnoSrc = embedded.battleBossCirnoDataUrl;
     if (embedded.battleBossAliceDataUrl) childDoc.documentElement.dataset.battleBossAliceSrc = embedded.battleBossAliceDataUrl;
+    if (embedded.battleBossNitoriDataUrl) childDoc.documentElement.dataset.battleBossNitoriSrc = embedded.battleBossNitoriDataUrl;
+    if (embedded.battleBossMystiaDataUrl) childDoc.documentElement.dataset.battleBossMystiaSrc = embedded.battleBossMystiaDataUrl;
+    if (embedded.battleBossSuikaDataUrl) childDoc.documentElement.dataset.battleBossSuikaSrc = embedded.battleBossSuikaDataUrl;
     if (embedded.battleBossSakuyaDataUrl) childDoc.documentElement.dataset.battleBossSakuyaSrc = embedded.battleBossSakuyaDataUrl;
     if (embedded.battleEffectsDataUrl) childDoc.documentElement.dataset.battleEffectsSrc = embedded.battleEffectsDataUrl;
     if (embedded.battleBulletsLocalDataUrl) childDoc.documentElement.dataset.battleBulletsLocalSrc = embedded.battleBulletsLocalDataUrl;

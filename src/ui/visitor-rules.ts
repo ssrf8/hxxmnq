@@ -1,4 +1,5 @@
 import visitCatalog from '../visitors/visit-profiles.json';
+import duelCatalog from '../battle/duel-profiles.json';
 import type { GardenState, TimePeriod, VisitPlan, VisitSource } from './types';
 import { periodSerialFromState } from './time-rules';
 
@@ -19,6 +20,11 @@ export interface VisitProfile {
 
 const profiles = visitCatalog.profiles as VisitProfile[];
 const profileById = new Map(profiles.map((profile) => [profile.character_id, profile]));
+const duelRegisteredIds = new Set(
+  duelCatalog.profiles
+    .filter((profile) => profile.enabled)
+    .map((profile) => profile.character_id),
+);
 const ORDINARY_CAP = visitCatalog.ordinary_visitor_cap ?? 3;
 const BANQUET_CAP = visitCatalog.banquet_visitor_cap ?? 6;
 
@@ -28,6 +34,22 @@ export function listVisitProfiles(): VisitProfile[] {
 
 export function getVisitProfile(characterId: string) {
   return profileById.get(characterId);
+}
+
+export function listOpportunityCandidateProfiles(state: GardenState): VisitProfile[] {
+  const present = new Set(state.presence_snapshot?.present_character_ids ?? []);
+  const planned = new Set(
+    (state.visit_scheduler?.plans ?? [])
+      .filter((plan) => plan.status === 'scheduled' || plan.status === 'deferred')
+      .map((plan) => plan.character_id),
+  );
+  return profiles
+    .filter((profile) => duelRegisteredIds.has(profile.character_id))
+    .filter((profile) => !isCharacterKnown(state, profile.character_id))
+    .filter((profile) => !present.has(profile.character_id))
+    .filter((profile) => !planned.has(profile.character_id))
+    .sort((a, b) => a.character_id < b.character_id ? -1 : a.character_id > b.character_id ? 1 : 0)
+    .map((profile) => ({ ...profile }));
 }
 
 export function hashSeed(value: string): number {
@@ -136,6 +158,7 @@ function noticeText(characterId: string, reasonId: string, kind: 'arrival' | 'de
     precise_errand: `${name}带着明确事务到访。`,
     formal_invitation: `${name}应邀请到来。`,
     invitation: `${name}应邀到来。`,
+    opportunity_encounter: `一场意外的机遇把${name}带到了庭院。`,
   };
   return reasonMap[reasonId] ?? `${name}来到了庭园。`;
 }
@@ -387,4 +410,55 @@ export function markCharacterKnown(before: GardenState, characterId: string): Ga
     characterId,
   ]));
   return state;
+}
+
+export function commitOpportunityArrival(
+  before: GardenState,
+  characterId: string,
+  arrivalId: string,
+): { state: GardenState; notice: string } {
+  if (!/^[A-Za-z0-9._:-]{1,96}$/u.test(arrivalId)) throw new Error('机遇到访 ID 非法');
+  const profile = profileById.get(characterId);
+  if (!profile || !duelRegisteredIds.has(characterId)) throw new Error('角色未完成本地登记');
+  if (isCharacterKnown(before, characterId)) throw new Error('该角色已经认识');
+  if ((before.presence_snapshot?.present_character_ids ?? []).includes(characterId)) throw new Error('该角色已在庭院中');
+  if (presentVisitorCount(before) >= visitorCap(before)) throw new Error('庭院访客已满');
+
+  const state = structuredClone(before);
+  ensureScheduler(state);
+  const serial = periodSerialFromState(state);
+  const stay = profile.stay_period_range[0]
+    + stableRoll(`opportunity-stay:${arrivalId}`, profile.stay_period_range[1] - profile.stay_period_range[0] + 1);
+  const area = profile.arrival_area_preferences[
+    stableRoll(`opportunity-area:${arrivalId}`, profile.arrival_area_preferences.length)
+  ] ?? 'central_courtyard';
+  state.presence_snapshot!.present_character_ids = Array.from(new Set([
+    ...(state.presence_snapshot!.present_character_ids ?? []),
+    characterId,
+  ]));
+  state.presence_snapshot!.character_views ??= {};
+  state.presence_snapshot!.character_views[characterId] = {
+    area_id: area,
+    action: '因机遇到访',
+    facing: 'front',
+  };
+  state.presence_snapshot!.visitor_meta ??= {};
+  state.presence_snapshot!.visitor_meta[characterId] = {
+    arrival_uid: arrivalId,
+    reason_id: 'opportunity_encounter',
+    source: 'opportunity_card',
+    arrived_period_serial: serial,
+    earliest_departure_serial: serial + 1,
+    planned_departure_serial: serial + stay,
+  };
+  state.visit_scheduler!.known_characters = Array.from(new Set([
+    ...(state.visit_scheduler!.known_characters ?? []),
+    characterId,
+  ]));
+  const notice = noticeText(characterId, 'opportunity_encounter', 'arrival');
+  state.visit_scheduler!.pending_notices = [
+    ...(state.visit_scheduler!.pending_notices ?? []),
+    notice,
+  ].slice(-12);
+  return { state, notice };
 }

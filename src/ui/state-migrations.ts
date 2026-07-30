@@ -49,6 +49,75 @@ export function migrateGardenState(before: GardenState): GardenState {
     99,
     Math.max(0, state.inventory.consumables.incident_trigger_card ?? 0),
   );
+  state.inventory.card_runtime ??= {
+    settled_use_ids: [],
+    opportunity: { pending: null, last_result: null },
+    duel: {
+      zako_tag_count: 0,
+      pending_battle: null,
+      settled_result_ids: [],
+      pending_victory_dialogue: null,
+    },
+  };
+  const cardRuntime = state.inventory.card_runtime;
+  cardRuntime.settled_use_ids = Array.from(new Set(cardRuntime.settled_use_ids ?? [])).slice(-256);
+  cardRuntime.opportunity ??= { pending: null, last_result: null };
+  const opportunityPending = cardRuntime.opportunity.pending;
+  if (!opportunityPending
+    || typeof opportunityPending.use_id !== 'string'
+    || opportunityPending.use_id.length < 1
+    || typeof opportunityPending.selected_character_id !== 'string'
+    || opportunityPending.selected_character_id.length < 1
+    || typeof opportunityPending.roll_seed !== 'string'
+    || opportunityPending.roll_seed.length < 1
+    || !['reserved', 'arrived'].includes(opportunityPending.status)) {
+    cardRuntime.opportunity.pending = null;
+  }
+  const opportunityResult = cardRuntime.opportunity.last_result;
+  if (!opportunityResult
+    || typeof opportunityResult.use_id !== 'string'
+    || opportunityResult.use_id.length < 1
+    || typeof opportunityResult.selected_character_id !== 'string') {
+    cardRuntime.opportunity.last_result = null;
+  }
+  cardRuntime.duel ??= {
+    zako_tag_count: 0,
+    pending_battle: null,
+    settled_result_ids: [],
+    pending_victory_dialogue: null,
+  };
+  const duelRuntime = cardRuntime.duel;
+  duelRuntime.zako_tag_count = Math.min(
+    99,
+    Math.max(0, Number.isInteger(duelRuntime.zako_tag_count) ? Number(duelRuntime.zako_tag_count) : 0),
+  );
+  duelRuntime.settled_result_ids = Array.from(new Set(duelRuntime.settled_result_ids ?? [])).slice(-256);
+  const pendingBattle = duelRuntime.pending_battle;
+  if (!pendingBattle
+    || typeof pendingBattle.use_id !== 'string'
+    || pendingBattle.use_id.length < 1
+    || typeof pendingBattle.target_character_id !== 'string'
+    || pendingBattle.target_character_id.length < 1
+    || typeof pendingBattle.config_id !== 'string'
+    || pendingBattle.config_id.length < 1
+    || !['hard', 'standard', 'assisted'].includes(pendingBattle.difficulty_tier)
+    || !Number.isInteger(pendingBattle.started_zako_tag_count)) {
+    duelRuntime.pending_battle = null;
+  } else {
+    pendingBattle.started_zako_tag_count = Math.min(99, Math.max(0, pendingBattle.started_zako_tag_count));
+  }
+  const pendingVictory = duelRuntime.pending_victory_dialogue;
+  if (!pendingVictory
+    || typeof pendingVictory.settlement_id !== 'string'
+    || pendingVictory.settlement_id.length < 1
+    || typeof pendingVictory.target_character_id !== 'string'
+    || pendingVictory.target_character_id.length < 1
+    || !['waiting_request', 'generating', 'completed'].includes(pendingVictory.status)
+    || typeof pendingVictory.request_text !== 'string') {
+    duelRuntime.pending_victory_dialogue = null;
+  } else {
+    pendingVictory.request_text = pendingVictory.request_text.trim().slice(0, 240);
+  }
   state.key_items ??= {};
   state.key_items.sakuya_watch ??= {
     id: 'sakuya_watch', name: '十六夜咲夜的怀表', obtained: false, state: 'ready',

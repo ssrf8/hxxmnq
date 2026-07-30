@@ -41,7 +41,7 @@ export function tutorialProgress(state: GardenState) {
     {
       id: 'opening',
       title: '继承移动庭园',
-      instruction: '完成开场资料并进入庭园。',
+      instruction: '确认身份，读完祖父留下的序章，并亲手接过庭守钥。',
       completed: Boolean(state.meta?.opening_committed),
     },
     {

@@ -1,0 +1,81 @@
+{
+  "config_id": "character_duel_standard_v1",
+  "version": 1,
+  "arena": { "width": 480, "height": 640 },
+  "presentation": {
+    "stage_title": "符卡对决 · 标准",
+    "stage_subtitle": "一至二枚标签 · 标准压力"
+  },
+  "player": {
+    "lives": 3,
+    "move_speed": 230,
+    "focus_speed": 115,
+    "hitbox_radius": 4,
+    "invulnerability_ms": 1600,
+    "auto_fire": false,
+    "bombs": 3,
+    "deathbomb_ms": 150,
+    "normal_shot": { "pattern": "forward_wide", "damage": 1, "interval_ms": 95 },
+    "focus_shot": { "pattern": "forward_narrow", "damage": 2, "interval_ms": 110 }
+  },
+  "phases": [
+    {
+      "id": "standard_opening",
+      "kind": "nonspell",
+      "name": "交错弹幕",
+      "objective": "defeat",
+      "hp": 250,
+      "duration_ms": 28000,
+      "patterns": [
+        { "pattern_id": "fixed_seed_ring", "interval_ms": 1350, "speed": 96, "count": 16, "rotate_deg_per_volley": 8, "layer_speed_scale": 0.75 },
+        { "pattern_id": "aimed_stream", "interval_ms": 1750, "speed": 124, "count": 2, "arc_deg": 12, "start_ms": 3000 }
+      ]
+    },
+    {
+      "id": "standard_spell",
+      "kind": "spell",
+      "name": "符卡「回转星络」",
+      "objective": "defeat",
+      "hp": 290,
+      "duration_ms": 32000,
+      "familiars": { "count": 2, "orbit_px": 58, "orbit_ms": 4300 },
+      "patterns": [
+        { "pattern_id": "rotating_ring", "interval_ms": 1250, "speed": 102, "count": 16, "rotate_deg_per_volley": 11 },
+        { "pattern_id": "wave_fan", "interval_ms": 1750, "speed": 108, "count": 9, "arc_deg": 78, "start_ms": 2600, "from_familiar": true }
+      ]
+    },
+    {
+      "id": "standard_crossing",
+      "kind": "nonspell",
+      "name": "交叉封路",
+      "objective": "defeat",
+      "hp": 280,
+      "duration_ms": 30000,
+      "patterns": [
+        { "pattern_id": "cross_sweep", "interval_ms": 2100, "speed": 128, "count": 10, "gaps": 2 },
+        { "pattern_id": "petal_fan", "interval_ms": 1500, "speed": 105, "count": 9, "arc_deg": 88, "start_ms": 2400 }
+      ]
+    },
+    {
+      "id": "standard_last_spell",
+      "kind": "spell",
+      "name": "终符「红线境界」",
+      "objective": "defeat",
+      "hp": 330,
+      "duration_ms": 34000,
+      "patterns": [
+        { "pattern_id": "laser_warning", "interval_ms": 2700, "count": 2, "warning_ms": 900, "active_ms": 580, "speed": 105 },
+        { "pattern_id": "falling_lanes", "interval_ms": 3900, "speed": 108, "warning_ms": 1000, "gaps": 2, "start_ms": 3000 },
+        { "pattern_id": "rotating_ring", "interval_ms": 1700, "speed": 98, "count": 14, "rotate_deg_per_volley": -9, "start_ms": 5200 }
+      ]
+    }
+  ],
+  "parameter_limits": {
+    "speed": [40, 260],
+    "count": [1, 32],
+    "interval_ms": [80, 10000],
+    "duration_ms": [500, 120000],
+    "damage": [1, 10]
+  },
+  "allowed_outcomes": ["clean_win", "narrow_win", "loss"]
+}

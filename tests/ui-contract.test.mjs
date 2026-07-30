@@ -106,10 +106,29 @@ test('背包使用独立道具袋视图并保留受控使用入口', async () =>
   assert.match(view, /className = 'gg-inventory-intro'/);
   assert.match(view, /className = 'gg-inventory-grid'/);
   assert.match(view, /card\.dataset\.itemId = row\.item_id/);
-  assert.match(view, /row\.item_id === 'incident_trigger_card' \|\| row\.item_id === 'sakuya_watch'/);
+  assert.match(
+    view,
+    /\['incident_trigger_card', 'sakuya_watch', 'opportunity_card', 'spell_duel_card'\]\.includes\(row\.item_id\)/,
+  );
   assert.match(view, /button\.disabled = !row\.usable/);
   assert.match(styles, /\.gg-inventory-item\[data-item-id="sakuya_watch"\]/);
   assert.match(styles, /@media \(max-width: 700px\)[\s\S]*?\.gg-inventory-item-side/);
+});
+
+test('购买与参数输入统一使用内置弹窗，不调用浏览器原生弹窗', async () => {
+  const app = await read('../src/ui/app.ts');
+  const document = await read('../src/ui/index.html');
+  const styles = await read('../src/ui/styles.css');
+  assert.doesNotMatch(app, /\b(?:window|globalThis)\.(?:alert|confirm|prompt)\s*\(/);
+  assert.match(document, /id="gg-internal-dialog"[\s\S]*?id="gg-internal-dialog-form"/);
+  assert.match(document, /id="gg-internal-dialog-input"[\s\S]*?id="gg-internal-dialog-textarea"/);
+  assert.match(app, /async function confirmInApp/);
+  assert.match(app, /function promptInApp/);
+  assert.match(app, /internalDialog\.addEventListener\('cancel'/);
+  assert.match(app, /queueMicrotask\(\(\) => opener\?\.focus\(\)\)/);
+  assert.match(app, /title: '确认购买'[\s\S]*?confirmLabel: '确认购买'/);
+  assert.match(styles, /\.gg-internal-dialog:not\(\[open\]\)/);
+  assert.match(styles, /@media \(max-width: 420px\)[\s\S]*?\.gg-internal-dialog-actions/);
 });
 
 test('GAL 道具选择使用御札式单选槽并同步选择提示', async () => {
@@ -170,6 +189,27 @@ test('开放庭园页面从正式状态派生教程进度与下一步', async ()
 
   const controller = await read('../src/ui/app.ts');
   const styles = await read('../src/ui/styles.css');
+  const document = await read('../src/ui/index.html');
+  const bridge = await read('../src/ui/bridge.ts');
+  const map = await read('../src/ui/garden-map.ts');
+  assert.match(document, /id="gg-tutorial-guide"/);
+  assert.match(document, /id="gg-tutorial-guide-skip">跳过指引/);
+  assert.match(controller, /TUTORIAL_GUIDE_ROUTES/);
+  assert.match(controller, /boundary:\s*\{ targetId: 'reimu'[\s\S]*actionIds: \['inspect_boundary'\]/);
+  assert.match(controller, /'main-house':\s*\{ targetId: 'main_house'[\s\S]*actionIds: \['repair'\]/);
+  assert.match(controller, /'magic-trace':\s*\{ targetId: 'greenhouse_plot'[\s\S]*actionIds: \['investigate_magic_trace'\]/);
+  assert.match(controller, /inspiration:[\s\S]*investigate_growth[\s\S]*hear_marisa_plan[\s\S]*study_grandfather_blueprint/);
+  assert.match(controller, /localStorage\.setItem\(tutorialGuideStorageKey, '1'\)/);
+  assert.match(controller, /剧情进度与可执行任务不会被跳过/);
+  assert.match(controller, /button\.dataset\.actionId = options\.action\.id/);
+  assert.match(controller, /const actionStep = currentView !== 'garden'[\s\S]*TUTORIAL_GUIDE_ROUTES\[item\.id\]\?\.actionIds\.includes\(activeActionId\)/);
+  assert.match(bridge, /events: \{ completed_key_events: \{\} \}/);
+  assert.match(bridge, /const previewAction = localSettlementAction\(text, previewState\)/);
+  assert.match(bridge, /applyLocalSettlement\(staged, previewAction, assistantMessageId, assistantText\)/);
+  assert.match(map, /setTutorialTarget\(id: string \| null\)/);
+  assert.match(map, /this\.tutorialTargetId === id/);
+  assert.match(styles, /\.gg-tutorial-guide \{[\s\S]*?position: fixed/);
+  assert.match(styles, /\.gg-tutorial-focus \{[\s\S]*?outline: 3px solid #f3c86c/);
   assert.match(controller, /className = 'gg-tutorial-current'/);
   assert.match(controller, /progress\.value = panel\.tutorial\.completedCount/);
   assert.match(controller, /step\.completed \? 'complete'/);
@@ -547,7 +587,7 @@ test('所有者提供的 v3 横向庭园底图由素材清单驱动，人物比�
   assert.match(manifest, /garden-base-owner-v3\.png/);
   assert.match(manifest, /"canvas": \[1672, 941\]/);
   assert.match(manifest, /"runtime_role": "base-layer"/);
-  assert.match(manifest, /"facility_layer_policy": "v3-transparent-sprites-integrated-damage-overlays-pending"/);
+  assert.match(manifest, /"facility_layer_policy": "v3-transparent-sprites-with-damaged-ruin-replacements-integrated"/);
   assert.match(build, /assetManifest\.maps\?\.garden_base/);
   assert.match(build, /gardenBaseAsset\.source/);
   assert.match(map, /CHARACTER_VISUAL_SCALE = 0\.64/);
@@ -555,9 +595,11 @@ test('所有者提供的 v3 横向庭园底图由素材清单驱动，人物比�
   assert.match(spatial, /GARDEN_AREA_OUTLINES[^=]*= Object\.freeze\(\{\}\)/);
 });
 
-test('v3 底图启用同画布透明设施并拒绝复用不匹配的 v2 损坏层', async () => {
+test('v3 底图启用同画布透明设施，并以共享废墟替换三组 damaged 形态', async () => {
   const manifest = JSON.parse(await read('../src/assets/asset-manifest.json'));
+  const ruinReport = JSON.parse(await read('../project/shared-facility-ruin-report.json'));
   const build = await read('../scripts/build-ui.mjs');
+  const preparation = await read('../scripts/prepare-shared-facility-ruins.py');
   const host = await read('../src/runtime/ui-host-shell.js');
   const map = await read('../src/ui/garden-map.ts');
   const expectedForms = {
@@ -572,13 +614,34 @@ test('v3 底图启用同画布透明设施并拒绝复用不匹配的 v2 损坏�
     moon_spring: [624, 464],
     banquet_plaza: [656, 464],
   };
+  const expectedRuins = {
+    fairy_garden: 'world/map-facilities/fairy-garden/fairy-garden-ruins-v3.png',
+    moon_spring: 'world/map-facilities/moon-spring/moon-spring-ruins-v3.png',
+    banquet_plaza: 'world/map-facilities/banquet-plaza/banquet-plaza-ruins-v3.png',
+  };
+  assert.equal(
+    ruinReport.source_sha256,
+    '9a00186d0694f44d4d8404f33291f5d31c2082a261cc437f3945ca78f0b5b1e7',
+  );
+  assert.match(preparation, /convert\("RGBa"\)\.resize/);
+  assert.match(preparation, /transparent pixels retain hidden RGB/);
   for (const [id, forms] of Object.entries(expectedForms)) {
     const asset = manifest.map_facility_assets[id];
     assert.equal(asset.map_usage, true);
     assert.ok(asset.area_id);
     assert.deepEqual(Object.keys(asset.source_alpha), forms);
     assert.equal(asset.damage_overlay_alpha, undefined);
-    for (const source of Object.values(asset.source_alpha)) {
+    if (id === 'magic_greenhouse') {
+      assert.equal(asset.damage_replacement_alpha, undefined);
+    } else {
+      assert.equal(asset.damage_replacement_alpha, expectedRuins[id]);
+      assert.equal(ruinReport.outputs[id].path, `src/assets/${expectedRuins[id]}`);
+    }
+    const sources = [
+      ...Object.values(asset.source_alpha),
+      ...(asset.damage_replacement_alpha ? [asset.damage_replacement_alpha] : []),
+    ];
+    for (const source of sources) {
       assert.match(source, /-v3\.png$/);
       const png = PNG.sync.read(await readBuffer(`../src/assets/${source}`));
       assert.deepEqual([png.width, png.height], expectedCanvases[id]);
@@ -614,14 +677,19 @@ test('v3 底图启用同画布透明设施并拒绝复用不匹配的 v2 损坏�
       assert.ok(point.every((coordinate) => coordinate >= 0 && coordinate <= 1));
     }
     assert.ok(geometry.hit_polygon.length >= 6);
-    assert.match(manifest.map_facility_assets[id].status, /^owner-provided-v3-integrated-pending-runtime-validation/);
+    if (id === 'magic_greenhouse') {
+      assert.match(manifest.map_facility_assets[id].status, /^owner-provided-v3-integrated-pending-runtime-validation/);
+    } else {
+      assert.match(manifest.map_facility_assets[id].status, /^owner-provided-v3-with-shared-ruin-integrated-pending-runtime-validation/);
+    }
   }
   assert.match(build, /mapFacilityDataUrls/);
   assert.match(build, /areaId: facility\.area_id/);
   assert.match(build, /validateFacilityGeometry/);
   assert.match(build, /validateFacilityPngGroup/);
   assert.match(build, /不足 \$\{border\}px 透明安全边/);
-  assert.match(build, /同组形态或损坏层画布不一致/);
+  assert.match(build, /同组形态或损坏素材画布不一致/);
+  assert.match(build, /damageReplacement: facility\.damage_replacement_alpha/);
   assert.match(build, /geometry: facility\.geometry/);
   assert.match(build, /data-map-facility-sprites/);
   assert.match(build, /gardenBaseAsset\.source/);
@@ -682,7 +750,7 @@ test('符卡副本选关使用三卷主题绘卷与响应式挑战层级', async
   assert.match(styles, /@media \(max-width: 760px\)[\s\S]*?#gg-dungeon-actions \{ grid-template-columns: 1fr; \}/);
 });
 
-test('设施贴图解析覆盖主屋状态、温室形态、可换型设施与损坏叠层', async () => {
+test('设施贴图解析覆盖主屋状态、温室形态与 damaged 废墟替换', async () => {
   const map = await importTypescript('../src/ui/garden-map.ts');
   const mainHouse = { areaId: 'main_house', forms: { 损坏: 'house-damaged', 启用: 'house-restored' } };
   assert.deepEqual(map.resolveMapFacilitySprite({
@@ -694,10 +762,17 @@ test('设施贴图解析覆盖主屋状态、温室形态、可换型设施与�
     facilities: { magic_greenhouse: { state: '启用', current_form: '基础魔法温室' } },
   }, 'magic_greenhouse', greenhouse), { source: 'greenhouse', damageOverlay: undefined });
 
-  const fairyGarden = { areaId: 'fairy_garden_plot', forms: { 四季花境: 'flowers' }, damageOverlay: 'damage' };
+  const fairyGarden = {
+    areaId: 'fairy_garden_plot',
+    forms: { 四季花境: 'flowers' },
+    damageReplacement: 'ruins',
+  };
   assert.deepEqual(map.resolveMapFacilitySprite({
     facility_runtime: { fairy_garden: { built: true, current_form: '四季花境', status: 'damaged' } },
-  }, 'fairy_garden', fairyGarden), { source: 'flowers', damageOverlay: 'damage' });
+  }, 'fairy_garden', fairyGarden), { source: 'ruins', damageOverlay: undefined });
+  assert.deepEqual(map.resolveMapFacilitySprite({
+    facility_runtime: { fairy_garden: { built: true, current_form: '四季花境', status: 'abnormal' } },
+  }, 'fairy_garden', fairyGarden), { source: 'flowers', damageOverlay: undefined });
   assert.equal(map.resolveMapFacilitySprite({
     facility_runtime: { fairy_garden: { built: false, current_form: '四季花境' } },
   }, 'fairy_garden', fairyGarden), null);
@@ -808,19 +883,26 @@ test('旧主屋维修由本地前置条件与登记结果约束', async () => {
   assert.match(rules, /temporary_shelter_only/);
 });
 
-test('新开局只预览草稿，点击开始后确定性写入 MVU 且不调用 LLM', async () => {
+test('新开局先生成继承序章，玩家确认后才写入 MVU', async () => {
   const document = await read('../src/ui/index.html');
   const opening = await read('../src/ui/opening.ts');
   const bridge = await read('../src/ui/bridge.ts');
+  const styles = await read('../src/ui/styles.css');
   assert.match(document, /id="gg-opening-preview"/);
   assert.match(document, /id="gg-opening-commit"/);
+  assert.match(document, /id="gg-opening-story"/);
+  assert.match(document, /接过庭守钥 · 继承庭园/);
   assert.match(opening, /buildOpeningMessage\(draft\)/);
   assert.match(opening, /sessionStorage/);
   assert.match(opening, /appearanceSentence/);
-  assert.match(opening, /bridge\.initializeOpening\(draft, frozenChatId\)/);
-  const commitHandler = opening.slice(opening.indexOf('private async commit()'), opening.indexOf('private async retry()'));
-  assert.doesNotMatch(commitHandler, /commitOpening|buildOpeningMessage|regenerateLatest/);
-  assert.match(commitHandler, /sessionStorage\.removeItem/);
+  assert.match(opening, /bridge\.commitOpening\(draft, buildOpeningMessage\(draft\), frozenChatId\)/);
+  assert.match(opening, /我尚未正式继承这座庭园/);
+  assert.match(opening, /等待我亲手接过的时刻/);
+  const commitHandler = opening.slice(opening.indexOf('private async commit()'), opening.indexOf('private async repair()'));
+  assert.doesNotMatch(commitHandler, /initializeOpening|sessionStorage\.removeItem/);
+  const enterHandler = opening.slice(opening.indexOf('private async enterGarden()'));
+  assert.match(enterHandler, /bridge\.enterGarden/);
+  assert.match(enterHandler, /sessionStorage\.removeItem/);
   assert.match(bridge, /async initializeOpening\(draft: OpeningDraft, expectedChatId: string\)/);
   const initializeHandler = bridge.slice(bridge.indexOf('async initializeOpening(draft: OpeningDraft'), bridge.indexOf('async commitOpening('));
   assert.match(initializeHandler, /openingTargetMessage/);
@@ -835,8 +917,10 @@ test('新开局只预览草稿，点击开始后确定性写入 MVU 且不调用
   assert.match(bridge, /include_swipes: false/);
   assert.match(bridge, /withoutMarker\(item\.message\) === expectedBody/);
   assert.doesNotMatch(opening, /replaceMvuData|stat_data\s*=/);
-  assert.match(document, /不调用 LLM/);
-  assert.match(document, /第一次真实行动才开始生成剧情/);
+  assert.match(document, /先展开继承庭园的聊天序章/);
+  assert.match(document, /只有你亲手接过庭守钥，继承才会完成/);
+  assert.match(bridge, /storyText/);
+  assert.match(styles, /\.gg-opening-form\[hidden\],[\s\S]*\.gg-opening-recovery\[hidden\]\s*\{\s*display:\s*none\s*!important/);
 });
 
 test('普通互动使用非隐藏真实消息、事务标识和无刷新写入', async () => {
@@ -869,13 +953,15 @@ test('开场变量掉格式时提供幂等恢复，不把玩家锁在设置页',
   const opening = await read('../src/ui/opening.ts');
   const bridge = await read('../src/ui/bridge.ts');
   assert.match(document, /id="gg-opening-recovery"/);
-  assert.match(document, /id="gg-opening-retry"/);
+  assert.doesNotMatch(document, /id="gg-opening-retry"/);
+  assert.doesNotMatch(opening, /gg-opening-retry|private async retry/);
   assert.match(document, /id="gg-opening-enter"/);
   assert.match(document, /id="gg-opening-repair"/);
-  assert.match(document, /id="gg-opening-native"/);
+  assert.doesNotMatch(document, /id="gg-opening-native"/);
+  assert.doesNotMatch(opening, /gg-opening-native|private async showNative/);
   assert.match(opening, /getOpeningProgress/);
   assert.match(opening, /enterGarden/);
-  assert.match(opening, /regenerateLatest/);
+  assert.doesNotMatch(opening, /regenerateLatest/);
   assert.match(opening, /repairOpening/);
   assert.match(bridge, /gensokyo_opening_repair/);
   assert.match(bridge, /parseOpeningMessage/);
@@ -907,8 +993,8 @@ test('打包器提供 MVU initvar 初始状态，不依赖角色脚本变量初�
   assert.match(packer, /name: WORLDBOOK_NAME/);
   assert.match(packer, /GAL 表现与会话协议/);
   assert.match(packer, /gensokyo-garden-ui-020-\$\{CHECKPOINT_SUFFIX\}/);
-  assert.match(packer, /确定性开场后的首次行动引导/);
-  assert.match(packer, /此步骤会直接写入并复读 MVU，不调用 LLM/);
+  assert.match(packer, /移动庭园继承序章与首次行动引导/);
+  assert.match(packer, /此刻继承尚未完成/);
   assert.match(packer, /const payload = \{ spec: 'chara_card_v2', spec_version: '2\.0', data \}/);
   assert.doesNotMatch(packer, /spec_version: '2\.0', \.\.\.data, data/);
   assert.match(packer, /if \(!DRY_RUN && await exists\(OUTPUT_FILE\)\)/);

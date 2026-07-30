@@ -1,0 +1,93 @@
+{
+  "version": "character-duel.v1",
+  "profiles": [
+    {
+      "character_id": "reimu",
+      "display_name": "博丽灵梦",
+      "enabled": true,
+      "battle_visual_id": "reimu",
+      "fallback_visual_id": "boss_flower_core",
+      "hard_config_id": "character_duel_hard_v1",
+      "standard_config_id": "character_duel_standard_v1",
+      "assisted_config_id": "character_duel_assisted_v1",
+      "victory_reaction_tags": ["neutral", "serious"]
+    },
+    {
+      "character_id": "marisa",
+      "display_name": "雾雨魔理沙",
+      "enabled": true,
+      "battle_visual_id": "marisa",
+      "fallback_visual_id": "boss_flower_core",
+      "hard_config_id": "character_duel_hard_v1",
+      "standard_config_id": "character_duel_standard_v1",
+      "assisted_config_id": "character_duel_assisted_v1",
+      "victory_reaction_tags": ["smile", "surprised"]
+    },
+    {
+      "character_id": "alice",
+      "display_name": "爱丽丝·玛格特洛依德",
+      "enabled": true,
+      "battle_visual_id": "alice",
+      "fallback_visual_id": "boss_flower_core",
+      "hard_config_id": "character_duel_hard_v1",
+      "standard_config_id": "character_duel_standard_v1",
+      "assisted_config_id": "character_duel_assisted_v1",
+      "victory_reaction_tags": ["neutral", "surprised"]
+    },
+    {
+      "character_id": "nitori",
+      "display_name": "河城荷取",
+      "enabled": true,
+      "battle_visual_id": "nitori",
+      "fallback_visual_id": "boss_flower_core",
+      "hard_config_id": "character_duel_hard_v1",
+      "standard_config_id": "character_duel_standard_v1",
+      "assisted_config_id": "character_duel_assisted_v1",
+      "victory_reaction_tags": ["surprised", "shy"]
+    },
+    {
+      "character_id": "cirno",
+      "display_name": "琪露诺",
+      "enabled": true,
+      "battle_visual_id": "cirno",
+      "fallback_visual_id": "boss_flower_core",
+      "hard_config_id": "character_duel_hard_v1",
+      "standard_config_id": "character_duel_standard_v1",
+      "assisted_config_id": "character_duel_assisted_v1",
+      "victory_reaction_tags": ["surprised", "angry"]
+    },
+    {
+      "character_id": "mystia",
+      "display_name": "米斯蒂娅·萝蕾拉",
+      "enabled": true,
+      "battle_visual_id": "mystia",
+      "fallback_visual_id": "boss_flower_core",
+      "hard_config_id": "character_duel_hard_v1",
+      "standard_config_id": "character_duel_standard_v1",
+      "assisted_config_id": "character_duel_assisted_v1",
+      "victory_reaction_tags": ["surprised", "smile"]
+    },
+    {
+      "character_id": "suika",
+      "display_name": "伊吹萃香",
+      "enabled": true,
+      "battle_visual_id": "suika",
+      "fallback_visual_id": "boss_flower_core",
+      "hard_config_id": "character_duel_hard_v1",
+      "standard_config_id": "character_duel_standard_v1",
+      "assisted_config_id": "character_duel_assisted_v1",
+      "victory_reaction_tags": ["smile", "serious"]
+    },
+    {
+      "character_id": "sakuya",
+      "display_name": "十六夜咲夜",
+      "enabled": true,
+      "battle_visual_id": "sakuya",
+      "fallback_visual_id": "boss_flower_core",
+      "hard_config_id": "character_duel_hard_v1",
+      "standard_config_id": "character_duel_standard_v1",
+      "assisted_config_id": "character_duel_assisted_v1",
+      "victory_reaction_tags": ["neutral", "serious"]
+    }
+  ]
+}

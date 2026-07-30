@@ -25,7 +25,7 @@
       "unlock_conditions": ["facility_fairy_garden_built"],
       "consume_policy": "on_commit",
       "prompt_description": "分享糖果、吸引妖精或制造轻松游戏气氛。",
-      "shop_price": 8,
+      "shop_price": 6,
       "shop_unlock": "facility_fairy_garden_built"
     },
     {
@@ -38,7 +38,7 @@
       "unlock_conditions": ["facility_moon_spring_built"],
       "consume_policy": "on_commit",
       "prompt_description": "泡一壶月见茶，适合夜谈与安静陪伴。",
-      "shop_price": 10,
+      "shop_price": 8,
       "shop_unlock": "facility_moon_spring_built"
     },
     {
@@ -51,7 +51,7 @@
       "unlock_conditions": ["facility_moon_spring_built"],
       "consume_policy": "on_commit",
       "prompt_description": "改变温泉气味与氛围，仅限月见温泉场景。",
-      "shop_price": 12,
+      "shop_price": 8,
       "shop_unlock": "facility_moon_spring_built"
     },
     {
@@ -64,7 +64,7 @@
       "unlock_conditions": ["facility_banquet_plaza_built"],
       "consume_policy": "on_commit",
       "prompt_description": "分享食物，营造宴会或闲聊的分享气氛。",
-      "shop_price": 14,
+      "shop_price": 10,
       "shop_unlock": "facility_banquet_plaza_built"
     },
     {
@@ -77,7 +77,7 @@
       "unlock_conditions": ["facility_banquet_plaza_built"],
       "consume_policy": "on_commit",
       "prompt_description": "改变本场景表现，不新增醉酒数值或长期状态。",
-      "shop_price": 16,
+      "shop_price": 12,
       "shop_unlock": "facility_banquet_plaza_built"
     },
     {
@@ -91,8 +91,36 @@
       "consume_policy": "on_commit",
       "local_effect_id": "repair_kit_substitute",
       "prompt_description": "可替代损坏设施修复所需的 2 物资，仍需完成修复剧情。",
-      "shop_price": 18,
+      "shop_price": 12,
       "shop_unlock": "any_followup_facility_built"
+    },
+    {
+      "item_id": "opportunity_card",
+      "title": "机遇卡",
+      "item_type": "consumable",
+      "stack_limit": 9,
+      "use_mode": "local",
+      "scope_tags": ["visitor", "introduction"],
+      "unlock_conditions": ["shop_open", "unknown_registered_character_available"],
+      "consume_policy": "on_commit",
+      "local_effect_id": "opportunity_visit",
+      "prompt_description": "随机邀请一名已完整登记但尚未认识的角色进入庭院，全程由本地规则结算。",
+      "shop_price": 40,
+      "shop_unlock": "opportunity_candidates_available"
+    },
+    {
+      "item_id": "spell_duel_card",
+      "title": "对战卡",
+      "item_type": "consumable",
+      "stack_limit": 99,
+      "use_mode": "local",
+      "scope_tags": ["battle", "character_duel"],
+      "unlock_conditions": ["battle_dungeon_unlocked"],
+      "consume_policy": "on_commit",
+      "local_effect_id": "character_spell_duel",
+      "prompt_description": "选择任意完整登记角色进行本地符卡对战；胜利进入要求剧情，失败只增加杂鱼标签。",
+      "shop_price": 24,
+      "shop_unlock": "battle_dungeon_unlocked"
     },
     {
       "item_id": "sakuya_watch",

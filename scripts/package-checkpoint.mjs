@@ -142,7 +142,7 @@ const loreEntries = [
   entry(3, '[mvu_update] 最新 MVU 状态（含本地私有字段）', projection, [], true, 'after_char', 0, 4),
   entry(8, '[mvu_update] 变量输出格式', variableOutputFormat, [], true, 'after_char'),
   entry(7, '[mvu_plot][interaction] GAL 表现与会话协议', galPresentation, [], true, 'after_char'),
-  entry(4, '[mvu_plot][opening] 确定性开场后的首次行动引导', `${openingGuidance}\n\n旧版开场兼容格式：\n${openingTemplate}`, ['庭守钥', '荒废庭园', '第一次行动'], false),
+  entry(4, '[mvu_plot][opening] 移动庭园继承序章与首次行动引导', `${openingGuidance}\n\n开场消息格式：\n${openingTemplate}`, ['祖父遗信', '庭守钥', '继承庭园', '第一次行动'], false),
   entry(6, '[initvar] 移动庭园初始状态', `<initvar>\n${JSON.stringify(initialState, null, 2)}\n</initvar>`),
   ...characterProfiles.map((profile, index) => {
     const result = entry(
@@ -170,15 +170,15 @@ const script = (name, id, content) => ({
   export_with: { data: true, button: true },
 });
 
-const firstMes = `<移动庭园_测试检查点 version="${VERSION}">\n庭守钥在荒废庭园的结界边缘微微发热。请在自动出现的“移动庭园”界面载入开局资料；此步骤会直接写入并复读 MVU，不调用 LLM。进入庭院后，你发送的第一次真实行动才会开始生成剧情。若界面未出现，请先使用原生聊天查看诊断，不要重复发送开场资料。\n</移动庭园_测试检查点>`;
+const firstMes = `<移动庭园_测试检查点 version="${VERSION}">\n祖父失踪后的第七天，一个没有寄件地址的旧木匣被送到门前。请在自动出现的“移动庭园”界面确认身份并打开遗信；序章会讲述那座庭园为何留给你，并在最后由你决定是否接过庭守钥。此刻继承尚未完成。若界面未出现，请先使用原生聊天查看诊断，不要重复发送开场资料。\n</移动庭园_测试检查点>`;
 const data = {
   name: `幻想乡物语·移动庭园（测试检查点 ${CHECKPOINT}）`,
   description: identity,
   personality: '群像叙事与庭园建设系统卡。固定角色保持独立行动逻辑；玩家人称、表达方式与尺度由玩家预设及实际输入决定。',
-  scenario: '玩家继承祖父遗物“庭守钥”，抵达幻想乡边缘一处会移动的结界领地。庭园荒废，设施待修，来访者与小型异变会随锚点、建设和玩家选择逐步出现。',
+  scenario: '玩家收到祖父留下的遗信与沉睡的“庭守钥”，尚未正式继承那座会移动的结界庭园。玩家亲手接受继承后才会穿过结界抵达荒废庭园，随后修复设施，并在锚点、建设与选择中迎接来访者和小型异变。',
   first_mes: firstMes,
   mes_example: '',
-  creator_notes: `本文件是本地运行测试检查点 ${CHECKPOINT}，不是正式发布版。\n开场界面使用确定性 MVU 初始化，不调用 LLM。\n旧版兼容格式：\n${openingTemplate}`,
+  creator_notes: `本文件是本地运行测试检查点 ${CHECKPOINT}，不是正式发布版。\n开场先生成祖父遗信与庭园继承序章；玩家显式接过庭守钥后，才由本地事务写入并复读开场状态。\n开场消息格式：\n${openingTemplate}`,
   system_prompt: `${identity}\n\n${movingGarden}`,
   post_history_instructions: '严格遵守角色卡身份、玩家权边界、信息可知性、GAL scene.v1 与 MVU 更新协议。互动允许跨越多轮真实聊天；只有自然离场或玩家明确结束时才结算当前互动。',
   alternate_greetings: [],

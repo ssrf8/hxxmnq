@@ -10,7 +10,14 @@ const itemMarks: Record<string, string> = {
   oni_sake_flask: '酒',
   emergency_repair_kit: '修',
   sakuya_watch: '刻',
+  opportunity_card: '缘',
+  spell_duel_card: '斗',
 };
+
+function duelDifficultyLabel(tagCount: number) {
+  if (tagCount === 0) return '极难 · 原作 Hard 风格';
+  return tagCount >= 3 ? '援助' : '标准';
+}
 
 export function renderInventoryView(
   root: HTMLElement,
@@ -87,7 +94,9 @@ export function renderInventoryView(
     titleLine.append(title, kind);
     const details = document.createElement('p');
     details.className = 'gg-inventory-description';
-    details.textContent = row.description;
+    details.textContent = row.item_id === 'spell_duel_card'
+      ? `${row.description} 当前杂鱼标签：${state.inventory?.card_runtime?.duel?.zako_tag_count ?? 0} 枚；下次难度：${duelDifficultyLabel(state.inventory?.card_runtime?.duel?.zako_tag_count ?? 0)}。`
+      : row.description;
     const status = document.createElement('p');
     status.className = 'gg-inventory-status';
     status.dataset.available = String(row.usable);
@@ -101,11 +110,17 @@ export function renderInventoryView(
     quantity.setAttribute('aria-label', `数量 ${row.quantity}`);
     quantity.textContent = row.kind === 'key_item' ? '唯一' : `×${row.quantity}`;
     side.append(quantity);
-    if (row.item_id === 'incident_trigger_card' || row.item_id === 'sakuya_watch') {
+    if (['incident_trigger_card', 'sakuya_watch', 'opportunity_card', 'spell_duel_card'].includes(row.item_id)) {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'gg-inventory-use';
-      button.textContent = row.item_id === 'sakuya_watch' ? '使用怀表' : '启用异变';
+      button.textContent = row.item_id === 'sakuya_watch'
+        ? '使用怀表'
+        : row.item_id === 'incident_trigger_card'
+          ? '启用异变'
+          : row.item_id === 'opportunity_card'
+            ? '抽取机遇'
+            : '选择对手';
       button.disabled = !row.usable;
       button.addEventListener('click', () => useItem(row.item_id));
       side.append(button);

@@ -1,0 +1,97 @@
+{
+  "config_id": "character_duel_hard_v1",
+  "version": 1,
+  "arena": { "width": 480, "height": 640 },
+  "presentation": {
+    "stage_title": "符卡对决 · 极难",
+    "stage_subtitle": "零标签挑战 · 原作 Hard 风格"
+  },
+  "player": {
+    "lives": 2,
+    "move_speed": 225,
+    "focus_speed": 108,
+    "hitbox_radius": 4,
+    "invulnerability_ms": 1200,
+    "auto_fire": false,
+    "bombs": 2,
+    "deathbomb_ms": 105,
+    "normal_shot": { "pattern": "forward_wide", "damage": 1, "interval_ms": 100 },
+    "focus_shot": { "pattern": "forward_narrow", "damage": 2, "interval_ms": 115 }
+  },
+  "phases": [
+    {
+      "id": "hard_opening_lattice",
+      "kind": "nonspell",
+      "name": "开幕·交错弹幕",
+      "objective": "defeat",
+      "hp": 320,
+      "duration_ms": 28000,
+      "patterns": [
+        { "pattern_id": "fixed_seed_ring", "interval_ms": 920, "speed": 112, "count": 22, "rotate_deg_per_volley": 9, "layer_speed_scale": 0.72 },
+        { "pattern_id": "aimed_stream", "interval_ms": 1050, "speed": 142, "count": 3, "arc_deg": 14, "start_ms": 2600, "aim_lead": 0.35 }
+      ]
+    },
+    {
+      "id": "hard_spell_turning_stars",
+      "kind": "spell",
+      "name": "难符「回转星络」",
+      "objective": "defeat",
+      "hp": 360,
+      "duration_ms": 32000,
+      "familiars": { "count": 2, "orbit_px": 64, "orbit_ms": 3600 },
+      "patterns": [
+        { "pattern_id": "rotating_ring", "interval_ms": 760, "speed": 118, "count": 24, "rotate_deg_per_volley": 13, "spin_deg_per_s": 22 },
+        { "pattern_id": "wave_fan", "interval_ms": 980, "speed": 126, "count": 11, "arc_deg": 92, "start_ms": 2300, "from_familiar": true },
+        { "pattern_id": "aimed_stream", "interval_ms": 1250, "speed": 152, "count": 2, "start_ms": 4800, "dir_change_interval_ms": 760, "dir_change_rotation_deg": 24, "dir_change_times": 1 }
+      ]
+    },
+    {
+      "id": "hard_crossing_knives",
+      "kind": "nonspell",
+      "name": "切返·交叉封路",
+      "objective": "defeat",
+      "hp": 350,
+      "duration_ms": 30000,
+      "patterns": [
+        { "pattern_id": "cross_sweep", "interval_ms": 1300, "speed": 148, "count": 14, "gaps": 1 },
+        { "pattern_id": "petal_fan", "interval_ms": 820, "speed": 120, "count": 13, "arc_deg": 112, "start_ms": 1800 },
+        { "pattern_id": "aimed_stream", "interval_ms": 1120, "speed": 158, "count": 2, "start_ms": 4300 }
+      ]
+    },
+    {
+      "id": "hard_spell_red_lines",
+      "kind": "spell",
+      "name": "难符「红线境界」",
+      "objective": "defeat",
+      "hp": 390,
+      "duration_ms": 34000,
+      "patterns": [
+        { "pattern_id": "laser_warning", "interval_ms": 1900, "count": 3, "warning_ms": 650, "active_ms": 720, "speed": 120 },
+        { "pattern_id": "falling_lanes", "interval_ms": 2800, "speed": 132, "warning_ms": 720, "gaps": 1, "start_ms": 2200 },
+        { "pattern_id": "rotating_ring", "interval_ms": 980, "speed": 116, "count": 20, "rotate_deg_per_volley": -11, "start_ms": 4200 }
+      ]
+    },
+    {
+      "id": "hard_last_spell",
+      "kind": "spell",
+      "name": "终符「无伤者的试炼」",
+      "objective": "defeat",
+      "hp": 430,
+      "duration_ms": 36000,
+      "familiars": { "count": 3, "orbit_px": 70, "orbit_ms": 3200 },
+      "patterns": [
+        { "pattern_id": "burst_cluster", "interval_ms": 1850, "speed": 138, "count": 18, "burst_delay_ms": 520, "from_familiar": true },
+        { "pattern_id": "rotating_ring", "interval_ms": 720, "speed": 124, "count": 26, "rotate_deg_per_volley": 15, "layer_speed_scale": 0.68 },
+        { "pattern_id": "aimed_stream", "interval_ms": 900, "speed": 164, "count": 3, "arc_deg": 12, "start_ms": 2600, "aim_lead": 0.5 }
+      ]
+    }
+  ],
+  "parameter_limits": {
+    "speed": [40, 260],
+    "count": [1, 32],
+    "interval_ms": [80, 10000],
+    "duration_ms": [500, 120000],
+    "damage": [1, 10]
+  },
+  "allowed_outcomes": ["clean_win", "narrow_win", "loss"]
+}

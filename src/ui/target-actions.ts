@@ -15,7 +15,7 @@ const action = (
   extra: Partial<TargetAction> = {},
 ): TargetAction => ({ id, label, description, intent, mode, target, ...extra });
 
-const gardenNarrativeContract = [
+export const gardenNarrativeContract = [
   '【庭园正文协议】',
   '把玩家可见剧情严格写在最后一个【庭园正文开始】与第一个【庭园正文结束】之间。',
   '正文内只允许 <narration>旁白或动作</narration> 与 <dialogue char="已登记角色ID" reaction="可选表情" pose="可选姿势">台词</dialogue>；多人对话必须拆成多个 dialogue。',

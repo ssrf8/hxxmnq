@@ -5,8 +5,8 @@ import { PNG } from 'pngjs';
 
 const assetManifest = JSON.parse(await readFile('src/assets/asset-manifest.json', 'utf8'));
 const localBulletAsset = assetManifest.battle_assets?.local_etama3_bullets;
-if (!localBulletAsset?.source_alpha || localBulletAsset.runtime_scope !== 'personal-local-only-do-not-package-or-distribute') {
-  throw new Error('本地弹幕图集必须登记为 personal-local-only，禁止误作可分发素材');
+if (!localBulletAsset?.source_alpha || localBulletAsset.runtime_scope !== 'project-package-and-distribution') {
+  throw new Error('etama3 弹幕图集缺少项目运行与打包分发授权登记');
 }
 const localBulletSource = localBulletAsset.source_alpha;
 const dungeonButtonSource = 'ui/reimu-dungeon-button-v1.png';
@@ -71,11 +71,16 @@ const mapFacilityAssets = Object.entries(assetManifest.map_facility_assets ?? {}
       forms: facility.source_alpha,
       sources: [...new Set(Object.values(facility.source_alpha))],
       damageOverlay: facility.damage_overlay_alpha,
+      damageReplacement: facility.damage_replacement_alpha,
       geometry: facility.geometry,
     };
   });
-const validateFacilityPngGroup = async ({ id, sources, damageOverlay }) => {
-  const paths = [...sources, ...(damageOverlay ? [damageOverlay] : [])];
+const validateFacilityPngGroup = async ({ id, sources, damageOverlay, damageReplacement }) => {
+  const paths = [
+    ...sources,
+    ...(damageOverlay ? [damageOverlay] : []),
+    ...(damageReplacement ? [damageReplacement] : []),
+  ];
   const decoded = await Promise.all(paths.map(async (source) => {
     const png = PNG.sync.read(await readFile(`src/assets/${source}`));
     if (png.colorType !== 6) throw new Error(`地图设施 ${id} 的 ${source} 必须是 RGBA PNG`);
@@ -100,7 +105,7 @@ const validateFacilityPngGroup = async ({ id, sources, damageOverlay }) => {
   const [{ width, height }] = decoded;
   for (const image of decoded) {
     if (image.width !== width || image.height !== height) {
-      throw new Error(`地图设施 ${id} 的同组形态或损坏层画布不一致`);
+      throw new Error(`地图设施 ${id} 的同组形态或损坏素材画布不一致`);
     }
   }
 };
@@ -116,12 +121,13 @@ await build({
   sourcemap: true,
   legalComments: 'none',
 });
-const previewFacilitySprites = Object.fromEntries(mapFacilityAssets.map(({ id, areaId, forms, damageOverlay, geometry }) => [
+const previewFacilitySprites = Object.fromEntries(mapFacilityAssets.map(({ id, areaId, forms, damageOverlay, damageReplacement, geometry }) => [
   id,
   {
     areaId,
     forms: Object.fromEntries(Object.entries(forms).map(([form, source]) => [form, `../assets/${source}`])),
     damageOverlay: damageOverlay ? `../assets/${damageOverlay}` : undefined,
+    damageReplacement: damageReplacement ? `../assets/${damageReplacement}` : undefined,
     geometry,
   },
 ]));
@@ -142,9 +148,10 @@ await Promise.all([
   mkdir('dist/assets/battle/player', { recursive: true }),
   mkdir('dist/assets/battle/boss', { recursive: true }),
   mkdir('dist/assets/battle/effects', { recursive: true }),
-  ...mapFacilityAssets.flatMap(({ sources, damageOverlay }) => [
+  ...mapFacilityAssets.flatMap(({ sources, damageOverlay, damageReplacement }) => [
     ...sources.map((source) => mkdir(dirname(`dist/assets/${source}`), { recursive: true })),
     ...(damageOverlay ? [mkdir(dirname(`dist/assets/${damageOverlay}`), { recursive: true })] : []),
+    ...(damageReplacement ? [mkdir(dirname(`dist/assets/${damageReplacement}`), { recursive: true })] : []),
   ]),
 ]);
 await Promise.all([
@@ -154,9 +161,10 @@ await Promise.all([
   copyFile(`src/assets/${inventoryButtonSource}`, `dist/assets/${inventoryButtonSource}`),
   copyFile(`src/assets/${shopBackgroundSource}`, `dist/assets/${shopBackgroundSource}`),
   copyFile(`src/assets/${galBackgroundSource}`, `dist/assets/${galBackgroundSource}`),
-  ...mapFacilityAssets.flatMap(({ sources, damageOverlay }) => [
+  ...mapFacilityAssets.flatMap(({ sources, damageOverlay, damageReplacement }) => [
     ...sources.map((source) => copyFile(`src/assets/${source}`, `dist/assets/${source}`)),
     ...(damageOverlay ? [copyFile(`src/assets/${damageOverlay}`, `dist/assets/${damageOverlay}`)] : []),
+    ...(damageReplacement ? [copyFile(`src/assets/${damageReplacement}`, `dist/assets/${damageReplacement}`)] : []),
   ]),
   ...characterAssets.flatMap(({ idle, motion, animation, sequence }) => [
     copyFile(`src/assets/${idle}`, `dist/assets/${idle}`),
@@ -169,8 +177,13 @@ await Promise.all([
   // Transparent battle sheets only — never embed chroma authoring duplicates.
   copyFile('src/assets/battle/player/keycraft-player-sheet-v1.png', 'dist/assets/battle/player/keycraft-player-sheet-v1.png'),
   copyFile('src/assets/battle/boss/greenhouse-flower-core-sheet-v1.png', 'dist/assets/battle/boss/greenhouse-flower-core-sheet-v1.png'),
+  copyFile('src/assets/battle/boss/reimu-battle-sheet-v1.png', 'dist/assets/battle/boss/reimu-battle-sheet-v1.png'),
+  copyFile('src/assets/battle/boss/marisa-battle-sheet-v1.png', 'dist/assets/battle/boss/marisa-battle-sheet-v1.png'),
   copyFile('src/assets/battle/boss/cirno-battle-sheet-v1.png', 'dist/assets/battle/boss/cirno-battle-sheet-v1.png'),
   copyFile('src/assets/battle/boss/alice-battle-sheet-v1.png', 'dist/assets/battle/boss/alice-battle-sheet-v1.png'),
+  copyFile('src/assets/battle/boss/nitori-battle-sheet-v1.png', 'dist/assets/battle/boss/nitori-battle-sheet-v1.png'),
+  copyFile('src/assets/battle/boss/mystia-battle-sheet-v1.png', 'dist/assets/battle/boss/mystia-battle-sheet-v1.png'),
+  copyFile('src/assets/battle/boss/suika-battle-sheet-v1.png', 'dist/assets/battle/boss/suika-battle-sheet-v1.png'),
   copyFile('src/assets/battle/boss/sakuya-battle-sheet-v1.png', 'dist/assets/battle/boss/sakuya-battle-sheet-v1.png'),
   copyFile('src/assets/battle/effects/battle-effects-sheet-v1.png', 'dist/assets/battle/effects/battle-effects-sheet-v1.png'),
   copyFile(`src/assets/${localBulletSource}`, `dist/assets/${localBulletSource}`),
@@ -190,8 +203,13 @@ const [
   greenhouseBytes,
   battlePlayerBytes,
   battleBossBytes,
+  battleBossReimuBytes,
+  battleBossMarisaBytes,
   battleBossCirnoBytes,
   battleBossAliceBytes,
+  battleBossNitoriBytes,
+  battleBossMystiaBytes,
+  battleBossSuikaBytes,
   battleBossSakuyaBytes,
   battleEffectsBytes,
   battleBulletsLocalBytes,
@@ -210,8 +228,13 @@ const [
   readFile('src/assets/world/greenhouse/magic-greenhouse-states-v1.png'),
   readFile('src/assets/battle/player/keycraft-player-sheet-v1.png'),
   readFile('src/assets/battle/boss/greenhouse-flower-core-sheet-v1.png'),
+  readFile('src/assets/battle/boss/reimu-battle-sheet-v1.png'),
+  readFile('src/assets/battle/boss/marisa-battle-sheet-v1.png'),
   readFile('src/assets/battle/boss/cirno-battle-sheet-v1.png'),
   readFile('src/assets/battle/boss/alice-battle-sheet-v1.png'),
+  readFile('src/assets/battle/boss/nitori-battle-sheet-v1.png'),
+  readFile('src/assets/battle/boss/mystia-battle-sheet-v1.png'),
+  readFile('src/assets/battle/boss/suika-battle-sheet-v1.png'),
   readFile('src/assets/battle/boss/sakuya-battle-sheet-v1.png'),
   readFile('src/assets/battle/effects/battle-effects-sheet-v1.png'),
   readFile(`src/assets/${localBulletSource}`),
@@ -241,7 +264,7 @@ const characterSpriteDataUrls = Object.fromEntries(await Promise.all(characterAs
 })));
 const mainHouseDataUrl = `data:image/png;base64,${mainHouseBytes.toString('base64')}`;
 const greenhouseDataUrl = `data:image/png;base64,${greenhouseBytes.toString('base64')}`;
-const mapFacilityDataUrls = Object.fromEntries(await Promise.all(mapFacilityAssets.map(async ({ id, areaId, forms, damageOverlay, geometry }) => {
+const mapFacilityDataUrls = Object.fromEntries(await Promise.all(mapFacilityAssets.map(async ({ id, areaId, forms, damageOverlay, damageReplacement, geometry }) => {
   const formEntries = await Promise.all(Object.entries(forms).map(async ([form, source]) => [
     form,
     `data:image/png;base64,${(await readFile(`src/assets/${source}`)).toString('base64')}`,
@@ -249,12 +272,26 @@ const mapFacilityDataUrls = Object.fromEntries(await Promise.all(mapFacilityAsse
   const overlay = damageOverlay
     ? `data:image/png;base64,${(await readFile(`src/assets/${damageOverlay}`)).toString('base64')}`
     : undefined;
-  return [id, { areaId, forms: Object.fromEntries(formEntries), damageOverlay: overlay, geometry }];
+  const replacement = damageReplacement
+    ? `data:image/png;base64,${(await readFile(`src/assets/${damageReplacement}`)).toString('base64')}`
+    : undefined;
+  return [id, {
+    areaId,
+    forms: Object.fromEntries(formEntries),
+    damageOverlay: overlay,
+    damageReplacement: replacement,
+    geometry,
+  }];
 })));
 const battlePlayerDataUrl = `data:image/png;base64,${battlePlayerBytes.toString('base64')}`;
 const battleBossDataUrl = `data:image/png;base64,${battleBossBytes.toString('base64')}`;
+const battleBossReimuDataUrl = `data:image/png;base64,${battleBossReimuBytes.toString('base64')}`;
+const battleBossMarisaDataUrl = `data:image/png;base64,${battleBossMarisaBytes.toString('base64')}`;
 const battleBossCirnoDataUrl = `data:image/png;base64,${battleBossCirnoBytes.toString('base64')}`;
 const battleBossAliceDataUrl = `data:image/png;base64,${battleBossAliceBytes.toString('base64')}`;
+const battleBossNitoriDataUrl = `data:image/png;base64,${battleBossNitoriBytes.toString('base64')}`;
+const battleBossMystiaDataUrl = `data:image/png;base64,${battleBossMystiaBytes.toString('base64')}`;
+const battleBossSuikaDataUrl = `data:image/png;base64,${battleBossSuikaBytes.toString('base64')}`;
 const battleBossSakuyaDataUrl = `data:image/png;base64,${battleBossSakuyaBytes.toString('base64')}`;
 const battleEffectsDataUrl = `data:image/png;base64,${battleEffectsBytes.toString('base64')}`;
 const battleBulletsLocalDataUrl = `data:image/png;base64,${battleBulletsLocalBytes.toString('base64')}`;
@@ -274,8 +311,13 @@ const embedded = {
   mapFacilityDataUrls,
   battlePlayerDataUrl,
   battleBossDataUrl,
+  battleBossReimuDataUrl,
+  battleBossMarisaDataUrl,
   battleBossCirnoDataUrl,
   battleBossAliceDataUrl,
+  battleBossNitoriDataUrl,
+  battleBossMystiaDataUrl,
+  battleBossSuikaDataUrl,
   battleBossSakuyaDataUrl,
   battleEffectsDataUrl,
   battleBulletsLocalDataUrl,

@@ -203,7 +203,20 @@
     "static_dialogue_seen_ids": []
   },
   "inventory": {
-    "consumables": {}
+    "consumables": {},
+    "card_runtime": {
+      "settled_use_ids": [],
+      "opportunity": {
+        "pending": null,
+        "last_result": null
+      },
+      "duel": {
+        "zako_tag_count": 0,
+        "pending_battle": null,
+        "settled_result_ids": [],
+        "pending_victory_dialogue": null
+      }
+    }
   },
   "key_items": {
     "garden_keeper_key": {

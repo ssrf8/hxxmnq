@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { build } from 'esbuild';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
+import { PNG } from 'pngjs';
 
 const read = (path) => readFile(new URL(path, import.meta.url), 'utf8');
 const importTypescript = async (path) => {
@@ -744,8 +746,13 @@ test('战斗 atlas 裁切表完整且 build 只嵌入透明素材', async () => 
   const build = await read('../scripts/build-ui.mjs');
   assert.match(build, /keycraft-player-sheet-v1\.png/);
   assert.match(build, /greenhouse-flower-core-sheet-v1\.png/);
+  assert.match(build, /reimu-battle-sheet-v1\.png/);
+  assert.match(build, /marisa-battle-sheet-v1\.png/);
   assert.match(build, /cirno-battle-sheet-v1\.png/);
   assert.match(build, /alice-battle-sheet-v1\.png/);
+  assert.match(build, /nitori-battle-sheet-v1\.png/);
+  assert.match(build, /mystia-battle-sheet-v1\.png/);
+  assert.match(build, /suika-battle-sheet-v1\.png/);
   assert.match(build, /sakuya-battle-sheet-v1\.png/);
   assert.match(build, /battle-effects-sheet-v1\.png/);
   assert.match(build, /localBulletSource/);
@@ -755,8 +762,13 @@ test('战斗 atlas 裁切表完整且 build 只嵌入透明素材', async () => 
   const host = await read('../src/runtime/ui-host-shell.js');
   assert.match(host, /battlePlayerSrc/);
   assert.match(host, /battleBossSrc/);
+  assert.match(host, /battleBossReimuSrc/);
+  assert.match(host, /battleBossMarisaSrc/);
   assert.match(host, /battleBossCirnoSrc/);
   assert.match(host, /battleBossAliceSrc/);
+  assert.match(host, /battleBossNitoriSrc/);
+  assert.match(host, /battleBossMystiaSrc/);
+  assert.match(host, /battleBossSuikaSrc/);
   assert.match(host, /battleBossSakuyaSrc/);
   assert.match(host, /battleEffectsSrc/);
   assert.match(host, /battleBulletsLocalSrc/);
@@ -765,9 +777,44 @@ test('战斗 atlas 裁切表完整且 build 只嵌入透明素材', async () => 
   assert.match(app, /dataset\.battlePlayerSrc/);
   assert.match(app, /dataset\.battleBulletsLocalSrc/);
   const manifest = JSON.parse(await read('../src/assets/asset-manifest.json'));
-  assert.equal(manifest.battle_assets.local_etama3_bullets.runtime_scope, 'personal-local-only-do-not-package-or-distribute');
+  assert.equal(manifest.battle_assets.local_etama3_bullets.runtime_scope, 'project-package-and-distribution');
   const localBullets = await readFile(new URL(`../src/assets/${manifest.battle_assets.local_etama3_bullets.source_alpha}`, import.meta.url));
   assert.ok(localBullets.length > 50_000);
+  const replacementReport = JSON.parse(await read('../project/character-boss-sheet-replacement-report-2026-07-30.json'));
+  const replacementById = new Map(replacementReport.assets.map((asset) => [asset.character_id, asset]));
+  for (const id of ['reimu', 'marisa', 'alice', 'nitori', 'cirno', 'mystia', 'suika', 'sakuya']) {
+    const entry = manifest.battle_assets[`${id}_battle`];
+    assert.equal(entry.runtime_embed, 'alpha-only', id);
+    assert.equal(entry.layout, '2x2-phase1-phase2-hit-break', id);
+    const pngBytes = await readFile(new URL(`../src/assets/${entry.source_alpha}`, import.meta.url));
+    const png = PNG.sync.read(pngBytes);
+    assert.equal(png.width, 1254, id);
+    assert.equal(png.height, 1254, id);
+    assert.equal(png.colorType, 6, `${id} must be RGBA`);
+    for (const [x, y] of [[0, 0], [1253, 0], [0, 1253], [1253, 1253]]) {
+      assert.equal(png.data[(y * png.width + x) * 4 + 3], 0, `${id} corner ${x},${y}`);
+    }
+    for (const [cellX, cellY] of [[0, 0], [1, 0], [0, 1], [1, 1]]) {
+      let visible = 0;
+      for (let y = cellY * 627; y < (cellY + 1) * 627; y += 1) {
+        for (let x = cellX * 627; x < (cellX + 1) * 627; x += 1) {
+          if (png.data[(y * png.width + x) * 4 + 3] > 0) visible += 1;
+        }
+      }
+      assert.ok(visible > 10_000, `${id} pose ${cellX},${cellY} should be populated`);
+    }
+    if (id === 'reimu' || id === 'marisa') {
+      assert.match(entry.status, /owner-provided-v2-integrated/);
+      assert.match(entry.owner_source_archive, /battle-boss-owner-source-v2/);
+      assert.match(entry.supersedes_owner_source_archive, /battle-boss-owner-source-v1/);
+      assert.equal(entry.replacement_report, 'project/character-boss-sheet-replacement-report-2026-07-30.json');
+      assert.equal(
+        createHash('sha256').update(pngBytes).digest('hex'),
+        replacementById.get(id).output_sha256,
+        `${id} replacement report must match runtime bytes`,
+      );
+    }
+  }
 });
 
 test('四场配置保留 config_id 且阶段具有非符／符卡语义', async () => {
@@ -1117,6 +1164,27 @@ test('B3 表现层：boss 战损分级与四配置 presentation 字段', async (
     assert.ok(typeof pres.boss_name === 'string' && pres.boss_name.length >= 1 && pres.boss_name.length <= 12);
     assert.ok(typeof pres.boss_title === 'string' && pres.boss_title.length <= 18);
   }
+});
+
+test('八名角色的对战视觉 ID 均解析到独立 Boss sheet', async () => {
+  const { characterBossSheet } = await importTypescript('../src/battle/battle-renderer.ts');
+  const configs = await importTypescript('../src/battle/duel-configs.ts');
+  const expected = {
+    reimu: 'boss_reimu',
+    marisa: 'boss_marisa',
+    alice: 'boss_alice',
+    nitori: 'boss_nitori',
+    cirno: 'boss_cirno',
+    mystia: 'boss_mystia',
+    suika: 'boss_suika',
+    sakuya: 'boss_sakuya',
+  };
+  for (const [characterId, sheet] of Object.entries(expected)) {
+    const config = configs.getDuelBattleConfig(characterId, 'standard');
+    assert.equal(config.presentation.boss_id, characterId);
+    assert.equal(characterBossSheet(config.presentation.boss_id), sheet);
+  }
+  assert.equal(characterBossSheet('boss_flower_core'), undefined);
 });
 
 test('B3 渲染冒烟：mock 上下文整帧绘制含 cut-in 占位卡，不抛异常', async () => {

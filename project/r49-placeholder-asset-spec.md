@@ -25,16 +25,23 @@
   ④ `ui-host-shell.js` dataset 转交；⑤ `drawBossCutIn` 中用 `drawAtlasFrame` 替换
   占位卡体（徽章/名牌保留），并删水印行。
 
-### 1.2 三副本 boss 战斗形象（✅ 2026-07-29 已接入，待实机视觉验收）
+### 1.2 八角色 boss 战斗形象（✅ 2026-07-30 已全部接入，待真实 SillyTavern 验收）
 
-- **现状**：所有者提供琪露诺、爱丽丝、咲夜三张 `1254×1254` 四状态图；已转为透明底，
-  按 `presentation.boss_id` 选择独立图集，加载失败仍回退温室妖花 sheet。
+- **现状**：所有者先后提供琪露诺、爱丽丝、咲夜及灵梦、魔理沙、荷取、米斯蒂娅、萃香共八张
+  `1254×1254` 四状态图；均已转为透明底，按 `presentation.boss_id` 选择独立图集，
+  加载失败仍回退温室妖花 sheet。
 - **已满足规格**：每 boss 一张 2×2 网格 sheet，四格依次为待机／施法／受击／击破；
   透明版命名为 `src/assets/battle/boss/<boss_id>-battle-sheet-v1.png`，chroma 版仅作维护源。
 - **已接入链**：asset manifest → atlas 四宫格与 per-boss sheet → build data URL →
   host dataset → app atlas source → renderer `boss_id` 选择；缺省回退妖花。
-- **剩余验收**：琪露诺已完成本地浏览器到场目视；爱丽丝、咲夜待逐场目视。三套源图放大时
-  有轻微洋红边缘，实际战斗缩放下不明显，真实 SillyTavern 中仍须复核。
+- **离线验收**：灵梦、魔理沙、荷取、米斯蒂娅、萃香已通过对战卡逐场到场与暂停态目视，
+  均显示对应人物且无黑底方块；琪露诺已有本地到场记录。五套新增源图的处理报告及浏览器证据
+  分别位于 `project/character-boss-sheet-preparation-report.json` 与 `project/runtime-qa/`。
+- **灵梦／魔理沙 v2 替换**：2026-07-30 后续提供的两张新版已覆盖稳定运行路径，旧 v1 源档保留；
+  新版归档、哈希报告、透明预览和实显证据分别位于 `旧素材/素材处理/battle-boss-owner-source-v2/`、
+  `project/character-boss-sheet-replacement-report-2026-07-30.json`、
+  `project/character-boss-sheet-replacement-preview.png` 与 `project/runtime-qa/boss-{reimu,marisa}-v2-paused.png`。
+- **剩余验收**：真实 SillyTavern 中复核八角色逐场、受击、阶段切换、击破、宿主缩放与移动端显示。
 
 ### 1.3 妖精小怪 sprite（当前=几何圆脸+翅膀）
 

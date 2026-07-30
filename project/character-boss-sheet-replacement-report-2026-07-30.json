@@ -1,0 +1,138 @@
+{
+  "version": "character-boss-sheet-preparation.v2",
+  "method": "deterministic black-background alpha derivation; black floor 8, alpha gain 3.5, RGB un-premultiplication, hidden RGB cleared",
+  "pose_order": [
+    "idle",
+    "spell",
+    "hit",
+    "break"
+  ],
+  "assets": [
+    {
+      "character_id": "marisa",
+      "source_attachment_name": "ChatGPT Image 2026年7月30日 16_27_36.png",
+      "source_sha256": "1b6b901acf465d73425b3e87e84fc5284a3b1f4144097725a9a6645cc991e7d5",
+      "archive_path": "旧素材/素材处理/battle-boss-owner-source-v2/marisa-battle-sheet-owner-black-v2.png",
+      "archive_sha256": "1b6b901acf465d73425b3e87e84fc5284a3b1f4144097725a9a6645cc991e7d5",
+      "output_path": "src/assets/battle/boss/marisa-battle-sheet-v1.png",
+      "output_sha256": "cb044a88bf38846a25219bcb6a64825003225f7f0154c6cfe7761b52dfddc527",
+      "canvas": [
+        1254,
+        1254
+      ],
+      "layout": "2x2-idle-spell-hit-break",
+      "transparent_pixels": 633336,
+      "partial_alpha_pixels": 298401,
+      "opaque_pixels": 640779,
+      "cells": [
+        {
+          "pose": "idle",
+          "visible_bbox_in_cell": [
+            1,
+            28,
+            627,
+            627
+          ],
+          "visible_pixels": 223652,
+          "opaque_pixels": 160857
+        },
+        {
+          "pose": "spell",
+          "visible_bbox_in_cell": [
+            0,
+            18,
+            627,
+            627
+          ],
+          "visible_pixels": 301088,
+          "opaque_pixels": 208268
+        },
+        {
+          "pose": "hit",
+          "visible_bbox_in_cell": [
+            8,
+            0,
+            627,
+            616
+          ],
+          "visible_pixels": 215976,
+          "opaque_pixels": 142309
+        },
+        {
+          "pose": "break",
+          "visible_bbox_in_cell": [
+            0,
+            0,
+            627,
+            627
+          ],
+          "visible_pixels": 198464,
+          "opaque_pixels": 129345
+        }
+      ]
+    },
+    {
+      "character_id": "reimu",
+      "source_attachment_name": "ChatGPT Image 2026年7月30日 16_27_40.png",
+      "source_sha256": "a227d690864bdff2b90102f432ff391626e7d2d81faf99eda4b0aa378e3299ff",
+      "archive_path": "旧素材/素材处理/battle-boss-owner-source-v2/reimu-battle-sheet-owner-black-v2.png",
+      "archive_sha256": "a227d690864bdff2b90102f432ff391626e7d2d81faf99eda4b0aa378e3299ff",
+      "output_path": "src/assets/battle/boss/reimu-battle-sheet-v1.png",
+      "output_sha256": "558cde80772ddc7e917dc9a3bf3b71d1a36ded1f6c97b5609eaa9c3722c858b1",
+      "canvas": [
+        1254,
+        1254
+      ],
+      "layout": "2x2-idle-spell-hit-break",
+      "transparent_pixels": 782516,
+      "partial_alpha_pixels": 120129,
+      "opaque_pixels": 669871,
+      "cells": [
+        {
+          "pose": "idle",
+          "visible_bbox_in_cell": [
+            49,
+            39,
+            610,
+            627
+          ],
+          "visible_pixels": 176696,
+          "opaque_pixels": 151073
+        },
+        {
+          "pose": "spell",
+          "visible_bbox_in_cell": [
+            16,
+            44,
+            624,
+            621
+          ],
+          "visible_pixels": 223243,
+          "opaque_pixels": 193667
+        },
+        {
+          "pose": "hit",
+          "visible_bbox_in_cell": [
+            20,
+            0,
+            627,
+            584
+          ],
+          "visible_pixels": 208006,
+          "opaque_pixels": 178094
+        },
+        {
+          "pose": "break",
+          "visible_bbox_in_cell": [
+            0,
+            44,
+            616,
+            598
+          ],
+          "visible_pixels": 182055,
+          "opaque_pixels": 147037
+        }
+      ]
+    }
+  ]
+}

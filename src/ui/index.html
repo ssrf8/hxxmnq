@@ -23,8 +23,8 @@
         <span class="gg-cursor-glow" id="gg-cursor-glow"></span>
       </div>
       <h1 id="gg-opening-title">幻想乡物语</h1>
-      <p class="gg-opening-sub">向结界递上你的名字</p>
-      <p class="gg-visually-hidden">确认后会直接载入并复读 MVU 初始状态，不调用 LLM；进入庭院后的第一次真实行动才开始生成剧情。</p>
+      <p class="gg-opening-sub">打开祖父留下的最后一封信</p>
+      <p class="gg-visually-hidden">确认身份后会先展开继承庭园的聊天序章；只有你亲手接过庭守钥，继承才会完成。</p>
       <form id="gg-opening-form" class="gg-opening-form">
         <label class="gg-opening-field">玩家姓名<input id="gg-opening-name" name="playerName" maxlength="40" autocomplete="off" required></label>
         <label class="gg-opening-field" hidden>称谓或代词<input id="gg-opening-pronouns" name="playerPronouns" maxlength="40" value="中性称谓"></label>
@@ -32,27 +32,34 @@
         <label class="gg-opening-field">庭园名称<input id="gg-opening-garden" name="gardenName" maxlength="60" value="无名庭园" required></label>
         <div class="gg-opening-actions">
           <button type="button" id="gg-opening-quick">读取当前 Persona</button>
-          <button type="submit" id="gg-opening-commit">穿过结界 · 进入庭院</button>
+          <button type="submit" id="gg-opening-commit">打开遗信 · 开始序章</button>
         </div>
       </form>
       <section id="gg-opening-recovery" class="gg-opening-recovery" aria-labelledby="gg-opening-recovery-title" hidden>
-        <h2 id="gg-opening-recovery-title">开场状态待修复</h2>
+        <h2 id="gg-opening-recovery-title">序章 · 祖父留下的庭园</h2>
+        <article id="gg-opening-story" class="gg-opening-story" aria-live="polite"></article>
         <p id="gg-opening-progress"></p>
         <div class="gg-opening-actions">
-          <button type="button" id="gg-opening-enter">确认资料并进入庭院</button>
-          <button type="button" id="gg-opening-retry">重新生成首轮回复</button>
-          <button type="button" id="gg-opening-repair">补写开场变量</button>
-          <button type="button" id="gg-opening-native">显示原生聊天</button>
+          <button type="button" id="gg-opening-enter">接过庭守钥 · 继承庭园</button>
+          <button type="button" id="gg-opening-repair" hidden>修复旧版开场变量</button>
         </div>
       </section>
       <section class="gg-opening-preview-shell" aria-labelledby="gg-opening-preview-title" hidden>
         <h2 id="gg-opening-preview-title">将写入的开局资料与场景摘要</h2>
         <pre id="gg-opening-preview" class="gg-opening-preview"></pre>
-        <p class="gg-note">预览和编辑不会写入 MVU；只有确认后的确定性事务会提交开局字段。</p>
+        <p class="gg-note">预览和编辑不会改变游戏状态；读完序章并确认继承后才会提交开局字段。</p>
       </section>
     </section>
 
     <div id="gg-runtime-shell" class="gg-runtime-shell" hidden>
+      <aside id="gg-tutorial-guide" class="gg-tutorial-guide" aria-live="polite" hidden>
+        <div>
+          <p id="gg-tutorial-guide-progress" class="gg-eyebrow">新手指引</p>
+          <h2 id="gg-tutorial-guide-title">下一步</h2>
+          <p id="gg-tutorial-guide-text"></p>
+        </div>
+        <button type="button" id="gg-tutorial-guide-skip">跳过指引</button>
+      </aside>
       <header class="gg-header">
         <div class="gg-title-wrap">
           <p class="gg-eyebrow">会移动的结界领地</p>
@@ -288,6 +295,27 @@
     </div>
   </dialog>
 
+  <dialog id="gg-internal-dialog" class="gg-internal-dialog" aria-labelledby="gg-internal-dialog-title" aria-describedby="gg-internal-dialog-message">
+    <form id="gg-internal-dialog-form">
+      <header class="gg-internal-dialog-header">
+        <div>
+          <p class="gg-eyebrow">GARDEN NOTICE</p>
+          <h2 id="gg-internal-dialog-title">庭园确认</h2>
+        </div>
+      </header>
+      <p id="gg-internal-dialog-message" class="gg-internal-dialog-message"></p>
+      <div id="gg-internal-dialog-input-wrap" class="gg-internal-dialog-input-wrap" hidden>
+        <label id="gg-internal-dialog-label" for="gg-internal-dialog-input"></label>
+        <input id="gg-internal-dialog-input" type="text" autocomplete="off">
+        <textarea id="gg-internal-dialog-textarea" rows="5" hidden disabled></textarea>
+      </div>
+      <div class="gg-actions gg-internal-dialog-actions">
+        <button type="button" id="gg-internal-dialog-cancel">取消</button>
+        <button type="submit" id="gg-internal-dialog-confirm">确认</button>
+      </div>
+    </form>
+  </dialog>
+
   <dialog id="gg-battle-dialog" class="gg-battle-dialog" aria-labelledby="gg-battle-title">
     <header class="gg-battle-header">
       <div><p class="gg-eyebrow">JSON 符卡</p><h2 id="gg-battle-title">温室妖花核心</h2></div>
@@ -322,6 +350,30 @@
     </div>
     <div id="gg-dungeon-actions" class="gg-target-actions"></div>
     <footer class="gg-dungeon-footer"><span aria-hidden="true">✦</span> 正式挑战会结算奖励与时段；演练模式不会改动庭园状态 <span aria-hidden="true">✦</span></footer>
+  </dialog>
+  <dialog id="gg-duel-dialog" class="gg-duel-dialog" aria-labelledby="gg-duel-title">
+    <header class="gg-duel-header">
+      <div><p class="gg-eyebrow">SPELL DUEL CARD</p><h2 id="gg-duel-title">选择符卡对手</h2></div>
+      <button type="button" id="gg-close-duel" aria-label="关闭对手选择">关闭</button>
+    </header>
+    <p id="gg-duel-summary" class="gg-duel-summary" role="status" aria-live="polite"></p>
+    <div id="gg-duel-targets" class="gg-duel-targets"></div>
+    <footer class="gg-duel-footer">有效结算后才消费卡片。失败只增加杂鱼标签，不进入剧情。</footer>
+  </dialog>
+  <dialog id="gg-duel-victory-dialog" class="gg-duel-victory-dialog" aria-labelledby="gg-duel-victory-title">
+    <form id="gg-duel-victory-form">
+      <header>
+        <div><p class="gg-eyebrow">DUEL VICTORY</p><h2 id="gg-duel-victory-title">提出胜利要求</h2></div>
+      </header>
+      <p id="gg-duel-victory-summary" class="gg-note"></p>
+      <label for="gg-duel-victory-request">对方必须答应的一项要求</label>
+      <textarea id="gg-duel-victory-request" maxlength="240" rows="4" required aria-describedby="gg-duel-victory-hint"></textarea>
+      <p id="gg-duel-victory-hint" class="gg-note">要求提交后会锁定；只生成一次胜利剧情，不会直接修改金币、设施或其他本地状态。</p>
+      <p id="gg-duel-victory-status" role="status" aria-live="polite"></p>
+      <div class="gg-actions">
+        <button type="submit" id="gg-duel-victory-submit">提交要求并进入剧情</button>
+      </div>
+    </form>
   </dialog>
   <script src="./app.js"></script>
 </body>

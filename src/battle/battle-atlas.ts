@@ -26,14 +26,31 @@ export interface AtlasFrame {
   pivotY?: number;
 }
 
-export type BattleSheetKey = 'player' | 'boss' | 'boss_cirno' | 'boss_alice' | 'boss_sakuya' | 'effects' | 'bullets_local';
+export type BattleSheetKey =
+  | 'player'
+  | 'boss'
+  | 'boss_reimu'
+  | 'boss_marisa'
+  | 'boss_alice'
+  | 'boss_nitori'
+  | 'boss_cirno'
+  | 'boss_mystia'
+  | 'boss_suika'
+  | 'boss_sakuya'
+  | 'effects'
+  | 'bullets_local';
 
 /** Source sheets are the transparent *-v1.png assets only. */
 export const BATTLE_SHEET_PATHS = {
   player: 'battle/player/keycraft-player-sheet-v1.png',
   boss: 'battle/boss/greenhouse-flower-core-sheet-v1.png',
-  boss_cirno: 'battle/boss/cirno-battle-sheet-v1.png',
+  boss_reimu: 'battle/boss/reimu-battle-sheet-v1.png',
+  boss_marisa: 'battle/boss/marisa-battle-sheet-v1.png',
   boss_alice: 'battle/boss/alice-battle-sheet-v1.png',
+  boss_nitori: 'battle/boss/nitori-battle-sheet-v1.png',
+  boss_cirno: 'battle/boss/cirno-battle-sheet-v1.png',
+  boss_mystia: 'battle/boss/mystia-battle-sheet-v1.png',
+  boss_suika: 'battle/boss/suika-battle-sheet-v1.png',
   boss_sakuya: 'battle/boss/sakuya-battle-sheet-v1.png',
   effects: 'battle/effects/battle-effects-sheet-v1.png',
   bullets_local: 'battle/effects/battle-bullets-etama3-local-v1.png',
@@ -256,8 +273,13 @@ export type AtlasFrameId = keyof typeof ATLAS_FRAMES;
 export interface BattleAtlasSources {
   player?: string;
   boss?: string;
-  boss_cirno?: string;
+  boss_reimu?: string;
+  boss_marisa?: string;
   boss_alice?: string;
+  boss_nitori?: string;
+  boss_cirno?: string;
+  boss_mystia?: string;
+  boss_suika?: string;
   boss_sakuya?: string;
   effects?: string;
   bullets_local?: string;
@@ -291,8 +313,13 @@ export async function loadBattleAtlas(sources: BattleAtlasSources = {}): Promise
   const entries: Array<[BattleSheetKey, string | undefined]> = [
     ['player', sources.player],
     ['boss', sources.boss],
-    ['boss_cirno', sources.boss_cirno],
+    ['boss_reimu', sources.boss_reimu],
+    ['boss_marisa', sources.boss_marisa],
     ['boss_alice', sources.boss_alice],
+    ['boss_nitori', sources.boss_nitori],
+    ['boss_cirno', sources.boss_cirno],
+    ['boss_mystia', sources.boss_mystia],
+    ['boss_suika', sources.boss_suika],
     ['boss_sakuya', sources.boss_sakuya],
     ['effects', sources.effects],
     ['bullets_local', sources.bullets_local],
@@ -374,7 +401,7 @@ export interface LocalBulletSprite {
   drawMultiplier: number;
 }
 
-/** Local-only normalized etama sheet lookup. Unsupported shapes keep the procedural fallback. */
+/** Normalized etama sheet lookup. Unsupported shapes keep the procedural fallback. */
 export function resolveLocalBulletSprite(shape: BulletShape, hue: BulletHue = 'blue'): LocalBulletSprite | null {
   const family = LOCAL_BULLET_SHAPE_ROW[shape];
   if (!family) return null;
