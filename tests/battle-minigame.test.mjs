@@ -802,17 +802,10 @@ test('战斗 atlas 裁切表完整且 build 不嵌入 chroma 重复素材', asyn
   }, empty, 'player_normal', 0, 0), false);
 
   const build = await read('../scripts/build-ui.mjs');
-  assert.match(build, /keycraft-player-sheet-v1\.png/);
-  assert.match(build, /greenhouse-flower-core-sheet-v1\.png/);
-  assert.match(build, /reimu-battle-sheet-v1\.png/);
-  assert.match(build, /marisa-battle-sheet-v1\.png/);
-  assert.match(build, /cirno-battle-sheet-v1\.png/);
-  assert.match(build, /alice-battle-sheet-v1\.png/);
-  assert.match(build, /nitori-battle-sheet-v1\.png/);
-  assert.match(build, /mystia-battle-sheet-v1\.png/);
-  assert.match(build, /suika-battle-sheet-v1\.png/);
-  assert.match(build, /sakuya-battle-sheet-v1\.png/);
-  assert.match(build, /battle-effects-sheet-v1\.png/);
+  assert.match(build, /battlePlayerSource/);
+  assert.match(build, /battleBossSources/);
+  assert.match(build, /battleEffectsSource/);
+  assert.match(build, /imageDataUrl/);
   assert.match(build, /localBulletSource/);
   assert.match(build, /battleBulletsLocalDataUrl/);
   assert.match(build, /battlePlayerDataUrl/);
@@ -836,15 +829,18 @@ test('战斗 atlas 裁切表完整且 build 不嵌入 chroma 重复素材', asyn
   assert.match(app, /dataset\.battleBulletsLocalSrc/);
   const manifest = JSON.parse(await read('../src/assets/asset-manifest.json'));
   assert.equal(manifest.battle_assets.local_etama3_bullets.runtime_scope, 'project-package-and-distribution');
+  assert.match(manifest.battle_assets.local_etama3_bullets.source_alpha, /\.webp$/);
   const localBullets = await readFile(new URL(`../src/assets/${manifest.battle_assets.local_etama3_bullets.source_alpha}`, import.meta.url));
-  assert.ok(localBullets.length > 50_000);
+  assert.ok(localBullets.length > 1_000);
   const replacementReport = JSON.parse(await read('../project/character-boss-sheet-replacement-report-2026-07-30.json'));
   const replacementById = new Map(replacementReport.assets.map((asset) => [asset.character_id, asset]));
   for (const id of ['reimu', 'marisa', 'alice', 'nitori', 'cirno', 'mystia', 'suika', 'sakuya']) {
     const entry = manifest.battle_assets[`${id}_battle`];
     assert.equal(entry.runtime_embed, 'alpha-only', id);
     assert.equal(entry.layout, '2x2-phase1-phase2-hit-break', id);
-    const pngBytes = await readFile(new URL(`../src/assets/${entry.source_alpha}`, import.meta.url));
+    assert.match(entry.source_alpha, /\.webp$/, id);
+    const maintenanceSource = entry.source_alpha.replace(/\.webp$/, '.png');
+    const pngBytes = await readFile(new URL(`../src/assets/${maintenanceSource}`, import.meta.url));
     const png = PNG.sync.read(pngBytes);
     assert.equal(png.width, 1254, id);
     assert.equal(png.height, 1254, id);
@@ -1287,75 +1283,75 @@ test('八名角色的对战视觉 ID 均解析到独立 Boss sheet', async () =>
   assert.equal(characterBossPortrait('boss_flower_core', 0), undefined);
 });
 
-test('八名角色的 S0/S1/S2 立绘均走原文件直导链，不要求透明化或图集裁切', async () => {
+test('八名角色的 S0/S1/S2 立绘均走压缩 WebP 运行链，不要求图集裁切', async () => {
   const manifest = JSON.parse(await read('../src/assets/asset-manifest.json'));
   assert.deepEqual(manifest.battle_assets.reimu_battle_portraits.sources, {
-    s0: 'battle/portraits/portrait-reimu-s0-v1.png',
-    s1: 'battle/portraits/portrait-reimu-s1-v1.png',
-    s2: 'battle/portraits/portrait-reimu-s2-v1.png',
+    s0: 'battle/portraits/portrait-reimu-s0-v1.webp',
+    s1: 'battle/portraits/portrait-reimu-s1-v1.webp',
+    s2: 'battle/portraits/portrait-reimu-s2-v1.webp',
   });
   assert.deepEqual(manifest.battle_assets.marisa_battle_portraits.sources, {
-    s0: 'battle/portraits/portrait-marisa-s0-v1.png',
-    s1: 'battle/portraits/portrait-marisa-s1-v1.png',
-    s2: 'battle/portraits/portrait-marisa-s2-v1.png',
+    s0: 'battle/portraits/portrait-marisa-s0-v1.webp',
+    s1: 'battle/portraits/portrait-marisa-s1-v1.webp',
+    s2: 'battle/portraits/portrait-marisa-s2-v1.webp',
   });
   assert.deepEqual(manifest.battle_assets.alice_battle_portraits.sources, {
-    s0: 'battle/portraits/portrait-alice-s0-v1.png',
-    s1: 'battle/portraits/portrait-alice-s1-v1.png',
-    s2: 'battle/portraits/portrait-alice-s2-v1.png',
+    s0: 'battle/portraits/portrait-alice-s0-v1.webp',
+    s1: 'battle/portraits/portrait-alice-s1-v1.webp',
+    s2: 'battle/portraits/portrait-alice-s2-v1.webp',
   });
   assert.deepEqual(manifest.battle_assets.cirno_battle_portraits.sources, {
-    s0: 'battle/portraits/portrait-cirno-s0-v1.png',
-    s1: 'battle/portraits/portrait-cirno-s1-v1.png',
-    s2: 'battle/portraits/portrait-cirno-s2-v1.png',
+    s0: 'battle/portraits/portrait-cirno-s0-v1.webp',
+    s1: 'battle/portraits/portrait-cirno-s1-v1.webp',
+    s2: 'battle/portraits/portrait-cirno-s2-v1.webp',
   });
   assert.deepEqual(manifest.battle_assets.mystia_battle_portraits.sources, {
-    s0: 'battle/portraits/portrait-mystia-s0-v1.png',
-    s1: 'battle/portraits/portrait-mystia-s1-v1.png',
-    s2: 'battle/portraits/portrait-mystia-s2-v1.png',
+    s0: 'battle/portraits/portrait-mystia-s0-v1.webp',
+    s1: 'battle/portraits/portrait-mystia-s1-v1.webp',
+    s2: 'battle/portraits/portrait-mystia-s2-v1.webp',
   });
   assert.deepEqual(manifest.battle_assets.nitori_battle_portraits.sources, {
-    s0: 'battle/portraits/portrait-nitori-s0-v1.png',
-    s1: 'battle/portraits/portrait-nitori-s1-v1.png',
-    s2: 'battle/portraits/portrait-nitori-s2-v1.png',
+    s0: 'battle/portraits/portrait-nitori-s0-v1.webp',
+    s1: 'battle/portraits/portrait-nitori-s1-v1.webp',
+    s2: 'battle/portraits/portrait-nitori-s2-v1.webp',
   });
   assert.deepEqual(manifest.battle_assets.suika_battle_portraits.sources, {
-    s0: 'battle/portraits/portrait-suika-s0-v1.png',
-    s1: 'battle/portraits/portrait-suika-s1-v1.png',
-    s2: 'battle/portraits/portrait-suika-s2-v1.png',
+    s0: 'battle/portraits/portrait-suika-s0-v1.webp',
+    s1: 'battle/portraits/portrait-suika-s1-v1.webp',
+    s2: 'battle/portraits/portrait-suika-s2-v1.webp',
   });
   assert.deepEqual(manifest.battle_assets.sakuya_battle_portraits.sources, {
-    s0: 'battle/portraits/portrait-sakuya-s0-v1.png',
-    s1: 'battle/portraits/portrait-sakuya-s1-v1.png',
-    s2: 'battle/portraits/portrait-sakuya-s2-v1.png',
+    s0: 'battle/portraits/portrait-sakuya-s0-v1.webp',
+    s1: 'battle/portraits/portrait-sakuya-s1-v1.webp',
+    s2: 'battle/portraits/portrait-sakuya-s2-v1.webp',
   });
   assert.deepEqual(manifest.battle_assets.flower_core_battle_portraits.sources, {
-    s0: 'battle/portraits/portrait-flower-core-s0-v1.png',
-    s1: 'battle/portraits/portrait-flower-core-s1-v1.png',
-    s2: 'battle/portraits/portrait-flower-core-s2-v1.png',
+    s0: 'battle/portraits/portrait-flower-core-s0-v1.webp',
+    s1: 'battle/portraits/portrait-flower-core-s1-v1.webp',
+    s2: 'battle/portraits/portrait-flower-core-s2-v1.webp',
   });
-  assert.equal(manifest.battle_assets.fairy_mobs.source_alpha, 'battle/effects/fairy-sheet-v1.png');
+  assert.equal(manifest.battle_assets.fairy_mobs.source_alpha, 'battle/effects/fairy-sheet-v1.webp');
   assert.equal(manifest.battle_assets.fairy_mobs.runtime_embed, 'alpha-only');
-  assert.equal(manifest.battle_assets.reimu_battle_portraits.runtime_embed, 'direct-original-files');
-  assert.equal(manifest.battle_assets.marisa_battle_portraits.runtime_embed, 'direct-original-files');
-  assert.equal(manifest.battle_assets.alice_battle_portraits.runtime_embed, 'direct-original-files');
-  assert.equal(manifest.battle_assets.cirno_battle_portraits.runtime_embed, 'direct-original-files');
-  assert.equal(manifest.battle_assets.mystia_battle_portraits.runtime_embed, 'direct-original-files');
-  assert.equal(manifest.battle_assets.nitori_battle_portraits.runtime_embed, 'direct-original-files');
-  assert.equal(manifest.battle_assets.suika_battle_portraits.runtime_embed, 'direct-original-files');
-  assert.equal(manifest.battle_assets.sakuya_battle_portraits.runtime_embed, 'direct-original-files');
-  assert.equal(manifest.battle_assets.flower_core_battle_portraits.runtime_embed, 'direct-original-files');
+  assert.equal(manifest.battle_assets.reimu_battle_portraits.runtime_embed, 'compressed-webp');
+  assert.equal(manifest.battle_assets.marisa_battle_portraits.runtime_embed, 'compressed-webp');
+  assert.equal(manifest.battle_assets.alice_battle_portraits.runtime_embed, 'compressed-webp');
+  assert.equal(manifest.battle_assets.cirno_battle_portraits.runtime_embed, 'compressed-webp');
+  assert.equal(manifest.battle_assets.mystia_battle_portraits.runtime_embed, 'compressed-webp');
+  assert.equal(manifest.battle_assets.nitori_battle_portraits.runtime_embed, 'compressed-webp');
+  assert.equal(manifest.battle_assets.suika_battle_portraits.runtime_embed, 'compressed-webp');
+  assert.equal(manifest.battle_assets.sakuya_battle_portraits.runtime_embed, 'compressed-webp');
+  assert.equal(manifest.battle_assets.flower_core_battle_portraits.runtime_embed, 'compressed-webp');
   const buildSource = await read('../scripts/build-ui.mjs');
   const hostSource = await read('../src/runtime/ui-host-shell.js');
-  assert.match(buildSource, /reimuPortraitAsset[\s\S]*?direct-original-files/);
-  assert.match(buildSource, /marisaPortraitAsset[\s\S]*?direct-original-files/);
-  assert.match(buildSource, /alicePortraitAsset[\s\S]*?direct-original-files/);
-  assert.match(buildSource, /cirnoPortraitAsset[\s\S]*?direct-original-files/);
-  assert.match(buildSource, /mystiaPortraitAsset[\s\S]*?direct-original-files/);
-  assert.match(buildSource, /nitoriPortraitAsset[\s\S]*?direct-original-files/);
-  assert.match(buildSource, /suikaPortraitAsset[\s\S]*?direct-original-files/);
-  assert.match(buildSource, /sakuyaPortraitAsset[\s\S]*?direct-original-files/);
-  assert.match(buildSource, /flowerCorePortraitAsset[\s\S]*?direct-original-files/);
+  assert.match(buildSource, /reimuPortraitAsset[\s\S]*?compressed-webp/);
+  assert.match(buildSource, /marisaPortraitAsset[\s\S]*?compressed-webp/);
+  assert.match(buildSource, /alicePortraitAsset[\s\S]*?compressed-webp/);
+  assert.match(buildSource, /cirnoPortraitAsset[\s\S]*?compressed-webp/);
+  assert.match(buildSource, /mystiaPortraitAsset[\s\S]*?compressed-webp/);
+  assert.match(buildSource, /nitoriPortraitAsset[\s\S]*?compressed-webp/);
+  assert.match(buildSource, /suikaPortraitAsset[\s\S]*?compressed-webp/);
+  assert.match(buildSource, /sakuyaPortraitAsset[\s\S]*?compressed-webp/);
+  assert.match(buildSource, /flowerCorePortraitAsset[\s\S]*?compressed-webp/);
   assert.match(buildSource, /fairyAsset[\s\S]*?alpha-only/);
   assert.match(buildSource, /battlePortraitReimuS0DataUrl/);
   assert.match(buildSource, /battlePortraitReimuS1DataUrl/);

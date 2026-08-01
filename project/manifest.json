@@ -85,6 +85,7 @@
     "m2_expansion_plan": "./r38-r45-m2-expansion-plan.md",
     "runtime_architecture_optimization": "./runtime-architecture-optimization-plan.md",
     "asset_delivery_and_r2_plan": "./asset-delivery-and-r2-plan.md",
+    "r2_deployment_readiness": "./r2-deployment-readiness.md",
     "battle_bgm_r2_template": "./battle-bgm-r2-template.md",
     "gal_portrait_variable_and_r2_pool_plan": "./gal-portrait-variable-and-r2-pool-plan.md"
   },

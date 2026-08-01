@@ -3,6 +3,8 @@
 > 决策日期：2026-08-01
 > 状态：**A 阶段 LLM 表现变量已完成；B 阶段已接入魔理沙首批 10 张本地 GAL 贴图，待真实 SillyTavern 验收，未改 MVU、未部署 R2**
 > 适用范围：GAL 角色近景，不改变战斗 cut-in、庭园像素角色或正式 MVU 游戏状态
+> 单桶约束：GAL 卡池与核心运行素材共用项目唯一 R2 桶，只使用独立前缀和 manifest，不创建
+> GAL 专用桶。
 
 ## 1. 目标
 
@@ -161,8 +163,8 @@ GAL 卡池使用独立于核心 UI release 的滚动频道：
 ```text
 gensokyo-moving-garden/
   channels/gal-stable.json
-  releases/<gal-pool-release-id>/manifest.json
-  releases/<gal-pool-release-id>/characters/...
+  gal-pools/<gal-pool-release-id>/manifest.json
+  gal-pools/<gal-pool-release-id>/characters/...
 ```
 
 频道指针示例：
@@ -171,14 +173,16 @@ gensokyo-moving-garden/
 {
   "schema_version": "gal-channel.v1",
   "release_id": "gal-pool-2026-08-01-r1",
-  "manifest_url": "releases/gal-pool-2026-08-01-r1/manifest.json",
+  "manifest_url": "gal-pools/gal-pool-2026-08-01-r1/manifest.json",
   "manifest_sha256": "<hex>",
   "minimum_client_schema": "gal-pool.v1"
 }
 ```
 
-- `releases/<id>/**` 不可变，使用长期 immutable 缓存；禁止原地覆盖。
+- `gal-pools/<id>/**` 不可变，使用长期 immutable 缓存；禁止原地覆盖。
 - `channels/gal-stable.json` 可变，使用 `no-cache` 或短 TTL；只能在新 release 全量上传并验证后切换。
+- GAL pool 与核心 `releases/<id>/**` 共用同一个桶、自定义域名和 CORS，但发布、验证和清理必须按
+  各自 manifest 限定前缀，不能交叉扫描或覆盖。
 - 客户端保存最近一次验证成功的频道和 manifest；频道损坏、超时或不兼容时回退 last-known-good，再回退随卡基础素材。
 - 频道指针不是素材真相；不可变 manifest 才是一次卡池发行的完整快照。
 - 更新已有 `pose_id` 的候选、权重或图片不需要重新打包角色卡；修改字段结构、抽卡算法、白名单语义或客户端 schema 仍需重新构建和打包。
@@ -247,7 +251,7 @@ gensokyo-moving-garden/
 
 ### D. R2 预发布与真实宿主验收
 
-前提是所有者另行提供并授权桶、域名、CORS、上传入口和首个 release ID。
+前提是所有者另行提供并授权项目唯一桶、域名、CORS、上传入口和首个 GAL pool release ID。
 
 1. 上传新不可变 release，逐项验证长度、MIME、哈希和缓存头。
 2. 最后切换测试频道，不直接覆盖正式频道。
@@ -270,5 +274,5 @@ gensokyo-moving-garden/
 - 成人素材本地开关的默认值和设置入口；
 - 首批各角色允许的 `pose_id` 白名单与模型可见说明；
 - 是否要求旧聊天永远固定首次抽中的 pool release，还是允许按频道重新解析；
-- 正式 R2 桶、自定义域名、CORS、上传工具、秘密配置入口与回滚方式；
+- 项目唯一 R2 桶、自定义域名、CORS、上传工具、秘密配置入口与回滚方式；
 - 公开只读素材是否满足发布要求；若不满足，需先规划 Worker，不能先把私有素材暴露再补权限。

@@ -385,6 +385,7 @@ function loadImage(src: string): Promise<HTMLImageElement | null> {
     }
     const image = new Image();
     image.decoding = 'async';
+    if (/^https:\/\//iu.test(src)) image.crossOrigin = 'anonymous';
     image.onload = () => resolve(image);
     image.onerror = () => resolve(null);
     image.src = src;

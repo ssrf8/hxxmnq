@@ -165,6 +165,7 @@
     childDoc.write('<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body></body></html>');
     childDoc.close();
     childDoc.documentElement.dataset.mapSrc = embedded.mapDataUrl;
+    if (embedded.assetDeliveryConfig) childDoc.documentElement.dataset.assetDeliveryConfig = JSON.stringify(embedded.assetDeliveryConfig);
     if (embedded.dungeonButtonDataUrl) childDoc.documentElement.dataset.dungeonButtonSrc = embedded.dungeonButtonDataUrl;
     if (embedded.shopButtonDataUrl) childDoc.documentElement.dataset.shopButtonSrc = embedded.shopButtonDataUrl;
     if (embedded.inventoryButtonDataUrl) childDoc.documentElement.dataset.inventoryButtonSrc = embedded.inventoryButtonDataUrl;

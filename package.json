@@ -5,6 +5,10 @@
   "type": "module",
   "scripts": {
     "build:ui": "node scripts/build-ui.mjs",
+    "build:assets:r2": "node scripts/build-runtime-assets.mjs",
+    "compress:assets": "node scripts/compress-runtime-assets.mjs",
+    "check:assets:r2": "node scripts/build-runtime-assets.mjs --release=0.2.0-r55-preflight --dry-run",
+    "plan:assets:r2": "node scripts/publish-r2-assets.mjs --dry-run",
     "check:ui": "tsc --noEmit",
     "package:checkpoint:dry": "node scripts/package-checkpoint.mjs --checkpoint=0.2.0-r54 --dry-run",
     "package:checkpoint": "node scripts/package-checkpoint.mjs --checkpoint=0.2.0-r54",
@@ -14,6 +18,7 @@
   "devDependencies": {
     "esbuild": "0.25.6",
     "pngjs": "^7.0.0",
-    "typescript": "5.8.3"
+    "typescript": "5.8.3",
+    "wrangler": "4.118.0"
   }
 }

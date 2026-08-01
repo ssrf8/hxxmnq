@@ -1,4 +1,5 @@
 import type { GardenBridge, GardenState, OpeningContext, OpeningDraft, OpeningProgress } from './types';
+import type { AssetPreloader, AssetPreloadSnapshot } from './asset-preloader';
 
 const DRAFT_VERSION = 1;
 
@@ -30,6 +31,8 @@ export class OpeningController {
     private readonly bridge: GardenBridge,
     private readonly root: HTMLElement,
     private readonly runtimeShell: HTMLElement,
+    private readonly loadingRoot: HTMLElement,
+    private readonly assetPreloader: AssetPreloader,
     private readonly setStatus: (text: string, error?: boolean) => void,
     private readonly requestRefresh: () => void,
   ) {
@@ -38,13 +41,33 @@ export class OpeningController {
     this.button('gg-opening-quick').addEventListener('click', () => this.applyPersona());
     this.button('gg-opening-enter').addEventListener('click', () => void this.enterGarden());
     this.button('gg-opening-repair').addEventListener('click', () => void this.repair());
+    this.assetPreloader.subscribe((snapshot) => this.renderAssetProgress(snapshot));
   }
 
   async render(state: GardenState) {
+    this.assetPreloader.setEntryContext([
+      ...(state.presence_snapshot?.present_character_ids ?? []).map((id) => `character:${id}`),
+      ...Object.keys(state.facilities ?? {}).map((id) => `facility:${id}`),
+    ]);
+    void this.assetPreloader.start();
     const committed = Boolean(state.meta?.opening_committed);
     this.root.hidden = committed;
-    this.runtimeShell.hidden = !committed;
-    if (committed) return;
+    if (committed) {
+      if (!this.assetPreloader.snapshot.entryReady && !this.assetPreloader.snapshot.entryTimedOut) {
+        this.runtimeShell.hidden = true;
+        this.loadingRoot.hidden = false;
+        const snapshot = await this.assetPreloader.waitForEntryGate();
+        this.loadingRoot.hidden = true;
+        this.runtimeShell.hidden = false;
+        if (snapshot.failed) this.setAssetFallbackStatus(snapshot);
+      } else {
+        this.loadingRoot.hidden = true;
+        this.runtimeShell.hidden = false;
+      }
+      return;
+    }
+    this.loadingRoot.hidden = true;
+    this.runtimeShell.hidden = true;
     if (!this.context) {
       this.context = await this.bridge.getOpeningContext();
       const saved = this.loadDraft();
@@ -63,6 +86,29 @@ export class OpeningController {
   private get form() { return document.getElementById('gg-opening-form') as HTMLFormElement; }
   private input(id: string) { return document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement; }
   private button(id: string) { return document.getElementById(id) as HTMLButtonElement; }
+
+  private renderAssetProgress(snapshot: AssetPreloadSnapshot) {
+    const progress = document.getElementById('gg-asset-loading-progress') as HTMLProgressElement;
+    const status = document.getElementById('gg-asset-loading-status') as HTMLElement;
+    progress.value = snapshot.entryPercent;
+    progress.textContent = `${snapshot.entryPercent}%`;
+    if (snapshot.entryReady || snapshot.entryTimedOut) {
+      status.textContent = snapshot.failed
+        ? `入口素材已检查，${snapshot.failed} 项载入失败，将使用内置降级显示。`
+        : snapshot.entryTimedOut
+          ? '入口等待已到 15 秒，将先进入庭园，其余素材继续后台加载。'
+          : `入口素材已加载 ${snapshot.entrySettled}/${snapshot.entryTotal} 项 · 100%`;
+      return;
+    }
+    const retry = snapshot.retrying
+      ? ` · 已重试 ${snapshot.retrying} 次（单项最多 ${snapshot.maxAttempts} 次）`
+      : '';
+    status.textContent = `入口素材已检查 ${snapshot.entrySettled}/${snapshot.entryTotal} 项 · ${snapshot.entryPercent}%${retry}`;
+  }
+
+  private setAssetFallbackStatus(snapshot: AssetPreloadSnapshot) {
+    this.setStatus(`有 ${snapshot.failed} 项素材在 ${snapshot.maxAttempts} 次尝试后仍未载入，已使用内置降级显示`, true);
+  }
 
   private readDraft(): OpeningDraft {
     return normalizedDraft({
@@ -166,13 +212,25 @@ export class OpeningController {
     this.busy = true;
     this.button('gg-opening-enter').disabled = true;
     try {
+      const beforeLoad = this.assetPreloader.snapshot;
+      if (!beforeLoad.entryReady && !beforeLoad.entryTimedOut) {
+        this.loadingRoot.hidden = false;
+        const snapshot = await this.assetPreloader.waitForEntryGate();
+        this.loadingRoot.hidden = true;
+        if (snapshot.failed) this.setAssetFallbackStatus(snapshot);
+      }
       const result = await this.bridge.enterGarden(this.context.chatId);
       sessionStorage.removeItem(storageKey(this.context.chatId));
-      this.setStatus(result.initializedFromDefaults
+      const loadWarning = this.assetPreloader.snapshot.failed
+        ? `；${this.assetPreloader.snapshot.failed} 项素材已降级显示`
+        : '';
+      this.setStatus((result.initializedFromDefaults
         ? '你接过了庭守钥。初始状态已经补齐，移动庭园正在回应'
-        : '你接过了庭守钥，移动庭园的结界已经开启');
+        : '你接过了庭守钥，移动庭园的结界已经开启') + loadWarning,
+      this.assetPreloader.snapshot.failed > 0);
       this.requestRefresh();
     } catch (error) {
+      this.loadingRoot.hidden = true;
       this.setStatus(`进入庭院失败：${error instanceof Error ? error.message : String(error)}`, true);
     } finally {
       this.busy = false;

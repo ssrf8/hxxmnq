@@ -99,6 +99,7 @@ export class GardenNavigationMask implements GardenMaskSampler {
       onStateChanged();
     };
     this.image.onerror = () => this.fail(onStateChanged);
+    if (/^https:\/\//iu.test(source)) this.image.crossOrigin = 'anonymous';
     this.image.src = source;
   }
 

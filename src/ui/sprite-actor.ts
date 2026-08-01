@@ -234,6 +234,7 @@ export class SpriteActor {
       this.imageFailed = true;
       onAssetStateChanged();
     };
+    if (/^https:\/\//iu.test(config.idleSource)) this.idleImage.crossOrigin = 'anonymous';
     this.idleImage.src = config.idleSource;
     if (config.motionSource) {
       this.motionImage.onload = () => {
@@ -244,6 +245,7 @@ export class SpriteActor {
         this.motionImageReady = false;
         onAssetStateChanged();
       };
+      if (/^https:\/\//iu.test(config.motionSource)) this.motionImage.crossOrigin = 'anonymous';
       this.motionImage.src = config.motionSource;
     }
     if (config.animationSource) {
@@ -255,6 +257,7 @@ export class SpriteActor {
         this.animationImageReady = false;
         onAssetStateChanged();
       };
+      if (/^https:\/\//iu.test(config.animationSource)) this.animationImage.crossOrigin = 'anonymous';
       this.animationImage.src = config.animationSource;
     }
     if (config.sequence) {
@@ -266,6 +269,7 @@ export class SpriteActor {
         this.sequenceImageReady = false;
         onAssetStateChanged();
       };
+      if (/^https:\/\//iu.test(config.sequence.source)) this.sequenceImage.crossOrigin = 'anonymous';
       this.sequenceImage.src = config.sequence.source;
     }
   }

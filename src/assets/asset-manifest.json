@@ -1,6 +1,17 @@
 {
   "version": "0.2.0",
   "review_mode": "unified-review-after-batch-generation",
+  "runtime_compression": {
+    "format": "webp",
+    "maintenance_sources": "same-basename PNG files remain in src/assets and are excluded from runtime delivery",
+    "policies": {
+      "characters": "lossless, original dimensions",
+      "battle_portraits": "quality 50, height 800, aspect ratio preserved",
+      "battle_boss_sheets": "quality 50, original dimensions",
+      "other_non_gal_images": "quality 70, original dimensions",
+      "gal": "excluded from this compression pass"
+    }
+  },
   "style_reference": {
     "source": "D:/浏览器下载/ChatGPT Image 2026年7月22日 20_58_03.png",
     "role": "pixel density, chibi proportions and four-direction layout only",
@@ -52,16 +63,16 @@
       "status": "approved",
       "map_usage": true,
       "source_chroma": "characters/reimu/reimu-turnaround-chroma-v1.png",
-      "source_alpha": "characters/reimu/reimu-turnaround-v1.png",
+      "source_alpha": "characters/reimu/reimu-turnaround-v1.webp",
       "views": ["front", "back", "left", "right"],
       "expression": "closed-mouth slight smile",
       "animation_prototype": ["procedural-walk", "four-direction-crop"],
       "animation_status": "pending-unified-review",
       "animation_source_chroma": "characters/reimu/reimu-walk-cycle-chroma-v1.png",
-      "animation_source_alpha": "characters/reimu/reimu-walk-cycle-v1.png",
-      "animation_v2_source_alpha": "characters/reimu/reimu-animation-v2-r6.png",
+      "animation_source_alpha": "characters/reimu/reimu-walk-cycle-v1.webp",
+      "animation_v2_source_alpha": "characters/reimu/reimu-animation-v2-r6.webp",
       "animation_v2_status": "runtime-pilot-approved",
-      "animation_sequence_source_alpha": "characters/reimu/reimu-animation-sequence-approved-v1.png",
+      "animation_sequence_source_alpha": "characters/reimu/reimu-animation-sequence-approved-v1.webp",
       "animation_sequence_manifest": "characters/reimu/sequence-approved-v1/manifest.json",
       "animation_sequence_status": "owner-approved-runtime-integrated",
       "animation_sequence_frame_count": 20,
@@ -73,7 +84,7 @@
       "status": "approved",
       "map_usage": true,
       "source_chroma": "characters/marisa/marisa-riding-turnaround-chroma-v3.png",
-      "source_alpha": "characters/marisa/marisa-riding-turnaround-v3.png",
+      "source_alpha": "characters/marisa/marisa-riding-turnaround-v3.webp",
       "previous_source_alpha": [
         "characters/marisa/marisa-turnaround-v1.png",
         "characters/marisa/marisa-riding-turnaround-v2.png"
@@ -83,8 +94,8 @@
       "movement_mode": "low-altitude-broom-flight",
       "animation_status": "pending-unified-review",
       "animation_source_chroma": "characters/marisa/marisa-hover-cycle-chroma-v1.png",
-      "animation_source_alpha": "characters/marisa/marisa-hover-cycle-v1.png",
-      "animation_v2_source_alpha": "characters/marisa/marisa-animation-v2-r2.png",
+      "animation_source_alpha": "characters/marisa/marisa-hover-cycle-v1.webp",
+      "animation_v2_source_alpha": "characters/marisa/marisa-animation-v2-r2.webp",
       "animation_v2_status": "runtime-pilot-approved",
       "animation_v2_notes": "hover keyframe r2: 9x4 sheet from low/high references; bob baked into atlas; legacy hover-cycle remains fallback",
       "animation_ready": ["hover-4-frame", "hat-bob", "broom-sway", "v2-hover-atlas-r2"],
@@ -94,14 +105,14 @@
       "status": "approved",
       "map_usage": true,
       "source_chroma": "characters/cirno/cirno-turnaround-chroma-v1.png",
-      "source_alpha": "characters/cirno/cirno-turnaround-v1.png",
+      "source_alpha": "characters/cirno/cirno-turnaround-v1.webp",
       "views": ["front", "back", "left", "right"],
       "expression": "closed-mouth slight smile",
       "movement_mode": "walking-with-wing-hover",
       "animation_status": "pending-unified-review",
       "animation_source_chroma": "characters/cirno/cirno-walk-cycle-chroma-v1.png",
-      "animation_source_alpha": "characters/cirno/cirno-walk-cycle-v1.png",
-      "animation_sequence_source_alpha": "characters/cirno/cirno-animation-sequence-approved-v1.png",
+      "animation_source_alpha": "characters/cirno/cirno-walk-cycle-v1.webp",
+      "animation_sequence_source_alpha": "characters/cirno/cirno-animation-sequence-approved-v1.webp",
       "animation_sequence_manifest": "characters/cirno/sequence-approved-v1/manifest.json",
       "animation_sequence_status": "owner-approved-runtime-integrated-with-direction-anchors",
       "animation_sequence_frame_count": 17,
@@ -113,14 +124,14 @@
       "status": "approved",
       "map_usage": true,
       "source_chroma": "characters/alice/alice-turnaround-chroma-v1.png",
-      "source_alpha": "characters/alice/alice-turnaround-v1.png",
+      "source_alpha": "characters/alice/alice-turnaround-v1.webp",
       "views": ["front", "back", "left", "right"],
       "expression": "closed-mouth slight smile",
       "movement_mode": "walking-with-book",
       "animation_status": "pending-unified-review",
       "animation_source_chroma": "characters/alice/alice-walk-cycle-chroma-v1.png",
-      "animation_source_alpha": "characters/alice/alice-walk-cycle-v1.png",
-      "animation_sequence_source_alpha": "characters/alice/alice-animation-sequence-approved-v1.png",
+      "animation_source_alpha": "characters/alice/alice-walk-cycle-v1.webp",
+      "animation_sequence_source_alpha": "characters/alice/alice-animation-sequence-approved-v1.webp",
       "animation_sequence_manifest": "characters/alice/sequence-approved-v1/manifest.json",
       "animation_sequence_status": "owner-approved-runtime-integrated",
       "animation_sequence_frame_count": 25,
@@ -132,15 +143,15 @@
       "status": "approved",
       "map_usage": true,
       "source_chroma": "characters/mystia/mystia-turnaround-chroma-v2.png",
-      "source_alpha": "characters/mystia/mystia-turnaround-v2.png",
+      "source_alpha": "characters/mystia/mystia-turnaround-v2.webp",
       "previous_source_alpha": "characters/mystia/mystia-turnaround-v1.png",
       "views": ["front", "back", "left", "right"],
       "expression": "closed-mouth slight smile",
       "movement_mode": "walking-with-wing-hover",
       "animation_status": "pending-unified-review",
       "animation_source_chroma": "characters/mystia/mystia-walk-cycle-chroma-v1.png",
-      "animation_source_alpha": "characters/mystia/mystia-walk-cycle-v1.png",
-      "animation_sequence_source_alpha": "characters/mystia/mystia-animation-sequence-approved-v1.png",
+      "animation_source_alpha": "characters/mystia/mystia-walk-cycle-v1.webp",
+      "animation_sequence_source_alpha": "characters/mystia/mystia-animation-sequence-approved-v1.webp",
       "animation_sequence_manifest": "characters/mystia/sequence-approved-v1/manifest.json",
       "animation_sequence_status": "owner-approved-runtime-integrated",
       "animation_sequence_frame_count": 24,
@@ -152,14 +163,14 @@
       "status": "approved",
       "map_usage": true,
       "source_chroma": "characters/suika/suika-turnaround-chroma-v1.png",
-      "source_alpha": "characters/suika/suika-turnaround-v1.png",
+      "source_alpha": "characters/suika/suika-turnaround-v1.webp",
       "views": ["front", "back", "left", "right"],
       "expression": "closed-mouth mischievous smile",
       "movement_mode": "walking-with-chain-weights",
       "animation_status": "pending-unified-review",
       "animation_source_chroma": "characters/suika/suika-walk-cycle-chroma-v1.png",
-      "animation_source_alpha": "characters/suika/suika-walk-cycle-v1.png",
-      "animation_sequence_source_alpha": "characters/suika/suika-animation-sequence-approved-v1.png",
+      "animation_source_alpha": "characters/suika/suika-walk-cycle-v1.webp",
+      "animation_sequence_source_alpha": "characters/suika/suika-animation-sequence-approved-v1.webp",
       "animation_sequence_manifest": "characters/suika/sequence-approved-v1/manifest.json",
       "animation_sequence_status": "owner-approved-runtime-integrated-with-suika-anchor",
       "animation_sequence_frame_count": 19,
@@ -171,14 +182,14 @@
       "status": "approved",
       "map_usage": true,
       "source_chroma": "characters/nitori/nitori-turnaround-chroma-v1.png",
-      "source_alpha": "characters/nitori/nitori-turnaround-v1.png",
+      "source_alpha": "characters/nitori/nitori-turnaround-v1.webp",
       "views": ["front", "back", "left", "right"],
       "expression": "closed-mouth slight smile",
       "movement_mode": "walking-with-backpack",
       "animation_status": "pending-unified-review",
       "animation_source_chroma": "characters/nitori/nitori-walk-cycle-chroma-v1.png",
-      "animation_source_alpha": "characters/nitori/nitori-walk-cycle-v1.png",
-      "animation_sequence_source_alpha": "characters/nitori/nitori-animation-sequence-approved-v1.png",
+      "animation_source_alpha": "characters/nitori/nitori-walk-cycle-v1.webp",
+      "animation_sequence_source_alpha": "characters/nitori/nitori-animation-sequence-approved-v1.webp",
       "animation_sequence_manifest": "characters/nitori/sequence-approved-v1/manifest.json",
       "animation_sequence_status": "owner-approved-runtime-integrated",
       "animation_sequence_frame_count": 22,
@@ -190,14 +201,14 @@
       "status": "approved",
       "map_usage": true,
       "source_chroma": "characters/sakuya/sakuya-turnaround-chroma-v1.png",
-      "source_alpha": "characters/sakuya/sakuya-turnaround-v1.png",
+      "source_alpha": "characters/sakuya/sakuya-turnaround-v1.webp",
       "views": ["front", "back", "left", "right"],
       "expression": "closed-mouth composed smile",
       "movement_mode": "walking",
       "animation_status": "pending-unified-review",
       "animation_source_chroma": "characters/sakuya/sakuya-walk-cycle-chroma-v1.png",
-      "animation_source_alpha": "characters/sakuya/sakuya-walk-cycle-v1.png",
-      "animation_sequence_source_alpha": "characters/sakuya/sakuya-animation-sequence-approved-v1.png",
+      "animation_source_alpha": "characters/sakuya/sakuya-walk-cycle-v1.webp",
+      "animation_sequence_source_alpha": "characters/sakuya/sakuya-animation-sequence-approved-v1.webp",
       "animation_sequence_manifest": "characters/sakuya/sequence-approved-v1/manifest.json",
       "animation_sequence_status": "owner-approved-runtime-integrated",
       "animation_sequence_frame_count": 24,
@@ -211,7 +222,7 @@
     "battle_usage": true,
     "status": "wired-runtime-alpha-only",
     "source_chroma": "battle/player/keycraft-player-sheet-v1-chroma.png",
-    "source_alpha": "battle/player/keycraft-player-sheet-v1.png",
+    "source_alpha": "battle/player/keycraft-player-sheet-v1.webp",
     "runtime_embed": "alpha-only",
     "note": "build-ui embeds source_alpha only; chroma is authoring reference and must not ship"
   },
@@ -219,12 +230,12 @@
     "greenhouse_flower_core": {
       "status": "wired-runtime-alpha-only",
       "source_chroma": "battle/boss/greenhouse-flower-core-sheet-v1-chroma.png",
-      "source_alpha": "battle/boss/greenhouse-flower-core-sheet-v1.png",
+      "source_alpha": "battle/boss/greenhouse-flower-core-sheet-v1.webp",
       "runtime_embed": "alpha-only"
     },
     "reimu_battle": {
       "status": "owner-provided-v2-integrated-offline-validated-pending-sillytavern",
-      "source_alpha": "battle/boss/reimu-battle-sheet-v1.png",
+      "source_alpha": "battle/boss/reimu-battle-sheet-v1.webp",
       "owner_source_archive": "旧素材/素材处理/battle-boss-owner-source-v2/reimu-battle-sheet-owner-black-v2.png",
       "supersedes_owner_source_archive": "旧素材/素材处理/battle-boss-owner-source-v1/reimu-battle-sheet-owner-black-v1.png",
       "replacement_report": "project/character-boss-sheet-replacement-report-2026-07-30.json",
@@ -232,108 +243,108 @@
       "layout": "2x2-phase1-phase2-hit-break"
     },
     "reimu_battle_portraits": {
-      "status": "owner-provided-direct-import-pending-sillytavern",
+      "status": "owner-provided-compressed-runtime-pending-sillytavern",
       "sources": {
-        "s0": "battle/portraits/portrait-reimu-s0-v1.png",
-        "s1": "battle/portraits/portrait-reimu-s1-v1.png",
-        "s2": "battle/portraits/portrait-reimu-s2-v1.png"
+        "s0": "battle/portraits/portrait-reimu-s0-v1.webp",
+        "s1": "battle/portraits/portrait-reimu-s1-v1.webp",
+        "s2": "battle/portraits/portrait-reimu-s2-v1.webp"
       },
-      "runtime_embed": "direct-original-files",
+      "runtime_embed": "compressed-webp",
       "layout": "three-full-images-s0-s1-s2",
-      "note": "Owner-provided Reimu cut-in portraits copied and embedded without image decoding, background removal, alpha edits, cropping, resizing, quantization, or re-encoding."
+      "note": "Owner PNG is retained beside the runtime file; runtime uses a quality-50 WebP resized to 800px height with aspect ratio preserved."
     },
     "marisa_battle_portraits": {
-      "status": "owner-provided-direct-import-pending-sillytavern",
+      "status": "owner-provided-compressed-runtime-pending-sillytavern",
       "sources": {
-        "s0": "battle/portraits/portrait-marisa-s0-v1.png",
-        "s1": "battle/portraits/portrait-marisa-s1-v1.png",
-        "s2": "battle/portraits/portrait-marisa-s2-v1.png"
+        "s0": "battle/portraits/portrait-marisa-s0-v1.webp",
+        "s1": "battle/portraits/portrait-marisa-s1-v1.webp",
+        "s2": "battle/portraits/portrait-marisa-s2-v1.webp"
       },
-      "runtime_embed": "direct-original-files",
+      "runtime_embed": "compressed-webp",
       "layout": "three-full-images-s0-s1-s2",
-      "note": "Owner-provided Marisa cut-in portraits copied and embedded without image decoding, background removal, alpha edits, cropping, resizing, quantization, or re-encoding."
+      "note": "Owner PNG is retained beside the runtime file; runtime uses a quality-50 WebP resized to 800px height with aspect ratio preserved."
     },
     "alice_battle_portraits": {
-      "status": "owner-provided-direct-import-pending-sillytavern",
+      "status": "owner-provided-compressed-runtime-pending-sillytavern",
       "sources": {
-        "s0": "battle/portraits/portrait-alice-s0-v1.png",
-        "s1": "battle/portraits/portrait-alice-s1-v1.png",
-        "s2": "battle/portraits/portrait-alice-s2-v1.png"
+        "s0": "battle/portraits/portrait-alice-s0-v1.webp",
+        "s1": "battle/portraits/portrait-alice-s1-v1.webp",
+        "s2": "battle/portraits/portrait-alice-s2-v1.webp"
       },
-      "runtime_embed": "direct-original-files",
+      "runtime_embed": "compressed-webp",
       "layout": "three-full-images-s0-s1-s2",
-      "note": "Owner-provided Alice cut-in portraits copied and embedded without image decoding, background removal, alpha edits, cropping, resizing, quantization, or re-encoding."
+      "note": "Owner PNG is retained beside the runtime file; runtime uses a quality-50 WebP resized to 800px height with aspect ratio preserved."
     },
     "cirno_battle_portraits": {
-      "status": "owner-provided-direct-import-pending-sillytavern",
+      "status": "owner-provided-compressed-runtime-pending-sillytavern",
       "sources": {
-        "s0": "battle/portraits/portrait-cirno-s0-v1.png",
-        "s1": "battle/portraits/portrait-cirno-s1-v1.png",
-        "s2": "battle/portraits/portrait-cirno-s2-v1.png"
+        "s0": "battle/portraits/portrait-cirno-s0-v1.webp",
+        "s1": "battle/portraits/portrait-cirno-s1-v1.webp",
+        "s2": "battle/portraits/portrait-cirno-s2-v1.webp"
       },
-      "runtime_embed": "direct-original-files",
+      "runtime_embed": "compressed-webp",
       "layout": "three-full-images-s0-s1-s2",
-      "note": "Owner-provided Cirno cut-in portraits copied and embedded without image decoding, background removal, alpha edits, cropping, resizing, quantization, or re-encoding."
+      "note": "Owner PNG is retained beside the runtime file; runtime uses a quality-50 WebP resized to 800px height with aspect ratio preserved."
     },
     "mystia_battle_portraits": {
-      "status": "owner-provided-direct-import-pending-sillytavern",
+      "status": "owner-provided-compressed-runtime-pending-sillytavern",
       "sources": {
-        "s0": "battle/portraits/portrait-mystia-s0-v1.png",
-        "s1": "battle/portraits/portrait-mystia-s1-v1.png",
-        "s2": "battle/portraits/portrait-mystia-s2-v1.png"
+        "s0": "battle/portraits/portrait-mystia-s0-v1.webp",
+        "s1": "battle/portraits/portrait-mystia-s1-v1.webp",
+        "s2": "battle/portraits/portrait-mystia-s2-v1.webp"
       },
-      "runtime_embed": "direct-original-files",
+      "runtime_embed": "compressed-webp",
       "layout": "three-full-images-s0-s1-s2",
-      "note": "Owner-provided Mystia cut-in portraits copied and embedded without image decoding, background removal, alpha edits, cropping, resizing, quantization, or re-encoding."
+      "note": "Owner PNG is retained beside the runtime file; runtime uses a quality-50 WebP resized to 800px height with aspect ratio preserved."
     },
     "nitori_battle_portraits": {
-      "status": "owner-provided-direct-import-pending-sillytavern",
+      "status": "owner-provided-compressed-runtime-pending-sillytavern",
       "sources": {
-        "s0": "battle/portraits/portrait-nitori-s0-v1.png",
-        "s1": "battle/portraits/portrait-nitori-s1-v1.png",
-        "s2": "battle/portraits/portrait-nitori-s2-v1.png"
+        "s0": "battle/portraits/portrait-nitori-s0-v1.webp",
+        "s1": "battle/portraits/portrait-nitori-s1-v1.webp",
+        "s2": "battle/portraits/portrait-nitori-s2-v1.webp"
       },
-      "runtime_embed": "direct-original-files",
+      "runtime_embed": "compressed-webp",
       "layout": "three-full-images-s0-s1-s2",
-      "note": "Owner-provided Nitori cut-in portraits copied and embedded without image decoding, background removal, alpha edits, cropping, resizing, quantization, or re-encoding."
+      "note": "Owner PNG is retained beside the runtime file; runtime uses a quality-50 WebP resized to 800px height with aspect ratio preserved."
     },
     "suika_battle_portraits": {
-      "status": "owner-provided-direct-import-pending-sillytavern",
+      "status": "owner-provided-compressed-runtime-pending-sillytavern",
       "sources": {
-        "s0": "battle/portraits/portrait-suika-s0-v1.png",
-        "s1": "battle/portraits/portrait-suika-s1-v1.png",
-        "s2": "battle/portraits/portrait-suika-s2-v1.png"
+        "s0": "battle/portraits/portrait-suika-s0-v1.webp",
+        "s1": "battle/portraits/portrait-suika-s1-v1.webp",
+        "s2": "battle/portraits/portrait-suika-s2-v1.webp"
       },
-      "runtime_embed": "direct-original-files",
+      "runtime_embed": "compressed-webp",
       "layout": "three-full-images-s0-s1-s2",
-      "note": "Owner-provided Suika cut-in portraits copied and embedded without image decoding, background removal, alpha edits, cropping, resizing, quantization, or re-encoding."
+      "note": "Owner PNG is retained beside the runtime file; runtime uses a quality-50 WebP resized to 800px height with aspect ratio preserved."
     },
     "sakuya_battle_portraits": {
-      "status": "owner-provided-direct-import-pending-sillytavern",
+      "status": "owner-provided-compressed-runtime-pending-sillytavern",
       "sources": {
-        "s0": "battle/portraits/portrait-sakuya-s0-v1.png",
-        "s1": "battle/portraits/portrait-sakuya-s1-v1.png",
-        "s2": "battle/portraits/portrait-sakuya-s2-v1.png"
+        "s0": "battle/portraits/portrait-sakuya-s0-v1.webp",
+        "s1": "battle/portraits/portrait-sakuya-s1-v1.webp",
+        "s2": "battle/portraits/portrait-sakuya-s2-v1.webp"
       },
-      "runtime_embed": "direct-original-files",
+      "runtime_embed": "compressed-webp",
       "layout": "three-full-images-s0-s1-s2",
-      "note": "Owner-provided Sakuya cut-in portraits copied and embedded without image decoding, background removal, alpha edits, cropping, resizing, quantization, or re-encoding."
+      "note": "Owner PNG is retained beside the runtime file; runtime uses a quality-50 WebP resized to 800px height with aspect ratio preserved."
     },
     "flower_core_battle_portraits": {
       "status": "ai-generated-integrated-pending-sillytavern",
       "sources": {
-        "s0": "battle/portraits/portrait-flower-core-s0-v1.png",
-        "s1": "battle/portraits/portrait-flower-core-s1-v1.png",
-        "s2": "battle/portraits/portrait-flower-core-s2-v1.png"
+        "s0": "battle/portraits/portrait-flower-core-s0-v1.webp",
+        "s1": "battle/portraits/portrait-flower-core-s1-v1.webp",
+        "s2": "battle/portraits/portrait-flower-core-s2-v1.webp"
       },
-      "runtime_embed": "direct-original-files",
+      "runtime_embed": "compressed-webp",
       "layout": "three-full-images-s0-s1-s2",
       "provenance": "Generated with the built-in ImageGen tool on 2026-07-30; S1 and S2 were edited from the preceding state to preserve boss design and composition.",
-      "note": "Moonlit greenhouse carnivorous-flower core with intact, light-damage, and heavy-damage states; visually inspected after generation."
+      "note": "Source PNGs remain beside the runtime files; runtime uses quality-50 WebP files resized to 800px height with aspect ratio preserved."
     },
     "marisa_battle": {
       "status": "owner-provided-v2-integrated-offline-validated-pending-sillytavern",
-      "source_alpha": "battle/boss/marisa-battle-sheet-v1.png",
+      "source_alpha": "battle/boss/marisa-battle-sheet-v1.webp",
       "owner_source_archive": "旧素材/素材处理/battle-boss-owner-source-v2/marisa-battle-sheet-owner-black-v2.png",
       "supersedes_owner_source_archive": "旧素材/素材处理/battle-boss-owner-source-v1/marisa-battle-sheet-owner-black-v1.png",
       "replacement_report": "project/character-boss-sheet-replacement-report-2026-07-30.json",
@@ -343,34 +354,34 @@
     "cirno_battle": {
       "status": "owner-provided-integrated-pending-runtime-validation",
       "source_chroma": "battle/boss/cirno-battle-sheet-v1-chroma.png",
-      "source_alpha": "battle/boss/cirno-battle-sheet-v1.png",
+      "source_alpha": "battle/boss/cirno-battle-sheet-v1.webp",
       "runtime_embed": "alpha-only",
       "layout": "2x2-phase1-phase2-hit-break"
     },
     "alice_battle": {
       "status": "owner-provided-integrated-pending-runtime-validation",
       "source_chroma": "battle/boss/alice-battle-sheet-v1-chroma.png",
-      "source_alpha": "battle/boss/alice-battle-sheet-v1.png",
+      "source_alpha": "battle/boss/alice-battle-sheet-v1.webp",
       "runtime_embed": "alpha-only",
       "layout": "2x2-phase1-phase2-hit-break"
     },
     "nitori_battle": {
       "status": "owner-provided-integrated-offline-validated-pending-sillytavern",
-      "source_alpha": "battle/boss/nitori-battle-sheet-v1.png",
+      "source_alpha": "battle/boss/nitori-battle-sheet-v1.webp",
       "owner_source_archive": "旧素材/素材处理/battle-boss-owner-source-v1/nitori-battle-sheet-owner-black-v1.png",
       "runtime_embed": "alpha-only",
       "layout": "2x2-phase1-phase2-hit-break"
     },
     "mystia_battle": {
       "status": "owner-provided-integrated-offline-validated-pending-sillytavern",
-      "source_alpha": "battle/boss/mystia-battle-sheet-v1.png",
+      "source_alpha": "battle/boss/mystia-battle-sheet-v1.webp",
       "owner_source_archive": "旧素材/素材处理/battle-boss-owner-source-v1/mystia-battle-sheet-owner-black-v1.png",
       "runtime_embed": "alpha-only",
       "layout": "2x2-phase1-phase2-hit-break"
     },
     "suika_battle": {
       "status": "owner-provided-integrated-offline-validated-pending-sillytavern",
-      "source_alpha": "battle/boss/suika-battle-sheet-v1.png",
+      "source_alpha": "battle/boss/suika-battle-sheet-v1.webp",
       "owner_source_archive": "旧素材/素材处理/battle-boss-owner-source-v1/suika-battle-sheet-owner-black-v1.png",
       "runtime_embed": "alpha-only",
       "layout": "2x2-phase1-phase2-hit-break"
@@ -378,20 +389,20 @@
     "sakuya_battle": {
       "status": "owner-provided-integrated-pending-runtime-validation",
       "source_chroma": "battle/boss/sakuya-battle-sheet-v1-chroma.png",
-      "source_alpha": "battle/boss/sakuya-battle-sheet-v1.png",
+      "source_alpha": "battle/boss/sakuya-battle-sheet-v1.webp",
       "runtime_embed": "alpha-only",
       "layout": "2x2-phase1-phase2-hit-break"
     },
     "common_effects": {
       "status": "wired-runtime-alpha-only",
       "source_chroma": "battle/effects/battle-effects-sheet-v1-chroma.png",
-      "source_alpha": "battle/effects/battle-effects-sheet-v1.png",
+      "source_alpha": "battle/effects/battle-effects-sheet-v1.webp",
       "runtime_embed": "alpha-only"
     },
     "fairy_mobs": {
       "status": "ai-generated-integrated-pending-sillytavern",
       "source_chroma": "battle/effects/fairy-sheet-v1-chroma.png",
-      "source_alpha": "battle/effects/fairy-sheet-v1.png",
+      "source_alpha": "battle/effects/fairy-sheet-v1.webp",
       "runtime_embed": "alpha-only",
       "layout": "2x2-blue-flap0-flap1-gold-flap0-flap1-64px-cells",
       "provenance": "Generated with the built-in ImageGen tool on 2026-07-30, then chroma-keyed and resized with nearest-neighbor sampling.",
@@ -399,11 +410,11 @@
     },
     "local_etama3_bullets": {
       "status": "owner-provided-ai-generated-edited-integrated",
-      "source_alpha": "battle/effects/battle-bullets-etama3-local-v1.png",
+      "source_alpha": "battle/effects/battle-bullets-etama3-local-v1.webp",
       "runtime_embed": "alpha-only",
       "runtime_scope": "project-package-and-distribution",
       "layout": "8-hues-x-8-families-32px-cells",
-      "sha256": "a7b9b322857f73bbb945f7296c6fcc41c3d5a7fa8972e6991a527267456b2bfd",
+      "sha256": "56deeb06dfc582be5642bde2ea538849a67c9a64d962956913d13bd9c01ac439",
       "note": "Owner-provided AI-generated and edited etama3 sheet, authorized for project runtime, packaging, and distribution; star and load-failure paths retain procedural rendering."
     }
   },
@@ -496,14 +507,14 @@
   "maps": {
     "garden_base": {
       "status": "owner-approved-v3-integrated-pending-runtime-validation",
-      "source": "maps/garden-base-owner-v3.png",
+      "source": "maps/garden-base-owner-v3.webp",
       "canvas": [1672, 941],
       "composition": "owner-supplied-spring-residence-garden-v3",
       "runtime_role": "base-layer",
       "facility_layer_policy": "v3-transparent-sprites-with-damaged-ruin-replacements-integrated",
       "character_visual_scale": 0.64,
       "facility_visual_scale": 0.76,
-      "provenance": "owner-supplied 2026-07-29; SHA-256 b5d89e347fa448ecf82690a43a5639649d44956d544e4295a72ec08c62926c13"
+      "provenance": "owner-supplied 2026-07-29; SHA-256 2887f14dd6b65e8437a5701e62b3b74d18abeae882697868865639945f86f971"
     },
     "garden_no_walk_mask": {
       "status": "project-authored-v1-integrated-pending-runtime-validation",
@@ -530,10 +541,10 @@
       "map_usage": true,
       "area_id": "greenhouse_plot",
       "source_alpha": {
-        "基础魔法温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-base-v3.png",
-        "自由生长型温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-free-growth-v3.png",
-        "人偶维护型温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-doll-maintained-v3.png",
-        "河童自动化型温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-kappa-automated-v3.png"
+        "基础魔法温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-base-v3.webp",
+        "自由生长型温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-free-growth-v3.webp",
+        "人偶维护型温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-doll-maintained-v3.webp",
+        "河童自动化型温室": "world/map-facilities/magic-greenhouse/magic-greenhouse-kappa-automated-v3.webp"
       },
       "geometry": {
         "width_ratio": 0.291,
@@ -550,11 +561,11 @@
       "map_usage": true,
       "area_id": "fairy_garden_plot",
       "source_alpha": {
-        "四季花境": "world/map-facilities/fairy-garden/fairy-garden-four-season-v3.png",
-        "妖精游乐庭": "world/map-facilities/fairy-garden/fairy-garden-playground-v3.png",
-        "冰露迷宫": "world/map-facilities/fairy-garden/fairy-garden-ice-dew-maze-v3.png"
+        "四季花境": "world/map-facilities/fairy-garden/fairy-garden-four-season-v3.webp",
+        "妖精游乐庭": "world/map-facilities/fairy-garden/fairy-garden-playground-v3.webp",
+        "冰露迷宫": "world/map-facilities/fairy-garden/fairy-garden-ice-dew-maze-v3.webp"
       },
-      "damage_replacement_alpha": "world/map-facilities/fairy-garden/fairy-garden-ruins-v3.png",
+      "damage_replacement_alpha": "world/map-facilities/fairy-garden/fairy-garden-ruins-v3.webp",
       "geometry": {
         "width_ratio": 0.255,
         "render_center": [0.81, 0.36],
@@ -570,11 +581,11 @@
       "map_usage": true,
       "area_id": "moon_spring_plot",
       "source_alpha": {
-        "露天月见汤": "world/map-facilities/moon-spring/moon-spring-open-air-v3.png",
-        "静水观测池": "world/map-facilities/moon-spring/moon-spring-still-water-observation-v3.png",
-        "雾隐汤屋": "world/map-facilities/moon-spring/moon-spring-mist-hidden-bathhouse-v3.png"
+        "露天月见汤": "world/map-facilities/moon-spring/moon-spring-open-air-v3.webp",
+        "静水观测池": "world/map-facilities/moon-spring/moon-spring-still-water-observation-v3.webp",
+        "雾隐汤屋": "world/map-facilities/moon-spring/moon-spring-mist-hidden-bathhouse-v3.webp"
       },
-      "damage_replacement_alpha": "world/map-facilities/moon-spring/moon-spring-ruins-v3.png",
+      "damage_replacement_alpha": "world/map-facilities/moon-spring/moon-spring-ruins-v3.webp",
       "geometry": {
         "width_ratio": 0.255,
         "render_center": [0.22, 0.70],
@@ -590,11 +601,11 @@
       "map_usage": true,
       "area_id": "banquet_plaza_plot",
       "source_alpha": {
-        "灯火夜市": "world/map-facilities/banquet-plaza/banquet-plaza-lantern-market-v3.png",
-        "鬼之大宴台": "world/map-facilities/banquet-plaza/banquet-plaza-oni-grand-feast-v3.png",
-        "符卡演武场": "world/map-facilities/banquet-plaza/banquet-plaza-spell-card-arena-v3.png"
+        "灯火夜市": "world/map-facilities/banquet-plaza/banquet-plaza-lantern-market-v3.webp",
+        "鬼之大宴台": "world/map-facilities/banquet-plaza/banquet-plaza-oni-grand-feast-v3.webp",
+        "符卡演武场": "world/map-facilities/banquet-plaza/banquet-plaza-spell-card-arena-v3.webp"
       },
-      "damage_replacement_alpha": "world/map-facilities/banquet-plaza/banquet-plaza-ruins-v3.png",
+      "damage_replacement_alpha": "world/map-facilities/banquet-plaza/banquet-plaza-ruins-v3.webp",
       "geometry": {
         "width_ratio": 0.265,
         "render_center": [0.78, 0.69],
@@ -610,12 +621,12 @@
     "main_house_states": {
       "status": "pending-unified-review",
       "source_chroma": "world/house/main-house-states-v1-chroma.png",
-      "source_alpha": "world/house/main-house-states-v1.png"
+      "source_alpha": "world/house/main-house-states-v1.webp"
     },
     "magic_greenhouse_states": {
       "status": "pending-unified-review",
       "source_chroma": "world/greenhouse/magic-greenhouse-states-v1-chroma.png",
-      "source_alpha": "world/greenhouse/magic-greenhouse-states-v1.png"
+      "source_alpha": "world/greenhouse/magic-greenhouse-states-v1.webp"
     },
     "garden_props": {
       "status": "pending-unified-review",
@@ -654,6 +665,30 @@
       "source_alpha": "ui/gensokyo-gal-shrine-background-v1.png",
       "runtime_role": "gal-stage-background",
       "sha256": "b1b998f50219824af4340e70285097534c3355e3ebd98bd813ed1b2d0745df44"
+    },
+    "dungeon_button": {
+      "status": "runtime-ready",
+      "source_alpha": "ui/reimu-dungeon-button-v1.webp",
+      "runtime_role": "entry-button",
+      "sha256": "8ec51f86aa2ec5440ccf729c29f3e791a690bb7719e1640d8908341c88e45f26"
+    },
+    "shop_button": {
+      "status": "runtime-ready",
+      "source_alpha": "ui/reimu-shop-button-v1.webp",
+      "runtime_role": "entry-button",
+      "sha256": "09476bd91a24297b612262226c547ef393634bb061b839520551ff1773abcb24"
+    },
+    "inventory_button": {
+      "status": "runtime-ready",
+      "source_alpha": "ui/marisa-inventory-button-v1.webp",
+      "runtime_role": "entry-button",
+      "sha256": "2be55d65cf6386a99708d6dc824fe6e2115fe4ae548cdfbdea9771076aaaaf88"
+    },
+    "shop_background": {
+      "status": "runtime-ready",
+      "source_alpha": "ui/reimu-shop-ui-background-v1.webp",
+      "runtime_role": "shop-background",
+      "sha256": "1baa75464d6400f418fce8964dc0a81d1fee2a7cbe1a338fa892421b0023e4bc"
     }
   }
 }

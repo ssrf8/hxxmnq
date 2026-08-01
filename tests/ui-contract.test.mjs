@@ -263,6 +263,7 @@ test('三张玩法入口使用大型平滑插画并同时进入预览与内嵌�
   const controller = await read('../src/ui/app.ts');
   const styles = await read('../src/ui/styles.css');
   const build = await read('../scripts/build-ui.mjs');
+  const assetManifest = JSON.parse(await read('../src/assets/asset-manifest.json'));
   const host = await read('../src/runtime/ui-host-shell.js');
   assert.match(document, /id="gg-open-shop"[^>]*aria-label="打开灵梦小店"/);
   assert.match(document, /id="gg-shop-button-image"/);
@@ -271,19 +272,24 @@ test('三张玩法入口使用大型平滑插画并同时进入预览与内嵌�
   assert.match(styles, /\.gg-launcher-dialog #gg-open-shop img/);
   assert.match(styles, /\.gg-launcher-dialog #gg-open-dungeon img,[\s\S]*?image-rendering: auto/);
   assert.match(build, /shopButtonDataUrl/);
-  assert.match(build, /ui\/reimu-shop-button-v1\.png/);
+  assert.match(build, /requiredUiSource\('shop_button', 'entry-button'\)/);
+  assert.equal(assetManifest.ui_assets.shop_button.source_alpha, 'ui/reimu-shop-button-v1.webp');
   assert.match(host, /dataset\.shopButtonSrc = embedded\.shopButtonDataUrl/);
   assert.match(document, /id="gg-open-inventory"[^>]*aria-label="打开背包"[\s\S]*?id="gg-inventory-button-image"/);
-  assert.match(controller, /inventoryButtonImage\.src[\s\S]*?marisa-inventory-button-v1\.png/);
+  assert.match(controller, /const inventoryButtonSource[\s\S]*?marisa-inventory-button-v1\.png/);
+  assert.match(controller, /inventoryButtonImage\.src = inventoryButtonSource/);
   assert.match(styles, /\.gg-launcher-dialog #gg-open-inventory img/);
   assert.match(build, /inventoryButtonDataUrl/);
-  assert.match(build, /ui\/marisa-inventory-button-v1\.png/);
+  assert.match(build, /requiredUiSource\('inventory_button', 'entry-button'\)/);
+  assert.equal(assetManifest.ui_assets.inventory_button.source_alpha, 'ui/marisa-inventory-button-v1.webp');
   assert.match(host, /dataset\.inventoryButtonSrc = embedded\.inventoryButtonDataUrl/);
   assert.match(document, /id="gg-open-dungeon"[^>]*aria-label="打开符卡副本"[\s\S]*?id="gg-dungeon-button-image"/);
-  assert.match(controller, /dungeonButtonImage\.src[\s\S]*?reimu-dungeon-button-v1\.png/);
+  assert.match(controller, /const dungeonButtonSource[\s\S]*?reimu-dungeon-button-v1\.png/);
+  assert.match(controller, /dungeonButtonImage\.src = dungeonButtonSource/);
   assert.match(styles, /\.gg-launcher-dialog #gg-open-dungeon img/);
   assert.match(build, /dungeonButtonDataUrl/);
-  assert.match(build, /ui\/reimu-dungeon-button-v1\.png/);
+  assert.match(build, /requiredUiSource\('dungeon_button', 'entry-button'\)/);
+  assert.equal(assetManifest.ui_assets.dungeon_button.source_alpha, 'ui/reimu-dungeon-button-v1.webp');
   assert.match(host, /dataset\.dungeonButtonSrc = embedded\.dungeonButtonDataUrl/);
 });
 
@@ -303,6 +309,7 @@ test('灵梦小店底图、十槽商品层和窄屏回流共同进入构建', as
   const view = await read('../src/ui/shop-view.ts');
   const styles = await read('../src/ui/styles.css');
   const build = await read('../scripts/build-ui.mjs');
+  const assetManifest = JSON.parse(await read('../src/assets/asset-manifest.json'));
   const host = await read('../src/runtime/ui-host-shell.js');
   assert.match(document, /id="gg-shop-background"/);
   assert.match(controller, /dataset\.shopBackgroundSrc/);
@@ -322,7 +329,8 @@ test('灵梦小店底图、十槽商品层和窄屏回流共同进入构建', as
   assert.match(styles, /\.gg-shop-buy:active:not\(:disabled\), \.gg-shop-leave:active:not\(:disabled\) \{[^}]*transform: none/s);
   assert.match(styles, /\.gg-shop-status \{[^}]*top: 92\.25%/s);
   assert.match(styles, /@media \(max-width: 620px\)/);
-  assert.match(build, /reimu-shop-ui-background-v1\.png/);
+  assert.match(build, /requiredUiSource\('shop_background', 'shop-background'\)/);
+  assert.equal(assetManifest.ui_assets.shop_background.source_alpha, 'ui/reimu-shop-ui-background-v1.webp');
   assert.match(build, /shopBackgroundDataUrl/);
   assert.match(host, /dataset\.shopBackgroundSrc = embedded\.shopBackgroundDataUrl/);
 });
@@ -660,7 +668,7 @@ test('所有者提供的 v3 横向庭园底图由素材清单驱动，人物比�
   const build = await read('../scripts/build-ui.mjs');
   const map = await read('../src/ui/garden-map.ts');
   const spatial = await read('../src/ui/garden-spatial.ts');
-  assert.match(manifest, /garden-base-owner-v3\.png/);
+  assert.match(manifest, /garden-base-owner-v3\.webp/);
   assert.match(manifest, /"canvas": \[1672, 941\]/);
   assert.match(manifest, /"runtime_role": "base-layer"/);
   assert.match(manifest, /"facility_layer_policy": "v3-transparent-sprites-with-damaged-ruin-replacements-integrated"/);
@@ -712,9 +720,9 @@ test('v3 底图启用同画布透明设施，并以共享废墟替换三组 dama
     banquet_plaza: [656, 464],
   };
   const expectedRuins = {
-    fairy_garden: 'world/map-facilities/fairy-garden/fairy-garden-ruins-v3.png',
-    moon_spring: 'world/map-facilities/moon-spring/moon-spring-ruins-v3.png',
-    banquet_plaza: 'world/map-facilities/banquet-plaza/banquet-plaza-ruins-v3.png',
+    fairy_garden: 'world/map-facilities/fairy-garden/fairy-garden-ruins-v3.webp',
+    moon_spring: 'world/map-facilities/moon-spring/moon-spring-ruins-v3.webp',
+    banquet_plaza: 'world/map-facilities/banquet-plaza/banquet-plaza-ruins-v3.webp',
   };
   assert.equal(
     ruinReport.source_sha256,
@@ -732,15 +740,16 @@ test('v3 底图启用同画布透明设施，并以共享废墟替换三组 dama
       assert.equal(asset.damage_replacement_alpha, undefined);
     } else {
       assert.equal(asset.damage_replacement_alpha, expectedRuins[id]);
-      assert.equal(ruinReport.outputs[id].path, `src/assets/${expectedRuins[id]}`);
+      assert.equal(ruinReport.outputs[id].path, `src/assets/${expectedRuins[id].replace(/\.webp$/, '.png')}`);
     }
     const sources = [
       ...Object.values(asset.source_alpha),
       ...(asset.damage_replacement_alpha ? [asset.damage_replacement_alpha] : []),
     ];
     for (const source of sources) {
-      assert.match(source, /-v3\.png$/);
-      const png = PNG.sync.read(await readBuffer(`../src/assets/${source}`));
+      assert.match(source, /-v3\.webp$/);
+      const maintenanceSource = source.replace(/\.webp$/, '.png');
+      const png = PNG.sync.read(await readBuffer(`../src/assets/${maintenanceSource}`));
       assert.deepEqual([png.width, png.height], expectedCanvases[id]);
       assert.equal(png.colorType, 6);
       let transparentRgbClean = true;
@@ -1038,6 +1047,13 @@ test('新开局先生成继承序章，玩家确认后才写入 MVU', async () =
   assert.doesNotMatch(opening, /replaceMvuData|stat_data\s*=/);
   assert.match(document, /先展开继承庭园的聊天序章/);
   assert.match(document, /只有你亲手接过庭守钥，继承才会完成/);
+  assert.match(document, /id="gg-asset-loading"/);
+  assert.match(document, /id="gg-asset-loading-progress"/);
+  assert.match(opening, /void this\.assetPreloader\.start\(\)/);
+  assert.match(opening, /await this\.assetPreloader\.waitForEntryGate\(\)/);
+  assert.match(enterHandler, /!beforeLoad\.entryReady\s*&&\s*!beforeLoad\.entryTimedOut/);
+  assert.match(await read('../src/ui/app.ts'), /priorityClass:\s*'entry-contextual'[\s\S]*?sprite\.sequence\?\.source|sprite\.sequence\?\.source[\s\S]*?priorityClass:\s*'entry-contextual'/);
+  assert.match(styles, /@keyframes gg-asset-loading-spin/);
   assert.match(bridge, /storyText/);
   assert.match(styles, /\.gg-opening-form\[hidden\],[\s\S]*\.gg-opening-recovery\[hidden\]\s*\{\s*display:\s*none\s*!important/);
 });

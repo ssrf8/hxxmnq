@@ -220,6 +220,7 @@ export class GardenMap {
     if (!context) throw new Error('Canvas 2D 不可用');
     this.context = context;
     this.background.onload = () => this.draw();
+    if (/^https:\/\//iu.test(mapSource)) this.background.crossOrigin = 'anonymous';
     this.background.src = mapSource;
     this.navigationMask = new GardenNavigationMask(
       navigationMaskSource,
@@ -706,6 +707,7 @@ export class GardenMap {
     if (cached) return cached;
     const image = new Image();
     image.onload = () => this.draw();
+    if (/^https:\/\//iu.test(source)) image.crossOrigin = 'anonymous';
     image.src = source;
     this.facilityImages.set(source, image);
     return image;

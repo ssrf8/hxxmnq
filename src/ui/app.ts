@@ -47,6 +47,8 @@ import { queueSceneItemUse } from './activity-rules';
 import { rollFacilityRisk } from './facility-rules';
 import { periodSerialFromState } from './time-rules';
 import { OpeningController } from './opening';
+import { AssetPreloader, collectPreloadAssets, type PreloadAsset } from './asset-preloader';
+import { resolveRemoteRelease } from './asset-remote-resolver';
 import {
   buildActionMessage,
   isFixedPresentationAction,
@@ -72,6 +74,7 @@ const byId = <T extends HTMLElement>(id: string) => {
 };
 
 const app = byId<HTMLElement>('gg-app');
+const assetDeliveryConfigSource = document.documentElement.dataset.assetDeliveryConfig;
 const galBackgroundSource = document.documentElement.dataset.galBackgroundSrc
   || '../assets/ui/gensokyo-gal-shrine-background-v1.png';
 app.style.setProperty('--gg-gal-background-image', `url(${JSON.stringify(galBackgroundSource)})`);
@@ -293,14 +296,18 @@ const targetActionSymbols: Record<TargetActionVisualKind, string> = {
   'pat-head': '♡',
   quest: '!',
 };
-dungeonButtonImage.src = document.documentElement.dataset.dungeonButtonSrc
+const dungeonButtonSource = document.documentElement.dataset.dungeonButtonSrc
   || `${assetBase}/ui/reimu-dungeon-button-v1.png`;
-shopButtonImage.src = document.documentElement.dataset.shopButtonSrc
+const shopButtonSource = document.documentElement.dataset.shopButtonSrc
   || `${assetBase}/ui/reimu-shop-button-v1.png`;
-inventoryButtonImage.src = document.documentElement.dataset.inventoryButtonSrc
+const inventoryButtonSource = document.documentElement.dataset.inventoryButtonSrc
   || `${assetBase}/ui/marisa-inventory-button-v1.png`;
-shopBackgroundImage.src = document.documentElement.dataset.shopBackgroundSrc
+const shopBackgroundSource = document.documentElement.dataset.shopBackgroundSrc
   || `${assetBase}/ui/reimu-shop-ui-background-v1.png`;
+dungeonButtonImage.src = dungeonButtonSource;
+shopButtonImage.src = shopButtonSource;
+inventoryButtonImage.src = inventoryButtonSource;
+shopBackgroundImage.src = shopBackgroundSource;
 const mapSource = document.documentElement.dataset.mapSrc || `${assetBase}/maps/garden-base-spring-v1.png`;
 const navigationMaskSource = document.documentElement.dataset.mapNoWalkMaskSrc
   || `${assetBase}/maps/garden-no-walk-mask-v1.svg`;
@@ -536,6 +543,44 @@ const battleAtlasSources = {
   effects: battleEffectsSheetSource,
   bullets_local: battleBulletsLocalSheetSource,
 };
+const taggedAssets = (
+  values: unknown[],
+  metadata: Omit<PreloadAsset, 'url' | 'kind' | 'logicalId'>,
+) => collectPreloadAssets(...values).map((asset) => ({ ...asset, ...metadata, logicalId: `asset:${asset.url}` }));
+const scheduledAssets: PreloadAsset[] = [
+  ...taggedAssets([mapSource, navigationMaskSource], {
+    bundle: 'entry:map', priorityClass: 'entry-critical', entryGate: 'critical', category: 'map',
+  }),
+  ...taggedAssets([dungeonButtonSource, shopButtonSource, inventoryButtonSource], {
+    bundle: 'entry:navigation', priorityClass: 'entry-critical', entryGate: 'critical', category: 'ui',
+  }),
+  ...Object.entries(characterSprites).flatMap(([id, sprite]) => taggedAssets([
+    sprite.idleSource, sprite.motionSource, sprite.animationSource, sprite.sequence?.source,
+  ], { bundle: `character:${id}`, priorityClass: 'entry-contextual', entryGate: 'none', category: 'character' })),
+  ...Object.entries(mapFacilitySprites).flatMap(([id, sprite]) => taggedAssets([sprite], {
+    bundle: `facility:${id}`, priorityClass: 'entry-contextual', entryGate: 'none', category: 'facility',
+  })),
+  ...taggedAssets([battleAtlasSources], {
+    bundle: 'scene:battle', priorityClass: 'scene-on-demand', entryGate: 'none', category: 'battle',
+  }),
+  ...taggedAssets([battleSfxSources, shopBackgroundSource, mainHouseSource, greenhouseSource], {
+    bundle: 'background:core', priorityClass: 'background-core', entryGate: 'none', category: 'core',
+  }),
+  ...taggedAssets([galBackgroundSource, galPortraitSources], {
+    bundle: 'gal:all', priorityClass: 'gal-deferred', entryGate: 'none', category: 'gal',
+  }),
+];
+const assetPreloader = new AssetPreloader(scheduledAssets, {
+  beforeStart: assetDeliveryConfigSource
+    ? async () => {
+      const resolved = await resolveRemoteRelease(JSON.parse(assetDeliveryConfigSource));
+      const trustedUrls = new Set(resolved.urls.values());
+      if (scheduledAssets.some((asset) => asset.url.startsWith('https://') && !trustedUrls.has(asset.url))) {
+        throw new Error('运行时素材 URL 不在已校验的固定 release manifest 中');
+      }
+    }
+    : undefined,
+});
 
 let state: GardenState = {};
 let cleanupSubscription: (() => void) | undefined;
@@ -889,6 +934,7 @@ function renderSceneBeat() {
     reactionId: beat.reactionId,
     poseId: beat.poseId,
   });
+  if (galPortraitSource) void assetPreloader.ensure(`asset:${galPortraitSource}`).catch(() => undefined);
   portraitStage.dataset.portraitKind = galPortraitSource ? 'gal' : 'sprite';
   portrait.src = galPortraitSource ?? (portraitCharacterId === 'marisa'
     ? marisaPortraitSource
@@ -1041,6 +1087,7 @@ async function openSessionHistory() {
 }
 
 async function renderGal() {
+  void assetPreloader.ensure(`asset:${galBackgroundSource}`).catch(() => undefined);
   const transaction = await bridge.getTransactionState();
   if (transaction.phase === 'submitting_user' || transaction.phase === 'generating') {
     setGenerating(true, transaction.phase === 'submitting_user' ? '正在提交消息……' : '对方正在回应……');
@@ -1658,6 +1705,8 @@ const opening = new OpeningController(
   bridge,
   byId('gg-opening'),
   byId('gg-runtime-shell'),
+  byId('gg-asset-loading'),
+  assetPreloader,
   setStatus,
   () => void refresh(),
 );
@@ -2338,6 +2387,7 @@ function startBattle() {
     setStatus(`无法开始符卡战：${blocked}`, true);
     return;
   }
+  void assetPreloader.ensure('scene:battle').catch(() => undefined);
   destroyBattleSession();
   activeBattleKind = 'flower_core';
   battleDialog.showModal();
@@ -3208,6 +3258,7 @@ battleBombBtn.addEventListener('pointerdown', (event) => {
 
 globalThis.addEventListener('beforeunload', () => {
   cleanupSubscription?.();
+  assetPreloader.destroy();
   gardenMap.destroy();
   destroyBattleSession();
   battleSoundBus.destroy?.();
