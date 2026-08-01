@@ -416,6 +416,7 @@ const marisaSpriteSource = characterSprites.marisa.idleSource;
 const marisaPortraitSource = document.documentElement.dataset.marisaPortraitSrc || marisaSpriteSource;
 const galPortraitSources = parseGalPortraitSources(
   document.documentElement.dataset.galPortraitSources,
+  assetBase,
 );
 const mainHouseSource = document.documentElement.dataset.mainHouseSrc
   || `${assetBase}/world/house/main-house-states-v1.png`;

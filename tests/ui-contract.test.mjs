@@ -691,7 +691,7 @@ test('庭园不可行走蒙版与底图同画布，并进入预览和自包含�
   assert.match(mask, /width="1672" height="941" viewBox="0 0 1672 941"/);
   assert.match(mask, /fill="#ff00ff"/);
   assert.match(mask, /fill-rule="evenodd"/);
-  assert.match(build, /data-map-no-walk-mask-src/);
+  assert.match(build, /mapNoWalkMaskSrc: previewAssetUrl/);
   assert.match(build, /mapNoWalkMaskDataUrl/);
   assert.match(host, /dataset\.mapNoWalkMaskSrc/);
   assert.match(app, /dataset\.mapNoWalkMaskSrc/);
@@ -803,7 +803,7 @@ test('v3 底图启用同画布透明设施，并以共享废墟替换三组 dama
   assert.match(build, /同组形态或损坏素材画布不一致/);
   assert.match(build, /damageReplacement: facility\.damage_replacement_alpha/);
   assert.match(build, /geometry: facility\.geometry/);
-  assert.match(build, /data-map-facility-sprites/);
+  assert.match(build, /mapFacilitySprites: JSON\.stringify/);
   assert.match(build, /gardenBaseAsset\.source/);
   assert.match(host, /mapFacilitySprites/);
   assert.match(map, /drawFacilityLayer/);
@@ -954,7 +954,7 @@ test('GAL 使用月下结界舞台、和纸对白框与窄屏回流', async () =
   assert.match(styles, /@media \(max-height: 650px\) and \(min-width: 701px\)/);
   assert.doesNotMatch(styles.match(/GAL 最终主题[\s\S]*?R4 主视觉/)?.[0] ?? '', /backdrop-filter/);
   assert.match(controller, /--gg-gal-background-image/);
-  assert.match(build, /data-gal-background-src/);
+  assert.match(build, /galBackgroundSrc: previewAssetUrl/);
   assert.match(build, /galBackgroundDataUrl/);
   assert.match(host, /dataset\.galBackgroundSrc = embedded\.galBackgroundDataUrl/);
   assert.equal(assets.ui_assets.gal_shrine_background.source_alpha, 'ui/gensokyo-gal-shrine-background-v1.png');
@@ -1289,6 +1289,14 @@ test('魔理沙 GAL 注册表接入五种表情的着装与全裸十个槽位', 
   assert.deepEqual(registry.parseGalPortraitSources(JSON.stringify({
     marisa: { normal: { neutral: 'https://untrusted.example/portrait.png' } },
   })), {});
+  const trustedRemotePortrait = 'https://assets.example/releases/r1/characters/marisa/neutral.png';
+  assert.equal(registry.resolveGalPortraitSource(registry.parseGalPortraitSources(JSON.stringify({
+    marisa: { normal: { neutral: trustedRemotePortrait } },
+  }), 'https://assets.example/releases/r1'), 'marisa', {
+    visualMode: 'normal',
+    reactionId: 'neutral',
+    poseId: 'default',
+  }), trustedRemotePortrait);
 });
 
 test('魔理沙十张 GAL 原图进入素材清单、预览与自包含构建链', async () => {

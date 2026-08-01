@@ -81,7 +81,8 @@ async function loadAsset(asset: PreloadAsset, signal: AbortSignal) {
     const image = new Image();
     const abort = () => { image.src = ''; reject(new DOMException('Aborted', 'AbortError')); };
     image.decoding = 'async';
-    if (/^https:\/\//iu.test(asset.url)) image.crossOrigin = 'anonymous';
+    // The preloader only observes decode success and never reads pixels. Keeping
+    // this request non-CORS also lets it reuse images already loaded by the UI.
     image.onload = () => { signal.removeEventListener('abort', abort); resolve(); };
     image.onerror = () => { signal.removeEventListener('abort', abort); reject(new Error(`图片载入失败：${asset.url}`)); };
     signal.addEventListener('abort', abort, { once: true });

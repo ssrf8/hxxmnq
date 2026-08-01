@@ -99,7 +99,7 @@ test('BGM catalog reserves R2-ready HTTPS slots without shipping credentials', a
   assert.match(template, /不在前端保存 R2 Access Key、Secret 或签名凭据/);
 });
 
-test('preview and embedded builds both provide local battle WAV sources', async () => {
+test('preview and embedded builds both provide scheduled battle WAV sources', async () => {
   const [buildSource, hostSource, previewSource] = await Promise.all([
     read('scripts/build-ui.mjs'),
     read('src/runtime/ui-host-shell.js'),
@@ -108,7 +108,8 @@ test('preview and embedded builds both provide local battle WAV sources', async 
 
   assert.match(buildSource, /battleSfxDataUrls/);
   assert.match(buildSource, /data:audio\/wav;base64/);
-  assert.match(buildSource, /data-battle-sfx-sources/);
+  assert.match(buildSource, /battleSfxSources:\s*JSON\.stringify/);
+  assert.match(buildSource, /assetDeliveryConfig:\s*remoteAssetConfig/);
   assert.match(hostSource, /dataset\.battleSfxSources/);
   assert.match(previewSource, /\['\.wav', 'audio\/wav'\]/);
 });

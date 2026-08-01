@@ -92,6 +92,9 @@ export class OpeningController {
     const status = document.getElementById('gg-asset-loading-status') as HTMLElement;
     progress.value = snapshot.entryPercent;
     progress.textContent = `${snapshot.entryPercent}%`;
+    status.dataset.assetTotal = String(snapshot.total);
+    status.dataset.assetSettled = String(snapshot.settled);
+    status.dataset.assetFailedUrls = JSON.stringify(snapshot.failedUrls);
     if (snapshot.entryReady || snapshot.entryTimedOut) {
       status.textContent = snapshot.failed
         ? `入口素材已检查，${snapshot.failed} 项载入失败，将使用内置降级显示。`

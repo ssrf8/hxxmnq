@@ -360,13 +360,17 @@ await build({
   sourcemap: true,
   legalComments: 'none',
 });
+const previewAssetBase = remoteAssetConfig
+  ? `${remoteAssetConfig.baseUrl}/gensokyo-moving-garden/releases/${remoteAssetConfig.releaseId}`
+  : '../assets';
+const previewAssetUrl = (source) => `${previewAssetBase}/${source}`;
 const previewFacilitySprites = Object.fromEntries(mapFacilityAssets.map(({ id, areaId, forms, damageOverlay, damageReplacement, geometry }) => [
   id,
   {
     areaId,
-    forms: Object.fromEntries(Object.entries(forms).map(([form, source]) => [form, `../assets/${source}`])),
-    damageOverlay: damageOverlay ? `../assets/${damageOverlay}` : undefined,
-    damageReplacement: damageReplacement ? `../assets/${damageReplacement}` : undefined,
+    forms: Object.fromEntries(Object.entries(forms).map(([form, source]) => [form, previewAssetUrl(source)])),
+    damageOverlay: damageOverlay ? previewAssetUrl(damageOverlay) : undefined,
+    damageReplacement: damageReplacement ? previewAssetUrl(damageReplacement) : undefined,
     geometry,
   },
 ]));
@@ -376,13 +380,84 @@ const previewGalPortraitSources = Object.fromEntries(galPortraitAssets.map(({ id
     mode,
     Object.fromEntries(Object.entries(modeSources).map(([reaction, source]) => [
       reaction,
-      `../assets/${source}`,
+      previewAssetUrl(source),
     ])),
   ])),
 ]));
+const previewDataset = {
+  assetBase: previewAssetBase,
+  assetDeliveryConfig: remoteAssetConfig ? JSON.stringify(remoteAssetConfig) : undefined,
+  mapSrc: previewAssetUrl(gardenBaseAsset.source),
+  mapNoWalkMaskSrc: previewAssetUrl(gardenNoWalkMaskAsset.source),
+  dungeonButtonSrc: previewAssetUrl(dungeonButtonSource),
+  shopButtonSrc: previewAssetUrl(shopButtonSource),
+  inventoryButtonSrc: previewAssetUrl(inventoryButtonSource),
+  shopBackgroundSrc: previewAssetUrl(shopBackgroundSource),
+  galBackgroundSrc: previewAssetUrl(galBackgroundSource),
+  galPortraitSources: JSON.stringify(previewGalPortraitSources),
+  mapFacilitySprites: JSON.stringify(previewFacilitySprites),
+  mainHouseSrc: previewAssetUrl(mainHouseSource),
+  greenhouseSrc: previewAssetUrl(greenhouseSource),
+  battlePlayerSrc: previewAssetUrl(battlePlayerSource),
+  battleBossSrc: previewAssetUrl(battleBossSources.greenhouse_flower_core),
+  battleBossReimuSrc: previewAssetUrl(battleBossSources.reimu_battle),
+  battleBossMarisaSrc: previewAssetUrl(battleBossSources.marisa_battle),
+  battleBossCirnoSrc: previewAssetUrl(battleBossSources.cirno_battle),
+  battleBossAliceSrc: previewAssetUrl(battleBossSources.alice_battle),
+  battleBossNitoriSrc: previewAssetUrl(battleBossSources.nitori_battle),
+  battleBossMystiaSrc: previewAssetUrl(battleBossSources.mystia_battle),
+  battleBossSuikaSrc: previewAssetUrl(battleBossSources.suika_battle),
+  battleBossSakuyaSrc: previewAssetUrl(battleBossSources.sakuya_battle),
+  battlePortraitReimuS0Src: previewAssetUrl(reimuPortraitSources.s0),
+  battlePortraitReimuS1Src: previewAssetUrl(reimuPortraitSources.s1),
+  battlePortraitReimuS2Src: previewAssetUrl(reimuPortraitSources.s2),
+  battlePortraitMarisaS0Src: previewAssetUrl(marisaPortraitSources.s0),
+  battlePortraitMarisaS1Src: previewAssetUrl(marisaPortraitSources.s1),
+  battlePortraitMarisaS2Src: previewAssetUrl(marisaPortraitSources.s2),
+  battlePortraitAliceS0Src: previewAssetUrl(alicePortraitSources.s0),
+  battlePortraitAliceS1Src: previewAssetUrl(alicePortraitSources.s1),
+  battlePortraitAliceS2Src: previewAssetUrl(alicePortraitSources.s2),
+  battlePortraitCirnoS0Src: previewAssetUrl(cirnoPortraitSources.s0),
+  battlePortraitCirnoS1Src: previewAssetUrl(cirnoPortraitSources.s1),
+  battlePortraitCirnoS2Src: previewAssetUrl(cirnoPortraitSources.s2),
+  battlePortraitMystiaS0Src: previewAssetUrl(mystiaPortraitSources.s0),
+  battlePortraitMystiaS1Src: previewAssetUrl(mystiaPortraitSources.s1),
+  battlePortraitMystiaS2Src: previewAssetUrl(mystiaPortraitSources.s2),
+  battlePortraitNitoriS0Src: previewAssetUrl(nitoriPortraitSources.s0),
+  battlePortraitNitoriS1Src: previewAssetUrl(nitoriPortraitSources.s1),
+  battlePortraitNitoriS2Src: previewAssetUrl(nitoriPortraitSources.s2),
+  battlePortraitSuikaS0Src: previewAssetUrl(suikaPortraitSources.s0),
+  battlePortraitSuikaS1Src: previewAssetUrl(suikaPortraitSources.s1),
+  battlePortraitSuikaS2Src: previewAssetUrl(suikaPortraitSources.s2),
+  battlePortraitSakuyaS0Src: previewAssetUrl(sakuyaPortraitSources.s0),
+  battlePortraitSakuyaS1Src: previewAssetUrl(sakuyaPortraitSources.s1),
+  battlePortraitSakuyaS2Src: previewAssetUrl(sakuyaPortraitSources.s2),
+  battlePortraitFlowerCoreS0Src: previewAssetUrl(flowerCorePortraitSources.s0),
+  battlePortraitFlowerCoreS1Src: previewAssetUrl(flowerCorePortraitSources.s1),
+  battlePortraitFlowerCoreS2Src: previewAssetUrl(flowerCorePortraitSources.s2),
+  battleFairySrc: previewAssetUrl(fairySource),
+  battleEffectsSrc: previewAssetUrl(battleEffectsSource),
+  battleBulletsLocalSrc: previewAssetUrl(localBulletSource),
+  battleSfxSources: JSON.stringify(Object.fromEntries(battleSfxIds.map((id) => [id, previewAssetUrl(battleSfxSources[id])]))),
+};
+for (const { id, idle, motion, animation, sequence } of characterAssets) {
+  previewDataset[`${id}SpriteSrc`] = previewAssetUrl(idle);
+  previewDataset[`${id}MotionSrc`] = previewAssetUrl(motion);
+  if (animation) previewDataset[`${id}AnimationSrc`] = previewAssetUrl(animation);
+  if (sequence) previewDataset[`${id}SequenceSrc`] = previewAssetUrl(sequence);
+}
+const escapeHtmlAttribute = (value) => String(value)
+  .replaceAll('&', '&amp;')
+  .replaceAll('"', '&quot;')
+  .replaceAll('<', '&lt;')
+  .replaceAll('>', '&gt;');
+const previewDataAttributes = Object.entries(previewDataset)
+  .filter(([, value]) => value !== undefined)
+  .map(([key, value]) => `data-${key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}="${escapeHtmlAttribute(value)}"`)
+  .join(' ');
 const previewHtml = (await readFile('src/ui/index.html', 'utf8')).replace(
   'data-asset-base="../assets"',
-  `data-asset-base="../assets" data-map-src="../assets/${gardenBaseAsset.source}" data-map-no-walk-mask-src="../assets/${gardenNoWalkMaskAsset.source}" data-gal-background-src="../assets/${galBackgroundSource}" data-gal-portrait-sources='${JSON.stringify(previewGalPortraitSources)}' data-map-facility-sprites='${JSON.stringify(previewFacilitySprites)}' data-battle-sfx-sources='${JSON.stringify(Object.fromEntries(battleSfxIds.map((id) => [id, `../assets/${battleSfxSources[id]}`])))}'`,
+  previewDataAttributes,
 );
 await Promise.all([
   writeFile('dist/ui/index.html', previewHtml, 'utf8'),

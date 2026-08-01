@@ -110,12 +110,30 @@ export function galPortraitFallbackPoolIds(
   return [`gal.marisa.sexual.${poseId}`, ...nudeFallbacks];
 }
 
-function isSafePortraitSource(value: unknown): value is string {
+function isSafePortraitSource(value: unknown, trustedRemoteBase?: string): value is string {
   if (typeof value !== 'string' || value.length > 8_000_000) return false;
-  return /^(?:\.\.\/assets\/|data:image\/png;base64,)[a-z0-9+/=._-]+$/iu.test(value);
+  if (/^(?:\.\.\/assets\/|data:image\/png;base64,)[a-z0-9+/=._-]+$/iu.test(value)) return true;
+  const normalizedBase = trustedRemoteBase?.replace(/\/+$/u, '');
+  if (!normalizedBase?.startsWith('https://')) return false;
+  try {
+    const base = new URL(`${normalizedBase}/`);
+    const source = new URL(value);
+    return source.protocol === 'https:'
+      && !source.username
+      && !source.password
+      && !source.search
+      && !source.hash
+      && source.origin === base.origin
+      && source.pathname.startsWith(base.pathname);
+  } catch {
+    return false;
+  }
 }
 
-export function parseGalPortraitSources(value: string | undefined): GalPortraitSourceMap {
+export function parseGalPortraitSources(
+  value: string | undefined,
+  trustedRemoteBase?: string,
+): GalPortraitSourceMap {
   if (!value) return {};
   try {
     const parsed = JSON.parse(value) as unknown;
@@ -131,7 +149,7 @@ export function parseGalPortraitSources(value: string | undefined): GalPortraitS
         const modeSources: Partial<Record<GalReaction, string>> = {};
         for (const reactionId of MARISA_GAL_REACTION_IDS) {
           const source = (modeValue as Record<string, unknown>)[reactionId];
-          if (isSafePortraitSource(source)) modeSources[reactionId] = source;
+          if (isSafePortraitSource(source, trustedRemoteBase)) modeSources[reactionId] = source;
         }
         if (Object.keys(modeSources).length) characterSources[mode] = modeSources;
       }
