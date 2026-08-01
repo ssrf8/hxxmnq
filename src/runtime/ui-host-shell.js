@@ -170,6 +170,8 @@
     if (embedded.inventoryButtonDataUrl) childDoc.documentElement.dataset.inventoryButtonSrc = embedded.inventoryButtonDataUrl;
     if (embedded.shopBackgroundDataUrl) childDoc.documentElement.dataset.shopBackgroundSrc = embedded.shopBackgroundDataUrl;
     if (embedded.galBackgroundDataUrl) childDoc.documentElement.dataset.galBackgroundSrc = embedded.galBackgroundDataUrl;
+    childDoc.documentElement.dataset.galPortraitSources = JSON.stringify(embedded.galPortraitDataUrls || {});
+    if (embedded.mapNoWalkMaskDataUrl) childDoc.documentElement.dataset.mapNoWalkMaskSrc = embedded.mapNoWalkMaskDataUrl;
     const characterSprites = embedded.characterSpriteDataUrls || {};
     Object.entries(characterSprites).forEach(([id, sources]) => {
       if (sources?.idle) childDoc.documentElement.dataset[`${id}SpriteSrc`] = sources.idle;
@@ -182,7 +184,7 @@
     childDoc.documentElement.dataset.mainHouseSrc = embedded.mainHouseDataUrl;
     childDoc.documentElement.dataset.greenhouseSrc = embedded.greenhouseDataUrl;
     childDoc.documentElement.dataset.mapFacilitySprites = JSON.stringify(embedded.mapFacilityDataUrls || {});
-    // Transparent battle sheets only (no chroma duplicates).
+    // Battle sheets plus direct-import cut-in portraits (no chroma duplicates).
     if (embedded.battlePlayerDataUrl) childDoc.documentElement.dataset.battlePlayerSrc = embedded.battlePlayerDataUrl;
     if (embedded.battleBossDataUrl) childDoc.documentElement.dataset.battleBossSrc = embedded.battleBossDataUrl;
     if (embedded.battleBossReimuDataUrl) childDoc.documentElement.dataset.battleBossReimuSrc = embedded.battleBossReimuDataUrl;
@@ -193,8 +195,37 @@
     if (embedded.battleBossMystiaDataUrl) childDoc.documentElement.dataset.battleBossMystiaSrc = embedded.battleBossMystiaDataUrl;
     if (embedded.battleBossSuikaDataUrl) childDoc.documentElement.dataset.battleBossSuikaSrc = embedded.battleBossSuikaDataUrl;
     if (embedded.battleBossSakuyaDataUrl) childDoc.documentElement.dataset.battleBossSakuyaSrc = embedded.battleBossSakuyaDataUrl;
+    if (embedded.battlePortraitReimuS0DataUrl) childDoc.documentElement.dataset.battlePortraitReimuS0Src = embedded.battlePortraitReimuS0DataUrl;
+    if (embedded.battlePortraitReimuS1DataUrl) childDoc.documentElement.dataset.battlePortraitReimuS1Src = embedded.battlePortraitReimuS1DataUrl;
+    if (embedded.battlePortraitReimuS2DataUrl) childDoc.documentElement.dataset.battlePortraitReimuS2Src = embedded.battlePortraitReimuS2DataUrl;
+    if (embedded.battlePortraitMarisaS0DataUrl) childDoc.documentElement.dataset.battlePortraitMarisaS0Src = embedded.battlePortraitMarisaS0DataUrl;
+    if (embedded.battlePortraitMarisaS1DataUrl) childDoc.documentElement.dataset.battlePortraitMarisaS1Src = embedded.battlePortraitMarisaS1DataUrl;
+    if (embedded.battlePortraitMarisaS2DataUrl) childDoc.documentElement.dataset.battlePortraitMarisaS2Src = embedded.battlePortraitMarisaS2DataUrl;
+    if (embedded.battlePortraitAliceS0DataUrl) childDoc.documentElement.dataset.battlePortraitAliceS0Src = embedded.battlePortraitAliceS0DataUrl;
+    if (embedded.battlePortraitAliceS1DataUrl) childDoc.documentElement.dataset.battlePortraitAliceS1Src = embedded.battlePortraitAliceS1DataUrl;
+    if (embedded.battlePortraitAliceS2DataUrl) childDoc.documentElement.dataset.battlePortraitAliceS2Src = embedded.battlePortraitAliceS2DataUrl;
+    if (embedded.battlePortraitCirnoS0DataUrl) childDoc.documentElement.dataset.battlePortraitCirnoS0Src = embedded.battlePortraitCirnoS0DataUrl;
+    if (embedded.battlePortraitCirnoS1DataUrl) childDoc.documentElement.dataset.battlePortraitCirnoS1Src = embedded.battlePortraitCirnoS1DataUrl;
+    if (embedded.battlePortraitCirnoS2DataUrl) childDoc.documentElement.dataset.battlePortraitCirnoS2Src = embedded.battlePortraitCirnoS2DataUrl;
+    if (embedded.battlePortraitMystiaS0DataUrl) childDoc.documentElement.dataset.battlePortraitMystiaS0Src = embedded.battlePortraitMystiaS0DataUrl;
+    if (embedded.battlePortraitMystiaS1DataUrl) childDoc.documentElement.dataset.battlePortraitMystiaS1Src = embedded.battlePortraitMystiaS1DataUrl;
+    if (embedded.battlePortraitMystiaS2DataUrl) childDoc.documentElement.dataset.battlePortraitMystiaS2Src = embedded.battlePortraitMystiaS2DataUrl;
+    if (embedded.battlePortraitNitoriS0DataUrl) childDoc.documentElement.dataset.battlePortraitNitoriS0Src = embedded.battlePortraitNitoriS0DataUrl;
+    if (embedded.battlePortraitNitoriS1DataUrl) childDoc.documentElement.dataset.battlePortraitNitoriS1Src = embedded.battlePortraitNitoriS1DataUrl;
+    if (embedded.battlePortraitNitoriS2DataUrl) childDoc.documentElement.dataset.battlePortraitNitoriS2Src = embedded.battlePortraitNitoriS2DataUrl;
+    if (embedded.battlePortraitSuikaS0DataUrl) childDoc.documentElement.dataset.battlePortraitSuikaS0Src = embedded.battlePortraitSuikaS0DataUrl;
+    if (embedded.battlePortraitSuikaS1DataUrl) childDoc.documentElement.dataset.battlePortraitSuikaS1Src = embedded.battlePortraitSuikaS1DataUrl;
+    if (embedded.battlePortraitSuikaS2DataUrl) childDoc.documentElement.dataset.battlePortraitSuikaS2Src = embedded.battlePortraitSuikaS2DataUrl;
+    if (embedded.battlePortraitSakuyaS0DataUrl) childDoc.documentElement.dataset.battlePortraitSakuyaS0Src = embedded.battlePortraitSakuyaS0DataUrl;
+    if (embedded.battlePortraitSakuyaS1DataUrl) childDoc.documentElement.dataset.battlePortraitSakuyaS1Src = embedded.battlePortraitSakuyaS1DataUrl;
+    if (embedded.battlePortraitSakuyaS2DataUrl) childDoc.documentElement.dataset.battlePortraitSakuyaS2Src = embedded.battlePortraitSakuyaS2DataUrl;
+    if (embedded.battlePortraitFlowerCoreS0DataUrl) childDoc.documentElement.dataset.battlePortraitFlowerCoreS0Src = embedded.battlePortraitFlowerCoreS0DataUrl;
+    if (embedded.battlePortraitFlowerCoreS1DataUrl) childDoc.documentElement.dataset.battlePortraitFlowerCoreS1Src = embedded.battlePortraitFlowerCoreS1DataUrl;
+    if (embedded.battlePortraitFlowerCoreS2DataUrl) childDoc.documentElement.dataset.battlePortraitFlowerCoreS2Src = embedded.battlePortraitFlowerCoreS2DataUrl;
+    if (embedded.battleFairyDataUrl) childDoc.documentElement.dataset.battleFairySrc = embedded.battleFairyDataUrl;
     if (embedded.battleEffectsDataUrl) childDoc.documentElement.dataset.battleEffectsSrc = embedded.battleEffectsDataUrl;
     if (embedded.battleBulletsLocalDataUrl) childDoc.documentElement.dataset.battleBulletsLocalSrc = embedded.battleBulletsLocalDataUrl;
+    if (embedded.battleSfxDataUrls) childDoc.documentElement.dataset.battleSfxSources = JSON.stringify(embedded.battleSfxDataUrls);
     const style = childDoc.createElement('style');
     style.textContent = embedded.css;
     childDoc.head.append(style);

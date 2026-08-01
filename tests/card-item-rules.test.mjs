@@ -38,7 +38,7 @@ const battleResult = (configId, outcome, settlementId) => ({
   hits: outcome === 'loss' ? 1 : 0,
   damage: 1200,
   phases_cleared: outcome === 'loss' ? 0 : 2,
-  objective_ratio: outcome === 'loss' ? 0.4 : 1,
+  objective_ratio: outcome === 'loss' ? 40 : 100,
 });
 
 test('机遇卡以稳定种子抽取完整登记的未知角色并原子到场', async () => {
@@ -149,6 +149,24 @@ test('对战卡按零枚极难、一至二枚标准、三枚以上援助锁定�
   assert.throws(() => duel.beginDuelCard(state, 'unregistered', 'duel:bad:1'), /没有登记对战档案/);
 });
 
+test('角色对话中只允许向当前交谈对象亮出对战卡', async () => {
+  const duel = await importTypescript('../src/ui/duel-card-rules.ts');
+  const state = await baseState();
+  state.inventory.consumables.spell_duel_card = 1;
+  state.interaction.current_session = {
+    uid: 'interaction_dialogue_duel_1',
+    type: 'character',
+    status: 'active',
+    participant_character_ids: ['marisa'],
+  };
+
+  assert.equal(duel.duelCardBlock(state, 'marisa'), '');
+  assert.match(duel.duelCardBlock(state, 'reimu'), /只能向当前角色/);
+  const started = duel.beginDuelCard(state, 'marisa', 'duel:dialogue:1');
+  assert.equal(started.state.interaction.current_session.uid, 'interaction_dialogue_duel_1');
+  assert.equal(started.state.inventory.card_runtime.duel.pending_battle.target_character_id, 'marisa');
+});
+
 test('对战失败纯本地加一枚杂鱼标签，不产生胜利剧情或正式奖励', async () => {
   const duel = await importTypescript('../src/ui/duel-card-rules.ts');
   const state = await baseState();
@@ -235,7 +253,7 @@ test('对战卡拒绝叙事替代、错配配置和非法数值且不修改输�
     /配置与预留不一致/,
   );
   const invalid = battleResult('character_duel_standard_v1', 'loss', 'duel-result:invalid:1');
-  invalid.objective_ratio = 2;
+  invalid.objective_ratio = 101;
   assert.throws(() => duel.settleDuelCard(started, invalid), /完成度非法/);
   assert.deepEqual(started, snapshot);
 });

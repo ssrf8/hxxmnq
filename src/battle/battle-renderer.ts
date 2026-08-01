@@ -37,6 +37,24 @@ export function characterBossSheet(bossId: string | undefined): BattleSheetKey |
   return bossId ? CHARACTER_BOSS_SHEETS[bossId] : undefined;
 }
 
+export function characterBossPortrait(
+  bossId: string | undefined,
+  damageLevel: 0 | 1 | 2,
+): BattleSheetKey | undefined {
+  if (
+    bossId !== 'reimu'
+    && bossId !== 'marisa'
+    && bossId !== 'alice'
+    && bossId !== 'cirno'
+    && bossId !== 'mystia'
+    && bossId !== 'nitori'
+    && bossId !== 'suika'
+    && bossId !== 'sakuya'
+    && bossId !== 'flower_core'
+  ) return undefined;
+  return `portrait_${bossId}_s${damageLevel}` as BattleSheetKey;
+}
+
 function prefersReducedMotion() {
   try {
     return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -200,31 +218,14 @@ export function renderBattleFrame(
   }
 
   for (const mob of mobs as MobState[]) {
-    drawFairy(ctx, mob, gameTimeMs);
+    drawFairy(ctx, mob, gameTimeMs, atlas);
   }
 
-  // Player shots are crisp vector streaks (the atlas crops scaled muddy):
-  // soft glow capsule → colored body → white core. Focus = cyan needle,
-  // normal = amber bolt.
+  // Player shots use an unmistakable paper-talisman silhouette. Enemy danmaku
+  // stays round / rice / scale-shaped, so the two sides remain readable even
+  // when their colours overlap in a dense pattern.
   for (const bullet of playerShots) {
-    const focusShot = player.focused;
-    ctx.save();
-    ctx.translate(bullet.x, bullet.y);
-    ctx.fillStyle = focusShot ? '#5de6ff' : '#ffc76a';
-    ctx.globalAlpha = 0.28;
-    ctx.beginPath();
-    ctx.ellipse(0, 0, focusShot ? 3.6 : 4.8, focusShot ? 15 : 12, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.globalAlpha = 0.85;
-    ctx.beginPath();
-    ctx.ellipse(0, -0.5, focusShot ? 2 : 2.8, focusShot ? 11 : 8.5, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    ctx.ellipse(0, -1.5, focusShot ? 0.9 : 1.3, focusShot ? 7 : 5, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
+    drawPlayerTalisman(ctx, bullet, player.focused);
   }
 
   for (const bullet of enemyShots) {
@@ -338,6 +339,7 @@ export function renderBattleFrame(
         bossDamageLevel(phase.index, phaseCount),
         gameTimeMs - phase.startedAt,
         reduced,
+        atlas,
       );
     }
   }
@@ -604,10 +606,9 @@ function drawPhaseBanner(
 }
 
 /**
- * Boss cut-in placeholder card during the phase intro window.
- * Deliberately abstract (badge / star motif / crack lines) — character art is
- * NOT drawn procedurally; a portrait atlas frame will replace the card body
- * once real assets land. Damage tiers stay at "battle-worn", never nudity.
+ * Boss cut-in during the phase intro window. Owner-provided portraits are drawn
+ * as complete images with contain semantics; missing images retain an abstract
+ * load-failure card. Damage tiers stay at "battle-worn", never nudity.
  */
 function drawBossCutIn(
   ctx: CanvasRenderingContext2D,
@@ -616,6 +617,7 @@ function drawBossCutIn(
   damageLevel: 0 | 1 | 2,
   phaseElapsed: number,
   reduced: boolean,
+  atlas?: BattleAtlas | null,
 ) {
   if (phaseElapsed < 0 || phaseElapsed >= BANNER_MS) return;
   const name = String(presentation.boss_name ?? '').slice(0, 12);
@@ -637,6 +639,24 @@ function drawBossCutIn(
   ctx.globalAlpha = 0.85 * alpha;
   ctx.fillStyle = 'rgba(14,12,24,.88)';
   ctx.fillRect(x, y, w, h);
+  const portraitKey = characterBossPortrait(presentation.boss_id, damageLevel);
+  const portrait = portraitKey ? atlas?.images[portraitKey] : undefined;
+  if (portrait) {
+    const dimensions = portrait as CanvasImageSource & {
+      naturalWidth?: number;
+      naturalHeight?: number;
+      width?: number;
+      height?: number;
+    };
+    const sourceW = Number(dimensions.naturalWidth ?? dimensions.width ?? 0);
+    const sourceH = Number(dimensions.naturalHeight ?? dimensions.height ?? 0);
+    if (sourceW > 0 && sourceH > 0) {
+      const scale = Math.min(w / sourceW, h / sourceH);
+      const drawW = sourceW * scale;
+      const drawH = sourceH * scale;
+      ctx.drawImage(portrait, x + (w - drawW) / 2, y + (h - drawH) / 2, drawW, drawH);
+    }
+  }
   ctx.lineWidth = 2;
   ctx.strokeStyle = accent;
   ctx.strokeRect(x + 1, y + 1, w - 2, h - 2);
@@ -648,23 +668,26 @@ function drawBossCutIn(
   ctx.font = 'bold 11px system-ui, sans-serif';
   ctx.fillText(`S${damageLevel} ${BOSS_DAMAGE_LABELS[damageLevel]}`, x + 6, y + 14);
 
-  // Abstract motif keeps the card readable as "portrait slot", not a figure.
-  ctx.globalAlpha = 0.3 * alpha;
-  ctx.fillStyle = accent;
-  drawStar4(ctx, x + w / 2, y + h * 0.42, 32, reduced ? 0 : phaseElapsed / 900);
-  ctx.fill();
+  if (!portrait) {
+    // Abstract motif keeps the fallback readable as a portrait slot.
+    ctx.globalAlpha = 0.3 * alpha;
+    ctx.fillStyle = accent;
+    drawStar4(ctx, x + w / 2, y + h * 0.42, 32, reduced ? 0 : phaseElapsed / 900);
+    ctx.fill();
 
-  if (damageLevel >= 1) {
-    ctx.globalAlpha = 0.5 * alpha;
-    ctx.strokeStyle = accent;
-    ctx.lineWidth = 1;
-    drawCracks(ctx, x, y, w, h, damageLevel);
+    if (damageLevel >= 1) {
+      ctx.globalAlpha = 0.5 * alpha;
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 1;
+      drawCracks(ctx, x, y, w, h, damageLevel);
+    }
+
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = 'rgba(220,232,255,.45)';
+    ctx.font = '10px system-ui, sans-serif';
+    ctx.fillText('立绘载入失败', x + 12, y + 34);
   }
-
   ctx.globalAlpha = alpha;
-  ctx.fillStyle = 'rgba(220,232,255,.45)';
-  ctx.font = '10px system-ui, sans-serif';
-  ctx.fillText('立绘占位 · 素材待换', x + 12, y + 34);
   ctx.fillStyle = '#f4f0ff';
   ctx.font = 'bold 18px system-ui, sans-serif';
   ctx.fillText(name, x + 12, y + h - 32);
@@ -785,14 +808,28 @@ function drawStar4(ctx: CanvasRenderingContext2D, x: number, y: number, r: numbe
   ctx.restore();
 }
 
-/** Lightweight geometric fairy — tinted by its drop so loot reads at a glance. */
-function drawFairy(ctx: CanvasRenderingContext2D, mob: MobState, gameTimeMs: number) {
+/** Two-frame fairy sprite; geometry remains as the load-failure fallback. */
+function drawFairy(
+  ctx: CanvasRenderingContext2D,
+  mob: MobState,
+  gameTimeMs: number,
+  atlas?: BattleAtlas | null,
+) {
   const r = mob.radius;
   const gold = mob.drop === 'power_big';
   const entry = Math.min(1, mob.age / 0.25);
+  const sprite = atlas?.images.fairies;
   ctx.save();
   ctx.translate(mob.x, mob.y);
   ctx.globalAlpha = entry;
+  if (sprite) {
+    const frame = Math.floor(mob.age * 8) % 2;
+    const sourceX = frame * 64;
+    const sourceY = gold ? 64 : 0;
+    const drawSize = Math.max(28, r * 2.8);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(sprite, sourceX, sourceY, 64, 64, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
+  } else {
   // Soft wing bob from age.
   const flap = Math.sin(mob.age * 10) * 0.25;
   ctx.fillStyle = gold ? 'rgba(255,224,150,.4)' : 'rgba(180,220,255,.35)';
@@ -808,6 +845,7 @@ function drawFairy(ctx: CanvasRenderingContext2D, mob: MobState, gameTimeMs: num
   ctx.beginPath();
   ctx.arc(-r * 0.18, -r * 0.2, r * 0.22, 0, Math.PI * 2);
   ctx.fill();
+  }
   // Brief brighten on a fresh hit — no frame swap, damage still reads from the tick.
   const sinceHit = mob.hitAt == null ? Infinity : gameTimeMs - mob.hitAt;
   if (sinceHit < 80) {
@@ -835,6 +873,52 @@ const PIXEL_P: ReadonlyArray<readonly [number, number]> = [
   [0, 4],
 ];
 
+/**
+ * Draw the player's shot as a tiny paper ofuda instead of another luminous
+ * projectile. The dark edge, warm paper face and twin tail ribbons form three
+ * non-colour cues, which keeps it distinct for colour-blind players too.
+ */
+function drawPlayerTalisman(ctx: CanvasRenderingContext2D, bullet: Bullet, focused: boolean) {
+  const angle = Math.atan2(bullet.vy, bullet.vx);
+  const width = focused ? 5 : 7;
+  const height = focused ? 17 : 15;
+  const accent = focused ? '#42cfe8' : '#d94d42';
+
+  ctx.save();
+  ctx.translate(bullet.x, bullet.y);
+  if (Number.isFinite(angle)) ctx.rotate(angle + Math.PI / 2);
+
+  // Two straight ribbons point away from the travelling edge. Enemy bullets
+  // deliberately have no such tail, so motion direction reads at a glance.
+  ctx.globalAlpha = 0.34;
+  ctx.strokeStyle = focused ? '#62e8ff' : '#ffd36a';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(-width * 0.22, height * 0.38);
+  ctx.lineTo(-width * 0.38, height * 0.95);
+  ctx.moveTo(width * 0.22, height * 0.38);
+  ctx.lineTo(width * 0.38, height * 0.95);
+  ctx.stroke();
+
+  // A near-black keyline prevents the pale paper from disappearing over the
+  // white cores and glows used by hostile danmaku.
+  ctx.globalAlpha = 0.9;
+  ctx.fillStyle = '#171426';
+  ctx.fillRect(-width / 2 - 1, -height / 2 - 1, width + 2, height + 2);
+  ctx.fillStyle = '#fff4d2';
+  ctx.fillRect(-width / 2, -height / 2, width, height);
+
+  ctx.fillStyle = accent;
+  ctx.fillRect(-width / 2, -height / 2, width, 2.2);
+  ctx.fillRect(-0.7, -height * 0.18, 1.4, height * 0.42);
+  ctx.fillRect(-width * 0.28, height * 0.1, width * 0.56, 1.2);
+
+  // Small gold cap = friendly affordance; hostile bullets never use it.
+  ctx.fillStyle = '#ffd86a';
+  ctx.fillRect(-width * 0.3, -height / 2 - 2, width * 0.6, 1.2);
+  ctx.restore();
+}
+
 function drawPowerItem(ctx: CanvasRenderingContext2D, item: ItemState) {
   const big = item.kind === 'power_big';
   // Red square with a white pixel P — the classic power-item look.
@@ -850,6 +934,20 @@ function drawPowerItem(ctx: CanvasRenderingContext2D, item: ItemState) {
     }
   }
   ctx.translate(item.x, item.y);
+  // Item-only square brackets remain upright while the inner P tile tumbles.
+  // This extra silhouette keeps red drops from masquerading as red danmaku.
+  ctx.globalAlpha = 0.72;
+  ctx.strokeStyle = big ? '#ffe38a' : '#fff0c2';
+  ctx.lineWidth = 1.3;
+  const bracket = half + 3;
+  const tick = big ? 4 : 3;
+  ctx.beginPath();
+  ctx.moveTo(-bracket + tick, -bracket); ctx.lineTo(-bracket, -bracket); ctx.lineTo(-bracket, -bracket + tick);
+  ctx.moveTo(bracket - tick, -bracket); ctx.lineTo(bracket, -bracket); ctx.lineTo(bracket, -bracket + tick);
+  ctx.moveTo(-bracket, bracket - tick); ctx.lineTo(-bracket, bracket); ctx.lineTo(-bracket + tick, bracket);
+  ctx.moveTo(bracket, bracket - tick); ctx.lineTo(bracket, bracket); ctx.lineTo(bracket - tick, bracket);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
   // Tumble: squash X as the item flips while falling free.
   const flip = item.attracted ? 1 : Math.max(0.3, Math.abs(Math.cos(item.age * 5)));
   ctx.scale(flip, 1);

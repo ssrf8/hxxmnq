@@ -1,5 +1,15 @@
 # R49 弹幕小游戏美化规划方案
 
+> 2026-07-31 状态复核：本规划中的花妖核心三阶段与妖精 sprite 已从计划项转为完成项；旧 B3
+> “占位版”段落仅保留为历史实施记录，不再代表当前渲染状态。当前素材欠账只剩真音效，背景贴图
+> 仍属可选增强；真实 SillyTavern 运行验收尚未关闭。
+
+> 2026-07-30 素材进度：内置 ImageGen 已生成并接入温室花妖核心 S0／S1／S2 cut-in，以及
+> 蓝／金两色、各两帧的妖精小怪透明 sprite。花妖按 `portrait_flower_core_s<0|1|2>` 随战损切换；
+> 妖精按掉落小 P／大 P 选色并播放翅膀动画，加载失败时仍使用原几何 fallback。素材清单、构建
+> data URL、宿主 dataset、atlas 与 renderer 已同步；本轮之后图片必需项不再挂账，音效与真实
+> SillyTavern 验收仍待完成。
+
 > 2026-07-26 起草。定位：**规划文档**，未实施、未打包。执行边界仍以
 > `project/bullet-hell-minigame-optimization-protocol.md` 为准（白名单、BattleResult 不可变、
 > 结算链不可变、不打包不推送）。交接现状见 `project/bullet-hell-minigame-handoff.md`。
@@ -36,9 +46,12 @@ README 明确要求使用者自备原版 `東方紅魔郷.exe`。"贴图直接�
 
 1. `th06` 反编译代码继续当**规格书**用：弹种家族与尺寸表、颜色循环、item 抛物线与 POC 行为、
    BulletManager 的 spawn 特效时序、魔法阵/击破演出的帧节奏——只抄数值与语义。
-2. 全部贴图走本项目已有自绘管线（chroma 底稿 → 透明 `*-v1.png` → `asset-manifest.json` 登记
-   → 仅透明版进产物）。项目已自产 8 个角色 sheet 与 3 张战斗 sheet，管线是通的。
-3. 新增素材一律放 `src/assets/battle/**`（协议白名单），命名沿用 `*-sheet-v1.png` 约定。
+2. 弹幕、道具、妖精与 Boss 战斗 sheet 继续走项目已有自绘管线（chroma 底稿 →
+   透明 `*-v1.png` → `asset-manifest.json` 登记 → 仅透明版进产物）。**S0／S1／S2 cut-in
+   立绘是明确例外**：按所有者提供的原文件直接登记、复制和内嵌，不抠图、不去背、不修改
+   透明通道、不生成 chroma/alpha 中间稿。
+3. 新增素材一律放 `src/assets/battle/**`（协议白名单）；图集命名沿用 `*-sheet-v1.png`，
+   S0／S1／S2 立绘则按 `portrait-<boss_id>-s<0|1|2>-v1.png` 分文件命名。
 
 ## 2. 分对象美化方向
 
@@ -117,10 +130,12 @@ README 明确要求使用者自备原版 `東方紅魔郷.exe`。"贴图直接�
 
 **素材规格与体积预算**：
 
-- 每 boss 一张立绘 sheet：3 战损状态 + 1~2 表情差分，共用底稿只改衣装/表情层；
-  单帧 384×512，PNG-8/调色板量化，目标 **每 sheet ≤ 250KB，4 个 boss 合计 ≤ 1MB**。
-- 当前 `ui-mount.js` 已 34.5MB，1MB 增量可接受，但所有新图**必须过量化压缩**，
-  且 chroma 底稿绝不进产物（测试已有此断言，新增 sheet 要纳入同一断言）。
+- 每 boss 直接使用 S0／S1／S2 三张完整图片；不要求合并立绘 sheet。3:4、384×512
+  仅作为推荐交付尺寸，不得为满足该建议而裁切、缩放或重新编码所有者原图。
+- S0／S1／S2 不要求量化压缩。构建时记录实际体积并评估检查点总量即可；不得以体积预算为由
+  自动改图。运行时使用 `contain` 适配 cut-in 区域，并保留图片自带背景或透明通道。
+- 三张图按稳定命名进入 manifest 和 data URL 链，输入原文件哈希应与维护源一致；这组素材不设
+  chroma/alpha 双份，也不应用透明边、隐藏 RGB、色键转换或背景清除门禁。
 
 ### 2.6 场景与 HUD
 
@@ -135,7 +150,7 @@ README 明确要求使用者自备原版 `東方紅魔郷.exe`。"贴图直接�
 |---|---|---|---|
 | B1 纯代码打磨 | 弹幕双层几何渲染、去双重绘制、消弹星屑、受击提亮、阶段星标、符卡横幅（文字版） | `battle-renderer.ts`、`battle-types.ts`、测试 | 无 |
 | B2 弹幕/item/妖精图集 | 新图集 + atlas 扩表 + 嵌入链（build-ui 3 个新 data URL、host-shell dataset、manifest 登记） | `battle-atlas.ts`、`battle-renderer.ts`、`build-ui.mjs`、`ui-host-shell.js`、manifest、测试 | bullets / fairy sheet |
-| B3 boss 阵容 + 立绘 cut-in | `boss_id` 表现字段 + 4 boss 战斗 sheet + cut-in/战损状态机（纯视觉） | 上述 + `configs/*.json`、`battle-simulation.ts`（仅暴露 phase 击破事件） | 4 boss sheet + 4 立绘 sheet |
+| B3 boss 阵容 + 立绘 cut-in | `boss_id` 表现字段 + 4 boss 战斗 sheet + cut-in/战损状态机（纯视觉） | 上述 + `configs/*.json`、`battle-simulation.ts`（仅暴露 phase 击破事件） | 4 boss sheet + 各 boss 的 S0/S1/S2 三张直导立绘 |
 | B4 背景主题 + 实机验收 | 主题背景层、打磨、§7.3 真实酒馆矩阵 | `battle-renderer.ts`、`styles.css`（如需） | 无 |
 
 每批次硬门禁：`npm run check:ui`、`npm test`（现基线 100/100，只增不减）、`npm run build:ui`、
@@ -167,7 +182,7 @@ B1 落地内容：弹幕三层渲染（白芯+主色+光晕，几何 fallback �
 - 渲染层新增 `drawBossCutIn`：阶段开场 2.4s 从右滑入占位立绘卡——战损徽章
   （S0 完好蓝 / S1 轻损琥珀 / S2 重损红）、裂纹线（S1 两道、S2 四道，定值种子无闪烁）、
   抽象星纹（**刻意不程序化画人物**，遵所有者裁定）、光带扫过、"立绘占位 · 素材待换"水印。
-  真素材落地后以 `portrait_<boss_id>_s<档位>` 帧替换卡体即可。
+  真素材落地后按 `portrait_<boss_id>_s<档位>` 选择对应完整图片替换卡体即可，不走 sheet 裁切。
 - `bossDamageLevel(phaseIndex, phaseCount)` 纯函数：2 阶段 P1=S0/P2=S1、4 阶段 P1-2=S0/
   P3=S1/P4=S2；胜利结算画面的 S2 终态立绘待真素材后接入（挂账）。
 - 战斗框放大：dialog `560→760px`；画布宽度改为按视口高度推导
@@ -295,6 +310,29 @@ B1 落地内容：弹幕三层渲染（白芯+主色+光晕，几何 fallback �
 - build、宿主 dataset、app atlas source 与 asset manifest 全链接通，chroma 不进产物。
 - `check:ui`、`npm test` **134/134**、`build:ui` 全绿；琪露诺已在本地浏览器实跑到场，
   尺寸、锚点与透明背景正常。爱丽丝、咲夜和轻微洋红边缘仍待逐场／真实酒馆验收。
+
+**R49-I（2026-08-01，战斗内置音频设置／暂停／BGM 模板）已完成离线接入**：
+
+- 战斗弹窗顶部新增“暂停／继续”与“音频设置”；裸露音量滑杆退出 HUD，设置改为战斗专属小弹窗。
+- 音效与 BGM 各自拥有启用／音量控制；打开设置时暂停模拟，关闭后恢复进入面板前的暂停状态。
+- `battle-bgm-catalog.json` 预登记 `stage_theme / boss_theme / duel_theme` 三首模板，当前
+  `source_url` 全为 `null`；`battle-bgm.ts` 只接受 HTTPS 曲源，缺曲时静默，不暴露 R2 凭据。
+- BGM 偏好与音效偏好只写 `localStorage`，不写 MVU、聊天楼层或 `BattleResult`。R2 填写与回滚步骤
+  见 `project/battle-bgm-r2-template.md`，当前没有上传、部署或远程运行依赖。
+- 当时 `check:ui`、`npm test` **175/175**、`build:ui` 全绿；离线浏览器验证默认 45%、曲目／65%
+  音量持久化、复位和暂停流程。真实 SillyTavern 音频权限与实际 R2 曲源待验收。
+
+**R49-J（2026-08-01，自机小符札与敌弹识别分层）已完成离线接入**：
+
+- R49-E 的“三层矢量辉光胶囊”被本轮表现方案取代：自机普通／专注射击统一改为米白纸符，使用
+  近黑外轮廓、红／青符印、金色顶签和双尾带；敌弹继续使用珠／米／鳞／星等发光弹体。
+- 识别不再依赖颜色：矩形纸面、硬描边与运动尾带是自机弹专属的三项非色彩线索；高密度同色弹幕中
+  仍可按轮廓辨认。普通与专注射击仅改变符札宽度和符印颜色，不新增游戏状态。
+- 红色大小 P 点保留经典红方块白像素 P 和翻面动画，并增加不随内层翻面压缩的四角拾取框，降低
+  与红色敌弹混淆；磁吸、收集值、POC、掉率及碰撞范围不变。
+- 修改严格限制在 `battle-renderer.ts` 表现层；模拟、伤害、速度、判定、Power、结算与
+  `BattleResult` 零变化。新增定向契约测试，`check:ui`、`npm test` **176/176**、`build:ui`
+  全绿；离线妖精练习已目视实际缩放，真实 SillyTavern／320px／色觉辅助与满屏交火待验收。
 
 ## 4. 风险与待所有者拍板
 

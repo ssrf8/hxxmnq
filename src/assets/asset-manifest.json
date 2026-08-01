@@ -16,6 +16,37 @@
     "runtime_fallback": "static-turnaround",
     "reduced_motion": "static-frame"
   },
+  "gal_portraits": {
+    "marisa": {
+      "status": "owner-provided-integrated-offline-validation-pending-sillytavern",
+      "runtime_embed": "direct-original-files",
+      "canvas": [1152, 1920],
+      "source_archive_root": "旧素材/素材处理/CG/魔理沙/透明背景/",
+      "content_families": {
+        "normal": "owner-labeled-sfw-swimwear",
+        "nude": "owner-labeled-nsfw-full-nudity"
+      },
+      "sources": {
+        "normal": {
+          "neutral": "characters/marisa/gal/normal/marisa-normal-neutral-v1.png",
+          "smile": "characters/marisa/gal/normal/marisa-normal-smile-v1.png",
+          "shy": "characters/marisa/gal/normal/marisa-normal-shy-v1.png",
+          "sad": "characters/marisa/gal/normal/marisa-normal-sad-v1.png",
+          "angry": "characters/marisa/gal/normal/marisa-normal-angry-v1.png"
+        },
+        "nude": {
+          "neutral": "characters/marisa/gal/nude/marisa-nude-neutral-v1.png",
+          "smile": "characters/marisa/gal/nude/marisa-nude-smile-v1.png",
+          "shy": "characters/marisa/gal/nude/marisa-nude-shy-v1.png",
+          "sad": "characters/marisa/gal/nude/marisa-nude-sad-v1.png",
+          "angry": "characters/marisa/gal/nude/marisa-nude-angry-v1.png"
+        }
+      },
+      "sexual_pose_sources": {},
+      "fallback": "sexual -> nude same reaction -> nude.neutral -> normal same reaction -> normal.neutral",
+      "note": "All ten PNG files are byte-identical copies of the owner-provided transparent-background sources; no crop, resize, alpha edit, quantization, or re-encoding was applied."
+    }
+  },
   "characters": {
     "reimu": {
       "status": "approved",
@@ -200,6 +231,106 @@
       "runtime_embed": "alpha-only",
       "layout": "2x2-phase1-phase2-hit-break"
     },
+    "reimu_battle_portraits": {
+      "status": "owner-provided-direct-import-pending-sillytavern",
+      "sources": {
+        "s0": "battle/portraits/portrait-reimu-s0-v1.png",
+        "s1": "battle/portraits/portrait-reimu-s1-v1.png",
+        "s2": "battle/portraits/portrait-reimu-s2-v1.png"
+      },
+      "runtime_embed": "direct-original-files",
+      "layout": "three-full-images-s0-s1-s2",
+      "note": "Owner-provided Reimu cut-in portraits copied and embedded without image decoding, background removal, alpha edits, cropping, resizing, quantization, or re-encoding."
+    },
+    "marisa_battle_portraits": {
+      "status": "owner-provided-direct-import-pending-sillytavern",
+      "sources": {
+        "s0": "battle/portraits/portrait-marisa-s0-v1.png",
+        "s1": "battle/portraits/portrait-marisa-s1-v1.png",
+        "s2": "battle/portraits/portrait-marisa-s2-v1.png"
+      },
+      "runtime_embed": "direct-original-files",
+      "layout": "three-full-images-s0-s1-s2",
+      "note": "Owner-provided Marisa cut-in portraits copied and embedded without image decoding, background removal, alpha edits, cropping, resizing, quantization, or re-encoding."
+    },
+    "alice_battle_portraits": {
+      "status": "owner-provided-direct-import-pending-sillytavern",
+      "sources": {
+        "s0": "battle/portraits/portrait-alice-s0-v1.png",
+        "s1": "battle/portraits/portrait-alice-s1-v1.png",
+        "s2": "battle/portraits/portrait-alice-s2-v1.png"
+      },
+      "runtime_embed": "direct-original-files",
+      "layout": "three-full-images-s0-s1-s2",
+      "note": "Owner-provided Alice cut-in portraits copied and embedded without image decoding, background removal, alpha edits, cropping, resizing, quantization, or re-encoding."
+    },
+    "cirno_battle_portraits": {
+      "status": "owner-provided-direct-import-pending-sillytavern",
+      "sources": {
+        "s0": "battle/portraits/portrait-cirno-s0-v1.png",
+        "s1": "battle/portraits/portrait-cirno-s1-v1.png",
+        "s2": "battle/portraits/portrait-cirno-s2-v1.png"
+      },
+      "runtime_embed": "direct-original-files",
+      "layout": "three-full-images-s0-s1-s2",
+      "note": "Owner-provided Cirno cut-in portraits copied and embedded without image decoding, background removal, alpha edits, cropping, resizing, quantization, or re-encoding."
+    },
+    "mystia_battle_portraits": {
+      "status": "owner-provided-direct-import-pending-sillytavern",
+      "sources": {
+        "s0": "battle/portraits/portrait-mystia-s0-v1.png",
+        "s1": "battle/portraits/portrait-mystia-s1-v1.png",
+        "s2": "battle/portraits/portrait-mystia-s2-v1.png"
+      },
+      "runtime_embed": "direct-original-files",
+      "layout": "three-full-images-s0-s1-s2",
+      "note": "Owner-provided Mystia cut-in portraits copied and embedded without image decoding, background removal, alpha edits, cropping, resizing, quantization, or re-encoding."
+    },
+    "nitori_battle_portraits": {
+      "status": "owner-provided-direct-import-pending-sillytavern",
+      "sources": {
+        "s0": "battle/portraits/portrait-nitori-s0-v1.png",
+        "s1": "battle/portraits/portrait-nitori-s1-v1.png",
+        "s2": "battle/portraits/portrait-nitori-s2-v1.png"
+      },
+      "runtime_embed": "direct-original-files",
+      "layout": "three-full-images-s0-s1-s2",
+      "note": "Owner-provided Nitori cut-in portraits copied and embedded without image decoding, background removal, alpha edits, cropping, resizing, quantization, or re-encoding."
+    },
+    "suika_battle_portraits": {
+      "status": "owner-provided-direct-import-pending-sillytavern",
+      "sources": {
+        "s0": "battle/portraits/portrait-suika-s0-v1.png",
+        "s1": "battle/portraits/portrait-suika-s1-v1.png",
+        "s2": "battle/portraits/portrait-suika-s2-v1.png"
+      },
+      "runtime_embed": "direct-original-files",
+      "layout": "three-full-images-s0-s1-s2",
+      "note": "Owner-provided Suika cut-in portraits copied and embedded without image decoding, background removal, alpha edits, cropping, resizing, quantization, or re-encoding."
+    },
+    "sakuya_battle_portraits": {
+      "status": "owner-provided-direct-import-pending-sillytavern",
+      "sources": {
+        "s0": "battle/portraits/portrait-sakuya-s0-v1.png",
+        "s1": "battle/portraits/portrait-sakuya-s1-v1.png",
+        "s2": "battle/portraits/portrait-sakuya-s2-v1.png"
+      },
+      "runtime_embed": "direct-original-files",
+      "layout": "three-full-images-s0-s1-s2",
+      "note": "Owner-provided Sakuya cut-in portraits copied and embedded without image decoding, background removal, alpha edits, cropping, resizing, quantization, or re-encoding."
+    },
+    "flower_core_battle_portraits": {
+      "status": "ai-generated-integrated-pending-sillytavern",
+      "sources": {
+        "s0": "battle/portraits/portrait-flower-core-s0-v1.png",
+        "s1": "battle/portraits/portrait-flower-core-s1-v1.png",
+        "s2": "battle/portraits/portrait-flower-core-s2-v1.png"
+      },
+      "runtime_embed": "direct-original-files",
+      "layout": "three-full-images-s0-s1-s2",
+      "provenance": "Generated with the built-in ImageGen tool on 2026-07-30; S1 and S2 were edited from the preceding state to preserve boss design and composition.",
+      "note": "Moonlit greenhouse carnivorous-flower core with intact, light-damage, and heavy-damage states; visually inspected after generation."
+    },
     "marisa_battle": {
       "status": "owner-provided-v2-integrated-offline-validated-pending-sillytavern",
       "source_alpha": "battle/boss/marisa-battle-sheet-v1.png",
@@ -257,6 +388,15 @@
       "source_alpha": "battle/effects/battle-effects-sheet-v1.png",
       "runtime_embed": "alpha-only"
     },
+    "fairy_mobs": {
+      "status": "ai-generated-integrated-pending-sillytavern",
+      "source_chroma": "battle/effects/fairy-sheet-v1-chroma.png",
+      "source_alpha": "battle/effects/fairy-sheet-v1.png",
+      "runtime_embed": "alpha-only",
+      "layout": "2x2-blue-flap0-flap1-gold-flap0-flap1-64px-cells",
+      "provenance": "Generated with the built-in ImageGen tool on 2026-07-30, then chroma-keyed and resized with nearest-neighbor sampling.",
+      "note": "Blue fairy indicates small-P drop; gold fairy indicates big-P drop. Final runtime sheet is 128x128 RGBA."
+    },
     "local_etama3_bullets": {
       "status": "owner-provided-ai-generated-edited-integrated",
       "source_alpha": "battle/effects/battle-bullets-etama3-local-v1.png",
@@ -265,6 +405,92 @@
       "layout": "8-hues-x-8-families-32px-cells",
       "sha256": "a7b9b322857f73bbb945f7296c6fcc41c3d5a7fa8972e6991a527267456b2bfd",
       "note": "Owner-provided AI-generated and edited etama3 sheet, authorized for project runtime, packaging, and distribution; star and load-failure paths retain procedural rendering."
+    }
+  },
+  "audio_assets": {
+    "battle_sfx": {
+      "status": "owner-provided-ai-regenerated-integrated-pending-runtime-validation",
+      "source_root": "audio/source/battle-ai-regenerated-v1",
+      "provenance": "audio/source/battle-ai-regenerated-v1/provenance.md",
+      "runtime_embed": "wav-data-url",
+      "format": {
+        "container": "wav",
+        "channels": 1,
+        "sample_rate_hz": 22050,
+        "runtime_total_bytes": 308202
+      },
+      "events": {
+        "player_shot": {
+          "source": "audio/source/battle-ai-regenerated-v1/玩家_射击_plst00.wav",
+          "runtime": "audio/runtime/battle/player_shot.wav",
+          "sha256": "3af00e5bc936626bb52cc14b472ca726269a30ab5a6d44d482437fc0611c233f"
+        },
+        "boss_hit": {
+          "source": "audio/source/battle-ai-regenerated-v1/敌人_Boss受伤_damage00.wav",
+          "runtime": "audio/runtime/battle/boss_hit.wav",
+          "sha256": "8cf65a208ea6910182a4c4cbdd264f076117e6c508146f5f9954e9e3a1f059ce"
+        },
+        "mob_defeat": {
+          "source": "audio/source/battle-ai-regenerated-v1/敌人_普通击破_enep00.wav",
+          "runtime": "audio/runtime/battle/mob_defeat.wav",
+          "sha256": "887be6635b98fb1671e2cb6881d4236e62c3caa2a26431a4117555245105e794"
+        },
+        "graze": {
+          "source": "audio/source/battle-ai-regenerated-v1/玩家_擦弹_graze.wav",
+          "runtime": "audio/runtime/battle/graze.wav",
+          "sha256": "cca0bb46e2936548e582ebd94c995174f3a565839f32ac2950bba9459b1499e9"
+        },
+        "item_pickup": {
+          "source": "audio/source/battle-ai-regenerated-v1/道具_拾取_item00.wav",
+          "runtime": "audio/runtime/battle/item_pickup.wav",
+          "sha256": "4368fac39524f00236c476feab41084c95bba5cb8c5496af538cee8cd9551e50"
+        },
+        "player_miss": {
+          "source": "audio/source/battle-ai-regenerated-v1/玩家_中弹死亡_pldead00.wav",
+          "runtime": "audio/runtime/battle/player_miss.wav",
+          "sha256": "d49c1ac5e24a1feba0c655b8a23b574164c1672a9d5e6ae550b33669c0ffe583"
+        },
+        "bomb": {
+          "source": "audio/source/battle-ai-regenerated-v1/符卡_灵梦B魔理沙A发动_power1.wav",
+          "runtime": "audio/runtime/battle/bomb.wav",
+          "sha256": "25180789aca0cea74c40133bcc01408f5e4b32455bed21cfa0201acec07f19ed"
+        },
+        "wave_start": {
+          "source": "audio/source/battle-ai-regenerated-v1/特效_闪光魔法粒子1_kira00.wav",
+          "runtime": "audio/runtime/battle/wave_start.wav",
+          "sha256": "fd830cef23e51585802a1b7af3483b5f81eaf1eaa6ec6a1455dfaf5c76f99fca"
+        },
+        "spell_declare": {
+          "source": "audio/source/battle-ai-regenerated-v1/符卡_通用发动_cat00.wav",
+          "runtime": "audio/runtime/battle/spell_declare.wav",
+          "sha256": "6263263d3e5690033da6e7c3caa505cc0a60f98fc259723048dfbe2810852497"
+        },
+        "phase_break": {
+          "source": "audio/source/battle-ai-regenerated-v1/特效_闪光魔法粒子3_kira02.wav",
+          "runtime": "audio/runtime/battle/phase_break.wav",
+          "sha256": "e8114bde1705870090330abc70c9626e8b7b0a20ec84cf6857e0027135c2089e"
+        },
+        "laser_warning": {
+          "source": "audio/source/battle-ai-regenerated-v1/战斗_强力能量效果_power0.wav",
+          "runtime": "audio/runtime/battle/laser_warning.wav",
+          "sha256": "483df8cea8426c1be66744a8e11a4b72a7577d1087a403871d9c4573f10aa51d"
+        },
+        "laser_fire": {
+          "source": "audio/source/battle-ai-regenerated-v1/激光_Boss激光2_lazer01.wav",
+          "runtime": "audio/runtime/battle/laser_fire.wav",
+          "sha256": "1b34812c14a9e20794b46a40296382f1944e197eacbbf83a7bc9cb4c7fb9b93c"
+        },
+        "battle_win": {
+          "source": "audio/source/battle-ai-regenerated-v1/道具_获得残机1UP_extend.wav",
+          "runtime": "audio/runtime/battle/battle_win.wav",
+          "sha256": "2a628fb55de99abd49a09b3b08a2a1dc39799f4fbdb76bb5f3994265c8432e3d"
+        },
+        "battle_lose": {
+          "source": "audio/source/battle-ai-regenerated-v1/菜单_返回取消_cancel00.wav",
+          "runtime": "audio/runtime/battle/battle_lose.wav",
+          "sha256": "ca2ea7b33553c10458a943303ee90a8fb8bd24f483f92903e6612fe753d45294"
+        }
+      }
     }
   },
   "maps": {
@@ -278,6 +504,15 @@
       "character_visual_scale": 0.64,
       "facility_visual_scale": 0.76,
       "provenance": "owner-supplied 2026-07-29; SHA-256 b5d89e347fa448ecf82690a43a5639649d44956d544e4295a72ec08c62926c13"
+    },
+    "garden_no_walk_mask": {
+      "status": "project-authored-v1-integrated-pending-runtime-validation",
+      "source": "maps/garden-no-walk-mask-v1.svg",
+      "canvas": [1672, 941],
+      "runtime_role": "non-walkable-alpha-mask",
+      "alpha_contract": "transparent-walkable-alpha-gte-128-blocked",
+      "coverage": "river-and-pond-with-transparent-bridge-corridor",
+      "provenance": "project-authored deterministic SVG mask 2026-07-30"
     }
   },
   "map_facility_assets": {
@@ -285,17 +520,10 @@
       "status": "retired-from-map-owner-request-2026-07-29",
       "map_usage": false,
       "area_id": "main_house",
-      "source_chroma": {
-        "damaged": "world/map-facilities/main-house/main-house-damaged-v1-chroma.png",
-        "restored": "world/map-facilities/main-house/main-house-restored-v1-chroma.png"
-      },
-      "source_alpha": {
-        "损坏": "world/map-facilities/main-house/main-house-damaged-v1.png",
-        "临时修复": "world/map-facilities/main-house/main-house-restored-v1.png",
-        "启用": "world/map-facilities/main-house/main-house-restored-v1.png"
-      },
-      "render_contract": "maintenance-only historical sprites; the v2 garden base already contains the upper-left residence, so runtime map rendering must not overlay these files",
-      "provenance": "generated 2026-07-27 and owner-approved for the previous map; removed from runtime map usage by owner request on 2026-07-29 because it conflicts with the residence already painted into the v2 base"
+      "archive_root": "旧素材/src/assets/world/map-facilities/main-house/",
+      "archived_states": ["损坏", "临时修复", "启用"],
+      "render_contract": "retired historical sprites are excluded from the active asset tree and runtime build; the v3 garden base already contains the central residence",
+      "provenance": "generated 2026-07-27 for the previous map, removed from runtime map usage by owner request on 2026-07-29, and archived with its original relative path on 2026-07-31"
     },
     "magic_greenhouse": {
       "status": "owner-provided-v3-integrated-pending-runtime-validation",

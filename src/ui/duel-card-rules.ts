@@ -45,7 +45,7 @@ function validateDuelBattleResult(result: BattleResult) {
   if (!Number.isInteger(result.phases_cleared) || result.phases_cleared < 0 || result.phases_cleared > 99) {
     throw new Error('对战阶段数非法');
   }
-  if (!Number.isFinite(result.objective_ratio) || result.objective_ratio < 0 || result.objective_ratio > 1) {
+  if (!Number.isFinite(result.objective_ratio) || result.objective_ratio < 0 || result.objective_ratio > 100) {
     throw new Error('对战完成度非法');
   }
 }
@@ -72,8 +72,17 @@ export function duelCardBlock(state: GardenState, targetCharacterId?: string): s
   if (consumableCount(state, 'spell_duel_card') < 1) return '没有可用的对战卡';
   if (!state.battle?.dungeon_unlocked) return '需要先完成妖花教学战';
   if (state.battle?.current) return '已有战斗结果等待结算';
-  if (state.events?.active_event || state.interaction?.current_session || state.anomaly_cycle?.pending_activation) {
+  if (state.events?.active_event || state.anomaly_cycle?.pending_activation) {
     return '当前有其他受控事务，不能发起对战';
+  }
+  const session = state.interaction?.current_session;
+  if (session) {
+    const participants = session.participant_character_ids ?? [];
+    const challengesCurrentCharacter = session.type === 'character'
+      && session.status !== 'closing'
+      && Boolean(targetCharacterId)
+      && participants.includes(targetCharacterId!);
+    if (!challengesCurrentCharacter) return '交谈中只能向当前角色使用对战卡';
   }
   const duel = state.inventory?.card_runtime?.duel;
   if (duel?.pending_battle) return '已有一场对战卡战斗进行中';

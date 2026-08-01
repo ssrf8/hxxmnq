@@ -20,6 +20,18 @@ const importTypescript = async (path) => {
   return import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
 };
 
+test('角色对话可直接使用对战卡，并在取消或失败后返回原会话', async () => {
+  const document = await read('../src/ui/index.html');
+  const app = await read('../src/ui/app.ts');
+  assert.doesNotMatch(document, /id="gg-use-duel-card"/);
+  assert.match(document, /对战卡会直接挑战当前交谈角色/);
+  assert.match(app, /function beginDialogueDuel/);
+  assert.match(app, /button\.dataset\.action = 'dialogue-duel'/);
+  assert.match(app, /button\.addEventListener\('click', \(\) => \{[\s\S]*?void beginDialogueDuel\(\)/);
+  assert.match(app, /activeDuelConversationTarget/);
+  assert.match(app, /已返回与\$\{activeTarget\.label\}的对话/);
+});
+
 test('角色点击菜单由代码绘制、去除重复离开入口并保持语义映射', async () => {
   const controller = await read('../src/ui/app.ts');
   const styles = await read('../src/ui/styles.css');
@@ -131,26 +143,34 @@ test('购买与参数输入统一使用内置弹窗，不调用浏览器原生�
   assert.match(styles, /@media \(max-width: 420px\)[\s\S]*?\.gg-internal-dialog-actions/);
 });
 
-test('GAL 道具选择使用御札式单选槽并同步选择提示', async () => {
+test('GAL 道具选择使用独立道具匣并同步本轮选择', async () => {
   const document = await read('../src/ui/index.html');
   const controller = await read('../src/ui/app.ts');
   const styles = await read('../src/ui/styles.css');
   assert.match(document, /id="gg-scene-item-picker" class="gg-scene-item-picker" data-has-selection="false"/);
   assert.match(document, /class="gg-scene-item-mark"[^>]*>御<\/span>/);
-  assert.match(document, /id="gg-scene-item" aria-describedby="gg-scene-item-hint"/);
-  assert.doesNotMatch(document, /id="gg-scene-item"[^>]*\bmultiple\b/);
+  assert.doesNotMatch(document, /<select[^>]*id="gg-scene-item"/);
+  assert.match(document, /id="gg-scene-item" type="hidden"/);
+  assert.match(document, /id="gg-scene-item-trigger"[\s\S]*?aria-haspopup="dialog"[\s\S]*?aria-controls="gg-scene-item-dialog"/);
+  assert.match(document, /id="gg-scene-item-dialog"[\s\S]*?id="gg-scene-item-options"/);
   assert.match(document, /id="gg-scene-item-hint"[^>]*aria-live="polite"/);
+  assert.match(controller, /sceneItemDialog\.showModal\(\)/);
+  assert.match(controller, /function selectSceneItem\(itemId: string\)/);
+  assert.match(controller, /description\.textContent = item\.prompt_description/);
+  assert.match(controller, /sceneItemOptions\.replaceChildren\(noItemButton, \.\.\.itemButtons\)/);
+  assert.match(controller, /sceneItemDialog\.addEventListener\('close'[\s\S]*?sceneItemTrigger\.focus/);
   assert.match(controller, /function updateSceneItemPickerState\(\)/);
   assert.match(controller, /sceneItemPicker\.dataset\.hasSelection = String\(Boolean\(selected\)\)/);
-  assert.match(controller, /已装备：\$\{label\} · 发送时消耗 1 个/);
-  assert.match(controller, /sceneItemSelect\.addEventListener\('change', updateSceneItemPickerState\)/);
+  assert.match(controller, /已装备：\$\{selectedItem\.title\} ×\$\{count\} · 发送时消耗 1 个/);
   assert.match(styles, /\.gg-scene-item-picker \{[\s\S]*?clip-path: polygon/);
-  assert.match(styles, /#gg-scene-item \{[\s\S]*?appearance: none;[\s\S]*?color-scheme: light;/);
-  assert.match(styles, /\.gg-scene-item-control::after \{[\s\S]*?border-right: 2px solid #78313a;[\s\S]*?transform: rotate\(45deg\)/);
-  assert.match(styles, /#gg-scene-item \{[\s\S]*?linear-gradient\(180deg, #f5e3bd, #dbbd84\)/);
+  assert.match(styles, /\.gg-scene-item-trigger \{[\s\S]*?linear-gradient\(180deg, #f5e3bd, #dbbd84\)/);
+  assert.match(styles, /\.gg-scene-item-dialog \{[\s\S]*?width: min\(92vw, 680px\)/);
+  assert.match(styles, /\.gg-scene-item-options \{[\s\S]*?grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(styles, /\.gg-scene-item-option\[data-selected="true"\]/);
   assert.match(styles, /\.gg-scene-item-picker\[data-has-selection="true"\]/);
-  assert.match(styles, /\.gg-scene-item-picker\[data-has-selection="true"\] #gg-scene-item \{[\s\S]*?linear-gradient\(180deg, #8f3942, #64262e\)/);
+  assert.match(styles, /\.gg-scene-item-picker\[data-has-selection="true"\] \.gg-scene-item-trigger \{[\s\S]*?linear-gradient\(180deg, #8f3942, #64262e\)/);
   assert.match(styles, /@media \(max-width: 520px\)[\s\S]*?\.gg-scene-item-picker \{ grid-template-columns: 1fr;/);
+  assert.match(styles, /@media \(max-width: 520px\)[\s\S]*?\.gg-scene-item-options \{ grid-template-columns: 1fr;/);
 });
 
 test('开放庭园页面从正式状态派生教程进度与下一步', async () => {
@@ -267,6 +287,16 @@ test('三张玩法入口使用大型平滑插画并同时进入预览与内嵌�
   assert.match(host, /dataset\.dungeonButtonSrc = embedded\.dungeonButtonDataUrl/);
 });
 
+test('开场光源离开画面时原地淡出，不再飞向左上角', async () => {
+  const controller = await read('../src/ui/app.ts');
+  const styles = await read('../src/ui/styles.css');
+  const pointerLeave = controller.match(/openingRoot\.addEventListener\('pointerleave',[\s\S]*?\n\s*\}\);/)?.[0] ?? '';
+  assert.match(controller, /cursorGlow\.style\.opacity = '1'/);
+  assert.match(pointerLeave, /cursorGlow\.style\.opacity = '0'/);
+  assert.doesNotMatch(pointerLeave, /transform|-999/);
+  assert.match(styles, /\.gg-cursor-glow \{[\s\S]*?opacity: 0;[\s\S]*?transition: opacity \.12s ease-out;/);
+});
+
 test('灵梦小店底图、十槽商品层和窄屏回流共同进入构建', async () => {
   const document = await read('../src/ui/index.html');
   const controller = await read('../src/ui/app.ts');
@@ -312,7 +342,7 @@ test('七名验收序列优先运行并保留旧图集回退，魔理沙继续�
   const registry = await read('../src/ui/character-sprite-registry.ts');
   const build = await read('../scripts/build-ui.mjs');
   const host = await read('../src/runtime/ui-host-shell.js');
-  assert.match(map, /new SpriteActor\(id, actor/);
+  assert.match(map, /new SpriteActor\(\s*id,\s*actor/);
   assert.match(map, /requestAnimationFrame/);
   assert.match(map, /visibilitychange/);
   assert.match(actor, /SpriteMotion = 'idle' \| 'walk'/);
@@ -390,15 +420,58 @@ test('角色随机巡游生成上下左右四方向的单轴目标，并始终�
   }
 });
 
+test('不可行走蒙版检查脚底体积与完整路径，而不是只看终点', async () => {
+  const navigation = await importTypescript('../src/ui/garden-navigation.ts');
+  const sampler = {
+    width: 100,
+    height: 100,
+    isBlocked: ({ x, y }) => x >= .48 && x <= .52 && y >= .35 && y <= .65,
+  };
+  assert.equal(
+    navigation.isRouteWalkable(sampler, { x: .2, y: .5 }, { x: .8, y: .5 }, { x: .01, y: .01 }, 4),
+    false,
+  );
+  assert.equal(
+    navigation.isRouteWalkable(sampler, { x: .2, y: .2 }, { x: .8, y: .2 }, { x: .01, y: .01 }, 4),
+    true,
+  );
+  assert.equal(
+    navigation.isFootprintBlocked(sampler, { x: .47, y: .5 }, { x: .02, y: .01 }),
+    true,
+  );
+  assert.equal(navigation.footprintSamples({ x: .5, y: .5 }).length, 9);
+});
+
+test('同区域多人位置按角色 ID 稳定分槽，顺序变化不会绕过蒙版', async () => {
+  const map = await importTypescript('../src/ui/garden-map.ts');
+  const areaFor = () => 'central_courtyard';
+  assert.deepEqual(
+    map.resolveCharacterSlot('reimu', ['reimu', 'marisa'], areaFor),
+    map.resolveCharacterSlot('reimu', ['marisa', 'reimu'], areaFor),
+  );
+  assert.notDeepEqual(
+    map.resolveCharacterSlot('reimu', ['reimu', 'marisa'], areaFor),
+    map.resolveCharacterSlot('marisa', ['reimu', 'marisa'], areaFor),
+  );
+});
+
+test('随机巡游会重试被蒙版拒绝的路线，十二次失败后留在原地休息', async () => {
+  const source = await read('../src/ui/sprite-actor.ts');
+  assert.match(source, /for \(let attempt = 0; attempt < 12; attempt \+= 1\)/);
+  assert.match(source, /this\.canTravel\(start, candidate\.target\)/);
+  assert.match(source, /if \(!move\) \{[\s\S]*?this\.phaseRemaining = this\.randomBetween\(this\.config\.restDurationMs\)/);
+});
+
 test('默认巡游使用更长单段距离和相应扩大的活动范围', async () => {
   const registry = await read('../src/ui/character-sprite-registry.ts');
-  assert.match(registry, /travelDistanceMin: 0\.034/);
-  assert.match(registry, /travelDistanceMax: 0\.08/);
-  assert.match(registry, /travelRadiusY: 0\.065/);
-  assert.match(registry, /travelRadiusY: 0\.075/);
+  assert.match(registry, /travelDistanceMin: 0\.045/);
+  assert.match(registry, /travelDistanceMax: 0\.12/);
+  assert.match(registry, /travelRadiusY: 0\.105/);
+  assert.match(registry, /travelRadiusY: 0\.12/);
   const radii = [...registry.matchAll(/travelRadius: (0\.\d+)/g)].map((match) => Number(match[1]));
   assert.equal(radii.length, 8);
-  assert.ok(radii.every((radius) => radius >= 0.09));
+  assert.ok(radii.every((radius) => radius >= 0.145));
+  assert.ok(Math.max(...radii) >= 0.17);
 });
 
 test('角色完成一次二维移动后强制休息，状态刷新不会覆盖巡游朝向', async () => {
@@ -575,8 +648,11 @@ test('人物响应式缩放同步命中、标签与多人间距', async () => {
   assert.match(source, /canvas\.dataset\.characterEffectiveScale = \(CHARACTER_VISUAL_SCALE \* characterViewportScale\)\.toFixed\(2\)/);
   assert.match(source, /spriteSize = [\s\S]*?CHARACTER_VISUAL_SCALE[\s\S]*?characterViewportScale/);
   assert.match(source, /drawLabel\(ctx, x, y \+ 28 \* px \* characterLayoutScale, label\)/);
-  assert.match(source, /hitRadius = drawnAsSprite[\s\S]*?Math\.max\(spriteSize \* 0\.31, 22 \* px\)/);
+  assert.match(source, /resolveCharacterHitGeometry\(spriteSize, 22 \* px\)/);
+  assert.match(source, /hitCenter: \{ x, y: y \+ hitGeometry\.offsetY \}/);
   assert.match(source, /characterSpacingScale = characterLayoutScale/);
+  assert.match(source, /resolveCharacterSlot\(id, present/);
+  assert.match(source, /CHARACTER_FOOT_OFFSET_Y/);
 });
 
 test('所有者提供的 v3 横向庭园底图由素材清单驱动，人物比例保持稳定', async () => {
@@ -593,6 +669,27 @@ test('所有者提供的 v3 横向庭园底图由素材清单驱动，人物比�
   assert.match(map, /CHARACTER_VISUAL_SCALE = 0\.64/);
   assert.match(map, /FACILITY_VISUAL_SCALE = 0\.76/);
   assert.match(spatial, /GARDEN_AREA_OUTLINES[^=]*= Object\.freeze\(\{\}\)/);
+});
+
+test('庭园不可行走蒙版与底图同画布，并进入预览和自包含运行链', async () => {
+  const manifest = JSON.parse(await read('../src/assets/asset-manifest.json'));
+  const mask = await read('../src/assets/maps/garden-no-walk-mask-v1.svg');
+  const build = await read('../scripts/build-ui.mjs');
+  const host = await read('../src/runtime/ui-host-shell.js');
+  const app = await read('../src/ui/app.ts');
+  const map = await read('../src/ui/garden-map.ts');
+  assert.deepEqual(manifest.maps.garden_no_walk_mask.canvas, manifest.maps.garden_base.canvas);
+  assert.equal(manifest.maps.garden_no_walk_mask.runtime_role, 'non-walkable-alpha-mask');
+  assert.match(mask, /width="1672" height="941" viewBox="0 0 1672 941"/);
+  assert.match(mask, /fill="#ff00ff"/);
+  assert.match(mask, /fill-rule="evenodd"/);
+  assert.match(build, /data-map-no-walk-mask-src/);
+  assert.match(build, /mapNoWalkMaskDataUrl/);
+  assert.match(host, /dataset\.mapNoWalkMaskSrc/);
+  assert.match(app, /dataset\.mapNoWalkMaskSrc/);
+  assert.match(map, /navigationMask\.isRouteWalkable/);
+  assert.match(map, /canvas\.dataset\.navigationMask/);
+  assert.match(map, /canvas\.dataset\.navigationSamples/);
 });
 
 test('v3 底图启用同画布透明设施，并以共享废墟替换三组 damaged 形态', async () => {
@@ -665,7 +762,13 @@ test('v3 底图启用同画布透明设施，并以共享废墟替换三组 dama
     }
   }
   assert.equal(manifest.map_facility_assets.main_house.map_usage, false);
-  assert.deepEqual(Object.keys(manifest.map_facility_assets.main_house.source_alpha), ['损坏', '临时修复', '启用']);
+  assert.equal(manifest.map_facility_assets.main_house.source_alpha, undefined);
+  assert.equal(manifest.map_facility_assets.main_house.source_chroma, undefined);
+  assert.deepEqual(manifest.map_facility_assets.main_house.archived_states, ['损坏', '临时修复', '启用']);
+  assert.equal(
+    manifest.map_facility_assets.main_house.archive_root,
+    '旧素材/src/assets/world/map-facilities/main-house/',
+  );
   assert.match(manifest.map_facility_assets.main_house.status, /^retired-from-map/);
   const spatial = await read('../src/ui/garden-spatial.ts');
   assert.match(spatial, /main_house:\s*\{\s*x:\s*0\.50,\s*y:\s*0\.43\s*\}/);
@@ -714,6 +817,22 @@ test('设施命中优先使用精确多边形，避免中央庭院的宽泛圆�
   ];
   assert.equal(map.pointInPolygon({ x: 20, y: 20 }, polygon), true);
   assert.equal(map.pointInPolygon({ x: 40, y: 20 }, polygon), false);
+});
+
+test('角色命中区上移覆盖整幅立绘，重叠时不会把头部点击漏给设施', async () => {
+  const map = await importTypescript('../src/ui/garden-map.ts');
+  assert.deepEqual(map.resolveCharacterHitGeometry(100, 22), {
+    offsetY: -32,
+    radius: 50,
+  });
+  assert.deepEqual(map.resolveCharacterHitGeometry(20, 22), {
+    offsetY: -6.4,
+    radius: 22,
+  });
+
+  const source = await read('../src/ui/garden-map.ts');
+  assert.match(source, /item\.kind === 'character' && this\.targetContains/);
+  assert.match(source, /const center = target\.hitCenter \?\? target/);
 });
 
 test('内置地图区域使用固定中文名，已建设施使用贴图透明边缘发光', async () => {
@@ -819,7 +938,7 @@ test('GAL 使用月下结界舞台、和纸对白框与窄屏回流', async () =
   assert.match(styles, /@media \(max-width: 700px\)[\s\S]*?\.gg-reply-panel \{ width: 100%; margin-top: \.5rem; padding: \.45rem; \}/);
   assert.match(styles, /@media \(max-width: 700px\)[\s\S]*?\.gg-suggested-replies \{ grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);[\s\S]*?\.gg-gal-compose textarea \{ height: 68px; min-height: 68px;/);
   assert.match(styles, /@media \(max-width: 700px\)[\s\S]*?\.gg-gal-compose > \.gg-actions \{ display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
-  assert.match(styles, /@media \(max-width: 700px\)[\s\S]*?\.gg-scene-item-picker \{ grid-template-columns: auto minmax\(0, 1fr\);[\s\S]*?#gg-scene-item \{ min-height: 42px;/);
+  assert.match(styles, /@media \(max-width: 700px\)[\s\S]*?\.gg-scene-item-picker \{ grid-template-columns: auto minmax\(0, 1fr\);[\s\S]*?\.gg-scene-item-trigger \{ min-height: 42px;/);
   assert.match(styles, /\.gg-gal \.gg-scene-tools \{[\s\S]*?grid-template-columns: repeat\(2, minmax\(120px, 1fr\)\);[\s\S]*?width: min\(100%, 320px\);/);
   assert.match(styles, /\.gg-suggested-replies button \{[\s\S]*?background: linear-gradient\(180deg, #f0d9ae, #d8b681\)/);
   assert.match(styles, /@media \(max-width: 700px\)[\s\S]*?\.gg-suggested-replies \{ grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
@@ -1057,13 +1176,128 @@ test('GAL scene.v1 最多六段、白名单反应并对非法格式安全降级'
   assert.match(parser, /<GensokyoScene/);
   assert.match(parser, /\.slice\(0, 6\)/);
   assert.match(parser, /ALLOWED_REACTIONS/);
+  assert.match(parser, /ALLOWED_VISUAL_MODES/);
   assert.match(parser, /malformed \? 'fallback'/);
   assert.match(parser, /scene\.v1\+body|preferBody|bodyChars/);
   assert.match(parser, /bginfor/);
   assert.match(controller, /textContent = beat\.text/);
+  assert.match(controller, /dataset\.visualMode = beat\.visualMode/);
+  assert.match(await read('../src/ui/index.html'), /data-visual-mode="normal"/);
   assert.doesNotMatch(controller, /innerHTML\s*=/);
   assert.match(protocol, /suggested_replies/);
   assert.match(protocol, /1–6/);
+  assert.match(protocol, /visual_mode/);
+});
+
+test('GAL visual_mode 兼容旧回复并按三种素材语义归一化姿势', async () => {
+  const parser = await importTypescript('../src/ui/gal-scene.ts');
+  const state = { characters: { reimu: {} } };
+  const scene = parser.projectGalScene({
+    id: 21,
+    text: '<GensokyoScene>{"version":"scene.v1","beats":['
+      + '{"kind":"speech","speaker_id":"reimu","reaction_id":"smile","pose_id":"legacy_pose","text":"旧格式。"},'
+      + '{"kind":"speech","speaker_id":"reimu","visual_mode":"nude","reaction_id":"shy","pose_id":"invented_pose","text":"非亲密裸露。"},'
+      + '{"kind":"speech","speaker_id":"reimu","visual_mode":"sexual","reaction_id":"shy","pose_id":"pose_a","text":"已登记姿势。"},'
+      + '{"kind":"speech","speaker_id":"reimu","visual_mode":"unknown","reaction_id":"angry","pose_id":"pose_b","text":"非法模式。"}'
+      + '],"suggested_replies":[]}</GensokyoScene>',
+  }, state, 'reimu');
+  assert.equal(scene.version, 'scene.v1');
+  assert.deepEqual(scene.beats.map((beat) => [beat.visualMode, beat.poseId]), [
+    ['normal', 'default'],
+    ['nude', 'default'],
+    ['sexual', 'pose_a'],
+    ['normal', 'default'],
+  ]);
+});
+
+test('魔理沙 GAL 注册表接入五种表情的着装与全裸十个槽位', async () => {
+  const registry = await importTypescript('../src/ui/gal-portrait-registry.ts');
+  assert.deepEqual([...registry.MARISA_GAL_REACTION_IDS], [
+    'neutral',
+    'smile',
+    'shy',
+    'sad',
+    'angry',
+  ]);
+  assert.equal(registry.MARISA_GAL_PORTRAIT_SLOTS.length, 10);
+  assert.deepEqual(
+    [...new Set(registry.MARISA_GAL_PORTRAIT_SLOTS.map((slot) => slot.visualMode))],
+    ['normal', 'nude'],
+  );
+  assert.ok(registry.MARISA_GAL_PORTRAIT_SLOTS.every((slot) => (
+    slot.localAssetPath?.startsWith(`characters/marisa/gal/${slot.visualMode}/`)
+      && slot.status === 'ready'
+  )));
+
+  assert.deepEqual(registry.normalizeGalPortraitCue('marisa', {
+    visualMode: 'normal',
+    reactionId: 'surprised',
+    poseId: 'not_used',
+  }), {
+    visualMode: 'normal',
+    reactionId: 'neutral',
+    poseId: 'default',
+  });
+  assert.deepEqual(registry.normalizeGalPortraitCue('marisa', {
+    visualMode: 'sexual',
+    reactionId: 'shy',
+    poseId: 'invented_pose',
+  }), {
+    visualMode: 'sexual',
+    reactionId: 'shy',
+    poseId: 'default',
+  });
+  assert.deepEqual(registry.galPortraitFallbackPoolIds('marisa', {
+    visualMode: 'sexual',
+    reactionId: 'shy',
+    poseId: 'invented_pose',
+  }), [
+    'gal.marisa.sexual.default',
+    'gal.marisa.nude.shy',
+    'gal.marisa.nude.neutral',
+    'gal.marisa.normal.shy',
+    'gal.marisa.normal.neutral',
+  ]);
+
+  const sources = registry.parseGalPortraitSources(JSON.stringify({
+    marisa: {
+      normal: { neutral: '../assets/characters/marisa/gal/normal/marisa-normal-neutral-v1.png' },
+      nude: { shy: 'data:image/png;base64,YWJjZA==' },
+    },
+  }));
+  assert.equal(registry.resolveGalPortraitSource(sources, 'marisa', {
+    visualMode: 'sexual',
+    reactionId: 'shy',
+    poseId: 'default',
+  }), 'data:image/png;base64,YWJjZA==');
+  assert.deepEqual(registry.parseGalPortraitSources(JSON.stringify({
+    marisa: { normal: { neutral: 'https://untrusted.example/portrait.png' } },
+  })), {});
+});
+
+test('魔理沙十张 GAL 原图进入素材清单、预览与自包含构建链', async () => {
+  const manifest = JSON.parse(await read('../src/assets/asset-manifest.json'));
+  const build = await read('../scripts/build-ui.mjs');
+  const host = await read('../src/runtime/ui-host-shell.js');
+  const app = await read('../src/ui/app.ts');
+  const asset = manifest.gal_portraits.marisa;
+  assert.deepEqual(asset.canvas, [1152, 1920]);
+  assert.equal(asset.runtime_embed, 'direct-original-files');
+  assert.deepEqual(Object.keys(asset.sources), ['normal', 'nude']);
+  for (const mode of ['normal', 'nude']) {
+    assert.deepEqual(Object.keys(asset.sources[mode]), ['neutral', 'smile', 'shy', 'sad', 'angry']);
+    for (const source of Object.values(asset.sources[mode])) {
+      const png = PNG.sync.read(await readBuffer(`../src/assets/${source}`));
+      assert.equal(png.width, 1152);
+      assert.equal(png.height, 1920);
+      assert.equal(png.alpha, true);
+    }
+  }
+  assert.match(build, /previewGalPortraitSources/);
+  assert.match(build, /galPortraitDataUrls/);
+  assert.match(host, /dataset\.galPortraitSources/);
+  assert.match(app, /resolveGalPortraitSource/);
+  assert.match(await read('../src/ui/styles.css'), /data-portrait-kind="gal"[\s\S]*?image-rendering: auto/);
 });
 
 test('真实消息事务等待生成完成，停止后继续原回复并支持左右 Swipe', async () => {
@@ -1134,8 +1368,8 @@ test('庭园正文协议只投影最后一个边界内的多角色正文，并�
       '【庭园正文开始】<narration>旧样例，不应出现。</narration>【庭园正文结束】',
       '【庭园正文开始】',
       '<narration>庭院的风穿过残墙。</narration>',
-      '<dialogue char="reimu" reaction="annoyed">“木料别堵在路上。”</dialogue>',
-      '<dialogue char="marisa" reaction="smile">“借两根，之后还你。”</dialogue>',
+      '<dialogue char="reimu" visual_mode="nude" reaction="annoyed" pose="not_used">“木料别堵在路上。”</dialogue>',
+      '<dialogue char="marisa" visual_mode="sexual" reaction="smile" pose="pose_b">“借两根，之后还你。”</dialogue>',
       '【庭园正文结束】',
       '<w2g>不应进入 GAL</w2g><GensokyoScene>{"version":"scene.v1"}</GensokyoScene>',
     ].join('\n'),
@@ -1146,6 +1380,11 @@ test('庭园正文协议只投影最后一个边界内的多角色正文，并�
     ['narration', null, '庭院的风穿过残墙。'],
     ['speech', 'reimu', '“木料别堵在路上。”'],
     ['speech', 'marisa', '“借两根，之后还你。”'],
+  ]);
+  assert.deepEqual(scene.beats.map((beat) => [beat.visualMode, beat.poseId]), [
+    ['normal', 'default'],
+    ['nude', 'default'],
+    ['sexual', 'default'],
   ]);
   assert.deepEqual(scene.suggestedReplies, []);
 

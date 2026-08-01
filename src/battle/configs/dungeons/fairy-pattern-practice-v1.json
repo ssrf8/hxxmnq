@@ -1,6 +1,6 @@
 {
   "config_id": "fairy_pattern_practice_v1",
-  "version": 4,
+  "version": 5,
   "arena": { "width": 480, "height": 640 },
   "presentation": { "boss_id": "cirno", "boss_name": "琪露诺", "boss_title": "湖上的冰之妖精", "stage_title": "妖精弹幕练习", "stage_subtitle": "雾之湖畔 · 冰精的挑战书" },
   "player": {
@@ -55,6 +55,36 @@
       ],
       "mobs": [
         { "start_ms": 5000, "end_ms": 20000, "interval_ms": 6000, "count": 2, "hp": 5, "path": "top", "drop": "power_small", "shot_interval_ms": 1600, "shot_count": 1, "shot_speed": 95 }
+      ]
+    },
+    {
+      "id": "ice_shard_cross",
+      "kind": "nonspell",
+      "name": "冰晶交叉练习",
+      "objective": "defeat",
+      "hp": 250,
+      "duration_ms": 30000,
+      "patterns": [
+        { "pattern_id": "cross_sweep", "interval_ms": 2300, "speed": 104, "count": 8 },
+        { "pattern_id": "wave_fan", "interval_ms": 1800, "speed": 88, "count": 7, "arc_deg": 72, "start_ms": 2800 },
+        { "pattern_id": "aimed_stream", "interval_ms": 2100, "speed": 106, "count": 1, "aim_lead": 0.12, "start_ms": 6000 }
+      ],
+      "mobs": [
+        { "start_ms": 4500, "end_ms": 21000, "interval_ms": 6200, "count": 2, "hp": 6, "path": "side", "drop": "power_small", "speed": 96, "shot_interval_ms": 1900, "shot_count": 1, "shot_speed": 98 }
+      ]
+    },
+    {
+      "id": "perfect_freeze_practice",
+      "kind": "spell",
+      "name": "冰符「完美冻结练习」",
+      "objective": "defeat",
+      "hp": 300,
+      "duration_ms": 34000,
+      "familiars": { "count": 2, "orbit_px": 52, "orbit_ms": 4600 },
+      "patterns": [
+        { "pattern_id": "burst_cluster", "interval_ms": 2900, "speed": 102, "count": 12, "burst_delay_ms": 720, "from_familiar": true },
+        { "pattern_id": "rotating_ring", "interval_ms": 1700, "speed": 84, "count": 12, "rotate_deg_per_volley": 11, "layer_speed_scale": 0.72, "spin_deg_per_s": 24, "start_ms": 2600 },
+        { "pattern_id": "aimed_stream", "interval_ms": 1900, "speed": 110, "count": 1, "start_ms": 6200 }
       ]
     }
   ],

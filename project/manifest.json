@@ -83,7 +83,10 @@
     "presence_sync_contract": "./presence-sync-contract.md",
     "next_update_plan": "./r29-r37-m1-expansion-plan.md",
     "m2_expansion_plan": "./r38-r45-m2-expansion-plan.md",
-    "runtime_architecture_optimization": "./runtime-architecture-optimization-plan.md"
+    "runtime_architecture_optimization": "./runtime-architecture-optimization-plan.md",
+    "asset_delivery_and_r2_plan": "./asset-delivery-and-r2-plan.md",
+    "battle_bgm_r2_template": "./battle-bgm-r2-template.md",
+    "gal_portrait_variable_and_r2_pool_plan": "./gal-portrait-variable-and-r2-pool-plan.md"
   },
   "m0_content_sources": {
     "card_identity": "../src/card/identity.xml",
@@ -107,7 +110,7 @@
     "opening_controller": "../src/ui/opening.ts",
     "database_adapter": "../src/ui/database-adapter.ts",
     "garden_canvas": "../src/ui/garden-map.ts",
-    "garden_base": "../src/assets/maps/garden-base-owner-candidate-v2.png",
+    "garden_base": "../src/assets/maps/garden-base-owner-v3.png",
     "gal_scene_parser": "../src/ui/gal-scene.ts",
     "gal_message_selection": "../src/ui/gal-message-selection.ts",
     "target_actions": "../src/ui/target-actions.ts",
@@ -129,6 +132,9 @@
     "prompt_context": "../src/ui/prompt-context.ts",
     "test_tools": "../src/ui/test-tools.ts",
     "battle_engine": "../src/ui/battle-engine.ts",
+    "battle_renderer": "../src/battle/battle-renderer.ts",
+    "battle_bgm_bus": "../src/battle/battle-bgm.ts",
+    "battle_bgm_catalog": "../src/battle/battle-bgm-catalog.json",
     "styles": "../src/ui/styles.css",
     "preview_build": "../dist/ui/index.html"
   },

@@ -28,7 +28,7 @@
 庭园主动发起的行动必须以 `【庭园正文开始】` 和 `【庭园正文结束】` 包住玩家可见剧情；解析器永远取最后一个开始标记和其后的第一个结束标记。正文中只允许：
 
 - `<narration>旁白或动作</narration>`；
-- `<dialogue char="角色ID" reaction="可选表情" pose="可选姿势">台词</dialogue>`。
+- `<dialogue char="角色ID" visual_mode="normal|nude|sexual" reaction="可选表情" pose="可选姿势">台词</dialogue>`。
 
 多人同楼层时，每位角色各用一个连续的 `dialogue`。正文之外的任何标签、摘要、选项、状态、思维链和代码块都不会进入 GAL；若协议缺失或损坏，界面只走保守降级，绝不展示结构化代码。
 
@@ -63,11 +63,34 @@
 
 - `kind`：`narration`、`speech`、`action`；
 - `speaker_id`：旁白为 null；角色必须使用已登记稳定 ID；
+- `visual_mode`：`normal`、`nude`、`sexual`；新回复中的角色 beat 必须显式输出，旧回复缺失时按 `normal` 处理；
 - `reaction_id`：`neutral`、`smile`、`annoyed`、`surprised`、`serious`、`shy`、`sad`、`angry`；
-- `pose_id`：首版使用 `default`；
+- `pose_id`：`normal`、`nude` 使用 `default`；`sexual` 只能使用当前角色规则中已登记的稳定姿势 ID；没有登记姿势时不得臆造；
 - `text`：纯文本，不含 HTML、脚本、URL、图片路径或变量更新。
 
+`visual_mode` 只描述当前片段使用哪组本地贴图，不授予行为、同意、关系、事件或变量结果：
+
+- `normal`：角色正常穿着，按 `reaction_id` 使用普通反应图；
+- `nude`：角色完全裸露，但正文尚未进入明确成人亲密行为，按 `reaction_id` 使用全裸反应差分；
+- `sexual`：正文已经进入明确成人亲密行为，按已登记 `pose_id` 使用成人姿势图；
+- 裸露、洗浴、换衣、检查或休息本身不能自动升级为 `sexual`；
+- 害羞、调情、拥抱、亲吻或暧昧本身不能自动升级为 `sexual`；
+- 成人亲密行为结束后，依据正文中角色是否重新穿衣返回 `nude` 或 `normal`；
+- 不得输出 `asset_id`、对象 key、文件名、URL、卡池权重或 release ID，具体图片由本地白名单与卡池解析器选择。
+
 每个建议回应只允许稳定短 ID、简短标签和一段第一人称玩家意图。建议回应不能替玩家作出不可逆决定，不能直接修改变量，也不能包含系统命令。
+
+## 魔理沙 GAL 表情白名单
+
+当 `speaker_id` / `char` 为 `marisa` 时，当前只允许以下五种 `reaction_id`：
+
+- `neutral`：正常、平静或没有更明确情绪；
+- `smile`：开心、得意或轻快地笑；
+- `shy`：害羞、脸红或难为情；
+- `sad`：伤心、低落或失望；
+- `angry`：生气、恼火或明显不满。
+
+魔理沙的 `normal` 与 `nude` 均使用上述五种反应，`pose_id` 固定为 `default`。当前没有登记魔理沙的 `sexual` 姿势；不要虚构姿势 ID。若正文确实已经进入明确成人亲密行为，仍按语义输出 `visual_mode="sexual"`，并使用 `pose_id="default"`，界面会暂时降级到同反应的 `nude` / `normal` 素材。
 
 ## 角色动作
 
@@ -92,4 +115,4 @@
 
 ## 旧消息与降级
 
-旧消息没有 `<GensokyoScene>` 时仍保持普通可读叙事。不得要求玩家重开聊天。不要输出任意图片路径；界面根据 `speaker_id + reaction_id + pose_id` 选择本地素材，缺失时使用占位图。
+旧消息没有 `<GensokyoScene>` 时仍保持普通可读叙事。不得要求玩家重开聊天。旧 beat 或 `dialogue` 缺少 `visual_mode` 时按 `normal` 处理。不要输出任意图片路径；界面根据 `speaker_id + visual_mode + reaction_id + pose_id` 选择受控素材，缺失时按本地注册表降级到角色默认图或占位图。

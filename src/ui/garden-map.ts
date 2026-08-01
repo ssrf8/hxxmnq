@@ -1,6 +1,7 @@
 import type { GardenState } from './types';
 import { SpriteActor, type SpriteActorConfig } from './sprite-actor';
 import { greenhouseDiscoveryVisible } from './greenhouse-rules';
+import { GardenNavigationMask, type NormalizedPoint } from './garden-navigation';
 import {
   GARDEN_AREA_OUTLINES,
   GARDEN_AREA_POSITIONS,
@@ -16,6 +17,7 @@ export interface HitTarget extends Point {
   kind: 'area' | 'character';
   radius: number;
   polygon?: Point[];
+  hitCenter?: Point;
 }
 export interface MapFacilityGeometry {
   width_ratio: number;
@@ -69,6 +71,29 @@ export function resolveMapFacilitySprite(
 const areaPositions = GARDEN_AREA_POSITIONS;
 const CHARACTER_VISUAL_SCALE = 0.64;
 const FACILITY_VISUAL_SCALE = 0.76;
+const CHARACTER_FOOT_OFFSET_Y = 54 / 941;
+const CHARACTER_GROUP_SLOTS: readonly NormalizedPoint[] = Object.freeze([
+  { x: 0, y: 0 },
+  { x: -0.023, y: 0 },
+  { x: 0.023, y: 0 },
+  { x: -0.017, y: 0.037 },
+  { x: 0.017, y: 0.037 },
+  { x: -0.034, y: 0.037 },
+  { x: 0.034, y: 0.037 },
+  { x: -0.023, y: 0.074 },
+  { x: 0.023, y: 0.074 },
+]);
+
+export function resolveCharacterSlot(
+  characterId: string,
+  presentIds: readonly string[],
+  areaFor: (id: string) => string | undefined,
+): NormalizedPoint {
+  const areaId = areaFor(characterId);
+  const peers = presentIds.filter((id) => areaFor(id) === areaId).sort();
+  const index = Math.max(0, peers.indexOf(characterId));
+  return CHARACTER_GROUP_SLOTS[index % CHARACTER_GROUP_SLOTS.length];
+}
 
 export function resolveCharacterViewportScale(canvasCssWidth: number): number {
   if (!Number.isFinite(canvasCssWidth) || canvasCssWidth <= 0) return 1;
@@ -82,6 +107,21 @@ export function resolveCharacterLayoutScale(canvasCssWidth: number): number {
   if (canvasCssWidth <= 360) return 1.08;
   if (canvasCssWidth <= 520) return 1.04;
   return 0.92;
+}
+
+export function resolveCharacterHitGeometry(spriteSize: number, minimumRadius: number): {
+  offsetY: number;
+  radius: number;
+} {
+  const safeSpriteSize = Number.isFinite(spriteSize) ? Math.max(0, spriteSize) : 0;
+  const safeMinimumRadius = Number.isFinite(minimumRadius) ? Math.max(0, minimumRadius) : 0;
+  return {
+    // Character sprites are foot-anchored at y and normally span roughly
+    // y - .82 * size through y + .18 * size. Move the interaction center up
+    // to the torso so the head and upper body remain clickable over facilities.
+    offsetY: -safeSpriteSize * 0.32,
+    radius: Math.max(safeSpriteSize * 0.5, safeMinimumRadius),
+  };
 }
 
 export function resolveCoveredMapSize(
@@ -163,10 +203,14 @@ export class GardenMap {
   private tutorialTargetId: string | null = null;
   private frameClock = 0;
   private lastAnchor: Point | null = null;
+  private readonly navigationMask: GardenNavigationMask;
+  private readonly debugNavigationMask = new URLSearchParams(globalThis.location?.search ?? '')
+    .get('gardenMaskDebug') === '1';
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
     mapSource: string,
+    navigationMaskSource: string,
     actorSprites: Record<string, SpriteActorConfig>,
     private readonly facilitySprites: Record<string, MapFacilitySpriteSet>,
     private readonly onSelect: (target: HitTarget, anchor: Point) => void,
@@ -177,6 +221,11 @@ export class GardenMap {
     this.context = context;
     this.background.onload = () => this.draw();
     this.background.src = mapSource;
+    this.navigationMask = new GardenNavigationMask(
+      navigationMaskSource,
+      [1672, 941],
+      () => this.draw(),
+    );
     canvas.addEventListener('pointerdown', this.onPointerDown);
     canvas.addEventListener('pointermove', this.onPointerMove);
     canvas.addEventListener('pointerup', this.onPointerUp);
@@ -188,7 +237,13 @@ export class GardenMap {
     this.reducedMotion.addEventListener('change', this.onReducedMotionChanged);
     document.addEventListener('visibilitychange', this.onVisibilityChanged);
     Object.entries(actorSprites).forEach(([id, actor]) => {
-      this.actors.set(id, new SpriteActor(id, actor, () => this.draw()));
+      this.actors.set(id, new SpriteActor(
+        id,
+        actor,
+        () => this.draw(),
+        Math.random,
+        (start, target) => this.canActorTravel(id, start, target),
+      ));
       this.actorLabels.set(id, actor.label);
     });
     this.resize();
@@ -345,6 +400,16 @@ export class GardenMap {
     const characterLayoutScale = resolveCharacterLayoutScale(canvas.clientWidth);
     canvas.dataset.characterScale = characterViewportScale.toFixed(2);
     canvas.dataset.characterEffectiveScale = (CHARACTER_VISUAL_SCALE * characterViewportScale).toFixed(2);
+    canvas.dataset.navigationMask = this.navigationMask.ready
+      ? 'ready'
+      : this.navigationMask.failed ? 'failed-open' : 'loading';
+    canvas.dataset.navigationSamples = this.navigationMask.ready
+      ? [
+        `land:${this.navigationMask.isBlocked({ x: .5, y: .58 }) ? 'blocked' : 'walkable'}`,
+        `river:${this.navigationMask.isBlocked({ x: 700 / 1672, y: 720 / 941 }) ? 'blocked' : 'walkable'}`,
+        `bridge:${this.navigationMask.isBlocked({ x: 729 / 1672, y: 826 / 941 }) ? 'blocked' : 'walkable'}`,
+      ].join(',')
+      : '';
     const width = canvas.width;
     const height = canvas.height;
     ctx.clearRect(0, 0, width, height);
@@ -375,6 +440,12 @@ export class GardenMap {
     } else {
       ctx.fillStyle = '#a7c78c';
       ctx.fillRect(-drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
+    }
+    if (this.debugNavigationMask && this.navigationMask.ready) {
+      ctx.save();
+      ctx.globalAlpha = .34;
+      ctx.drawImage(this.navigationMask.image, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
+      ctx.restore();
     }
 
     this.drawFacilityLayer(ctx, drawWidth, drawHeight);
@@ -464,17 +535,16 @@ export class GardenMap {
     // Only visiting characters are rendered. There is intentionally no player marker.
     const present = this.state.presence_snapshot?.present_character_ids ?? [];
     const views = this.state.presence_snapshot?.character_views ?? {};
-    present.forEach((id, index) => {
+    present.forEach((id) => {
       const view = views[id] ?? {};
       const base = this.areaPoint(view.area_id);
       const actor = this.actors.get(id);
       const actorOffset = actor?.offsetX ?? 0;
       const actorOffsetY = actor?.offsetY ?? 0;
+      const slot = resolveCharacterSlot(id, present, (candidateId) => views[candidateId]?.area_id);
       const characterSpacingScale = characterLayoutScale;
-      const x = -drawWidth / 2 + (base.x + actorOffset) * drawWidth
-        + (index % 3 - 1) * 38 * px * characterSpacingScale;
-      const y = -drawHeight / 2 + (base.y + actorOffsetY) * drawHeight + 54 * px
-        + Math.floor(index / 3) * 35 * px * characterSpacingScale;
+      const x = -drawWidth / 2 + (base.x + slot.x + actorOffset) * drawWidth;
+      const y = -drawHeight / 2 + (base.y + slot.y + actorOffsetY + CHARACTER_FOOT_OFFSET_Y) * drawHeight;
       const label = this.state.characters?.[id]?.name ?? this.actorLabels.get(id) ?? id;
       const spriteSize = Math.min(132 * px, drawWidth * 0.12 * this.browserZoomCompensation)
         * CHARACTER_VISUAL_SCALE
@@ -507,16 +577,17 @@ export class GardenMap {
           this.drawSelectionRing(ctx, x, y, ringRadius);
         }
       }
-      const hitRadius = drawnAsSprite
-        ? Math.max(spriteSize * 0.31, 22 * px)
-        : Math.max(20 * px * characterLayoutScale, 22 * px);
+      const hitGeometry = drawnAsSprite
+        ? resolveCharacterHitGeometry(spriteSize, 22 * px)
+        : { offsetY: 0, radius: Math.max(20 * px * characterLayoutScale, 22 * px) };
       this.targets.push({
         id,
         label,
         kind: 'character',
         x,
         y,
-        radius: hitRadius,
+        radius: hitGeometry.radius,
+        hitCenter: { x, y: y + hitGeometry.offsetY },
       });
     });
     ctx.restore();
@@ -611,6 +682,23 @@ export class GardenMap {
     return geometry
       ? { x: geometry.ground_anchor[0], y: geometry.ground_anchor[1] }
       : gardenAreaPoint(areaId);
+  }
+
+  private canActorTravel(id: string, start: Point, target: Point): boolean {
+    const present = this.state.presence_snapshot?.present_character_ids ?? [];
+    const views = this.state.presence_snapshot?.character_views ?? {};
+    const base = this.areaPoint(views[id]?.area_id);
+    const slot = resolveCharacterSlot(id, present, (candidateId) => views[candidateId]?.area_id);
+    return this.navigationMask.isRouteWalkable(
+      {
+        x: base.x + slot.x + start.x,
+        y: base.y + slot.y + start.y + CHARACTER_FOOT_OFFSET_Y,
+      },
+      {
+        x: base.x + slot.x + target.x,
+        y: base.y + slot.y + target.y + CHARACTER_FOOT_OFFSET_Y,
+      },
+    );
   }
 
   private imageFor(source: string): HTMLImageElement {
@@ -805,7 +893,8 @@ export class GardenMap {
 
   private targetContains(target: HitTarget, point: Point): boolean {
     if (!target.polygon?.length) {
-      return Math.hypot(target.x - point.x, target.y - point.y) <= target.radius;
+      const center = target.hitCenter ?? target;
+      return Math.hypot(center.x - point.x, center.y - point.y) <= target.radius;
     }
     return pointInPolygon(point, target.polygon);
   }

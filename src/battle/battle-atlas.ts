@@ -37,10 +37,38 @@ export type BattleSheetKey =
   | 'boss_mystia'
   | 'boss_suika'
   | 'boss_sakuya'
+  | 'portrait_reimu_s0'
+  | 'portrait_reimu_s1'
+  | 'portrait_reimu_s2'
+  | 'portrait_marisa_s0'
+  | 'portrait_marisa_s1'
+  | 'portrait_marisa_s2'
+  | 'portrait_alice_s0'
+  | 'portrait_alice_s1'
+  | 'portrait_alice_s2'
+  | 'portrait_cirno_s0'
+  | 'portrait_cirno_s1'
+  | 'portrait_cirno_s2'
+  | 'portrait_mystia_s0'
+  | 'portrait_mystia_s1'
+  | 'portrait_mystia_s2'
+  | 'portrait_nitori_s0'
+  | 'portrait_nitori_s1'
+  | 'portrait_nitori_s2'
+  | 'portrait_suika_s0'
+  | 'portrait_suika_s1'
+  | 'portrait_suika_s2'
+  | 'portrait_sakuya_s0'
+  | 'portrait_sakuya_s1'
+  | 'portrait_sakuya_s2'
+  | 'portrait_flower_core_s0'
+  | 'portrait_flower_core_s1'
+  | 'portrait_flower_core_s2'
+  | 'fairies'
   | 'effects'
   | 'bullets_local';
 
-/** Source sheets are the transparent *-v1.png assets only. */
+/** Source sheets plus direct-import full-image cut-in portraits. */
 export const BATTLE_SHEET_PATHS = {
   player: 'battle/player/keycraft-player-sheet-v1.png',
   boss: 'battle/boss/greenhouse-flower-core-sheet-v1.png',
@@ -52,6 +80,34 @@ export const BATTLE_SHEET_PATHS = {
   boss_mystia: 'battle/boss/mystia-battle-sheet-v1.png',
   boss_suika: 'battle/boss/suika-battle-sheet-v1.png',
   boss_sakuya: 'battle/boss/sakuya-battle-sheet-v1.png',
+  portrait_reimu_s0: 'battle/portraits/portrait-reimu-s0-v1.png',
+  portrait_reimu_s1: 'battle/portraits/portrait-reimu-s1-v1.png',
+  portrait_reimu_s2: 'battle/portraits/portrait-reimu-s2-v1.png',
+  portrait_marisa_s0: 'battle/portraits/portrait-marisa-s0-v1.png',
+  portrait_marisa_s1: 'battle/portraits/portrait-marisa-s1-v1.png',
+  portrait_marisa_s2: 'battle/portraits/portrait-marisa-s2-v1.png',
+  portrait_alice_s0: 'battle/portraits/portrait-alice-s0-v1.png',
+  portrait_alice_s1: 'battle/portraits/portrait-alice-s1-v1.png',
+  portrait_alice_s2: 'battle/portraits/portrait-alice-s2-v1.png',
+  portrait_cirno_s0: 'battle/portraits/portrait-cirno-s0-v1.png',
+  portrait_cirno_s1: 'battle/portraits/portrait-cirno-s1-v1.png',
+  portrait_cirno_s2: 'battle/portraits/portrait-cirno-s2-v1.png',
+  portrait_mystia_s0: 'battle/portraits/portrait-mystia-s0-v1.png',
+  portrait_mystia_s1: 'battle/portraits/portrait-mystia-s1-v1.png',
+  portrait_mystia_s2: 'battle/portraits/portrait-mystia-s2-v1.png',
+  portrait_nitori_s0: 'battle/portraits/portrait-nitori-s0-v1.png',
+  portrait_nitori_s1: 'battle/portraits/portrait-nitori-s1-v1.png',
+  portrait_nitori_s2: 'battle/portraits/portrait-nitori-s2-v1.png',
+  portrait_suika_s0: 'battle/portraits/portrait-suika-s0-v1.png',
+  portrait_suika_s1: 'battle/portraits/portrait-suika-s1-v1.png',
+  portrait_suika_s2: 'battle/portraits/portrait-suika-s2-v1.png',
+  portrait_sakuya_s0: 'battle/portraits/portrait-sakuya-s0-v1.png',
+  portrait_sakuya_s1: 'battle/portraits/portrait-sakuya-s1-v1.png',
+  portrait_sakuya_s2: 'battle/portraits/portrait-sakuya-s2-v1.png',
+  portrait_flower_core_s0: 'battle/portraits/portrait-flower-core-s0-v1.png',
+  portrait_flower_core_s1: 'battle/portraits/portrait-flower-core-s1-v1.png',
+  portrait_flower_core_s2: 'battle/portraits/portrait-flower-core-s2-v1.png',
+  fairies: 'battle/effects/fairy-sheet-v1.png',
   effects: 'battle/effects/battle-effects-sheet-v1.png',
   bullets_local: 'battle/effects/battle-bullets-etama3-local-v1.png',
 } as const;
@@ -281,6 +337,34 @@ export interface BattleAtlasSources {
   boss_mystia?: string;
   boss_suika?: string;
   boss_sakuya?: string;
+  portrait_reimu_s0?: string;
+  portrait_reimu_s1?: string;
+  portrait_reimu_s2?: string;
+  portrait_marisa_s0?: string;
+  portrait_marisa_s1?: string;
+  portrait_marisa_s2?: string;
+  portrait_alice_s0?: string;
+  portrait_alice_s1?: string;
+  portrait_alice_s2?: string;
+  portrait_cirno_s0?: string;
+  portrait_cirno_s1?: string;
+  portrait_cirno_s2?: string;
+  portrait_mystia_s0?: string;
+  portrait_mystia_s1?: string;
+  portrait_mystia_s2?: string;
+  portrait_nitori_s0?: string;
+  portrait_nitori_s1?: string;
+  portrait_nitori_s2?: string;
+  portrait_suika_s0?: string;
+  portrait_suika_s1?: string;
+  portrait_suika_s2?: string;
+  portrait_sakuya_s0?: string;
+  portrait_sakuya_s1?: string;
+  portrait_sakuya_s2?: string;
+  portrait_flower_core_s0?: string;
+  portrait_flower_core_s1?: string;
+  portrait_flower_core_s2?: string;
+  fairies?: string;
   effects?: string;
   bullets_local?: string;
 }
@@ -321,6 +405,34 @@ export async function loadBattleAtlas(sources: BattleAtlasSources = {}): Promise
     ['boss_mystia', sources.boss_mystia],
     ['boss_suika', sources.boss_suika],
     ['boss_sakuya', sources.boss_sakuya],
+    ['portrait_reimu_s0', sources.portrait_reimu_s0],
+    ['portrait_reimu_s1', sources.portrait_reimu_s1],
+    ['portrait_reimu_s2', sources.portrait_reimu_s2],
+    ['portrait_marisa_s0', sources.portrait_marisa_s0],
+    ['portrait_marisa_s1', sources.portrait_marisa_s1],
+    ['portrait_marisa_s2', sources.portrait_marisa_s2],
+    ['portrait_alice_s0', sources.portrait_alice_s0],
+    ['portrait_alice_s1', sources.portrait_alice_s1],
+    ['portrait_alice_s2', sources.portrait_alice_s2],
+    ['portrait_cirno_s0', sources.portrait_cirno_s0],
+    ['portrait_cirno_s1', sources.portrait_cirno_s1],
+    ['portrait_cirno_s2', sources.portrait_cirno_s2],
+    ['portrait_mystia_s0', sources.portrait_mystia_s0],
+    ['portrait_mystia_s1', sources.portrait_mystia_s1],
+    ['portrait_mystia_s2', sources.portrait_mystia_s2],
+    ['portrait_nitori_s0', sources.portrait_nitori_s0],
+    ['portrait_nitori_s1', sources.portrait_nitori_s1],
+    ['portrait_nitori_s2', sources.portrait_nitori_s2],
+    ['portrait_suika_s0', sources.portrait_suika_s0],
+    ['portrait_suika_s1', sources.portrait_suika_s1],
+    ['portrait_suika_s2', sources.portrait_suika_s2],
+    ['portrait_sakuya_s0', sources.portrait_sakuya_s0],
+    ['portrait_sakuya_s1', sources.portrait_sakuya_s1],
+    ['portrait_sakuya_s2', sources.portrait_sakuya_s2],
+    ['portrait_flower_core_s0', sources.portrait_flower_core_s0],
+    ['portrait_flower_core_s1', sources.portrait_flower_core_s1],
+    ['portrait_flower_core_s2', sources.portrait_flower_core_s2],
+    ['fairies', sources.fairies],
     ['effects', sources.effects],
     ['bullets_local', sources.bullets_local],
   ];

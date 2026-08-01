@@ -11,6 +11,7 @@
 - 本轮完整门禁 `check:ui`、`npm test`（153/153）、`build:ui` 与 r54 `package:checkpoint:dry` 全绿；最新 dry-run 为 `86,743,293` bytes、SHA-256 `5083dcf8…633afd68`。未正式打包或覆盖现有 r54。
 - 所有者全景差分中的装饰人物与设施招牌按原图保留，作为本批素材的明确来源特征；若后续决定改为空牌匾或无人版，应在同一画布内原位替换，不改变 manifest 形态键或几何。
 - 当前只有离线构建与浏览器证据；真实 SillyTavern 验收通过前不得把状态改成 runtime validated。
+- V3 底图的角色导航已于 2026-07-30 增加同画布不可行走 alpha 蒙版；当前仅覆盖河道／池面并为桥面留出通道，不改变本文件的设施贴图或命中多边形合同。完整说明见 `project/garden-navigation-mask-contract.md`。
 
 ## 基准底图
 

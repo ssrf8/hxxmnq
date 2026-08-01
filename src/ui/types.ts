@@ -385,6 +385,7 @@ export interface OpeningCommitResult {
 export type TargetType = 'character' | 'area' | 'facility';
 export type SceneMode = 'garden' | 'gal' | 'facility' | 'settings' | 'shop' | 'inventory' | 'opportunities';
 export type GalBeatKind = 'narration' | 'speech' | 'action';
+export type GalVisualMode = 'normal' | 'nude' | 'sexual';
 export type GalReaction =
   | 'neutral'
   | 'smile'
@@ -419,6 +420,7 @@ export interface TargetAction {
 export interface GalBeat {
   kind: GalBeatKind;
   speakerId: string | null;
+  visualMode: GalVisualMode;
   reactionId: GalReaction;
   poseId: string;
   text: string;

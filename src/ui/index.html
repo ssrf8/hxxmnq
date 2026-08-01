@@ -105,7 +105,7 @@
             <button type="button" id="gg-stop">停止</button>
           </div>
         </header>
-        <div id="gg-portrait-stage" class="gg-portrait-stage" data-reaction="neutral">
+        <div id="gg-portrait-stage" class="gg-portrait-stage" data-reaction="neutral" data-visual-mode="normal" data-portrait-kind="sprite">
           <img id="gg-portrait" alt="角色近景占位图">
           <div id="gg-generation-indicator" class="gg-generation-indicator" hidden>
             <span></span><span></span><span></span>
@@ -128,21 +128,38 @@
               <button type="button" id="gg-retry-transaction" hidden>继续上次生成</button>
             </div>
             <div id="gg-scene-item-picker" class="gg-scene-item-picker" data-has-selection="false">
-              <label for="gg-scene-item" class="gg-scene-item-label">
+              <div class="gg-scene-item-label">
                 <span class="gg-scene-item-mark" aria-hidden="true">御</span>
                 <span class="gg-scene-item-label-copy">
                   <strong>本轮使用道具</strong>
                   <small>每轮至多携带一件</small>
                 </span>
-              </label>
+              </div>
               <div class="gg-scene-item-control">
-                <select id="gg-scene-item" aria-describedby="gg-scene-item-hint">
-                  <option value="">不使用道具</option>
-                </select>
+                <input id="gg-scene-item" type="hidden" value="">
+                <button type="button" id="gg-scene-item-trigger" class="gg-scene-item-trigger"
+                  aria-haspopup="dialog" aria-controls="gg-scene-item-dialog" aria-expanded="false"
+                  aria-describedby="gg-scene-item-hint">
+                  <span id="gg-scene-item-selected" class="gg-scene-item-selected">不使用道具</span>
+                  <span class="gg-scene-item-trigger-action" aria-hidden="true">选择</span>
+                </button>
               </div>
               <p id="gg-scene-item-hint" class="gg-scene-item-hint" aria-live="polite">未选择道具</p>
             </div>
           </form>
+          <dialog id="gg-scene-item-dialog" class="gg-scene-item-dialog" aria-labelledby="gg-scene-item-dialog-title">
+            <div class="gg-scene-item-dialog-shell">
+              <header>
+                <div>
+                  <p class="gg-eyebrow">SCENE LOADOUT</p>
+                  <h2 id="gg-scene-item-dialog-title">选择本轮携行道具</h2>
+                </div>
+                <button type="button" id="gg-scene-item-dialog-close" aria-label="关闭道具选择">关闭</button>
+              </header>
+              <p class="gg-scene-item-dialog-copy">普通道具随下一条回应送出；对战卡会直接挑战当前交谈角色。只有消息成功提交或对战有效结算后才会消费。</p>
+              <div id="gg-scene-item-options" class="gg-scene-item-options" aria-label="可用场景道具"></div>
+            </div>
+          </dialog>
         </div>
         <dialog id="gg-session-history-dialog" class="gg-session-history-dialog" aria-labelledby="gg-session-history-title">
           <header>
@@ -197,8 +214,21 @@
       <section id="gg-view-settings" class="gg-view gg-settings" aria-labelledby="gg-settings-title" hidden>
         <header class="gg-scene-toolbar">
           <button type="button" id="gg-settings-back">返回游戏</button>
-          <h2 id="gg-settings-title">诊断与恢复</h2>
+          <h2 id="gg-settings-title">设置与恢复</h2>
         </header>
+        <fieldset class="gg-sound-settings">
+          <legend>声音</legend>
+          <label class="gg-sound-toggle" for="gg-battle-sound-enabled">
+            <input id="gg-battle-sound-enabled" type="checkbox">
+            <span><strong>战斗音效</strong><small>射击、擦弹、符卡、激光与胜负提示</small></span>
+          </label>
+          <label class="gg-sound-volume" for="gg-battle-sound-volume">
+            <span>音量 <output id="gg-battle-sound-volume-output" for="gg-battle-sound-volume">60%</output></span>
+            <input id="gg-battle-sound-volume" type="range" min="0" max="100" step="5" value="60">
+          </label>
+          <button type="button" id="gg-battle-sound-test">试听音效</button>
+          <p class="gg-note">首次播放需要一次明确点击，以遵守浏览器的声音权限规则。该偏好只保存在本机，不写入庭园状态。</p>
+        </fieldset>
         <dl id="gg-diagnostics" class="gg-diagnostics"></dl>
         <div class="gg-actions">
           <button type="button" id="gg-show-native">显示原生聊天</button>
@@ -319,7 +349,11 @@
   <dialog id="gg-battle-dialog" class="gg-battle-dialog" aria-labelledby="gg-battle-title">
     <header class="gg-battle-header">
       <div><p class="gg-eyebrow">JSON 符卡</p><h2 id="gg-battle-title">温室妖花核心</h2></div>
-      <button type="button" id="gg-close-battle" class="gg-battle-cancel" aria-label="取消本次符卡战">取消</button>
+      <div class="gg-battle-header-actions">
+        <button type="button" id="gg-battle-pause" class="gg-battle-pause" aria-pressed="false">暂停</button>
+        <button type="button" id="gg-battle-audio-settings" class="gg-battle-audio-settings" aria-haspopup="dialog" aria-controls="gg-battle-audio-dialog">音频设置</button>
+        <button type="button" id="gg-close-battle" class="gg-battle-cancel" aria-label="取消本次符卡战">取消</button>
+      </div>
     </header>
     <div class="gg-battle-body">
       <canvas id="gg-battle-canvas" aria-label="符卡游戏区域，方向键或 WASD 移动，按住 Z 射击，Shift 专注，X Bomb，Esc 暂停；触控拖动时自动射击，双指专注，双击 Bomb"></canvas>
@@ -332,6 +366,54 @@
         <button type="button" id="gg-battle-narrative">改用剧情解决</button>
         <button type="button" id="gg-battle-retry" hidden>重试写入与结算</button>
       </div>
+    </div>
+  </dialog>
+  <dialog id="gg-battle-audio-dialog" class="gg-battle-audio-dialog" aria-labelledby="gg-battle-audio-title">
+    <div class="gg-battle-audio-shell">
+      <header>
+        <div>
+          <p class="gg-eyebrow">PHONOGRAPH</p>
+          <h2 id="gg-battle-audio-title">弹幕音频设置</h2>
+        </div>
+        <button type="button" id="gg-battle-audio-close" aria-label="关闭弹幕音频设置">返回战斗</button>
+      </header>
+      <div class="gg-battle-audio-body">
+        <section class="gg-battle-audio-channel" aria-labelledby="gg-battle-sfx-title">
+          <div class="gg-battle-audio-channel-heading">
+            <div><span aria-hidden="true">SE</span><h3 id="gg-battle-sfx-title">弹幕音效</h3></div>
+            <label class="gg-battle-audio-switch" for="gg-battle-settings-sfx-enabled">
+              <input id="gg-battle-settings-sfx-enabled" type="checkbox">
+              <span>启用</span>
+            </label>
+          </div>
+          <label class="gg-battle-audio-range" for="gg-battle-settings-sfx-volume">
+            <span>音效音量</span>
+            <input id="gg-battle-settings-sfx-volume" type="range" min="0" max="100" step="5" value="60">
+            <output id="gg-battle-settings-sfx-output" for="gg-battle-settings-sfx-volume">60%</output>
+          </label>
+        </section>
+
+        <section class="gg-battle-audio-channel" aria-labelledby="gg-battle-bgm-title">
+          <div class="gg-battle-audio-channel-heading">
+            <div><span aria-hidden="true">BGM</span><h3 id="gg-battle-bgm-title">背景音乐</h3></div>
+            <small>R2 曲库模板</small>
+          </div>
+          <label class="gg-battle-audio-select" for="gg-battle-settings-bgm-track">
+            <span>曲目种类</span>
+            <select id="gg-battle-settings-bgm-track"></select>
+          </label>
+          <label class="gg-battle-audio-range" for="gg-battle-settings-bgm-volume">
+            <span>BGM 音量</span>
+            <input id="gg-battle-settings-bgm-volume" type="range" min="0" max="100" step="5" value="45">
+            <output id="gg-battle-settings-bgm-output" for="gg-battle-settings-bgm-volume">45%</output>
+          </label>
+          <p id="gg-battle-bgm-status" class="gg-battle-bgm-status" role="status">曲目槽位已就绪，等待接入 R2 音源。</p>
+        </section>
+      </div>
+      <footer>
+        <span>打开设置时战斗会暂停</span>
+        <button type="button" id="gg-battle-audio-done">完成</button>
+      </footer>
     </div>
   </dialog>
   <dialog id="gg-dungeon-dialog" class="gg-session-history-dialog" aria-labelledby="gg-dungeon-title">

@@ -1,0 +1,453 @@
+# 全素材入库、弹幕音效与 Cloudflare R2 发布规划
+
+> 状态：**本地音效入库与接线（A–C）已完成；远程加载、R2 上传与部署（D–G）尚未实施或授权**。
+>
+> 2026-07-31 所有者提出：先把现有弹幕音效纳入项目维护源；上线时计划把项目运行素材托管到
+> Cloudflare R2。本文件统一规划图片、音频和未来新增媒体的维护源、发布清单、R2 对象结构、
+> 缓存、CORS、回滚与验收。
+>
+> 本轮没有 R2 桶名、自定义域名、账号、令牌或生产环境授权。下文中的标识均为合同名称或
+> 占位符，不得直接当作部署坐标。
+
+## 1. 目标与不做事项
+
+### 1.1 目标
+
+1. 把 `音效/web-sfx/` 的 26 个 AI 重生成 WAV 作为有来源记录的候选维护源纳入
+   `src/assets/audio/`。
+2. 从候选源派生 14 个稳定事件 ID 的运行时音效，接入现有 `BattleSoundBus`，不改变弹幕模拟、
+   `BattleResult`、主线／副本结算和 MVU。
+3. 为**所有运行素材**建立一份由构建生成的发布清单；上线时只上传清单列出的文件，不上传
+   `src/assets` 整树、历史文件、chroma 稿、独立帧、Aseprite 工程或陈旧 `dist` 残留。
+4. 保留两种可验证交付：
+   - `embedded`：当前自包含角色卡／离线检查点，素材继续内嵌；
+   - `remote-r2`：上线发行版，UI 代码壳内嵌，图片与音效读取固定版本的 R2 URL。
+5. 远程素材失败时安全降级：图片沿用现有 fallback，音效静默失败，玩法和结算继续工作。
+
+### 1.2 本计划不做
+
+- 不把 BGM 混进本轮 SFX；BGM 需另建循环、淡入淡出、页面隐藏和版权规格。
+- 不在角色卡、前端代码、清单或日志中放 R2 写入密钥。
+- 不从模型输出、玩家文本、聊天消息或任意 URL 动态决定素材地址。
+- 不覆盖已发布 R2 对象，不把可变 `latest` 指针作为角色卡运行时的唯一事实源。
+- 不因上线 R2 删除仓库维护源；仓库仍是可复现构建的内容真相。
+- 不把本规划视为上传、DNS、CORS 或生产部署授权。
+
+## 2. 当前事实基线
+
+### 2.1 当前构建
+
+- `scripts/build-ui.mjs` 显式读取运行图片，开发预览复制到 `dist/assets/`，角色卡运行壳则把图片
+  转为 data URL 写入 `dist/runtime/ui-mount.js`。
+- `src/runtime/ui-host-shell.js` 把 data URL 交给子 iframe 的 `documentElement.dataset`；
+  UI 仍保留 `../assets/...` 开发相对路径 fallback。
+- 当前弹幕音效事件已经全部从 `battle-simulation.ts` 发出，`src/ui/battle-engine.ts`
+  已注入应用级 WebAudio 真总线；`nullSoundBus` 仅作 fallback。
+- 当前弹幕优化协议要求本地 data URL、禁止运行时远程依赖。正式实现 `remote-r2` 前必须由
+  所有者明确授权修订 `project/bullet-hell-minigame-optimization-protocol.md`；规划本身不改变
+  现行协议。
+
+### 2.2 素材盘点口径
+
+| 范围 | 当前观察值 | 结论 |
+|---|---:|---|
+| `src/assets` | 2122 PNG，约 380MB；另有 Aseprite、JSON、GIF、SVG 等 | 混有运行图、维护稿、独立帧和参考文件，不能整树发布 |
+| 当前 `dist/assets` | 128 文件，约 207.49MB | 构建未保证先清空，可能含历史残留，不能整目录上传 |
+| `音效/web-sfx` | 26 WAV，660,862 bytes（约 645.4KB） | 已按原字节归档为维护源；14 个运行事件 WAV 共 308,202 bytes，已登记、接线并进入两种构建 |
+| 当前音频参数 | 全部单声道、22050Hz；20 个 8-bit、6 个 16-bit；50–4990ms | 无需无意义上采样；需裁切、响度和峰值检查 |
+
+因此上线发布清单必须从活动 manifest 与构建实际消费项生成，不能用“某个目录里看起来都是素材”
+代替。
+
+## 3. 素材分层与唯一真相
+
+### 3.1 四层
+
+| 层 | 位置／产物 | 职责 | 是否上传 R2 |
+|---|---|---|---|
+| 原始／所有者源 | `src/assets/**/source/`、所有者直导原件、确定性维护稿 | 可追溯、可重新派生 | 否 |
+| 活动运行源 | `src/assets/` 中被 `asset-manifest.json` 明确标记为 runtime 的文件 | 本地开发与构建输入 | 是 |
+| 发布清单 | 构建生成的 `dist/asset-release/<release-id>/manifest.json` | 精确列出 key、MIME、字节、SHA-256、缓存策略 | 是 |
+| 发行物 | 自包含 UI mount 或固定 R2 release 前缀 | 供角色卡实际消费 | 按构建模式 |
+
+`src/assets/asset-manifest.json` 继续拥有素材身份、来源、状态和活动路径；未来生成的 release manifest
+只是某次发行快照，不能反向覆盖维护源。
+
+### 3.2 全素材分类
+
+| 类别 | 现有例子 | 远程策略 | 失败策略 |
+|---|---|---|---|
+| 地图与导航 | 底图、不可行走蒙版 | 同一 release 固定版本 | 地图加载失败时恢复可诊断的既有降级 |
+| UI | 入口卡面、商店／GAL 背景 | 固定版本，按视图懒加载 | 文本与 CSS 基础 UI 仍可用 |
+| 庭园世界 | 设施正常／异常／损坏图 | 进入庭园后预取当前区域 | 保留现有形状／隐藏失败层 |
+| 角色 | turnaround、motion、approved sequence | 当前在场角色优先加载，其余懒加载 | 静态帧或旧 fallback |
+| 弹幕战 | 自机、Boss、cut-in、妖精、弹幕和特效图集 | 开战前并行预取；战斗关键图设超时 | 几何弹体、样式化卡片等既有 fallback |
+| 音效 | 14 个 `BattleSfxId` | 开战时解码关键音效，其余按需 | 静默，不中断模拟和结算 |
+| 作者维护项 | chroma、独立帧、Aseprite、报告预览 | 不发布 | 不适用 |
+| 历史归档 | `旧素材/` | 不发布 | 不适用 |
+
+## 4. 弹幕音效入库方案
+
+### 4.1 建议目录
+
+```text
+src/assets/audio/
+  source/
+    battle-ai-regenerated-v1/
+      provenance.md
+      *.wav
+  runtime/
+    battle/
+      player_shot.wav
+      boss_hit.wav
+      mob_defeat.wav
+      graze.wav
+      item_pickup.wav
+      player_miss.wav
+      bomb.wav
+      wave_start.wav
+      spell_declare.wav
+      phase_break.wav
+      laser_warning.wav
+      laser_fire.wav
+      battle_win.wav
+      battle_lose.wav
+```
+
+- `source/` 保存 26 个原始字节和来源／授权说明，不参与运行发布。
+- `runtime/` 只放实际使用的 14 个稳定事件文件；允许从 source 裁切、淡入淡出、混合和归一化，
+  但每个派生关系必须登记。
+- 首版运行格式采用 WAV：现有候选总量很小、浏览器解码兼容性高，也避免为了满足旧占位规格而
+  将 22050Hz 素材无收益上采样。以后若包体仍需缩减，再用有确定工具链和浏览器矩阵的
+  OGG／M4A 双格式替换。
+
+### 4.2 首轮事件映射
+
+下表是**制作映射**，不是声学验收结论。需要试听后才能确认裁切点、增益和最终选材。
+
+| 事件 ID | 候选源 | 处理计划 |
+|---|---|---|
+| `player_shot` | `玩家_射击_plst00.wav` | 保留短瞬态；低增益；80ms 节流 |
+| `boss_hit` | `敌人_Boss受伤_damage00.wav` | 缩短尾部；低增益；60ms 节流 |
+| `mob_defeat` | `敌人_普通击破_enep00.wav` | 取清脆爆裂主体，控制在约 250ms |
+| `graze` | `玩家_擦弹_graze.wav` | 保留辨识瞬态；60ms 节流，激光擦弹不得叠成爆音 |
+| `item_pickup` | `道具_拾取_item00.wav` | 轻微抬高存在感，控制在约 120–170ms |
+| `player_miss` | `玩家_中弹死亡_pldead00.wav` | 保留约 500–900ms 主体 |
+| `bomb` | `符卡_灵梦B魔理沙A发动_power1.wav` | 裁为约 900ms；试听后可与 `power0` 比选 |
+| `wave_start` | `特效_闪光魔法粒子1_kira00.wav` | 取约 250–400ms 提示段 |
+| `spell_declare` | `符卡_通用发动_cat00.wav` | 裁为约 600–700ms |
+| `phase_break` | `特效_闪光魔法粒子3_kira02.wav` | 保留约 600ms；确认有阶段结束力度 |
+| `laser_warning` | `战斗_强力能量效果_power0.wav` | 取连续上升段，控制在约 500–600ms |
+| `laser_fire` | `激光_Boss激光1_lazer00.wav` | 与 `lazer01` 试听比选，控制在约 300–500ms |
+| `battle_win` | `道具_获得残机1UP_extend.wav` | 作为首轮胜利候选，保留约 1.5s |
+| `battle_lose` | `玩家_中弹死亡_pldead00.wav` + `菜单_返回取消_cancel00.wav` | 派生约 1–1.5s 的失败尾声；若听感不成立则补生成专用素材 |
+
+以下候选暂不进入弹幕运行包：三种敌方发射、菜单三音、灵梦 A 发射、极限火花、倒计时、
+火力提升和未被选中的粒子／激光版本。它们保留在 source 层，未来新增 `enemy_shot`、菜单声或
+特殊符卡事件时再登记，不能仅因“文件已经存在”就上传。
+
+### 4.3 声学门禁
+
+每个 runtime 文件至少记录：
+
+- 源文件、处理动作和处理工具／版本；
+- 声道、采样率、位深、时长、字节；
+- 峰值不得削波；首尾无明显爆点；同类事件主观响度一致；
+- `player_shot`、`boss_hit`、`graze` 在高频压力测试中不形成持续爆音；
+- 全套 runtime SFX 建议继续控制在 1.5MB 内。
+
+当前 `音效/来源文档.txt` 只有“AI 重新生成、无版权风险”的概括。公开发行前应补充：
+提供者、生成／重生成方式、是否含第三方输入、允许修改及随角色卡和 R2 再分发的明确声明。
+声明不必公开个人身份，但必须能支撑项目的再分发判断。
+
+## 5. 真音效总线实施计划
+
+### 5.1 接口
+
+- 保留 `BattleSoundBus.play(id)`，新增真实实现，例如 `createBattleSoundBus(options)`。
+- `battle-simulation.ts` 的 14 个触发点不改；`battle-engine.ts` 的单一接线点由
+  `nullSoundBus` 替换为注入的真总线。
+- 素材来源由构建时可信配置提供；不读取模型、聊天正文或玩家 URL。
+
+### 5.2 WebAudio 行为
+
+1. 首次明确用户操作（进入战斗或点击启用声音）后创建／恢复 `AudioContext`，不得绕过浏览器
+   自动播放限制。
+2. `fetch/arrayBuffer → decodeAudioData` 使用 Promise 缓存；同一文件不重复下载或解码。
+3. 高频事件按 ID 节流：
+   - `player_shot`：建议 80ms；
+   - `boss_hit`、`graze`：至少 60ms；
+   - 激光持续擦弹继续受模拟层 tick 与声音层双重保护。
+4. 设主增益和分类增益；首版建议主音量 0.6，射击／命中再下调。
+5. 设置页提供“战斗音效”开关和音量；偏好只进 `localStorage`，不写 MVU。
+6. `destroy()` 停止当前节点并清理监听；页面隐藏／战斗暂停不继续制造新声音。
+7. 单个音效加载／解码失败只记录一次脱敏诊断并静默，不影响 120Hz 固定步长循环。
+
+### 5.3 加载次序
+
+- 开战前优先解码：`player_shot`、`boss_hit`、`graze`、`player_miss`、`bomb`。
+- 其余音效后台并行解码；在对应事件前未就绪时跳过一次，不阻塞开战。
+- R2 模式下音频必须以匿名 CORS 请求读取；不携带 Cookie、Authorization 或写入凭据。
+
+### 5.4 Canvas 跨域图片
+
+- 地图、不可行走蒙版、角色和战斗图会进入 Canvas；所有远程 `Image` 必须在赋值 `src` **之前**
+  设置 `crossOrigin = 'anonymous'`。
+- 这一点对不可行走蒙版尤其关键：未启用匿名 CORS 的跨域图片会污染 Canvas，后续像素读取可能
+  抛出安全异常。远程模式不能把这种异常伪装成正常导航结果。
+- CSS 背景可继续直接引用固定 URL；同一 logical asset 不应同时走 CSS、dataset 和临时拼接的
+  三套不同地址。
+- 加载器必须覆盖图片成功、404、超时、CORS 拒绝和解码失败；失败后仍走对应 fallback。
+
+## 6. 发布资产清单
+
+### 6.1 生成物
+
+未来新增项目工具（名称为规划，当前仓库尚未提供）：
+
+```text
+scripts/build-runtime-assets.mjs
+scripts/publish-r2-assets.mjs
+```
+
+`build-runtime-assets` 从 `asset-manifest.json` 的活动 runtime 项生成：
+
+```text
+dist/asset-release/<release-id>/
+  files/<logical-path>
+  manifest.json
+```
+
+`manifest.json` 每项至少包含：
+
+```json
+{
+  "logical_id": "battle.sfx.graze",
+  "key": "releases/<release-id>/audio/battle/graze.wav",
+  "mime": "audio/wav",
+  "bytes": 4542,
+  "sha256": "<hex>",
+  "cache": "immutable",
+  "required": false,
+  "fallback": "silent"
+}
+```
+
+发布清单还要记录总体字节、文件数量、生成时间、源项目版本、清单自身 SHA-256 和允许的
+`asset_base_url`。所有路径必须为 ASCII URL key；中文原始文件名只留在 source 层和来源字段。
+
+### 6.2 发布清单硬门禁
+
+- 所有路径必须位于 `src/assets` 的已登记活动源；拒绝 `..`、绝对路径和符号链接越界。
+- 拒绝 `*-chroma.*`、独立帧、Aseprite、报告、预览、`旧素材/` 和未登记文件。
+- 拒绝同 key 不同内容、同 logical ID 多文件、缺失 MIME、SHA-256 或 fallback。
+- 复制到干净 staging；不能从可能含陈旧文件的 `dist/assets` 反推发布集。
+- 生成后逐文件复算哈希；发布脚本只接受这份 manifest，不接受目录通配上传。
+
+## 7. R2 目标架构
+
+### 7.1 对象 key
+
+建议固定前缀：
+
+```text
+gensokyo-moving-garden/
+  releases/<release-id>/manifest.json
+  releases/<release-id>/maps/...
+  releases/<release-id>/ui/...
+  releases/<release-id>/world/...
+  releases/<release-id>/characters/...
+  releases/<release-id>/battle/...
+  releases/<release-id>/audio/...
+  channels/stable.json
+```
+
+- `<release-id>` 使用 ASCII、不可变，例如 `0.2.0-r55-a1b2c3d4`。
+- 角色卡运行时固定到 `releases/<release-id>/manifest.json`，不追随 `stable.json`。
+- `channels/stable.json` 仅供发布工具／人工查看；不得让已发出的卡在无人确认时自动换素材。
+- 新版本创建新前缀；**永不原地覆盖 release key**。Cloudflare 缓存下覆盖或删除同 key 仍可能继续
+  返回旧内容，因此不可变 key 是回滚和一致性的基础。
+
+### 7.2 访问方式
+
+- 开发／预发布可短期使用 `r2.dev` 检查对象，但生产必须绑定 Cloudflare 自定义域名。
+- 生产建议形如 `https://<asset-domain>/gensokyo-moving-garden/releases/...`，实际域名由所有者
+  在部署前提供。
+- R2 桶只存公开、已批准的运行素材；不承担身份、授权或玩家数据。
+- 客户端只有匿名读权限。上传使用桶级最小权限令牌，由发布工具从秘密配置读取，绝不进入 Git、
+  角色卡、命令输出或聊天。
+
+Cloudflare 官方说明：`r2.dev` 面向非生产且受限流；自定义域名才能使用 Cloudflare Cache、
+WAF 等生产能力。参见：
+[Public buckets](https://developers.cloudflare.com/r2/buckets/public-buckets/)、
+[R2 与 Cloudflare Cache](https://developers.cloudflare.com/cache/interaction-cloudflare-products/r2/)。
+
+### 7.3 CORS
+
+由于 SillyTavern 可能运行在 localhost、桌面壳或不同私有域名，首版远程素材采用：
+
+- 匿名 `GET`／`HEAD`；
+- `Access-Control-Allow-Origin: *`；
+- 不允许凭据，不发送 Cookie；
+- 允许请求头 `Range`；
+- 暴露 `Content-Length`、`Content-Range`、`ETag`；
+- 预检缓存建议 7200–86400 秒，以浏览器实际上限为准。
+
+通配 Origin 只能用于不携带凭据的公开素材。若以后改为 Cookie 或受保护资源，必须单独评审 CORS，
+不能把 `*` 与凭据混用。R2 CORS 的官方字段与方法见
+[R2 CORS API](https://developers.cloudflare.com/api/resources/r2/subresources/buckets/subresources/cors/)。
+
+### 7.4 缓存与响应元数据
+
+| 路径 | 建议策略 |
+|---|---|
+| `releases/<release-id>/**` | `Cache-Control: public, max-age=31536000, immutable` |
+| `channels/stable.json` | `Cache-Control: no-cache` 或很短 TTL |
+| 错误响应 | 不依赖缓存 404 作为发布检测；上传完成后再切任何指针 |
+
+- 每个对象设置正确 `Content-Type`：PNG、SVG、GIF、WAV／未来音频和 JSON 不可混淆。
+- 自定义域名启用覆盖全部 release 媒体的 Cache Rule；JSON 是否缓存需显式决定。
+- 可启用 Smart Tiered Cache；不是首轮功能正确性的前置。
+- 发布顺序为“上传全部不可变对象 → 远端逐项校验 → 上传不可变 manifest → 最后更新人工
+  channel 指针”。不得先暴露指针再慢慢补文件。
+
+Cloudflare 文档明确提醒：缓存域名下删除、覆盖对象或先产生 404 后再上传，旧响应可能持续到 TTL
+或清除缓存。因此本项目不覆盖 release key。参见
+[R2 consistency model](https://developers.cloudflare.com/r2/reference/consistency/)。
+
+## 8. 运行时双模式
+
+构建时生成可信配置：
+
+```ts
+type AssetDeliveryConfig =
+  | { mode: 'embedded' }
+  | {
+      mode: 'remote-r2';
+      baseUrl: string;
+      releaseId: string;
+      manifestSha256: string;
+    };
+```
+
+- `embedded` 继续是开发、离线检查点和网络故障排查基线。
+- `remote-r2` 只接受构建时写死的 HTTPS 基址、release ID 和 manifest 哈希。
+- UI 不解析任意查询参数来换域名，不从 localStorage、模型或玩家输入覆盖基址。
+- 远程模式不把全部 URL 写成一长串 dataset；应由可信 manifest resolver 按 logical ID 生成 URL，
+  但保留现有图片注册表和 fallback 语义。
+- 启动时 manifest 失败或哈希／结构不符，显示“远程素材不可用”的可恢复诊断；不得执行未知 URL。
+
+### 8.1 GAL 滚动卡池扩展
+
+核心 UI、地图、战斗和基础 fallback 继续固定到角色卡的 `releaseId`。GAL 近景允许使用独立的
+`channels/gal-stable.json` 滚动频道，使已有 `pose_id` 卡池增删图片或调整权重时不必重新打包角色卡。
+
+- 频道只指向一个已上传、已验证的不可变 `gal-pool` release manifest；不得直接列目录或接受模型 URL。
+- 客户端校验频道 schema、manifest SHA-256 和兼容版本，并保存 last-known-good；因此可变频道不是唯一事实源。
+- 更新字段结构、姿势语义、白名单、抽卡算法或客户端 schema 仍必须重新构建和打包。
+- 首版抽卡在客户端按楼层身份使用稳定种子完成；单纯随机选图不新增服务器。私有访问、服务端鉴权或
+  服务端动态权重才使用绑定 R2 的 Cloudflare Worker。
+- 完整变量、注册表、fallback、对象结构和验收合同见
+  `project/gal-portrait-variable-and-r2-pool-plan.md`。
+
+## 9. 分阶段实施
+
+### A. 音频维护源与登记
+
+**2026-07-31 进度：已完成。** 26 个文件已原字节复制，来源说明与活动 manifest 已建立；
+原 `音效/` 未删除。
+
+1. 把 26 个 WAV 原字节复制到 `src/assets/audio/source/battle-ai-regenerated-v1/`。
+2. 补 `provenance.md`，逐文件记录原名、SHA-256、声明和是否允许改作／再分发。
+3. 在 `asset-manifest.json` 新增 `audio_assets.battle_sfx`，source 与 runtime 分开登记。
+4. 不删除当前 `音效/`，直到哈希核对和所有者确认迁移完整；之后是否归档另行授权。
+
+验收：26/26 字节哈希一致；JSON 可解析；无文件进入运行清单。
+
+### B. 14 个运行音效制作
+
+**2026-07-31 进度：工程侧已完成，听感验收待所有者。** 当前 14 个文件是候选源的直接字节复制，
+未做裁切、归一化、重采样或重编码；逐文件 SHA-256 与总量已由测试校验。单项语义与高频混音仍须试听。
+
+1. 按 §4.2 制作稳定英文名 WAV。
+2. 输出机器可读处理报告，记录源哈希、输出哈希、时长和音频参数。
+3. 完成单文件试听和高频混音试听；不合格的 `battle_lose` 等事件补专用生成素材。
+
+验收：14/14 存在、无削波／爆点、总量合规、映射完整。
+
+### C. 真总线与设置
+
+**2026-07-31 进度：已完成本地实现与离线门禁，待真实宿主验收。** Preview 使用本地 WAV，
+自包含 mount 使用 WAV data URL；设置页与战斗 HUD 已接线。
+
+1. 实现真实 `BattleSoundBus`、解码缓存、节流、主增益、静音与销毁。
+2. 在设置与战斗 HUD 增加音效开关；只保存本地偏好。
+3. 扩展战斗测试：事件映射、节流、缺文件静默、暂停／销毁、`nullSoundBus` fallback。
+
+验收：定步长结果与无声基线完全一致；离线 Preview 可试听；控制台无未处理异常。
+
+### D. 发布清单与干净 staging
+
+1. 扩展 `asset-manifest.json` 的 delivery 元数据。
+2. 实现 release manifest 生成器和路径／哈希／MIME 门禁。
+3. 让 `build:ui` 明确区分 `embedded` 与未来 `remote-r2`，现有命令默认行为不暗改。
+4. 新增资产专项检查，证明 staging 不含历史／维护素材。
+
+验收：干净环境与脏 `dist` 生成同一清单哈希。
+
+### E. R2 预发布
+
+前提：所有者明确提供并批准桶、账号范围、自定义域名、部署命令、验证命令和秘密配置入口。
+
+1. 发布工具先 `--dry-run`，显示拟上传 key、字节和总量，不打印秘密。
+2. 上传到新的不可变 release 前缀。
+3. 逐项 HEAD 校验状态、MIME、长度和缓存头；抽样 GET 后本地复算 SHA-256。
+4. 从模拟 SillyTavern Origin 验证 CORS、Range、图片与 WebAudio 解码。
+
+验收：不得以“桶里看得到文件”代替清单一致性和浏览器验收。
+
+### F. 双模式候选与真实 SillyTavern
+
+1. 同一维护源构建 embedded 候选和 remote-r2 候选。
+2. 桌面、窄屏、200% 缩放、页面隐藏恢复、断网、慢网、单文件 404、错误 MIME、CORS 拒绝矩阵。
+3. 检查地图、角色、设施、GAL、弹幕所有素材；音效检查首次手势解锁、静音、音量和高频压力。
+4. 主线／副本结算、取消不结算和原生聊天恢复不得回归。
+
+验收：真实 SillyTavern 未通过前只能称 release candidate。
+
+### G. 上线与回滚
+
+1. 每张发行卡固定一个已验证的 R2 release ID。
+2. 上线只更新新卡的构建配置和人工 channel 指针，不覆盖旧对象。
+3. 回滚优先重新指向上一个已验证 release／分发上一候选；不删除当前对象、不紧急覆盖同 key。
+4. 至少保留最近两个已发行 release；清理旧对象必须有独立清单、保留期和显式删除授权。
+
+## 10. 验收矩阵
+
+| 层 | 必须证明 |
+|---|---|
+| 来源 | 来源声明、26 个输入哈希、14 个派生链 |
+| 音频 | 格式／时长／峰值、事件覆盖、高频压力、静音与音量 |
+| manifest | 活动白名单、路径收敛、MIME、字节、SHA-256、总量 |
+| 本地构建 | `check:ui`、`npm test`、`build:ui`、自包含 embedded 仍通过 |
+| R2 | dry-run、不可变前缀、远端长度／哈希抽检、缓存头、CORS／Range |
+| 运行时 | Canvas 匿名跨域与蒙版像素读取、图片 fallback、音效静默失败、无未知 URL、无结算变化 |
+| 真实宿主 | SillyTavern 导入、新聊天、桌面／移动端、断网／慢网、控制台 |
+| 发布 | 固定 release ID、产物哈希、未覆盖旧版、回滚目标存在 |
+
+## 11. 实施前需要所有者确认
+
+开始 A–C（本地音效接入）前：
+
+- 确认现有 26 个 WAV 可修改并随项目再分发；
+- 试听后确认 14 个事件的最终选材，尤其 `bomb`、`battle_win`、`battle_lose`。
+
+开始 E–G（R2）前：
+
+- R2 桶和 Cloudflare 账号范围；
+- 生产自定义域名；
+- 上传工具与秘密配置入口；
+- 是否公开匿名读取；
+- 第一个远程素材 release ID；
+- 当前弹幕“禁止远程依赖”协议的明确修订授权；
+- 真实 SillyTavern 候选和正式发行授权。

@@ -1,5 +1,109 @@
 # 弹幕小游戏交接文档
 
+> 2026-08-01 阵营识别更新：自机射击不再沿用与敌弹相近的辉光椭圆，现由
+> `drawPlayerTalisman` 绘制米白纸符、深色描边、红／青符印、金色顶签与双尾带；敌弹继续保持
+> 珠／米／鳞／星等弹体。P 点在既有红方块白像素 P 外增加独立四角拾取框。改动只在渲染层，
+> 碰撞半径、伤害、弹速、Power、掉落和结算均未变化。新增定向测试后当前门禁为
+> `check:ui`、176/176、`build:ui` 全绿；离线预览已进入妖精练习检查实际缩放，真实宿主待验收。
+>
+> 2026-08-01 战斗设置更新：弹窗内新增暂停／继续与“音频设置”小弹窗，音效和 BGM 可分别启用、
+> 调整音量；设置打开时暂停战斗，关闭后恢复原暂停状态。`battle-bgm-catalog.json` 预留三首曲目，
+> 当前 URL 均为空；`battle-bgm.ts` 只接受 HTTPS 曲源，为未来 Cloudflare R2 留接口但不含凭据。
+> 偏好只存本机，不写 MVU／聊天／结算。本地默认值、曲目与音量持久化已验证；R2 尚未部署。
+
+> 2026-07-31 琪露诺四阶段修正：固定副本 `fairy_pattern_practice_v1` 已由两阶段扩为四阶段，
+> 顺序统一为非符／符卡／非符／符卡，使既有战损规则在 P1–P2 使用 S0、P3 使用 S1、P4 使用 S2。
+> 新增阶段沿用已登记弹型与参数上限；未查看、解码、截图或分析任何 S2 图片，图片内容仍由所有者验收。
+>
+> 2026-07-31 真音效接入更新（历史检查点，现状见顶部 2026-08-01 更新）：26 个 AI 重生成 WAV 已按原字节归档为维护源，14 个稳定事件 WAV
+> 已登记 SHA-256 并进入应用级 WebAudio 总线。设置页提供启用、音量和试听，战斗 HUD 可即时静音；
+> 高频射击／受击／擦弹有节流，页面隐藏会挂起，单文件失败只静默降级。预览复制本地 WAV，自包含
+> mount 内嵌 WAV data URL；`nullSoundBus` 仅保留为 fallback。`check:ui`、166 项测试与构建全绿，
+> 但首次手势解锁、各事件听感和真实 SillyTavern 宿主仍待所有者验收。当时没有 BGM，也没有部署 R2。
+>
+> 2026-07-31 音效规划更新（历史检查点，后续已接入真总线）：`音效/web-sfx/` 已有 26 个 AI 重生成 WAV 候选，全部为单声道
+> 22050Hz，总计约 645.4KB；但这些文件仍在 `src/assets` 之外，尚未登记、裁切、归一化、
+> 构建内嵌或接入真总线。14 个事件的制作映射、WebAudio 方案和未来 Cloudflare R2 全素材
+> 发布合同已写入 `project/asset-delivery-and-r2-plan.md`。该规划记录时运行状态仍是静音；本规划
+> 不构成修改“禁止远程运行依赖”协议或部署 R2 的授权。
+
+> 2026-07-31 文档复核：当前维护源、manifest、构建产物与本交接顶部记录一致。弹幕必需图片素材
+> 已全部补齐，几何妖精与抽象 cut-in 卡仅是加载失败 fallback；真音效和真实 SillyTavern 验收
+> 仍未完成，主题背景贴图为可选项。
+
+> 2026-07-30：内置 ImageGen 生成的温室花妖核心 S0／S1／S2 与妖精小怪 sprite 已接入。
+> 花妖三张完整竖图位于 `src/assets/battle/portraits/portrait-flower-core-s{0|1|2}-v1.png`，
+> 由同一完好设计逐级编辑为轻损、重损；`boss_id=flower_core` 时按阶段战损档位选择。妖精维护
+> 底稿为 `src/assets/battle/effects/fairy-sheet-v1-chroma.png`，透明运行时图为
+> `fairy-sheet-v1.png`（2×2、64px 单元，蓝=小 P、金=大 P、两帧翅膀）。两类素材均已完成
+> manifest、构建复制／data URL、宿主 dataset、atlas source 与 renderer 接线；几何妖精和
+> 样式化 cut-in 卡仅保留作加载失败 fallback。生成稿已目视检查，正式 SillyTavern 实机验收仍待跑。
+
+> 2026-07-30：十六夜咲夜 S0／S1／S2 cut-in 立绘沿用同批素材的直接导入合同接入。
+> `D:\浏览器下载\十六夜咲夜` 下的 `S0.png`／`S1.png`／`S2.png` 仅依文件名映射，逐字节复制到
+> `src/assets/battle/portraits/portrait-sakuya-s{0|1|2}-v1.png`；没有抠图、去背、修改透明通道、
+> 生成 chroma/alpha 中间稿、裁切、缩放、量化或重新编码。manifest、构建复制／data URL、宿主
+> dataset、atlas source 和 renderer 状态选择均已接线；咲夜 `boss_id=sakuya` 时按当前战损档位
+> 绘制完整图片。至此八名角色的 S0／S1／S2 cut-in 槽位全部接通；非角色 Boss 或加载失败仍回退
+> 占位卡。本轮没有解码、预览、截图或目视读取三张图片，故视觉内容与真实显示效果未验收；
+> 未正式打包。
+>
+> 2026-07-30：伊吹萃香 S0／S1／S2 cut-in 立绘沿用同批素材的直接导入合同接入。`D:\浏览器下载\伊吹萃香`
+> 下的 `S0.png`／`S1.png`／`S2.png` 仅依文件名映射，逐字节复制到
+> `src/assets/battle/portraits/portrait-suika-s{0|1|2}-v1.png`；没有抠图、去背、修改透明通道、
+> 生成 chroma/alpha 中间稿、裁切、缩放、量化或重新编码。manifest、构建复制／data URL、宿主
+> dataset、atlas source 和 renderer 状态选择均已接线；萃香 `boss_id=suika` 时按当前战损档位
+> 绘制完整图片，其他尚未提供差分的 Boss 或加载失败继续回退占位卡。本轮没有解码、预览、截图
+> 或目视读取三张图片，故视觉内容与真实显示效果未验收；未正式打包。
+>
+> 2026-07-30：河城荷取 S0／S1／S2 cut-in 立绘已按所有者的直接导入合同接入。`D:\浏览器下载\河城荷取`
+> 下的 `S0.png`／`S1.png`／`S2.png` 仅依文件名映射，逐字节复制到
+> `src/assets/battle/portraits/portrait-nitori-s{0|1|2}-v1.png`；没有抠图、去背、修改透明通道、
+> 生成 chroma/alpha 中间稿、裁切、缩放、量化或重新编码。manifest、构建复制／data URL、宿主
+> dataset、atlas source 和 renderer 状态选择均已接线；荷取 `boss_id=nitori` 时按当前战损档位
+> 绘制完整图片，其他尚未提供差分的 Boss 或加载失败继续回退占位卡。遵照所有者禁令，本轮没有
+> 解码、预览、截图或目视读取三张图片，故视觉内容与真实显示效果未验收；未正式打包。
+>
+> 2026-07-30：米斯蒂娅 S0／S1／S2 cut-in 立绘已按所有者的直接导入合同接入。`D:\浏览器下载\米斯蒂娅`
+> 下的 `S0.png`／`S1.png`／`S2.png` 仅依文件名映射，逐字节复制到
+> `src/assets/battle/portraits/portrait-mystia-s{0|1|2}-v1.png`；没有抠图、去背、修改透明通道、
+> 生成 chroma/alpha 中间稿、裁切、缩放、量化或重新编码。manifest、构建复制／data URL、宿主
+> dataset、atlas source 和 renderer 状态选择均已接线；米斯蒂娅 `boss_id=mystia` 时按当前战损档位
+> 绘制完整图片，其他尚未提供差分的 Boss 或加载失败继续回退占位卡。遵照所有者禁令，本轮没有
+> 解码、预览、截图或目视读取三张图片，故视觉内容与真实显示效果未验收；未正式打包。
+>
+> 2026-07-30：琪露诺 S0／S1／S2 cut-in 立绘已按所有者的直接导入合同接入。`D:\浏览器下载\琪露诺`
+> 下的 `S0.png`／`S1.png`／`S2.png` 仅依文件名映射，逐字节复制到
+> `src/assets/battle/portraits/portrait-cirno-s{0|1|2}-v1.png`；没有抠图、去背、修改透明通道、
+> 生成 chroma/alpha 中间稿、裁切、缩放、量化或重新编码。manifest、构建复制／data URL、宿主
+> dataset、atlas source 和 renderer 状态选择均已接线；琪露诺 `boss_id=cirno` 时按当前战损档位
+> 绘制完整图片，其他尚未提供差分的 Boss 或加载失败继续回退占位卡。遵照所有者禁令，本轮没有
+> 解码、预览、截图或目视读取三张图片，故视觉内容与真实显示效果未验收；未正式打包。
+>
+> 2026-07-30：爱丽丝 S0／S1／S2 cut-in 立绘已按所有者的直接导入合同接入。`D:\浏览器下载\爱丽丝`
+> 下的 `S0.png`／`S1.png`／`S2.png` 仅依文件名映射，逐字节复制到
+> `src/assets/battle/portraits/portrait-alice-s{0|1|2}-v1.png`；没有抠图、去背、修改透明通道、
+> 生成 chroma/alpha 中间稿、裁切、缩放、量化或重新编码。manifest、构建复制／data URL、宿主
+> dataset、atlas source 和 renderer 状态选择均已接线；爱丽丝 `boss_id=alice` 时按当前战损档位
+> 绘制完整图片，其他尚未提供差分的 Boss 或加载失败继续回退占位卡。遵照所有者禁令，本轮没有
+> 解码、预览、截图或目视读取三张图片，故视觉内容与真实显示效果未验收；未正式打包。
+>
+> 2026-07-30：魔理沙 S0／S1／S2 cut-in 立绘已按所有者的直接导入合同接入。`D:\浏览器下载\魔理沙`
+> 下的 `S0.png`／`S1.png`／`S2.png` 仅依文件名映射，逐字节复制到
+> `src/assets/battle/portraits/portrait-marisa-s{0|1|2}-v1.png`；没有抠图、去背、修改透明通道、
+> 生成 chroma/alpha 中间稿、裁切、缩放、量化或重新编码。manifest、构建复制／data URL、宿主
+> dataset、atlas source 和 renderer 状态选择均已接线；魔理沙 `boss_id=marisa` 时按当前战损档位
+> 绘制完整图片，其他尚未提供差分的 Boss 或加载失败继续回退占位卡。遵照所有者禁令，本轮没有
+> 解码、预览、截图或目视读取三张图片，故视觉内容与真实显示效果未验收；未正式打包。
+>
+> 2026-07-30：灵梦 S0／S1／S2 cut-in 立绘已按所有者的直接导入合同接入。`D:\浏览器下载\灵梦`
+> 下的 `S0.png`／`S1.png`／`S2.png` 仅依文件名映射，逐字节复制到
+> `src/assets/battle/portraits/portrait-reimu-s{0|1|2}-v1.png`；没有抠图、去背、修改透明通道、
+> 生成 chroma/alpha 中间稿、裁切、缩放、量化或重新编码。manifest、构建复制／data URL、宿主
+> dataset、atlas source 和 renderer 状态选择均已接线；灵梦 `boss_id=reimu` 时按当前战损档位
+> 绘制完整图片，其他 Boss 或加载失败继续回退占位卡。遵照所有者禁令，本轮没有解码、预览、
+> 截图或目视读取三张图片，故视觉内容与真实显示效果未验收；未正式打包。
+>
 > 2026-07-30：灵梦与魔理沙的对战卡 BOSS 四状态图已升级为所有者提供的新版。稳定运行路径和 `2×2` 待机／施法／受击／击破合同不变，新版黑底源图以确定性算法透明化，原始字节归档于 `旧素材/素材处理/battle-boss-owner-source-v2/`，旧 v1 原档保留；处理报告与透明总览分别为 `project/character-boss-sheet-replacement-report-2026-07-30.json`、`project/character-boss-sheet-replacement-preview.png`。离线浏览器已分别开启灵梦、魔理沙极难对战并立即暂停，确认新版人物、透明背景、尺寸与锚点正常，页面控制台无 warning/error；证据为 `project/runtime-qa/boss-{reimu,marisa}-v2-paused.png`。完整门禁 `check:ui`、`npm test` 154/154、`build:ui`、r54 dry-run 全绿；演练产物 `101,878,951` bytes、SHA-256 `a0605c9c…7586cf`。**未正式打包；真实 SillyTavern 四状态切换、宿主缩放和移动端显示仍待验收。**
 >
 > 2026-07-30：任意角色对战卡的八人 BOSS 视觉已补齐。所有者新增提供灵梦、魔理沙、荷取、米斯蒂娅、萃香五张 `1254×1254` 黑底四状态图；确定性透明化后与既有琪露诺、爱丽丝、咲夜统一使用 `2×2` 待机／施法／受击／击破合同。五份原始字节、透明输出哈希与逐格统计可从 `project/character-boss-sheet-preparation-report.json` 追溯。构建、宿主 dataset、app atlas source、渲染选择和对战档案已全部接通；对战档案旧 `boss_alice`／`boss_cirno`／`boss_sakuya` 已校正为渲染器实际使用的角色 ID。离线浏览器逐一打开五名新增角色的对战卡战斗并暂停目视，均显示正确独立人物、无黑底方块，控制台无 warning/error。完整门禁 `check:ui`、`npm test` 154/154、`build:ui`、r54 dry-run 全绿。**未正式打包；真实 SillyTavern 八角色逐场及四状态切换仍待验收。**
@@ -61,9 +165,9 @@
 
 ## 验证状态
 
-- `npm run check:ui` 通过；`npm test` 136/136。
-- `npm run build:ui` 通过；`dist/runtime/ui-mount.js` 内嵌自机、妖花、三副本 Boss、通用特效与 etama3 data URL；严格路径正则无 `localhost`/本机盘符/远程 URL，且无 chroma 重复大图。该结果证明资源链自包含；正式候选仍须取得当次打包授权并完成对应验收。
-- 本地浏览器已实跑妖精弹幕练习至琪露诺到场，独立图集选择、尺寸、锚点与透明背景正常，控制台无警告／错误；爱丽丝、咲夜未逐场目视。
+- `npm run check:ui` 通过；`npm test` 176/176。
+- `npm run build:ui` 通过；`dist/runtime/ui-mount.js` 保持自包含资源链。BGM 曲目模板的 URL 当前均为空，构建不产生新的远程运行依赖；正式候选仍须取得当次打包授权并完成对应验收。
+- 本地浏览器已进入妖精弹幕练习，检查战斗内置音频设置、暂停流程和新纸符绘制在实际画布缩放下的表现；这属于离线预览证据，不等于真实 SillyTavern 验收。爱丽丝、咲夜仍未逐场复核。
 - **未打包、未导入、未推送**。真实酒馆 §7.3 矩阵未跑。
 
 ## 后续待办（按优先级）
@@ -71,7 +175,7 @@
 1. **真实 SillyTavern 实机验收**（硬门禁）：新聊天单实例、主线可信 `battle.current` 写入/复读/剧情消息、三副本本地结算与金币/时段/rewarded_ids、取消/Escape/关闭不结算、后台恢复不偷跑、素材断链 fallback、320px/触控拖动自动射击/双指专注/双击 Bomb/200% 缩放/焦点可见。验收与后续获授权的项目候选均可包含 etama3；不得把 dry-run 写成 accepted。
 2. **判定半径决策**：4 份配置 `hitbox_radius=4`（比 TH06 比例偏大）本轮**刻意未改**，属所有者已接受手感。若要更 TH06 化可下调至 ~3，但是跨 4 配置的平衡改动，需所有者定夺。
 3. **Boss 图集视觉复核**：逐场查看爱丽丝、咲夜的四种姿态，并在真实 SillyTavern 检查三张图放大可见的轻微洋红边缘；必要时只返修透明蒙版，不改裁切和战斗语义。
-4. **atlas 像素核对**：继续核对旧自机／妖花／特效裁切与新 Boss 四宫格在各视口的实际显示比例。
+4. **画布可读性与 atlas 像素核对**：在 320px、200% 缩放、色觉辅助和高密度交火中复核纸符／敌弹／P 点三类轮廓；继续核对旧自机、妖花、特效与 Boss 四宫格的实际显示比例。
 5. 可选：把 dirChange / 随机抖动接入更多符卡（目前各只接 1 处示范）。
 
 ## 关键文件

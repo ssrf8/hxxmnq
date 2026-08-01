@@ -4,9 +4,11 @@
   GalBeatKind,
   GalReaction,
   GalSceneProjection,
+  GalVisualMode,
   GardenState,
   SuggestedReply,
 } from './types';
+import { normalizeGalPortraitCue } from './gal-portrait-registry';
 
 const SCENE_PATTERN = /<GensokyoScene\b[^>]*>([\s\S]*?)<\/GensokyoScene>/iu;
 const UPDATE_PATTERN = /<UpdateVariable>[\s\S]*?<\/UpdateVariable>/giu;
@@ -14,6 +16,7 @@ const EVENT_RESULT_PATTERN = /<GensokyoEventResult>[\s\S]*?<\/GensokyoEventResul
 const GARDEN_BODY_START = /[【\[]\s*庭园正文开始\s*[】\]]/gu;
 const GARDEN_BODY_END = /[【\[]\s*庭园正文结束\s*[】\]]/u;
 const ALLOWED_KINDS = new Set<GalBeatKind>(['narration', 'speech', 'action']);
+const ALLOWED_VISUAL_MODES = new Set<GalVisualMode>(['normal', 'nude', 'sexual']);
 const ALLOWED_REACTIONS = new Set<GalReaction>([
   'neutral',
   'smile',
@@ -44,13 +47,22 @@ function normalizeBeat(value: unknown, knownCharacters: Set<string>): GalBeat | 
   const speakerId = requestedSpeaker && knownCharacters.has(requestedSpeaker)
     ? requestedSpeaker
     : null;
+  const visualMode = ALLOWED_VISUAL_MODES.has(value.visual_mode as GalVisualMode)
+    ? value.visual_mode as GalVisualMode
+    : 'normal';
   const reactionId = ALLOWED_REACTIONS.has(value.reaction_id as GalReaction)
     ? value.reaction_id as GalReaction
     : 'neutral';
-  const poseId = /^[a-z0-9_-]{1,40}$/iu.test(String(value.pose_id ?? ''))
-    ? String(value.pose_id)
+  const requestedPoseId = String(value.pose_id ?? '');
+  const poseId = visualMode === 'sexual' && /^[a-z0-9_-]{1,40}$/iu.test(requestedPoseId)
+    ? requestedPoseId
     : 'default';
-  return { kind, speakerId, reactionId, poseId, text };
+  const portraitCue = normalizeGalPortraitCue(speakerId, {
+    visualMode,
+    reactionId,
+    poseId,
+  });
+  return { kind, speakerId, ...portraitCue, text };
 }
 
 function normalizeReply(value: unknown, index: number): SuggestedReply | null {
@@ -99,6 +111,7 @@ function gardenProtocolBeats(value: string, knownCharacters: Set<string>) {
     const beat = normalizeBeat({
       kind: tag === 'dialogue' ? 'speech' : 'narration',
       speaker_id: tag === 'dialogue' ? attribute(attributes, 'char') : null,
+      visual_mode: tag === 'dialogue' ? attribute(attributes, 'visual_mode') || 'normal' : 'normal',
       reaction_id: attribute(attributes, 'reaction') || 'neutral',
       pose_id: attribute(attributes, 'pose') || 'default',
       text,
@@ -192,6 +205,7 @@ function splitNarrativeChunks(cleaned: string): string[] {
 function narrativeBeats(
   text: string,
   speakerId: string | null,
+  visualMode: GalVisualMode = 'normal',
   reactionId: GalReaction = 'neutral',
   poseId = 'default',
 ): GalBeat[] {
@@ -201,6 +215,7 @@ function narrativeBeats(
   return values.map((chunk) => ({
     kind: 'narration' as const,
     speakerId,
+    visualMode,
     reactionId,
     poseId,
     text: chunk,
@@ -226,6 +241,7 @@ export function projectGalScene(
         : [{
           kind: 'narration',
           speakerId: null,
+          visualMode: 'normal',
           reactionId: 'neutral',
           poseId: 'default',
           text: '这次回复没有提供可播放的庭园正文。',
@@ -240,6 +256,7 @@ export function projectGalScene(
   let sceneBeats: GalBeat[] = [];
   let malformed = false;
   let portraitSpeaker = fallbackSpeakerId;
+  let visualMode: GalVisualMode = 'normal';
   let reactionId: GalReaction = 'neutral';
   let poseId = 'default';
 
@@ -263,6 +280,7 @@ export function projectGalScene(
       const speech = [...sceneBeats].reverse().find((beat) => beat.speakerId);
       if (speech) {
         portraitSpeaker = speech.speakerId;
+        visualMode = speech.visualMode;
         reactionId = speech.reactionId;
         poseId = speech.poseId;
       }
@@ -273,7 +291,7 @@ export function projectGalScene(
 
   // Prefer full LLM narrative body for player-facing pages. scene.v1 beats are short
   // performance hints and must not replace the readable story.
-  const bodyBeats = narrativeBeats(message.text, portraitSpeaker, reactionId, poseId);
+  const bodyBeats = narrativeBeats(message.text, portraitSpeaker, visualMode, reactionId, poseId);
   const bodyChars = beatTextLength(bodyBeats);
   const sceneChars = beatTextLength(sceneBeats);
   const preferBody = bodyChars >= 80 && bodyChars >= Math.max(sceneChars * 1.15, sceneChars + 30);

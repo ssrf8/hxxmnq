@@ -2,7 +2,7 @@ import type { BattleResult } from './types';
 import type { BattleConfig } from '../battle/battle-types';
 import { FIXED_STEP_MS, MAX_CATCH_UP_STEPS } from '../battle/battle-types';
 import { createBattleInput, type BattleInputController } from '../battle/battle-input';
-import { nullSoundBus } from '../battle/battle-sound';
+import { nullSoundBus, type BattleSoundBus } from '../battle/battle-sound';
 import { BattleSimulation } from '../battle/battle-simulation';
 import { renderBattleFrame } from '../battle/battle-renderer';
 import {
@@ -16,6 +16,8 @@ export type { BattleConfig } from '../battle/battle-types';
 export interface BattleEngineOptions {
   /** Optional transparent sheet sources (data: URL or relative path). */
   atlasSources?: BattleAtlasSources;
+  /** Application-owned bus; it may outlive one battle so outcome tails are not cut off. */
+  soundBus?: BattleSoundBus;
 }
 
 /**
@@ -43,6 +45,7 @@ export class BattleEngine {
   private slowFrameStreak = 0;
   private visibilityHandler: (() => void) | null = null;
   private readonly onFinish: (result: BattleResult) => void;
+  private readonly soundBus: BattleSoundBus;
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -54,6 +57,7 @@ export class BattleEngine {
     if (!ctx) throw new Error('Canvas 2D 不可用');
     this.ctx = ctx;
     this.onFinish = onFinish;
+    this.soundBus = options?.soundBus ?? nullSoundBus;
     // 2× supersampled backing store: the CSS box upscales the arena (~1.5×+),
     // so rendering at logic resolution reads blurry. Simulation, collision and
     // pointer coordinates all stay in config.arena units — only pixels change.
@@ -67,9 +71,7 @@ export class BattleEngine {
 
     this.sim = new BattleSimulation(config, {
       onFinish: (result) => this.emitFinish(result),
-      // Single wiring point for audio: swap nullSoundBus for a real WebAudio
-      // bus once assets exist (spec: project/r49-placeholder-asset-spec.md).
-      sfx: (id) => nullSoundBus.play(id),
+      sfx: (id) => this.soundBus.play(id),
     });
     this.input = createBattleInput(canvas, {
       autoFire: config.player.auto_fire,
@@ -99,6 +101,7 @@ export class BattleEngine {
     if (this.destroyed || this.finishedOnce) return;
     if (this.running) return;
     this.running = true;
+    void this.soundBus.unlock?.();
     this.sim.start();
     this.accumulator = 0;
     this.drawAccumulator = 0;
@@ -117,6 +120,22 @@ export class BattleEngine {
   /** Rising-edge Bomb for on-screen button. */
   requestBomb() {
     this.input.requestBomb();
+  }
+
+  /** Explicit pause control for the battle dialog and live settings. */
+  setPaused(paused: boolean) {
+    if (this.destroyed || this.finishedOnce) return this.getTouchHud().paused;
+    if (paused) this.sim.pause();
+    else this.sim.resume();
+    this.input.resetTransient();
+    this.accumulator = 0;
+    this.drawAccumulator = 0;
+    this.lastFrame = performance.now();
+    return this.getTouchHud().paused;
+  }
+
+  togglePaused() {
+    return this.setPaused(!this.getTouchHud().paused);
   }
 
   /** Lightweight HUD values for external touch labels. */

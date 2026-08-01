@@ -1,0 +1,24 @@
+{
+  "version": "battle-bgm.v1",
+  "source_policy": "https-only-public-r2-object-or-custom-domain",
+  "tracks": [
+    {
+      "id": "stage_theme",
+      "title": "道中主题",
+      "description": "适合妖精波次与副本道中的循环曲。",
+      "source_url": null
+    },
+    {
+      "id": "boss_theme",
+      "title": "符卡决战",
+      "description": "适合妖花核心与正式 Boss 战的循环曲。",
+      "source_url": null
+    },
+    {
+      "id": "duel_theme",
+      "title": "角色对战",
+      "description": "适合对战卡挑战的角色主题循环曲。",
+      "source_url": null
+    }
+  ]
+}

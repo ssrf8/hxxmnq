@@ -2,12 +2,24 @@ import battleConfigJson from '../battle/configs/greenhouse-flower-core-tutorial-
 import fairyDungeonConfig from '../battle/configs/dungeons/fairy-pattern-practice-v1.json';
 import forestDungeonConfig from '../battle/configs/dungeons/forest-magic-residue-v1.json';
 import boundaryDungeonConfig from '../battle/configs/dungeons/boundary-echo-trial-v1.json';
+import {
+  BATTLE_SFX_IDS,
+  createBattleSoundBus,
+  type BattleSfxSources,
+} from '../battle/battle-sound';
+import battleBgmCatalogJson from '../battle/battle-bgm-catalog.json';
+import {
+  createBattleBgmBus,
+  normalizeBattleBgmCatalog,
+  type BattleBgmTrackId,
+} from '../battle/battle-bgm';
 import { BattleEngine, type BattleConfig } from './battle-engine';
 import { bridge } from './bridge';
 import { LatestRefreshQueue } from './async-coordination';
 import { syncOpeningDatabase, type DatabaseSyncResult } from './database-adapter';
 import { parseGardenAction, settlementProjection } from './event-settlement';
 import { assistantForCurrentTurn } from './gal-message-selection';
+import { parseGalPortraitSources, resolveGalPortraitSource } from './gal-portrait-registry';
 import { projectGalScene } from './gal-scene';
 import { GardenMap } from './garden-map';
 import { resolveCharacterSprites } from './character-sprite-registry';
@@ -80,9 +92,14 @@ const targetActionList = byId<HTMLElement>('gg-target-actions');
 const gardenMapCanvas = byId<HTMLCanvasElement>('gg-garden-map');
 const galInput = byId<HTMLTextAreaElement>('gg-gal-input');
 const galCompose = byId<HTMLFormElement>('gg-gal-compose');
-const sceneItemSelect = byId<HTMLSelectElement>('gg-scene-item');
+const sceneItemInput = byId<HTMLInputElement>('gg-scene-item');
 const sceneItemPicker = byId<HTMLElement>('gg-scene-item-picker');
 const sceneItemHint = byId<HTMLElement>('gg-scene-item-hint');
+const sceneItemTrigger = byId<HTMLButtonElement>('gg-scene-item-trigger');
+const sceneItemSelected = byId<HTMLElement>('gg-scene-item-selected');
+const sceneItemDialog = byId<HTMLDialogElement>('gg-scene-item-dialog');
+const sceneItemDialogClose = byId<HTMLButtonElement>('gg-scene-item-dialog-close');
+const sceneItemOptions = byId<HTMLElement>('gg-scene-item-options');
 const replyPanel = byId<HTMLElement>('gg-reply-panel');
 const suggestedReplies = byId<HTMLElement>('gg-suggested-replies');
 const dialogueBox = byId<HTMLButtonElement>('gg-dialogue-box');
@@ -125,11 +142,150 @@ const battleCanvas = byId<HTMLCanvasElement>('gg-battle-canvas');
 const battleFocusBtn = byId<HTMLButtonElement>('gg-battle-focus');
 const battleBombBtn = byId<HTMLButtonElement>('gg-battle-bomb');
 const battleBombCount = byId<HTMLElement>('gg-battle-bomb-count');
+const battlePauseButton = byId<HTMLButtonElement>('gg-battle-pause');
+const battleAudioSettingsButton = byId<HTMLButtonElement>('gg-battle-audio-settings');
+const battleAudioDialog = byId<HTMLDialogElement>('gg-battle-audio-dialog');
+const battleAudioClose = byId<HTMLButtonElement>('gg-battle-audio-close');
+const battleAudioDone = byId<HTMLButtonElement>('gg-battle-audio-done');
+const battleSettingsSfxEnabled = byId<HTMLInputElement>('gg-battle-settings-sfx-enabled');
+const battleSettingsSfxVolume = byId<HTMLInputElement>('gg-battle-settings-sfx-volume');
+const battleSettingsSfxOutput = byId<HTMLOutputElement>('gg-battle-settings-sfx-output');
+const battleSettingsBgmTrack = byId<HTMLSelectElement>('gg-battle-settings-bgm-track');
+const battleSettingsBgmVolume = byId<HTMLInputElement>('gg-battle-settings-bgm-volume');
+const battleSettingsBgmOutput = byId<HTMLOutputElement>('gg-battle-settings-bgm-output');
+const battleBgmStatus = byId<HTMLElement>('gg-battle-bgm-status');
+const battleSoundEnabledInput = byId<HTMLInputElement>('gg-battle-sound-enabled');
+const battleSoundVolumeInput = byId<HTMLInputElement>('gg-battle-sound-volume');
+const battleSoundVolumeOutput = byId<HTMLOutputElement>('gg-battle-sound-volume-output');
+const battleSoundTest = byId<HTMLButtonElement>('gg-battle-sound-test');
 const dungeonButtonImage = byId<HTMLImageElement>('gg-dungeon-button-image');
 const shopButtonImage = byId<HTMLImageElement>('gg-shop-button-image');
 const inventoryButtonImage = byId<HTMLImageElement>('gg-inventory-button-image');
 const shopBackgroundImage = byId<HTMLImageElement>('gg-shop-background');
 const assetBase = document.documentElement.dataset.assetBase ?? '../assets';
+const battleSfxSources: BattleSfxSources = (() => {
+  let embeddedSources: unknown = {};
+  try {
+    embeddedSources = JSON.parse(document.documentElement.dataset.battleSfxSources ?? '{}');
+  } catch {
+    embeddedSources = {};
+  }
+  const record = embeddedSources && typeof embeddedSources === 'object'
+    ? embeddedSources as Record<string, unknown>
+    : {};
+  return Object.fromEntries(BATTLE_SFX_IDS.map((id) => [
+    id,
+    typeof record[id] === 'string'
+      ? record[id]
+      : `${assetBase}/audio/runtime/battle/${id}.wav`,
+  ])) as BattleSfxSources;
+})();
+const battleSoundEnabledStorageKey = 'gensokyo-garden:battle-sfx-enabled';
+const battleSoundVolumeStorageKey = 'gensokyo-garden:battle-sfx-volume';
+const battleBgmVolumeStorageKey = 'gensokyo-garden:battle-bgm-volume';
+const battleBgmTrackStorageKey = 'gensokyo-garden:battle-bgm-track';
+const battleBgmCatalog = normalizeBattleBgmCatalog(battleBgmCatalogJson);
+let battleSoundEnabled = true;
+let battleSoundVolume = 0.6;
+let battleBgmVolume = 0.45;
+let battleBgmTrackId: BattleBgmTrackId = 'stage_theme';
+try {
+  battleSoundEnabled = localStorage.getItem(battleSoundEnabledStorageKey) !== '0';
+  const savedVolumeRaw = localStorage.getItem(battleSoundVolumeStorageKey);
+  const savedVolume = savedVolumeRaw == null ? NaN : Number(savedVolumeRaw);
+  if (Number.isFinite(savedVolume) && savedVolume >= 0 && savedVolume <= 1) battleSoundVolume = savedVolume;
+  const savedBgmVolumeRaw = localStorage.getItem(battleBgmVolumeStorageKey);
+  const savedBgmVolume = savedBgmVolumeRaw == null ? NaN : Number(savedBgmVolumeRaw);
+  if (Number.isFinite(savedBgmVolume) && savedBgmVolume >= 0 && savedBgmVolume <= 1) {
+    battleBgmVolume = savedBgmVolume;
+  }
+  const savedTrack = localStorage.getItem(battleBgmTrackStorageKey);
+  const matchedTrack = battleBgmCatalog.find((track) => track.id === savedTrack);
+  if (matchedTrack) battleBgmTrackId = matchedTrack.id;
+} catch { /* Fall back to enabled SFX, 60% SFX and 45% BGM. */ }
+const battleSoundBus = createBattleSoundBus(battleSfxSources, {
+  muted: !battleSoundEnabled,
+  volume: battleSoundVolume,
+});
+const battleBgmBus = createBattleBgmBus(battleBgmCatalog, {
+  trackId: battleBgmTrackId,
+  volume: battleBgmVolume,
+});
+function syncBattleSoundControls() {
+  const volumePercent = Math.round(battleSoundVolume * 100);
+  battleSoundEnabledInput.checked = battleSoundEnabled;
+  battleSoundVolumeInput.value = String(volumePercent);
+  battleSoundVolumeInput.disabled = !battleSoundEnabled;
+  battleSoundVolumeOutput.value = `${volumePercent}%`;
+  battleSettingsSfxEnabled.checked = battleSoundEnabled;
+  battleSettingsSfxVolume.value = String(volumePercent);
+  battleSettingsSfxVolume.disabled = !battleSoundEnabled;
+  battleSettingsSfxOutput.value = `${volumePercent}%`;
+}
+function syncBattleBgmControls() {
+  if (battleSettingsBgmTrack.options.length !== battleBgmCatalog.length) {
+    const options = battleBgmCatalog.map((track) => {
+      const option = document.createElement('option');
+      option.value = track.id;
+      option.textContent = track.sourceUrl ? track.title : `${track.title} · 待接入`;
+      return option;
+    });
+    battleSettingsBgmTrack.replaceChildren(...options);
+  }
+  battleSettingsBgmTrack.value = battleBgmTrackId;
+  const volumePercent = Math.round(battleBgmVolume * 100);
+  battleSettingsBgmVolume.value = String(volumePercent);
+  battleSettingsBgmOutput.value = `${volumePercent}%`;
+  const selected = battleBgmCatalog.find((track) => track.id === battleBgmTrackId);
+  battleBgmStatus.dataset.available = String(Boolean(selected?.sourceUrl));
+  battleBgmStatus.textContent = selected?.sourceUrl
+    ? `${selected.title} · 已配置远程音源，战斗继续后播放。`
+    : `${selected?.title ?? '当前曲目'}仍是模板槽位；填入公开 R2 HTTPS 地址后即可循环播放。`;
+}
+function persistBattleSoundPreferences() {
+  try {
+    localStorage.setItem(battleSoundEnabledStorageKey, battleSoundEnabled ? '1' : '0');
+    localStorage.setItem(battleSoundVolumeStorageKey, battleSoundVolume.toFixed(2));
+  } catch { /* Preference remains active for this page. */ }
+}
+function setBattleSoundEnabled(enabled: boolean, preview = false) {
+  battleSoundEnabled = enabled;
+  battleSoundBus.setMuted?.(!enabled);
+  persistBattleSoundPreferences();
+  syncBattleSoundControls();
+  if (enabled) {
+    void battleSoundBus.unlock?.();
+    if (preview) battleSoundBus.play('item_pickup');
+  }
+}
+function setBattleSoundVolume(volume: number) {
+  battleSoundVolume = Math.max(0, Math.min(1, Number.isFinite(volume) ? volume : 0.6));
+  battleSoundBus.setVolume?.(battleSoundVolume);
+  persistBattleSoundPreferences();
+  syncBattleSoundControls();
+}
+function persistBattleBgmPreferences() {
+  try {
+    localStorage.setItem(battleBgmVolumeStorageKey, battleBgmVolume.toFixed(2));
+    localStorage.setItem(battleBgmTrackStorageKey, battleBgmTrackId);
+  } catch { /* Preference remains active for this page. */ }
+}
+function setBattleBgmVolume(volume: number) {
+  battleBgmVolume = Math.max(0, Math.min(1, Number.isFinite(volume) ? volume : 0.45));
+  battleBgmBus.setVolume(battleBgmVolume);
+  persistBattleBgmPreferences();
+  syncBattleBgmControls();
+}
+function setBattleBgmTrack(trackId: string) {
+  const track = battleBgmCatalog.find((candidate) => candidate.id === trackId);
+  if (!track) return;
+  battleBgmTrackId = track.id;
+  battleBgmBus.setTrack(track.id);
+  persistBattleBgmPreferences();
+  syncBattleBgmControls();
+}
+syncBattleSoundControls();
+syncBattleBgmControls();
 type TargetActionVisualKind = 'talk' | 'leave' | 'pat-head' | 'quest';
 const targetActionSymbols: Record<TargetActionVisualKind, string> = {
   talk: '···',
@@ -146,6 +302,8 @@ inventoryButtonImage.src = document.documentElement.dataset.inventoryButtonSrc
 shopBackgroundImage.src = document.documentElement.dataset.shopBackgroundSrc
   || `${assetBase}/ui/reimu-shop-ui-background-v1.png`;
 const mapSource = document.documentElement.dataset.mapSrc || `${assetBase}/maps/garden-base-spring-v1.png`;
+const navigationMaskSource = document.documentElement.dataset.mapNoWalkMaskSrc
+  || `${assetBase}/maps/garden-no-walk-mask-v1.svg`;
 const mapFacilitySprites = (() => {
   try {
     return JSON.parse(document.documentElement.dataset.mapFacilitySprites ?? '{}');
@@ -249,6 +407,9 @@ const reimuSpriteSource = characterSprites.reimu.idleSource;
 const reimuPortraitSource = document.documentElement.dataset.reimuPortraitSrc || reimuSpriteSource;
 const marisaSpriteSource = characterSprites.marisa.idleSource;
 const marisaPortraitSource = document.documentElement.dataset.marisaPortraitSrc || marisaSpriteSource;
+const galPortraitSources = parseGalPortraitSources(
+  document.documentElement.dataset.galPortraitSources,
+);
 const mainHouseSource = document.documentElement.dataset.mainHouseSrc
   || `${assetBase}/world/house/main-house-states-v1.png`;
 const greenhouseSource = document.documentElement.dataset.greenhouseSrc
@@ -273,6 +434,62 @@ const battleBossSuikaSheetSource = document.documentElement.dataset.battleBossSu
   || `${assetBase}/battle/boss/suika-battle-sheet-v1.png`;
 const battleBossSakuyaSheetSource = document.documentElement.dataset.battleBossSakuyaSrc
   || `${assetBase}/battle/boss/sakuya-battle-sheet-v1.png`;
+const battlePortraitReimuS0Source = document.documentElement.dataset.battlePortraitReimuS0Src
+  || `${assetBase}/battle/portraits/portrait-reimu-s0-v1.png`;
+const battlePortraitReimuS1Source = document.documentElement.dataset.battlePortraitReimuS1Src
+  || `${assetBase}/battle/portraits/portrait-reimu-s1-v1.png`;
+const battlePortraitReimuS2Source = document.documentElement.dataset.battlePortraitReimuS2Src
+  || `${assetBase}/battle/portraits/portrait-reimu-s2-v1.png`;
+const battlePortraitMarisaS0Source = document.documentElement.dataset.battlePortraitMarisaS0Src
+  || `${assetBase}/battle/portraits/portrait-marisa-s0-v1.png`;
+const battlePortraitMarisaS1Source = document.documentElement.dataset.battlePortraitMarisaS1Src
+  || `${assetBase}/battle/portraits/portrait-marisa-s1-v1.png`;
+const battlePortraitMarisaS2Source = document.documentElement.dataset.battlePortraitMarisaS2Src
+  || `${assetBase}/battle/portraits/portrait-marisa-s2-v1.png`;
+const battlePortraitAliceS0Source = document.documentElement.dataset.battlePortraitAliceS0Src
+  || `${assetBase}/battle/portraits/portrait-alice-s0-v1.png`;
+const battlePortraitAliceS1Source = document.documentElement.dataset.battlePortraitAliceS1Src
+  || `${assetBase}/battle/portraits/portrait-alice-s1-v1.png`;
+const battlePortraitAliceS2Source = document.documentElement.dataset.battlePortraitAliceS2Src
+  || `${assetBase}/battle/portraits/portrait-alice-s2-v1.png`;
+const battlePortraitCirnoS0Source = document.documentElement.dataset.battlePortraitCirnoS0Src
+  || `${assetBase}/battle/portraits/portrait-cirno-s0-v1.png`;
+const battlePortraitCirnoS1Source = document.documentElement.dataset.battlePortraitCirnoS1Src
+  || `${assetBase}/battle/portraits/portrait-cirno-s1-v1.png`;
+const battlePortraitCirnoS2Source = document.documentElement.dataset.battlePortraitCirnoS2Src
+  || `${assetBase}/battle/portraits/portrait-cirno-s2-v1.png`;
+const battlePortraitMystiaS0Source = document.documentElement.dataset.battlePortraitMystiaS0Src
+  || `${assetBase}/battle/portraits/portrait-mystia-s0-v1.png`;
+const battlePortraitMystiaS1Source = document.documentElement.dataset.battlePortraitMystiaS1Src
+  || `${assetBase}/battle/portraits/portrait-mystia-s1-v1.png`;
+const battlePortraitMystiaS2Source = document.documentElement.dataset.battlePortraitMystiaS2Src
+  || `${assetBase}/battle/portraits/portrait-mystia-s2-v1.png`;
+const battlePortraitNitoriS0Source = document.documentElement.dataset.battlePortraitNitoriS0Src
+  || `${assetBase}/battle/portraits/portrait-nitori-s0-v1.png`;
+const battlePortraitNitoriS1Source = document.documentElement.dataset.battlePortraitNitoriS1Src
+  || `${assetBase}/battle/portraits/portrait-nitori-s1-v1.png`;
+const battlePortraitNitoriS2Source = document.documentElement.dataset.battlePortraitNitoriS2Src
+  || `${assetBase}/battle/portraits/portrait-nitori-s2-v1.png`;
+const battlePortraitSuikaS0Source = document.documentElement.dataset.battlePortraitSuikaS0Src
+  || `${assetBase}/battle/portraits/portrait-suika-s0-v1.png`;
+const battlePortraitSuikaS1Source = document.documentElement.dataset.battlePortraitSuikaS1Src
+  || `${assetBase}/battle/portraits/portrait-suika-s1-v1.png`;
+const battlePortraitSuikaS2Source = document.documentElement.dataset.battlePortraitSuikaS2Src
+  || `${assetBase}/battle/portraits/portrait-suika-s2-v1.png`;
+const battlePortraitSakuyaS0Source = document.documentElement.dataset.battlePortraitSakuyaS0Src
+  || `${assetBase}/battle/portraits/portrait-sakuya-s0-v1.png`;
+const battlePortraitSakuyaS1Source = document.documentElement.dataset.battlePortraitSakuyaS1Src
+  || `${assetBase}/battle/portraits/portrait-sakuya-s1-v1.png`;
+const battlePortraitSakuyaS2Source = document.documentElement.dataset.battlePortraitSakuyaS2Src
+  || `${assetBase}/battle/portraits/portrait-sakuya-s2-v1.png`;
+const battlePortraitFlowerCoreS0Source = document.documentElement.dataset.battlePortraitFlowerCoreS0Src
+  || `${assetBase}/battle/portraits/portrait-flower-core-s0-v1.png`;
+const battlePortraitFlowerCoreS1Source = document.documentElement.dataset.battlePortraitFlowerCoreS1Src
+  || `${assetBase}/battle/portraits/portrait-flower-core-s1-v1.png`;
+const battlePortraitFlowerCoreS2Source = document.documentElement.dataset.battlePortraitFlowerCoreS2Src
+  || `${assetBase}/battle/portraits/portrait-flower-core-s2-v1.png`;
+const battleFairySheetSource = document.documentElement.dataset.battleFairySrc
+  || `${assetBase}/battle/effects/fairy-sheet-v1.png`;
 const battleEffectsSheetSource = document.documentElement.dataset.battleEffectsSrc
   || `${assetBase}/battle/effects/battle-effects-sheet-v1.png`;
 const battleBulletsLocalSheetSource = document.documentElement.dataset.battleBulletsLocalSrc
@@ -288,6 +505,34 @@ const battleAtlasSources = {
   boss_mystia: battleBossMystiaSheetSource,
   boss_suika: battleBossSuikaSheetSource,
   boss_sakuya: battleBossSakuyaSheetSource,
+  portrait_reimu_s0: battlePortraitReimuS0Source,
+  portrait_reimu_s1: battlePortraitReimuS1Source,
+  portrait_reimu_s2: battlePortraitReimuS2Source,
+  portrait_marisa_s0: battlePortraitMarisaS0Source,
+  portrait_marisa_s1: battlePortraitMarisaS1Source,
+  portrait_marisa_s2: battlePortraitMarisaS2Source,
+  portrait_alice_s0: battlePortraitAliceS0Source,
+  portrait_alice_s1: battlePortraitAliceS1Source,
+  portrait_alice_s2: battlePortraitAliceS2Source,
+  portrait_cirno_s0: battlePortraitCirnoS0Source,
+  portrait_cirno_s1: battlePortraitCirnoS1Source,
+  portrait_cirno_s2: battlePortraitCirnoS2Source,
+  portrait_mystia_s0: battlePortraitMystiaS0Source,
+  portrait_mystia_s1: battlePortraitMystiaS1Source,
+  portrait_mystia_s2: battlePortraitMystiaS2Source,
+  portrait_nitori_s0: battlePortraitNitoriS0Source,
+  portrait_nitori_s1: battlePortraitNitoriS1Source,
+  portrait_nitori_s2: battlePortraitNitoriS2Source,
+  portrait_suika_s0: battlePortraitSuikaS0Source,
+  portrait_suika_s1: battlePortraitSuikaS1Source,
+  portrait_suika_s2: battlePortraitSuikaS2Source,
+  portrait_sakuya_s0: battlePortraitSakuyaS0Source,
+  portrait_sakuya_s1: battlePortraitSakuyaS1Source,
+  portrait_sakuya_s2: battlePortraitSakuyaS2Source,
+  portrait_flower_core_s0: battlePortraitFlowerCoreS0Source,
+  portrait_flower_core_s1: battlePortraitFlowerCoreS1Source,
+  portrait_flower_core_s2: battlePortraitFlowerCoreS2Source,
+  fairies: battleFairySheetSource,
   effects: battleEffectsSheetSource,
   bullets_local: battleBulletsLocalSheetSource,
 };
@@ -312,6 +557,7 @@ let bootRestoredSession = false;
 let pendingBattleResult: BattleResult | null = null;
 let activeBattleKind: 'flower_core' | 'dungeon' | 'practice' | 'duel' = 'flower_core';
 let activeDuelUseId = '';
+let activeDuelConversationTarget: InteractionTarget | null = null;
 let activeSceneId = '';
 let submissionInFlight = false;
 let automaticTaskInFlight = false;
@@ -636,10 +882,18 @@ function renderSceneBeat() {
       ? '点击返回庭园'
       : `${beatIndex + 1}/${scene.beats.length}`;
   portraitStage.dataset.reaction = beat.reactionId;
-  portrait.src = beat.speakerId === 'marisa' || activeTarget?.id === 'marisa'
+  portraitStage.dataset.visualMode = beat.visualMode;
+  const portraitCharacterId = beat.speakerId ?? activeTarget?.id ?? null;
+  const galPortraitSource = resolveGalPortraitSource(galPortraitSources, portraitCharacterId, {
+    visualMode: beat.visualMode,
+    reactionId: beat.reactionId,
+    poseId: beat.poseId,
+  });
+  portraitStage.dataset.portraitKind = galPortraitSource ? 'gal' : 'sprite';
+  portrait.src = galPortraitSource ?? (portraitCharacterId === 'marisa'
     ? marisaPortraitSource
-    : reimuPortraitSource;
-  portrait.alt = `${speaker}近景占位图`;
+    : reimuPortraitSource);
+  portrait.alt = `${speaker}${galPortraitSource ? '立绘' : '近景占位图'}`;
   replyPanel.hidden = !atEnd || singleShotEventPresentation;
   galCompose.hidden = singleShotEventPresentation;
   dialogueBox.disabled = atEnd && !singleShotEventPresentation;
@@ -683,7 +937,9 @@ function setGenerating(active: boolean, label = '对方正在回应……', stop
   byId<HTMLButtonElement>('gg-regenerate').disabled = active;
   byId<HTMLButtonElement>('gg-send').disabled = active || closurePresented;
   galInput.disabled = active || closurePresented;
-  sceneItemSelect.disabled = active || singleShotEventPresentation || closurePending;
+  sceneItemInput.disabled = active || singleShotEventPresentation || closurePending;
+  sceneItemTrigger.disabled = sceneItemInput.disabled;
+  if (sceneItemInput.disabled && sceneItemDialog.open) sceneItemDialog.close();
   updateSceneItemPickerState();
   suggestedReplies.querySelectorAll<HTMLButtonElement>('button').forEach((button) => {
     button.disabled = active;
@@ -1111,7 +1367,7 @@ async function submitGalMessage(
     return false;
   }
   const original = galInput.value;
-  const selectedItemId = kind === 'interaction' ? sceneItemSelect.value : '';
+  const selectedItemId = kind === 'interaction' ? sceneItemInput.value : '';
   const itemUseId = selectedItemId ? `scene-item:${selectedItemId}:${Date.now().toString(36)}` : '';
   submissionInFlight = true;
   setGenerating(true);
@@ -1129,7 +1385,7 @@ async function submitGalMessage(
         sceneId,
         targetCharacterId: activeTarget?.type === 'character' ? activeTarget.id : undefined,
       });
-      sceneItemSelect.value = '';
+      sceneItemInput.value = '';
       updateSceneItemPickerState();
     }
     if (kind === 'interaction'
@@ -1257,37 +1513,138 @@ function refresh() {
 }
 
 function renderSceneItemPicker() {
-  const selected = sceneItemSelect.value;
-  const options = [new Option('不使用道具', '')];
-  for (const item of listInventoryCatalog()) {
-    if (item.use_mode !== 'scene_chat' || item.item_id === 'emergency_repair_kit') continue;
-    const count = consumableCount(state, item.item_id);
-    if (count < 1) continue;
-    options.push(new Option(`${item.title} ×${count}`, item.item_id));
+  const pickerDisabled = Boolean(
+    app.dataset.transactionBusy === 'true'
+    || submissionInFlight
+    || singleShotEventPresentation
+    || closurePending
+  );
+  const available = listInventoryCatalog()
+    .filter((item) => item.use_mode === 'scene_chat' && item.item_id !== 'emergency_repair_kit')
+    .map((item) => ({ item, count: consumableCount(state, item.item_id) }))
+    .filter(({ count }) => count > 0);
+  if (sceneItemInput.value && !available.some(({ item }) => item.item_id === sceneItemInput.value)) {
+    sceneItemInput.value = '';
   }
-  sceneItemSelect.replaceChildren(...options);
-  if (options.some((option) => option.value === selected)) sceneItemSelect.value = selected;
-  sceneItemSelect.disabled = Boolean(singleShotEventPresentation || closurePending);
+  const noItemButton = document.createElement('button');
+  noItemButton.type = 'button';
+  noItemButton.className = 'gg-scene-item-option';
+  noItemButton.dataset.selected = String(!sceneItemInput.value);
+  noItemButton.setAttribute('aria-pressed', String(!sceneItemInput.value));
+  const noItemMark = document.createElement('span');
+  noItemMark.className = 'gg-scene-item-option-mark';
+  noItemMark.textContent = '空';
+  const noItemCopy = document.createElement('span');
+  noItemCopy.className = 'gg-scene-item-option-copy';
+  const noItemTitle = document.createElement('strong');
+  noItemTitle.textContent = '不使用道具';
+  const noItemDescription = document.createElement('small');
+  noItemDescription.textContent = '保留库存，直接发送本轮回应。';
+  noItemCopy.append(noItemTitle, noItemDescription);
+  noItemButton.append(noItemMark, noItemCopy);
+  noItemButton.addEventListener('click', () => selectSceneItem(''));
+
+  const itemButtons = available.map(({ item, count }) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'gg-scene-item-option';
+    button.dataset.itemId = item.item_id;
+    button.dataset.selected = String(sceneItemInput.value === item.item_id);
+    button.setAttribute('aria-pressed', String(sceneItemInput.value === item.item_id));
+    const mark = document.createElement('span');
+    mark.className = 'gg-scene-item-option-mark';
+    mark.textContent = String(count);
+    const copy = document.createElement('span');
+    copy.className = 'gg-scene-item-option-copy';
+    const title = document.createElement('strong');
+    title.textContent = item.title;
+    const description = document.createElement('small');
+    description.textContent = item.prompt_description;
+    copy.append(title, description);
+    const stock = document.createElement('span');
+    stock.className = 'gg-scene-item-option-stock';
+    stock.textContent = `持有 ×${count}`;
+    button.append(mark, copy, stock);
+    button.addEventListener('click', () => selectSceneItem(item.item_id));
+    return button;
+  });
+  const target = activeTarget?.type === 'character' ? activeTarget : null;
+  const duelItem = listInventoryCatalog().find((item) => item.item_id === 'spell_duel_card');
+  const duelCount = consumableCount(state, 'spell_duel_card');
+  if (target && duelItem && duelCount > 0) {
+    const blocked = duelCardBlock(state, target.id);
+    const difficulty = duelDifficultyCopy(state.inventory?.card_runtime?.duel?.zako_tag_count ?? 0);
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'gg-scene-item-option';
+    button.dataset.itemId = duelItem.item_id;
+    button.dataset.action = 'dialogue-duel';
+    button.dataset.selected = 'false';
+    button.setAttribute('aria-pressed', 'false');
+    button.disabled = pickerDisabled || Boolean(blocked);
+    button.title = blocked;
+    const mark = document.createElement('span');
+    mark.className = 'gg-scene-item-option-mark';
+    mark.textContent = '斗';
+    const copy = document.createElement('span');
+    copy.className = 'gg-scene-item-option-copy';
+    const title = document.createElement('strong');
+    title.textContent = `${duelItem.title} · 挑战${target.label}`;
+    const description = document.createElement('small');
+    description.textContent = blocked
+      ? `当前不可使用：${blocked}`
+      : `直接发起${difficulty.label}难度对战；不随消息发送，有效结算后才消费。`;
+    copy.append(title, description);
+    const stock = document.createElement('span');
+    stock.className = 'gg-scene-item-option-stock';
+    stock.textContent = `持有 ×${duelCount}`;
+    button.append(mark, copy, stock);
+    button.addEventListener('click', () => {
+      if (sceneItemDialog.open) sceneItemDialog.close();
+      void beginDialogueDuel();
+    });
+    itemButtons.push(button);
+  }
+  sceneItemOptions.replaceChildren(noItemButton, ...itemButtons);
+  sceneItemInput.disabled = pickerDisabled;
+  sceneItemTrigger.disabled = sceneItemInput.disabled;
+  if (sceneItemInput.disabled && sceneItemDialog.open) sceneItemDialog.close();
   updateSceneItemPickerState();
 }
 
+function selectSceneItem(itemId: string) {
+  sceneItemInput.value = itemId;
+  updateSceneItemPickerState();
+  if (sceneItemDialog.open) sceneItemDialog.close();
+}
+
 function updateSceneItemPickerState() {
-  const selected = sceneItemSelect.value;
+  const selected = sceneItemInput.value;
   sceneItemPicker.dataset.hasSelection = String(Boolean(selected));
-  sceneItemPicker.dataset.disabled = String(sceneItemSelect.disabled);
-  if (sceneItemSelect.disabled) {
+  sceneItemPicker.dataset.disabled = String(sceneItemInput.disabled);
+  const selectedItem = selected
+    ? listInventoryCatalog().find((item) => item.item_id === selected)
+    : undefined;
+  const count = selectedItem ? consumableCount(state, selectedItem.item_id) : 0;
+  sceneItemSelected.textContent = selectedItem ? `${selectedItem.title} ×${count}` : '不使用道具';
+  sceneItemOptions.querySelectorAll<HTMLButtonElement>('.gg-scene-item-option').forEach((button) => {
+    const active = (button.dataset.itemId ?? '') === selected;
+    button.dataset.selected = String(active);
+    button.setAttribute('aria-pressed', String(active));
+  });
+  if (sceneItemInput.disabled) {
     sceneItemHint.textContent = '当前剧情阶段不可追加道具';
     return;
   }
-  const label = sceneItemSelect.selectedOptions[0]?.textContent?.trim();
-  sceneItemHint.textContent = selected && label
-    ? `已装备：${label} · 发送时消耗 1 个`
+  sceneItemHint.textContent = selectedItem
+    ? `已装备：${selectedItem.title} ×${count} · 发送时消耗 1 个`
     : '未选择道具 · 不会消耗库存';
 }
 
 const gardenMap = new GardenMap(
   gardenMapCanvas,
   mapSource,
+  navigationMaskSource,
   characterSprites,
   mapFacilitySprites,
   (target, anchor) => renderTargetMenu(
@@ -1369,9 +1726,10 @@ document.addEventListener('fullscreenchange', () => {
       const rect = openingRoot.getBoundingClientRect();
       cursorGlow.style.transform =
         `translate(${Math.round(event.clientX - rect.left - 220)}px, ${Math.round(event.clientY - rect.top - 220)}px)`;
+      cursorGlow.style.opacity = '1';
     });
     openingRoot.addEventListener('pointerleave', () => {
-      cursorGlow.style.transform = 'translate(-999px, -999px)';
+      cursorGlow.style.opacity = '0';
     });
   }
 }
@@ -1415,6 +1773,51 @@ sessionHistoryDialog.addEventListener('click', (event) => {
 });
 byId('gg-open-settings').addEventListener('click', () => navigateFromLauncher(openSettings));
 byId('gg-settings-back').addEventListener('click', returnFromSettings);
+battleSoundEnabledInput.addEventListener('change', () => {
+  setBattleSoundEnabled(battleSoundEnabledInput.checked, battleSoundEnabledInput.checked);
+});
+battleSoundVolumeInput.addEventListener('input', () => {
+  setBattleSoundVolume(Number(battleSoundVolumeInput.value) / 100);
+});
+battleSoundTest.addEventListener('click', () => {
+  if (!battleSoundEnabled) setBattleSoundEnabled(true);
+  void battleSoundBus.unlock?.();
+  battleSoundBus.play('spell_declare');
+});
+battleSettingsSfxEnabled.addEventListener('change', () => {
+  setBattleSoundEnabled(battleSettingsSfxEnabled.checked, battleSettingsSfxEnabled.checked);
+});
+battleSettingsSfxVolume.addEventListener('input', () => {
+  setBattleSoundVolume(Number(battleSettingsSfxVolume.value) / 100);
+});
+battleSettingsBgmVolume.addEventListener('input', () => {
+  setBattleBgmVolume(Number(battleSettingsBgmVolume.value) / 100);
+});
+battleSettingsBgmTrack.addEventListener('change', () => {
+  setBattleBgmTrack(battleSettingsBgmTrack.value);
+});
+battlePauseButton.addEventListener('click', () => {
+  if (!battle) return;
+  const paused = battle.togglePaused();
+  syncBattleTouchHud();
+  if (!paused) battleCanvas.focus({ preventScroll: true });
+});
+battleAudioSettingsButton.addEventListener('click', openBattleAudioSettings);
+battleAudioClose.addEventListener('click', closeBattleAudioSettings);
+battleAudioDone.addEventListener('click', closeBattleAudioSettings);
+battleAudioDialog.addEventListener('cancel', (event) => {
+  event.preventDefault();
+  closeBattleAudioSettings();
+});
+battleAudioDialog.addEventListener('keydown', (event) => {
+  if (event.key !== 'Escape') return;
+  event.preventDefault();
+  event.stopPropagation();
+  closeBattleAudioSettings();
+});
+battleAudioDialog.addEventListener('click', (event) => {
+  if (event.target === battleAudioDialog) closeBattleAudioSettings();
+});
 byId('gg-show-native').addEventListener('click', async () => {
   const restored = await bridge.showNativeChat();
   setStatus(restored ? '已显示原生聊天；使用“返回移动庭园”可回到游戏。' : '离线预览没有原生聊天');
@@ -1465,7 +1868,24 @@ document.querySelectorAll<HTMLButtonElement>('[data-test-jump]').forEach((button
     void runTestJump(jump);
   });
 });
-sceneItemSelect.addEventListener('change', updateSceneItemPickerState);
+sceneItemTrigger.addEventListener('click', () => {
+  if (sceneItemTrigger.disabled) return;
+  renderSceneItemPicker();
+  sceneItemDialog.showModal();
+  sceneItemTrigger.setAttribute('aria-expanded', 'true');
+  queueMicrotask(() => {
+    (sceneItemOptions.querySelector<HTMLButtonElement>('[data-selected="true"]')
+      ?? sceneItemOptions.querySelector<HTMLButtonElement>('button'))?.focus();
+  });
+});
+sceneItemDialogClose.addEventListener('click', () => sceneItemDialog.close());
+sceneItemDialog.addEventListener('click', (event) => {
+  if (event.target === sceneItemDialog) sceneItemDialog.close();
+});
+sceneItemDialog.addEventListener('close', () => {
+  sceneItemTrigger.setAttribute('aria-expanded', 'false');
+  sceneItemTrigger.focus({ preventScroll: true });
+});
 
 function setBattleStatus(text: string, error = false) {
   const element = byId('gg-battle-status');
@@ -1474,10 +1894,17 @@ function setBattleStatus(text: string, error = false) {
 }
 
 let battleHudTimer = 0;
+let battleAudioSettingsWasPaused = false;
 
 function clearBattleTouchState() {
   battle?.setFocusHeld(false);
+  battleBgmBus.stop();
   battleFocusBtn.setAttribute('aria-pressed', 'false');
+  battlePauseButton.disabled = true;
+  battleAudioSettingsButton.disabled = true;
+  battlePauseButton.setAttribute('aria-pressed', 'false');
+  battlePauseButton.textContent = '暂停';
+  battleDialog.dataset.paused = 'false';
   if (battleHudTimer) {
     window.clearInterval(battleHudTimer);
     battleHudTimer = 0;
@@ -1491,6 +1918,35 @@ function syncBattleTouchHud() {
   battleBombBtn.disabled = hud.finished || hud.bombs <= 0;
   battleFocusBtn.disabled = hud.finished;
   battleFocusBtn.setAttribute('aria-pressed', hud.focused ? 'true' : 'false');
+  battlePauseButton.disabled = hud.finished;
+  battleAudioSettingsButton.disabled = hud.finished;
+  battlePauseButton.setAttribute('aria-pressed', String(hud.paused));
+  battlePauseButton.textContent = hud.paused ? '继续' : '暂停';
+  battleDialog.dataset.paused = String(hud.paused);
+  if (hud.paused || hud.finished) battleBgmBus.pause();
+  else if (battleBgmBus.getState().available) void battleBgmBus.play();
+}
+
+function openBattleAudioSettings() {
+  if (!battle || battle.getTouchHud().finished || battleAudioDialog.open) return;
+  battleAudioSettingsWasPaused = battle.getTouchHud().paused;
+  battle.setPaused(true);
+  syncBattleTouchHud();
+  syncBattleSoundControls();
+  syncBattleBgmControls();
+  battleAudioDialog.showModal();
+  queueMicrotask(() => battleSettingsSfxEnabled.focus({ preventScroll: true }));
+}
+
+function closeBattleAudioSettings() {
+  if (!battleAudioDialog.open) return;
+  battleAudioDialog.close();
+  if (battle && !battleAudioSettingsWasPaused && !battle.getTouchHud().finished) {
+    battle.setPaused(false);
+  }
+  syncBattleTouchHud();
+  if (battle) battleCanvas.focus({ preventScroll: true });
+  else battleAudioSettingsButton.focus({ preventScroll: true });
 }
 
 function bindBattleSession() {
@@ -1507,6 +1963,10 @@ function bindBattleSession() {
 }
 
 function destroyBattleSession() {
+  if (battleAudioDialog.open) {
+    battleAudioSettingsWasPaused = true;
+    battleAudioDialog.close();
+  }
   clearBattleTouchState();
   battle?.destroy();
   battle = undefined;
@@ -1534,6 +1994,13 @@ async function settleBattleResult(result: BattleResult) {
       if (settled.won) {
         openDuelVictoryDialog();
         setStatus('符卡对战胜利。请提出一项对方必须答应的要求。', false, 'success');
+        activeDuelConversationTarget = null;
+      } else if (activeDuelConversationTarget) {
+        activeTarget = activeDuelConversationTarget;
+        activeDuelConversationTarget = null;
+        setView('gal');
+        await renderGal();
+        setStatus(`${settled.message} 已返回与${activeTarget.label}的对话。`);
       } else {
         setView('inventory');
         renderInventory();
@@ -1696,7 +2163,7 @@ function startDungeonBattle(title: string, config: BattleConfig, kind: 'dungeon'
     battleCanvas,
     config,
     async (result) => { await settleBattleResult(result); },
-    { atlasSources: battleAtlasSources },
+    { atlasSources: battleAtlasSources, soundBus: battleSoundBus },
   );
   battle.start();
   bindBattleSession();
@@ -1725,16 +2192,21 @@ function launchDuelBattle(title: string, config: BattleConfig, useId: string) {
     battleCanvas,
     config,
     async (result) => { await settleBattleResult(result); },
-    { atlasSources: battleAtlasSources },
+    { atlasSources: battleAtlasSources, soundBus: battleSoundBus },
   );
   battle.start();
   bindBattleSession();
 }
 
-async function beginDuelAgainst(characterId: string, useId = `duel:${characterId}:${Date.now().toString(36)}`) {
+async function beginDuelAgainst(
+  characterId: string,
+  useId = `duel:${characterId}:${Date.now().toString(36)}`,
+  conversationTarget: InteractionTarget | null = null,
+) {
   try {
     const started = await bridge.beginDuelCard(characterId, useId);
     const profile = getDuelProfile(characterId);
+    activeDuelConversationTarget = conversationTarget;
     launchDuelBattle(
       `对战卡 · ${profile?.display_name ?? characterId} · ${duelDifficultyCopy(state.inventory?.card_runtime?.duel?.zako_tag_count ?? 0).label}`,
       started.config as BattleConfig,
@@ -1742,8 +2214,27 @@ async function beginDuelAgainst(characterId: string, useId = `duel:${characterId
     );
     await refresh();
   } catch (error) {
+    activeDuelConversationTarget = null;
     setStatus(`无法开始对战卡：${error instanceof Error ? error.message : String(error)}`, true);
   }
+}
+
+async function beginDialogueDuel() {
+  const target = activeTarget?.type === 'character' ? { ...activeTarget } : null;
+  if (!target) return;
+  const blocked = duelCardBlock(state, target.id);
+  if (blocked) {
+    setStatus(`无法向${target.label}使用对战卡：${blocked}`, true);
+    return;
+  }
+  const difficulty = duelDifficultyCopy(state.inventory?.card_runtime?.duel?.zako_tag_count ?? 0);
+  const confirmed = await confirmInApp({
+    title: `挑战${target.label}`,
+    message: `本次将锁定为${difficulty.label}难度。有效结算后才消费 1 张对战卡；取消会保留卡片并返回当前对话。`,
+    confirmLabel: '亮出对战卡',
+  });
+  if (!confirmed) return;
+  await beginDuelAgainst(target.id, `duel:${target.id}:${Date.now().toString(36)}`, target);
 }
 
 function openDuelChooser() {
@@ -1858,7 +2349,7 @@ function startBattle() {
     battleCanvas,
     battleConfigJson as unknown as BattleConfig,
     async (result) => { await settleBattleResult(result); },
-    { atlasSources: battleAtlasSources },
+    { atlasSources: battleAtlasSources, soundBus: battleSoundBus },
   );
   battle.start();
   bindBattleSession();
@@ -2646,12 +3137,21 @@ async function closeBattleDialog() {
   destroyBattleSession();
   pendingBattleResult = null;
   const cancelledUseId = activeBattleKind === 'duel' ? activeDuelUseId : '';
+  const conversationTarget = activeDuelConversationTarget;
   activeDuelUseId = '';
+  activeDuelConversationTarget = null;
   if (cancelledUseId) {
     try {
       await bridge.cancelDuelCard(cancelledUseId);
       await refresh();
-      setStatus('已取消对战卡挑战，卡片没有消费。');
+      if (conversationTarget) {
+        activeTarget = conversationTarget;
+        setView('gal');
+        await renderGal();
+        setStatus(`已取消对战卡挑战，卡片没有消费；继续与${conversationTarget.label}交谈。`);
+      } else {
+        setStatus('已取消对战卡挑战，卡片没有消费。');
+      }
     } catch (error) {
       setStatus(`取消对战卡失败：${error instanceof Error ? error.message : String(error)}`, true);
     }
@@ -2710,6 +3210,7 @@ globalThis.addEventListener('beforeunload', () => {
   cleanupSubscription?.();
   gardenMap.destroy();
   destroyBattleSession();
+  battleSoundBus.destroy?.();
 });
 
 globalThis.addEventListener('gensokyo-garden:resume', () => {

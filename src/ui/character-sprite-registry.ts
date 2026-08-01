@@ -14,9 +14,9 @@ interface CharacterSpriteDefinition extends Omit<SpriteActorConfig, 'idleSource'
 }
 
 const walkWander = {
-  travelRadiusY: 0.065,
-  travelDistanceMin: 0.034,
-  travelDistanceMax: 0.08,
+  travelRadiusY: 0.105,
+  travelDistanceMin: 0.045,
+  travelDistanceMax: 0.12,
   restDurationMs: [900, 2200] as const,
   turnDurationMs: [120, 180] as const,
   settleDurationMs: [120, 200] as const,
@@ -24,7 +24,7 @@ const walkWander = {
 
 const flutterWander = {
   ...walkWander,
-  travelRadiusY: 0.075,
+  travelRadiusY: 0.12,
   restDurationMs: [760, 1800] as const,
 };
 
@@ -75,7 +75,7 @@ const definitions: Record<string, CharacterSpriteDefinition> = {
     motionBob: 0.8,
     motionSway: 0.01,
     travelSpeed: 0.000018,
-    travelRadius: 0.095,
+    travelRadius: 0.15,
   },
   marisa: {
     ...flutterWander,
@@ -89,7 +89,7 @@ const definitions: Record<string, CharacterSpriteDefinition> = {
     motionBob: 1.65,
     motionSway: 0.008,
     travelSpeed: 0.000021,
-    travelRadius: 0.11,
+    travelRadius: 0.17,
   },
   cirno: {
     ...flutterWander,
@@ -105,7 +105,7 @@ const definitions: Record<string, CharacterSpriteDefinition> = {
     motionBob: 1.3,
     motionSway: 0.012,
     travelSpeed: 0.00002,
-    travelRadius: 0.105,
+    travelRadius: 0.165,
   },
   alice: {
     ...walkWander,
@@ -120,7 +120,7 @@ const definitions: Record<string, CharacterSpriteDefinition> = {
     motionBob: 0.65,
     motionSway: 0.006,
     travelSpeed: 0.000016,
-    travelRadius: 0.09,
+    travelRadius: 0.145,
   },
   mystia: {
     ...flutterWander,
@@ -135,7 +135,7 @@ const definitions: Record<string, CharacterSpriteDefinition> = {
     motionBob: 1.2,
     motionSway: 0.012,
     travelSpeed: 0.000019,
-    travelRadius: 0.1,
+    travelRadius: 0.16,
   },
   suika: {
     ...walkWander,
@@ -150,7 +150,7 @@ const definitions: Record<string, CharacterSpriteDefinition> = {
     motionBob: 0.95,
     motionSway: 0.014,
     travelSpeed: 0.000018,
-    travelRadius: 0.095,
+    travelRadius: 0.15,
   },
   nitori: {
     ...walkWander,
@@ -165,7 +165,7 @@ const definitions: Record<string, CharacterSpriteDefinition> = {
     motionBob: 0.85,
     motionSway: 0.008,
     travelSpeed: 0.000019,
-    travelRadius: 0.1,
+    travelRadius: 0.16,
   },
   sakuya: {
     ...walkWander,
@@ -180,7 +180,7 @@ const definitions: Record<string, CharacterSpriteDefinition> = {
     motionBob: 0.6,
     motionSway: 0.005,
     travelSpeed: 0.000017,
-    travelRadius: 0.092,
+    travelRadius: 0.148,
   },
 };
 

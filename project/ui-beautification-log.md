@@ -39,6 +39,8 @@
 | R26 | 所有者提供的完整透明废墟图确定性正规化为妖精花园／月见温泉／宴会广场三组同画布素材；三座设施进入 `damaged` 时以废墟完整替换正常形态，修复后恢复当前正常形态，不再使用 V3 损坏覆盖层方案 | 所有者供图 | `check:ui`、153/153、`build:ui`、r54 dry-run 全绿；地图合成预览通过，真实 SillyTavern 待验收 |
 | R27 | 补齐灵梦／魔理沙／荷取／米斯蒂娅／萃香五套 `2×2` BOSS 四状态透明图集；八角色对战卡统一按角色 ID 选择独立 sheet，修复爱丽丝／琪露诺／咲夜旧视觉 ID 与渲染映射不一致；原图归档、透明处理报告和五张浏览器实显证据落盘 | 所有者供图 + 确定性透明化 | `check:ui`、154/154、`build:ui`、r54 dry-run 全绿；五名新增角色离线对战弹窗目视通过，控制台无 warning/error；真实 SillyTavern 四状态切换待验收 |
 | R28 | 灵梦／魔理沙 BOSS 四状态图升级为新版；处理脚本支持指定角色增量替换和版本化原图归档，稳定运行路径不变；manifest 记录 v2 当前档、v1 被替代档和哈希报告 | 所有者供图 + 确定性透明化 | `check:ui`、154/154、`build:ui`、r54 dry-run 全绿；两场新版对战暂停态目视通过，页面控制台无 warning/error |
+| R29 | 弹幕战暂停与战斗内置音频设置：裸露 HUD 滑杆收进专属小弹窗，音效／BGM 分轨调节；三首 BGM 模板登记为 `source_url:null`，为后续 HTTPS R2 曲源预留安全接口 | 所有者反馈 | 当时 `check:ui`、175/175、`build:ui` 全绿；本地验证默认值、曲目／音量持久化和暂停恢复，真实 ST／R2 待验收 |
+| R30 | 自机小符札与敌弹视觉解耦：辉光椭圆改为米白纸符、深色描边、红／青符印、金色顶签和双尾带；P 点补独立四角拾取框，颜色之外再用轮廓与尾迹区分阵营 | 所有者反馈 | `check:ui`、176/176、`build:ui` 全绿；离线妖精练习实际缩放目视，真实 ST／320px／高密度交火待验收 |
 
 ## 变更文件
 
@@ -54,9 +56,10 @@
 | `src/ui/garden-map.ts` | DPR 补偿、药丸标签、悬停/选中态、轮廓多边形发光、贴地光环、锚点跟随回调、指针切换、imageSmoothing 关闭；R25 桌面／手机人物响应式缩放、标签／光环／命中／间距联动与 44px 级手机命中保底 |
 | `src/ui/garden-spatial.ts` | 新增 `GARDEN_AREA_OUTLINES` 手描轮廓（换底图必须重描） |
 | `旧素材/src/assets/maps/garden-base-expanded-empty-v1.png` | R8 历史运行时底图，已归档，不再由当前 manifest 使用 |
-| `src/assets/maps/garden-base-owner-candidate-v2.png` | 当前 `1448×1086` 正式运行时底图；所有者已批准其设施叠图方向 |
-| `src/assets/world/map-facilities/{magic-greenhouse,fairy-garden,moon-spring,banquet-plaza}/*-v2.png` | 所有者批准的 13 种正式设施形态与 3 张损坏覆盖层；由 manifest 几何和运行态正式键驱动 |
+| `src/assets/maps/garden-base-owner-v3.png` | 当前 `1672×941` 横向正式运行时底图；所有者已批准并由 manifest 驱动 |
+| `src/assets/world/map-facilities/{magic-greenhouse,fairy-garden,moon-spring,banquet-plaza}/*-v3.png` | 所有者批准的 13 种正式设施形态；由 manifest 几何和运行态正式键驱动 |
 | `src/assets/world/map-facilities/{fairy-garden,moon-spring,banquet-plaza}/*-ruins-v3.png` | 所有者废墟源图按三组现行画布正规化后的完整损坏替换图；只在 `damaged` 状态替换当前正常形态 |
+| `旧素材/src/assets/{maps,world/map-facilities}/` | 已被 V3 取代的 V2 底图、V2 设施／损坏层及色键源，以及退出运行时的主屋旧叠图；保留原相对路径，不参与构建 |
 | `src/assets/asset-manifest.json` / `scripts/build-ui.mjs` | 登记 `maps.garden_base` 并由清单选择、复制和内嵌运行时底图 |
 | `scripts/prepare-shared-facility-ruins.py` / `project/shared-facility-ruin-report.json` | 共享废墟的可复现预乘 alpha 缩放、透明像素清理、落位与完整输入／输出哈希报告 |
 | `src/ui/sprite-actor.ts` | 新增 `drawOutlineGlow`（source-in 染色 + 模糊双叠，含浮动/摆动同步） |
@@ -73,6 +76,9 @@
 | `project/character-boss-sheet-replacement-report-2026-07-30.json` / `project/character-boss-sheet-replacement-preview.png` / `旧素材/素材处理/battle-boss-owner-source-v2/` | 灵梦／魔理沙新版源图归档、运行时输出哈希、逐格统计与透明总览；旧 v1 归档不覆盖 |
 | `src/assets/battle/effects/battle-bullets-etama3-local-v1.png` | 所有者提供并经 AI 生成修改的敌弹图集，允许随项目打包分发；运行时未知裁切组合回退几何绘制 |
 | `src/battle/battle-input.ts` | 手机主指拖动超过轻触阈值后自动连射，抬起／取消停止；第二指专注、双击 Bomb、鼠标与键盘行为保持 |
+| `src/battle/battle-renderer.ts` | 自机射击纸符轮廓、普通／专注符印与双尾带；P 点独立四角拾取框；仅改绘制，不改模拟和判定 |
+| `src/battle/battle-bgm.ts` / `src/battle/battle-bgm-catalog.json` | 战斗 BGM 总线、HTTPS-only 曲源校验与三首空 URL 模板；曲源缺失时静默，不阻塞战斗 |
+| `project/battle-bgm-r2-template.md` | 后续把歌曲放入 Cloudflare R2 时的目录、URL、缓存、CORS与回滚填写模板，不含凭据 |
 | `src/ui/open-garden-rules.ts` | 只从正式状态派生教程步骤、完成数、当前步骤与下一步，不新增持久化 UI 状态 |
 | `src/ui/test-tools.ts` | 教程断点、M1/M2、道具恢复及八名角色在场编排的受控测试快照 |
 | `src/ui/inventory-view.ts` | 独立背包介绍、分类统计、物品网格、详情与受控使用入口 |

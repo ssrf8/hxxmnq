@@ -593,6 +593,10 @@ test('BattleEngine 门面：重复 start 不双循环，destroy 幂等且取消�
     engine.start();
     engine.start();
     assert.equal(rafCount, 1);
+    assert.equal(engine.setPaused(true), true);
+    assert.equal(engine.getTouchHud().paused, true);
+    assert.equal(engine.togglePaused(), false);
+    assert.equal(engine.getTouchHud().paused, false);
     engine.destroy();
     engine.destroy();
     assert.equal(results.length, 0);
@@ -635,7 +639,61 @@ test('战斗 dialog 文案包含原作式操作提示', async () => {
   assert.match(html, /id="gg-battle-focus"/);
   assert.match(html, /id="gg-battle-bomb"/);
   assert.match(html, /id="gg-battle-bomb-count"/);
+  assert.match(html, /id="gg-battle-pause"[\s\S]*?>暂停</);
+  assert.match(html, /id="gg-battle-audio-settings"[\s\S]*?>音频设置</);
+  assert.match(html, /id="gg-battle-audio-dialog"/);
   assert.match(html, /按住专注/);
+});
+
+test('战斗中可暂停并通过内置面板调整音效与 BGM', async () => {
+  const app = await read('../src/ui/app.ts');
+  const engine = await read('../src/ui/battle-engine.ts');
+  const html = await read('../src/ui/index.html');
+  const styles = await read('../src/ui/styles.css');
+  assert.match(engine, /setPaused\(paused: boolean\)/);
+  assert.match(engine, /togglePaused\(\)/);
+  assert.match(app, /battlePauseButton\.addEventListener\('click'/);
+  assert.match(app, /function openBattleAudioSettings\(\)/);
+  assert.match(app, /battle\.setPaused\(true\)/);
+  assert.match(app, /function closeBattleAudioSettings\(\)/);
+  assert.match(app, /setBattleBgmVolume/);
+  assert.match(app, /setBattleBgmTrack/);
+  assert.match(app, /battlePauseButton\.textContent = hud\.paused \? '继续' : '暂停'/);
+  assert.match(html, /id="gg-battle-settings-sfx-volume" type="range"/);
+  assert.match(html, /id="gg-battle-settings-bgm-volume" type="range"/);
+  assert.match(html, /id="gg-battle-settings-bgm-track"/);
+  assert.match(styles, /\.gg-battle-audio-dialog\[open\]/);
+  assert.match(styles, /\.gg-battle-audio-range input\[type="range"\]::-webkit-slider-thumb/);
+  assert.match(styles, /\.gg-battle-pause\[aria-pressed="true"\]/);
+});
+
+test('BGM 模板只接受 HTTPS 曲源并支持曲目、音量、暂停与停止', async () => {
+  const bgm = await importTypescript('../src/battle/battle-bgm.ts');
+  const catalog = bgm.normalizeBattleBgmCatalog({ tracks: [
+    { id: 'stage_theme', title: '道中', description: 'a', source_url: 'https://media.example.com/stage.ogg' },
+    { id: 'boss_theme', title: 'Boss', description: 'b', source_url: 'javascript:alert(1)' },
+    { id: 'duel_theme', title: '对战', description: 'c', source_url: null },
+  ] });
+  assert.equal(catalog[0].sourceUrl, 'https://media.example.com/stage.ogg');
+  assert.equal(catalog[1].sourceUrl, null);
+
+  const audio = {
+    src: '', loop: false, preload: '', volume: 0, currentTime: 0, playCalls: 0, pauseCalls: 0,
+    play() { this.playCalls += 1; return Promise.resolve(); },
+    pause() { this.pauseCalls += 1; },
+  };
+  const bus = bgm.createBattleBgmBus(catalog, { volume: 0.4, createAudio: () => audio });
+  assert.equal(await bus.play(), true);
+  assert.equal(audio.src, 'https://media.example.com/stage.ogg');
+  assert.equal(audio.loop, true);
+  bus.setVolume(0.75);
+  assert.equal(audio.volume, 0.75);
+  bus.pause();
+  assert.equal(bus.getState().playing, false);
+  bus.stop();
+  assert.equal(audio.currentTime, 0);
+  bus.setTrack('boss_theme');
+  assert.equal(await bus.play(), false);
 });
 
 test('触控专注／Bomb 与窄屏样式不污染全局', async () => {
@@ -703,7 +761,7 @@ test('外部专注与 Bomb 请求进入输入状态', async () => {
   for (const [, list] of listeners) assert.equal(list.length, 0);
 });
 
-test('战斗 atlas 裁切表完整且 build 只嵌入透明素材', async () => {
+test('战斗 atlas 裁切表完整且 build 不嵌入 chroma 重复素材', async () => {
   const {
     ATLAS_FRAMES,
     listAtlasFrameIds,
@@ -852,6 +910,15 @@ test('powerShotLayout 随 P 值加线且不越界', async () => {
   assert.equal(powerShotLayout(96, true).offsets.length, 4);
   assert.equal(powerShotLayout(POWER_MAX + 50, false).offsets.length, 5);
   assert.ok(powerShotLayout(128, true).damageBonus >= 1);
+});
+
+test('自机符札与敌弹使用不同的轮廓语言', async () => {
+  const renderer = await read('../src/battle/battle-renderer.ts');
+  assert.match(renderer, /drawPlayerTalisman\(ctx, bullet, player\.focused\)/);
+  assert.match(renderer, /const accent = focused \? '#42cfe8' : '#d94d42'/);
+  assert.match(renderer, /ctx\.fillStyle = '#fff4d2'/, 'player shot should keep a paper face');
+  assert.match(renderer, /ctx\.fillStyle = '#171426'/, 'player shot should have a dark keyline');
+  assert.match(renderer, /This extra silhouette keeps red drops from masquerading as red danmaku/);
 });
 
 test('小怪击败掉 P 点，火力升级，BattleResult 不含 power', async () => {
@@ -1164,10 +1231,15 @@ test('B3 表现层：boss 战损分级与四配置 presentation 字段', async (
     assert.ok(typeof pres.boss_name === 'string' && pres.boss_name.length >= 1 && pres.boss_name.length <= 12);
     assert.ok(typeof pres.boss_title === 'string' && pres.boss_title.length <= 18);
   }
+
+  const cirno = JSON.parse(await read('../src/battle/configs/dungeons/fairy-pattern-practice-v1.json'));
+  assert.equal(cirno.phases.length, 4, 'Cirno dungeon must reach the fourth-phase S2 damage tier');
+  assert.deepEqual(cirno.phases.map((phase) => phase.kind), ['nonspell', 'spell', 'nonspell', 'spell']);
+  assert.equal(bossDamageLevel(cirno.phases.length - 1, cirno.phases.length), 2);
 });
 
 test('八名角色的对战视觉 ID 均解析到独立 Boss sheet', async () => {
-  const { characterBossSheet } = await importTypescript('../src/battle/battle-renderer.ts');
+  const { characterBossPortrait, characterBossSheet } = await importTypescript('../src/battle/battle-renderer.ts');
   const configs = await importTypescript('../src/battle/duel-configs.ts');
   const expected = {
     reimu: 'boss_reimu',
@@ -1185,9 +1257,165 @@ test('八名角色的对战视觉 ID 均解析到独立 Boss sheet', async () =>
     assert.equal(characterBossSheet(config.presentation.boss_id), sheet);
   }
   assert.equal(characterBossSheet('boss_flower_core'), undefined);
+  assert.equal(characterBossPortrait('reimu', 0), 'portrait_reimu_s0');
+  assert.equal(characterBossPortrait('reimu', 1), 'portrait_reimu_s1');
+  assert.equal(characterBossPortrait('reimu', 2), 'portrait_reimu_s2');
+  assert.equal(characterBossPortrait('marisa', 0), 'portrait_marisa_s0');
+  assert.equal(characterBossPortrait('marisa', 1), 'portrait_marisa_s1');
+  assert.equal(characterBossPortrait('marisa', 2), 'portrait_marisa_s2');
+  assert.equal(characterBossPortrait('alice', 0), 'portrait_alice_s0');
+  assert.equal(characterBossPortrait('alice', 1), 'portrait_alice_s1');
+  assert.equal(characterBossPortrait('alice', 2), 'portrait_alice_s2');
+  assert.equal(characterBossPortrait('cirno', 0), 'portrait_cirno_s0');
+  assert.equal(characterBossPortrait('cirno', 1), 'portrait_cirno_s1');
+  assert.equal(characterBossPortrait('cirno', 2), 'portrait_cirno_s2');
+  assert.equal(characterBossPortrait('mystia', 0), 'portrait_mystia_s0');
+  assert.equal(characterBossPortrait('mystia', 1), 'portrait_mystia_s1');
+  assert.equal(characterBossPortrait('mystia', 2), 'portrait_mystia_s2');
+  assert.equal(characterBossPortrait('nitori', 0), 'portrait_nitori_s0');
+  assert.equal(characterBossPortrait('nitori', 1), 'portrait_nitori_s1');
+  assert.equal(characterBossPortrait('nitori', 2), 'portrait_nitori_s2');
+  assert.equal(characterBossPortrait('suika', 0), 'portrait_suika_s0');
+  assert.equal(characterBossPortrait('suika', 1), 'portrait_suika_s1');
+  assert.equal(characterBossPortrait('suika', 2), 'portrait_suika_s2');
+  assert.equal(characterBossPortrait('sakuya', 0), 'portrait_sakuya_s0');
+  assert.equal(characterBossPortrait('sakuya', 1), 'portrait_sakuya_s1');
+  assert.equal(characterBossPortrait('sakuya', 2), 'portrait_sakuya_s2');
+  assert.equal(characterBossPortrait('flower_core', 0), 'portrait_flower_core_s0');
+  assert.equal(characterBossPortrait('flower_core', 1), 'portrait_flower_core_s1');
+  assert.equal(characterBossPortrait('flower_core', 2), 'portrait_flower_core_s2');
+  assert.equal(characterBossPortrait('boss_flower_core', 0), undefined);
 });
 
-test('B3 渲染冒烟：mock 上下文整帧绘制含 cut-in 占位卡，不抛异常', async () => {
+test('八名角色的 S0/S1/S2 立绘均走原文件直导链，不要求透明化或图集裁切', async () => {
+  const manifest = JSON.parse(await read('../src/assets/asset-manifest.json'));
+  assert.deepEqual(manifest.battle_assets.reimu_battle_portraits.sources, {
+    s0: 'battle/portraits/portrait-reimu-s0-v1.png',
+    s1: 'battle/portraits/portrait-reimu-s1-v1.png',
+    s2: 'battle/portraits/portrait-reimu-s2-v1.png',
+  });
+  assert.deepEqual(manifest.battle_assets.marisa_battle_portraits.sources, {
+    s0: 'battle/portraits/portrait-marisa-s0-v1.png',
+    s1: 'battle/portraits/portrait-marisa-s1-v1.png',
+    s2: 'battle/portraits/portrait-marisa-s2-v1.png',
+  });
+  assert.deepEqual(manifest.battle_assets.alice_battle_portraits.sources, {
+    s0: 'battle/portraits/portrait-alice-s0-v1.png',
+    s1: 'battle/portraits/portrait-alice-s1-v1.png',
+    s2: 'battle/portraits/portrait-alice-s2-v1.png',
+  });
+  assert.deepEqual(manifest.battle_assets.cirno_battle_portraits.sources, {
+    s0: 'battle/portraits/portrait-cirno-s0-v1.png',
+    s1: 'battle/portraits/portrait-cirno-s1-v1.png',
+    s2: 'battle/portraits/portrait-cirno-s2-v1.png',
+  });
+  assert.deepEqual(manifest.battle_assets.mystia_battle_portraits.sources, {
+    s0: 'battle/portraits/portrait-mystia-s0-v1.png',
+    s1: 'battle/portraits/portrait-mystia-s1-v1.png',
+    s2: 'battle/portraits/portrait-mystia-s2-v1.png',
+  });
+  assert.deepEqual(manifest.battle_assets.nitori_battle_portraits.sources, {
+    s0: 'battle/portraits/portrait-nitori-s0-v1.png',
+    s1: 'battle/portraits/portrait-nitori-s1-v1.png',
+    s2: 'battle/portraits/portrait-nitori-s2-v1.png',
+  });
+  assert.deepEqual(manifest.battle_assets.suika_battle_portraits.sources, {
+    s0: 'battle/portraits/portrait-suika-s0-v1.png',
+    s1: 'battle/portraits/portrait-suika-s1-v1.png',
+    s2: 'battle/portraits/portrait-suika-s2-v1.png',
+  });
+  assert.deepEqual(manifest.battle_assets.sakuya_battle_portraits.sources, {
+    s0: 'battle/portraits/portrait-sakuya-s0-v1.png',
+    s1: 'battle/portraits/portrait-sakuya-s1-v1.png',
+    s2: 'battle/portraits/portrait-sakuya-s2-v1.png',
+  });
+  assert.deepEqual(manifest.battle_assets.flower_core_battle_portraits.sources, {
+    s0: 'battle/portraits/portrait-flower-core-s0-v1.png',
+    s1: 'battle/portraits/portrait-flower-core-s1-v1.png',
+    s2: 'battle/portraits/portrait-flower-core-s2-v1.png',
+  });
+  assert.equal(manifest.battle_assets.fairy_mobs.source_alpha, 'battle/effects/fairy-sheet-v1.png');
+  assert.equal(manifest.battle_assets.fairy_mobs.runtime_embed, 'alpha-only');
+  assert.equal(manifest.battle_assets.reimu_battle_portraits.runtime_embed, 'direct-original-files');
+  assert.equal(manifest.battle_assets.marisa_battle_portraits.runtime_embed, 'direct-original-files');
+  assert.equal(manifest.battle_assets.alice_battle_portraits.runtime_embed, 'direct-original-files');
+  assert.equal(manifest.battle_assets.cirno_battle_portraits.runtime_embed, 'direct-original-files');
+  assert.equal(manifest.battle_assets.mystia_battle_portraits.runtime_embed, 'direct-original-files');
+  assert.equal(manifest.battle_assets.nitori_battle_portraits.runtime_embed, 'direct-original-files');
+  assert.equal(manifest.battle_assets.suika_battle_portraits.runtime_embed, 'direct-original-files');
+  assert.equal(manifest.battle_assets.sakuya_battle_portraits.runtime_embed, 'direct-original-files');
+  assert.equal(manifest.battle_assets.flower_core_battle_portraits.runtime_embed, 'direct-original-files');
+  const buildSource = await read('../scripts/build-ui.mjs');
+  const hostSource = await read('../src/runtime/ui-host-shell.js');
+  assert.match(buildSource, /reimuPortraitAsset[\s\S]*?direct-original-files/);
+  assert.match(buildSource, /marisaPortraitAsset[\s\S]*?direct-original-files/);
+  assert.match(buildSource, /alicePortraitAsset[\s\S]*?direct-original-files/);
+  assert.match(buildSource, /cirnoPortraitAsset[\s\S]*?direct-original-files/);
+  assert.match(buildSource, /mystiaPortraitAsset[\s\S]*?direct-original-files/);
+  assert.match(buildSource, /nitoriPortraitAsset[\s\S]*?direct-original-files/);
+  assert.match(buildSource, /suikaPortraitAsset[\s\S]*?direct-original-files/);
+  assert.match(buildSource, /sakuyaPortraitAsset[\s\S]*?direct-original-files/);
+  assert.match(buildSource, /flowerCorePortraitAsset[\s\S]*?direct-original-files/);
+  assert.match(buildSource, /fairyAsset[\s\S]*?alpha-only/);
+  assert.match(buildSource, /battlePortraitReimuS0DataUrl/);
+  assert.match(buildSource, /battlePortraitReimuS1DataUrl/);
+  assert.match(buildSource, /battlePortraitReimuS2DataUrl/);
+  assert.match(buildSource, /battlePortraitMarisaS0DataUrl/);
+  assert.match(buildSource, /battlePortraitMarisaS1DataUrl/);
+  assert.match(buildSource, /battlePortraitMarisaS2DataUrl/);
+  assert.match(buildSource, /battlePortraitAliceS0DataUrl/);
+  assert.match(buildSource, /battlePortraitAliceS1DataUrl/);
+  assert.match(buildSource, /battlePortraitAliceS2DataUrl/);
+  assert.match(buildSource, /battlePortraitCirnoS0DataUrl/);
+  assert.match(buildSource, /battlePortraitCirnoS1DataUrl/);
+  assert.match(buildSource, /battlePortraitCirnoS2DataUrl/);
+  assert.match(buildSource, /battlePortraitMystiaS0DataUrl/);
+  assert.match(buildSource, /battlePortraitMystiaS1DataUrl/);
+  assert.match(buildSource, /battlePortraitMystiaS2DataUrl/);
+  assert.match(buildSource, /battlePortraitNitoriS0DataUrl/);
+  assert.match(buildSource, /battlePortraitNitoriS1DataUrl/);
+  assert.match(buildSource, /battlePortraitNitoriS2DataUrl/);
+  assert.match(buildSource, /battlePortraitSuikaS0DataUrl/);
+  assert.match(buildSource, /battlePortraitSuikaS1DataUrl/);
+  assert.match(buildSource, /battlePortraitSuikaS2DataUrl/);
+  assert.match(buildSource, /battlePortraitSakuyaS0DataUrl/);
+  assert.match(buildSource, /battlePortraitSakuyaS1DataUrl/);
+  assert.match(buildSource, /battlePortraitSakuyaS2DataUrl/);
+  assert.match(buildSource, /battlePortraitFlowerCoreS0DataUrl/);
+  assert.match(buildSource, /battlePortraitFlowerCoreS1DataUrl/);
+  assert.match(buildSource, /battlePortraitFlowerCoreS2DataUrl/);
+  assert.match(buildSource, /battleFairyDataUrl/);
+  assert.match(hostSource, /battlePortraitReimuS0Src/);
+  assert.match(hostSource, /battlePortraitReimuS1Src/);
+  assert.match(hostSource, /battlePortraitReimuS2Src/);
+  assert.match(hostSource, /battlePortraitMarisaS0Src/);
+  assert.match(hostSource, /battlePortraitMarisaS1Src/);
+  assert.match(hostSource, /battlePortraitMarisaS2Src/);
+  assert.match(hostSource, /battlePortraitAliceS0Src/);
+  assert.match(hostSource, /battlePortraitAliceS1Src/);
+  assert.match(hostSource, /battlePortraitAliceS2Src/);
+  assert.match(hostSource, /battlePortraitCirnoS0Src/);
+  assert.match(hostSource, /battlePortraitCirnoS1Src/);
+  assert.match(hostSource, /battlePortraitCirnoS2Src/);
+  assert.match(hostSource, /battlePortraitMystiaS0Src/);
+  assert.match(hostSource, /battlePortraitMystiaS1Src/);
+  assert.match(hostSource, /battlePortraitMystiaS2Src/);
+  assert.match(hostSource, /battlePortraitNitoriS0Src/);
+  assert.match(hostSource, /battlePortraitNitoriS1Src/);
+  assert.match(hostSource, /battlePortraitNitoriS2Src/);
+  assert.match(hostSource, /battlePortraitSuikaS0Src/);
+  assert.match(hostSource, /battlePortraitSuikaS1Src/);
+  assert.match(hostSource, /battlePortraitSuikaS2Src/);
+  assert.match(hostSource, /battlePortraitSakuyaS0Src/);
+  assert.match(hostSource, /battlePortraitSakuyaS1Src/);
+  assert.match(hostSource, /battlePortraitSakuyaS2Src/);
+  assert.match(hostSource, /battlePortraitFlowerCoreS0Src/);
+  assert.match(hostSource, /battlePortraitFlowerCoreS1Src/);
+  assert.match(hostSource, /battlePortraitFlowerCoreS2Src/);
+  assert.match(hostSource, /battleFairySrc/);
+});
+
+test('B3 渲染冒烟：mock 上下文整帧绘制含 cut-in 加载失败回退卡，不抛异常', async () => {
   const { BattleSimulation } = await importTypescript('../src/battle/battle-simulation.ts');
   const { renderBattleFrame } = await importTypescript('../src/battle/battle-renderer.ts');
   const config = {
@@ -1223,13 +1451,54 @@ test('B3 渲染冒烟：mock 上下文整帧绘制含 cut-in 占位卡，不抛�
   assert.doesNotThrow(() => renderBattleFrame(ctx, sim, null));
   assert.ok(textCalls.some((t) => t.includes('琪露诺')), 'cut-in should print the boss name');
   assert.ok(textCalls.some((t) => t.includes('完好')), 'cut-in should print the S0 damage label');
-  assert.ok(textCalls.some((t) => t.includes('立绘占位')), 'placeholder note must be visible until real art lands');
+  assert.ok(textCalls.some((t) => t.includes('立绘载入失败')), 'missing atlas art should show the load-failure fallback');
 
   // Past the intro window the cut-in retires but the frame still renders clean.
   for (let i = 0; i < 400; i += 1) sim.step(idle, false);
   textCalls.length = 0;
   assert.doesNotThrow(() => renderBattleFrame(ctx, sim, null));
-  assert.ok(!textCalls.some((t) => t.includes('立绘占位')), 'cut-in must retire after the intro window');
+  assert.ok(!textCalls.some((t) => t.includes('立绘载入失败')), 'cut-in must retire after the intro window');
+});
+
+test('灵梦 cut-in 按当前战损档位绘制对应完整图片', async () => {
+  const { BattleSimulation } = await importTypescript('../src/battle/battle-simulation.ts');
+  const { renderBattleFrame } = await importTypescript('../src/battle/battle-renderer.ts');
+  const sim = new BattleSimulation({
+    ...baseConfig,
+    presentation: { boss_id: 'reimu', boss_name: '灵梦', boss_title: '博丽巫女' },
+  }, { onFinish: () => {}, random: () => 0.5 });
+  sim.start();
+  const idle = {
+    moveX: 0, moveY: 0, focused: false, firing: false,
+    bombPressed: false, pausePressed: false,
+    pointerActive: false, pointerX: 0, pointerY: 0,
+  };
+  for (let i = 0; i < 60; i += 1) sim.step(idle, false);
+
+  const portrait = { naturalWidth: 300, naturalHeight: 400 };
+  let portraitDraws = 0;
+  const ctx = new Proxy({}, {
+    get(target, prop) {
+      if (prop === 'drawImage') {
+        return (image) => { if (image === portrait) portraitDraws += 1; };
+      }
+      if (prop === 'createLinearGradient' || prop === 'createRadialGradient') {
+        return () => ({ addColorStop: () => {} });
+      }
+      if (prop === 'canvas') return { width: 480, height: 640 };
+      if (!(prop in target)) target[prop] = () => {};
+      return target[prop];
+    },
+    set(target, prop, value) { target[prop] = value; return true; },
+  });
+  const atlas = {
+    ready: true,
+    failed: false,
+    images: { portrait_reimu_s0: portrait },
+  };
+
+  assert.doesNotThrow(() => renderBattleFrame(ctx, sim, atlas));
+  assert.equal(portraitDraws, 1);
 });
 
 test('R49-C 触控手势：拖动自动射击、双指按住专注、双击 Bomb、鼠标不误触', async () => {

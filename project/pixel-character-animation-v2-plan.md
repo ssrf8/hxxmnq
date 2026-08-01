@@ -257,5 +257,5 @@ row 3: right-001 ... right-N
 - `SpriteActor` 优先加载可变长验收图集；加载失败时，灵梦回退 V2 r6，其余角色回退旧四向移动/静态图。魔理沙未收到本批正式序列，继续使用扫帚悬浮 V2 r2。
 - 构建器从 `asset-manifest.json` 复制并嵌入 `animation_sequence_source_alpha`，宿主通过 `SequenceSrc` 交给 iframe。源哈希、图集逐格一致性、透明边界、帧数、方向行、速度和循环区间由 `tests/approved-character-sequence-assets.test.mjs` 与 UI 契约测试锁定。
 - 导入命令支持只读预检：`node scripts/import-approved-character-sequences.mjs --source-root="<验收项目>" --dry-run`。实际替换既有 `sequence-approved-v1` 必须显式添加 `--replace`。
-- 运行时二维巡游已经落地：角色在所属区域锚点周围的椭圆范围内随机选择单轴上下左右长程，按 `rest → turn → travel → settle` 推进；单段距离从初版 `0.012–0.035` 提升为 `0.034–0.080`，水平半径为 `0.090–0.110`，垂直半径为步行 `0.065`／浮游 `0.075`，按各角色速度通常持续约 `2–5s`。抵达后保持当前朝向并强制休息，普通状态刷新不会覆盖本地巡游朝向。离场、换区和 reduced motion 会清除局部目标并回到区域锚点。移动坐标仍只存在 iframe 内存，不写入 `presence_snapshot` 或其他 MVU 字段。
+- 运行时二维巡游已经落地：角色在所属区域锚点周围的椭圆范围内随机选择单轴上下左右长程，按 `rest → turn → travel → settle` 推进。2026-07-30 扩大后的单段距离为 `0.045–0.120`，水平半径按角色为 `0.145–0.170`，垂直半径为步行 `0.105`／浮游 `0.120`；移动速度不变。每条候选路线必须通过不可行走蒙版的脚底九点与整段路径采样，最多重试 12 次，全部失败则原地休息；同区多人使用参与碰撞判定的稳定归一化分槽。抵达后保持当前朝向并强制休息，普通状态刷新不会覆盖本地巡游朝向。离场、换区和 reduced motion 会清除局部目标并回到区域锚点。移动坐标仍只存在 iframe 内存，不写入 `presence_snapshot` 或其他 MVU 字段。完整合同见 `project/garden-navigation-mask-contract.md`。
 - turnaround 每格为 `627×627`，正式动作帧每格为 `209×209`，相同目标方框并不代表人物可见尺寸一致。运行时现按角色、朝向登记由透明主体包围盒实测得到的 `scale/x/y`，在不改写原图、不启用平滑插值的前提下，把待机人物的可见高度、水平中心和脚底线对齐到对应动作首帧；本体与轮廓发光共用同一变换。

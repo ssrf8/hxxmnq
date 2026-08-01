@@ -1,4 +1,5 @@
 import { build } from 'esbuild';
+import { createHash } from 'node:crypto';
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { PNG } from 'pngjs';
@@ -9,6 +10,121 @@ if (!localBulletAsset?.source_alpha || localBulletAsset.runtime_scope !== 'proje
   throw new Error('etama3 弹幕图集缺少项目运行与打包分发授权登记');
 }
 const localBulletSource = localBulletAsset.source_alpha;
+const reimuPortraitAsset = assetManifest.battle_assets?.reimu_battle_portraits;
+const reimuPortraitSources = reimuPortraitAsset?.sources;
+if (
+  reimuPortraitAsset?.runtime_embed !== 'direct-original-files'
+  || !['s0', 's1', 's2'].every((state) => typeof reimuPortraitSources?.[state] === 'string')
+) {
+  throw new Error('灵梦 S0/S1/S2 立绘缺少直接导入登记');
+}
+const marisaPortraitAsset = assetManifest.battle_assets?.marisa_battle_portraits;
+const marisaPortraitSources = marisaPortraitAsset?.sources;
+if (
+  marisaPortraitAsset?.runtime_embed !== 'direct-original-files'
+  || !['s0', 's1', 's2'].every((state) => typeof marisaPortraitSources?.[state] === 'string')
+) {
+  throw new Error('魔理沙 S0/S1/S2 立绘缺少直接导入登记');
+}
+const alicePortraitAsset = assetManifest.battle_assets?.alice_battle_portraits;
+const alicePortraitSources = alicePortraitAsset?.sources;
+if (
+  alicePortraitAsset?.runtime_embed !== 'direct-original-files'
+  || !['s0', 's1', 's2'].every((state) => typeof alicePortraitSources?.[state] === 'string')
+) {
+  throw new Error('爱丽丝 S0/S1/S2 立绘缺少直接导入登记');
+}
+const cirnoPortraitAsset = assetManifest.battle_assets?.cirno_battle_portraits;
+const cirnoPortraitSources = cirnoPortraitAsset?.sources;
+if (
+  cirnoPortraitAsset?.runtime_embed !== 'direct-original-files'
+  || !['s0', 's1', 's2'].every((state) => typeof cirnoPortraitSources?.[state] === 'string')
+) {
+  throw new Error('琪露诺 S0/S1/S2 立绘缺少直接导入登记');
+}
+const mystiaPortraitAsset = assetManifest.battle_assets?.mystia_battle_portraits;
+const mystiaPortraitSources = mystiaPortraitAsset?.sources;
+if (
+  mystiaPortraitAsset?.runtime_embed !== 'direct-original-files'
+  || !['s0', 's1', 's2'].every((state) => typeof mystiaPortraitSources?.[state] === 'string')
+) {
+  throw new Error('米斯蒂娅 S0/S1/S2 立绘缺少直接导入登记');
+}
+const nitoriPortraitAsset = assetManifest.battle_assets?.nitori_battle_portraits;
+const nitoriPortraitSources = nitoriPortraitAsset?.sources;
+if (
+  nitoriPortraitAsset?.runtime_embed !== 'direct-original-files'
+  || !['s0', 's1', 's2'].every((state) => typeof nitoriPortraitSources?.[state] === 'string')
+) {
+  throw new Error('河城荷取 S0/S1/S2 立绘缺少直接导入登记');
+}
+const suikaPortraitAsset = assetManifest.battle_assets?.suika_battle_portraits;
+const suikaPortraitSources = suikaPortraitAsset?.sources;
+if (
+  suikaPortraitAsset?.runtime_embed !== 'direct-original-files'
+  || !['s0', 's1', 's2'].every((state) => typeof suikaPortraitSources?.[state] === 'string')
+) {
+  throw new Error('伊吹萃香 S0/S1/S2 立绘缺少直接导入登记');
+}
+const sakuyaPortraitAsset = assetManifest.battle_assets?.sakuya_battle_portraits;
+const sakuyaPortraitSources = sakuyaPortraitAsset?.sources;
+if (
+  sakuyaPortraitAsset?.runtime_embed !== 'direct-original-files'
+  || !['s0', 's1', 's2'].every((state) => typeof sakuyaPortraitSources?.[state] === 'string')
+) {
+  throw new Error('十六夜咲夜 S0/S1/S2 立绘缺少直接导入登记');
+}
+const flowerCorePortraitAsset = assetManifest.battle_assets?.flower_core_battle_portraits;
+const flowerCorePortraitSources = flowerCorePortraitAsset?.sources;
+if (
+  flowerCorePortraitAsset?.runtime_embed !== 'direct-original-files'
+  || !['s0', 's1', 's2'].every((state) => typeof flowerCorePortraitSources?.[state] === 'string')
+) {
+  throw new Error('温室花妖核心 S0/S1/S2 立绘缺少直接导入登记');
+}
+const fairyAsset = assetManifest.battle_assets?.fairy_mobs;
+if (!fairyAsset?.source_alpha || fairyAsset.runtime_embed !== 'alpha-only') {
+  throw new Error('妖精小怪图集缺少透明运行时素材登记');
+}
+const fairySource = fairyAsset.source_alpha;
+const battleSfxIds = [
+  'player_shot',
+  'boss_hit',
+  'mob_defeat',
+  'graze',
+  'item_pickup',
+  'player_miss',
+  'bomb',
+  'wave_start',
+  'spell_declare',
+  'phase_break',
+  'laser_warning',
+  'laser_fire',
+  'battle_win',
+  'battle_lose',
+];
+const battleSfxAsset = assetManifest.audio_assets?.battle_sfx;
+if (battleSfxAsset?.runtime_embed !== 'wav-data-url') {
+  throw new Error('弹幕音效缺少 WAV data URL 运行登记');
+}
+const battleSfxSources = Object.fromEntries(battleSfxIds.map((id) => {
+  const event = battleSfxAsset.events?.[id];
+  if (typeof event?.runtime !== 'string' || !/\.wav$/i.test(event.runtime)) {
+    throw new Error(`弹幕音效 ${id} 缺少稳定 WAV 路径`);
+  }
+  if (!/^[a-f0-9]{64}$/.test(event.sha256 ?? '')) {
+    throw new Error(`弹幕音效 ${id} 缺少 SHA-256`);
+  }
+  return [id, event.runtime];
+}));
+const battleSfxBytes = Object.fromEntries(await Promise.all(battleSfxIds.map(async (id) => {
+  const bytes = await readFile(`src/assets/${battleSfxSources[id]}`);
+  const actual = createHash('sha256').update(bytes).digest('hex');
+  if (actual !== battleSfxAsset.events[id].sha256) {
+    throw new Error(`弹幕音效 ${id} 的 SHA-256 与 manifest 不一致`);
+  }
+  return [id, bytes];
+})));
 const dungeonButtonSource = 'ui/reimu-dungeon-button-v1.png';
 const shopButtonSource = 'ui/reimu-shop-button-v1.png';
 const inventoryButtonSource = 'ui/marisa-inventory-button-v1.png';
@@ -35,9 +151,46 @@ if (!galBackgroundAsset?.source_alpha || galBackgroundAsset.runtime_role !== 'ga
   throw new Error('素材清单缺少 GAL 舞台背景 ui_assets.gal_shrine_background');
 }
 const galBackgroundSource = galBackgroundAsset.source_alpha;
+const requiredGalReactions = ['neutral', 'smile', 'shy', 'sad', 'angry'];
+const galPortraitAssets = Object.entries(assetManifest.gal_portraits ?? {}).map(([id, asset]) => {
+  if (asset.runtime_embed !== 'direct-original-files') {
+    throw new Error(`GAL 角色 ${id} 未登记为原文件直接导入`);
+  }
+  if (!Array.isArray(asset.canvas) || asset.canvas.length !== 2) {
+    throw new Error(`GAL 角色 ${id} 缺少统一画布尺寸`);
+  }
+  for (const mode of ['normal', 'nude']) {
+    if (!requiredGalReactions.every((reaction) => typeof asset.sources?.[mode]?.[reaction] === 'string')) {
+      throw new Error(`GAL 角色 ${id} 的 ${mode} 五反应素材不完整`);
+    }
+  }
+  return { id, sources: asset.sources };
+});
+const galPortraitSourcePaths = galPortraitAssets.flatMap(({ sources }) => (
+  Object.values(sources).flatMap((modeSources) => Object.values(modeSources))
+));
 const gardenBaseAsset = assetManifest.maps?.garden_base;
 if (!gardenBaseAsset?.source || gardenBaseAsset.runtime_role !== 'base-layer') {
   throw new Error('素材清单缺少运行时庭园底图 maps.garden_base');
+}
+const gardenNoWalkMaskAsset = assetManifest.maps?.garden_no_walk_mask;
+if (
+  !gardenNoWalkMaskAsset?.source
+  || gardenNoWalkMaskAsset.runtime_role !== 'non-walkable-alpha-mask'
+  || gardenNoWalkMaskAsset.alpha_contract !== 'transparent-walkable-alpha-gte-128-blocked'
+  || JSON.stringify(gardenNoWalkMaskAsset.canvas) !== JSON.stringify(gardenBaseAsset.canvas)
+) {
+  throw new Error('庭园不可行走蒙版缺失、画布不一致或 alpha 契约非法');
+}
+const gardenNoWalkMaskSource = await readFile(`src/assets/${gardenNoWalkMaskAsset.source}`, 'utf8');
+if (
+  !gardenNoWalkMaskSource.includes(`width="${gardenBaseAsset.canvas[0]}"`)
+  || !gardenNoWalkMaskSource.includes(`height="${gardenBaseAsset.canvas[1]}"`)
+  || !gardenNoWalkMaskSource.includes(`viewBox="0 0 ${gardenBaseAsset.canvas.join(' ')}"`)
+  || !gardenNoWalkMaskSource.includes('fill="#ff00ff"')
+  || !gardenNoWalkMaskSource.includes('fill-rule="evenodd"')
+) {
+  throw new Error('庭园不可行走蒙版必须与底图同画布，并保留洋红阻挡区与桥面镂空');
 }
 const characterAssets = Object.entries(assetManifest.characters)
   .filter(([, character]) => character.map_usage)
@@ -131,9 +284,19 @@ const previewFacilitySprites = Object.fromEntries(mapFacilityAssets.map(({ id, a
     geometry,
   },
 ]));
+const previewGalPortraitSources = Object.fromEntries(galPortraitAssets.map(({ id, sources }) => [
+  id,
+  Object.fromEntries(Object.entries(sources).map(([mode, modeSources]) => [
+    mode,
+    Object.fromEntries(Object.entries(modeSources).map(([reaction, source]) => [
+      reaction,
+      `../assets/${source}`,
+    ])),
+  ])),
+]));
 const previewHtml = (await readFile('src/ui/index.html', 'utf8')).replace(
   'data-asset-base="../assets"',
-  `data-asset-base="../assets" data-map-src="../assets/${gardenBaseAsset.source}" data-gal-background-src="../assets/${galBackgroundSource}" data-map-facility-sprites='${JSON.stringify(previewFacilitySprites)}'`,
+  `data-asset-base="../assets" data-map-src="../assets/${gardenBaseAsset.source}" data-map-no-walk-mask-src="../assets/${gardenNoWalkMaskAsset.source}" data-gal-background-src="../assets/${galBackgroundSource}" data-gal-portrait-sources='${JSON.stringify(previewGalPortraitSources)}' data-map-facility-sprites='${JSON.stringify(previewFacilitySprites)}' data-battle-sfx-sources='${JSON.stringify(Object.fromEntries(battleSfxIds.map((id) => [id, `../assets/${battleSfxSources[id]}`])))}'`,
 );
 await Promise.all([
   writeFile('dist/ui/index.html', previewHtml, 'utf8'),
@@ -147,7 +310,10 @@ await Promise.all([
   mkdir('dist/assets/world/greenhouse', { recursive: true }),
   mkdir('dist/assets/battle/player', { recursive: true }),
   mkdir('dist/assets/battle/boss', { recursive: true }),
+  mkdir('dist/assets/battle/portraits', { recursive: true }),
   mkdir('dist/assets/battle/effects', { recursive: true }),
+  mkdir('dist/assets/audio/runtime/battle', { recursive: true }),
+  ...galPortraitSourcePaths.map((source) => mkdir(dirname(`dist/assets/${source}`), { recursive: true })),
   ...mapFacilityAssets.flatMap(({ sources, damageOverlay, damageReplacement }) => [
     ...sources.map((source) => mkdir(dirname(`dist/assets/${source}`), { recursive: true })),
     ...(damageOverlay ? [mkdir(dirname(`dist/assets/${damageOverlay}`), { recursive: true })] : []),
@@ -156,11 +322,13 @@ await Promise.all([
 ]);
 await Promise.all([
   copyFile(`src/assets/${gardenBaseAsset.source}`, `dist/assets/${gardenBaseAsset.source}`),
+  copyFile(`src/assets/${gardenNoWalkMaskAsset.source}`, `dist/assets/${gardenNoWalkMaskAsset.source}`),
   copyFile(`src/assets/${dungeonButtonSource}`, `dist/assets/${dungeonButtonSource}`),
   copyFile(`src/assets/${shopButtonSource}`, `dist/assets/${shopButtonSource}`),
   copyFile(`src/assets/${inventoryButtonSource}`, `dist/assets/${inventoryButtonSource}`),
   copyFile(`src/assets/${shopBackgroundSource}`, `dist/assets/${shopBackgroundSource}`),
   copyFile(`src/assets/${galBackgroundSource}`, `dist/assets/${galBackgroundSource}`),
+  ...galPortraitSourcePaths.map((source) => copyFile(`src/assets/${source}`, `dist/assets/${source}`)),
   ...mapFacilityAssets.flatMap(({ sources, damageOverlay, damageReplacement }) => [
     ...sources.map((source) => copyFile(`src/assets/${source}`, `dist/assets/${source}`)),
     ...(damageOverlay ? [copyFile(`src/assets/${damageOverlay}`, `dist/assets/${damageOverlay}`)] : []),
@@ -174,7 +342,7 @@ await Promise.all([
   ]),
   copyFile('src/assets/world/house/main-house-states-v1.png', 'dist/assets/world/house/main-house-states-v1.png'),
   copyFile('src/assets/world/greenhouse/magic-greenhouse-states-v1.png', 'dist/assets/world/greenhouse/magic-greenhouse-states-v1.png'),
-  // Transparent battle sheets only — never embed chroma authoring duplicates.
+  // Battle sheets only — never embed chroma authoring duplicates.
   copyFile('src/assets/battle/player/keycraft-player-sheet-v1.png', 'dist/assets/battle/player/keycraft-player-sheet-v1.png'),
   copyFile('src/assets/battle/boss/greenhouse-flower-core-sheet-v1.png', 'dist/assets/battle/boss/greenhouse-flower-core-sheet-v1.png'),
   copyFile('src/assets/battle/boss/reimu-battle-sheet-v1.png', 'dist/assets/battle/boss/reimu-battle-sheet-v1.png'),
@@ -185,8 +353,22 @@ await Promise.all([
   copyFile('src/assets/battle/boss/mystia-battle-sheet-v1.png', 'dist/assets/battle/boss/mystia-battle-sheet-v1.png'),
   copyFile('src/assets/battle/boss/suika-battle-sheet-v1.png', 'dist/assets/battle/boss/suika-battle-sheet-v1.png'),
   copyFile('src/assets/battle/boss/sakuya-battle-sheet-v1.png', 'dist/assets/battle/boss/sakuya-battle-sheet-v1.png'),
+  ...Object.values(reimuPortraitSources).map((source) => copyFile(`src/assets/${source}`, `dist/assets/${source}`)),
+  ...Object.values(marisaPortraitSources).map((source) => copyFile(`src/assets/${source}`, `dist/assets/${source}`)),
+  ...Object.values(alicePortraitSources).map((source) => copyFile(`src/assets/${source}`, `dist/assets/${source}`)),
+  ...Object.values(cirnoPortraitSources).map((source) => copyFile(`src/assets/${source}`, `dist/assets/${source}`)),
+  ...Object.values(mystiaPortraitSources).map((source) => copyFile(`src/assets/${source}`, `dist/assets/${source}`)),
+  ...Object.values(nitoriPortraitSources).map((source) => copyFile(`src/assets/${source}`, `dist/assets/${source}`)),
+  ...Object.values(suikaPortraitSources).map((source) => copyFile(`src/assets/${source}`, `dist/assets/${source}`)),
+  ...Object.values(sakuyaPortraitSources).map((source) => copyFile(`src/assets/${source}`, `dist/assets/${source}`)),
+  ...Object.values(flowerCorePortraitSources).map((source) => copyFile(`src/assets/${source}`, `dist/assets/${source}`)),
+  copyFile(`src/assets/${fairySource}`, `dist/assets/${fairySource}`),
   copyFile('src/assets/battle/effects/battle-effects-sheet-v1.png', 'dist/assets/battle/effects/battle-effects-sheet-v1.png'),
   copyFile(`src/assets/${localBulletSource}`, `dist/assets/${localBulletSource}`),
+  ...battleSfxIds.map((id) => copyFile(
+    `src/assets/${battleSfxSources[id]}`,
+    `dist/assets/${battleSfxSources[id]}`,
+  )),
 ]);
 
 const [
@@ -194,6 +376,7 @@ const [
   css,
   appJs,
   mapBytes,
+  mapNoWalkMaskBytes,
   dungeonButtonBytes,
   shopButtonBytes,
   inventoryButtonBytes,
@@ -211,6 +394,34 @@ const [
   battleBossMystiaBytes,
   battleBossSuikaBytes,
   battleBossSakuyaBytes,
+  battlePortraitReimuS0Bytes,
+  battlePortraitReimuS1Bytes,
+  battlePortraitReimuS2Bytes,
+  battlePortraitMarisaS0Bytes,
+  battlePortraitMarisaS1Bytes,
+  battlePortraitMarisaS2Bytes,
+  battlePortraitAliceS0Bytes,
+  battlePortraitAliceS1Bytes,
+  battlePortraitAliceS2Bytes,
+  battlePortraitCirnoS0Bytes,
+  battlePortraitCirnoS1Bytes,
+  battlePortraitCirnoS2Bytes,
+  battlePortraitMystiaS0Bytes,
+  battlePortraitMystiaS1Bytes,
+  battlePortraitMystiaS2Bytes,
+  battlePortraitNitoriS0Bytes,
+  battlePortraitNitoriS1Bytes,
+  battlePortraitNitoriS2Bytes,
+  battlePortraitSuikaS0Bytes,
+  battlePortraitSuikaS1Bytes,
+  battlePortraitSuikaS2Bytes,
+  battlePortraitSakuyaS0Bytes,
+  battlePortraitSakuyaS1Bytes,
+  battlePortraitSakuyaS2Bytes,
+  battlePortraitFlowerCoreS0Bytes,
+  battlePortraitFlowerCoreS1Bytes,
+  battlePortraitFlowerCoreS2Bytes,
+  battleFairyBytes,
   battleEffectsBytes,
   battleBulletsLocalBytes,
   hostShellSource,
@@ -219,6 +430,7 @@ const [
   readFile('dist/ui/styles.css', 'utf8'),
   readFile('dist/ui/app.js', 'utf8'),
   readFile(`src/assets/${gardenBaseAsset.source}`),
+  readFile(`src/assets/${gardenNoWalkMaskAsset.source}`),
   readFile(`src/assets/${dungeonButtonSource}`),
   readFile(`src/assets/${shopButtonSource}`),
   readFile(`src/assets/${inventoryButtonSource}`),
@@ -236,6 +448,34 @@ const [
   readFile('src/assets/battle/boss/mystia-battle-sheet-v1.png'),
   readFile('src/assets/battle/boss/suika-battle-sheet-v1.png'),
   readFile('src/assets/battle/boss/sakuya-battle-sheet-v1.png'),
+  readFile(`src/assets/${reimuPortraitSources.s0}`),
+  readFile(`src/assets/${reimuPortraitSources.s1}`),
+  readFile(`src/assets/${reimuPortraitSources.s2}`),
+  readFile(`src/assets/${marisaPortraitSources.s0}`),
+  readFile(`src/assets/${marisaPortraitSources.s1}`),
+  readFile(`src/assets/${marisaPortraitSources.s2}`),
+  readFile(`src/assets/${alicePortraitSources.s0}`),
+  readFile(`src/assets/${alicePortraitSources.s1}`),
+  readFile(`src/assets/${alicePortraitSources.s2}`),
+  readFile(`src/assets/${cirnoPortraitSources.s0}`),
+  readFile(`src/assets/${cirnoPortraitSources.s1}`),
+  readFile(`src/assets/${cirnoPortraitSources.s2}`),
+  readFile(`src/assets/${mystiaPortraitSources.s0}`),
+  readFile(`src/assets/${mystiaPortraitSources.s1}`),
+  readFile(`src/assets/${mystiaPortraitSources.s2}`),
+  readFile(`src/assets/${nitoriPortraitSources.s0}`),
+  readFile(`src/assets/${nitoriPortraitSources.s1}`),
+  readFile(`src/assets/${nitoriPortraitSources.s2}`),
+  readFile(`src/assets/${suikaPortraitSources.s0}`),
+  readFile(`src/assets/${suikaPortraitSources.s1}`),
+  readFile(`src/assets/${suikaPortraitSources.s2}`),
+  readFile(`src/assets/${sakuyaPortraitSources.s0}`),
+  readFile(`src/assets/${sakuyaPortraitSources.s1}`),
+  readFile(`src/assets/${sakuyaPortraitSources.s2}`),
+  readFile(`src/assets/${flowerCorePortraitSources.s0}`),
+  readFile(`src/assets/${flowerCorePortraitSources.s1}`),
+  readFile(`src/assets/${flowerCorePortraitSources.s2}`),
+  readFile(`src/assets/${fairySource}`),
   readFile('src/assets/battle/effects/battle-effects-sheet-v1.png'),
   readFile(`src/assets/${localBulletSource}`),
   readFile('src/runtime/ui-host-shell.js', 'utf8'),
@@ -243,6 +483,7 @@ const [
 const body = html.match(/<body>([\s\S]*?)<script src="\.\/app\.js"><\/script>[\s\S]*?<\/body>/i)?.[1];
 if (!body) throw new Error('无法提取 UI body');
 const mapDataUrl = `data:image/png;base64,${mapBytes.toString('base64')}`;
+const mapNoWalkMaskDataUrl = `data:image/svg+xml;base64,${mapNoWalkMaskBytes.toString('base64')}`;
 const dungeonButtonDataUrl = `data:image/png;base64,${dungeonButtonBytes.toString('base64')}`;
 const shopButtonDataUrl = `data:image/png;base64,${shopButtonBytes.toString('base64')}`;
 const inventoryButtonDataUrl = `data:image/png;base64,${inventoryButtonBytes.toString('base64')}`;
@@ -293,18 +534,62 @@ const battleBossNitoriDataUrl = `data:image/png;base64,${battleBossNitoriBytes.t
 const battleBossMystiaDataUrl = `data:image/png;base64,${battleBossMystiaBytes.toString('base64')}`;
 const battleBossSuikaDataUrl = `data:image/png;base64,${battleBossSuikaBytes.toString('base64')}`;
 const battleBossSakuyaDataUrl = `data:image/png;base64,${battleBossSakuyaBytes.toString('base64')}`;
+const battlePortraitReimuS0DataUrl = `data:image/png;base64,${battlePortraitReimuS0Bytes.toString('base64')}`;
+const battlePortraitReimuS1DataUrl = `data:image/png;base64,${battlePortraitReimuS1Bytes.toString('base64')}`;
+const battlePortraitReimuS2DataUrl = `data:image/png;base64,${battlePortraitReimuS2Bytes.toString('base64')}`;
+const battlePortraitMarisaS0DataUrl = `data:image/png;base64,${battlePortraitMarisaS0Bytes.toString('base64')}`;
+const battlePortraitMarisaS1DataUrl = `data:image/png;base64,${battlePortraitMarisaS1Bytes.toString('base64')}`;
+const battlePortraitMarisaS2DataUrl = `data:image/png;base64,${battlePortraitMarisaS2Bytes.toString('base64')}`;
+const battlePortraitAliceS0DataUrl = `data:image/png;base64,${battlePortraitAliceS0Bytes.toString('base64')}`;
+const battlePortraitAliceS1DataUrl = `data:image/png;base64,${battlePortraitAliceS1Bytes.toString('base64')}`;
+const battlePortraitAliceS2DataUrl = `data:image/png;base64,${battlePortraitAliceS2Bytes.toString('base64')}`;
+const battlePortraitCirnoS0DataUrl = `data:image/png;base64,${battlePortraitCirnoS0Bytes.toString('base64')}`;
+const battlePortraitCirnoS1DataUrl = `data:image/png;base64,${battlePortraitCirnoS1Bytes.toString('base64')}`;
+const battlePortraitCirnoS2DataUrl = `data:image/png;base64,${battlePortraitCirnoS2Bytes.toString('base64')}`;
+const battlePortraitMystiaS0DataUrl = `data:image/png;base64,${battlePortraitMystiaS0Bytes.toString('base64')}`;
+const battlePortraitMystiaS1DataUrl = `data:image/png;base64,${battlePortraitMystiaS1Bytes.toString('base64')}`;
+const battlePortraitMystiaS2DataUrl = `data:image/png;base64,${battlePortraitMystiaS2Bytes.toString('base64')}`;
+const battlePortraitNitoriS0DataUrl = `data:image/png;base64,${battlePortraitNitoriS0Bytes.toString('base64')}`;
+const battlePortraitNitoriS1DataUrl = `data:image/png;base64,${battlePortraitNitoriS1Bytes.toString('base64')}`;
+const battlePortraitNitoriS2DataUrl = `data:image/png;base64,${battlePortraitNitoriS2Bytes.toString('base64')}`;
+const battlePortraitSuikaS0DataUrl = `data:image/png;base64,${battlePortraitSuikaS0Bytes.toString('base64')}`;
+const battlePortraitSuikaS1DataUrl = `data:image/png;base64,${battlePortraitSuikaS1Bytes.toString('base64')}`;
+const battlePortraitSuikaS2DataUrl = `data:image/png;base64,${battlePortraitSuikaS2Bytes.toString('base64')}`;
+const battlePortraitSakuyaS0DataUrl = `data:image/png;base64,${battlePortraitSakuyaS0Bytes.toString('base64')}`;
+const battlePortraitSakuyaS1DataUrl = `data:image/png;base64,${battlePortraitSakuyaS1Bytes.toString('base64')}`;
+const battlePortraitSakuyaS2DataUrl = `data:image/png;base64,${battlePortraitSakuyaS2Bytes.toString('base64')}`;
+const battlePortraitFlowerCoreS0DataUrl = `data:image/png;base64,${battlePortraitFlowerCoreS0Bytes.toString('base64')}`;
+const battlePortraitFlowerCoreS1DataUrl = `data:image/png;base64,${battlePortraitFlowerCoreS1Bytes.toString('base64')}`;
+const battlePortraitFlowerCoreS2DataUrl = `data:image/png;base64,${battlePortraitFlowerCoreS2Bytes.toString('base64')}`;
+const battleFairyDataUrl = `data:image/png;base64,${battleFairyBytes.toString('base64')}`;
 const battleEffectsDataUrl = `data:image/png;base64,${battleEffectsBytes.toString('base64')}`;
 const battleBulletsLocalDataUrl = `data:image/png;base64,${battleBulletsLocalBytes.toString('base64')}`;
+const battleSfxDataUrls = Object.fromEntries(battleSfxIds.map((id) => [
+  id,
+  `data:audio/wav;base64,${battleSfxBytes[id].toString('base64')}`,
+]));
+const galPortraitDataUrls = Object.fromEntries(await Promise.all(galPortraitAssets.map(async ({ id, sources }) => [
+  id,
+  Object.fromEntries(await Promise.all(Object.entries(sources).map(async ([mode, modeSources]) => [
+    mode,
+    Object.fromEntries(await Promise.all(Object.entries(modeSources).map(async ([reaction, source]) => [
+      reaction,
+      `data:image/png;base64,${(await readFile(`src/assets/${source}`)).toString('base64')}`,
+    ]))),
+  ]))),
+])));
 const embedded = {
   body,
   css,
   appJs,
   mapDataUrl,
+  mapNoWalkMaskDataUrl,
   dungeonButtonDataUrl,
   shopButtonDataUrl,
   inventoryButtonDataUrl,
   shopBackgroundDataUrl,
   galBackgroundDataUrl,
+  galPortraitDataUrls,
   characterSpriteDataUrls,
   mainHouseDataUrl,
   greenhouseDataUrl,
@@ -319,8 +604,37 @@ const embedded = {
   battleBossMystiaDataUrl,
   battleBossSuikaDataUrl,
   battleBossSakuyaDataUrl,
+  battlePortraitReimuS0DataUrl,
+  battlePortraitReimuS1DataUrl,
+  battlePortraitReimuS2DataUrl,
+  battlePortraitMarisaS0DataUrl,
+  battlePortraitMarisaS1DataUrl,
+  battlePortraitMarisaS2DataUrl,
+  battlePortraitAliceS0DataUrl,
+  battlePortraitAliceS1DataUrl,
+  battlePortraitAliceS2DataUrl,
+  battlePortraitCirnoS0DataUrl,
+  battlePortraitCirnoS1DataUrl,
+  battlePortraitCirnoS2DataUrl,
+  battlePortraitMystiaS0DataUrl,
+  battlePortraitMystiaS1DataUrl,
+  battlePortraitMystiaS2DataUrl,
+  battlePortraitNitoriS0DataUrl,
+  battlePortraitNitoriS1DataUrl,
+  battlePortraitNitoriS2DataUrl,
+  battlePortraitSuikaS0DataUrl,
+  battlePortraitSuikaS1DataUrl,
+  battlePortraitSuikaS2DataUrl,
+  battlePortraitSakuyaS0DataUrl,
+  battlePortraitSakuyaS1DataUrl,
+  battlePortraitSakuyaS2DataUrl,
+  battlePortraitFlowerCoreS0DataUrl,
+  battlePortraitFlowerCoreS1DataUrl,
+  battlePortraitFlowerCoreS2DataUrl,
+  battleFairyDataUrl,
   battleEffectsDataUrl,
   battleBulletsLocalDataUrl,
+  battleSfxDataUrls,
 };
 const enhancedMountBundle = [
   '// generated by scripts/build-ui.mjs — local trusted binder only',

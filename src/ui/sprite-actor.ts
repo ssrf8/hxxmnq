@@ -56,6 +56,8 @@ export interface WanderMove {
   target: Point;
 }
 
+export type SpriteTravelValidator = (start: Point, target: Point) => boolean;
+
 interface RenderFrame {
   image: HTMLImageElement;
   columns: number;
@@ -217,6 +219,7 @@ export class SpriteActor {
     private readonly config: SpriteActorConfig,
     onAssetStateChanged: () => void,
     private readonly random: () => number = Math.random,
+    private readonly canTravel?: SpriteTravelValidator,
   ) {
     this.id = id;
     this.label = config.label;
@@ -326,14 +329,23 @@ export class SpriteActor {
   }
 
   private prepareTravel() {
-    const move = chooseWanderMove(
-      { x: this.offsetX, y: this.offsetY },
-      { x: this.config.travelRadius, y: this.config.travelRadiusY },
-      this.config.travelDistanceMin,
-      this.config.travelDistanceMax,
-      this.lastFacing,
-      this.random,
-    );
+    const start = { x: this.offsetX, y: this.offsetY };
+    let move: WanderMove | null = null;
+    for (let attempt = 0; attempt < 12; attempt += 1) {
+      const candidate = chooseWanderMove(
+        start,
+        { x: this.config.travelRadius, y: this.config.travelRadiusY },
+        this.config.travelDistanceMin,
+        this.config.travelDistanceMax,
+        this.lastFacing,
+        this.random,
+      );
+      if (!candidate) break;
+      if (!this.canTravel || this.canTravel(start, candidate.target)) {
+        move = candidate;
+        break;
+      }
+    }
     if (!move) {
       this.phaseRemaining = this.randomBetween(this.config.restDurationMs);
       return;
