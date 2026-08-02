@@ -156,9 +156,9 @@
   "runtime_artifacts": {
     "self_contained_ui_mount": "../dist/runtime/ui-mount.js",
     "mvu_loader": "../src/runtime/01-mvu-loader.js",
-    "checkpoint_card": "../dist/checkpoint-0.2.0-r63/幻想乡物语-测试检查点-0.2.0-r63.json",
-    "current_ui_script": "gensokyo-garden-ui-020-r63",
-    "current_checkpoint": "0.2.0-r63"
+    "checkpoint_card": "../dist/checkpoint-0.2.0-r64/幻想乡物语-测试检查点-0.2.0-r64.json",
+    "current_ui_script": "gensokyo-garden-ui-020-r64",
+    "current_checkpoint": "0.2.0-r64"
   },
   "checkpoint_adapter": {
     "command_dry_run": "npm run package:checkpoint:dry",
