@@ -46,6 +46,18 @@ export function pointInPolygon(point: Point, polygon: Point[]): boolean {
   return inside;
 }
 
+export function resolveMapTargetAnchor(
+  point: Point,
+  camera: { x: number; y: number; zoom: number },
+  canvas: { width: number; height: number; clientWidth: number },
+): Point {
+  const cssScale = canvas.clientWidth ? canvas.width / canvas.clientWidth : 1;
+  return {
+    x: (point.x * camera.zoom + canvas.width / 2 + camera.x) / cssScale,
+    y: (point.y * camera.zoom + canvas.height / 2 + camera.y) / cssScale,
+  };
+}
+
 export function resolveMapFacilitySprite(
   state: GardenState,
   facilityId: string,
@@ -598,9 +610,9 @@ export class GardenMap {
     if (this.selectedId && this.onSelectedAnchorMoved) {
       const selected = this.targets.find((item) => item.id === this.selectedId);
       if (selected) {
-        const cssScale = this.canvas.clientWidth ? this.canvas.width / this.canvas.clientWidth : 1;
-        const anchorX = (selected.x * this.camera.zoom + this.canvas.width / 2 + this.camera.x) / cssScale;
-        const anchorY = (selected.y * this.camera.zoom + this.canvas.height / 2 + this.camera.y) / cssScale;
+        const anchor = resolveMapTargetAnchor(selected, this.camera, this.canvas);
+        const anchorX = anchor.x;
+        const anchorY = anchor.y;
         if (!this.lastAnchor || Math.abs(anchorX - this.lastAnchor.x) > .5 || Math.abs(anchorY - this.lastAnchor.y) > .5) {
           this.lastAnchor = { x: anchorX, y: anchorY };
           this.onSelectedAnchorMoved(this.lastAnchor);

@@ -11,20 +11,19 @@ const { resolveRemoteRelease, validateRemoteR2Config } = await import(moduleUrl)
 
 const stableHash = (value) => createHash('sha256').update(`${JSON.stringify(value, null, 2)}\n`).digest('hex');
 
-test('remote R2 config rejects non-build-safe origins and unpinned coordinates', () => {
-  assert.throws(() => validateRemoteR2Config({ mode: 'remote-r2', baseUrl: 'http://assets.example', releaseId: 'release-001', manifestSha256: 'a'.repeat(64) }), /HTTPS/);
-  assert.throws(() => validateRemoteR2Config({ mode: 'remote-r2', baseUrl: 'https://assets.example/path?x=1', releaseId: 'release-001', manifestSha256: 'a'.repeat(64) }), /origin/);
-  assert.throws(() => validateRemoteR2Config({ mode: 'remote-r2', baseUrl: 'https://assets.example', releaseId: '../latest', manifestSha256: 'a'.repeat(64) }), /releaseId/);
+test('remote live config rejects non-build-safe origins and mutable coordinates', () => {
+  assert.throws(() => validateRemoteR2Config({ mode: 'remote-r2-live', baseUrl: 'http://assets.example', manifestPath: 'gensokyo-moving-garden/live/manifest.json' }), /HTTPS/);
+  assert.throws(() => validateRemoteR2Config({ mode: 'remote-r2-live', baseUrl: 'https://assets.example/path?x=1', manifestPath: 'gensokyo-moving-garden/live/manifest.json' }), /origin/);
+  assert.throws(() => validateRemoteR2Config({ mode: 'remote-r2-live', baseUrl: 'https://assets.example', manifestPath: 'gensokyo-moving-garden/releases/latest/manifest.json' }), /remote-r2-live/);
 });
 
-test('remote resolver validates manifest hash, origin, key, MIME and totals', async () => {
-  const releaseId = '0.2.0-r55-test';
+test('remote live resolver validates manifest hash, origin, key, MIME and totals', async () => {
   const baseUrl = 'https://assets.example';
-  const prefix = `gensokyo-moving-garden/releases/${releaseId}/`;
+  const prefix = 'gensokyo-moving-garden/live/';
   const withoutHash = {
-    schema_version: 'gensokyo-r2-release.v2',
+    schema_version: 'gensokyo-r2-live.v1',
     project_version: '0.2.0',
-    release_id: releaseId,
+    generation: 7,
     source_commit: 'a'.repeat(40),
     source_tree_dirty: false,
     generated_at: '2026-08-01T00:00:00Z',
@@ -33,21 +32,23 @@ test('remote resolver validates manifest hash, origin, key, MIME and totals', as
     totals: { files: 1, bytes: 3 },
     files: [{
       logical_id: 'asset:maps/map.webp', source: 'maps/map.webp', key: `${prefix}maps/map.webp`, mime: 'image/webp', bytes: 3,
-      sha256: 'b'.repeat(64), cache_control: 'public, max-age=31536000, immutable', required: true, fallback: 'ui-visual-fallback',
+      sha256: 'b'.repeat(64), cache_control: 'public, max-age=0, must-revalidate', required: true, fallback: 'ui-visual-fallback',
       priority_class: 'entry-critical', bundle: 'entry:map', trigger: 'opening-background', entry_gate: 'critical', category: 'map',
     }],
   };
   const manifest = { ...withoutHash, manifest_sha256: stableHash(withoutHash) };
+  const config = { mode: 'remote-r2-live', baseUrl, manifestPath: `${prefix}manifest.json` };
   const requested = [];
-  const result = await resolveRemoteRelease({ mode: 'remote-r2', baseUrl, releaseId, manifestSha256: manifest.manifest_sha256 }, async (url, init) => {
+  const result = await resolveRemoteRelease(config, async (url, init) => {
     requested.push({ url, init });
     return new Response(JSON.stringify(manifest), { status: 200, headers: { 'content-type': 'application/json' } });
   });
   assert.equal(requested[0].url, `${baseUrl}/${prefix}manifest.json`);
   assert.equal(requested[0].init.credentials, 'omit');
+  assert.equal(requested[0].init.cache, 'no-store');
   assert.equal(result.urls.get('asset:maps/map.webp'), `${baseUrl}/${prefix}maps/map.webp`);
 
   const bad = structuredClone(manifest);
   bad.files[0].key = `${prefix}../escape.webp`;
-  await assert.rejects(() => resolveRemoteRelease({ mode: 'remote-r2', baseUrl, releaseId, manifestSha256: manifest.manifest_sha256 }, async () => new Response(JSON.stringify(bad))), /key 越界/);
+  await assert.rejects(() => resolveRemoteRelease(config, async () => new Response(JSON.stringify(bad))), /key/);
 });

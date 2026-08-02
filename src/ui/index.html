@@ -24,7 +24,7 @@
       </div>
       <h1 id="gg-opening-title">幻想乡物语</h1>
       <p class="gg-opening-sub">打开祖父留下的最后一封信</p>
-      <p class="gg-visually-hidden">确认身份后会先展开继承庭园的聊天序章；只有你亲手接过庭守钥，继承才会完成。</p>
+      <p class="gg-visually-hidden">确认身份后会在当前开场楼层写入初始资料并直接进入庭园，不会发送消息或调用语言模型。</p>
       <form id="gg-opening-form" class="gg-opening-form">
         <label class="gg-opening-field">玩家姓名<input id="gg-opening-name" name="playerName" maxlength="40" autocomplete="off" required></label>
         <label class="gg-opening-field" hidden>称谓或代词<input id="gg-opening-pronouns" name="playerPronouns" maxlength="40" value="中性称谓"></label>
@@ -32,22 +32,13 @@
         <label class="gg-opening-field">庭园名称<input id="gg-opening-garden" name="gardenName" maxlength="60" value="无名庭园" required></label>
         <div class="gg-opening-actions">
           <button type="button" id="gg-opening-quick">读取当前 Persona</button>
-          <button type="submit" id="gg-opening-commit">打开遗信 · 开始序章</button>
+          <button type="submit" id="gg-opening-commit">接过庭守钥 · 进入庭园</button>
         </div>
       </form>
-      <section id="gg-opening-recovery" class="gg-opening-recovery" aria-labelledby="gg-opening-recovery-title" hidden>
-        <h2 id="gg-opening-recovery-title">序章 · 祖父留下的庭园</h2>
-        <article id="gg-opening-story" class="gg-opening-story" aria-live="polite"></article>
-        <p id="gg-opening-progress"></p>
-        <div class="gg-opening-actions">
-          <button type="button" id="gg-opening-enter">接过庭守钥 · 继承庭园</button>
-          <button type="button" id="gg-opening-repair" hidden>修复旧版开场变量</button>
-        </div>
-      </section>
       <section class="gg-opening-preview-shell" aria-labelledby="gg-opening-preview-title" hidden>
         <h2 id="gg-opening-preview-title">将写入的开局资料与场景摘要</h2>
         <pre id="gg-opening-preview" class="gg-opening-preview"></pre>
-        <p class="gg-note">预览和编辑不会改变游戏状态；读完序章并确认继承后才会提交开局字段。</p>
+        <p class="gg-note">预览和编辑不会改变游戏状态；确认后只会写入开局字段，不会生成聊天序章。</p>
       </section>
     </section>
 
@@ -68,7 +59,7 @@
           <h2 id="gg-tutorial-guide-title">下一步</h2>
           <p id="gg-tutorial-guide-text"></p>
         </div>
-        <button type="button" id="gg-tutorial-guide-skip">跳过指引</button>
+        <button type="button" id="gg-tutorial-guide-skip">快进并完成教程</button>
       </aside>
       <header class="gg-header">
         <div class="gg-title-wrap">
@@ -111,6 +102,9 @@
       <section id="gg-view-gal" class="gg-view gg-gal" aria-labelledby="gg-scene-speaker" hidden>
         <header class="gg-scene-toolbar">
           <div class="gg-scene-tools">
+            <button type="button" id="gg-session-history" class="gg-gal-history-button"
+              aria-label="查看本次对话历史" aria-haspopup="dialog"
+              aria-controls="gg-session-history-dialog">历史</button>
             <button type="button" id="gg-regenerate">重新生成</button>
             <button type="button" id="gg-stop">停止</button>
           </div>

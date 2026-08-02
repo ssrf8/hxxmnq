@@ -13,16 +13,9 @@ const buildArgs = Object.fromEntries(process.argv.slice(2).map((arg) => {
 const assetMode = buildArgs['asset-mode'] ?? 'embedded';
 let remoteAssetConfig = null;
 if (assetMode !== 'embedded') {
-  if (assetMode !== 'remote-r2') throw new Error('--asset-mode 只允许 embedded 或 remote-r2');
-  if (typeof buildArgs['release-manifest'] !== 'string') throw new Error('remote-r2 构建必须显式提供 --release-manifest');
-  const releaseManifest = JSON.parse(await readFile(buildArgs['release-manifest'], 'utf8'));
-  if (releaseManifest.schema_version !== 'gensokyo-r2-release.v2' || releaseManifest.source_tree_dirty) {
-    throw new Error('remote-r2 构建只接受干净提交生成的 v2 release manifest');
-  }
-  if (typeof releaseManifest.asset_base_url !== 'string' || !releaseManifest.asset_base_url.startsWith('https://')) {
-    throw new Error('remote-r2 release manifest 缺少固定 HTTPS asset_base_url');
-  }
-  const baseUrl = new URL(releaseManifest.asset_base_url);
+  if (assetMode !== 'remote-r2-live') throw new Error('--asset-mode 只允许 embedded 或 remote-r2-live');
+  if (typeof buildArgs['asset-base-url'] !== 'string') throw new Error('remote-r2-live 构建必须显式提供 --asset-base-url');
+  const baseUrl = new URL(buildArgs['asset-base-url']);
   if (
     baseUrl.protocol !== 'https:'
     || baseUrl.username
@@ -30,26 +23,11 @@ if (assetMode !== 'embedded') {
     || baseUrl.search
     || baseUrl.hash
     || baseUrl.pathname !== '/'
-    || baseUrl.origin !== releaseManifest.asset_base_url
-  ) {
-    throw new Error('remote-r2 release manifest 的 asset_base_url 必须是纯 HTTPS origin');
-  }
-  const { manifest_sha256: declaredManifestHash, ...manifestWithoutHash } = releaseManifest;
-  const actualManifestHash = createHash('sha256').update(stableJson(manifestWithoutHash)).digest('hex');
-  if (!/^[a-f0-9]{64}$/.test(declaredManifestHash) || declaredManifestHash !== actualManifestHash) {
-    throw new Error('remote-r2 release manifest SHA-256 校验失败');
-  }
-  if (
-    !/^[a-z0-9][a-z0-9.-]{2,62}$/.test(releaseManifest.release_id)
-    || releaseManifest.object_prefix !== `gensokyo-moving-garden/releases/${releaseManifest.release_id}/`
-  ) {
-    throw new Error('remote-r2 release ID 或 object_prefix 非法');
-  }
+  ) throw new Error('remote-r2-live 的 asset-base-url 必须是纯 HTTPS origin');
   remoteAssetConfig = {
-    mode: 'remote-r2',
+    mode: 'remote-r2-live',
     baseUrl: baseUrl.origin,
-    releaseId: releaseManifest.release_id,
-    manifestSha256: releaseManifest.manifest_sha256,
+    manifestPath: 'gensokyo-moving-garden/live/manifest.json',
   };
 }
 const assetManifest = JSON.parse(await readFile('src/assets/asset-manifest.json', 'utf8'));
@@ -59,7 +37,7 @@ const imageMimeByExtension = new Map([
   ['.webp', 'image/webp'],
 ]);
 const imageDataUrl = (bytes, source) => {
-  if (remoteAssetConfig) return `${remoteAssetConfig.baseUrl}/gensokyo-moving-garden/releases/${remoteAssetConfig.releaseId}/${source}`;
+  if (remoteAssetConfig) return `${remoteAssetConfig.baseUrl}/gensokyo-moving-garden/live/${source}`;
   const mime = imageMimeByExtension.get(extname(source).toLowerCase());
   if (!mime) throw new Error(`不支持的图片格式：${source}`);
   return `data:${mime};base64,${bytes.toString('base64')}`;
@@ -360,8 +338,35 @@ await build({
   sourcemap: true,
   legalComments: 'none',
 });
+await build({
+  entryPoints: ['src/ui/cirno-walk-demo.ts'],
+  bundle: true,
+  format: 'iife',
+  target: ['es2022'],
+  outfile: 'dist/ui/cirno-walk-demo.js',
+  sourcemap: true,
+  legalComments: 'none',
+});
+await build({
+  entryPoints: ['src/ui/cirno-sprite-calibration.ts'],
+  bundle: true,
+  format: 'iife',
+  target: ['es2022'],
+  outfile: 'dist/ui/cirno-sprite-calibration.js',
+  sourcemap: true,
+  legalComments: 'none',
+});
+await build({
+  entryPoints: ['src/ui/cirno-height-calibration.ts'],
+  bundle: true,
+  format: 'iife',
+  target: ['es2022'],
+  outfile: 'dist/ui/cirno-height-calibration.js',
+  sourcemap: true,
+  legalComments: 'none',
+});
 const previewAssetBase = remoteAssetConfig
-  ? `${remoteAssetConfig.baseUrl}/gensokyo-moving-garden/releases/${remoteAssetConfig.releaseId}`
+  ? `${remoteAssetConfig.baseUrl}/gensokyo-moving-garden/live`
   : '../assets';
 const previewAssetUrl = (source) => `${previewAssetBase}/${source}`;
 const previewFacilitySprites = Object.fromEntries(mapFacilityAssets.map(({ id, areaId, forms, damageOverlay, damageReplacement, geometry }) => [
@@ -385,6 +390,7 @@ const previewGalPortraitSources = Object.fromEntries(galPortraitAssets.map(({ id
   ])),
 ]));
 const previewDataset = {
+  previewHarness: 'true',
   assetBase: previewAssetBase,
   assetDeliveryConfig: remoteAssetConfig ? JSON.stringify(remoteAssetConfig) : undefined,
   mapSrc: previewAssetUrl(gardenBaseAsset.source),
@@ -462,6 +468,9 @@ const previewHtml = (await readFile('src/ui/index.html', 'utf8')).replace(
 await Promise.all([
   writeFile('dist/ui/index.html', previewHtml, 'utf8'),
   copyFile('src/ui/styles.css', 'dist/ui/styles.css'),
+  copyFile('src/ui/cirno-walk-demo.html', 'dist/ui/cirno-walk-demo.html'),
+  copyFile('src/ui/cirno-sprite-calibration.html', 'dist/ui/cirno-sprite-calibration.html'),
+  copyFile('src/ui/cirno-height-calibration.html', 'dist/ui/cirno-height-calibration.html'),
 ]);
 await Promise.all([
   mkdir('dist/assets/maps', { recursive: true }),
@@ -720,7 +729,7 @@ const battleBulletsLocalDataUrl = imageDataUrl(battleBulletsLocalBytes, localBul
 const battleSfxDataUrls = Object.fromEntries(battleSfxIds.map((id) => [
   id,
   remoteAssetConfig
-    ? `${remoteAssetConfig.baseUrl}/gensokyo-moving-garden/releases/${remoteAssetConfig.releaseId}/${battleSfxSources[id]}`
+    ? `${remoteAssetConfig.baseUrl}/gensokyo-moving-garden/live/${battleSfxSources[id]}`
     : `data:audio/wav;base64,${battleSfxBytes[id].toString('base64')}`,
 ]));
 const galPortraitDataUrls = Object.fromEntries(await Promise.all(galPortraitAssets.map(async ({ id, sources }) => [
@@ -735,6 +744,7 @@ const galPortraitDataUrls = Object.fromEntries(await Promise.all(galPortraitAsse
 ])));
 const embedded = {
   assetDeliveryConfig: remoteAssetConfig,
+  assetBase: remoteAssetConfig ? previewAssetBase : undefined,
   body,
   css,
   appJs,

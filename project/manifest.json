@@ -2,7 +2,7 @@
   "id": "gensokyo-moving-garden-0.2.0",
   "version": "0.2.0",
   "status": "candidate",
-  "next_checkpoint": "0.2.0-r54-ui-beautification",
+  "next_checkpoint": "0.2.0-r64-remote-r2-live-candidate",
   "planned_checkpoint_sequence": [
     "0.2.0-r19",
     "0.2.0-r20",
@@ -39,7 +39,16 @@
     "0.2.0-r51",
     "0.2.0-r52",
     "0.2.0-r53",
-    "0.2.0-r54"
+    "0.2.0-r54",
+    "0.2.0-r55",
+    "0.2.0-r56",
+    "0.2.0-r57",
+    "0.2.0-r58",
+    "0.2.0-r59",
+    "0.2.0-r60",
+    "0.2.0-r61",
+    "0.2.0-r62",
+    "0.2.0-r63"
   ],
   "source_root": "../src",
   "test_root": "../tests",
@@ -80,12 +89,16 @@
     "runtime_report_r23": "./runtime-report-0.2.0-r23.md",
     "r19_r20_greenhouse_plan": "./r19-r20-greenhouse-completion-plan.md",
     "runtime_report_r28": "./runtime-report-0.2.0-r28.md",
+    "runtime_report_r57": "./runtime-report-0.2.0-r57.md",
+    "runtime_report_r58": "./runtime-report-0.2.0-r58.md",
     "presence_sync_contract": "./presence-sync-contract.md",
     "next_update_plan": "./r29-r37-m1-expansion-plan.md",
     "m2_expansion_plan": "./r38-r45-m2-expansion-plan.md",
     "runtime_architecture_optimization": "./runtime-architecture-optimization-plan.md",
     "asset_delivery_and_r2_plan": "./asset-delivery-and-r2-plan.md",
     "r2_deployment_readiness": "./r2-deployment-readiness.md",
+    "r2_packaging_runbook": "./r2-packaging-runbook.md",
+    "live_asset_publish": "./live-asset-publish.md",
     "battle_bgm_r2_template": "./battle-bgm-r2-template.md",
     "gal_portrait_variable_and_r2_pool_plan": "./gal-portrait-variable-and-r2-pool-plan.md"
   },
@@ -142,9 +155,9 @@
   "runtime_artifacts": {
     "self_contained_ui_mount": "../dist/runtime/ui-mount.js",
     "mvu_loader": "../src/runtime/01-mvu-loader.js",
-    "checkpoint_card": "../dist/checkpoint-0.2.0-r54/幻想乡物语-测试检查点-0.2.0-r54.json",
-    "current_ui_script": "gensokyo-garden-ui-020-r54",
-    "current_checkpoint": "0.2.0-r54"
+    "checkpoint_card": "../dist/checkpoint-0.2.0-r63/幻想乡物语-测试检查点-0.2.0-r63.json",
+    "current_ui_script": "gensokyo-garden-ui-020-r63",
+    "current_checkpoint": "0.2.0-r63"
   },
   "checkpoint_adapter": {
     "command_dry_run": "npm run package:checkpoint:dry",

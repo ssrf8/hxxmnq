@@ -42,6 +42,8 @@ export interface SpriteActorConfig {
   settleDurationMs: readonly [number, number];
   /** Per-facing visual fit from the turnaround cells to the approved motion frames. */
   idleFrameTransforms?: Record<SpriteFacing, SpriteFrameTransform>;
+  /** Per-facing visual fit applied while a movement atlas is rendered. */
+  motionFrameTransforms?: Record<SpriteFacing, SpriteFrameTransform>;
   /** Per-facing luminance correction applied only while a movement frame is rendered. */
   motionFrameBrightness?: Record<SpriteFacing, number>;
 }
@@ -509,6 +511,7 @@ export class SpriteActor {
         row: cell.row,
         animated: this.motion === 'walk',
         v2: true,
+        transform: this.motion === 'walk' ? this.config.motionFrameTransforms?.[this.facing] : undefined,
         brightness: this.motion === 'walk' ? this.config.motionFrameBrightness?.[this.facing] : undefined,
       };
     }
@@ -528,6 +531,7 @@ export class SpriteActor {
         row: cell.row,
         animated: this.motion === 'walk',
         v2: true,
+        transform: this.motion === 'walk' ? this.config.motionFrameTransforms?.[this.facing] : undefined,
         brightness: this.motion === 'walk' ? this.config.motionFrameBrightness?.[this.facing] : undefined,
       };
     }
@@ -541,6 +545,7 @@ export class SpriteActor {
       row: useMotionSheet ? facingRow[this.facing] : facingCell[this.facing].y,
       animated: useMotionSheet,
       v2: false,
+      transform: useMotionSheet ? this.config.motionFrameTransforms?.[this.facing] : this.config.idleFrameTransforms?.[this.facing],
       brightness: useMotionSheet ? this.config.motionFrameBrightness?.[this.facing] : undefined,
     };
   }

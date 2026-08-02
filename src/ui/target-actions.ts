@@ -480,14 +480,6 @@ export function targetActions(target: InteractionTarget, state: GardenState): Ta
           { eventId: 'reimu_boundary_inspection', fixedPresentation: true },
         ));
       }
-      base.push(action(
-        target,
-        'pat_head',
-        '摸摸头',
-        '尝试摸摸她的头；是否允许由角色与当前关系决定。',
-        '我试探着向博丽灵梦伸出手，想轻轻摸一摸她的头。我只是尝试，不预设她会接受。',
-        'gal',
-      ));
     }
     if (target.id === 'marisa'
       && state.events?.completed_key_events?.[GREENHOUSE_EVENTS.firstUse]
@@ -503,6 +495,14 @@ export function targetActions(target: InteractionTarget, state: GardenState): Ta
         { eventId: GREENHOUSE_EVENTS.conversation },
       ));
     }
+    base.push(action(
+      target,
+      'pat_head',
+      '摸摸头',
+      `尝试摸摸${target.label}的头；是否允许由角色与当前关系决定。`,
+      `我试探着向${target.label}伸出手，想轻轻摸一摸对方的头。我只是尝试，不预设对方会接受。`,
+      'gal',
+    ));
     base.push(action(target, 'leave', '离开', '不开始新会话。', '', 'close'));
     return base;
   }

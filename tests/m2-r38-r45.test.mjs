@@ -72,19 +72,31 @@ test('R38 迁移幂等补齐 anomaly/visit/facility/scene 默认值且保留旧�
 test('R38 背包目录拒绝未知 ID，并支持 0/1/99 边界', async () => {
   const inventory = await importTypescript('../src/ui/inventory-rules.ts');
   let state = await baseState();
-  state = inventory.addConsumable(state, 'fairy_candy_pack', 1);
-  assert.equal(inventory.consumableCount(state, 'fairy_candy_pack'), 1);
-  state.inventory.consumables.fairy_candy_pack = 99;
-  assert.throws(() => inventory.addConsumable(state, 'fairy_candy_pack', 1), /上限/);
+  state = inventory.addConsumable(state, 'foreign_vibrator', 1);
+  assert.equal(inventory.consumableCount(state, 'foreign_vibrator'), 1);
+  state.inventory.consumables.foreign_vibrator = 99;
+  assert.throws(() => inventory.addConsumable(state, 'foreign_vibrator', 1), /上限/);
   assert.throws(() => inventory.validateItemId('player_made_sword'), /登记目录/);
   const rows = inventory.inventoryDisplayRows({
     ...state,
-    inventory: { consumables: { fairy_candy_pack: 2, incident_trigger_card: 1 } },
+    inventory: { consumables: { foreign_vibrator: 2, incident_trigger_card: 1 } },
     anomaly_cycle: { active: { end_period_serial: 40, start_period_serial: 10 }, pending_activation: null, history: [] },
   });
   const card = rows.find((row) => row.item_id === 'incident_trigger_card');
   assert.equal(card.usable, false);
   assert.match(card.disabledReason, /已有异变/);
+});
+
+test('退役的五件旧场景道具不再进入商店与背包目录', async () => {
+  const retired = ['fairy_candy_pack', 'moon_viewing_tea', 'hot_spring_sachet', 'banquet_bento', 'oni_sake_flask'];
+  const shop = JSON.parse(await read('../src/shop/catalog.json'));
+  const inventory = JSON.parse(await read('../src/items/catalog.json'));
+  const shopIds = new Set(shop.items.map((item) => item.item_id));
+  const inventoryIds = new Set(inventory.items.map((item) => item.item_id));
+  for (const itemId of retired) {
+    assert.equal(shopIds.has(itemId), false, itemId);
+    assert.equal(inventoryIds.has(itemId), false, itemId);
+  }
 });
 
 test('R38 来访调度：相同 seed 稳定、未认识拒绝、人数上限与本地通知', async () => {
@@ -186,7 +198,7 @@ test('R39 异变 28 时段、隐藏源头隔离、取消退卡与历史有界', 
   assert.equal(resolved.anomaly_cycle.history.length, 1);
 });
 
-test('R40 妖精花园建造/换型/12-24 解锁与糖果商店', async () => {
+test('R40 妖精花园建造/换型/12-24 解锁与琪露诺道具商店', async () => {
   const facility = await importTypescript('../src/ui/facility-rules.ts');
   const shop = await importTypescript('../src/ui/shop-rules.ts');
   const time = await importTypescript('../src/ui/time-rules.ts');
@@ -195,14 +207,14 @@ test('R40 妖精花园建造/换型/12-24 解锁与糖果商店', async () => {
   state.resources.materials = 10;
   state.resources.coins = 50;
   state.shop.unlocked = true;
-  assert.throws(() => shop.purchaseShopItem(state, 'fairy_candy_pack', 'candy-early'), /尚未随对应设施开放/);
+  assert.throws(() => shop.purchaseShopItem(state, 'cirno_frog_bait', 'frog-early'), /尚未随对应设施开放/);
   state = facility.buildFacility(state, 'fairy_garden', '四季花境', 'build:fairy:1');
   assert.equal(state.resources.materials, 6);
   assert.equal(state.facility_runtime.fairy_garden.current_form, '四季花境');
   assert.equal(state.facilities.fairy_garden.state, '启用');
-  const candy = shop.purchaseShopItem(state, 'fairy_candy_pack', 'candy-1');
-  assert.equal(candy.inventory.consumables.fairy_candy_pack, 1);
-  assert.equal(candy.resources.coins, 44);
+  const frog = shop.purchaseShopItem(state, 'cirno_frog_bait', 'frog-1');
+  assert.equal(frog.inventory.consumables.cirno_frog_bait, 1);
+  assert.equal(frog.resources.coins, 38);
 
   // 12-period fallback unlocks second-form choice
   let advanced = state;
@@ -255,24 +267,16 @@ test('R40 换型只被最近该设施的在场角色阻止', async () => {
   assert.match(facility.facilityRemodelBlock(state, 'moon_spring', '静水观测池'), /雾雨魔理沙|marisa/);
 });
 
-test('R41 月见温泉模式与茶/香包解锁', async () => {
+test('R41 月见温泉模式与参与限制', async () => {
   const facility = await importTypescript('../src/ui/facility-rules.ts');
   const activity = await importTypescript('../src/ui/activity-rules.ts');
-  const shop = await importTypescript('../src/ui/shop-rules.ts');
   let state = await baseState();
   state.events.completed_key_events.select_greenhouse_form = 'selected_free_growth';
   state.resources.materials = 10;
-  state.resources.coins = 40;
-  state.shop.unlocked = true;
   assert.throws(() => activity.startMoonSpringSession(state, 'public'), /尚未建成/);
   state = facility.buildFacility(state, 'moon_spring', '露天月见汤', 'build:moon:1');
   assert.equal(state.resources.materials, 4);
-  const tea = shop.purchaseShopItem(state, 'moon_viewing_tea', 'tea-1');
-  const sachet = shop.purchaseShopItem(tea, 'hot_spring_sachet', 'sachet-1');
-  assert.equal(sachet.inventory.consumables.moon_viewing_tea, 1);
-  assert.equal(sachet.inventory.consumables.hot_spring_sachet, 1);
-  assert.equal(sachet.resources.coins, 24);
-  state = activity.startMoonSpringSession(sachet, 'public');
+  state = activity.startMoonSpringSession(state, 'public');
   assert.equal(state.garden_activities.moon_spring_session.participation_mode, 'public');
   assert.throws(() => activity.startMoonSpringSession(state, 'public'), /正在进行/);
   state = activity.endMoonSpringSession(state);
@@ -281,10 +285,9 @@ test('R41 月见温泉模式与茶/香包解锁', async () => {
   assert.equal(state.garden_activities.moon_spring_session, null);
 });
 
-test('R42 宴会排期、6 人上限与食盒/鬼酒', async () => {
+test('R42 宴会排期与 6 人上限', async () => {
   const facility = await importTypescript('../src/ui/facility-rules.ts');
   const activity = await importTypescript('../src/ui/activity-rules.ts');
-  const shop = await importTypescript('../src/ui/shop-rules.ts');
   const visitors = await importTypescript('../src/ui/visitor-rules.ts');
   let state = await baseState();
   state.events.completed_key_events = {
@@ -295,19 +298,13 @@ test('R42 宴会排期、6 人上限与食盒/鬼酒', async () => {
     suika_first_meeting: 'yes',
   };
   state.resources.materials = 10;
-  state.resources.coins = 50;
-  state.shop.unlocked = true;
   state = facility.buildFacility(state, 'banquet_plaza', '灯火夜市', 'build:banquet:1');
-  const food = shop.purchaseShopItem(state, 'banquet_bento', 'bento-1');
-  const sake = shop.purchaseShopItem(food, 'oni_sake_flask', 'sake-1');
-  assert.equal(sake.inventory.consumables.banquet_bento, 1);
-  assert.equal(sake.resources.coins, 28);
-  assert.throws(() => activity.scheduleBanquet(sake, {
+  assert.throws(() => activity.scheduleBanquet(state, {
     activityId: 'banquet:too-far',
     mode: 'public',
     startOffsetPeriods: 5,
   }), /未来 4 个标准时段/);
-  state = activity.scheduleBanquet(sake, {
+  state = activity.scheduleBanquet(state, {
     activityId: 'banquet:now',
     mode: 'public',
     invitedCharacterIds: ['mystia', 'suika'],
@@ -448,20 +445,18 @@ test('R44 场景道具三上限、收尾清理、修缮包与异变并存', asyn
   state = facility.buildFacility(state, 'moon_spring', '露天月见汤', 'build:m');
   // second build should fail due to needing materials continuity - actually first build spent 4, second needs 6, have 16 left ok.
   // Wait - buildFacility on second: active_construction is null, fairy already built. moon can build.
-  state = shop.purchaseShopItem(state, 'fairy_candy_pack', 'c1');
-  state = shop.purchaseShopItem(state, 'moon_viewing_tea', 't1');
-  state = shop.purchaseShopItem(state, 'hot_spring_sachet', 's1');
+  state = shop.purchaseShopItem(state, 'foreign_vibrator', 'v1');
+  state = shop.purchaseShopItem(state, 'foreign_egg', 'e1');
+  state = shop.purchaseShopItem(state, 'reimu_coin_bait', 'coin1');
+  state = shop.purchaseShopItem(state, 'cirno_frog_bait', 'frog1');
   state = shop.purchaseShopItem(state, 'emergency_repair_kit', 'r1');
-  state.inventory.consumables.fairy_candy_pack = 2;
-  state.inventory.consumables.moon_viewing_tea = 1;
-  state.inventory.consumables.hot_spring_sachet = 1;
-  state.inventory.consumables.banquet_bento = 1;
-  state = activity.queueSceneItemUse(state, 'fairy_candy_pack', 'use:1', 'scene-a');
-  state = activity.queueSceneItemUse(state, 'moon_viewing_tea', 'use:2', 'scene-a');
-  state = activity.queueSceneItemUse(state, 'hot_spring_sachet', 'use:3', 'scene-a');
-  assert.throws(() => activity.queueSceneItemUse(state, 'banquet_bento', 'use:4', 'scene-a'), /最多保留 3 种/);
-  state = activity.queueSceneItemUse(state, 'fairy_candy_pack', 'use:1b', 'scene-a');
-  assert.equal(state.scene_item_context.entries.find((entry) => entry.item_id === 'fairy_candy_pack').quantity_used, 2);
+  state.inventory.consumables.foreign_vibrator = 2;
+  state = activity.queueSceneItemUse(state, 'foreign_vibrator', 'use:1', 'scene-a');
+  state = activity.queueSceneItemUse(state, 'foreign_egg', 'use:2', 'scene-a');
+  state = activity.queueSceneItemUse(state, 'reimu_coin_bait', 'use:3', 'scene-a');
+  assert.throws(() => activity.queueSceneItemUse(state, 'cirno_frog_bait', 'use:4', 'scene-a'), /最多保留 3 种/);
+  state = activity.queueSceneItemUse(state, 'foreign_vibrator', 'use:1b', 'scene-a');
+  assert.equal(state.scene_item_context.entries.find((entry) => entry.item_id === 'foreign_vibrator').quantity_used, 2);
   const reserved = special.beginAnomalyCardUse(state, 'anom:items', {
     title: '道具异变', rule_text: '道具描写必须服从异变', scope_mode: 'all', character_ids: [], presentation_tone: '', excluded_content: '',
   });
@@ -470,7 +465,7 @@ test('R44 场景道具三上限、收尾清理、修缮包与异变并存', asyn
   }).state;
   const text = prompt.buildPromptContext(state, { kind: 'ordinary', includeSceneItems: true });
   assert.match(text, /道具异变/);
-  assert.match(text, /妖精糖果包|当前场景道具/);
+  assert.match(text, /振动棒|当前场景道具/);
   prompt.assertNoHiddenOriginLeak(text);
   state = activity.beginSceneItemClosing(state, 'close:1');
   state = activity.clearSceneItemContext(state);

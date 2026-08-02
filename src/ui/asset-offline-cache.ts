@@ -1,11 +1,11 @@
-import type { RemoteReleaseManifest } from './asset-remote-resolver';
+import type { RemoteLiveManifest } from './asset-remote-resolver';
 
 const CACHE_PREFIX = 'gg-runtime-assets:';
 
 export class RuntimeAssetOfflineCache {
-  constructor(private readonly releaseId: string) {}
+  constructor(private readonly generation: number) {}
 
-  get cacheName() { return `${CACHE_PREFIX}${this.releaseId}`; }
+  get cacheName() { return `${CACHE_PREFIX}live:${this.generation}`; }
 
   async estimate(requiredBytes: number) {
     const estimate = await navigator.storage?.estimate?.();
@@ -13,7 +13,7 @@ export class RuntimeAssetOfflineCache {
     return { requiredBytes: Math.ceil(requiredBytes * 1.25), availableBytes: available, supported: 'caches' in globalThis };
   }
 
-  async install(manifest: RemoteReleaseManifest, baseUrl: string, signal?: AbortSignal) {
+  async install(manifest: RemoteLiveManifest, baseUrl: string, signal?: AbortSignal) {
     if (!('caches' in globalThis)) return { installed: 0, status: 'unsupported' as const };
     const budget = await this.estimate(manifest.totals.bytes);
     if (budget.availableBytes !== null && budget.availableBytes < budget.requiredBytes) return { installed: 0, status: 'insufficient-quota' as const };
@@ -23,7 +23,7 @@ export class RuntimeAssetOfflineCache {
       for (const file of manifest.files) {
         if (signal?.aborted) return { installed, status: 'aborted' as const };
         const request = new Request(`${baseUrl}/${file.key}`, { mode: 'cors', credentials: 'omit' });
-        const response = await fetch(request, { cache: 'force-cache', signal });
+        const response = await fetch(request, { cache: 'no-cache', signal });
         if (!response.ok) throw new Error(`离线缓存下载失败：${file.logical_id} HTTP ${response.status}`);
         await cache.put(request, response);
         installed += 1;
@@ -35,7 +35,7 @@ export class RuntimeAssetOfflineCache {
     }
   }
 
-  async clearCurrentRelease() {
+  async clearCurrentGeneration() {
     return 'caches' in globalThis ? caches.delete(this.cacheName) : false;
   }
 

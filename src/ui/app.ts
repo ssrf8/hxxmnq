@@ -106,6 +106,7 @@ const sceneItemOptions = byId<HTMLElement>('gg-scene-item-options');
 const replyPanel = byId<HTMLElement>('gg-reply-panel');
 const suggestedReplies = byId<HTMLElement>('gg-suggested-replies');
 const dialogueBox = byId<HTMLButtonElement>('gg-dialogue-box');
+const sessionHistoryButton = byId<HTMLButtonElement>('gg-session-history');
 const sessionHistoryDialog = byId<HTMLDialogElement>('gg-session-history-dialog');
 const sessionHistoryList = byId<HTMLElement>('gg-session-history-list');
 const portrait = byId<HTMLImageElement>('gg-portrait');
@@ -550,19 +551,21 @@ const taggedAssets = (
 ) => collectPreloadAssets(...values).map((asset) => ({ ...asset, ...metadata, logicalId: `asset:${asset.url}` }));
 const scheduledAssets: PreloadAsset[] = [
   ...taggedAssets([mapSource, navigationMaskSource], {
-    bundle: 'entry:map', priorityClass: 'entry-critical', entryGate: 'critical', category: 'map',
+    bundle: 'entry:map', priorityClass: 'entry-critical', entryGate: 'critical', category: 'map', crossOrigin: 'anonymous',
   }),
   ...taggedAssets([dungeonButtonSource, shopButtonSource, inventoryButtonSource], {
     bundle: 'entry:navigation', priorityClass: 'entry-critical', entryGate: 'critical', category: 'ui',
   }),
   ...Object.entries(characterSprites).flatMap(([id, sprite]) => taggedAssets([
     sprite.idleSource, sprite.motionSource, sprite.animationSource, sprite.sequence?.source,
-  ], { bundle: `character:${id}`, priorityClass: 'entry-contextual', entryGate: 'none', category: 'character' })),
+  ], {
+    bundle: `character:${id}`, priorityClass: 'entry-contextual', entryGate: 'none', category: 'character', crossOrigin: 'anonymous',
+  })),
   ...Object.entries(mapFacilitySprites).flatMap(([id, sprite]) => taggedAssets([sprite], {
-    bundle: `facility:${id}`, priorityClass: 'entry-contextual', entryGate: 'none', category: 'facility',
+    bundle: `facility:${id}`, priorityClass: 'entry-contextual', entryGate: 'none', category: 'facility', crossOrigin: 'anonymous',
   })),
   ...taggedAssets([battleAtlasSources], {
-    bundle: 'scene:battle', priorityClass: 'scene-on-demand', entryGate: 'none', category: 'battle',
+    bundle: 'scene:battle', priorityClass: 'scene-on-demand', entryGate: 'none', category: 'battle', crossOrigin: 'anonymous',
   }),
   ...taggedAssets([battleSfxSources, shopBackgroundSource, mainHouseSource, greenhouseSource], {
     bundle: 'background:core', priorityClass: 'background-core', entryGate: 'none', category: 'core',
@@ -572,6 +575,7 @@ const scheduledAssets: PreloadAsset[] = [
   }),
 ];
 const assetPreloader = new AssetPreloader(scheduledAssets, {
+  maxAttempts: 8,
   beforeStart: assetDeliveryConfigSource
     ? async () => {
       const resolved = await resolveRemoteRelease(JSON.parse(assetDeliveryConfigSource));
@@ -961,7 +965,11 @@ function renderSuggestedReplies() {
       button.type = 'button';
       button.textContent = reply.label;
       button.dataset.replyId = reply.id;
-      button.addEventListener('click', () => void submitGalMessage(reply.intent));
+      button.addEventListener('click', () => void submitGalMessage(
+        reply.intent,
+        'interaction',
+        { userVisibleText: reply.label },
+      ));
       fragment.append(button);
     }
   }
@@ -1010,11 +1018,16 @@ function isRestoredFixedPresentation(messages: ChatMessageView[], latest: ChatMe
   return false;
 }
 
-function userHistoryText(value: string) {
-  return String(value ?? '')
-    .split('【庭园正文协议】')[0]
+function userHistoryText(message: ChatMessageView) {
+  if (message.extra && Object.hasOwn(message.extra, 'gensokyoUserVisibleText')) {
+    const explicit = message.extra.gensokyoUserVisibleText;
+    return typeof explicit === 'string' ? explicit.trim() : '';
+  }
+  const legacy = String(message.text ?? '')
+    .split(/【(?:庭园正文协议|庭园在场快照|场景事实)[^】]*】/u)[0]
     .replace(/<GensokyoAction>[\s\S]*?<\/GensokyoAction>/giu, '')
     .trim();
+  return /^【(?:庭园行动|设施事实|异变启用|阶段边界)[^】]*】/u.test(legacy) ? '' : legacy;
 }
 
 function sessionHistoryMessages(messages: ChatMessageView[], preferredUserMessageId?: number) {
@@ -1055,7 +1068,9 @@ function sessionHistoryMessages(messages: ChatMessageView[], preferredUserMessag
 async function openSessionHistory() {
   const transaction = await bridge.getTransactionState();
   const messages = sessionHistoryMessages(await bridge.listMessages(), transaction.userMessageId)
-    .filter((message) => message.role !== 'assistant' || message.text.trim());
+    .filter((message) => message.role === 'assistant'
+      ? message.text.trim()
+      : message.role === 'user' && userHistoryText(message));
   const fragment = document.createDocumentFragment();
   if (!messages.length) {
     const empty = document.createElement('p');
@@ -1071,7 +1086,7 @@ async function openSessionHistory() {
     const body = document.createElement('p');
     if (message.role === 'user') {
       header.textContent = '你';
-      body.textContent = userHistoryText(message.text) || '庭园行动';
+      body.textContent = userHistoryText(message);
     } else {
       const projection = projectGalScene(message, state, activeTarget?.type === 'character' ? activeTarget.id : null);
       header.textContent = projection.beats.some((beat) => beat.speakerId) ? '剧情' : '旁白';
@@ -1225,18 +1240,11 @@ function createBubbleButton(
   return button;
 }
 
-// 半环绕布局需要完整的弧半径空间；把锚点收进容器安全区。
 // 地图拖动/缩放时由 GardenMap 的跟随回调持续调用，菜单钉在目标本体上。
+// 不再把锚点夹进固定的“安全区”：那会让靠近边缘的设施移动时，菜单看起来停在原地。
 function positionTargetMenu(anchor: { x: number; y: number }) {
-  let anchorX = anchor.x;
-  let anchorY = anchor.y;
-  const shell = targetMenu.parentElement;
-  if (!matchMedia('(max-width: 700px)').matches && shell) {
-    const rect = shell.getBoundingClientRect();
-    const compensation = browserZoomCompensation();
-    anchorX = Math.max(245 * compensation, Math.min(rect.width - 245 * compensation, anchor.x));
-    anchorY = Math.max(245 * compensation, Math.min(rect.height - 140 * compensation, anchor.y));
-  }
+  const anchorX = Number.isFinite(anchor.x) ? anchor.x : 0;
+  const anchorY = Number.isFinite(anchor.y) ? anchor.y : 0;
   targetMenu.style.setProperty('--gg-anchor-x', `${anchorX}px`);
   targetMenu.style.setProperty('--gg-anchor-y', `${anchorY}px`);
 }
@@ -1397,7 +1405,10 @@ async function confirmFacilityAction() {
 async function submitGalMessage(
   text: string,
   kind: MessageTransactionKind = 'interaction',
-  { restoreInputOnFailure = true }: { restoreInputOnFailure?: boolean } = {},
+  {
+    restoreInputOnFailure = true,
+    userVisibleText,
+  }: { restoreInputOnFailure?: boolean; userVisibleText?: string } = {},
 ) {
   const value = text.trim();
   if (submissionInFlight) {
@@ -1424,7 +1435,11 @@ async function submitGalMessage(
     const promptState = selectedItemId
       ? queueSceneItemUse(state, selectedItemId, itemUseId, sceneId, activeTarget?.type === 'character' ? activeTarget.id : null)
       : state;
-    const transaction = await bridge.sendUserMessage(withGardenNarrativeContract(value, promptState), kind);
+    const transaction = await bridge.sendUserMessage(
+      withGardenNarrativeContract(value, promptState),
+      kind,
+      userVisibleText,
+    );
     if (selectedItemId) {
       await bridge.applyM2Command({
         type: 'queue_scene_item',
@@ -1713,12 +1728,15 @@ const opening = new OpeningController(
 );
 
 tutorialGuideSkip.addEventListener('click', () => {
-  tutorialGuideSkipped = true;
-  try {
-    if (tutorialGuideStorageKey) localStorage.setItem(tutorialGuideStorageKey, '1');
-  } catch { /* The guide still stays hidden for the current session. */ }
-  renderTutorialGuide();
-  setStatus('已跳过界面指引；剧情进度与可执行任务不会被跳过。');
+  void (async () => {
+    if (!await runTestJump('m2_open_garden')) return;
+    tutorialGuideSkipped = true;
+    try {
+      if (tutorialGuideStorageKey) localStorage.setItem(tutorialGuideStorageKey, '1');
+    } catch { /* The guide still stays hidden for the current session. */ }
+    renderTutorialGuide();
+    setStatus('新手教程已快进至完成；开放庭园已经解锁。');
+  })();
 });
 
 // 运行壳的默认视图是庭园，但启动路径不经过 setView；
@@ -1787,7 +1805,7 @@ byId('gg-facility-back').addEventListener('click', () => setView('garden'));
 facilityConfirm.addEventListener('click', () => void confirmFacilityAction());
 byId<HTMLFormElement>('gg-gal-compose').addEventListener('submit', (event) => {
   event.preventDefault();
-  void submitGalMessage(galInput.value);
+  void submitGalMessage(galInput.value, 'interaction', { userVisibleText: galInput.value });
 });
 byId('gg-end-chat').addEventListener('click', () => void endConversation());
 byId('gg-retry-transaction').addEventListener('click', async () => {
@@ -1817,10 +1835,12 @@ byId('gg-regenerate').addEventListener('click', async () => {
     setStatus(`重新生成失败：${String(error)}`, true);
   }
 });
+sessionHistoryButton.addEventListener('click', () => void openSessionHistory());
 byId('gg-session-history-close').addEventListener('click', () => sessionHistoryDialog.close());
 sessionHistoryDialog.addEventListener('click', (event) => {
   if (event.target === sessionHistoryDialog) sessionHistoryDialog.close();
 });
+sessionHistoryDialog.addEventListener('close', () => sessionHistoryButton.focus());
 byId('gg-open-settings').addEventListener('click', () => navigateFromLauncher(openSettings));
 byId('gg-settings-back').addEventListener('click', returnFromSettings);
 battleSoundEnabledInput.addEventListener('change', () => {
@@ -1875,7 +1895,7 @@ byId('gg-show-native').addEventListener('click', async () => {
 byId('gg-reload').addEventListener('click', () => {
   globalThis.dispatchEvent(new CustomEvent('gensokyo-garden:reload'));
 });
-async function runTestJump(jump: import('./test-tools').TestJumpId) {
+async function runTestJump(jump: import('./test-tools').TestJumpId): Promise<boolean> {
   try {
     await bridge.applyTestJump(jump);
     await refresh();
@@ -1908,8 +1928,10 @@ async function runTestJump(jump: import('./test-tools').TestJumpId) {
       presence_clear: '角色测试：当前在场角色已全部清空。',
     };
     setStatus(messages[jump]);
+    return true;
   } catch (error) {
     setStatus(`测试快进失败：${error instanceof Error ? error.message : String(error)}`, true);
+    return false;
   }
 }
 document.querySelectorAll<HTMLButtonElement>('[data-test-jump]').forEach((button) => {
@@ -3272,6 +3294,13 @@ globalThis.addEventListener('gensokyo-garden:resume', () => {
 async function boot() {
   cleanupSubscription = await bridge.subscribe(() => void refresh());
   await refresh();
+  const previewCharacterId = new URLSearchParams(globalThis.location.search).get('previewGal');
+  if (globalThis.document.documentElement.dataset.previewHarness === 'true'
+    && previewCharacterId === 'marisa') {
+    const target: InteractionTarget = { type: 'character', id: 'marisa', label: '雾雨魔理沙' };
+    const talk = targetActions(target, state).find((action) => action.id === 'talk');
+    if (talk) await chooseTargetAction(talk);
+  }
 }
 
 void boot();

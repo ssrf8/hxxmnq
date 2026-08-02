@@ -346,8 +346,10 @@ function prepareM2AcceptanceState(state: GardenState, jump: TestJumpId) {
 
   if (jump === 'm2_items_recovery_ready') {
     Object.assign(state.inventory.consumables, {
-      fairy_candy_pack: 5, moon_viewing_tea: 5, hot_spring_sachet: 5,
-      banquet_bento: 5, oni_sake_flask: 5, emergency_repair_kit: 3,
+      emergency_repair_kit: 3,
+      foreign_vibrator: 3, foreign_egg: 3, reimu_coin_bait: 3,
+      cirno_frog_bait: 3, cirno_ice_toy: 3,
+      marisa_dream_mushroom: 3, marisa_obedience_page: 3, alice_doll_pause: 3,
     });
     state.facility_runtime!.fairy_garden.status = 'damaged';
     state.facility_runtime!.fairy_garden.condition_id = 'fairy_garden_broken_fence';

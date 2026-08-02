@@ -349,6 +349,7 @@ export interface ChatMessageView {
   role: 'system' | 'assistant' | 'user';
   name: string;
   text: string;
+  extra?: Record<string, unknown>;
   swipeId?: number;
   swipeCount?: number;
 }
@@ -505,7 +506,7 @@ export interface GardenBridge {
   enterGarden(expectedChatId: string): Promise<{ initializedFromDefaults: boolean }>;
   repairOpening(expectedChatId: string): Promise<{ messageCreated: boolean }>;
   listMessages(): Promise<ChatMessageView[]>;
-  sendUserMessage(text: string, kind?: MessageTransactionKind): Promise<MessageTransactionSnapshot>;
+  sendUserMessage(text: string, kind?: MessageTransactionKind, userVisibleText?: string): Promise<MessageTransactionSnapshot>;
   sendAnomalyResolution(text: string): Promise<MessageTransactionSnapshot>;
   sendDuelVictoryRequest(requestText: string, message: string): Promise<MessageTransactionSnapshot>;
   getTransactionState(): Promise<MessageTransactionSnapshot>;

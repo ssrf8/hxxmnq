@@ -14,7 +14,9 @@ interface TransactionHost {
   currentChatId(): string;
   listMessages(): RawMessage[];
   isGenerationActive?(): boolean;
+  assistantResponseTimeoutMs?: number;
   createUserMessage(message: string, extra: Record<string, unknown>): Promise<void>;
+  prepareGeneration?(): Promise<void>;
   triggerGeneration(): Promise<void>;
   continueGeneration(): Promise<void>;
 }
@@ -73,6 +75,7 @@ export class MessageTransactionCoordinator {
     this.stopped = false;
 
     try {
+      let createdUserMessage = false;
       const existing = this.findUserMessage(request.matchesExisting);
       if (existing) {
         this.snapshot.userMessageCreated = true;
@@ -90,10 +93,16 @@ export class MessageTransactionCoordinator {
         }
         const created = this.findUserMessage(request.matchesExisting);
         this.snapshot.userMessageCreated = true;
+        createdUserMessage = true;
         if (created) this.snapshot.userMessageId = Number(created.message_id);
       }
 
       this.snapshot.phase = 'generating';
+      // A freshly inserted floor can trigger host/regex refresh work. Let that
+      // lifecycle drain before starting the model so GENERATION_STARTED is not
+      // emitted into a listener-remount gap. Retries deliberately skip this:
+      // their user floor is already durable and stable.
+      if (createdUserMessage) await this.host.prepareGeneration?.();
       await this.host.triggerGeneration();
       await this.waitForAssistant();
       const completedDuringGeneration = this.read();
@@ -156,10 +165,19 @@ export class MessageTransactionCoordinator {
   }
 
   markGenerationEnded() {
+    // Luker's plugin-takeover path deliberately emits GENERATION_ENDED before
+    // MESSAGE_RECEIVED. Keep the transaction busy until its assistant reply is
+    // observable; otherwise the GAL briefly renders a false retry/end state.
     this.reconcile(true);
-    if (this.snapshot.phase !== 'generating' || this.snapshot.assistantResponded) return;
-    this.snapshot.phase = 'failed';
-    this.snapshot.lastError = '生成已结束，但没有收到可用的 assistant 正文；可以重试且不会重复创建玩家消息';
+  }
+
+  markAssistantMessageReceived(messageId: unknown) {
+    const id = Number(messageId);
+    if (!Number.isInteger(id) || id < 0) return;
+    // In Luker this event is emitted after the reply is persisted, but the helper
+    // message list may need one more turn of the event loop before it reflects it.
+    // Reconcile now and let waitForAssistant continue polling the same transaction.
+    this.reconcile(true);
   }
 
   markSettlementFailed(error: unknown) {
@@ -192,14 +210,15 @@ export class MessageTransactionCoordinator {
 
   private async waitForAssistant() {
     const startedAt = Date.now();
-    while (Date.now() - startedAt < 120000) {
+    const responseTimeoutMs = Math.max(1000, Math.min(120000, this.host.assistantResponseTimeoutMs ?? 120000));
+    while (Date.now() - startedAt < responseTimeoutMs) {
       this.reconcile(true);
       if (this.snapshot.assistantResponded || this.snapshot.phase === 'failed') return;
-      const active = this.host.isGenerationActive?.() ?? false;
-      // Tavern Helper's slash promise can resolve slightly before a fake-streamed
-      // floor becomes visible. Give the message event a short grace period, then
-      // keep waiting only while the host confirms generation is active.
-      if (!active && Date.now() - startedAt >= 1800) return;
+      // Luker clears its native generating UI and emits GENERATION_ENDED before
+      // MESSAGE_RECEIVED. Some fake-stream paths also expose neither an assistant
+      // floor nor text through getChatMessages during that gap. Therefore neither
+      // host-idle nor an absent floor can end this transaction early; only this
+      // turn's non-empty assistant text (or the bounded response timeout) can.
       await new Promise<void>((resolve) => globalThis.setTimeout(resolve, 100));
     }
   }

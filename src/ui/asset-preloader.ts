@@ -5,6 +5,8 @@ export type AssetEntryGate = 'critical' | 'contextual' | 'none';
 export interface PreloadAsset {
   url: string;
   kind: PreloadAssetKind;
+  /** Match later Canvas image requests so the browser never caches an opaque variant first. */
+  crossOrigin?: 'anonymous';
   logicalId?: string;
   bundle?: string;
   priorityClass?: AssetPriorityClass;
@@ -72,7 +74,7 @@ export function collectPreloadAssets(...values: unknown[]): PreloadAsset[] {
 
 async function loadAsset(asset: PreloadAsset, signal: AbortSignal) {
   if (asset.kind === 'audio') {
-    const response = await fetch(asset.url, { cache: 'force-cache', signal });
+    const response = await fetch(asset.url, { cache: 'no-cache', signal });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     await response.arrayBuffer();
     return;
@@ -81,8 +83,11 @@ async function loadAsset(asset: PreloadAsset, signal: AbortSignal) {
     const image = new Image();
     const abort = () => { image.src = ''; reject(new DOMException('Aborted', 'AbortError')); };
     image.decoding = 'async';
-    // The preloader only observes decode success and never reads pixels. Keeping
-    // this request non-CORS also lets it reuse images already loaded by the UI.
+    // Canvas-bound assets must use the same request mode from their first load.
+    // Otherwise a cached opaque response can make a later anonymous-CORS Image fail.
+    if (asset.crossOrigin === 'anonymous' && /^https:\/\//iu.test(asset.url)) {
+      image.crossOrigin = 'anonymous';
+    }
     image.onload = () => { signal.removeEventListener('abort', abort); resolve(); };
     image.onerror = () => { signal.removeEventListener('abort', abort); reject(new Error(`图片载入失败：${asset.url}`)); };
     signal.addEventListener('abort', abort, { once: true });

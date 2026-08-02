@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>琪露诺动画 / 静态图校准</title>
+  <style>
+    :root { color-scheme:dark; font-family:system-ui,sans-serif; background:#102331; color:#eaf7ff }
+    * { box-sizing:border-box } body { margin:0; padding:24px } main { width:min(960px,100%); margin:auto }
+    h1 { margin:0 0 6px; font-size:30px } p { margin:0 0 16px; color:#bfd2df }
+    canvas { display:block; width:100%; height:auto; border:3px solid #65b9dc; border-radius:14px; background:#dff5ef }
+    .controls { display:grid; grid-template-columns:1fr 1fr; gap:14px 22px; margin-top:18px; padding:18px; border-radius:14px; background:#173142 }
+    label { display:grid; grid-template-columns:90px 1fr 72px; align-items:center; gap:10px }
+    select,textarea,button { font:inherit } select { padding:8px 10px; border-radius:8px } input[type=range] { width:100% }
+    output { font-variant-numeric:tabular-nums; text-align:right; color:#86dbff }
+    .result { grid-column:1/-1; display:grid; gap:10px } textarea { width:100%; min-height:72px; resize:vertical; padding:10px; color:#dff7ff; background:#0d202c; border:1px solid #4c7f97; border-radius:8px }
+    .actions { display:flex; gap:10px } button { padding:8px 14px; border:0; border-radius:8px; cursor:pointer; background:#62c7ee; color:#09202c; font-weight:700 } button.secondary { background:#d4e8f0 }
+    .toggle { grid-template-columns:auto 1fr; justify-content:start; min-height:44px } .toggle input { width:20px; height:20px }
+    @media (max-width:700px) { body{padding:12px}.controls{grid-template-columns:1fr}.result{grid-column:auto}label{grid-template-columns:72px 1fr 62px} }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>琪露诺 · 动静帧校准台</h1>
+    <p>两边使用相同尺寸与脚底虚线。左侧播放正式 17 帧动画，右侧只调整静态四视图；四个方向分别保存。</p>
+    <canvas id="cirno-calibration-canvas" width="960" height="430" aria-label="动画图与静态图对照画布"></canvas>
+    <section class="controls">
+      <label>方向 <select id="cirno-facing"><option value="front">front / 正面</option><option value="back">back / 背面</option><option value="left">left / 向左</option><option value="right">right / 向右</option></select><output></output></label>
+      <label>比例 <input id="cirno-scale" type="range" min="0.5" max="1" step="0.0001"><output id="cirno-scale-value"></output></label>
+      <label>横移 <input id="cirno-x" type="range" min="-0.75" max="-0.05" step="0.0001"><output id="cirno-x-value"></output></label>
+      <label>纵移 <input id="cirno-y" type="range" min="-0.95" max="-0.3" step="0.0001"><output id="cirno-y-value"></output></label>
+      <label>动画亮度 <input id="cirno-brightness" type="range" min="0.5" max="2" step="0.01"><output id="cirno-brightness-value"></output></label>
+      <label>头顶参考线 <input id="cirno-head-guide" type="range" min="60" max="330" step="1" value="205"><output id="cirno-head-guide-value"></output></label>
+      <label class="toggle"><input id="cirno-auto-bind" type="checkbox" checked><span>静态图脚底自动绑定动画首帧对准线</span></label>
+      <div class="result"><textarea id="cirno-result" readonly aria-label="可粘贴的琪露诺校准参数"></textarea><div class="actions"><button id="cirno-copy" type="button">复制参数</button><button id="cirno-reset" class="secondary" type="button">重置当前方向</button></div></div>
+    </section>
+  </main>
+  <script src="cirno-sprite-calibration.js"></script>
+</body>
+</html>

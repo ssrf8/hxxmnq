@@ -45,6 +45,33 @@ test('preloader starts once and retries only the failed asset up to three attemp
   assert.equal(snapshot.percent, 100);
 });
 
+test('Canvas-bound HTTPS assets use anonymous CORS before assigning src', async () => {
+  const OriginalImage = globalThis.Image;
+  const events = [];
+  class FakeImage {
+    set crossOrigin(value) { events.push(`crossOrigin:${value}`); }
+    set src(value) {
+      events.push(`src:${value}`);
+      queueMicrotask(() => this.onload?.());
+    }
+  }
+  globalThis.Image = FakeImage;
+  try {
+    const preloader = new AssetPreloader([
+      { url: 'https://assets.example/battle.webp', kind: 'image', crossOrigin: 'anonymous' },
+    ]);
+    const snapshot = await preloader.waitForCompletion();
+    assert.equal(snapshot.failed, 0);
+    assert.deepEqual(events, [
+      'crossOrigin:anonymous',
+      'src:https://assets.example/battle.webp',
+    ]);
+  } finally {
+    if (OriginalImage === undefined) delete globalThis.Image;
+    else globalThis.Image = OriginalImage;
+  }
+});
+
 test('preloader settles after the retry limit and reports only exhausted URLs', async () => {
   let attempts = 0;
   const preloader = new AssetPreloader([

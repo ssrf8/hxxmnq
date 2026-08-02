@@ -43,6 +43,7 @@ const [
   openingGuidance,
   openingTemplate,
   movingGarden,
+  gensokyoBasics,
   variableRules,
   variableOutputFormat,
   projection,
@@ -57,6 +58,7 @@ const [
   source('src/card/opening-first-response.xml'),
   source('src/card/opening-user-message-template.txt'),
   source('src/lorebook/core/moving-garden.xml'),
+  source('src/lorebook/core/gensokyo-basics.xml'),
   source('src/lorebook/variable-update-rules.md'),
   source('src/lorebook/variable-output-format.md'),
   source('src/lorebook/model-projection.md'),
@@ -138,11 +140,12 @@ const entry = (
 const loreEntries = [
   entry(0, '[mvu_plot][core] 角色卡身份与玩家权边界', identity, [], true),
   entry(1, '[mvu_plot][core] 会移动的结界领地', movingGarden, [], true),
+  entry(9, '[mvu_plot][core] 幻想乡基础世界观', gensokyoBasics, [], true),
   entry(2, '[mvu_update] 变量更新规则', variableRules, [], true, 'after_char'),
   entry(3, '[mvu_update] 最新 MVU 状态（含本地私有字段）', projection, [], true, 'after_char', 0, 4),
   entry(8, '[mvu_update] 变量输出格式', variableOutputFormat, [], true, 'after_char'),
   entry(7, '[mvu_plot][interaction] GAL 表现与会话协议', galPresentation, [], true, 'after_char'),
-  entry(4, '[mvu_plot][opening] 移动庭园继承序章与首次行动引导', `${openingGuidance}\n\n开场消息格式：\n${openingTemplate}`, ['祖父遗信', '庭守钥', '继承庭园', '第一次行动'], false),
+  entry(4, '[mvu_plot][opening] 移动庭园首次行动引导', openingGuidance, ['庭守钥', '第一次行动'], false),
   entry(6, '[initvar] 移动庭园初始状态', `<initvar>\n${JSON.stringify(initialState, null, 2)}\n</initvar>`),
   ...characterProfiles.map((profile, index) => {
     const result = entry(
@@ -170,15 +173,15 @@ const script = (name, id, content) => ({
   export_with: { data: true, button: true },
 });
 
-const firstMes = `<移动庭园_测试检查点 version="${VERSION}">\n祖父失踪后的第七天，一个没有寄件地址的旧木匣被送到门前。请在自动出现的“移动庭园”界面确认身份并打开遗信；序章会讲述那座庭园为何留给你，并在最后由你决定是否接过庭守钥。此刻继承尚未完成。若界面未出现，请先使用原生聊天查看诊断，不要重复发送开场资料。\n</移动庭园_测试检查点>`;
+const firstMes = `<移动庭园_测试检查点 version="${VERSION}">\n祖父失踪后的第七天，一个没有寄件地址的旧木匣被送到门前。请在自动出现的“移动庭园”界面确认身份并接过庭守钥；界面会在本楼层本地写入开局资料并直接进入庭园，不发送玩家消息，也不调用 LLM。第一次真实行动才会生成正文。若界面未出现，请先使用原生聊天查看诊断。\n</移动庭园_测试检查点>`;
 const data = {
   name: `幻想乡物语·移动庭园（测试检查点 ${CHECKPOINT}）`,
   description: identity,
   personality: '群像叙事与庭园建设系统卡。固定角色保持独立行动逻辑；玩家人称、表达方式与尺度由玩家预设及实际输入决定。',
-  scenario: '玩家收到祖父留下的遗信与沉睡的“庭守钥”，尚未正式继承那座会移动的结界庭园。玩家亲手接受继承后才会穿过结界抵达荒废庭园，随后修复设施，并在锚点、建设与选择中迎接来访者和小型异变。',
+  scenario: '玩家收到祖父留下的遗信与沉睡的“庭守钥”，在本地开场界面确认资料并接受继承后穿过结界抵达荒废庭园，随后修复设施，并在锚点、建设与选择中迎接来访者和小型异变。',
   first_mes: firstMes,
   mes_example: '',
-  creator_notes: `本文件是本地运行测试检查点 ${CHECKPOINT}，不是正式发布版。\n开场先生成祖父遗信与庭园继承序章；玩家显式接过庭守钥后，才由本地事务写入并复读开场状态。\n开场消息格式：\n${openingTemplate}`,
+  creator_notes: `本文件是本地运行测试检查点 ${CHECKPOINT}，不是正式发布版。\n开场为确定性的本地流程：玩家确认资料后，在首个 assistant 楼层幂等写入并复读开场状态；不创建 user 消息、不触发 /trigger、不调用 LLM。第一次真实行动才会首次调用 LLM。\n开场资料格式：\n${openingTemplate}`,
   system_prompt: `${identity}\n\n${movingGarden}`,
   post_history_instructions: '严格遵守角色卡身份、玩家权边界、信息可知性、GAL scene.v1 与 MVU 更新协议。互动允许跨越多轮真实聊天；只有自然离场或玩家明确结束时才结算当前互动。',
   alternate_greetings: [],

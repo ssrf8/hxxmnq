@@ -1,6 +1,16 @@
 # Cloudflare R2 部署准备与交接
 
-> 状态：唯一桶、CORS、首个不可变 release、`r2.dev` 公开读取、`remote-r2` 构建与浏览器预发布验收均已完成；生产自定义域名与真实 SillyTavern 验收待继续。
+> **状态更新（2026-08-02）**：本地 live 链已完成并通过 `check:ui`、`check:assets:r2` 与 `npm test`（201/201）。新发布统一使用 `gensokyo-moving-garden/live/manifest.json` 与 `live/<source>`；历史 `releases/**` 保留但不参与新构建。
+>
+> 下一项外部操作尚未执行：获得上传授权后，按 [`live-asset-publish.md`](./live-asset-publish.md) 覆盖并校验媒体、最后覆盖 manifest；同时确认 Cloudflare 对 `live/**` 没有 `immutable` Cache Rule。
+
+> **当前实际发布状态（2026-08-02）**：生产 release 已更新为 `0.2.0-r62-0e5ecacdee9f`，
+> 114 个素材共 `54,971,703` bytes，manifest 声明 SHA-256 为
+> `0f068864b044613d4d5110ad6f7a850f7aecec1609821a90d0a5ed16cd5a8965`。r63 轻量卡固定使用该坐标。
+> 新 agent 不要从本文历史段落拼命令；上传与打包统一按 `project/r2-packaging-runbook.md` 执行。
+> 旧 `0.2.0-r55-1ef0d7d6cbab` 仍被 r56–r61 引用，未经单独删除授权不得清理。
+
+> 状态：唯一桶、CORS、`r2.dev` 预发布、生产自定义域名、新域名固定 release 与双模式构建均已完成；普通预加载 114/114，但战斗 atlas 因缓存请求模式冲突走几何回退，修复与真实 SillyTavern 验收待继续。
 > 优先队列、最低可玩集、GAL 门控／抢占和三次尝试已实现并通过浏览器验收；可选 Cache Storage 服务模块已完成，但设置页离线包开关尚未接入。
 > 2026-08-01 所有者决策：整个项目只使用一个 R2 桶；禁止为 GAL、战斗、音频或不同 release
 > 自动创建第二个业务桶。
@@ -72,19 +82,19 @@ dist/asset-release/<release-id>/
 - 远程前端浏览器验收：入口 16/16，总调度 114/114，失败 0；10 张 GAL 立绘在非 GAL 队列后静默完成，页面控制台无 warning/error。
 - `RuntimeAssetOfflineCache` 服务模块已完成，但设置页显式开关尚未接入；当前实际生效的是浏览器 HTTP cache。不得把可选离线包描述成已启用。
 
-## 生产自定义域名待办
+## 生产自定义域名状态与待办
 
-1. 目标生产素材域名为 `ssrfrrt.ccwu.cc`，应绑定到同账号唯一桶 `hxxwy`，最低 TLS 建议 1.2。
-2. 当前 Cloudflare 管理 Bearer Token 返回 401，本机 Wrangler 也未登录；必须先恢复浏览器登录，或提供新的最小权限管理 Token。S3 Access Key 只能上传对象，不能替代 R2 自定义域名管理权限。
-3. 绑定后等待 ownership 与 SSL 均为 active，再验证根路径、固定 release manifest、代表性 WebP/PNG/SVG/WAV、CORS、Range、MIME、长度和缓存头。
-4. 自定义域名会改变 manifest 中的固定 asset origin，因此必须生成新的不可覆盖 release ID；不得直接篡改或覆盖 `0.2.0-r55-bbc0e074f993`。
-5. 用新 release 重建 `remote-r2` 前端，复验入口 16/16、总计 114/114、失败 0、GAL 静默加载和控制台。
+1. 生产素材域名 `ssrfrrt.ccwu.cc` 已绑定到同账号唯一桶 `hxxwy`，公开访问已启用，最低 TLS 为 1.2；Cloudflare 回读 ownership 与 SSL 均为 active。
+2. 自定义域名下旧固定 release manifest 与代表性 WAV 已验证可读；匿名 Range 返回 206，CORS、MIME、长度、ETag 与 immutable 缓存头通过。`r2.dev` 暂时继续启用。
+3. 账户级 Token 必须使用 `/accounts/{account_id}/tokens/verify` 验证；用户级 `/user/tokens/verify` 会对该 Token 返回误导性的 401。S3 Access Key 可管理对象与 CORS，但不能替代自定义域名管理 API。
+4. 已从干净提交 `1ef0d7d6cbab` 生成并发布新 release `0.2.0-r55-1ef0d7d6cbab`；114 个素材共 `54,968,864` bytes，manifest 声明 SHA-256 为 `c44ff80e99c51f63fb61092bfeff9e0fd0e2ee467ae614437a66615bc45c2b29`，远端共 115 对象。旧 release 未覆盖。
+5. 新 release 的标准测试 191/191、R2 专项 8/8、对象元数据、manifest 整文件一致性及 Range/CORS 已通过；生产浏览器入口 16/16、普通预加载总计 114/114、失败 0，GAL 延迟队列完成且控制台无 warning/error。该计数不覆盖 Canvas atlas 的 anonymous CORS 解码；后续弹幕复现已确认其因先前非 CORS 缓存而失败并走几何回退。
 6. 完成真实 SillyTavern Origin 的 Canvas 像素读取、WebAudio、缓存复用、切卡、断网／慢网与 fallback 验收后，才决定是否关闭 `r2.dev`。
 
 ## 继续部署需要的条件
 
-- Cloudflare 控制台登录态，或只放在本机秘密环境中的新最小权限管理 Token；
-- 确认 `ssrfrrt.ccwu.cc` 所属 Zone 与桶 `hxxwy` 位于同一 Cloudflare account；
+- 修复战斗预加载／atlas 的 CORS 缓存模式冲突并发布新的不可覆盖 release；
+- 用新 release 完成浏览器贴图实绘与真实 SillyTavern 候选验收；
 - 真实 SillyTavern 预发布与正式切换授权。
 
 任何 Access Key、Secret、API token 都不得写入仓库、角色卡、manifest、命令参数或聊天记录。

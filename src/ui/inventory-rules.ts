@@ -48,14 +48,12 @@ export function itemShopUnlocked(state: GardenState, itemId: string): boolean {
   switch (item.shop_unlock) {
     case 'facility_fairy_garden_built':
       return isFacilityBuilt(state, 'fairy_garden');
-    case 'facility_moon_spring_built':
-      return isFacilityBuilt(state, 'moon_spring');
-    case 'facility_banquet_plaza_built':
-      return isFacilityBuilt(state, 'banquet_plaza');
     case 'any_followup_facility_built':
       return isFacilityBuilt(state, 'fairy_garden')
         || isFacilityBuilt(state, 'moon_spring')
         || isFacilityBuilt(state, 'banquet_plaza');
+    case 'magic_greenhouse_built':
+      return isFacilityBuilt(state, 'magic_greenhouse');
     case 'opportunity_candidates_available':
       return listOpportunityCandidateProfiles(state).length > 0;
     case 'battle_dungeon_unlocked':

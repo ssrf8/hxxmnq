@@ -50,6 +50,14 @@
       "budget": "medium"
     },
     {
+      "id": "gensokyo_basics_setting",
+      "label": "幻想乡基础世界观",
+      "activation": "always",
+      "target": "plot-model",
+      "source": "core/gensokyo-basics.xml",
+      "budget": "low"
+    },
+    {
       "id": "character_profiles",
       "label": "当前相关角色人设",
       "activation": "greenlight-by-character-id",

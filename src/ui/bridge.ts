@@ -10,7 +10,11 @@ import type {
 import initialState from '../schema/initial-state.json';
 import { MessageTransactionCoordinator } from './message-transaction';
 import { cleanNarrativeText } from './gal-scene';
-import { reconcileHostGenerationActivity, SettlementAttemptCoordinator } from './async-coordination';
+import {
+  reconcileHostGenerationActivity,
+  SettlementAttemptCoordinator,
+  shouldTrackHostGenerationStart,
+} from './async-coordination';
 import { validateFlowerCoreBattleResult } from './greenhouse-rules';
 import { dungeonReward, settleDungeonResult as settleLocalDungeonResult } from './dungeon-rules';
 import { migrateGardenState } from './state-migrations';
@@ -165,6 +169,9 @@ function normalizeMessages(raw: Array<Record<string, unknown>>): ChatMessageView
       role: message.role === 'user' || message.role === 'system' ? message.role : 'assistant',
       name: String(message.name ?? ''),
       text: currentText,
+      extra: message.extra && typeof message.extra === 'object'
+        ? message.extra as Record<string, unknown>
+        : {},
       swipeId: swipes.length ? swipeId : undefined,
       swipeCount: swipes.length || undefined,
     };
@@ -329,6 +336,12 @@ export function createHostBridge(): GardenBridge | null {
         [{ role: 'user', message, is_hidden: false, extra }],
         { insert_before: 'end', refresh: 'none' },
       );
+    },
+    async prepareGeneration() {
+      // createChatMessages resolves after insertion, but Luker may still be
+      // draining message/regex refresh callbacks. Keep the GAL busy overlay up
+      // while giving the long-lived generation listener a stable turn.
+      await new Promise<void>((resolve) => globalThis.setTimeout(resolve, 450));
     },
     async triggerGeneration() {
       const startedEpoch = hostGenerationStartedEpoch;
@@ -853,7 +866,7 @@ export function createHostBridge(): GardenBridge | null {
       // or when the macro range failed to expand past the greeting.
       return normalizeMessages(readRawMessages({ include_swipes: false, hide_state: 'all' }));
     },
-    async sendUserMessage(text, kind = 'interaction') {
+    async sendUserMessage(text, kind = 'interaction', userVisibleText) {
       if (transactionOperationInFlight) throw new Error('上一条消息仍在生成或结算中，请稍候');
       transactionOperationInFlight = true;
       const value = text.trim();
@@ -867,7 +880,13 @@ export function createHostBridge(): GardenBridge | null {
         pendingSettlement = action ? { before: structuredClone(before), action } : null;
         pendingVariableEpoch = variableUpdateEpoch;
         assistantObservedAt = 0;
-        const snapshot = await transactions.submit({ kind, message: value });
+        const snapshot = await transactions.submit({
+          kind,
+          message: value,
+          extra: {
+            gensokyoUserVisibleText: userVisibleText?.trim() || null,
+          },
+        });
         if (!snapshot.assistantResponded) {
           throw new Error(snapshot.lastError || '没有收到 assistant 回复，可以安全重试');
         }
@@ -1078,9 +1097,19 @@ export function createHostBridge(): GardenBridge | null {
       return { rewardCoins: dungeonReward(result.outcome as 'clean_win' | 'narrow_win' | 'loss'), alreadySettled: false };
     },
     async applyTestJump(jump: TestJumpId) {
-      const transaction = transactions.read();
+      // SillyTavern may restore this iframe after the assistant floor and its MVU
+      // state were already persisted, while the volatile coordinator still says
+      // "settling". Reconcile that durable completion before applying the lock.
+      let transaction = readTransaction();
       if (transactionOperationInFlight || hostGenerationActive || regenerationPhase !== 'idle'
-        || ['submitting_user', 'generating', 'settling'].includes(transaction.phase)) {
+        || ['submitting_user', 'generating'].includes(transaction.phase)) {
+        throw new Error('当前回复仍在生成或同步状态，请完成本轮后再使用测试快进');
+      }
+      if (transaction.phase === 'settling') {
+        await settlePendingAfterReply(true);
+        transaction = readTransaction();
+      }
+      if (transaction.phase === 'settling') {
         throw new Error('当前回复仍在生成或同步状态，请完成本轮后再使用测试快进');
       }
       const mvu = await requireMvu();
@@ -1353,17 +1382,21 @@ export function createHostBridge(): GardenBridge | null {
     },
     async subscribe(refresh) {
       const stops: Array<() => void> = [];
-      const subscribe = (eventName?: string) => {
-        if (eventName && g.eventOn) stops.push(g.eventOn(eventName, () => {
-          refresh();
-        }).stop);
+      const subscribe = (eventName?: string, listener: (...args: unknown[]) => void = () => refresh()) => {
+        if (eventName && g.eventOn) stops.push(g.eventOn(eventName, listener).stop);
       };
-      subscribe(g.tavern_events?.MESSAGE_RECEIVED);
+      subscribe(g.tavern_events?.MESSAGE_RECEIVED, (messageId) => {
+        transactions.markAssistantMessageReceived(messageId);
+        refresh();
+      });
       subscribe(g.tavern_events?.MESSAGE_UPDATED);
       subscribe(g.tavern_events?.MESSAGE_SWIPED);
       subscribe(g.tavern_events?.CHAT_CHANGED);
       if (g.tavern_events?.GENERATION_STARTED && g.eventOn) {
-        stops.push(g.eventOn(g.tavern_events.GENERATION_STARTED, () => {
+        stops.push(g.eventOn(g.tavern_events.GENERATION_STARTED, (_type, _options, dryRun) => {
+          // Luker prompt previews emit STARTED with dryRun=true but do not emit ENDED.
+          // Tracking them would leave every local-only action permanently locked.
+          if (!shouldTrackHostGenerationStart(dryRun)) return;
           hostGenerationActive = true;
           hostGenerationStartedEpoch += 1;
           refresh();
@@ -1489,8 +1522,16 @@ export function createPreviewBridge(): GardenBridge {
     },
     async repairOpening() { throw new Error('离线预览不支持修复真实开场'); },
     async listMessages() { return structuredClone(messages); },
-    async sendUserMessage(text, kind = 'interaction') {
+    async sendUserMessage(text, kind = 'interaction', userVisibleText) {
       const previewAction = localSettlementAction(text, previewState);
+      const previewTargetMatch = text.match(/<GensokyoAction>\s*(\{[\s\S]*?\})\s*<\/GensokyoAction>/iu);
+      let previewSpeakerId = 'reimu';
+      if (previewTargetMatch) {
+        try {
+          const marker = JSON.parse(previewTargetMatch[1]) as { target_type?: string; target_id?: string };
+          if (marker.target_type === 'character' && marker.target_id) previewSpeakerId = marker.target_id;
+        } catch { /* malformed preview markers fall back to Reimu */ }
+      }
       transaction = {
         transactionId: `preview-${Date.now()}`,
         chatId: 'offline-preview-chat',
@@ -1501,7 +1542,15 @@ export function createPreviewBridge(): GardenBridge {
         userMessageId: messages.length,
         assistantMessageId: messages.length + 1,
       };
-      messages.push({ id: messages.length, role: 'user', name: '预览玩家', text });
+      messages.push({
+        id: messages.length,
+        role: 'user',
+        name: '预览玩家',
+        text,
+        extra: {
+          gensokyoUserVisibleText: userVisibleText?.trim() || null,
+        },
+      });
       const isEnding = text.includes('"action_id":"end_conversation"');
       const isRepair = text.includes('"action_id":"repair"');
       const previewActionId = previewAction?.action_id ?? '';
@@ -1534,8 +1583,22 @@ export function createPreviewBridge(): GardenBridge {
               { kind: 'speech', speaker_id: 'reimu', reaction_id: 'serious', pose_id: 'default', text: '先别急着钉死这块板，下面还有结界留下的痕迹。' },
             ]
             : [
-              { kind: 'speech', speaker_id: 'reimu', reaction_id: text.includes('pat_head') ? 'annoyed' : 'neutral', pose_id: 'default', text: text.includes('pat_head') ? '……你的手是不是伸得太自然了一点？' : '有话就说。我还得检查这里的结界。' },
-              { kind: 'action', speaker_id: 'reimu', reaction_id: 'neutral', pose_id: 'default', text: '灵梦看了你一眼，没有立刻离开。' },
+              {
+                kind: 'speech',
+                speaker_id: previewSpeakerId,
+                reaction_id: text.includes('pat_head') ? 'annoyed' : 'neutral',
+                pose_id: 'default',
+                text: text.includes('pat_head')
+                  ? '……你的手是不是伸得太自然了一点？'
+                  : previewSpeakerId === 'marisa' ? '有话就说吧，我正好也想看看这座庭园。' : '有话就说。我还得检查这里的结界。',
+              },
+              {
+                kind: 'action',
+                speaker_id: previewSpeakerId,
+                reaction_id: 'neutral',
+                pose_id: 'default',
+                text: `${previewSpeakerId === 'marisa' ? '魔理沙' : '灵梦'}看了你一眼，没有立刻离开。`,
+              },
             ]),
         suggested_replies: isEnding ? [] : [
           { id: 'ask-more', label: '继续询问', intent: '我顺着她刚才的话继续问下去。' },

@@ -2510,15 +2510,18 @@ button:disabled { opacity: .5; cursor: not-allowed; }
   pointer-events: none;
 }
 .gg-inventory-item[data-item-id="incident_trigger_card"] { --gg-item-accent: #c782b8; }
-.gg-inventory-item[data-item-id="fairy_candy_pack"] { --gg-item-accent: #e89aaf; }
-.gg-inventory-item[data-item-id="moon_viewing_tea"],
-.gg-inventory-item[data-item-id="hot_spring_sachet"] { --gg-item-accent: #83b8d4; }
-.gg-inventory-item[data-item-id="banquet_bento"],
-.gg-inventory-item[data-item-id="oni_sake_flask"] { --gg-item-accent: #d88d59; }
 .gg-inventory-item[data-item-id="emergency_repair_kit"] { --gg-item-accent: #87aa78; }
 .gg-inventory-item[data-item-id="sakuya_watch"] { --gg-item-accent: #d9c67a; }
 .gg-inventory-item[data-item-id="opportunity_card"] { --gg-item-accent: #71b7a4; }
 .gg-inventory-item[data-item-id="spell_duel_card"] { --gg-item-accent: #d05f66; }
+.gg-inventory-item[data-item-id="foreign_vibrator"] { --gg-item-accent: #c98ae0; }
+.gg-inventory-item[data-item-id="foreign_egg"] { --gg-item-accent: #e89ab4; }
+.gg-inventory-item[data-item-id="reimu_coin_bait"] { --gg-item-accent: #d9c67a; }
+.gg-inventory-item[data-item-id="cirno_frog_bait"] { --gg-item-accent: #7fc98a; }
+.gg-inventory-item[data-item-id="cirno_ice_toy"] { --gg-item-accent: #83cfe0; }
+.gg-inventory-item[data-item-id="marisa_dream_mushroom"] { --gg-item-accent: #b48be0; }
+.gg-inventory-item[data-item-id="marisa_obedience_page"] { --gg-item-accent: #c77b5a; }
+.gg-inventory-item[data-item-id="alice_doll_pause"] { --gg-item-accent: #e08ac4; }
 .gg-inventory-mark {
   position: relative;
   z-index: 1;
@@ -3479,11 +3482,17 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
 .gg-gal .gg-scene-toolbar { justify-content: flex-end; }
 .gg-gal .gg-scene-tools {
   display: grid;
-  grid-template-columns: repeat(2, minmax(120px, 1fr));
-  width: min(100%, 320px);
+  grid-template-columns: minmax(64px, .7fr) repeat(2, minmax(110px, 1fr));
+  width: min(100%, 400px);
   margin-left: auto;
 }
 .gg-gal .gg-scene-tools button { width: 100%; }
+.gg-gal .gg-scene-tools .gg-gal-history-button {
+  min-height: 40px;
+  padding-inline: .55rem;
+  color: #ead29f;
+  background: linear-gradient(180deg, rgba(95, 52, 52, .96), rgba(48, 31, 35, .98));
+}
 .gg-portrait-stage {
   height: clamp(330px, 53vh, 590px);
   overflow: hidden;
@@ -3520,8 +3529,15 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
   filter: drop-shadow(0 7px 0 rgba(24, 15, 20, .3)) drop-shadow(0 22px 24px rgba(0, 0, 0, .55));
 }
 .gg-portrait-stage[data-portrait-kind="gal"] #gg-portrait {
-  width: min(88%, 680px);
-  height: 100%;
+  position: absolute;
+  left: 50%;
+  top: 16px;
+  bottom: auto;
+  transform: translateX(-50%);
+  width: auto;
+  height: calc(100% - 116px);
+  max-width: none;
+  max-height: none;
   object-fit: contain;
   object-position: 50% 100%;
   image-rendering: auto;
@@ -3680,6 +3696,11 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
   .gg-gal .gg-scene-toolbar { align-items: center; }
   .gg-portrait-stage { height: clamp(300px, 50vh, 460px); }
   #gg-portrait { width: min(84%, 520px); height: 92%; }
+  .gg-portrait-stage[data-portrait-kind="gal"] #gg-portrait {
+    top: 12px;
+    bottom: auto;
+    height: calc(100% - 88px);
+  }
   .gg-dialogue-box { width: 100%; min-height: 140px; margin-top: -72px; padding: 3.1rem .95rem .75rem; }
   .gg-scene-speaker { left: .7rem; min-width: 46%; }
   .gg-scene-text { font-size: .95rem; line-height: 1.72; }
@@ -3704,9 +3725,14 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
 
 @media (max-width: 420px) {
   .gg-gal .gg-scene-toolbar { align-items: stretch; }
-  .gg-gal .gg-scene-tools { grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; }
+  .gg-gal .gg-scene-tools { grid-template-columns: minmax(62px, .7fr) repeat(2, minmax(0, 1fr)); width: 100%; }
   .gg-portrait-stage { height: clamp(280px, 46vh, 400px); }
   #gg-portrait { width: 94%; }
+  .gg-portrait-stage[data-portrait-kind="gal"] #gg-portrait {
+    top: 10px;
+    bottom: auto;
+    height: calc(100% - 72px);
+  }
   .gg-dialogue-box { min-height: 132px; margin-top: -58px; }
   .gg-scene-speaker { top: .65rem; min-width: 58%; font-size: .86rem; }
 }

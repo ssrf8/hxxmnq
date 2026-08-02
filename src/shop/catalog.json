@@ -4,14 +4,17 @@
     {"item_id":"basic_material_single","item_type":"resource","title":"单份基础物资","price":6,"resource":"materials","quantity":1,"unique":false,"enabled_checkpoint":"0.2.0-r30","local_effect_id":"add_materials"},
     {"item_id":"basic_material_crate","item_type":"resource","title":"基础物资组合箱","price":22,"resource":"materials","quantity":4,"unique":false,"enabled_checkpoint":"0.2.0-r30","local_effect_id":"add_materials"},
     {"item_id":"incident_trigger_card","item_type":"trigger_item","title":"异变触发卡","price":30,"quantity":1,"unique":false,"enabled_checkpoint":"0.2.0-r36","local_effect_id":"add_incident_trigger_card"},
-    {"item_id":"fairy_candy_pack","item_type":"trigger_item","title":"妖精糖果包","price":6,"quantity":1,"unique":false,"enabled_checkpoint":"0.2.0-r40","local_effect_id":"add_consumable","unlock":"facility_fairy_garden_built"},
-    {"item_id":"moon_viewing_tea","item_type":"trigger_item","title":"月见茶","price":8,"quantity":1,"unique":false,"enabled_checkpoint":"0.2.0-r41","local_effect_id":"add_consumable","unlock":"facility_moon_spring_built"},
-    {"item_id":"hot_spring_sachet","item_type":"trigger_item","title":"温泉香包","price":8,"quantity":1,"unique":false,"enabled_checkpoint":"0.2.0-r41","local_effect_id":"add_consumable","unlock":"facility_moon_spring_built"},
-    {"item_id":"banquet_bento","item_type":"trigger_item","title":"宴会食盒","price":10,"quantity":1,"unique":false,"enabled_checkpoint":"0.2.0-r42","local_effect_id":"add_consumable","unlock":"facility_banquet_plaza_built"},
-    {"item_id":"oni_sake_flask","item_type":"trigger_item","title":"小瓶鬼酒","price":12,"quantity":1,"unique":false,"enabled_checkpoint":"0.2.0-r42","local_effect_id":"add_consumable","unlock":"facility_banquet_plaza_built"},
     {"item_id":"emergency_repair_kit","item_type":"trigger_item","title":"应急修缮包","price":12,"quantity":1,"unique":false,"enabled_checkpoint":"0.2.0-r44","local_effect_id":"add_consumable","unlock":"any_followup_facility_built"},
     {"item_id":"opportunity_card","item_type":"trigger_item","title":"机遇卡","price":40,"quantity":1,"unique":false,"enabled_checkpoint":"planned-next-unused","local_effect_id":"add_consumable","unlock":"opportunity_candidates_available"},
     {"item_id":"spell_duel_card","item_type":"trigger_item","title":"对战卡","price":24,"quantity":1,"unique":false,"enabled_checkpoint":"planned-next-unused","local_effect_id":"add_consumable","unlock":"battle_dungeon_unlocked"},
-    {"item_id":"sakuya_watch","item_type":"key_item","title":"十六夜咲夜的怀表","price":80,"quantity":1,"unique":true,"enabled_checkpoint":"0.2.0-r36","local_effect_id":"obtain_sakuya_watch"}
+    {"item_id":"sakuya_watch","item_type":"key_item","title":"十六夜咲夜的怀表","price":80,"quantity":1,"unique":true,"enabled_checkpoint":"0.2.0-r36","local_effect_id":"obtain_sakuya_watch"},
+    {"item_id":"foreign_vibrator","item_type":"trigger_item","title":"外界的神秘道具·振动棒","price":24,"quantity":1,"unique":false,"enabled_checkpoint":"planned-next-unused","local_effect_id":"add_consumable"},
+    {"item_id":"foreign_egg","item_type":"trigger_item","title":"外界的小玩意·跳蛋","price":18,"quantity":1,"unique":false,"enabled_checkpoint":"planned-next-unused","local_effect_id":"add_consumable"},
+    {"item_id":"reimu_coin_bait","item_type":"trigger_item","title":"金币·钓饵","price":22,"quantity":1,"unique":false,"enabled_checkpoint":"planned-next-unused","local_effect_id":"add_consumable"},
+    {"item_id":"cirno_frog_bait","item_type":"trigger_item","title":"青蛙诱饵","price":12,"quantity":1,"unique":false,"enabled_checkpoint":"planned-next-unused","local_effect_id":"add_consumable","unlock":"facility_fairy_garden_built"},
+    {"item_id":"cirno_ice_toy","item_type":"trigger_item","title":"冰之玩具","price":10,"quantity":1,"unique":false,"enabled_checkpoint":"planned-next-unused","local_effect_id":"add_consumable","unlock":"facility_fairy_garden_built"},
+    {"item_id":"marisa_dream_mushroom","item_type":"trigger_item","title":"梦境菇·同步","price":22,"quantity":1,"unique":false,"enabled_checkpoint":"planned-next-unused","local_effect_id":"add_consumable","unlock":"magic_greenhouse_built"},
+    {"item_id":"marisa_obedience_page","item_type":"trigger_item","title":"服从之页","price":26,"quantity":1,"unique":false,"enabled_checkpoint":"planned-next-unused","local_effect_id":"add_consumable","unlock":"magic_greenhouse_built"},
+    {"item_id":"alice_doll_pause","item_type":"trigger_item","title":"人偶化·暂停","price":28,"quantity":1,"unique":false,"enabled_checkpoint":"planned-next-unused","local_effect_id":"add_consumable","unlock":"magic_greenhouse_built"}
   ]
 }

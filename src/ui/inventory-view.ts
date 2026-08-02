@@ -3,15 +3,18 @@ import type { GardenState } from './types';
 
 const itemMarks: Record<string, string> = {
   incident_trigger_card: '异',
-  fairy_candy_pack: '糖',
-  moon_viewing_tea: '月',
-  hot_spring_sachet: '香',
-  banquet_bento: '膳',
-  oni_sake_flask: '酒',
   emergency_repair_kit: '修',
   sakuya_watch: '刻',
   opportunity_card: '缘',
   spell_duel_card: '斗',
+  foreign_vibrator: '振',
+  foreign_egg: '蛋',
+  reimu_coin_bait: '币',
+  cirno_frog_bait: '蛙',
+  cirno_ice_toy: '冰',
+  marisa_dream_mushroom: '梦',
+  marisa_obedience_page: '服',
+  alice_doll_pause: '偶',
 };
 
 function duelDifficultyLabel(tagCount: number) {

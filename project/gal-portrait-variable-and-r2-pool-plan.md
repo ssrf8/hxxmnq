@@ -233,28 +233,28 @@ gensokyo-moving-garden/
 3. 在 `src/assets/asset-manifest.json` 登记活动运行源、来源、内容级别和 fallback。
 4. 先用本地路径／自包含候选验证三模式切换、窄屏裁切和缺图回退。
 
-魔理沙首批进度（2026-08-01，已接入本地候选）：
+八人首批进度（2026-08-02，已接入维护源，尚未发布）：
 
-- 已登记 `marisa` 的五种反应：`neutral`（正常）、`smile`（开心）、`shy`（害羞）、`sad`（伤心）、`angry`（生气）。
-- 已将所有者提供目录中的 `sfw` 五图按 `normal`、`nsfw` 五图按 `nude` 对应到五种反应；“哭泣”映射为 `sad`。10 张 `1152×1920` RGBA PNG 均按原字节复制到 `src/assets/characters/marisa/gal/`，没有裁切、缩放、透明处理或重编码。
-- 10 个逻辑槽均已写入 ASCII 维护路径并标记 `ready`；`src/assets/asset-manifest.json` 登记来源目录、画布、内容家族、运行方式和 fallback。
-- 魔理沙暂未登记 `sexualPoseIds`。模型若语义上必须输出 `sexual`，姿势归一化为 `default`；素材解析链计划依次回退到同反应 `nude`、`nude.neutral`、同反应 `normal`、`normal.neutral`。
+- 已登记 `reimu`、`marisa`、`cirno`、`alice`、`nitori`、`mystia`、`suika`、`sakuya`；每人均有 `neutral`（正常）、`smile`（开心）、`shy`（害羞）、`sad`（哭泣）、`angry`（生气）五种反应。
+- 每人 `sfw` 五图对应 `normal`，`nsfw` 五图对应 `nude`。80 张 `1152×1920` RGBA PNG 均从 `旧素材/素材处理/CG/` 按原字节复制到 `src/assets/characters/<id>/gal/`，没有裁切、缩放、透明处理、量化或重编码。
+- `scripts/stage-gal-portraits.mjs` 是唯一批量入库工具：默认遇到不一致的既有目标即失败；本轮以所有者指定的原始目录为真相，显式覆盖了魔理沙 `normal/smile` 的旧副本。
+- 80 个逻辑槽均已写入 ASCII 维护路径并标记 `ready`；`src/assets/asset-manifest.json` 登记来源目录、画布、内容家族、运行方式和 fallback。`sexual` 尚无专用姿势图，始终回退至当前反应的 `nude`／`normal` 链。
 - 预览构建复制原 PNG，自包含构建生成 data URL 并由宿主 dataset 注入 iframe；UI 只接受受控相对路径或 PNG data URL，真实切图使用完整透明画布、底部居中、`object-fit: contain` 与非像素化缩放。
-- 离线类型检查、定向契约、生产 UI 构建、dist 哈希一致性和本地页面 10 槽注入／控制台检查已通过；真实 SillyTavern 的模型输出、切图、Swipe、窄屏构图和显式内容设置仍待验收。
+- `check:ui`、全量测试、R2 staging dry-run 与 `build:ui` 已通过。真实 SillyTavern 的模型输出、切图、Swipe、窄屏构图和显式内容设置仍待验收。
 
-### C. 卡池构建与远程解析
+### C. 固定 live 素材解析
 
-1. 扩展发布工具生成 `gal-pool.v1` manifest、哈希、MIME、字节和权重门禁。
-2. 实现频道解析、manifest 校验、last-known-good、稳定抽取和有限重试。
-3. 预加载下一张候选后再切换，避免白闪；远程失败不得清空当前可用图。
-4. 保持现有 embedded 构建作为离线基线。
+1. 按项目已批准的单轨方案，把全部 GAL PNG 纳入 `live/manifest.json` 与 `live/characters/<id>/gal/...`。
+2. 客户端固定请求 live manifest 和同名素材 URL；不使用 GAL 独立 release、频道或不可变卡池。
+3. 媒体使用 `max-age=0, must-revalidate`，manifest 使用 `no-store`；全部媒体校验完成后最后更新 manifest。
+4. 保持 embedded 构建仅作离线开发基线，不把包含全部 80 图的卡作为日常测试或发布产物。
 
 ### D. R2 预发布与真实宿主验收
 
-前提是所有者另行提供并授权项目唯一桶、域名、CORS、上传入口和首个 GAL pool release ID。
+前提是固定 live 发布器、客户端缓存和 Cache Rule 已按项目单轨契约实现。
 
-1. 上传新不可变 release，逐项验证长度、MIME、哈希和缓存头。
-2. 最后切换测试频道，不直接覆盖正式频道。
+1. 覆盖上传全部 live 媒体，逐项验证长度、MIME、哈希和缓存头；最后写入 live manifest。
+2. 在真实 SillyTavern 验证普通消息、连续 beat、Swipe、重新生成、刷新、断网、慢网、404 与成人素材关闭。
 3. 在真实 SillyTavern 验证新消息、连续 beat、Swipe、重新生成、刷新、断网、慢网、404、错误 manifest 和内容开关。
 4. 验收完成后才允许正式频道切换。
 

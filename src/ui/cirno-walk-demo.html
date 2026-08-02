@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>琪露诺自由走动验收</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; margin: 0; background: #13232f; color: #eefaff; font-family: "Microsoft YaHei", sans-serif; }
+    main { width: min(960px, 100%); margin: auto; padding: 20px; }
+    h1 { margin: 0 0 6px; font-size: clamp(22px, 4vw, 34px); }
+    p { margin: 0 0 14px; color: #bad8e8; }
+    canvas { display: block; width: 100%; height: auto; border: 3px solid #75c8ef; border-radius: 14px; background: #dff4d1; image-rendering: pixelated; box-shadow: 0 16px 44px rgba(0,0,0,.35); }
+    #cirno-demo-status { display: block; margin-top: 12px; padding: 10px 14px; border: 1px solid #579bc1; border-radius: 8px; background: #1d3545; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>琪露诺 · 自由走动验收</h1>
+    <p>页面直接复用项目的 SpriteActor、正式四视图和 17 帧移动序列。观察走动切换为停止时，头顶与脚底是否发生突跳。</p>
+    <canvas id="cirno-demo-canvas" width="920" height="600" aria-label="琪露诺自由走动动画"></canvas>
+    <output id="cirno-demo-status" aria-live="polite">正在载入角色素材……</output>
+  </main>
+  <script src="./cirno-walk-demo.js"></script>
+</body>
+</html>

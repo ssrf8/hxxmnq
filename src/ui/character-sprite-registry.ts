@@ -40,9 +40,8 @@ const idleFits = (...values: readonly [FrameFit, FrameFit, FrameFit, FrameFit]) 
 const turnaroundFits = {
   reimu: idleFits([.8277, -.4136, -.7617], [.8222, -.4116, -.7564], [.81, -.413, -.6827], [.7988, -.4015, -.6729]),
   marisa: idleFits([.837, -.4659, -.7442], [.7801, -.344, -.7405], [.9012, -.4946, -.7253], [.8982, -.3896, -.7299]),
-  // Cirno's turnaround silhouettes read larger than their alpha bounds suggest.
-  // Keep the measured center/foot anchors, but reduce the resting art by 10%.
-  cirno: idleFits([.6844, -.3964, -.6659], [.689, -.3009, -.6706], [.6452, -.3754, -.5318], [.6402, -.2653, -.5323]),
+  // Owner-calibrated against a shared visible-height target and foot line.
+  cirno: idleFits([.6657, -.3911, -.6657], [.6945, -.3022, -.6945], [.7494, -.415, -.6502], [.7494, -.2927, -.6502]),
   alice: idleFits([.8181, -.4765, -.7965], [.8238, -.3398, -.7685], [.829, -.4863, -.6836], [.817, -.3394, -.6781]),
   mystia: idleFits([.8102, -.4409, -.767], [.7445, -.352, -.6891], [.7996, -.4176, -.678], [.7882, -.3742, -.6585]),
   suika: idleFits([.8068, -.4499, -.7481], [.8, -.3505, -.7415], [.8226, -.4768, -.7009], [.8186, -.3423, -.7008]),
@@ -54,11 +53,18 @@ const turnaroundFits = {
 // movement instead of dimming the resting art; the reciprocal measured ratios keep
 // the transition close without rewriting or smoothing the pixel assets.
 const cirnoMotionBrightness: Record<SpriteFacing, number> = {
-  front: 1.45,
+  front: 1.39,
   back: 1.56,
   left: 1.47,
   right: 1.47,
 };
+
+const cirnoMotionFits = idleFits(
+  [.8719, -.436, -.7342],
+  [.9042, -.4521, -.7614],
+  [1, -.5, -.8517],
+  [1, -.5, -.8469],
+);
 
 const definitions: Record<string, CharacterSpriteDefinition> = {
   reimu: {
@@ -100,6 +106,7 @@ const definitions: Record<string, CharacterSpriteDefinition> = {
     sequenceFile: 'cirno-animation-sequence-approved-v1.png',
     sequenceDefinition: { columns: 17, rows: 4, frameDurationMs: 100, loopStart: 0, loopEnd: 16 },
     idleFrameTransforms: turnaroundFits.cirno,
+    motionFrameTransforms: cirnoMotionFits,
     motionFrameBrightness: cirnoMotionBrightness,
     frameDurationMs: 108,
     motionBob: 1.3,

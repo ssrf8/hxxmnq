@@ -166,6 +166,7 @@
     childDoc.close();
     childDoc.documentElement.dataset.mapSrc = embedded.mapDataUrl;
     if (embedded.assetDeliveryConfig) childDoc.documentElement.dataset.assetDeliveryConfig = JSON.stringify(embedded.assetDeliveryConfig);
+    if (embedded.assetBase) childDoc.documentElement.dataset.assetBase = embedded.assetBase;
     if (embedded.dungeonButtonDataUrl) childDoc.documentElement.dataset.dungeonButtonSrc = embedded.dungeonButtonDataUrl;
     if (embedded.shopButtonDataUrl) childDoc.documentElement.dataset.shopButtonSrc = embedded.shopButtonDataUrl;
     if (embedded.inventoryButtonDataUrl) childDoc.documentElement.dataset.inventoryButtonSrc = embedded.inventoryButtonDataUrl;

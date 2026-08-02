@@ -11,7 +11,10 @@ const manifest = JSON.parse(await readFile(resolve(ASSET_ROOT, 'asset-manifest.j
 
 test('R2 release registry contains only existing active runtime assets', async () => {
   const assets = collectRuntimeAssets(manifest);
-  assert.equal(assets.length, 114);
+  const expectedGalPortraits = Object.values(manifest.gal_portraits)
+    .reduce((count, portrait) => count + Object.values(portrait.sources)
+      .reduce((modeCount, reactions) => modeCount + Object.keys(reactions).length, 0), 0);
+  assert.equal(assets.length, 103 + 1 + expectedGalPortraits);
   assert.equal(new Set(assets.map((asset) => asset.logical_id)).size, assets.length);
   assert.equal(new Set(assets.map((asset) => asset.source)).size, assets.length);
 
@@ -37,8 +40,11 @@ test('R2 release registry carries the single-bucket scheduling contract', () => 
     assert.equal(typeof asset.trigger, 'string');
     assert.equal(typeof asset.category, 'string');
   }
+  const expectedGalPortraits = Object.values(manifest.gal_portraits)
+    .reduce((count, portrait) => count + Object.values(portrait.sources)
+      .reduce((modeCount, reactions) => modeCount + Object.keys(reactions).length, 0), 0);
   assert.equal(assets.filter((asset) => asset.category !== 'gal').length, 103);
-  assert.equal(assets.filter((asset) => asset.category === 'gal').length, 11);
+  assert.equal(assets.filter((asset) => asset.category === 'gal').length, 1 + expectedGalPortraits);
   assert.equal(assets.filter((asset) => asset.priority_class === 'entry-critical').length, 5);
   assert.equal(assets.every((asset) => asset.required === (asset.entry_gate !== 'none')), true);
 });
@@ -69,4 +75,6 @@ test('every canvas image loader sets anonymous CORS before assigning an HTTPS so
   for (const [file, pattern] of files) {
     assert.match(await readFile(resolve(ROOT, file), 'utf8'), pattern, file);
   }
+  const app = await readFile(resolve(ROOT, 'src/ui/app.ts'), 'utf8');
+  assert.match(app, /taggedAssets\(\[battleAtlasSources\][\s\S]*?category: 'battle', crossOrigin: 'anonymous'/);
 });

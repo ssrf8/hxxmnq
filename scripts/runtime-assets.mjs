@@ -136,7 +136,7 @@ export function collectRuntimeAssets(assetManifest) {
       ...scheduling,
       required: scheduling.entry_gate !== 'none',
       fallback: fallbackFor(normalized),
-      cache: 'immutable',
+      cache: 'must-revalidate',
     });
   };
 

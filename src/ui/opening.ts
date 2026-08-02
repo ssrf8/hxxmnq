@@ -1,4 +1,4 @@
-import type { GardenBridge, GardenState, OpeningContext, OpeningDraft, OpeningProgress } from './types';
+import type { GardenBridge, GardenState, OpeningContext, OpeningDraft } from './types';
 import type { AssetPreloader, AssetPreloadSnapshot } from './asset-preloader';
 
 const DRAFT_VERSION = 1;
@@ -6,7 +6,7 @@ const DRAFT_VERSION = 1;
 export function buildOpeningMessage(draft: OpeningDraft): string {
   const appearance = draft.playerAppearance.trim() || '未作特别说明';
   const appearanceSentence = /[。！？.!?]$/u.test(appearance) ? appearance : `${appearance}。`;
-  return `我叫「${draft.playerName.trim()}」，希望他人使用「${draft.playerPronouns.trim()}」称呼我。我的外貌大致是：${appearanceSentence}\n\n我依照祖父留下的安排，收到一个没有寄件地址的旧木匣。匣中有一封写给我的遗信，以及一件被称为“庭守钥”的沉睡遗物；信里提到一座会在结界间移动、已经荒废许久的庭园，我暂时把它称作「${draft.gardenName.trim()}」。\n\n我尚未正式继承这座庭园，也还没有穿过它的结界。请用一段沉浸式聊天序章介绍祖父留下庭园的缘由、这份遗产的边界与代价，以及庭守钥将如何带我抵达移动庭园。不要替我接受继承，不要提前写成继承成功，也不要让其他角色闯入；请把故事停在庭守钥于我面前苏醒、等待我亲手接过的时刻。`;
+  return `玩家「${draft.playerName.trim()}」将以「${draft.playerPronouns.trim()}」作为称呼。外貌：${appearanceSentence}\n\n祖父留下的庭守钥已经苏醒，并将玩家带往移动庭园「${draft.gardenName.trim()}」。确认后只会在当前首个 assistant 楼层写入开局资料，不发送玩家消息，也不会调用 LLM。`;
 }
 
 function storageKey(chatId: string) {
@@ -25,7 +25,6 @@ function normalizedDraft(value: Partial<OpeningDraft>): OpeningDraft {
 export class OpeningController {
   private context?: OpeningContext;
   private busy = false;
-  private progress: OpeningProgress = { messageSubmitted: false, assistantResponded: false };
 
   constructor(
     private readonly bridge: GardenBridge,
@@ -39,8 +38,6 @@ export class OpeningController {
     this.form.addEventListener('input', () => { this.saveDraft(); this.renderPreview(); });
     this.form.addEventListener('submit', (event) => { event.preventDefault(); void this.commit(); });
     this.button('gg-opening-quick').addEventListener('click', () => this.applyPersona());
-    this.button('gg-opening-enter').addEventListener('click', () => void this.enterGarden());
-    this.button('gg-opening-repair').addEventListener('click', () => void this.repair());
     this.assetPreloader.subscribe((snapshot) => this.renderAssetProgress(snapshot));
   }
 
@@ -78,8 +75,6 @@ export class OpeningController {
         gardenName: '无名庭园',
       }));
     }
-    this.progress = await this.bridge.getOpeningProgress();
-    this.renderProgress();
     this.renderPreview();
   }
 
@@ -148,19 +143,6 @@ export class OpeningController {
     document.getElementById('gg-opening-preview')!.textContent = buildOpeningMessage(this.readDraft());
   }
 
-  private renderProgress() {
-    const recovery = document.getElementById('gg-opening-recovery') as HTMLElement;
-    recovery.hidden = !this.progress.messageSubmitted;
-    this.form.hidden = this.progress.messageSubmitted;
-    const story = document.getElementById('gg-opening-story') as HTMLElement;
-    story.textContent = this.progress.storyText || '旧木匣已经打开。祖父留下的文字正在从泛黄信纸上浮现……';
-    document.getElementById('gg-opening-progress')!.textContent = this.progress.assistantResponded
-      ? '故事已经来到选择的门前。继承尚未完成，是否接过庭守钥由你决定。'
-      : '祖父留下的故事仍在展开。若长时间没有回应，可以重新尝试生成。';
-    this.button('gg-opening-enter').disabled = !this.progress.assistantResponded;
-    this.button('gg-opening-repair').disabled = !this.progress.assistantResponded;
-  }
-
   private applyPersona() {
     if (!this.context) return;
     const draft = this.readDraft();
@@ -184,37 +166,6 @@ export class OpeningController {
     const frozenChatId = this.context.chatId;
     try {
       this.saveDraft();
-      await this.bridge.commitOpening(draft, buildOpeningMessage(draft), frozenChatId);
-      this.setStatus('祖父留下的序章已经展开，读完后再决定是否继承庭园');
-      this.requestRefresh();
-    } catch (error) {
-      this.setStatus(`序章载入失败：${error instanceof Error ? error.message : String(error)}。草稿仍在，可以安全重试。`, true);
-    } finally {
-      this.busy = false;
-      this.button('gg-opening-commit').disabled = false;
-      this.form.setAttribute('aria-busy', 'false');
-    }
-  }
-
-  private async repair() {
-    if (!this.context || this.busy || !this.progress.assistantResponded) return;
-    this.busy = true;
-    try {
-      const result = await this.bridge.repairOpening(this.context.chatId);
-      this.setStatus(result.messageCreated ? '已发送受限的开场变量修复请求' : '已找到先前的修复请求，正在安全重试生成');
-      this.requestRefresh();
-    } catch (error) {
-      this.setStatus(`修复请求失败：${error instanceof Error ? error.message : String(error)}`, true);
-    } finally {
-      this.busy = false;
-    }
-  }
-
-  private async enterGarden() {
-    if (!this.context || this.busy || !this.progress.assistantResponded) return;
-    this.busy = true;
-    this.button('gg-opening-enter').disabled = true;
-    try {
       const beforeLoad = this.assetPreloader.snapshot;
       if (!beforeLoad.entryReady && !beforeLoad.entryTimedOut) {
         this.loadingRoot.hidden = false;
@@ -222,22 +173,23 @@ export class OpeningController {
         this.loadingRoot.hidden = true;
         if (snapshot.failed) this.setAssetFallbackStatus(snapshot);
       }
-      const result = await this.bridge.enterGarden(this.context.chatId);
-      sessionStorage.removeItem(storageKey(this.context.chatId));
+      const result = await this.bridge.initializeOpening(draft, frozenChatId);
+      sessionStorage.removeItem(storageKey(frozenChatId));
       const loadWarning = this.assetPreloader.snapshot.failed
         ? `；${this.assetPreloader.snapshot.failed} 项素材已降级显示`
         : '';
-      this.setStatus((result.initializedFromDefaults
-        ? '你接过了庭守钥。初始状态已经补齐，移动庭园正在回应'
-        : '你接过了庭守钥，移动庭园的结界已经开启') + loadWarning,
+      this.setStatus((result.alreadyCommitted
+        ? '开局资料已经存在，移动庭园的结界正在重新开启'
+        : '庭守钥已经苏醒，移动庭园的结界正在开启') + loadWarning,
       this.assetPreloader.snapshot.failed > 0);
       this.requestRefresh();
     } catch (error) {
       this.loadingRoot.hidden = true;
-      this.setStatus(`进入庭院失败：${error instanceof Error ? error.message : String(error)}`, true);
+      this.setStatus(`进入庭园失败：${error instanceof Error ? error.message : String(error)}。草稿仍在，可以安全重试。`, true);
     } finally {
       this.busy = false;
-      this.button('gg-opening-enter').disabled = false;
+      this.button('gg-opening-commit').disabled = false;
+      this.form.setAttribute('aria-busy', 'false');
     }
   }
 

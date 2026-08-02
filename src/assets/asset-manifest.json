@@ -28,10 +28,45 @@
     "reduced_motion": "static-frame"
   },
   "gal_portraits": {
-    "marisa": {
-      "status": "owner-provided-integrated-offline-validation-pending-sillytavern",
+    "reimu": {
+      "status": "owner-provided-original-png-runtime-pending-sillytavern",
       "runtime_embed": "direct-original-files",
-      "canvas": [1152, 1920],
+      "canvas": [
+        1152,
+        1920
+      ],
+      "source_archive_root": "旧素材/素材处理/CG/灵梦/透明背景/",
+      "content_families": {
+        "normal": "owner-labeled-sfw-swimwear",
+        "nude": "owner-labeled-nsfw-full-nudity"
+      },
+      "sources": {
+        "normal": {
+          "neutral": "characters/reimu/gal/normal/reimu-normal-neutral-v1.png",
+          "smile": "characters/reimu/gal/normal/reimu-normal-smile-v1.png",
+          "shy": "characters/reimu/gal/normal/reimu-normal-shy-v1.png",
+          "sad": "characters/reimu/gal/normal/reimu-normal-sad-v1.png",
+          "angry": "characters/reimu/gal/normal/reimu-normal-angry-v1.png"
+        },
+        "nude": {
+          "neutral": "characters/reimu/gal/nude/reimu-nude-neutral-v1.png",
+          "smile": "characters/reimu/gal/nude/reimu-nude-smile-v1.png",
+          "shy": "characters/reimu/gal/nude/reimu-nude-shy-v1.png",
+          "sad": "characters/reimu/gal/nude/reimu-nude-sad-v1.png",
+          "angry": "characters/reimu/gal/nude/reimu-nude-angry-v1.png"
+        }
+      },
+      "sexual_pose_sources": {},
+      "fallback": "sexual -> nude same reaction -> nude.neutral -> normal same reaction -> normal.neutral",
+      "note": "Every runtime PNG is a byte-identical copy of the owner-provided 1152x1920 RGBA source; no crop, resize, alpha edit, quantization, or re-encoding."
+    },
+    "marisa": {
+      "status": "owner-provided-original-png-runtime-pending-sillytavern",
+      "runtime_embed": "direct-original-files",
+      "canvas": [
+        1152,
+        1920
+      ],
       "source_archive_root": "旧素材/素材处理/CG/魔理沙/透明背景/",
       "content_families": {
         "normal": "owner-labeled-sfw-swimwear",
@@ -55,7 +90,199 @@
       },
       "sexual_pose_sources": {},
       "fallback": "sexual -> nude same reaction -> nude.neutral -> normal same reaction -> normal.neutral",
-      "note": "All ten PNG files are byte-identical copies of the owner-provided transparent-background sources; no crop, resize, alpha edit, quantization, or re-encoding was applied."
+      "note": "Every runtime PNG is a byte-identical copy of the owner-provided 1152x1920 RGBA source; no crop, resize, alpha edit, quantization, or re-encoding."
+    },
+    "cirno": {
+      "status": "owner-provided-original-png-runtime-pending-sillytavern",
+      "runtime_embed": "direct-original-files",
+      "canvas": [
+        1152,
+        1920
+      ],
+      "source_archive_root": "旧素材/素材处理/CG/琪露诺/透明背景/",
+      "content_families": {
+        "normal": "owner-labeled-sfw-swimwear",
+        "nude": "owner-labeled-nsfw-full-nudity"
+      },
+      "sources": {
+        "normal": {
+          "neutral": "characters/cirno/gal/normal/cirno-normal-neutral-v1.png",
+          "smile": "characters/cirno/gal/normal/cirno-normal-smile-v1.png",
+          "shy": "characters/cirno/gal/normal/cirno-normal-shy-v1.png",
+          "sad": "characters/cirno/gal/normal/cirno-normal-sad-v1.png",
+          "angry": "characters/cirno/gal/normal/cirno-normal-angry-v1.png"
+        },
+        "nude": {
+          "neutral": "characters/cirno/gal/nude/cirno-nude-neutral-v1.png",
+          "smile": "characters/cirno/gal/nude/cirno-nude-smile-v1.png",
+          "shy": "characters/cirno/gal/nude/cirno-nude-shy-v1.png",
+          "sad": "characters/cirno/gal/nude/cirno-nude-sad-v1.png",
+          "angry": "characters/cirno/gal/nude/cirno-nude-angry-v1.png"
+        }
+      },
+      "sexual_pose_sources": {},
+      "fallback": "sexual -> nude same reaction -> nude.neutral -> normal same reaction -> normal.neutral",
+      "note": "Every runtime PNG is a byte-identical copy of the owner-provided 1152x1920 RGBA source; no crop, resize, alpha edit, quantization, or re-encoding."
+    },
+    "alice": {
+      "status": "owner-provided-original-png-runtime-pending-sillytavern",
+      "runtime_embed": "direct-original-files",
+      "canvas": [
+        1152,
+        1920
+      ],
+      "source_archive_root": "旧素材/素材处理/CG/爱丽丝/",
+      "content_families": {
+        "normal": "owner-labeled-sfw-swimwear",
+        "nude": "owner-labeled-nsfw-full-nudity"
+      },
+      "sources": {
+        "normal": {
+          "neutral": "characters/alice/gal/normal/alice-normal-neutral-v1.png",
+          "smile": "characters/alice/gal/normal/alice-normal-smile-v1.png",
+          "shy": "characters/alice/gal/normal/alice-normal-shy-v1.png",
+          "sad": "characters/alice/gal/normal/alice-normal-sad-v1.png",
+          "angry": "characters/alice/gal/normal/alice-normal-angry-v1.png"
+        },
+        "nude": {
+          "neutral": "characters/alice/gal/nude/alice-nude-neutral-v1.png",
+          "smile": "characters/alice/gal/nude/alice-nude-smile-v1.png",
+          "shy": "characters/alice/gal/nude/alice-nude-shy-v1.png",
+          "sad": "characters/alice/gal/nude/alice-nude-sad-v1.png",
+          "angry": "characters/alice/gal/nude/alice-nude-angry-v1.png"
+        }
+      },
+      "sexual_pose_sources": {},
+      "fallback": "sexual -> nude same reaction -> nude.neutral -> normal same reaction -> normal.neutral",
+      "note": "Every runtime PNG is a byte-identical copy of the owner-provided 1152x1920 RGBA source; no crop, resize, alpha edit, quantization, or re-encoding."
+    },
+    "nitori": {
+      "status": "owner-provided-original-png-runtime-pending-sillytavern",
+      "runtime_embed": "direct-original-files",
+      "canvas": [
+        1152,
+        1920
+      ],
+      "source_archive_root": "旧素材/素材处理/CG/河城荷取/",
+      "content_families": {
+        "normal": "owner-labeled-sfw-swimwear",
+        "nude": "owner-labeled-nsfw-full-nudity"
+      },
+      "sources": {
+        "normal": {
+          "neutral": "characters/nitori/gal/normal/nitori-normal-neutral-v1.png",
+          "smile": "characters/nitori/gal/normal/nitori-normal-smile-v1.png",
+          "shy": "characters/nitori/gal/normal/nitori-normal-shy-v1.png",
+          "sad": "characters/nitori/gal/normal/nitori-normal-sad-v1.png",
+          "angry": "characters/nitori/gal/normal/nitori-normal-angry-v1.png"
+        },
+        "nude": {
+          "neutral": "characters/nitori/gal/nude/nitori-nude-neutral-v1.png",
+          "smile": "characters/nitori/gal/nude/nitori-nude-smile-v1.png",
+          "shy": "characters/nitori/gal/nude/nitori-nude-shy-v1.png",
+          "sad": "characters/nitori/gal/nude/nitori-nude-sad-v1.png",
+          "angry": "characters/nitori/gal/nude/nitori-nude-angry-v1.png"
+        }
+      },
+      "sexual_pose_sources": {},
+      "fallback": "sexual -> nude same reaction -> nude.neutral -> normal same reaction -> normal.neutral",
+      "note": "Every runtime PNG is a byte-identical copy of the owner-provided 1152x1920 RGBA source; no crop, resize, alpha edit, quantization, or re-encoding."
+    },
+    "mystia": {
+      "status": "owner-provided-original-png-runtime-pending-sillytavern",
+      "runtime_embed": "direct-original-files",
+      "canvas": [
+        1152,
+        1920
+      ],
+      "source_archive_root": "旧素材/素材处理/CG/米斯蒂娅/",
+      "content_families": {
+        "normal": "owner-labeled-sfw-swimwear",
+        "nude": "owner-labeled-nsfw-full-nudity"
+      },
+      "sources": {
+        "normal": {
+          "neutral": "characters/mystia/gal/normal/mystia-normal-neutral-v1.png",
+          "smile": "characters/mystia/gal/normal/mystia-normal-smile-v1.png",
+          "shy": "characters/mystia/gal/normal/mystia-normal-shy-v1.png",
+          "sad": "characters/mystia/gal/normal/mystia-normal-sad-v1.png",
+          "angry": "characters/mystia/gal/normal/mystia-normal-angry-v1.png"
+        },
+        "nude": {
+          "neutral": "characters/mystia/gal/nude/mystia-nude-neutral-v1.png",
+          "smile": "characters/mystia/gal/nude/mystia-nude-smile-v1.png",
+          "shy": "characters/mystia/gal/nude/mystia-nude-shy-v1.png",
+          "sad": "characters/mystia/gal/nude/mystia-nude-sad-v1.png",
+          "angry": "characters/mystia/gal/nude/mystia-nude-angry-v1.png"
+        }
+      },
+      "sexual_pose_sources": {},
+      "fallback": "sexual -> nude same reaction -> nude.neutral -> normal same reaction -> normal.neutral",
+      "note": "Every runtime PNG is a byte-identical copy of the owner-provided 1152x1920 RGBA source; no crop, resize, alpha edit, quantization, or re-encoding."
+    },
+    "suika": {
+      "status": "owner-provided-original-png-runtime-pending-sillytavern",
+      "runtime_embed": "direct-original-files",
+      "canvas": [
+        1152,
+        1920
+      ],
+      "source_archive_root": "旧素材/素材处理/CG/萃香/",
+      "content_families": {
+        "normal": "owner-labeled-sfw-swimwear",
+        "nude": "owner-labeled-nsfw-full-nudity"
+      },
+      "sources": {
+        "normal": {
+          "neutral": "characters/suika/gal/normal/suika-normal-neutral-v1.png",
+          "smile": "characters/suika/gal/normal/suika-normal-smile-v1.png",
+          "shy": "characters/suika/gal/normal/suika-normal-shy-v1.png",
+          "sad": "characters/suika/gal/normal/suika-normal-sad-v1.png",
+          "angry": "characters/suika/gal/normal/suika-normal-angry-v1.png"
+        },
+        "nude": {
+          "neutral": "characters/suika/gal/nude/suika-nude-neutral-v1.png",
+          "smile": "characters/suika/gal/nude/suika-nude-smile-v1.png",
+          "shy": "characters/suika/gal/nude/suika-nude-shy-v1.png",
+          "sad": "characters/suika/gal/nude/suika-nude-sad-v1.png",
+          "angry": "characters/suika/gal/nude/suika-nude-angry-v1.png"
+        }
+      },
+      "sexual_pose_sources": {},
+      "fallback": "sexual -> nude same reaction -> nude.neutral -> normal same reaction -> normal.neutral",
+      "note": "Every runtime PNG is a byte-identical copy of the owner-provided 1152x1920 RGBA source; no crop, resize, alpha edit, quantization, or re-encoding."
+    },
+    "sakuya": {
+      "status": "owner-provided-original-png-runtime-pending-sillytavern",
+      "runtime_embed": "direct-original-files",
+      "canvas": [
+        1152,
+        1920
+      ],
+      "source_archive_root": "旧素材/素材处理/CG/咲夜/",
+      "content_families": {
+        "normal": "owner-labeled-sfw-swimwear",
+        "nude": "owner-labeled-nsfw-full-nudity"
+      },
+      "sources": {
+        "normal": {
+          "neutral": "characters/sakuya/gal/normal/sakuya-normal-neutral-v1.png",
+          "smile": "characters/sakuya/gal/normal/sakuya-normal-smile-v1.png",
+          "shy": "characters/sakuya/gal/normal/sakuya-normal-shy-v1.png",
+          "sad": "characters/sakuya/gal/normal/sakuya-normal-sad-v1.png",
+          "angry": "characters/sakuya/gal/normal/sakuya-normal-angry-v1.png"
+        },
+        "nude": {
+          "neutral": "characters/sakuya/gal/nude/sakuya-nude-neutral-v1.png",
+          "smile": "characters/sakuya/gal/nude/sakuya-nude-smile-v1.png",
+          "shy": "characters/sakuya/gal/nude/sakuya-nude-shy-v1.png",
+          "sad": "characters/sakuya/gal/nude/sakuya-nude-sad-v1.png",
+          "angry": "characters/sakuya/gal/nude/sakuya-nude-angry-v1.png"
+        }
+      },
+      "sexual_pose_sources": {},
+      "fallback": "sexual -> nude same reaction -> nude.neutral -> normal same reaction -> normal.neutral",
+      "note": "Every runtime PNG is a byte-identical copy of the owner-provided 1152x1920 RGBA source; no crop, resize, alpha edit, quantization, or re-encoding."
     }
   },
   "characters": {

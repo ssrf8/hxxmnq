@@ -1,6 +1,70 @@
 # 全素材入库、弹幕音效与 Cloudflare R2 发布规划
 
-> 状态：**本地音效、发布清单、优先调度、`remote-r2` 构建与首个 R2 预发布（A–E）已完成；生产自定义域名、真实 SillyTavern 候选和正式切换（F–G）待继续**。
+> 2026-08-02 更新：当前生产 release 为 `0.2.0-r62-0e5ecacdee9f`，manifest 声明哈希为
+> `0f068864b044613d4d5110ad6f7a850f7aecec1609821a90d0a5ed16cd5a8965`，r63 轻量卡已固定使用。
+> 本文件保留架构与历史规划；实际 staging、上传、校验、remote-r2 构建、轻量打包和旧 release
+> 删除门槛，以 `project/r2-packaging-runbook.md` 为唯一操作手册。
+
+> 状态：**本地音效、发布清单、优先调度、`remote-r2` 构建、R2 预发布、生产自定义域名与新域名固定 release 已完成；战斗 atlas CORS 缓存冲突修复、真实 SillyTavern 候选和正式切换（F–G）待继续**。
+
+> **2026-08-02 所有者决策（待实施）**：此前全部 R2 release 均为所有者个人测试版本。后续不再维护
+> “不可变 release 与可变频道”双轨；统一迁移到单一、固定路径的 live 素材接口。图片和音频的 logical
+> source 名保持不变，内容允许原地更新；`SHA-256` 保留为发布校验记录，不再进入请求 URL。本文中与此
+> 决策冲突的旧 release 流程仅作为历史记录，不得作为下一次发布的操作依据。
+
+## 0. 已批准的单轨 live 素材迁移方案（待代码实现）
+
+### 0.1 目标契约
+
+新角色卡只固定可信 origin 与下列不变 API，不固定 release ID 或素材内容哈希：
+
+```text
+https://ssrfrrt.ccwu.cc/gensokyo-moving-garden/live/manifest.json
+https://ssrfrrt.ccwu.cc/gensokyo-moving-garden/live/<source>
+```
+
+`<source>` 直接使用活动 `asset-manifest.json` 的 source，例如
+`ui/reimu-dungeon-button-v1.webp`、`maps/garden-base-owner-v3.webp`。素材替换时只覆盖同名
+live object；角色卡内请求接口、图片名和 source 均不改变。
+
+### 0.2 缓存与一致性
+
+| 对象 | 响应策略 | 原因 |
+|---|---|---|
+| `live/manifest.json` | `Cache-Control: no-store` | 每次启动取得当前文件表、generation 与校验记录。 |
+| `live/**` 媒体 | `Cache-Control: public, max-age=0, must-revalidate` | 可由浏览器/CDN 保存，但每次使用必须用 ETag/Last-Modified 向源站确认；未变通常只返回 304，变化时下载新字节。 |
+| 404／上传中的错误 | `Cache-Control: no-store` | 防止首次 404 被缓存成“素材不存在”。 |
+
+- 必须删除覆盖 `live/**` 的 `immutable` Cache Rule；否则同 URL 的旧图可以被保存一年，live 契约失效。
+- 客户端 live 预加载禁止使用 `cache: 'force-cache'`；应使用默认缓存行为或 `cache: 'no-cache'`，让 HTTP
+  revalidation 生效。
+- manifest 至少包含 `generation`（单调递增发布号）、`updated_at`、每项 `bytes`、`mime`、`sha256` 和
+  `source`。hash 用于上传后校验、诊断和离线缓存换代，**不用来拼接 URL**。
+- 多对象原地覆盖不具备跨对象原子性。发布器必须先上传并校验全部媒体，最后覆盖 `live/manifest.json`；
+  manifest 是唯一发布完成标记。旧 manifest 与新媒体短暂交错只允许发生在向前兼容的素材改动中；涉及
+  图集尺寸、帧布局、字段删除或运行时代码契约变化时，必须先发布兼容代码并进行实机验收。
+
+### 0.3 客户端、离线缓存与发布器改造范围
+
+1. `scripts/build-runtime-assets.mjs` 与 `scripts/publish-r2-assets.mjs` 新建 live manifest/staging 与
+   覆盖计划：允许且只允许写 `gensokyo-moving-garden/live/`，拒绝写其他桶或未列入 manifest 的 key。
+2. `scripts/build-ui.mjs`、`src/ui/asset-remote-resolver.ts` 改为单一 `remote-r2-live` 配置：构建时固定
+   HTTPS origin 和 `/live/manifest.json`，运行时无凭据读取 manifest；不再写入 `releaseId` 或固定
+   manifest hash。
+3. `src/ui/asset-preloader.ts` 改为可重验证请求；`src/ui/asset-offline-cache.ts` 的缓存名改为
+   `gg-runtime-assets:live:<generation-or-manifest-hash>`，下载并验证新代后再删除旧代。
+4. 更新 R2 专项测试，覆盖固定 URL、第二次发布后 ETag/304、内容更新后 200、新 manifest 最后可见、
+   Canvas anonymous CORS、离线缓存换代、断网 fallback 与错误 MIME。
+5. 完成一次真实 SillyTavern 导入和缓存更新验收后，所有后续轻量卡只使用 live 模式；不保留新双轨构建。
+
+### 0.4 迁移边界与回退
+
+- 本次决策**不授权删除**当前桶内旧测试 release；它们不再是发布链的一部分，待单独清理任务精确列出
+  前缀和对象后再处理。
+- live 模式的回退是重新上传上一次已校验的同名素材，再最后上传对应 manifest；不能依赖旧 release URL
+  自动回退。
+- 在代码、Cache Rule 与实机验收完成前，`0.2.0-r62-0e5ecacdee9f` / r63 仍只是历史测试基线，不得把
+  本计划误报为已经生效。
 >
 > 2026-07-31 所有者提出：先把现有弹幕音效纳入项目维护源；上线时计划把项目运行素材托管到
 > Cloudflare R2。本文件统一规划图片、音频和未来新增媒体的维护源、发布清单、R2 对象结构、
@@ -8,7 +72,7 @@
 >
 > 2026-08-01 已确认项目唯一桶为 `hxxwy`，首个不可变 release 为
 > `0.2.0-r55-bbc0e074f993`；短期通过公开 `r2.dev` 域名验收。生产素材域名拟使用
-> `ssrfrrt.ccwu.cc`，当前尚未完成 Cloudflare 绑定与 TLS 激活。
+> `ssrfrrt.ccwu.cc`；该域名现已绑定到 `hxxwy`，ownership／SSL active，最低 TLS 1.2。
 >
 > 2026-08-01 所有者确认：**整个项目长期只使用一个 R2 桶**。核心素材、GAL 滚动卡池、频道
 > 指针和未来 BGM 均进入同一桶，通过不可变前缀、独立 manifest 与缓存策略隔离；规划和发布工具
@@ -539,7 +603,7 @@ GAL 运行时遵守以下附加规则：
 
 ### E. R2 预发布
 
-**2026-08-01 进度：`r2.dev` 预发布已完成，生产自定义域名待绑定。**
+**2026-08-01 进度：`r2.dev` 预发布、生产自定义域名绑定与新域名固定 release 均已完成。**
 
 1. 发布工具先 `--dry-run`，显示拟上传 key、字节和总量，不打印秘密。
 2. 上传到新的不可变 release 前缀。
@@ -575,7 +639,7 @@ GAL 运行时遵守以下附加规则：
 
 ## 9.1 上传前实现结果（2026-08-01）
 
-本地 A–F 代码骨架、v2 调度清单、优先队列、入口门、场景抢占、GAL 门控、可信 resolver、HTTP cache 复用和可测试的显式离线缓存服务均已落地。唯一桶 `hxxwy` 已应用公开读取 CORS，并发布 release `0.2.0-r55-bbc0e074f993`：114 个素材对象共 `54,968,893` bytes，最后发布 manifest 后共 115 个对象、`55,050,924` bytes；manifest SHA-256 为 `75c797954353be3d5272a7649c9e6491b151aae43743ebd8406165724a83c08e`。浏览器验证入口 16/16、总计 114/114、失败 0、控制台无 warning/error。离线包设置 UI、生产自定义域名和真实 SillyTavern 验收仍未完成。
+本地 A–F 代码骨架、v2 调度清单、优先队列、入口门、场景抢占、GAL 门控、可信 resolver、HTTP cache 复用和可测试的显式离线缓存服务均已落地。唯一桶 `hxxwy` 已应用公开读取 CORS，并发布 release `0.2.0-r55-bbc0e074f993`：114 个素材对象共 `54,968,893` bytes，最后发布 manifest 后共 115 个对象、`55,050,924` bytes；manifest SHA-256 为 `75c797954353be3d5272a7649c9e6491b151aae43743ebd8406165724a83c08e`。浏览器验证入口 16/16、总计 114/114、失败 0、控制台无 warning/error。生产自定义域名 `ssrfrrt.ccwu.cc` 已绑定并通过 ownership／SSL、公开 manifest、Range 与 CORS 验证；随后从干净提交 `1ef0d7d6cbab` 发布不可覆盖 release `0.2.0-r55-1ef0d7d6cbab`，114 个素材共 `54,968,864` bytes、远端 115 对象，manifest 声明 SHA-256 为 `c44ff80e99c51f63fb61092bfeff9e0fd0e2ee467ae614437a66615bc45c2b29`。标准测试 191/191、远端专项 8/8、远端对象元数据、公开 manifest 整文件一致性与代表性 Range/CORS 均通过；生产浏览器普通预加载为入口 16/16、总调度 114/114、失败 0且控制台无 warning/error，但后续弹幕复现发现 atlas 因先非 CORS 预加载、后 anonymous CORS 重载的缓存模式冲突而失败并走几何回退。离线包设置 UI、atlas 修复和真实 SillyTavern 验收仍未完成。
 
 仓库内发布器继续只提供单桶 dry-run 计划，不持有秘密或 live 分支；首轮实际上传由受控外部 S3 客户端严格按已审查 manifest 执行，并坚持“素材先传、manifest 最后传”。后续发布仍必须先从干净提交生成新的不可覆盖 staging，再显式传入唯一 bucket，禁止复用或覆盖当前 release 前缀。
 
@@ -601,7 +665,5 @@ GAL 运行时遵守以下附加规则：
 
 继续 F–G（生产域名与真实发行）前：
 
-- 恢复 Cloudflare 控制面登录或提供新的最小权限管理 Token；
-- 把 `ssrfrrt.ccwu.cc` 绑定到唯一桶 `hxxwy` 并等待 ownership/SSL active；
-- 用自定义域名重新生成固定 manifest（新 release ID，不覆盖当前 release）；
+- 修复战斗预加载／atlas 的 CORS 缓存模式冲突，发布新 release 后完成真实 SillyTavern 候选验收；
 - 真实 SillyTavern 候选和正式发行授权。

@@ -23,6 +23,10 @@ export function reconcileHostGenerationActivity(
   return active && !transaction.assistantResponded;
 }
 
+export function shouldTrackHostGenerationStart(dryRun: unknown) {
+  return dryRun !== true;
+}
+
 export class LatestRefreshQueue {
   private requested = false;
   private active: Promise<void> | null = null;

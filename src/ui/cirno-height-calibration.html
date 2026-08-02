@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>琪露诺全方向统一高度校准</title>
+  <style>
+    :root{color-scheme:dark;font-family:system-ui,sans-serif;background:#102331;color:#eaf7ff}*{box-sizing:border-box}body{margin:0;padding:20px}main{width:min(1000px,100%);margin:auto}h1{margin:0 0 6px;font-size:28px}p{margin:0 0 14px;color:#bfd2df}canvas{display:block;width:100%;height:auto;border:3px solid #65b9dc;border-radius:14px;background:#dff5ef}.controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 22px;margin-top:16px;padding:18px;border-radius:14px;background:#173142}label{display:grid;grid-template-columns:118px 1fr 72px;align-items:center;gap:10px;min-width:0}select,textarea,button{font:inherit}select{padding:8px;border-radius:8px}input[type=range]{width:100%}output{font-variant-numeric:tabular-nums;text-align:right;color:#86dbff}.toggle{grid-template-columns:auto 1fr;justify-content:start}.toggle input{width:20px;height:20px}.result{grid-column:1/-1;display:grid;gap:9px}textarea{width:100%;min-height:80px;padding:10px;resize:vertical;color:#dff7ff;background:#0d202c;border:1px solid #4c7f97;border-radius:8px}.actions{display:flex;gap:10px}button{padding:9px 14px;border:0;border-radius:8px;cursor:pointer;background:#62c7ee;color:#09202c;font-weight:700}button.secondary{background:#d4e8f0}@media(max-width:720px){body{padding:10px}.controls{grid-template-columns:1fr}.result{grid-column:auto}label{grid-template-columns:96px 1fr 62px}}
+  </style>
+</head>
+<body><main>
+  <h1>琪露诺 · 全方向统一高度校准</h1>
+  <p>动画与静态分两排，四个方向同时显示。蓝线固定脚底，红线是共同目标高度；选择方向后分别调整两套比例。</p>
+  <canvas id="cirno-height-canvas" width="1000" height="600" aria-label="琪露诺动画与静态四方向高度对比"></canvas>
+  <section class="controls">
+    <label>当前方向 <select id="cirno-height-facing"><option value="front">front / 正面</option><option value="back">back / 背面</option><option value="left">left / 左侧</option><option value="right">right / 右侧</option></select><output></output></label>
+    <label>统一目标高度 <input id="cirno-target-height" type="range" min="75" max="175" step="1" value="125"><output id="cirno-target-height-value"></output></label>
+    <label>动画比例 <input id="cirno-motion-scale" type="range" min="0.65" max="1.35" step="0.0001"><output id="cirno-motion-scale-value"></output></label>
+    <label>静态比例 <input id="cirno-idle-scale" type="range" min="0.5" max="1" step="0.0001"><output id="cirno-idle-scale-value"></output></label>
+    <label>动画帧 <input id="cirno-motion-frame" type="range" min="1" max="17" step="1" value="1"><output id="cirno-motion-frame-value"></output></label>
+    <label class="toggle"><input id="cirno-autoplay" type="checkbox" checked><span>自动播放 17 帧动画</span></label>
+    <div class="result"><textarea id="cirno-height-result" readonly aria-label="动画与静态四方向变换参数"></textarea><div class="actions"><button id="cirno-height-copy" type="button">复制两套参数</button><button id="cirno-height-reset" class="secondary" type="button">重置当前方向</button></div></div>
+  </section>
+  <script src="cirno-height-calibration.js"></script>
+</main></body></html>
