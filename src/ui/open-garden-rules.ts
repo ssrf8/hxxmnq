@@ -89,7 +89,7 @@ export function tutorialProgress(state: GardenState) {
     {
       id: 'research',
       title: '进行温室研究交流',
-      instruction: '与魔理沙完成两段式温室研究交流。',
+      instruction: '与魔理沙完成一次温室研究交流。',
       completed: Boolean(completed.greenhouse_multiturn_conversation),
     },
     {

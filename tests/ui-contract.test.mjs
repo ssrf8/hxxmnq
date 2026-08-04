@@ -20,16 +20,19 @@ const importTypescript = async (path) => {
   return import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
 };
 
-test('角色对话可直接使用对战卡，并在取消或失败后返回原会话', async () => {
+test('角色菜单可发起符卡对战，开战前说明规则，并在失败后返回庭院', async () => {
   const document = await read('../src/ui/index.html');
   const app = await read('../src/ui/app.ts');
   assert.doesNotMatch(document, /id="gg-use-duel-card"/);
-  assert.match(document, /对战卡会直接挑战当前交谈角色/);
+  assert.doesNotMatch(document, /对战卡会直接挑战当前交谈角色/);
   assert.match(app, /function beginDialogueDuel/);
-  assert.match(app, /button\.dataset\.action = 'dialogue-duel'/);
-  assert.match(app, /button\.addEventListener\('click', \(\) => \{[\s\S]*?void beginDialogueDuel\(\)/);
+  assert.match(app, /action\.mode === 'duel'/);
+  assert.match(app, /openDuelResultDialog\(settled\)/);
+  assert.match(document, /id="gg-duel-result-dialog"/);
   assert.match(app, /activeDuelConversationTarget/);
-  assert.match(app, /已返回与\$\{activeTarget\.label\}的对话/);
+  assert.match(app, /胜利后可以向对方提出一项要求/);
+  assert.match(app, /setView\('garden'\)/);
+  assert.match(app, /已返回庭院/);
 });
 
 test('角色点击菜单由代码绘制、去除重复离开入口并保持语义映射', async () => {
@@ -66,6 +69,53 @@ test('角色点击菜单由代码绘制、去除重复离开入口并保持语�
   assert.match(styles, /env\(safe-area-inset-bottom\)/);
   assert.match(controller, /event\.key !== 'Escape' \|\| targetMenu\.hidden/);
   assert.match(styles, /#gg-target-menu \.gg-bubble-dot \{[\s\S]*?width: 82px;[\s\S]*?height: 82px;/);
+});
+
+test('金币旁边显示杂鱼标签，并降低默认弹幕音效', async () => {
+  const document = await read('../src/ui/index.html');
+  const app = await read('../src/ui/app.ts');
+  const sound = await read('../src/battle/battle-sound.ts');
+  assert.match(app, /金币 \$\{state\.resources\?\.coins \?\? 0\} · 杂鱼标签 ×\$\{zakoTagCount\}/);
+  assert.doesNotMatch(app, /fishMarks|小鱼干/);
+  assert.match(app, /let battleSoundVolume = 0\.01/);
+  assert.match(document, /id="gg-battle-sound-volume" type="range" min="0" max="100" step="1" value="1"/);
+  assert.match(sound, /options\.volume \?\? 0\.01/);
+  assert.match(app, /let battleBgmVolume = 0\.08/);
+  assert.match(document, /id="gg-battle-settings-bgm-volume" type="range" min="0" max="100" step="5" value="8"/);
+});
+
+test('符卡副本以会话内三层塔运行，逐层结算且退出不保留进度', async () => {
+  const app = await read('../src/ui/app.ts');
+  const rules = await read('../src/ui/bullet-tower-rules.ts');
+  assert.match(app, /let towerRun:/);
+  assert.match(app, /createBulletTowerRun\(dungeonEntries\)/);
+  assert.match(app, /towerRun\.currentFloor \+= 1/);
+  assert.match(app, /if \(activeBattleKind === 'dungeon'\) discardTowerRun\(\)/);
+  assert.match(app, /胜负均立即结算；胜利进入下一层/);
+  assert.match(rules, /rewardMultiplier: 0\.85/);
+  assert.match(rules, /rewardMultiplier: 0\.7/);
+  assert.match(rules, /rewardMultiplier: 0\.55/);
+});
+
+test('战斗音频设置可本地保存并解析网易云链接', async () => {
+  const document = await read('../src/ui/index.html');
+  const app = await read('../src/ui/app.ts');
+  assert.match(document, /id="gg-battle-bgm-links"/);
+  assert.match(document, /id="gg-battle-bgm-links-save"/);
+  assert.match(document, /id="gg-battle-bgm-links-open"/);
+  assert.match(app, /battleBgmLinksStorageKey/);
+  assert.match(app, /parseLocalBgmLinks\(battleBgmLinksInput\.value\)/);
+  assert.match(app, /battleBgmBus\.setPlaylist/);
+  assert.match(app, /resolvePlayableLocalBgmSource/);
+  assert.match(document, /打开网易云歌单原页/);
+  assert.match(document, /作者推荐/);
+  assert.match(document, /自己想听/);
+  assert.match(app, /battleBgmSourceMode: BattleBgmSourceMode = 'off'/);
+  assert.match(app, /setBattleBgmSourceMode/);
+  assert.match(app, /openBattleBgmOnboardingOnce/);
+  assert.match(app, /battlePracticeBgmOnboardingStorageKey/);
+  assert.match(app, /弹幕演练提示/);
+  assert.match(document, /id="gg-bgm-onboarding"/);
 });
 
 test('八名登记角色都提供一次不预设结果的摸摸头互动', async () => {
@@ -122,12 +172,13 @@ test('设施查看与主屋维修隐藏图片且不影响其他设施行动', as
   const controller = await read('../src/ui/app.ts');
   const styles = await read('../src/ui/styles.css');
   assert.match(controller, /const isInspectView = action\.id === 'inspect'/);
-  assert.match(controller, /const hidesFacilityVisual = isInspectView \|\| action\.target\.id === 'main_house'/);
+  assert.match(controller, /const hidesFacilityVisual = isInspectView[\s\S]*?action\.target\.id === 'main_house'[\s\S]*?action\.target\.id === 'magic_greenhouse'[\s\S]*?action\.id === 'greenhouse_first_use'/);
   assert.match(controller, /facilityView\.dataset\.presentation = isInspectView \? 'details' : 'action'/);
   assert.match(controller, /facilityView\.dataset\.hasVisual = hidesFacilityVisual \? 'false' : 'true'/);
   assert.match(controller, /facilityVisual\.hidden = hidesFacilityVisual/);
   assert.match(controller, /if \(hidesFacilityVisual\) \{[\s\S]*?facilityImage\.removeAttribute\('src'\)/);
   assert.match(controller, /action\.target\.id === 'greenhouse_plot' \|\| action\.target\.id === 'magic_greenhouse'/);
+  assert.match(controller, /singleShotEventPresentation = Boolean\(pendingAction\.fixedPresentation\);[\s\S]*?setView\('gal'\);[\s\S]*?setGenerating\(true\);[\s\S]*?await submitGalMessage\(/);
   assert.match(styles, /\.gg-facility-visual\[hidden\] \{ display: none; \}/);
   assert.match(styles, /\.gg-facility\[data-has-visual="false"\] \.gg-facility-card \{ margin: var\(--gg-space-4\) auto 0; \}/);
   assert.match(styles, /@media \(max-width: 700px\) \{[\s\S]*?\.gg-facility > \.gg-scene-toolbar \{[\s\S]*?z-index: 2;[\s\S]*?\.gg-facility\[data-has-visual="false"\] \.gg-facility-card \{[\s\S]*?margin-top: 0;/);
@@ -144,7 +195,7 @@ test('背包使用独立道具袋视图并保留受控使用入口', async () =>
   assert.match(view, /card\.dataset\.itemId = row\.item_id/);
   assert.match(
     view,
-    /\['incident_trigger_card', 'sakuya_watch', 'opportunity_card', 'spell_duel_card'\]\.includes\(row\.item_id\)/,
+    /\['incident_trigger_card', 'sakuya_watch', 'opportunity_card'\]\.includes\(row\.item_id\)/,
   );
   assert.match(view, /button\.disabled = !row\.usable/);
   assert.match(styles, /\.gg-inventory-item\[data-item-id="sakuya_watch"\]/);
@@ -180,12 +231,16 @@ test('GAL 道具选择使用独立道具匣并同步本轮选择', async () => {
   assert.match(document, /id="gg-scene-item-hint"[^>]*aria-live="polite"/);
   assert.match(controller, /sceneItemDialog\.showModal\(\)/);
   assert.match(controller, /function selectSceneItem\(itemId: string\)/);
-  assert.match(controller, /description\.textContent = item\.prompt_description/);
-  assert.match(controller, /sceneItemOptions\.replaceChildren\(noItemButton, \.\.\.itemButtons\)/);
+  assert.match(controller, /description\.textContent = item\.blurb \?\? item\.prompt_description/);
+  assert.match(controller, /sceneItemOptions\.replaceChildren\(noItemButton, \.\.\.pageButtons\)/);
+  assert.match(controller, /attachSceneItemLongPress/);
+  assert.match(controller, /SCENE_ITEM_PAGE_SIZE/);
+  assert.match(document, /id="gg-scene-item-pager"/);
   assert.match(controller, /sceneItemDialog\.addEventListener\('close'[\s\S]*?sceneItemTrigger\.focus/);
   assert.match(controller, /function updateSceneItemPickerState\(\)/);
   assert.match(controller, /sceneItemPicker\.dataset\.hasSelection = String\(Boolean\(selected\)\)/);
   assert.match(controller, /已装备：\$\{selectedItem\.title\} ×\$\{count\} · 发送时消耗 1 个/);
+  assert.match(controller, /输入中提及道具不会触发效果/);
   assert.match(styles, /\.gg-scene-item-picker \{[\s\S]*?clip-path: polygon/);
   assert.match(styles, /\.gg-scene-item-trigger \{[\s\S]*?linear-gradient\(180deg, #f5e3bd, #dbbd84\)/);
   assert.match(styles, /\.gg-scene-item-dialog \{[\s\S]*?width: min\(92vw, 680px\)/);
@@ -245,7 +300,10 @@ test('开放庭园页面从正式状态派生教程进度与下一步', async ()
   assert.match(controller, /inspiration:[\s\S]*investigate_growth[\s\S]*hear_marisa_plan[\s\S]*study_grandfather_blueprint/);
   assert.match(controller, /await runTestJump\('m2_open_garden'\)/);
   assert.match(controller, /localStorage\.setItem\(tutorialGuideStorageKey, '1'\)/);
-  assert.match(controller, /新手教程已快进至完成；开放庭园已经解锁/);
+  assert.match(controller, /title: '开放庭园玩法说明'/);
+  assert.match(controller, /符卡副本获得金币，购买搭建设施吸引 NPC 互动。/);
+  assert.match(controller, /道具会添加额外玩法；每个角色都可以自由挑战。/);
+  assert.match(controller, /新手教程已快进至完成；开放庭园已经解锁，现有资源保持不变。/);
   assert.match(controller, /button\.dataset\.actionId = options\.action\.id/);
   assert.match(controller, /const actionStep = currentView !== 'garden'[\s\S]*TUTORIAL_GUIDE_ROUTES\[item\.id\]\?\.actionIds\.includes\(activeActionId\)/);
   assert.match(bridge, /events: \{ completed_key_events: \{\} \}/);
@@ -254,6 +312,8 @@ test('开放庭园页面从正式状态派生教程进度与下一步', async ()
   assert.match(map, /setTutorialTarget\(id: string \| null\)/);
   assert.match(map, /this\.tutorialTargetId === id/);
   assert.match(styles, /\.gg-tutorial-guide \{[\s\S]*?position: fixed/);
+  assert.match(styles, /\.gg-tutorial-guide \{[\s\S]*?bottom: max\(20px, env\(safe-area-inset-bottom\)\);[\s\S]*?left: 50%;[\s\S]*?transform: translateX\(-50%\);/);
+  assert.match(styles, /@media \(max-width: 700px\) \{[\s\S]*?\.gg-tutorial-guide \{[\s\S]*?transform: none;/);
   assert.match(styles, /\.gg-tutorial-focus \{[\s\S]*?outline: 3px solid #f3c86c/);
   assert.match(controller, /className = 'gg-tutorial-current'/);
   assert.match(controller, /progress\.value = panel\.tutorial\.completedCount/);
@@ -342,7 +402,10 @@ test('灵梦小店底图、十槽商品层和窄屏回流共同进入构建', as
   assert.match(view, /className = 'gg-shop-item-select'/);
   assert.match(view, /className = 'gg-shop-wallet'/);
   assert.match(view, /className = 'gg-shop-item gg-shop-item-empty'/);
-  assert.match(view, /Math\.max\(0, 10 - visible\.length\)/);
+  assert.match(view, /Math\.max\(0, PAGE_SIZE - pageItems\.length\)/);
+  assert.match(view, /const PAGE_SIZE = 10;/);
+  assert.match(view, /className = 'gg-shop-pager'/);
+  assert.match(styles, /\.gg-shop-pager \{[^}]*top: 72\.35%/s);
   assert.match(view, /toLocaleString\('zh-CN'\)/);
   assert.match(view, /aria-pressed/);
   assert.match(styles, /\.gg-shop-detail/);
@@ -902,19 +965,20 @@ test('内置地图区域使用固定中文名，已建设施使用贴图透明�
   assert.match(map, /ctx\.shadowBlur = \(14 \+ 5 \* pulse\) \* px/);
 });
 
-test('符卡副本选关使用三卷主题绘卷与响应式挑战层级', async () => {
+test('符卡副本使用会话内符卡之塔与响应式挑战层级', async () => {
   const document = await read('../src/ui/index.html');
   const app = await read('../src/ui/app.ts');
   const styles = await read('../src/ui/styles.css');
   assert.match(document, /SPELL CARD ARCHIVE · 幻想弹幕绘卷/);
   assert.match(document, /gg-dungeon-seal[^>]*>符</);
   assert.match(document, /gg-dungeon-footer/);
-  for (const value of ['壹之卷', '贰之卷', '叁之卷', '琪露诺', '爱丽丝', '十六夜咲夜']) assert.match(app, new RegExp(value));
+  for (const value of ['符卡之塔', '琪露诺', '爱丽丝', '十六夜咲夜']) assert.match(app, new RegExp(value));
   assert.match(app, /card\.dataset\.theme = entry\.theme/);
   assert.match(app, /gg-dungeon-meta/);
-  assert.match(app, /aria-label', `正式挑战：\$\{entry\.title\}`/);
-  assert.match(app, /aria-label', `练习（不结算）：\$\{entry\.title\}`/);
-  assert.match(styles, /#gg-dungeon-actions\s*\{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
+  assert.match(app, /aria-label', `挑战符卡之塔第 \$\{floor \+ 1\} 层：\$\{entry\.title\}`/);
+  assert.match(app, /aria-label', `演练符卡之塔第 \$\{floor \+ 1\} 层：\$\{entry\.title\}`/);
+  assert.match(styles, /#gg-dungeon-actions\s*\{[^}]*grid-template-columns: minmax\(0, 1fr\)/);
+  assert.match(styles, /\.gg-dungeon-entry\s*\{[^}]*width: min\(100%, 640px\)/);
   assert.match(styles, /\.gg-dungeon-entry\[data-theme="ice"\]/);
   assert.match(styles, /\.gg-dungeon-entry\[data-theme="forest"\]/);
   assert.match(styles, /\.gg-dungeon-entry\[data-theme="boundary"\]/);
@@ -968,7 +1032,7 @@ test('互动使用单壳 GAL、自定义输入与零模型本地结束', async (
   assert.match(controller, /type: 'end_conversation_local'/);
   assert.match(controller, /聊天已直接结束，没有调用模型/);
   assert.match(actions, /action_id: 'end_conversation'/);
-  assert.match(settlement, /interaction!\.settled_ids/);
+  assert.match(settlement, /interaction\.settled_ids/);
 });
 
 test('GAL 使用月下结界舞台、和纸对白框与窄屏回流', async () => {
@@ -1227,7 +1291,8 @@ test('宿主只在本卡游戏模式受控隐藏原生输入区，并在跨角�
   assert.match(host, /source\.addEventListener\('pagehide', destroy, \{ once: true \}\)/);
   assert.match(host, /if \(!ownsCurrentCharacter\(\)\) \{\s*destroy\(\)/);
   assert.match(host, /clearHostArtifacts\(\)/);
-  assert.match(host, /#\$\{shellId\}, #\$\{returnButtonId\}, #\$\{styleId\}/);
+  assert.match(host, /#\$\{shellId\}, #\$\{returnFrameId\}, #\$\{styleId\}/);
+  assert.match(host, /ensureReturnFrame/);
   assert.match(host, /'generate'/);
 });
 
@@ -1259,17 +1324,53 @@ test('GAL visual_mode 兼容旧回复并按三种素材语义归一化姿势', a
     text: '<GensokyoScene>{"version":"scene.v1","beats":['
       + '{"kind":"speech","speaker_id":"reimu","reaction_id":"smile","pose_id":"legacy_pose","text":"旧格式。"},'
       + '{"kind":"speech","speaker_id":"reimu","visual_mode":"nude","reaction_id":"shy","pose_id":"invented_pose","text":"非亲密裸露。"},'
-      + '{"kind":"speech","speaker_id":"reimu","visual_mode":"sexual","reaction_id":"shy","pose_id":"pose_a","text":"已登记姿势。"},'
+      + '{"kind":"speech","speaker_id":"reimu","visual_mode":"sexual","reaction_id":"shy","pose_id":"pose_a","act_id":"anal","text":"已登记姿势。"},'
       + '{"kind":"speech","speaker_id":"reimu","visual_mode":"unknown","reaction_id":"angry","pose_id":"pose_b","text":"非法模式。"}'
       + '],"suggested_replies":[]}</GensokyoScene>',
   }, state, 'reimu');
   assert.equal(scene.version, 'scene.v1');
-  assert.deepEqual(scene.beats.map((beat) => [beat.visualMode, beat.poseId]), [
-    ['normal', 'default'],
-    ['nude', 'default'],
-    ['sexual', 'pose_a'],
-    ['normal', 'default'],
+  assert.deepEqual(scene.beats.map((beat) => [beat.visualMode, beat.poseId, beat.actId]), [
+    ['normal', 'default', 'none'],
+    ['nude', 'default', 'none'],
+    ['sexual', 'default', 'none'],
+    ['normal', 'default', 'none'],
   ]);
+});
+
+test('庭园正文剥离 LLM 自指纠错 CoT 泄漏且不误伤正常台词', async () => {
+  const parser = await importTypescript('../src/ui/gal-scene.ts');
+  const state = { characters: { reimu: {} } };
+  // 真实泄漏：模型先误标玩家台词为 dialogue，随即在正文里输出“（注意：…）修正：”自指纠错。
+  const leaked = '【庭园正文开始】'
+    + '<narration>她把金币抓在手里。</narration>\n'
+    + '<dialogue char="reimu" reaction="neutral">“想要吗？”</dialogue>\n'
+    + '（注意：这句话是我说的，所以不应该用dialogue标签，应该放在narration里。）\n'
+    + '修正：\n'
+    + '<narration>“想要吗？”我问。</narration>\n'
+    + '<narration>她扑了上来。</narration>\n'
+    + '【庭园正文结束】';
+  const scene = parser.projectGalScene({ id: 22, text: leaked }, state, 'reimu');
+  const joined = scene.beats.map((beat) => beat.text).join('\n');
+  assert.doesNotMatch(joined, /注意：/u, '正文中不得残留自指纠错文本');
+  assert.doesNotMatch(joined, /修正：/u, '正文中不得残留修正标记');
+  assert.doesNotMatch(joined, /不应该/u, '正文中不得残留自指分析');
+  assert.match(joined, /她把金币抓在手里/u, '正常旁白保留');
+  assert.match(joined, /她扑了上来/u, '纠错后的重写段落保留');
+  // 误标 dialogue 的玩家台词按当前策略保留（靠协议约束模型，不做启发式改写）。
+  assert.match(joined, /想要吗/u, '台词内容保留');
+
+  // 误伤防护：正文台词里的“（注意：…）”陈述是正常内容，不得剥离。
+  const narrationNote = '【庭园正文开始】'
+    + '<narration>她说：“（注意：这里有个机关）要小心。”然后走了。</narration>\n'
+    + '【庭园正文结束】';
+  const kept = parser.projectGalScene({ id: 23, text: narrationNote }, state, 'reimu');
+  assert.match(kept.beats.map((beat) => beat.text).join('\n'), /这里有个机关/u, '正文台词的注意陈述保留');
+
+  // 非协议正文路径（cleanNarrativeText）同样剥离。
+  const bginfor = '<bginfor>（思考：这个反应应该更激烈一点）她瞪大眼睛。' + '<GensokyoScene>{"version":"scene.v1","beats":[]}</GensokyoScene>';
+  const cleaned = parser.cleanNarrativeText(bginfor);
+  assert.doesNotMatch(cleaned, /思考：/u, '普通正文路径同样剥离自指思考');
+  assert.match(cleaned, /她瞪大眼睛/u, '正文内容保留');
 });
 
 test('八名 GAL 角色注册表接入五种表情的着装与全裸槽位', async () => {
@@ -1298,26 +1399,30 @@ test('八名 GAL 角色注册表接入五种表情的着装与全裸槽位', asy
     visualMode: 'normal',
     reactionId: 'surprised',
     poseId: 'not_used',
+    actId: 'anal',
   }), {
     visualMode: 'normal',
     reactionId: 'neutral',
     poseId: 'default',
+    actId: 'none',
   });
   assert.deepEqual(registry.normalizeGalPortraitCue('marisa', {
     visualMode: 'sexual',
     reactionId: 'shy',
     poseId: 'invented_pose',
+    actId: 'anal',
   }), {
     visualMode: 'sexual',
     reactionId: 'shy',
     poseId: 'default',
+    actId: 'none',
   });
   assert.deepEqual(registry.galPortraitFallbackPoolIds('marisa', {
     visualMode: 'sexual',
     reactionId: 'shy',
     poseId: 'invented_pose',
+    actId: 'anal',
   }), [
-    'gal.marisa.sexual.default',
     'gal.marisa.nude.shy',
     'gal.marisa.nude.neutral',
     'gal.marisa.normal.shy',
@@ -1334,6 +1439,7 @@ test('八名 GAL 角色注册表接入五种表情的着装与全裸槽位', asy
     visualMode: 'sexual',
     reactionId: 'shy',
     poseId: 'default',
+    actId: 'none',
   }), 'data:image/png;base64,YWJjZA==');
   assert.deepEqual(registry.parseGalPortraitSources(JSON.stringify({
     marisa: { normal: { neutral: 'https://untrusted.example/portrait.png' } },
@@ -1345,7 +1451,52 @@ test('八名 GAL 角色注册表接入五种表情的着装与全裸槽位', asy
     visualMode: 'normal',
     reactionId: 'neutral',
     poseId: 'default',
+    actId: 'none',
   }), trustedRemotePortrait);
+
+  const remoteBase = 'https://assets.example';
+  const merged = registry.mergeRemoteSexualPortraitSources(sources, [{
+    source: 'characters/reimu/gal/sexual/missionary/vaginal/01.png',
+    key: 'gensokyo-moving-garden/live/characters/reimu/gal/sexual/missionary/vaginal/01.png',
+    mime: 'image/png',
+    character_id: 'reimu', visual_mode: 'sexual', pose_id: 'missionary', act_id: 'vaginal',
+    candidate_no: '01', pool_id: 'gal.reimu.sexual.missionary.vaginal', weight: 1,
+  }, {
+    source: 'characters/reimu/gal/sexual/missionary/vaginal/02.png',
+    key: 'gensokyo-moving-garden/live/characters/reimu/gal/sexual/missionary/vaginal/02.png',
+    mime: 'image/png',
+    character_id: 'reimu', visual_mode: 'sexual', pose_id: 'missionary', act_id: 'vaginal',
+    candidate_no: '02', pool_id: 'gal.reimu.sexual.missionary.vaginal', weight: 1,
+  }], remoteBase);
+  assert.equal(registry.resolveGalPortraitSource(merged, 'reimu', {
+    visualMode: 'sexual', reactionId: 'shy', poseId: 'missionary', actId: 'vaginal',
+  }), `${remoteBase}/gensokyo-moving-garden/live/characters/reimu/gal/sexual/missionary/vaginal/01.png`);
+  const nonInsert = registry.mergeRemoteSexualPortraitSources(merged, [{
+    source: 'characters/reimu/gal/sexual/oral/none/01.png',
+    key: 'gensokyo-moving-garden/live/characters/reimu/gal/sexual/oral/none/01.png',
+    mime: 'image/png',
+    character_id: 'reimu', visual_mode: 'sexual', pose_id: 'oral', act_id: 'none',
+    candidate_no: '01', pool_id: 'gal.reimu.sexual.oral.none', weight: 1,
+  }], remoteBase);
+  assert.equal(registry.resolveGalPortraitSource(nonInsert, 'reimu', {
+    visualMode: 'sexual', reactionId: 'shy', poseId: 'oral', actId: 'none',
+  }), `${remoteBase}/gensokyo-moving-garden/live/characters/reimu/gal/sexual/oral/none/01.png`);
+  // R79 回归：base 必须是纯 origin；若误传带前缀 base（如 baseUrl+"/gensokyo-moving-garden/live"），
+  // 会与 file.key（已含前缀）拼接出重复路径 "…/live/gensokyo-moving-garden/live/…" 导致 404。
+  // mergeRemoteSexualPortraitSources 只负责拼接，调用方必须传 manifest.asset_base_url（纯 origin）。
+  const prefixedBase = 'https://assets.example/gensokyo-moving-garden/live';
+  const withPrefixedBase = registry.mergeRemoteSexualPortraitSources(sources, [{
+    source: 'characters/reimu/gal/sexual/rear/vaginal/01.png',
+    key: 'gensokyo-moving-garden/live/characters/reimu/gal/sexual/rear/vaginal/01.png',
+    mime: 'image/png',
+    character_id: 'reimu', visual_mode: 'sexual', pose_id: 'rear', act_id: 'vaginal',
+    candidate_no: '01', pool_id: 'gal.reimu.sexual.rear.vaginal', weight: 1,
+  }], prefixedBase);
+  const resolvedUrl = registry.resolveGalPortraitSource(withPrefixedBase, 'reimu', {
+    visualMode: 'sexual', reactionId: 'shy', poseId: 'rear', actId: 'vaginal',
+  });
+  assert.doesNotMatch(resolvedUrl ?? '', /\/gensokyo-moving-garden\/live\/gensokyo-moving-garden\/live\//u,
+    'base 不应重复前缀；sexual 立绘 URL 不得出现重复的 /live/ 路径段');
 });
 
 test('八名角色八十张 GAL 原图进入素材清单、预览与自包含构建链', async () => {
@@ -1402,6 +1553,73 @@ test('交互结算 ID 有完整 schema、初始状态和字段台账链', async 
   assert.deepEqual(initial.interaction.settled_ids, []);
   assert.match(schema, /settled_ids: list\(text\('', 64\), 64\)/);
   assert.match(ledger, /interaction\.settled_ids/);
+});
+
+test('conversation_log 跨对话记忆：schema 容纳、迁移保留、结束对话不清空、prompt 注入回顾', async () => {
+  const initial = JSON.parse(await read('../src/schema/initial-state.json'));
+  const schema = await read('../src/schema/02-mvu-schema.js');
+  const ledger = await read('../src/schema/field-ledger.md');
+  assert.deepEqual(initial.interaction.conversation_log, []);
+  assert.match(schema, /conversation_log: list\(text\('', 120\), 24\)/);
+  assert.match(ledger, /interaction\.conversation_log/);
+  const migrations = await importTypescript('../src/ui/state-migrations.ts');
+  // 旧状态迁移默认补空数组，已有日志 FIFO 保留尾 24 条
+  const migrated = migrations.migrateGardenState({ interaction: { conversation_log: ['reimu: 聊了妖花核心', 'marisa: 研究过旧蓝图'] } });
+  assert.deepEqual(migrated.interaction.conversation_log, ['reimu: 聊了妖花核心', 'marisa: 研究过旧蓝图']);
+  const bare = migrations.migrateGardenState({});
+  assert.deepEqual(bare.interaction.conversation_log, []);
+  // 结束对话（end_conversation_local）只清 current_session 与场景道具，不清 conversation_log
+  const { endConversationLocal } = await importTypescript('../src/ui/activity-rules.ts');
+  const ended = endConversationLocal({ ...migrated, scene_item_context: { entries: [{ item_id: 'reimu_coin_bait', quantity_used: 1, prompt_description: 'x' }], status: 'active' } });
+  assert.equal(ended.interaction.current_session, null);
+  assert.deepEqual(ended.interaction.conversation_log, ['reimu: 聊了妖花核心', 'marisa: 研究过旧蓝图']);
+  // prompt 注入：在场角色相关日志出现在【最近互动回顾】
+  const { buildPromptContext } = await importTypescript('../src/ui/prompt-context.ts');
+  const ctx = buildPromptContext({
+    environment: { day: 1, time_period: '清晨', weather: '晴' },
+    player: { current_area_id: 'central_courtyard' },
+    presence_snapshot: { present_character_ids: ['reimu'], character_views: {}, visitor_meta: {} },
+    interaction: { conversation_log: ['reimu: 在中央庭院聊了妖花核心', 'marisa: 研究过旧蓝图'] },
+  });
+  assert.match(ctx, /【最近互动回顾/);
+  assert.match(ctx, /reimu: 在中央庭院聊了妖花核心/);
+  assert.doesNotMatch(ctx, /marisa: 研究过旧蓝图/u, '不在场角色日志不注入');
+  // R82：协议明确 /- 数组追加写法 + 剧情连续性约束；迁移兜底字符串→数组
+  const contractSource = await read('../src/ui/target-actions.ts');
+  assert.match(contractSource, /conversation_log\/-/, '协议要求 /- 数组末尾追加');
+  assert.match(contractSource, /不要用不带 \/- 的 path/, '协议明确禁止不带 /- 的数组 path');
+  assert.match(contractSource, /剧情连续性/, '协议含剧情连续性约束');
+  assert.match(contractSource, /不代表剧情分支切换或记忆重置/, '协议明确道具授权≠记忆重置');
+  assert.match(contractSource, /不得装作什么都没发生/, '协议禁止失忆式反应');
+  const formatDoc = await read('../src/lorebook/variable-output-format.md');
+  assert.match(formatDoc, /conversation_log\/-/, '输出格式文档含 /- 追加示例');
+  assert.match(formatDoc, /不要.*用不带索引的数组 path/, '输出格式文档禁止不带索引 add');
+  const stringy = migrations.migrateGardenState({ interaction: { conversation_log: 'reimu: 被 MagVarUpdate 误替换成字符串' } });
+  assert.deepEqual(stringy.interaction.conversation_log, ['reimu: 被 MagVarUpdate 误替换成字符串'], '字符串兜底转单元素数组');
+  const emptyStr = migrations.migrateGardenState({ interaction: { conversation_log: '   ' } });
+  assert.deepEqual(emptyStr.interaction.conversation_log, [], '空白字符串兜底为空数组');
+});
+
+test('玩家姓名与称谓投影进【场景事实】，协议钉住称呼边界', async () => {
+  const { buildPromptContext } = await importTypescript('../src/ui/prompt-context.ts');
+  const base = {
+    environment: { day: 1, time_period: '清晨', weather: '晴' },
+    player: { current_area_id: 'central_courtyard' },
+    presence_snapshot: { present_character_ids: ['reimu'], character_views: {}, visitor_meta: {} },
+  };
+  // 开场 UI 确认过的姓名/称谓进入剧情阶段投影，供角色称呼
+  const named = buildPromptContext({ ...base, player: { ...base.player, name: '  灵梦的饲主  ', pronouns: '他' } });
+  assert.match(named, /玩家姓名：灵梦的饲主（可用「他」称呼）/);
+  // 名字空白时回退“未命名旅人”；旧状态无称谓字段时省略括号提示
+  const anonymous = buildPromptContext({ ...base, player: { ...base.player, name: '   ' } });
+  assert.match(anonymous, /玩家姓名：未命名旅人/);
+  assert.doesNotMatch(anonymous, /可用「/);
+  // 称呼边界规则：每轮注入协议（gardenNarrativeContract）与世界书（entries[7]）同步
+  const contract = await read('../src/ui/target-actions.ts');
+  assert.match(contract, /称呼玩家时使用【场景事实】提供的玩家姓名或玩家称谓/);
+  assert.match(contract, /不得据此替玩家决定人称、台词、心理、关系承诺或关键选择/);
+  const worldbook = await read('../src/lorebook/gal-presentation-protocol.md');
+  assert.match(worldbook, /称呼玩家时使用【场景事实】提供的玩家姓名或玩家称谓/);
 });
 
 test('cleanNarrativeText 优先使用 bginfor 后正文，而不是时段元数据', async () => {
@@ -1485,6 +1703,13 @@ test('庭园行动追加正文协议，维修固定结算且不开放续聊', as
   assert.match(actions, /【庭园正文开始】/);
   assert.match(actions, /最后一个【庭园正文开始】/);
   assert.match(actions, /fixedPresentation: true/);
+  // R78 协议加固：每轮注入的正文协议必须包含 visual_mode 三值格式与 sexual 触发规则，
+  // 防止模型在插入性行为正文中停留在 nude。
+  assert.match(actions, /visual_mode="normal\|nude\|sexual"/);
+  assert.match(actions, /act="vaginal\|anal\|none"/);
+  assert.match(actions, /正文确实进入明确成人亲密行为时/);
+  assert.match(actions, /必须为 sexual/);
+  assert.match(actions, /不得停留在 nude/);
   assert.match(bridge, /eventById\.get\(action\.event_id\)/);
   assert.deepEqual(settlement.settlementChoices({}, {
     version: 'garden-action.v1', action_id: 'repair', event_id: 'main_house_repair',
@@ -1512,20 +1737,21 @@ test('GAL 加载清空旧正文，顶栏提供净化历史但不暴露 Swipe 入
   assert.match(app, /gg-scene-text'\)\.textContent = ''/);
 });
 
-test('温室研究固定两轮、限制输入并在第二轮自动返回庭园', async () => {
+test('温室研究交流单轮结算、回复后自动完成', async () => {
   const app = await read('../src/ui/app.ts');
   const actions = await read('../src/ui/target-actions.ts');
   const settlement = await read('../src/ui/event-settlement.ts');
   const eventConfig = await read('../src/lorebook/events/greenhouse-vertical-slice.json');
-  assert.match(app, /GREENHOUSE_RESEARCH_INPUT_MAX_LENGTH = 120/);
+  assert.doesNotMatch(app, /GREENHOUSE_RESEARCH_INPUT_MAX_LENGTH/);
   assert.match(app, /greenhouseResearchJustSettled/);
-  assert.match(app, /温室研究已在两轮内收束/);
-  assert.match(actions, /初始回复算第 1 轮/);
+  assert.match(app, /温室研究交流已完成/);
+  assert.match(actions, /单轮收束/);
   assert.match(actions, /约 300 个汉字以内/);
-  assert.match(settlement, /GREENHOUSE_RESEARCH_MAX_EFFECTIVE_ROUNDS = 2/);
+  assert.match(settlement, /GREENHOUSE_RESEARCH_MAX_EFFECTIVE_ROUNDS = 1/);
   assert.match(settlement, /completeGreenhouseConversation/);
-  assert.match(eventConfig, /"maximum_effective_rounds": 2/);
-  assert.match(eventConfig, /"auto_settle_on_max_rounds": true/);
+  assert.match(eventConfig, /"max_effective_rounds": 1/);
+  assert.doesNotMatch(eventConfig, /"maximum_effective_rounds": 2/);
+  assert.doesNotMatch(eventConfig, /"auto_settle_on_max_rounds": true/);
 });
 
 test('在场快照会注入每次庭园请求，并以受控回执同步角色离场', async () => {
@@ -1645,7 +1871,7 @@ test('妖花核心入口不再暴露为设置页演练，结算先写 battle.cur
   assert.match(bridge, /已有另一份待结算战斗结果，不能覆盖/);
 });
 
-test('R21 本地结算器原子完成温室主链并由真实 assistant 楼层维护交流轮数', async () => {
+test('R21 本地结算器原子完成温室主链，温室研究交流为单轮结算', async () => {
   const settlement = await importTypescript('../src/ui/event-settlement.ts');
   let state = JSON.parse(await read('../src/schema/initial-state.json'));
   const action = (action_id, event_id) => ({ version: 'garden-action.v1', action_id, event_id });
@@ -1670,14 +1896,31 @@ test('R21 本地结算器原子完成温室主链并由真实 assistant 楼层�
   assert.deepEqual(state.facilities.magic_greenhouse.unlocked_forms, ['基础魔法温室']);
 
   state = settlement.applyLocalSettlement(state, action('greenhouse_first_use', 'greenhouse_first_use'), 7, result('greenhouse_first_use', 'stable_first_growth'));
-  state = settlement.applyLocalSettlement(state, action('greenhouse_research_talk', 'greenhouse_multiturn_conversation'), 8, '第一轮');
-  assert.equal(state.interaction.current_session.effective_rounds, 1);
-  assert.equal(state.interaction.current_session.last_effective_message_id, 8);
-  state = settlement.applyLocalSettlement(state, action('continue_greenhouse_conversation', 'greenhouse_multiturn_conversation'), 9, '第二轮');
+  // 温室研究交流为单轮固定结算：一次回复即写入完成标记，不创建/依赖跨轮会话。
+  state = settlement.applyLocalSettlement(state, action('greenhouse_research_talk', 'greenhouse_multiturn_conversation'), 8, '单轮研究交流');
   assert.equal(state.interaction.current_session, null);
   assert.equal(state.events.completed_key_events.greenhouse_multiturn_conversation, 'conversation_settled_after_multiple_turns');
-  assert.deepEqual(state.interaction.settled_ids, ['interaction:interaction_1']);
+  assert.deepEqual(state.interaction.settled_ids, ['interaction:greenhouse_multiturn_conversation']);
+  // 幂等：重复结算不改变完成标记，也不新建会话。
+  state = settlement.applyLocalSettlement(state, action('greenhouse_research_talk', 'greenhouse_multiturn_conversation'), 9, '再次尝试');
+  assert.equal(state.events.completed_key_events.greenhouse_multiturn_conversation, 'conversation_settled_after_multiple_turns');
+  assert.deepEqual(state.interaction.settled_ids, ['interaction:greenhouse_multiturn_conversation']);
+  assert.equal(state.interaction.current_session, null);
   assert.equal(settlement.localSettlementAction('第三轮不应再被视为研究续聊', state), null);
+
+  // 旧版两段式残留的活跃会话：玩家在旧机制下卡住（会话存在但从未完成），新结算应清理会话并写入完成标记。
+  const legacyStuck = JSON.parse(await read('../src/schema/initial-state.json'));
+  legacyStuck.events.completed_key_events.greenhouse_first_use = 'stable_first_growth';
+  legacyStuck.interaction ??= { current_session: null, settled_ids: [] };
+  legacyStuck.interaction.current_session = {
+    uid: 'interaction_legacy', type: 'facility', status: 'active', area_id: 'greenhouse_plot',
+    participant_character_ids: ['marisa'], facility_id: 'magic_greenhouse',
+    event_id: 'greenhouse_multiturn_conversation', focus: '旧会话', summary: '旧版两段式残留',
+    last_effective_message_id: 5, effective_rounds: 1, settled: false,
+  };
+  const rescued = settlement.applyLocalSettlement(legacyStuck, action('greenhouse_research_talk', 'greenhouse_multiturn_conversation'), 10, '重新研究');
+  assert.equal(rescued.events.completed_key_events.greenhouse_multiturn_conversation, 'conversation_settled_after_multiple_turns');
+  assert.equal(rescued.interaction.current_session, null);
 
   state = settlement.applyLocalSettlement(state, action('investigate_flower_core', 'greenhouse_flower_core'), 11, '激活');
   state.battle.current = {
@@ -1911,6 +2154,34 @@ test('Luker 在消息 API 可见 assistant 楼层前解除生成 UI 时仍等待
   assert.equal(completed.assistantMessageId, 2);
 });
 
+test('流式 assistant 正文可被观察，但必须等 GENERATION_ENDED 才进入结算', async () => {
+  const { MessageTransactionCoordinator } = await importTypescript('../src/ui/message-transaction.ts');
+  const messages = [];
+  let generating = true;
+  const coordinator = new MessageTransactionCoordinator({
+    currentChatId: () => 'chat-streaming-floor',
+    listMessages: () => messages,
+    isGenerationActive: () => generating,
+    async createUserMessage(message, extra) {
+      messages.push({ message_id: 1, role: 'user', message, extra });
+    },
+    async triggerGeneration() {
+      messages.push({ message_id: 2, role: 'assistant', message: '第一段仍在生成' });
+    },
+    async continueGeneration() {},
+  });
+  const pending = coordinator.submit({ kind: 'interaction', message: '观察流式楼层' });
+  await new Promise((resolve) => setTimeout(resolve, 35));
+  const duringStream = coordinator.read();
+  assert.equal(duringStream.assistantResponded, true);
+  assert.equal(duringStream.phase, 'generating');
+  generating = false;
+  coordinator.markGenerationEnded();
+  const completed = await pending;
+  assert.equal(completed.phase, 'settling');
+  assert.equal(completed.assistantMessageId, 2);
+});
+
 test('本地结束会废弃失败事务，下一次角色互动可以重新提交', async () => {
   const { MessageTransactionCoordinator } = await importTypescript('../src/ui/message-transaction.ts');
   const messages = [];
@@ -1998,6 +2269,22 @@ test('GAL 只选择当前用户楼层之后的回复，等待中不回退到上�
   assert.equal(selection.assistantForCurrentTurn(messages)?.id, 4);
 });
 
+test('GAL 稳定后忽略旧事务锚点，原生输入的新回复应接管场景', async () => {
+  const selection = await importTypescript('../src/ui/gal-message-selection.ts');
+  const messages = [
+    { id: 0, role: 'user', name: '', text: 'GAL 旧请求' },
+    { id: 1, role: 'assistant', name: '', text: '旧回复（normal）' },
+    { id: 2, role: 'user', name: '', text: '原生输入的新请求' },
+    { id: 3, role: 'assistant', name: '', text: '新回复（nude）' },
+  ];
+  assert.equal(selection.assistantForCurrentTurn(messages, 0)?.id, 1);
+  assert.equal(selection.assistantForCurrentTurn(messages)?.id, 3);
+
+  const app = await read('../src/ui/app.ts');
+  assert.match(app, /transaction\.phase === 'submitting_user' \|\| transaction\.phase === 'generating'[\s\S]*?assistantForCurrentTurn\(messages, transaction\.userMessageId\)/);
+  assert.match(app, /messages \?\?= await bridge\.listMessages\(\);[\s\S]*?latest \?\?= assistantForCurrentTurn\(messages\);/);
+});
+
 test('返回原生聊天后重新打开游戏会主动校正事务状态', async () => {
   const app = await read('../src/ui/app.ts');
   const styles = await read('../src/ui/styles.css');
@@ -2014,7 +2301,7 @@ test('返回原生聊天后重新打开游戏会主动校正事务状态', async
   assert.match(bridge, /recoverRecordedAnomalyResolution/);
   assert.match(bridge, /recoverCompletedCurrentTransaction/);
   assert.match(bridge, /settlementProjection\(current, action, assistantMessageId\)/);
-  assert.match(bridge, /reconcileHostGenerationActivity\(hostGenerationActive, snapshot\)/);
+  assert.match(bridge, /reconcileHostGenerationActivity\([\s\S]*?hostGenerationActive,[\s\S]*?snapshot,[\s\S]*?nativeSendStopButtonGenerating\(\)/);
   assert.match(bridge, /regenerationPhase/);
   assert.match(bridge, /targetMessageId = Number\(latestAssistant\?\.message_id\)/);
   assert.match(bridge, /transactions\.markStopped\(\)/);
@@ -2044,7 +2331,7 @@ test('庭园主线只使用本地白名单结算，不依赖预设的第二次�
   assert.match(rules, /不发起第二次模型解析/);
   assert.match(contract, /不发起第二次模型解析/);
   assert.match(app, /restoreInputOnFailure: false/);
-  assert.match(app, /galCompose\.hidden = singleShotEventPresentation/);
+  assert.match(app, /galCompose\.hidden = streaming \|\| singleShotEventPresentation/);
 });
 
 test('R29 副本只由本地白名单结算金币、时段与幂等记录', async () => {
@@ -2129,6 +2416,8 @@ test('M2 验收快进可独立抵达开放庭园、异变、设施、来访和�
     assert.match(state.memory.long_term_notes.join('\n'), /新手教程.*不得重演教程/);
   }
   const open = tools.applyTestJump(initial, 'm2_open_garden');
+  assert.deepEqual(open.resources, initial.resources);
+  assert.deepEqual(open.inventory.consumables, initial.inventory.consumables);
   assert.equal(open.facility_runtime.fairy_garden.built, false);
   const tutorial = (await importTypescript('../src/ui/open-garden-rules.ts')).tutorialProgress(open);
   assert.equal(tutorial.completedCount, tutorial.totalCount);
@@ -2211,6 +2500,8 @@ test('助手楼层已经出现时会清除漏掉结束事件留下的宿主忙�
   assert.equal(reconcileHostGenerationActivity(true, { assistantResponded: false }), true);
   assert.equal(reconcileHostGenerationActivity(true, { assistantResponded: true }), false);
   assert.equal(reconcileHostGenerationActivity(false, { assistantResponded: true }), false);
+  assert.equal(reconcileHostGenerationActivity(false, { assistantResponded: true }, true), true);
+  assert.equal(reconcileHostGenerationActivity(true, { assistantResponded: false }, false), false);
 });
 
 test('宿主提示词 dry-run 不会锁住测试快进，真实生成仍进入忙碌态', async () => {
@@ -2332,6 +2623,44 @@ test('R30 小店目录以本地白名单原子购买物资，拒绝越界与重�
   assert.throws(() => shop.purchaseShopItem(poor, 'basic_material_single', 'shop-test-3'), /金币不够/);
   const full = structuredClone(initial); full.resources.materials = 19;
   assert.throws(() => shop.purchaseShopItem(full, 'basic_material_crate', 'shop-test-4'), /装不下/);
+});
+
+test('新人礼包：每聊天一次、48金币/4灵感/8物资、上限截断、迁移兜底', async () => {
+  const shop = await importTypescript('../src/ui/shop-rules.ts');
+  const migrations = await importTypescript('../src/ui/state-migrations.ts');
+  const initial = JSON.parse(await read('../src/schema/initial-state.json'));
+  assert.equal(initial.interaction.starter_gift_claimed, false);
+  const claimed = shop.claimStarterGift(initial);
+  assert.equal(claimed.interaction.starter_gift_claimed, true);
+  assert.equal(claimed.resources.coins, (initial.resources.coins ?? 0) + 48);
+  assert.equal(claimed.resources.inspiration, (initial.resources.inspiration ?? 0) + 4);
+  assert.equal(claimed.resources.materials, (initial.resources.materials ?? 0) + 8);
+  assert.throws(() => shop.claimStarterGift(claimed), /已经领取/);
+  // 上限截断：物资接近上限时不超 20、灵感不超 10、金币不超 99999
+  const nearCap = structuredClone(initial);
+  nearCap.resources.materials = 19; nearCap.resources.inspiration = 9; nearCap.resources.coins = 99990;
+  const capped = shop.claimStarterGift(nearCap);
+  assert.equal(capped.resources.materials, 20);
+  assert.equal(capped.resources.inspiration, 10);
+  assert.equal(capped.resources.coins, 99999);
+  // 迁移兜底：旧状态无字段时默认 false
+  const bare = migrations.migrateGardenState({ interaction: {} });
+  assert.equal(bare.interaction.starter_gift_claimed, false);
+  // bridge 同时暴露 claimStarterGift（正式版与离线预览 stub）
+  const bridge = await read('../src/ui/bridge.ts');
+  const types = await read('../src/ui/types.ts');
+  assert.match(bridge, /async claimStarterGift\(\)/);
+  assert.match(bridge, /claimStarterGift\(migrateGardenState/);
+  assert.match(bridge, /Object\.assign\(previewState, claimStarterGift\(previewState\)\)/);
+  assert.match(types, /claimStarterGift\(\): Promise<void>/);
+  // UI：设置区按钮、4 秒倒计时、领取后禁用
+  const html = await read('../src/ui/index.html');
+  const app = await read('../src/ui/app.ts');
+  assert.match(html, /gg-starter-gift/);
+  assert.match(html, /请先阅读 4 秒/);
+  assert.match(app, /secondsLeft = 4/);
+  assert.match(app, /renderStarterGiftButton/);
+  assert.match(app, /新人礼包（已领取）/);
 });
 
 test('R31 自由生长方案只由本地单回合结算登记，不提前选型或改变资源', async () => {
@@ -2474,12 +2803,12 @@ test('R33 爱丽丝维护方案与受控会话 UID 都由 bridge 本地链路拥
     event_id: 'greenhouse_multiturn_conversation',
   };
   const staged = settlement.stageLocalSession(sessionState, researchAction);
-  assert.equal(staged.interaction.current_session.uid, 'interaction_1');
-  assert.equal(staged.interaction.current_session.effective_rounds, 0);
-  assert.equal(staged.uid_counters.interaction, 2);
-  const firstRound = settlement.applyLocalSettlement(staged, researchAction, 52, '第一轮研究');
-  assert.equal(firstRound.interaction.current_session.uid, 'interaction_1');
-  assert.equal(firstRound.interaction.current_session.effective_rounds, 1);
+  // 温室研究交流已改为单轮结算：stage 不再创建会话（原样返回），结算一次直接完成。
+  assert.equal(staged, sessionState);
+  assert.equal(staged.interaction.current_session, null);
+  const firstRound = settlement.applyLocalSettlement(sessionState, researchAction, 52, '单轮研究交流');
+  assert.equal(firstRound.events.completed_key_events.greenhouse_multiturn_conversation, 'conversation_settled_after_multiple_turns');
+  assert.equal(firstRound.interaction.current_session, null);
   assert.match(bridge, /persistStagedLocalSession/);
   assert.match(bridge, /stageLocalSession\(before, action\)/);
   assert.match(bridge, /event\.allowed_results\[0\]/);
@@ -2721,10 +3050,44 @@ test('R36/R39 特殊商品、自定义异变卡与咲夜怀表完全由本地规
   const secondWatch = special.useSakuyaWatch(ready, 'item:watch:test-2');
   assert.equal(secondWatch.state.key_items.sakuya_watch.total_uses, 2);
   assert.ok(secondWatch.state.events.waiting_events.some((event) => event.config_id === 'sakuya_temporal_trace_investigation'));
+  // R75 修复：怀表放宽守卫——GAL 对话（受控会话/固定剧情事件）中允许即时使用，仅战斗中禁止。
+  const sessionState = structuredClone(ready);
+  sessionState.interaction ??= { current_session: null, settled_ids: [] };
+  sessionState.interaction.current_session = {
+    uid: 'interaction_test_gal', type: 'facility', status: 'active', area_id: 'greenhouse_plot',
+    participant_character_ids: ['marisa'], facility_id: 'magic_greenhouse',
+    event_id: 'greenhouse_multiturn_conversation', focus: '测试会话', summary: '测试会话',
+    last_effective_message_id: null, effective_rounds: 0, settled: false,
+  };
+  const watchInSession = special.useSakuyaWatch(sessionState, 'item:watch:session');
+  assert.equal(watchInSession.state.key_items.sakuya_watch.total_uses, 2);
+  const eventState = structuredClone(ready);
+  eventState.events ??= {};
+  eventState.events.active_event = { uid: 'flower_core_test', config_id: 'greenhouse_flower_core', title: '温室妖花核心', status: 'active' };
+  const watchInEvent = special.useSakuyaWatch(eventState, 'item:watch:event');
+  assert.equal(watchInEvent.state.key_items.sakuya_watch.total_uses, 2);
+  const battleState = structuredClone(ready);
+  battleState.battle ??= {};
+  battleState.battle.current = { config_id: 'greenhouse_flower_core_tutorial_v1' };
+  assert.throws(() => special.useSakuyaWatch(battleState, 'item:watch:battle'), /战斗进行中/);
   assert.ok(registry.eventById.has('clockwork_temporal_ripple'));
   assert.ok(registry.eventById.has('sakuya_temporal_trace_investigation'));
   const courtyardActions = actions.targetActions({ type: 'area', id: 'central_courtyard', label: '中央庭院' }, secondWatch.state);
   assert.ok(courtyardActions.some((action) => action.id === 'investigate_sakuya_temporal_trace'));
+  // R81 怀表时停：使用时 time_stop_active 置真；prompt 注入【时间停止】段；跨时段自动失效。
+  assert.equal(firstWatch.state.key_items.sakuya_watch.time_stop_active, true);
+  const stopPrompt = prompt.buildPromptContext(firstWatch.state, { kind: 'ordinary' });
+  assert.match(stopPrompt, /【时间停止】/);
+  assert.match(stopPrompt, /怀表正在生效/);
+  assert.match(stopPrompt, /不能主动行动/);
+  const time = await importTypescript('../src/ui/time-rules.ts');
+  const advanced = time.advanceOneTimePeriod(firstWatch.state);
+  assert.equal(advanced.key_items.sakuya_watch.time_stop_active, false);
+  const noStopPrompt = prompt.buildPromptContext(advanced, { kind: 'ordinary' });
+  assert.doesNotMatch(noStopPrompt, /【时间停止】/);
+  // 未使用时不得注入时停段
+  const idlePrompt = prompt.buildPromptContext(equipped.state ?? equipped, { kind: 'ordinary' });
+  assert.doesNotMatch(idlePrompt, /【时间停止】/);
   const specialEvents = await read('../src/lorebook/events/special-item-events.json');
   assert.doesNotMatch(specialEvents, /"participants"\s*:\s*\[[^\]]*(?:yukari|kaguya)/u);
 });
@@ -2744,7 +3107,9 @@ test('R37 候选保留窄屏、可访问性、失败恢复与本地特殊商品�
   assert.match(app, /beforeunload/);
   assert.match(app, /useSpecialItem/);
   assert.match(bridge, /道具使用复读校验失败/);
-  assert.match(shopView, /今日已使用/);
+  assert.match(shopView, /showItemDetailDialog/);
+  assert.match(shopView, /gg-shop-detail-dialog/);
+  assert.match(shopView, /点击查看详细介绍/);
   assert.match(shopView, /唯一关键物品/);
   assert.match(packageJson.scripts['package:checkpoint:dry'], /0\.2\.0-r/);
   assert.match(String(manifest.next_checkpoint), /0\.2\.0-r/);
@@ -2865,7 +3230,14 @@ test('本地结束解除失败事务与待办按钮，记录不伪造空 assista
   const app = await read('../src/ui/app.ts');
   const bridge = await read('../src/ui/bridge.ts');
   assert.match(app, /message\.role === 'assistant'[\s\S]*?message\.text\.trim\(\)[\s\S]*?message\.role === 'user' && userHistoryText\(message\)/);
-  assert.match(app, /submissionInFlight = false;[\s\S]*renderPendingTasks\(\);/);
+  assert.match(app, /submissionInFlight = false;[\s\S]*?if \(currentView === 'gal'\) renderSceneItemPicker\(\);[\s\S]*?renderPendingTasks\(\);/);
   assert.match(bridge, /transactions\.resetAfterLocalEnd\(\)/);
   assert.match(bridge, /pendingSettlement = null;[\s\S]*pendingOwnershipBefore = null;[\s\S]*pendingSystemOperation = null;/);
+});
+
+test('GAL 回复落盘后释放本地提交锁时，重新渲染道具选择器', async () => {
+  const app = await read('../src/ui/app.ts');
+  const submitFinally = app.match(/async function submitGalMessage\([\s\S]*?\n  \} finally \{([\s\S]*?)\n  \}\n\}/);
+  assert.ok(submitFinally, '应能定位 GAL 提交收尾');
+  assert.match(submitFinally[1], /submissionInFlight = false;[\s\S]*?if \(currentView === 'gal'\) renderSceneItemPicker\(\);/);
 });

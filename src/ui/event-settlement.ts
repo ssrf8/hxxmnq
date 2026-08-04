@@ -71,7 +71,7 @@ const LOCAL_EVENT_IDS = [
   'sakuya_temporal_trace_investigation',
 ] as const;
 
-export const GREENHOUSE_RESEARCH_MAX_EFFECTIVE_ROUNDS = 2;
+export const GREENHOUSE_RESEARCH_MAX_EFFECTIVE_ROUNDS = 1;
 
 function record(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' && !Array.isArray(value)
@@ -221,33 +221,9 @@ export function localSettlementAction(
   return null;
 }
 
-/** Creates bridge-owned state before a controlled multi-turn reply reaches the variable model. */
-export function stageLocalSession(before: GardenState, action: GardenActionMarker): GardenState {
-  if (action.action_id !== 'greenhouse_research_talk' || action.event_id !== 'greenhouse_multiturn_conversation') {
-    return before;
-  }
-  if (before.interaction?.current_session) return before;
-  if (!completed(before).greenhouse_first_use) throw new Error('需要先完成温室第一次使用');
-  const state = structuredClone(before);
-  const counter = state.uid_counters?.interaction ?? 1;
-  state.interaction ??= { current_session: null, settled_ids: [] };
-  state.interaction.current_session = {
-    uid: `interaction_${counter}`,
-    type: 'facility',
-    status: 'active',
-    area_id: 'greenhouse_plot',
-    participant_character_ids: ['marisa'],
-    facility_id: 'magic_greenhouse',
-    event_id: action.event_id,
-    focus: '温室里的持续研究与交流',
-    summary: '你与魔理沙开始在温室里持续研究和交谈。',
-    last_effective_message_id: null,
-    effective_rounds: 0,
-    settled: false,
-  };
-  state.uid_counters ??= {};
-  state.uid_counters.interaction = counter + 1;
-  return state;
+/** 温室研究交流已改为单轮固定结算：不再创建受控会话。保留导出以兼容桥接调用（原样返回）。 */
+export function stageLocalSession(before: GardenState, _action: GardenActionMarker): GardenState {
+  return before;
 }
 
 export function hasLocalPresenceTransition(action: GardenActionMarker) {
@@ -332,12 +308,11 @@ export function findRecordedLocalSettlement(
 
 export function settlementChoices(state: GardenState, action: GardenActionMarker): string[] {
   if (action.action_id === 'investigate_flower_core') return ['event_activated'];
+  // 温室研究交流改为单轮固定结算：research_talk / continue / end_conversation 的结果都是最终完成标记。
   if (action.action_id === 'continue_greenhouse_conversation'
-    || action.action_id === 'greenhouse_research_talk') return ['conversation_continues'];
-  if (action.action_id === 'end_conversation') {
-    return (state.interaction?.current_session?.effective_rounds ?? 0) >= 2
-      ? ['conversation_settled_after_multiple_turns']
-      : ['conversation_continues'];
+    || action.action_id === 'greenhouse_research_talk'
+    || action.action_id === 'end_conversation') {
+    return ['conversation_settled_after_multiple_turns'];
   }
   if (action.action_id === 'settle_flower_core_battle' || action.action_id === 'resume_battle_settlement') {
     return state.battle?.current?.outcome ? [state.battle.current.outcome] : [];
@@ -663,71 +638,36 @@ function settleWaitingFreeSideStory(state: GardenState, action: GardenActionMark
   state.events.waiting_events = state.events.waiting_events.filter((event) => event.config_id !== eventId);
 }
 
-function settleConversationTurn(
-  state: GardenState,
-  action: GardenActionMarker,
-  assistantMessageId: number,
-) {
+function settleConversationTurn(state: GardenState, action: GardenActionMarker) {
   requireEvent(action, 'greenhouse_multiturn_conversation');
   if (!completed(state).greenhouse_first_use) throw new Error('需要先完成温室第一次使用');
-  const session = state.interaction?.current_session;
-  if (session && session.event_id !== action.event_id) throw new Error('当前已有其他主要会话');
-  state.interaction ??= { current_session: null, settled_ids: [] };
-  if (!session) {
-    const counter = state.uid_counters?.interaction ?? 1;
-    state.interaction.current_session = {
-      uid: `interaction_${counter}`,
-      type: 'facility',
-      status: 'active',
-      area_id: 'greenhouse_plot',
-      participant_character_ids: ['marisa'],
-      facility_id: 'magic_greenhouse',
-      event_id: action.event_id,
-      focus: '温室里的持续研究与交流',
-      summary: '你与魔理沙开始在温室里持续研究和交谈。',
-      last_effective_message_id: assistantMessageId,
-      effective_rounds: 1,
-      settled: false,
-    };
-    state.uid_counters ??= {};
-    state.uid_counters.interaction = counter + 1;
-    return;
+  if (completed(state).greenhouse_multiturn_conversation) return;
+  // 清理两段式时代遗留的活跃会话，避免旧状态干扰；单轮结算不再依赖会话轮数。
+  if (state.interaction?.current_session?.event_id === action.event_id) {
+    state.interaction.current_session = null;
   }
-  if (session.last_effective_message_id === assistantMessageId) return;
-  if (!session.uid) throw new Error('温室持续交流会话缺少 UID');
-  session.last_effective_message_id = assistantMessageId;
-  session.effective_rounds = Math.min(
-    GREENHOUSE_RESEARCH_MAX_EFFECTIVE_ROUNDS,
-    (session.effective_rounds ?? 0) + 1,
-  );
-  session.summary = '你与魔理沙继续交换温室研究的观察与想法。';
-  if ((session.effective_rounds ?? 0) >= GREENHOUSE_RESEARCH_MAX_EFFECTIVE_ROUNDS) {
-    completeGreenhouseConversation(state, session.uid);
-  }
+  completeGreenhouseConversation(state);
 }
 
-function completeGreenhouseConversation(state: GardenState, sessionUid: string) {
+function completeGreenhouseConversation(state: GardenState) {
   const result = eventById.get('greenhouse_multiturn_conversation')?.allowed_results[0];
-  if (!result) throw new Error('温室持续交流事件没有登记结算结果');
+  if (!result) throw new Error('温室研究交流事件没有登记结算结果');
   completed(state).greenhouse_multiturn_conversation = result;
-  state.interaction!.settled_ids ??= [];
-  const settlementId = `interaction:${sessionUid}`;
-  state.interaction!.settled_ids = Array.from(new Set([...state.interaction!.settled_ids!, settlementId]));
-  state.interaction!.current_session = null;
+  state.interaction ??= { current_session: null, settled_ids: [] };
+  state.interaction.settled_ids ??= [];
+  const settlementId = 'interaction:greenhouse_multiturn_conversation';
+  state.interaction.settled_ids = Array.from(new Set([...state.interaction.settled_ids, settlementId]));
+  state.interaction.current_session = null;
   state.events!.active_event = null;
 }
 
 function settleConversationEnd(state: GardenState, action: GardenActionMarker) {
   requireEvent(action, 'greenhouse_multiturn_conversation');
-  const session = state.interaction?.current_session;
-  if (!session || session.event_id !== action.event_id) throw new Error('没有找到温室持续交流会话');
-  if (!session.uid) throw new Error('温室持续交流会话缺少 UID');
-  if ((session.effective_rounds ?? 0) >= GREENHOUSE_RESEARCH_MAX_EFFECTIVE_ROUNDS) {
-    completeGreenhouseConversation(state, session.uid);
-    return;
+  // 单轮结算后完成标记已由温室研究交流动作写入；结束聊天在此仅做幂等收尾。
+  if (completed(state).greenhouse_multiturn_conversation) return;
+  if (state.interaction?.current_session?.event_id === action.event_id) {
+    state.interaction.current_session = null;
   }
-  // 玩家主动提前结束时，只关闭本次未完成的研究，不把它误记为主线完成。
-  state.interaction!.current_session = null;
   state.events!.active_event = null;
 }
 
@@ -817,7 +757,7 @@ export function applyLocalSettlement(
     case 'observe_fairy_seed_shower':
     case 'observe_wandering_magic_mist': settleWaitingFreeSideStory(state, action); break;
     case 'greenhouse_research_talk':
-    case 'continue_greenhouse_conversation': settleConversationTurn(state, action, assistantMessageId); break;
+    case 'continue_greenhouse_conversation': settleConversationTurn(state, action); break;
     case 'end_conversation': settleConversationEnd(state, action); break;
     case 'investigate_flower_core': activateFlowerCore(state, action); break;
     case 'resume_battle_settlement':

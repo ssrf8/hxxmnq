@@ -12,7 +12,7 @@ export function buildDuelVictoryMessage(state: GardenState, requestText: string)
   if (!profile) throw new Error('胜利对手没有登记角色档案');
   return [
     [
-      '【对战卡胜利剧情】',
+      '【角色对战胜利剧情】',
       `可信胜利结算：玩家已在符卡对战中战胜 ${profile.display_name}（${profile.character_id}）。`,
       `玩家锁定的要求：${value}`,
       `${profile.display_name}必须承认本次对战结果并答应这个要求，不再进行成功率、说服、反悔或第二次胜负判定。`,

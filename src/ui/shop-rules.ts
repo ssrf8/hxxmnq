@@ -1,7 +1,7 @@
 import catalog from '../shop/catalog.json';
 import dialogues from '../shop/dialogues.json';
 import type { GardenState } from './types';
-import { itemShopUnlocked, addConsumable } from './inventory-rules';
+import { itemShopUnlocked, addConsumable, getInventoryItem } from './inventory-rules';
 
 export interface ShopItem {
   item_id: string;
@@ -14,10 +14,16 @@ export interface ShopItem {
   local_effect_id: string;
   resource?: string;
   unlock?: string;
+  blurb?: string;
+  description?: string;
 }
 const MAX_IDS = 256;
 const itemList = catalog.items as ShopItem[];
 const items = new Map(itemList.map((item) => [item.item_id, item]));
+const RESOURCE_DESCRIPTIONS: Record<string, string> = {
+  basic_material_single: '获得 1 份基础物资。物资用于建造、升级与修复庭园设施，也可以作为小费交给灵梦换取好感。',
+  basic_material_crate: '一次获得 4 份基础物资，比单份购买更划算。物资用于建造、升级与修复庭园设施。',
+};
 
 export function shopBlock(state: GardenState) {
   return state.shop?.unlocked ? '' : dialogues.dialogues.shop_locked;
@@ -31,7 +37,13 @@ export function listShopItems(state?: GardenState) {
       if (!item.unlock) return true;
       return itemShopUnlocked(state, item.item_id);
     })
-    .map((item) => ({ ...item }));
+    .map((item) => {
+      const inventoryItem = getInventoryItem(item.item_id);
+      const description = item.item_type === 'resource'
+        ? RESOURCE_DESCRIPTIONS[item.item_id] ?? ''
+        : inventoryItem?.prompt_description ?? '';
+      return { ...item, description, blurb: item.blurb ?? description };
+    });
 }
 
 export function purchaseShopItem(before: GardenState, itemId: string, purchaseId: string): GardenState {
@@ -85,4 +97,26 @@ export function purchaseShopItem(before: GardenState, itemId: string, purchaseId
 
 export function shopMessage(error?: unknown) {
   return error instanceof Error ? error.message : dialogues.dialogues.purchase_success;
+}
+
+export const STARTER_GIFT_REWARDS = Object.freeze({
+  coins: 48,
+  inspiration: 4,
+  materials: 8,
+});
+
+/** 新人礼包：每个聊天档案只可领取一次；领取后置 interaction.starter_gift_claimed=true。 */
+export function claimStarterGift(before: GardenState): GardenState {
+  if (before.interaction?.starter_gift_claimed) throw new Error('新人礼包已经领取过了');
+  const state = structuredClone(before);
+  state.interaction ??= {};
+  state.interaction.starter_gift_claimed = true;
+  state.resources ??= {};
+  const materials = Math.min(20, (state.resources.materials ?? 0) + STARTER_GIFT_REWARDS.materials);
+  const inspiration = Math.min(10, (state.resources.inspiration ?? 0) + STARTER_GIFT_REWARDS.inspiration);
+  const coins = Math.min(99999, (state.resources.coins ?? 0) + STARTER_GIFT_REWARDS.coins);
+  state.resources.materials = materials;
+  state.resources.inspiration = inspiration;
+  state.resources.coins = coins;
+  return state;
 }

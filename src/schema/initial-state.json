@@ -175,7 +175,9 @@
   },
   "interaction": {
     "current_session": null,
-    "settled_ids": []
+    "settled_ids": [],
+    "conversation_log": [],
+    "starter_gift_claimed": false
   },
   "events": {
     "active_event": null,

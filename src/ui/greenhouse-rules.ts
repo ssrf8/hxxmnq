@@ -114,7 +114,7 @@ export function greenhouseActionBlock(state: GardenState, actionId: GreenhouseAc
       return '';
     case 'greenhouse_research_talk':
       if (!events[GREENHOUSE_EVENTS.firstUse]) return '需要先完成温室第一次使用';
-      if (events[GREENHOUSE_EVENTS.conversation]) return '温室里的持续交流已经完成';
+      if (events[GREENHOUSE_EVENTS.conversation]) return '温室研究交流已经完成';
       if (state.interaction?.current_session) return '当前已有尚未结算的主要会话';
       return '';
     case 'organize_free_growth_proposal':

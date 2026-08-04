@@ -143,19 +143,16 @@
     },
     {
       "config_id": "greenhouse_multiturn_conversation",
-      "title": "温室里的持续交流",
-      "event_type": "progression_session", "trigger_action_ids": ["greenhouse_research_talk", "continue_greenhouse_conversation"], "max_effective_rounds": 2,
-      "projection_keys": ["interaction.current_session", "facilities.magic_greenhouse"], "narrative_outline": ["两轮温室研究交流"], "required_beats": ["第二轮自然收束"], "forbidden_deviations": ["不得提前激活妖花核心"], "downstream_unlocks": ["greenhouse_flower_core"], "failure_recovery": "关闭未完成会话后重试",
+      "title": "温室里的研究交流",
+      "event_type": "progression_fixed", "trigger_action_ids": ["greenhouse_research_talk", "continue_greenhouse_conversation"], "max_effective_rounds": 1,
+      "projection_keys": ["facilities.magic_greenhouse"], "narrative_outline": ["单轮温室研究交流"], "required_beats": ["自然收束"], "forbidden_deviations": ["不得提前激活妖花核心"], "downstream_unlocks": ["greenhouse_flower_core"], "failure_recovery": "返回庭院并重试",
       "prerequisites": ["greenhouse_first_use resolved"],
-      "blocks": ["interaction.current_session is not null"],
+      "blocks": [],
       "participants": ["marisa"],
       "facility_id": "magic_greenhouse",
       "priority": 60,
       "one_time": true,
       "expires": null,
-      "minimum_effective_rounds": 2,
-      "maximum_effective_rounds": 2,
-      "auto_settle_on_max_rounds": true,
       "allowed_results": ["conversation_settled_after_multiple_turns"]
     },
     {

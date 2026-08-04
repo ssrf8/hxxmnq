@@ -45,6 +45,8 @@ export function migrateGardenState(before: GardenState): GardenState {
   for (const [itemId, amount] of Object.entries(state.inventory.consumables)) {
     state.inventory.consumables[itemId] = Math.min(99, Math.max(0, Number.isInteger(amount) ? Number(amount) : 0));
   }
+  // 角色对战已改为角色菜单中的常规行动；旧存档中的卡片不再显示或保留。
+  delete state.inventory.consumables.spell_duel_card;
   state.inventory.consumables.incident_trigger_card = Math.min(
     99,
     Math.max(0, state.inventory.consumables.incident_trigger_card ?? 0),
@@ -131,6 +133,16 @@ export function migrateGardenState(before: GardenState): GardenState {
   state.interaction ??= {};
   state.interaction.current_session ??= null;
   state.interaction.settled_ids = Array.from(new Set(state.interaction.settled_ids ?? [])).slice(-64);
+  state.interaction.starter_gift_claimed = state.interaction.starter_gift_claimed === true;
+  // 兜底：模型偶发用 op:add 写不带 /- 的数组 path 时，MagVarUpdate/mvu_zod 可能把
+  // conversation_log 替换成字符串或校验失败；这里统一归一化为 string[]，避免崩溃与历史丢失。
+  {
+    const raw = state.interaction.conversation_log as string[] | string | null | undefined;
+    const entries = Array.isArray(raw) ? raw : (typeof raw === 'string' && raw.trim() ? [raw] : []);
+    state.interaction.conversation_log = Array.from(
+      new Set(entries.map((entry) => String(entry).slice(0, 120))),
+    ).slice(-24);
+  }
   state.events ??= {};
   state.events.settled_ids = Array.from(new Set(state.events.settled_ids ?? [])).slice(-256);
   state.events.waiting_events = Array.isArray(state.events.waiting_events) ? state.events.waiting_events.slice(0, 3) : [];

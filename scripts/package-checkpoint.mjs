@@ -15,6 +15,7 @@ const OUTPUT_FILE = path.join(OUTPUT_DIR, `幻想乡物语-测试检查点-${CHE
 const WORLDBOOK_NAME = `幻想乡物语·移动庭园 ${CHECKPOINT}`;
 const DRY_RUN = process.argv.includes('--dry-run');
 const REPLACE_EXISTING = process.argv.includes('--replace');
+const EXPECT_REMOTE_R2 = process.argv.includes('--expect-remote-r2');
 
 const source = async file => readFile(path.resolve(file), 'utf8');
 const json = async file => JSON.parse(await source(file));
@@ -53,6 +54,7 @@ const [
   mvuSchema,
   uiMount,
   characterRouting,
+  itemRouting,
 ] = await Promise.all([
   source('src/card/identity.xml'),
   source('src/card/opening-first-response.xml'),
@@ -68,7 +70,12 @@ const [
   source('src/schema/02-mvu-schema.js'),
   source('dist/runtime/ui-mount.js'),
   json('src/lorebook/character-routing.json'),
+  json('src/lorebook/item-routing.json'),
 ]);
+
+if (EXPECT_REMOTE_R2 && !uiMount.includes('"mode":"remote-r2-live"')) {
+  throw new Error('拒绝打包：当前 dist/runtime/ui-mount.js 不是 remote-r2-live 构建。请先运行 npm run build:ui:remote，再重新 dry-run。');
+}
 
 if (characterRouting.version !== 'character-greenlight.v1' || !Array.isArray(characterRouting.profiles)) {
   throw new Error('角色绿灯路由表版本或结构非法');
@@ -90,6 +97,28 @@ for (const profile of characterProfiles) {
   characterGreenlights.add(profile.greenlight);
 }
 const characterContents = await Promise.all(characterProfiles.map(({ id }) => source(`src/lorebook/characters/${id}.xml`)));
+
+if (itemRouting.version !== 'item-greenlight.v1' || !Array.isArray(itemRouting.profiles)) {
+  throw new Error('道具绿灯路由表版本或结构非法');
+}
+const itemProfiles = itemRouting.profiles;
+const itemIds = new Set();
+const itemGreenlights = new Set();
+for (const profile of itemProfiles) {
+  if (!/^[a-z0-9_]{1,32}$/u.test(profile.id) || !profile.label) {
+    throw new Error(`道具绿灯路由项非法：${JSON.stringify(profile)}`);
+  }
+  if (!/^GSK_ITEM_[A-Z0-9_]+_ACTIVE$/u.test(profile.greenlight)) {
+    throw new Error(`道具绿灯格式非法：${profile.id}`);
+  }
+  if (itemIds.has(profile.id) || itemGreenlights.has(profile.greenlight)) {
+    throw new Error(`道具绿灯路由重复：${profile.id}`);
+  }
+  itemIds.add(profile.id);
+  itemGreenlights.add(profile.greenlight);
+}
+const itemContents = await Promise.all(itemProfiles.map(({ id }) => source(`src/lorebook/items/${id}.xml`)));
+const sakuyaWatch = await source('src/lorebook/items/sakuya_watch.xml');
 const entry = (
   id,
   comment,
@@ -141,6 +170,7 @@ const loreEntries = [
   entry(0, '[mvu_plot][core] 角色卡身份与玩家权边界', identity, [], true),
   entry(1, '[mvu_plot][core] 会移动的结界领地', movingGarden, [], true),
   entry(9, '[mvu_plot][core] 幻想乡基础世界观', gensokyoBasics, [], true),
+  entry(16, '[mvu_plot][special] 怀表·时间停止', sakuyaWatch, [], true),
   entry(2, '[mvu_update] 变量更新规则', variableRules, [], true, 'after_char'),
   entry(3, '[mvu_update] 最新 MVU 状态（含本地私有字段）', projection, [], true, 'after_char', 0, 4),
   entry(8, '[mvu_update] 变量输出格式', variableOutputFormat, [], true, 'after_char'),
@@ -152,6 +182,18 @@ const loreEntries = [
       10 + index,
       `[mvu_plot][character] ${profile.label}`,
       characterContents[index],
+      [profile.greenlight],
+      false,
+    );
+    result.extensions.exclude_recursion = true;
+    result.extensions.prevent_recursion = true;
+    return result;
+  }),
+  ...itemProfiles.map((profile, index) => {
+    const result = entry(
+      18 + index,
+      `[mvu_plot][item] ${profile.label}`,
+      itemContents[index],
       [profile.greenlight],
       false,
     );
@@ -213,12 +255,16 @@ const data = {
 };
 const payload = { spec: 'chara_card_v2', spec_version: '2.0', data };
 const serialized = `${JSON.stringify(payload, null, 2)}\n`;
+const serializedBytes = Buffer.byteLength(serialized);
+if (EXPECT_REMOTE_R2 && serializedBytes > 10 * 1024 * 1024) {
+  throw new Error(`拒绝打包：轻量 remote-r2 检查点为 ${serializedBytes} bytes，超过 10 MiB 停止线。请检查构建模式与素材内嵌情况。`);
+}
 const report = {
   mode: DRY_RUN ? 'dry-run' : 'write',
   version: VERSION,
   checkpoint: CHECKPOINT,
   output: OUTPUT_FILE,
-  bytes: Buffer.byteLength(serialized),
+  bytes: serializedBytes,
   sha256: createHash('sha256').update(serialized).digest('hex'),
   scripts: data.extensions.tavern_helper.scripts.map(item => ({ id: item.id, bytes: Buffer.byteLength(item.content) })),
   lorebook_entries: loreEntries.length,

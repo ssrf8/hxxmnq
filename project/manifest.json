@@ -1,8 +1,9 @@
 {
   "id": "gensokyo-moving-garden-0.2.0",
   "version": "0.2.0",
-  "status": "candidate",
-  "next_checkpoint": "0.2.0-r64-remote-r2-live-candidate",
+  "status": "released",
+  "released_checkpoint": "0.2.0-r89",
+  "next_checkpoint": "0.2.0-r93-player-name-projection",
   "planned_checkpoint_sequence": [
     "0.2.0-r19",
     "0.2.0-r20",
@@ -49,7 +50,36 @@
     "0.2.0-r61",
     "0.2.0-r62",
     "0.2.0-r63",
-    "0.2.0-r64"
+    "0.2.0-r64",
+    "0.2.0-r65",
+    "0.2.0-r66",
+    "0.2.0-r67",
+    "0.2.0-r68",
+    "0.2.0-r69",
+    "0.2.0-r70",
+    "0.2.0-r71",
+    "0.2.0-r72",
+    "0.2.0-r73",
+    "0.2.0-r74",
+    "0.2.0-r75",
+    "0.2.0-r76",
+    "0.2.0-r77",
+    "0.2.0-r78",
+    "0.2.0-r79",
+    "0.2.0-r80",
+    "0.2.0-r81",
+    "0.2.0-r82",
+    "0.2.0-r83",
+    "0.2.0-r84",
+    "0.2.0-r85",
+    "0.2.0-r86",
+    "0.2.0-r87",
+    "0.2.0-r88",
+    "0.2.0-r89",
+    "0.2.0-r90",
+    "0.2.0-r91",
+    "0.2.0-r92",
+    "0.2.0-r93"
   ],
   "source_root": "../src",
   "test_root": "../tests",
@@ -68,7 +98,7 @@
     "m0_contract_skeleton": "complete",
     "m1_minimum_loop": "acceptance",
     "m2_full_v1": "candidate",
-    "m3_package_runtime_acceptance": "in-progress"
+    "m3_package_runtime_acceptance": "released"
   },
   "m0_sources": {
     "agent_handoff": "./agent-handoff.md",
@@ -156,9 +186,10 @@
   "runtime_artifacts": {
     "self_contained_ui_mount": "../dist/runtime/ui-mount.js",
     "mvu_loader": "../src/runtime/01-mvu-loader.js",
-    "checkpoint_card": "../dist/checkpoint-0.2.0-r64/幻想乡物语-测试检查点-0.2.0-r64.json",
-    "current_ui_script": "gensokyo-garden-ui-020-r64",
-    "current_checkpoint": "0.2.0-r64"
+    "checkpoint_card": "../dist/checkpoint-0.2.0-r92/幻想乡物语-测试检查点-0.2.0-r92.json",
+    "checkpoint_png": "../dist/checkpoint-0.2.0-r92/幻想乡物语-测试检查点-0.2.0-r92.png",
+    "current_ui_script": "gensokyo-garden-ui-020-r92",
+    "current_checkpoint": "0.2.0-r92"
   },
   "checkpoint_adapter": {
     "command_dry_run": "npm run package:checkpoint:dry",
@@ -173,5 +204,11 @@
       "../src/runtime/01-mvu-loader.js",
       "../dist/runtime/ui-mount.js"
     ]
+  },
+  "release_artifacts": {
+    "checkpoint_card": "../dist/checkpoint-0.2.0-r92/幻想乡物语-正式版-0.2.0-r92.json",
+    "checkpoint_png": "../dist/checkpoint-0.2.0-r92/幻想乡物语-正式版-0.2.0-r92.png",
+    "card_name": "幻想乡物语·移动庭园",
+    "version": "0.2.0-r92"
   }
 }

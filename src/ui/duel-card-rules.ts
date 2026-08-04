@@ -1,6 +1,5 @@
 import duelCatalog from '../battle/duel-profiles.json';
 import { ensureCardRuntime } from './card-item-rules';
-import { consumableCount, reserveConsumable } from './inventory-rules';
 import type { BattleResult, DuelDifficultyTier, GardenState } from './types';
 
 export interface DuelProfile {
@@ -19,11 +18,11 @@ const profiles = duelCatalog.profiles as DuelProfile[];
 const profileById = new Map(profiles.map((profile) => [profile.character_id, profile]));
 
 function validateUseId(useId: string) {
-  if (!/^[A-Za-z0-9._:-]{1,96}$/u.test(useId)) throw new Error('对战卡使用 ID 非法');
+  if (!/^[A-Za-z0-9._:-]{1,96}$/u.test(useId)) throw new Error('角色对战发起 ID 非法');
 }
 
 function validateSettlementId(settlementId: string) {
-  if (!/^[A-Za-z0-9._:-]{1,96}$/u.test(settlementId)) throw new Error('对战卡结算 ID 非法');
+  if (!/^[A-Za-z0-9._:-]{1,96}$/u.test(settlementId)) throw new Error('角色对战结算 ID 非法');
 }
 
 function validateDuelBattleResult(result: BattleResult) {
@@ -68,8 +67,7 @@ export function duelDifficultyForTags(zakoTagCount: number): DuelDifficultyTier 
   return count >= 3 ? 'assisted' : 'standard';
 }
 
-export function duelCardBlock(state: GardenState, targetCharacterId?: string): string {
-  if (consumableCount(state, 'spell_duel_card') < 1) return '没有可用的对战卡';
+export function characterDuelBlock(state: GardenState, targetCharacterId?: string): string {
   if (!state.battle?.dungeon_unlocked) return '需要先完成妖花教学战';
   if (state.battle?.current) return '已有战斗结果等待结算';
   if (state.events?.active_event || state.anomaly_cycle?.pending_activation) {
@@ -82,10 +80,10 @@ export function duelCardBlock(state: GardenState, targetCharacterId?: string): s
       && session.status !== 'closing'
       && Boolean(targetCharacterId)
       && participants.includes(targetCharacterId!);
-    if (!challengesCurrentCharacter) return '交谈中只能向当前角色使用对战卡';
+    if (!challengesCurrentCharacter) return '交谈中只能向当前对话角色发起对战';
   }
   const duel = state.inventory?.card_runtime?.duel;
-  if (duel?.pending_battle) return '已有一场对战卡战斗进行中';
+  if (duel?.pending_battle) return '已有一场角色对战进行中';
   if (duel?.pending_victory_dialogue) return '上一场胜利要求尚未完成';
   if (targetCharacterId && !getDuelProfile(targetCharacterId)) return '角色没有登记对战档案';
   return '';
@@ -115,10 +113,7 @@ export function beginDuelCard(
       alreadyStarted: true,
     };
   }
-  if (before.inventory?.card_runtime?.settled_use_ids?.includes(useId)) {
-    throw new Error('该对战卡使用已经结算');
-  }
-  const blocked = duelCardBlock(before, targetCharacterId);
+  const blocked = characterDuelBlock(before, targetCharacterId);
   if (blocked) throw new Error(blocked);
   const profile = getDuelProfile(targetCharacterId)!;
   const state = structuredClone(before);
@@ -161,6 +156,8 @@ export interface DuelCardSettlementResult {
   state: GardenState;
   won: boolean;
   zakoTagCount: number;
+  previousZakoTagCount: number;
+  zakoTagDelta: -1 | 0 | 1;
   message: string;
   alreadySettled: boolean;
 }
@@ -207,19 +204,20 @@ export function settleDuelCard(before: GardenState, result: BattleResult): DuelC
       state: structuredClone(before),
       won: existingRuntime.duel.pending_victory_dialogue?.settlement_id === result.settlement_id,
       zakoTagCount: count,
-      message: '该对战卡结果已经结算',
+      previousZakoTagCount: count,
+      zakoTagDelta: 0,
+      message: '该角色对战结果已经结算',
       alreadySettled: true,
     };
   }
   const pending = existingRuntime?.duel?.pending_battle;
-  if (!pending) throw new Error('没有待结算的对战卡战斗');
-  if (existingRuntime?.settled_use_ids?.includes(pending.use_id)) throw new Error('该对战卡使用已经结算');
+  if (!pending) throw new Error('没有待结算的角色对战');
   if (pending.config_id !== result.config_id) throw new Error('对战配置与预留不一致');
-  if (result.outcome === 'narrative') throw new Error('对战卡不接受叙事替代结算');
+  if (result.outcome === 'narrative') throw new Error('角色对战不接受叙事替代结算');
   if (!['clean_win', 'narrow_win', 'loss'].includes(result.outcome)) throw new Error('未知对战结果');
   validateDuelBattleResult(result);
 
-  let state = reserveConsumable(before, 'spell_duel_card', 1);
+  const state = structuredClone(before);
   const runtime = ensureCardRuntime(state);
   const duel = runtime.duel!;
   const won = result.outcome === 'clean_win' || result.outcome === 'narrow_win';
@@ -227,10 +225,6 @@ export function settleDuelCard(before: GardenState, result: BattleResult): DuelC
   duel.zako_tag_count = won
     ? Math.max(0, previousTagCount - 1)
     : Math.min(99, previousTagCount + 1);
-  runtime.settled_use_ids = Array.from(new Set([
-    ...(runtime.settled_use_ids ?? []),
-    pending.use_id,
-  ])).slice(-256);
   duel.settled_result_ids = Array.from(new Set([
     ...(duel.settled_result_ids ?? []),
     result.settlement_id,
@@ -248,6 +242,8 @@ export function settleDuelCard(before: GardenState, result: BattleResult): DuelC
     state,
     won,
     zakoTagCount: duel.zako_tag_count,
+    previousZakoTagCount: previousTagCount,
+    zakoTagDelta: duel.zako_tag_count - previousTagCount as -1 | 0 | 1,
     message: won
       ? `符卡对战胜利，杂鱼标签 ${previousTagCount > 0 ? '-1' : '保持 0'}。`
       : `挑战失败，杂鱼标签 +1。当前持有：${duel.zako_tag_count} 枚。`,

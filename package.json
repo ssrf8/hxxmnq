@@ -4,21 +4,26 @@
   "version": "0.2.0",
   "type": "module",
   "scripts": {
-    "build:ui": "node scripts/build-ui.mjs",
+    "build:ui": "node scripts/build-ui.mjs --asset-mode=remote-r2-live --asset-base-url=https://ssrfrrt.ccwu.cc",
+    "build:ui:remote": "node scripts/build-ui.mjs --asset-mode=remote-r2-live --asset-base-url=https://ssrfrrt.ccwu.cc",
     "build:assets:r2": "node scripts/build-runtime-assets.mjs",
     "compress:assets": "node scripts/compress-runtime-assets.mjs",
     "check:assets:r2": "node scripts/build-runtime-assets.mjs --generation=1 --dry-run",
     "plan:assets:r2": "node scripts/publish-r2-assets.mjs --dry-run",
     "check:ui": "tsc --noEmit",
-    "package:checkpoint:dry": "node scripts/package-checkpoint.mjs --checkpoint=0.2.0-r63 --dry-run",
-    "package:checkpoint": "node scripts/package-checkpoint.mjs --checkpoint=0.2.0-r63",
+    "package:checkpoint:dry": "node scripts/package-checkpoint.mjs --checkpoint=0.2.0-r93 --dry-run --expect-remote-r2",
+    "package:checkpoint": "node scripts/package-checkpoint.mjs --checkpoint=0.2.0-r93 --expect-remote-r2",
     "preview": "node scripts/preview-server.mjs",
-    "test": "node --test tests/*.test.mjs"
+    "test": "node --test tests/*.test.mjs",
+    "package:checkpoint:png": "node scripts/embed-card-png.mjs --checkpoint=0.2.0-r93 --image=D:/浏览器下载/MiaoMiao_Harem_AnimaBase_single_00504_.png --compress"
   },
   "devDependencies": {
     "esbuild": "0.25.6",
     "pngjs": "^7.0.0",
     "typescript": "5.8.3",
     "wrangler": "4.118.0"
+  },
+  "dependencies": {
+    "sharp": "^0.35.3"
   }
 }

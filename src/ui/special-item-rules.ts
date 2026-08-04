@@ -112,8 +112,8 @@ export function useSakuyaWatch(before: GardenState, useId: string): SpecialItemU
   if (!watch?.obtained) throw new Error('尚未获得咲夜的怀表');
   const day = before.environment?.day ?? 1;
   if (watch.last_used_day === day || watch.state === 'daily_cooldown') throw new Error(dialogues.dialogues.watch_cooldown);
-  if (before.battle?.current || before.events?.active_event || before.interaction?.current_session) {
-    throw new Error('战斗、固定剧情或受控会话进行中，不能启动怀表');
+  if (before.battle?.current) {
+    throw new Error('战斗进行中，不能启动怀表');
   }
   const serialBefore = periodSerialFromState(before);
   const state = structuredClone(before);
@@ -124,6 +124,7 @@ export function useSakuyaWatch(before: GardenState, useId: string): SpecialItemU
   nextWatch.last_used_area_id = state.player?.current_area_id ?? 'central_courtyard';
   nextWatch.last_used_time_period = state.environment?.time_period ?? '清晨';
   nextWatch.temporal_trace_active = true;
+  nextWatch.time_stop_active = true;
   nextWatch.noticed_by_character_ids ??= [];
   const reimuView = state.presence_snapshot?.character_views?.reimu;
   const reimuPresent = state.presence_snapshot?.present_character_ids?.includes('reimu');

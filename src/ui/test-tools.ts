@@ -228,7 +228,9 @@ function applyPresenceTestAction(before: GardenState, jump: TestJumpId): GardenS
 }
 
 function prepareM2AcceptanceState(state: GardenState, jump: TestJumpId) {
-  state.resources = { ...state.resources, materials: 50, inspiration: 10, coins: 200 };
+  if (jump !== 'm2_open_garden') {
+    state.resources = { ...state.resources, materials: 50, inspiration: 10, coins: 200 };
+  }
   state.garden ??= {};
   state.garden.construction_stage = '开放';
   state.player ??= {};
@@ -262,7 +264,7 @@ function prepareM2AcceptanceState(state: GardenState, jump: TestJumpId) {
   state.shop = { ...state.shop, unlocked: true };
   state.inventory ??= { consumables: {} };
   state.inventory.consumables ??= {};
-  state.inventory.consumables.incident_trigger_card = 3;
+  if (jump !== 'm2_open_garden') state.inventory.consumables.incident_trigger_card = 3;
   state.anomaly_cycle = { pending_activation: null, active: null, history: state.anomaly_cycle?.history ?? [] };
   state.garden_projects = { active_construction: null };
   state.garden_activities = { moon_spring_session: null, banquet: null, scheduled_banquet: null };

@@ -41,6 +41,7 @@
 | R28 | 灵梦／魔理沙 BOSS 四状态图升级为新版；处理脚本支持指定角色增量替换和版本化原图归档，稳定运行路径不变；manifest 记录 v2 当前档、v1 被替代档和哈希报告 | 所有者供图 + 确定性透明化 | `check:ui`、154/154、`build:ui`、r54 dry-run 全绿；两场新版对战暂停态目视通过，页面控制台无 warning/error |
 | R29 | 弹幕战暂停与战斗内置音频设置：裸露 HUD 滑杆收进专属小弹窗，音效／BGM 分轨调节；三首 BGM 模板登记为 `source_url:null`，为后续 HTTPS R2 曲源预留安全接口 | 所有者反馈 | 当时 `check:ui`、175/175、`build:ui` 全绿；本地验证默认值、曲目／音量持久化和暂停恢复，真实 ST／R2 待验收 |
 | R30 | 自机小符札与敌弹视觉解耦：辉光椭圆改为米白纸符、深色描边、红／青符印、金色顶签和双尾带；P 点补独立四角拾取框，颜色之外再用轮廓与尾迹区分阵营 | 所有者反馈 | `check:ui`、176/176、`build:ui` 全绿；离线妖精练习实际缩放目视，真实 ST／320px／高密度交火待验收 |
+| R31 | 商店分页（10/页翻页控件，单页隐藏）＋购买成功/失败气泡提示＋blurb 精炼介绍（截断点击弹窗看完整）；背包分页（4/页）与高度压缩；GAL 道具选择器分页（6/页）＋blurb 短描述＋长按 500ms 看详情＋「不使用道具」跨行置顶＋怀表即时使用入口；符卡副本选关改为单卡居中横版关卡公告卡；道具介绍布局修复（标题固定不被描述顶动） | 所有者逐项反馈 | `check:ui`、214/214、`build:ui` 全绿；宽／窄屏离线通过，真实 SillyTavern 待验收 |
 
 ## 变更文件
 
@@ -67,7 +68,12 @@
 | `src/assets/ui/opening-hero-source-v1.png` | 所有者主视觉原图存档（2.9MB，未入清单，不进卡） |
 | `src/assets/ui/reimu-shop-button-v1.png` / `marisa-inventory-button-v1.png` / `reimu-dungeon-button-v1.png` | 顶栏小店、背包、符卡副本独立像素入口；预览与内嵌运行时使用同一资源链 |
 | `src/assets/ui/reimu-shop-ui-background-v1.png` | 灵梦小店 4:3 底图；桌面端覆盖十槽、资金牌与透明操作热区，窄屏回流为可读卡片布局 |
-| `src/ui/shop-view.ts` | 固定 5×2 商品槽、分类筛选、资金显示、商品详情与购买/离开逻辑的视觉适配 |
+| `src/ui/shop-view.ts` / `shop-rules.ts` / `src/shop/catalog.json` | 商品分页（PAGE_SIZE=10，翻页控件单页隐藏）；blurb 精炼介绍默认显示（3 行截断＋点击弹窗看完整版）；购买成功/失败气泡 `.gg-shop-notice`（4.2s 自动消失，success/error 双色）；移除 `gg-shop-use` 使用按钮；详情区布局修复（标题固定、描述区滚动不顶标题） |
+| `src/ui/inventory-view.ts` / `styles.css` | 背包分页（PAGE_SIZE=4）＋卡片/头部间距压缩降低整页高度 |
+| `src/ui/app.ts` / `src/ui/index.html` / `styles.css` | GAL 道具选择器分页（6/页）＋blurb 短描述（2 行截断）＋长按 500ms 弹完整介绍＋「不使用道具」固定跨行；怀表（`sakuya_watch`）作为即时使用选项加入选择器（金色「刻」标记，冷却禁用） |
+| `styles.css` | 符卡副本选关 UI：`#gg-dungeon-actions` 单列居中、关卡卡限宽 640px 横版布局、主题色顶部辉光条、Boss 名放大、按钮横排主次分明 |
+| `src/items/catalog.json` | 12 件道具新增 `blurb` 短描述（商店与 GAL 选择器共用短文案） |
+| `src/lorebook/item-routing.json` / `src/lorebook/items/*.xml` / `src/ui/item-greenlights.ts` / `src/ui/target-actions.ts` / `scripts/package-checkpoint.mjs` | 道具绿灯世界书机制：8 件场景道具各占一条世界书条目（含仅对爱丽丝生效等生效限定），由 `GSK_ITEM_*_ACTIVE` 标记按场景登记加载，打包条目 id 18+，`lorebook_entries` 25 |
 | `旧素材/src/assets/ui/target-action-*.png` | 角色点击菜单四张历史参考原图；已归档，最终运行时不读取、不复制、不内嵌，徽章完全由 HTML/CSS 绘制 |
 | `src/assets/ui/gensokyo-gal-shrine-background-v1.png` | 所有者提供的 GAL 神社背景原图；由清单登记，离线预览复制文件，嵌入式运行时注入 data URL |
 | `src/assets/battle/boss/{cirno,alice,sakuya}-battle-sheet-v1.png` | 三副本独立 `2×2` 四状态 Boss 透明图集；按 `presentation.boss_id` 选择，chroma 维护源不进产物 |

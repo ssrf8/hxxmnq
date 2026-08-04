@@ -1,0 +1,45 @@
+{
+  "version": "item-greenlight.v1",
+  "profiles": [
+    {
+      "id": "foreign_vibrator",
+      "label": "外界的神秘道具·振动棒",
+      "greenlight": "GSK_ITEM_FOREIGN_VIBRATOR_ACTIVE"
+    },
+    {
+      "id": "foreign_egg",
+      "label": "外界的小玩意·跳蛋",
+      "greenlight": "GSK_ITEM_FOREIGN_EGG_ACTIVE"
+    },
+    {
+      "id": "reimu_coin_bait",
+      "label": "金币·钓饵",
+      "greenlight": "GSK_ITEM_REIMU_COIN_BAIT_ACTIVE"
+    },
+    {
+      "id": "cirno_frog_bait",
+      "label": "青蛙诱饵",
+      "greenlight": "GSK_ITEM_CIRNO_FROG_BAIT_ACTIVE"
+    },
+    {
+      "id": "cirno_ice_toy",
+      "label": "冰之玩具",
+      "greenlight": "GSK_ITEM_CIRNO_ICE_TOY_ACTIVE"
+    },
+    {
+      "id": "marisa_dream_mushroom",
+      "label": "梦境菇·同步",
+      "greenlight": "GSK_ITEM_MARISA_DREAM_MUSHROOM_ACTIVE"
+    },
+    {
+      "id": "marisa_obedience_page",
+      "label": "服从之页",
+      "greenlight": "GSK_ITEM_MARISA_OBEDIENCE_PAGE_ACTIVE"
+    },
+    {
+      "id": "alice_doll_pause",
+      "label": "人偶化·暂停",
+      "greenlight": "GSK_ITEM_DOLL_PAUSE_ACTIVE"
+    }
+  ]
+}

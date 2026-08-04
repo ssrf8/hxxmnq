@@ -69,7 +69,7 @@
         <div class="gg-status-line" aria-label="庭园状态">
           <span id="gg-time">春·第1日·清晨</span>
           <span id="gg-weather">晴</span>
-          <span id="gg-resources">物资 6 · 灵感 1 · 金币 0</span>
+          <span id="gg-resources">物资 6 · 灵感 1 · 金币 0 · 杂鱼标签 ×0</span>
         </div>
         <button type="button" id="gg-open-launcher" class="gg-icon-button" aria-haspopup="dialog" aria-controls="gg-launcher-dialog">幻想乡案内</button>
       </header>
@@ -84,7 +84,7 @@
         </section>
         <div class="gg-map-shell">
           <canvas id="gg-garden-map" tabindex="0" aria-label="庭园地图；拖动、缩放并点击角色或区域互动"></canvas>
-          <div class="gg-map-hint">点击角色或区域 · 拖动地图 · 滚轮缩放</div>
+          <div id="gg-map-hint" class="gg-map-hint">点击角色或区域 · 拖动地图 · 滚轮缩放</div>
           <section id="gg-target-menu" class="gg-target-menu" role="dialog" aria-modal="false" aria-labelledby="gg-target-title" hidden>
             <header>
               <div>
@@ -160,8 +160,9 @@
                 </div>
                 <button type="button" id="gg-scene-item-dialog-close" aria-label="关闭道具选择">关闭</button>
               </header>
-              <p class="gg-scene-item-dialog-copy">普通道具随下一条回应送出；对战卡会直接挑战当前交谈角色。只有消息成功提交或对战有效结算后才会消费。</p>
+              <p class="gg-scene-item-dialog-copy">只有选中的普通道具会随下一条回应送出；消息成功提交后才会消费。</p>
               <div id="gg-scene-item-options" class="gg-scene-item-options" aria-label="可用场景道具"></div>
+              <nav id="gg-scene-item-pager" class="gg-scene-item-pager" aria-label="道具分页" hidden></nav>
             </div>
           </dialog>
         </div>
@@ -227,17 +228,43 @@
             <span><strong>战斗音效</strong><small>射击、擦弹、符卡、激光与胜负提示</small></span>
           </label>
           <label class="gg-sound-volume" for="gg-battle-sound-volume">
-            <span>音量 <output id="gg-battle-sound-volume-output" for="gg-battle-sound-volume">60%</output></span>
-            <input id="gg-battle-sound-volume" type="range" min="0" max="100" step="5" value="60">
+            <span>音量 <output id="gg-battle-sound-volume-output" for="gg-battle-sound-volume">1%</output></span>
+            <input id="gg-battle-sound-volume" type="range" min="0" max="100" step="1" value="1">
           </label>
           <button type="button" id="gg-battle-sound-test">试听音效</button>
           <p class="gg-note">首次播放需要一次明确点击，以遵守浏览器的声音权限规则。该偏好只保存在本机，不写入庭园状态。</p>
         </fieldset>
+        <fieldset class="gg-sound-settings">
+          <legend>界面提示</legend>
+          <label class="gg-sound-toggle" for="gg-hide-ui-hints">
+            <input id="gg-hide-ui-hints" type="checkbox" checked>
+            <span><strong>隐藏状态栏与地图提示</strong><small>隐藏底部状态栏文字与「点击角色或区域」提示</small></span>
+          </label>
+          <p class="gg-note">该偏好只保存在本机，不写入庭园状态。</p>
+        </fieldset>
         <dl id="gg-diagnostics" class="gg-diagnostics"></dl>
         <div class="gg-actions">
+          <button type="button" id="gg-starter-gift">新人礼包</button>
           <button type="button" id="gg-show-native">显示原生聊天</button>
           <button type="button" id="gg-reload">重新加载同层应用</button>
         </div>
+        <dialog id="gg-starter-gift-dialog" class="gg-starter-gift-dialog" aria-labelledby="gg-starter-gift-title">
+          <div class="gg-starter-gift-shell">
+            <p class="gg-eyebrow">移动庭园 · 迎宾礼</p>
+            <h3 id="gg-starter-gift-title">新人礼包</h3>
+            <p class="gg-note">感谢游玩我的卡，这个是给你的奖励，希望你能喜欢这张卡。</p>
+            <ul class="gg-starter-gift-rewards">
+              <li><strong>金币 ×48</strong><small>可在灵梦小店消费</small></li>
+              <li><strong>灵感 ×4</strong><small>推进研究与方案</small></li>
+              <li><strong>物资 ×8</strong><small>用于建设与修复</small></li>
+            </ul>
+            <p id="gg-starter-gift-countdown" class="gg-starter-gift-countdown" role="status" aria-live="polite">请阅读礼包内容…</p>
+            <div class="gg-starter-gift-actions">
+              <button type="button" id="gg-starter-gift-cancel">稍后再说</button>
+              <button type="button" id="gg-starter-gift-claim" disabled>领取（请先阅读 4 秒）</button>
+            </div>
+          </div>
+        </dialog>
         <section class="gg-test-tools" aria-labelledby="gg-test-tools-title">
           <p class="gg-eyebrow">验收辅助</p>
           <h3 id="gg-test-tools-title">测试控制面板</h3>
@@ -301,7 +328,7 @@
         <div>
           <p class="gg-eyebrow">移动庭园功能入口</p>
           <h2 id="gg-launcher-title">幻想乡案内</h2>
-          <p id="gg-launcher-summary" class="gg-launcher-summary">春·第1日·清晨 · 晴 · 物资 6 · 灵感 1 · 金币 0</p>
+          <p id="gg-launcher-summary" class="gg-launcher-summary">春·第1日·清晨 · 晴 · 物资 6 · 灵感 1 · 金币 0 · 杂鱼标签 ×0</p>
         </div>
         <button type="button" id="gg-close-launcher" class="gg-launcher-close" aria-label="关闭幻想乡案内">关闭</button>
       </header>
@@ -392,26 +419,46 @@
           </div>
           <label class="gg-battle-audio-range" for="gg-battle-settings-sfx-volume">
             <span>音效音量</span>
-            <input id="gg-battle-settings-sfx-volume" type="range" min="0" max="100" step="5" value="60">
-            <output id="gg-battle-settings-sfx-output" for="gg-battle-settings-sfx-volume">60%</output>
+            <input id="gg-battle-settings-sfx-volume" type="range" min="0" max="100" step="1" value="1">
+            <output id="gg-battle-settings-sfx-output" for="gg-battle-settings-sfx-volume">1%</output>
           </label>
         </section>
 
         <section class="gg-battle-audio-channel" aria-labelledby="gg-battle-bgm-title">
           <div class="gg-battle-audio-channel-heading">
             <div><span aria-hidden="true">BGM</span><h3 id="gg-battle-bgm-title">背景音乐</h3></div>
-            <small>R2 曲库模板</small>
+            <small>默认关闭 · 本地偏好</small>
           </div>
-          <label class="gg-battle-audio-select" for="gg-battle-settings-bgm-track">
-            <span>曲目种类</span>
-            <select id="gg-battle-settings-bgm-track"></select>
-          </label>
+          <fieldset class="gg-bgm-source-picker" aria-describedby="gg-bgm-source-help">
+            <legend>音乐来源</legend>
+            <label><input type="radio" name="gg-bgm-source" value="off" checked> <span>关闭</span><small>本场不播放 BGM</small></label>
+            <label><input type="radio" name="gg-bgm-source" value="recommended"> <span>作者推荐</span><small>内置公开曲目</small></label>
+            <label><input type="radio" name="gg-bgm-source" value="custom"> <span>自己想听</span><small>保存你的链接</small></label>
+          </fieldset>
+          <p id="gg-bgm-source-help" class="gg-bgm-source-help">网易云：复制单曲分享链接即可。系统会使用官方公开播放跳转地址尝试播放；会员、登录或地区受限歌曲不会绕过限制。</p>
+          <p id="gg-bgm-onboarding" class="gg-bgm-onboarding" role="status" hidden>首次对战提示：背景音乐默认关闭。可选“作者推荐”直接开始四曲轮播，或选“自己想听”保存你的网易云单曲链接。</p>
           <label class="gg-battle-audio-range" for="gg-battle-settings-bgm-volume">
             <span>BGM 音量</span>
-            <input id="gg-battle-settings-bgm-volume" type="range" min="0" max="100" step="5" value="45">
-            <output id="gg-battle-settings-bgm-output" for="gg-battle-settings-bgm-volume">45%</output>
+            <input id="gg-battle-settings-bgm-volume" type="range" min="0" max="100" step="5" value="8">
+            <output id="gg-battle-settings-bgm-output" for="gg-battle-settings-bgm-volume">8%</output>
           </label>
           <p id="gg-battle-bgm-status" class="gg-battle-bgm-status" role="status">曲目槽位已就绪，等待接入 R2 音源。</p>
+          <div id="gg-bgm-recommended-panel" class="gg-bgm-recommended-panel" hidden>
+            <span>作者推荐歌单</span>
+            <strong id="gg-bgm-recommended-title">雾夜回廊</strong>
+            <small>4 首网易云单曲伪随机播放；四首都播放过后才会重新洗牌。</small>
+          </div>
+          <div id="gg-bgm-custom-panel" class="gg-bgm-custom-panel" hidden>
+          <label class="gg-battle-audio-links" for="gg-battle-bgm-links">
+            <span>本地音乐链接（每行一条，最多 12 条）</span>
+            <textarea id="gg-battle-bgm-links" rows="4" placeholder="https://music.163.com/#/song?id=...&#10;https://your-authorized-audio.example/music.ogg"></textarea>
+          </label>
+          <div class="gg-actions gg-battle-bgm-link-actions">
+            <button type="button" id="gg-battle-bgm-links-save">保存并解析</button>
+            <button type="button" id="gg-battle-bgm-links-open" disabled>打开网易云歌单原页</button>
+          </div>
+          <p id="gg-battle-bgm-links-status" class="gg-battle-bgm-status" role="status"></p>
+          </div>
         </section>
       </div>
       <footer>
@@ -437,14 +484,17 @@
     <div id="gg-dungeon-actions" class="gg-target-actions"></div>
     <footer class="gg-dungeon-footer"><span aria-hidden="true">✦</span> 正式挑战会结算奖励与时段；演练模式不会改动庭园状态 <span aria-hidden="true">✦</span></footer>
   </dialog>
-  <dialog id="gg-duel-dialog" class="gg-duel-dialog" aria-labelledby="gg-duel-title">
-    <header class="gg-duel-header">
-      <div><p class="gg-eyebrow">SPELL DUEL CARD</p><h2 id="gg-duel-title">选择符卡对手</h2></div>
-      <button type="button" id="gg-close-duel" aria-label="关闭对手选择">关闭</button>
+  <dialog id="gg-duel-result-dialog" class="gg-duel-result-dialog" aria-labelledby="gg-duel-result-title">
+    <header>
+      <div><p class="gg-eyebrow">DUEL RESULT</p><h2 id="gg-duel-result-title">符卡对战结束</h2></div>
     </header>
-    <p id="gg-duel-summary" class="gg-duel-summary" role="status" aria-live="polite"></p>
-    <div id="gg-duel-targets" class="gg-duel-targets"></div>
-    <footer class="gg-duel-footer">有效结算后才消费卡片。失败只增加杂鱼标签，不进入剧情。</footer>
+    <p id="gg-duel-result-summary" class="gg-note"></p>
+    <section class="gg-duel-result-tags" aria-label="杂鱼标签结算">
+      <strong id="gg-duel-result-change"></strong>
+      <p id="gg-duel-result-difficulty"></p>
+    </section>
+    <p class="gg-note">杂鱼标签不会影响剧情或物品；它只会降低下一次角色符卡对战的强度。胜利消除一枚，失败增加一枚。</p>
+    <div class="gg-actions"><button type="button" id="gg-duel-result-confirm">返回对话</button></div>
   </dialog>
   <dialog id="gg-duel-victory-dialog" class="gg-duel-victory-dialog" aria-labelledby="gg-duel-victory-title">
     <form id="gg-duel-victory-form">

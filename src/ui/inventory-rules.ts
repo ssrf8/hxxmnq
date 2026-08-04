@@ -16,6 +16,7 @@ export interface InventoryItemDefinition {
   consume_policy: ItemConsumePolicy;
   local_effect_id?: string;
   prompt_description: string;
+  blurb?: string;
   shop_price?: number;
   shop_unlock?: string;
 }

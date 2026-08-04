@@ -19,7 +19,7 @@ import { validateFlowerCoreBattleResult } from './greenhouse-rules';
 import { dungeonReward, settleDungeonResult as settleLocalDungeonResult } from './dungeon-rules';
 import { migrateGardenState } from './state-migrations';
 import { applyTestJump, testJumpReached, type TestJumpId } from './test-tools';
-import { purchaseShopItem } from './shop-rules';
+import { purchaseShopItem, claimStarterGift } from './shop-rules';
 import { useOpportunityCard as applyOpportunityCardUse } from './card-item-rules';
 import {
   beginDuelCard as beginLocalDuelCard,
@@ -155,6 +155,21 @@ function currentChatId(): string {
   return String(g.SillyTavern?.getCurrentChatId?.() ?? hostWindow().SillyTavern?.getCurrentChatId?.() ?? '').trim();
 }
 
+function nativeSendStopButtonGenerating(): boolean | null {
+  try {
+    const host = hostWindow();
+    const doc = host.document;
+    if (!doc?.body) return null;
+    if (doc.body.dataset.generating === 'true') return true;
+    const stop = doc.getElementById('mes_stop');
+    if (!stop) return false;
+    const view = doc.defaultView;
+    return view?.getComputedStyle(stop).display !== 'none';
+  } catch {
+    return null;
+  }
+}
+
 function normalizeMessages(raw: Array<Record<string, unknown>>): ChatMessageView[] {
   return raw.slice(-80).map((message) => {
     const swipes = Array.isArray(message.swipes) ? message.swipes.map((item) => String(item ?? '')) : [];
@@ -232,7 +247,9 @@ function readRawMessages(options: Record<string, unknown> = {}): Array<Record<st
     const fallback = messagesFromContextChat();
     if (fallback.length > best.length) best = fallback;
   }
-  return best;
+  // Tavern Helper ranges are not guaranteed to preserve chronological array
+  // order. Every transaction is defined by message_id, never by response index.
+  return best.slice().sort((left, right) => Number(left.message_id ?? -1) - Number(right.message_id ?? -1));
 }
 
 function activeMessages(): Array<Record<string, unknown>> {
@@ -382,7 +399,11 @@ export function createHostBridge(): GardenBridge | null {
 
   const readTransaction = () => {
     const snapshot = transactions.read();
-    hostGenerationActive = reconcileHostGenerationActivity(hostGenerationActive, snapshot);
+    hostGenerationActive = reconcileHostGenerationActivity(
+      hostGenerationActive,
+      snapshot,
+      nativeSendStopButtonGenerating(),
+    );
     return snapshot;
   };
 
@@ -422,13 +443,12 @@ export function createHostBridge(): GardenBridge | null {
   };
 
   const deterministicSettlementResult = (action: GardenActionMarker, before: GardenState) => {
-    if (action.action_id === 'greenhouse_research_talk' || action.action_id === 'continue_greenhouse_conversation') {
-      return 'conversation_continues';
-    }
-    if (action.action_id === 'end_conversation' && action.event_id === 'greenhouse_multiturn_conversation') {
-      return (before.interaction?.current_session?.effective_rounds ?? 0) >= 2
-        ? 'conversation_settled_after_multiple_turns'
-        : 'conversation_continues';
+    // 温室研究交流已改为单轮固定结算：research_talk / continue / end_conversation
+    // 在回复到达后一次性写入完成标记，不再依赖跨轮会话轮数。
+    if (action.action_id === 'greenhouse_research_talk'
+      || action.action_id === 'continue_greenhouse_conversation'
+      || (action.action_id === 'end_conversation' && action.event_id === 'greenhouse_multiturn_conversation')) {
+      return 'conversation_settled_after_multiple_turns';
     }
     if (action.action_id === 'investigate_flower_core' && action.event_id === 'greenhouse_flower_core') {
       return 'event_activated';
@@ -1081,7 +1101,7 @@ export function createHostBridge(): GardenBridge | null {
       if (!latest) throw new Error('没有找到可承载副本结算的 assistant 楼层');
       const before = migrateGardenState(latest.state);
       if (before.battle?.rewarded_ids?.includes(result.settlement_id)) {
-        return { rewardCoins: dungeonReward(result.outcome as 'clean_win' | 'narrow_win' | 'loss'), alreadySettled: true };
+        return { rewardCoins: dungeonReward(result.outcome as 'clean_win' | 'narrow_win' | 'loss', before.inventory?.card_runtime?.duel?.zako_tag_count ?? 0), alreadySettled: true };
       }
       const next = reconcileM2Runtime(
         before,
@@ -1094,7 +1114,7 @@ export function createHostBridge(): GardenBridge | null {
       if (!reread.battle?.rewarded_ids?.includes(result.settlement_id)) {
         throw new Error('副本结算复读校验失败');
       }
-      return { rewardCoins: dungeonReward(result.outcome as 'clean_win' | 'narrow_win' | 'loss'), alreadySettled: false };
+      return { rewardCoins: dungeonReward(result.outcome as 'clean_win' | 'narrow_win' | 'loss', before.inventory?.card_runtime?.duel?.zako_tag_count ?? 0), alreadySettled: false };
     },
     async applyTestJump(jump: TestJumpId) {
       // SillyTavern may restore this iframe after the assistant floor and its MVU
@@ -1133,6 +1153,17 @@ export function createHostBridge(): GardenBridge | null {
       const reread = migrateGardenState(mvu.getMvuData(latest.options).stat_data ?? {});
       if (!reread.shop?.purchase_settled_ids?.includes(purchaseId)) throw new Error('小店购买复读校验失败');
     },
+    async claimStarterGift() {
+      const mvu = await requireMvu();
+      if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持新人礼包');
+      const latest = latestPersistedMessage(mvu);
+      if (!latest) throw new Error('没有可承载新人礼包的 assistant 楼层');
+      const next = claimStarterGift(migrateGardenState(latest.state));
+      latest.data.stat_data = next;
+      await mvu.replaceMvuData(latest.data, latest.options);
+      const reread = migrateGardenState(mvu.getMvuData(latest.options).stat_data ?? {});
+      if (reread.interaction?.starter_gift_claimed !== true) throw new Error('新人礼包领取复读校验失败');
+    },
     async useOpportunityCard(useId: string) {
       return runCardOperation(async () => {
         const mvu = await requireMvu();
@@ -1160,9 +1191,9 @@ export function createHostBridge(): GardenBridge | null {
     async beginDuelCard(targetCharacterId: string, useId: string) {
       return runCardOperation(async () => {
         const mvu = await requireMvu();
-        if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持对战卡预留');
+        if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持角色对战预留');
         const latest = latestPersistedMessage(mvu);
-        if (!latest) throw new Error('没有可承载对战卡预留的 assistant 楼层');
+        if (!latest) throw new Error('没有可承载角色对战预留的 assistant 楼层');
         const result = beginLocalDuelCard(migrateGardenState(latest.state), targetCharacterId, useId);
         latest.data.stat_data = result.state;
         await mvu.replaceMvuData(latest.data, latest.options);
@@ -1172,7 +1203,7 @@ export function createHostBridge(): GardenBridge | null {
           || pending.target_character_id !== targetCharacterId
           || pending.config_id !== result.configId
           || pending.difficulty_tier !== result.difficultyTier) {
-          throw new Error('对战卡预留复读校验失败');
+          throw new Error('角色对战预留复读校验失败');
         }
         return {
           targetCharacterId,
@@ -1186,34 +1217,36 @@ export function createHostBridge(): GardenBridge | null {
     async cancelDuelCard(useId: string) {
       return runCardOperation(async () => {
         const mvu = await requireMvu();
-        if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持取消对战卡');
+        if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持取消角色对战');
         const latest = latestPersistedMessage(mvu);
-        if (!latest) throw new Error('没有可承载对战卡取消的 assistant 楼层');
+        if (!latest) throw new Error('没有可承载角色对战取消的 assistant 楼层');
         latest.data.stat_data = cancelLocalDuelCard(migrateGardenState(latest.state), useId);
         await mvu.replaceMvuData(latest.data, latest.options);
         const reread = migrateGardenState(mvu.getMvuData(latest.options).stat_data ?? {});
         if (reread.inventory?.card_runtime?.duel?.pending_battle?.use_id === useId) {
-          throw new Error('对战卡取消复读校验失败');
+          throw new Error('角色对战取消复读校验失败');
         }
       });
     },
     async settleDuelCard(result: BattleResult) {
       return runCardOperation(async () => {
         const mvu = await requireMvu();
-        if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持对战卡本地结算');
+        if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持角色对战本地结算');
         const latest = latestPersistedMessage(mvu);
-        if (!latest) throw new Error('没有可承载对战卡结算的 assistant 楼层');
+        if (!latest) throw new Error('没有可承载角色对战结算的 assistant 楼层');
         const settled = settleLocalDuelCard(migrateGardenState(latest.state), result);
         latest.data.stat_data = settled.state;
         await mvu.replaceMvuData(latest.data, latest.options);
         const reread = migrateGardenState(mvu.getMvuData(latest.options).stat_data ?? {});
         if (!reread.inventory?.card_runtime?.duel?.settled_result_ids?.includes(result.settlement_id)
           || reread.inventory.card_runtime.duel.pending_battle) {
-          throw new Error('对战卡结算复读校验失败');
+          throw new Error('角色对战结算复读校验失败');
         }
         return {
           won: settled.won,
           zakoTagCount: settled.zakoTagCount,
+          previousZakoTagCount: settled.previousZakoTagCount,
+          zakoTagDelta: settled.zakoTagDelta,
           message: settled.message,
           alreadySettled: settled.alreadySettled,
         };
@@ -1390,6 +1423,12 @@ export function createHostBridge(): GardenBridge | null {
         refresh();
       });
       subscribe(g.tavern_events?.MESSAGE_UPDATED);
+      subscribe(g.tavern_events?.STREAM_TOKEN_RECEIVED, () => {
+        // Luker emits this before its fake-stream body is durably visible. It is a
+        // refresh hint only; MessageTransactionCoordinator still reads the floor.
+        transactions.markStreamTokenReceived();
+        refresh();
+      });
       subscribe(g.tavern_events?.MESSAGE_SWIPED);
       subscribe(g.tavern_events?.CHAT_CHANGED);
       if (g.tavern_events?.GENERATION_STARTED && g.eventOn) {
@@ -1405,7 +1444,10 @@ export function createHostBridge(): GardenBridge | null {
       if (g.tavern_events?.GENERATION_STOPPED && g.eventOn) {
         stops.push(g.eventOn(g.tavern_events.GENERATION_STOPPED, () => {
           hostGenerationActive = false;
-          transactions.markStopped();
+          // Only the GAL stop control calls markStopped directly. Luker takeover
+          // integrations can emit a generic STOPPED while their assistant floor is
+          // still being finalized; treating that as a failed transaction produces a
+          // false “no reply” screen over a live native generation.
           refresh();
         }).stop);
       }
@@ -1416,6 +1458,25 @@ export function createHostBridge(): GardenBridge | null {
           refresh();
         }).stop);
       }
+      // Luker plugin takeover may unblock its native controls before the final
+      // assistant text reaches getChatMessages. Observe the actual send/stop state
+      // so an empty placeholder remains a loading floor rather than a false reply.
+      try {
+        const doc = hostWindow().document;
+        const body = doc?.body;
+        const stop = doc?.getElementById('mes_stop');
+        if (body && typeof MutationObserver !== 'undefined') {
+          const observer = new MutationObserver(() => {
+            const nativeGenerating = nativeSendStopButtonGenerating();
+            if (nativeGenerating == null || nativeGenerating === hostGenerationActive) return;
+            hostGenerationActive = nativeGenerating;
+            refresh();
+          });
+          observer.observe(body, { attributes: true, attributeFilter: ['data-generating'] });
+          if (stop) observer.observe(stop, { attributes: true, attributeFilter: ['style', 'class', 'hidden'] });
+          stops.push(() => observer.disconnect());
+        }
+      } catch { /* parent document is optional in isolated preview frames */ }
       const replayTimer = globalThis.setInterval(() => {
         void settlePendingAfterReply().then((settled) => {
           if (settled) refresh();
@@ -1649,7 +1710,7 @@ export function createPreviewBridge(): GardenBridge {
     },
     async settleDungeonResult(result: BattleResult) {
       if (previewState.battle?.rewarded_ids?.includes(result.settlement_id)) {
-        return { rewardCoins: dungeonReward(result.outcome as 'clean_win' | 'narrow_win' | 'loss'), alreadySettled: true };
+        return { rewardCoins: dungeonReward(result.outcome as 'clean_win' | 'narrow_win' | 'loss', previewState.inventory?.card_runtime?.duel?.zako_tag_count ?? 0), alreadySettled: true };
       }
       const before = structuredClone(previewState);
       const next = reconcileM2Runtime(
@@ -1658,13 +1719,16 @@ export function createPreviewBridge(): GardenBridge {
         'preview',
       );
       Object.assign(previewState, next);
-      return { rewardCoins: dungeonReward(result.outcome as 'clean_win' | 'narrow_win' | 'loss'), alreadySettled: false };
+      return { rewardCoins: dungeonReward(result.outcome as 'clean_win' | 'narrow_win' | 'loss', before.inventory?.card_runtime?.duel?.zako_tag_count ?? 0), alreadySettled: false };
     },
     async applyTestJump(jump: TestJumpId) {
       Object.assign(previewState, applyTestJump(previewState, jump));
     },
     async purchaseShopItem(itemId: string, purchaseId: string) {
       Object.assign(previewState, purchaseShopItem(previewState, itemId, purchaseId));
+    },
+    async claimStarterGift() {
+      Object.assign(previewState, claimStarterGift(previewState));
     },
     async useOpportunityCard(useId: string) {
       const result = applyOpportunityCardUse(previewState, useId, 'offline-preview-chat');
@@ -1695,6 +1759,8 @@ export function createPreviewBridge(): GardenBridge {
       return {
         won: settled.won,
         zakoTagCount: settled.zakoTagCount,
+        previousZakoTagCount: settled.previousZakoTagCount,
+        zakoTagDelta: settled.zakoTagDelta,
         message: settled.message,
         alreadySettled: settled.alreadySettled,
       };

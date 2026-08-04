@@ -30,8 +30,31 @@ assets:   gensokyo-moving-garden/live/<活动 asset source>
 
 1. **每次素材更新都发布到新的不可变 release 前缀，绝不覆盖旧 release。**
 2. **先上传全部素材，逐项校验成功后，最后上传 `manifest.json`。**
-3. **轻量包最后一次 UI 构建必须显式使用 `--asset-mode=remote-r2`。**
-4. **只运行 `npm run build:ui` 会切回默认 `embedded` 模式，再打包就会从约 2 MiB 膨胀到约 72 MiB。**
+3. **轻量包最后一次 UI 构建必须运行 `npm run build:ui:remote`，其实际参数是 `--asset-mode=remote-r2-live --asset-base-url=https://ssrfrrt.ccwu.cc`。**
+4. **只运行 `npm run build:ui` 会切回默认 `embedded` 模式，覆盖 `dist/runtime/ui-mount.js`，再打包就会把全素材塞进角色卡。**
+
+## 轻量角色卡强制门禁（2026-08-02 起）
+
+`0.2.0-r72` 曾因在打包前运行裸 `npm run build:ui`，生成 **280,326,339 bytes** 的全素材内嵌包。该文件仅作错误留档，**不得导入、不得作为当前检查点、不得用 `--replace` 覆盖修正**。
+
+从 r73 起，`npm run package:checkpoint:dry` 与 `npm run package:checkpoint` 会要求 `dist/runtime/ui-mount.js` 含有 `remote-r2-live` 配置；若最后一次构建是 embedded，将直接拒绝打包。轻量测试包的固定顺序是：
+
+```powershell
+npm run check:ui
+npm test
+npm run build:ui:remote
+npm run package:checkpoint:dry
+# 仅在 dry-run、模式和体积都通过后：
+npm run package:checkpoint
+```
+
+正式打包前必须逐项确认：
+
+- `package:checkpoint:dry` 的 UI 脚本包含 `remote-r2-live`，不是 embedded；
+- 包体不超过 **10 MiB**；超过即停止，不得以“先测一下”为由写出正式包；
+- 检查点号在 `package.json`、`project/manifest.json` 和输出目录三处一致且目录不存在；
+- 打包后检查 SHA-256、`collision_policy: refuse-overwrite` 与旧检查点未被覆盖；
+- 文档中的“当前有效轻量包”只能指向已通过上述检查的包，错误留档不得冒充当前版本。
 
 ## 当前有效坐标
 
@@ -41,9 +64,9 @@ assets:   gensokyo-moving-garden/live/<活动 asset source>
 | 生产 origin | `https://ssrfrrt.ccwu.cc` |
 | 当前素材 release | `0.2.0-r62-0e5ecacdee9f` |
 | 当前 manifest 声明哈希 | `0f068864b044613d4d5110ad6f7a850f7aecec1609821a90d0a5ed16cd5a8965` |
-| 当前轻量卡 | `0.2.0-r63` |
-| 当前轻量卡大小 | `2,145,471` bytes |
-| 当前轻量卡 SHA-256 | `0923e1c5517beff64a7fbedcf7c02d52636c79ddc073ae37ea9a25b3f0183f06` |
+| 当前轻量卡 | `0.2.0-r92`（**已发布**） |
+| 当前轻量卡大小 | `2,263,771` bytes（JSON）/ PNG 卡片 `3,852,968` bytes |
+| 当前轻量卡 SHA-256 | JSON `330e78a338a2253403861b3b325fae5f4235d37d931a9b622298c5dbddbf7e47`；PNG `096061b1d6e7c06c0ffaafd80bff66fb88d98ba32e7058b0363a63c1ffb218dd` |
 
 这些值是交接基线，不是永远不变的配置。发布新版本后，必须同步更新本文、`project/README.md`、
 `project/agent-handoff.md` 与 `project/manifest.json`。

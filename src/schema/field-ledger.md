@@ -19,6 +19,8 @@
 | `interaction.current_session` | null 或单一会话 | 额外变量模型；受控温室会话由 bridge 独占 | 模型、剧情页 | 同时仅一个；受控会话不允许模型替换父对象绕过所有权 |
 | `interaction.current_session.effective_rounds` | integer/0 | bridge | 温室多轮会话门槛 | 仅完整且有效的新 assistant 回复递增；停止、失败、Swipe、重放与同消息 ID 不计数 |
 | `interaction.settled_ids` | 最多 64 个交互结算 ID | 额外变量模型；受控温室会话由 bridge 独占 | 模型、GAL 幂等检查 | 只追加已复读成功的会话结算；重复 ID 禁止再次结算 |
+| `interaction.conversation_log` | 最多 24 条短摘要，每条 ≤120 字 | 额外变量模型 | 模型（最近互动回顾投影） | FIFO 追加不覆盖；所有角色共用一个数组，条目前缀 `角色ID: ` 区分归属；只记与在场角色相关的本轮行动与反应；结束对话不清空；投影取尾 6 条并按在场角色过滤 |
+| `interaction.starter_gift_claimed` | boolean，默认 false | 本地桥接（设置区新人礼包） | 设置页、本地结算 | 每个聊天档案只可领取一次；领取后置 true，随 stat_data 持久化；不参与模型投影 |
 | `events.active_event` | null 或正式事件 | 模型 | 模型、剧情页 | 同时仅一个；结算后转入近期结果/关键标记 |
 | `events.waiting_events` | 最多 3 个事件 | 模型 | 调度器、模型 | 满载时拒绝低优先事件；到期不可静默删除 |
 | `events.recent_results` | 最多 8 条短摘要 | 模型 | 模型、数据库归档 | FIFO；关键结果另存永久标记 |

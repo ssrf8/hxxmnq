@@ -3,6 +3,7 @@
   GalBeat,
   GalBeatKind,
   GalReaction,
+  GalSexualAct,
   GalSceneProjection,
   GalVisualMode,
   GardenState,
@@ -15,8 +16,14 @@ const UPDATE_PATTERN = /<UpdateVariable>[\s\S]*?<\/UpdateVariable>/giu;
 const EVENT_RESULT_PATTERN = /<GensokyoEventResult>[\s\S]*?<\/GensokyoEventResult>/giu;
 const GARDEN_BODY_START = /[【\[]\s*庭园正文开始\s*[】\]]/gu;
 const GARDEN_BODY_END = /[【\[]\s*庭园正文结束\s*[】\]]/u;
+// LLM 自指纠错 CoT 泄漏：如“（注意：这句话是我说的…）修正：”。带“修正：”重写段时整体剥离，
+// 只带“（注意/思考/纠错：…）”时剥离括号段本身；两者都要求括号内含自指信号词
+// （应该/这句话/标签/规则/协议等），避免误伤正文台词里的“（注意：…）”陈述。
+const COT_LEAK_PATTERN = /（\s*(?:注意|思考|纠错|提醒)[^）]*?(?:应该|不应该|不能|不要|必须|这句话|标签|规则|协议|规定|所以|修正)[^）]*）\s*修正：\s*(?=<narration\b|<dialogue\b|$)/giu;
+const COT_LEAK_NOTE_ONLY_PATTERN = /（\s*(?:注意|思考|纠错|提醒)[^）]*?(?:应该|不应该|不能|不要|必须|这句话|标签|规则|协议|规定|所以|修正)[^）]*）(?:\s*修正：)?/giu;
 const ALLOWED_KINDS = new Set<GalBeatKind>(['narration', 'speech', 'action']);
 const ALLOWED_VISUAL_MODES = new Set<GalVisualMode>(['normal', 'nude', 'sexual']);
+const ALLOWED_SEXUAL_ACTS = new Set<GalSexualAct>(['vaginal', 'anal', 'none']);
 const ALLOWED_REACTIONS = new Set<GalReaction>([
   'neutral',
   'smile',
@@ -57,10 +64,15 @@ function normalizeBeat(value: unknown, knownCharacters: Set<string>): GalBeat | 
   const poseId = visualMode === 'sexual' && /^[a-z0-9_-]{1,40}$/iu.test(requestedPoseId)
     ? requestedPoseId
     : 'default';
+  const requestedActId = String(value.act_id ?? 'none');
+  const actId = visualMode === 'sexual' && ALLOWED_SEXUAL_ACTS.has(requestedActId as GalSexualAct)
+    ? requestedActId as GalSexualAct
+    : 'none';
   const portraitCue = normalizeGalPortraitCue(speakerId, {
     visualMode,
     reactionId,
     poseId,
+    actId,
   });
   return { kind, speakerId, ...portraitCue, text };
 }
@@ -90,7 +102,14 @@ function gardenBodySection(value: string) {
   const tail = source.slice(bodyStart);
   const end = tail.match(GARDEN_BODY_END);
   if (!end) return { present: true, malformed: true, body: '' };
-  return { present: true, malformed: false, body: tail.slice(0, end.index) };
+  return { present: true, malformed: false, body: stripCotLeakage(tail.slice(0, end.index)) };
+}
+
+/** 剥离 LLM 自指纠错 CoT 泄漏，防止“（注意：…）修正：”等思考痕迹混入玩家可见正文。 */
+export function stripCotLeakage(value: string) {
+  return String(value ?? '')
+    .replace(COT_LEAK_PATTERN, '')
+    .replace(COT_LEAK_NOTE_ONLY_PATTERN, '');
 }
 
 function attribute(value: string, name: string) {
@@ -114,6 +133,7 @@ function gardenProtocolBeats(value: string, knownCharacters: Set<string>) {
       visual_mode: tag === 'dialogue' ? attribute(attributes, 'visual_mode') || 'normal' : 'normal',
       reaction_id: attribute(attributes, 'reaction') || 'neutral',
       pose_id: attribute(attributes, 'pose') || 'default',
+      act_id: attribute(attributes, 'act') || 'none',
       text,
     }, knownCharacters);
     if (beat) beats.push(beat);
@@ -122,7 +142,7 @@ function gardenProtocolBeats(value: string, knownCharacters: Set<string>) {
 }
 
 function stripNarrativeNoise(text: string) {
-  return String(text ?? '')
+  return stripCotLeakage(String(text ?? ''))
     .replace(SCENE_PATTERN, '')
     .replace(UPDATE_PATTERN, '')
     .replace(EVENT_RESULT_PATTERN, '')
@@ -208,6 +228,7 @@ function narrativeBeats(
   visualMode: GalVisualMode = 'normal',
   reactionId: GalReaction = 'neutral',
   poseId = 'default',
+  actId: GalSexualAct = 'none',
 ): GalBeat[] {
   const cleaned = cleanNarrativeText(text);
   const chunks = splitNarrativeChunks(cleaned);
@@ -218,6 +239,7 @@ function narrativeBeats(
     visualMode,
     reactionId,
     poseId,
+    actId,
     text: chunk,
   }));
 }
@@ -244,6 +266,7 @@ export function projectGalScene(
           visualMode: 'normal',
           reactionId: 'neutral',
           poseId: 'default',
+          actId: 'none',
           text: '这次回复没有提供可播放的庭园正文。',
         }],
       suggestedReplies: [],
@@ -259,6 +282,7 @@ export function projectGalScene(
   let visualMode: GalVisualMode = 'normal';
   let reactionId: GalReaction = 'neutral';
   let poseId = 'default';
+  let actId: GalSexualAct = 'none';
 
   const sceneMatch = message.text.match(SCENE_PATTERN);
   if (sceneMatch) {
@@ -283,6 +307,7 @@ export function projectGalScene(
         visualMode = speech.visualMode;
         reactionId = speech.reactionId;
         poseId = speech.poseId;
+        actId = speech.actId;
       }
     } catch {
       malformed = true;
@@ -291,7 +316,7 @@ export function projectGalScene(
 
   // Prefer full LLM narrative body for player-facing pages. scene.v1 beats are short
   // performance hints and must not replace the readable story.
-  const bodyBeats = narrativeBeats(message.text, portraitSpeaker, visualMode, reactionId, poseId);
+  const bodyBeats = narrativeBeats(message.text, portraitSpeaker, visualMode, reactionId, poseId, actId);
   const bodyChars = beatTextLength(bodyBeats);
   const sceneChars = beatTextLength(sceneBeats);
   const preferBody = bodyChars >= 80 && bodyChars >= Math.max(sceneChars * 1.15, sceneChars + 30);

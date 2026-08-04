@@ -13,7 +13,10 @@
   const instanceKey = '__GENSOKYO_GARDEN_UI_024__';
   const shellId = 'gensokyo-game-shell';
   const styleId = 'gensokyo-game-host-style';
-  const returnButtonId = 'gensokyo-game-return';
+  const returnFrameId = 'gensokyo-game-return-frame';
+  const chatCleanupKey = '__GENSOKYO_GARDEN_CHAT_CLEANUP_024__';
+  const heartbeatKey = '__GENSOKYO_GARDEN_HEARTBEAT_024__';
+  const guardKey = '__GENSOKYO_GARDEN_GUARD_024__';
   const activeClass = 'gg-gensokyo-game-active';
   const chatActiveClass = 'gg-gensokyo-chat-active';
   const version = '0.4.3-host-generate-r27';
@@ -44,10 +47,76 @@
   function clearHostArtifacts() {
     doc.body?.classList.remove(activeClass);
     doc.querySelectorAll(`#chat.${chatActiveClass}`).forEach((chat) => chat.classList.remove(chatActiveClass));
-    doc.querySelectorAll(`#${shellId}, #${returnButtonId}, #${styleId}`).forEach((element) => element.remove());
+    doc.querySelectorAll(`#${shellId}, #${returnFrameId}, #${styleId}`).forEach((element) => element.remove());
+  }
+
+  // 参考明月秋青脚本：切换聊天/角色卡后彻底清理宿主层残留（悬浮返回按钮、宿主样式）。
+  // tavern_helper 在切换聊天时会停止旧脚本（销毁脚本 iframe），其 eventOn 监听器随之失效，
+  // 父页面上的悬浮窗 DOM 因此无人清理。这里直接在父页面 eventSource 上注册原生 chat_changed
+  // 监听器（仅清理、不重建），监听器由父页面持有，不随脚本 iframe 销毁而失效。
+  function registerHostChatCleanup() {
+    try {
+      const es = host.eventSource;
+      if (!es || typeof es.on !== 'function' || host[chatCleanupKey]) return;
+      const cleanup = () => {
+        try {
+          doc.getElementById(returnFrameId)?.remove();
+          doc.body?.classList.remove(activeClass);
+          doc.querySelectorAll(`#chat.${chatActiveClass}`).forEach((chat) => chat.classList.remove(chatActiveClass));
+        } catch { /* ignore */ }
+      };
+      es.on('chat_changed', cleanup);
+      host[chatCleanupKey] = cleanup;
+    } catch { /* ignore */ }
+  }
+
+  // 心跳与守卫：脚本活跃期间由沙箱 iframe 内定时器持续刷新父页面的心跳标记；
+  // 父页面常驻守卫定期检查，一旦心跳过期（脚本被 tavern_helper 停止、iframe 被销毁），
+  // 就清除悬浮返回按钮等宿主层残留。这是不依赖任何事件系统能否送达的最终兜底。
+  function startHeartbeat() {
+    try {
+      const tick = () => {
+        try { host[heartbeatKey] = Date.now(); } catch { /* ignore */ }
+      };
+      tick();
+      source.setInterval(tick, 1000);
+    } catch { /* ignore */ }
+  }
+
+  function registerHostGuard() {
+    try {
+      if (host[guardKey]) return;
+      const guard = () => {
+        try {
+          const last = host[heartbeatKey];
+          const fresh = typeof last === 'number' && Date.now() - last < 3500;
+          if (fresh) return;
+          doc.getElementById(returnFrameId)?.remove();
+          doc.body?.classList.remove(activeClass);
+          doc.querySelectorAll(`#chat.${chatActiveClass}`).forEach((chat) => chat.classList.remove(chatActiveClass));
+        } catch { /* ignore */ }
+      };
+      host.setInterval(guard, 1500);
+      host[guardKey] = true;
+    } catch { /* ignore */ }
+  }
+
+  // ── 自动清理（参考 th-orb-v2 / TGbreak 脚本的销毁方式）──
+  // 极简、无状态依赖、不可能抛异常：tavern_helper 停止脚本（销毁 iframe）或页面
+  // 卸载时，pagehide/unload 触发即移除悬浮返回按钮、游戏界面壳与宿主样式。
+  function cleanupHostArtifacts() {
+    try {
+      doc.getElementById(returnFrameId)?.remove();
+      doc.getElementById(shellId)?.remove();
+      doc.getElementById(styleId)?.remove();
+      doc.body?.classList.remove(activeClass);
+      doc.querySelectorAll(`#chat.${chatActiveClass}`).forEach((chat) => chat.classList.remove(chatActiveClass));
+    } catch { /* ignore */ }
   }
 
   clearHostArtifacts();
+  registerHostChatCleanup();
+  registerHostGuard();
   if (!ownerCharacterId) return;
 
   const state = {
@@ -55,7 +124,7 @@
     chat: null,
     shell: null,
     frame: null,
-    returnButton: null,
+    returnFrame: null,
     observer: null,
     eventStops: [],
     nativeMode: false,
@@ -96,20 +165,24 @@
         border: 0;
         background: #171a1e;
       }
-      #${returnButtonId} {
+      #${returnFrameId} {
         position: fixed;
-        right: max(16px, env(safe-area-inset-right));
-        bottom: max(72px, calc(env(safe-area-inset-bottom) + 64px));
+        left: 16px;
+        top: 16px;
+        width: 132px;
+        height: 44px;
+        border: 0;
+        margin: 0;
+        padding: 0;
+        background: transparent;
         z-index: 2147483000;
-        min-width: 44px;
-        min-height: 44px;
-        padding: 9px 14px;
-        border: 1px solid #bc9b67;
-        border-radius: 12px;
-        background: #29251f;
-        color: #fff8df;
-        font: 600 14px/1.2 system-ui, sans-serif;
-        cursor: pointer;
+      }
+      #${returnFrameId}[hidden] { display: none !important; }
+      @media (max-width: 480px) {
+        #${returnFrameId} {
+          width: 120px;
+          height: 42px;
+        }
       }
       @media (max-width: 600px), (max-height: 680px) {
         #${shellId} {
@@ -250,17 +323,118 @@
     state.frame = createGameFrame(state.shell);
   }
 
-  function ensureReturnButton() {
-    if (state.returnButton?.isConnected) return state.returnButton;
-    const button = doc.createElement('button');
-    button.id = returnButtonId;
-    button.type = 'button';
-    button.textContent = '返回移动庭园';
-    button.setAttribute('aria-label', '隐藏原生聊天并返回移动庭园');
-    button.addEventListener('click', showGame);
-    doc.body.append(button);
-    state.returnButton = button;
-    return button;
+  // 返回按钮放在独立的小尺寸悬浮 iframe 里（仿明月秋青方案）：iframe 内部文档不受 ST
+  // 页面 CSS（transform/contain/filter）污染，按钮样式与点击行为完全独立。iframe 本身
+  // 只是按钮大小的一块区域，其余区域自然穿透，不影响原生聊天交互。位置由宿主层
+  // positionReturnFrame() 按 window.parent 的 visualViewport 计算并强制写入。
+  function ensureReturnFrame() {
+    if (state.returnFrame?.isConnected) return state.returnFrame;
+    const frame = doc.createElement('iframe');
+    frame.id = returnFrameId;
+    frame.setAttribute('aria-label', '返回移动庭园悬浮按钮（独立层）');
+    frame.setAttribute('tabindex', '-1');
+    frame.setAttribute('scrolling', 'no');
+    frame.srcdoc = `<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; }
+  #gg-return {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    padding: 8px 12px;
+    border: 1px solid #bc9b67;
+    border-radius: 12px;
+    background: #29251f;
+    color: #fff8df;
+    font: 600 14px/1.2 system-ui, sans-serif;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transform: none !important;
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 4px 14px rgba(0,0,0,.45);
+  }
+  @media (max-width: 480px) {
+    #gg-return { font-size: 12px; padding: 7px 10px; }
+  }
+</style>
+</head>
+<body>
+<button id="gg-return" type="button">返回移动庭园</button>
+<script>
+document.getElementById('gg-return').addEventListener('click', function () {
+  try {
+    var api = window.parent.__GENSOKYO_GARDEN_UI_024__;
+    if (api && typeof api.showGame === 'function') api.showGame();
+  } catch (e) { /* ignore */ }
+});
+<\/script>
+</body>
+</html>`;
+    doc.body.append(frame);
+    state.returnFrame = frame;
+    return frame;
+  }
+
+  // 主动把返回 iframe 钉在视觉视口右下角：不依赖 CSS right/bottom（会被 ST 的
+  // transform/滚动破坏），每次显示/滚动/缩放/键盘弹起都重新计算像素坐标并强制写入。
+  function positionReturnFrame() {
+    const frame = state.returnFrame;
+    if (!frame || frame.hidden) return;
+    requestAnimationFrame(() => {
+      if (!frame.isConnected || frame.hidden) return;
+      const view = doc.defaultView;
+      const vv = view?.visualViewport;
+      const vw = vv?.width ?? doc.documentElement.clientWidth;
+      const vh = vv?.height ?? doc.documentElement.clientHeight;
+      const vvTop = vv ? vv.offsetTop : 0;
+      const w = frame.offsetWidth || 132;
+      const h = frame.offsetHeight || 44;
+      const margin = 16;
+      const left = Math.max(margin, vw - w - margin);
+      const top = Math.max(margin, vvTop + vh - h - margin);
+      const style = frame.style;
+      style.setProperty('position', 'fixed', 'important');
+      style.setProperty('left', `${left}px`, 'important');
+      style.setProperty('top', `${top}px`, 'important');
+      style.setProperty('right', 'auto', 'important');
+      style.setProperty('bottom', 'auto', 'important');
+    });
+  }
+
+  function bindViewportClamping() {
+    if (!doc.defaultView) return;
+    const onViewportChange = () => {
+      if (!state.nativeMode) return;
+      positionReturnFrame();
+    };
+    const onScroll = () => {
+      if (!state.nativeMode) return;
+      positionReturnFrame();
+    };
+    doc.defaultView.addEventListener('resize', onViewportChange);
+    doc.defaultView.addEventListener('orientationchange', onViewportChange);
+    const vv = doc.defaultView.visualViewport;
+    if (vv) vv.addEventListener('resize', onViewportChange);
+    doc.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    state.eventStops.push({
+      stop: () => {
+        doc.defaultView.removeEventListener('resize', onViewportChange);
+        doc.defaultView.removeEventListener('orientationchange', onViewportChange);
+        vv?.removeEventListener('resize', onViewportChange);
+        doc.removeEventListener('scroll', onScroll, { capture: true });
+      },
+    });
   }
 
   function findChat() {
@@ -308,14 +482,16 @@
     doc.body.classList.toggle(activeClass, !state.nativeMode);
     state.chat.classList.toggle(chatActiveClass, !state.nativeMode);
     state.shell.hidden = state.nativeMode;
-    ensureReturnButton().hidden = !state.nativeMode;
+    ensureReturnFrame().hidden = !state.nativeMode;
   }
 
   function showNativeChat() {
     state.nativeMode = true;
     applyMode();
+    positionReturnFrame();
   }
 
+  // 主动把按钮钉在视觉视口右下角：不依赖 CSS right/bottom（会被 ST 的 transform/滚动破坏），
   function showGame() {
     state.nativeMode = false;
     attachShell();
@@ -346,20 +522,21 @@
   function destroy() {
     if (state.destroyed) return;
     state.destroyed = true;
-    state.eventStops.splice(0).forEach((stop) => stop());
-    state.observer?.disconnect();
-    state.chat?.classList.remove(chatActiveClass);
+    try { state.eventStops.splice(0).forEach((stop) => stop()); } catch { /* ignore */ }
+    try { state.observer?.disconnect(); } catch { /* ignore */ }
+    try { state.chat?.classList.remove(chatActiveClass); } catch { /* ignore */ }
     clearHostArtifacts();
     if (host[instanceKey]?.destroy === destroy) delete host[instanceKey];
   }
 
   source.addEventListener('pagehide', destroy, { once: true });
   installHostStyle();
-  ensureReturnButton();
+  ensureReturnFrame();
+  bindViewportClamping();
   attachShell();
   state.observer = new MutationObserver(queueRemount);
   state.observer.observe(doc.body, { childList: true, subtree: true });
-  subscribe(source.tavern_events?.CHAT_CHANGED, () => {
+  subscribe(source.tavern_events?.CHAT_CHANGED ?? 'chat_changed', () => {
     if (!ownsCurrentCharacter()) {
       destroy();
       return;
@@ -367,6 +544,7 @@
     state.nativeMode = false;
     attachShell();
   });
+  startHeartbeat();
   host[instanceKey] = {
     version,
     ownerCharacterId,
@@ -375,4 +553,6 @@
     ensureMounted: attachShell,
     destroy,
   };
+  source.addEventListener('pagehide', cleanupHostArtifacts);
+  source.addEventListener('unload', cleanupHostArtifacts);
 })();

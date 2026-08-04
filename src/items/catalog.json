@@ -4,6 +4,7 @@
     {
       "item_id": "incident_trigger_card",
       "title": "异变触发卡",
+      "blurb": "授权开启一次自定义七日异变。",
       "item_type": "consumable",
       "stack_limit": 99,
       "use_mode": "anomaly_authoring",
@@ -18,6 +19,7 @@
     {
       "item_id": "emergency_repair_kit",
       "title": "应急修缮包",
+      "blurb": "替代修复设施所需的 2 物资，仍需完成修复剧情。",
       "item_type": "consumable",
       "stack_limit": 99,
       "use_mode": "local",
@@ -32,6 +34,7 @@
     {
       "item_id": "opportunity_card",
       "title": "机遇卡",
+      "blurb": "随机邀请一名已登记但未认识的角色入园。",
       "item_type": "consumable",
       "stack_limit": 9,
       "use_mode": "local",
@@ -44,22 +47,9 @@
       "shop_unlock": "opportunity_candidates_available"
     },
     {
-      "item_id": "spell_duel_card",
-      "title": "对战卡",
-      "item_type": "consumable",
-      "stack_limit": 99,
-      "use_mode": "local",
-      "scope_tags": ["battle", "character_duel"],
-      "unlock_conditions": ["battle_dungeon_unlocked"],
-      "consume_policy": "on_commit",
-      "local_effect_id": "character_spell_duel",
-      "prompt_description": "选择任意完整登记角色进行本地符卡对战；胜利进入要求剧情，失败只增加杂鱼标签。",
-      "shop_price": 24,
-      "shop_unlock": "battle_dungeon_unlocked"
-    },
-    {
       "item_id": "sakuya_watch",
       "title": "十六夜咲夜的怀表",
+      "blurb": "永久关键物品，每日一次暂停五分钟，不推进时段。",
       "item_type": "key_item",
       "stack_limit": 1,
       "use_mode": "local",
@@ -74,6 +64,7 @@
     {
       "item_id": "foreign_vibrator",
       "title": "外界的神秘道具·振动棒",
+      "blurb": "外界的神秘道具，送给角色当恶作剧礼物。",
       "item_type": "consumable",
       "stack_limit": 99,
       "use_mode": "scene_chat",
@@ -87,6 +78,7 @@
     {
       "item_id": "foreign_egg",
       "title": "外界的小玩意·跳蛋",
+      "blurb": "带线小玩具，送给角色看她又羞又软的样子。",
       "item_type": "consumable",
       "stack_limit": 99,
       "use_mode": "scene_chat",
@@ -100,6 +92,7 @@
     {
       "item_id": "reimu_coin_bait",
       "title": "金币·钓饵",
+      "blurb": "拿金币钓灵梦——她以为在赚钱，其实在被钓。",
       "item_type": "consumable",
       "stack_limit": 99,
       "use_mode": "scene_chat",
@@ -113,6 +106,7 @@
     {
       "item_id": "cirno_frog_bait",
       "title": "青蛙诱饵",
+      "blurb": "用青蛙勾走琪露诺的注意，趁机对她动手动脚。",
       "item_type": "consumable",
       "stack_limit": 99,
       "use_mode": "scene_chat",
@@ -126,6 +120,7 @@
     {
       "item_id": "cirno_ice_toy",
       "title": "冰之玩具",
+      "blurb": "让她亲手雕冰玩具，再用她的作品玩她。",
       "item_type": "consumable",
       "stack_limit": 99,
       "use_mode": "scene_chat",
@@ -139,6 +134,7 @@
     {
       "item_id": "marisa_dream_mushroom",
       "title": "梦境菇·同步",
+      "blurb": "吃下后梦境与现实同步，耳边描述即成身体实感。",
       "item_type": "consumable",
       "stack_limit": 99,
       "use_mode": "scene_chat",
@@ -152,6 +148,7 @@
     {
       "item_id": "marisa_obedience_page",
       "title": "服从之页",
+      "blurb": "翻开服从页念咒，魔法使被自己的书支配。",
       "item_type": "consumable",
       "stack_limit": 99,
       "use_mode": "scene_chat",
@@ -165,6 +162,7 @@
     {
       "item_id": "alice_doll_pause",
       "title": "人偶化·暂停",
+      "blurb": "丝线使人偶化：不能动不能说话，触感百分百保留。",
       "item_type": "consumable",
       "stack_limit": 99,
       "use_mode": "scene_chat",

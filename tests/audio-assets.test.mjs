@@ -92,10 +92,10 @@ test('BGM catalog reserves R2-ready HTTPS slots without shipping credentials', a
   assert.deepEqual(catalog.tracks.map((track) => track.id), ['stage_theme', 'boss_theme', 'duel_theme']);
   assert.ok(catalog.tracks.every((track) => track.source_url === null));
   assert.match(busSource, /source\.startsWith\('https:\/\/'\)/);
-  assert.match(app, /gensokyo-garden:battle-bgm-volume/);
-  assert.match(app, /gensokyo-garden:battle-bgm-track/);
+  assert.match(app, /gensokyo-garden:battle-bgm-volume\.v2/);
+  assert.match(app, /gensokyo-garden:battle-bgm-source\.v1/);
   assert.match(app, /savedBgmVolumeRaw == null \? NaN/);
-  assert.match(html, /R2 曲库模板/);
+  assert.match(html, /作者推荐/);
   assert.match(template, /不在前端保存 R2 Access Key、Secret 或签名凭据/);
 });
 

@@ -1,6 +1,8 @@
 import dungeonRegistry from '../battle/dungeon-registry.json';
 import type { BattleResult, GardenState } from './types';
 import { advanceOneTimePeriod, timeSnapshot } from './time-rules';
+import { bulletTowerRewardMultiplier } from './bullet-tower-rules';
+import { ensureCardRuntime } from './card-item-rules';
 
 const MAX_REWARDED_IDS = 256;
 const rewardByOutcome = { clean_win: 12, narrow_win: 8, loss: 3 } as const;
@@ -31,14 +33,20 @@ export function settleDungeonResult(before: GardenState, result: BattleResult): 
   const started = timeSnapshot(before);
   const state = advanceOneTimePeriod(before);
   state.resources ??= {};
-  state.resources.coins = Math.min(99999, (state.resources.coins ?? 0) + rewardByOutcome[trusted.outcome as DungeonOutcome]);
+  const tagsBefore = state.inventory?.card_runtime?.duel?.zako_tag_count ?? 0;
+  const rewardCoins = dungeonReward(trusted.outcome as DungeonOutcome, tagsBefore);
+  state.resources.coins = Math.min(99999, (state.resources.coins ?? 0) + rewardCoins);
+  if (trusted.outcome === 'loss') {
+    const duel = ensureCardRuntime(state).duel!;
+    duel.zako_tag_count = Math.min(99, (duel.zako_tag_count ?? tagsBefore) + 1);
+  }
   state.battle ??= {};
   state.battle.rewarded_ids = Array.from(new Set([...(state.battle.rewarded_ids ?? []), trusted.settlement_id])).slice(-MAX_REWARDED_IDS);
   state.battle.run_count = (state.battle.run_count ?? 0) + 1;
   state.battle.last_run = {
     config_id: trusted.config_id,
     outcome: trusted.outcome as DungeonOutcome,
-    reward_coins: rewardByOutcome[trusted.outcome as DungeonOutcome],
+    reward_coins: rewardCoins,
     started_day: started.day,
     started_time_period: started.time_period,
     settled_day: state.environment?.day ?? 1,
@@ -48,6 +56,6 @@ export function settleDungeonResult(before: GardenState, result: BattleResult): 
   return state;
 }
 
-export function dungeonReward(outcome: DungeonOutcome) {
-  return rewardByOutcome[outcome];
+export function dungeonReward(outcome: DungeonOutcome, zakoTagCount = 0) {
+  return Math.max(1, Math.floor(rewardByOutcome[outcome] * bulletTowerRewardMultiplier(zakoTagCount)));
 }

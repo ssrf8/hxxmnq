@@ -44,6 +44,10 @@ function messageExtra(message: RawMessage): Record<string, unknown> {
 export class MessageTransactionCoordinator {
   private snapshot: MessageTransactionSnapshot = idleSnapshot();
   private stopped = false;
+  // A non-empty assistant floor can arrive while the host is still streaming it.
+  // Keep that text observable to the GAL, but do not begin MVU settlement until
+  // the host has also completed the generation lifecycle.
+  private generationEnded = false;
 
   constructor(private readonly host: TransactionHost) {}
 
@@ -73,6 +77,7 @@ export class MessageTransactionCoordinator {
       startedAt: Date.now(),
     };
     this.stopped = false;
+    this.generationEnded = false;
 
     try {
       let createdUserMessage = false;
@@ -104,6 +109,11 @@ export class MessageTransactionCoordinator {
       // their user floor is already durable and stable.
       if (createdUserMessage) await this.host.prepareGeneration?.();
       await this.host.triggerGeneration();
+      // Hosts without a generation-state surface define completion by the awaited
+      // command. Luker exposes the state and may resolve a takeover command before
+      // its fake stream has written the assistant body, so it must wait for the
+      // lifecycle event instead.
+      if (!this.host.isGenerationActive || !this.host.isGenerationActive()) this.generationEnded = true;
       await this.waitForAssistant();
       const completedDuringGeneration = this.read();
       if (completedDuringGeneration.phase === 'settled') return completedDuringGeneration;
@@ -137,9 +147,11 @@ export class MessageTransactionCoordinator {
     this.snapshot.phase = 'generating';
     this.snapshot.lastError = undefined;
     this.stopped = false;
+    this.generationEnded = false;
     try {
       if (shouldContinue) await this.host.continueGeneration();
       else await this.host.triggerGeneration();
+      if (!this.host.isGenerationActive || !this.host.isGenerationActive()) this.generationEnded = true;
       await this.waitForAssistant();
       const completedDuringGeneration = this.read();
       if (completedDuringGeneration.phase === 'settled') return completedDuringGeneration;
@@ -165,9 +177,15 @@ export class MessageTransactionCoordinator {
   }
 
   markGenerationEnded() {
-    // Luker's plugin-takeover path deliberately emits GENERATION_ENDED before
-    // MESSAGE_RECEIVED. Keep the transaction busy until its assistant reply is
-    // observable; otherwise the GAL briefly renders a false retry/end state.
+    // Luker's plugin-takeover path may emit this before the final assistant body
+    // lands. It completes only when reconcile can also see non-empty text.
+    this.generationEnded = true;
+    this.reconcile(true);
+  }
+
+  markStreamTokenReceived() {
+    // Tokens are only a refresh hint. The message floor remains the single source
+    // of truth, preventing an uncommitted stream fragment from being settled.
     this.reconcile(true);
   }
 
@@ -198,6 +216,7 @@ export class MessageTransactionCoordinator {
   resetAfterLocalEnd() {
     this.snapshot = idleSnapshot();
     this.stopped = false;
+    this.generationEnded = false;
   }
 
   private findUserMessage(matchesExisting?: (message: RawMessage) => boolean) {
@@ -212,8 +231,14 @@ export class MessageTransactionCoordinator {
     const startedAt = Date.now();
     const responseTimeoutMs = Math.max(1000, Math.min(120000, this.host.assistantResponseTimeoutMs ?? 120000));
     while (Date.now() - startedAt < responseTimeoutMs) {
+      // Some helper builds expose generation activity but omit a matching ENDED
+      // callback on takeover paths. Polling the documented state keeps those turns
+      // bounded without treating an empty placeholder as a reply.
+      if (!this.generationEnded && (!this.host.isGenerationActive || !this.host.isGenerationActive())) {
+        this.generationEnded = true;
+      }
       this.reconcile(true);
-      if (this.snapshot.assistantResponded || this.snapshot.phase === 'failed') return;
+      if ((this.snapshot.assistantResponded && this.generationEnded) || this.snapshot.phase === 'failed') return;
       // Luker clears its native generating UI and emits GENERATION_ENDED before
       // MESSAGE_RECEIVED. Some fake-stream paths also expose neither an assistant
       // floor nor text through getChatMessages during that gap. Therefore neither
@@ -251,9 +276,10 @@ export class MessageTransactionCoordinator {
     const assistantWasAlreadyObserved = this.snapshot.assistantResponded;
     this.snapshot.assistantResponded = true;
     this.snapshot.assistantMessageId = Number(assistant.message_id);
-    // Receiving text only ends model generation. MVU analysis and local writes still
-    // belong to this transaction, so only markSettlementSucceeded may fully settle it.
-    if (this.snapshot.phase !== 'settled'
+    // A streamed fragment is safe to project, but not to settle. Wait for the host
+    // completion event as well so local state is never derived from a partial reply.
+    if ((this.generationEnded || !this.host.isGenerationActive || !this.host.isGenerationActive())
+      && this.snapshot.phase !== 'settled'
       && (this.snapshot.phase !== 'failed' || !assistantWasAlreadyObserved)) {
       this.snapshot.phase = 'settling';
       this.snapshot.lastError = undefined;

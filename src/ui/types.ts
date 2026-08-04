@@ -242,6 +242,8 @@ export interface GardenState {
       settled?: boolean;
     } | null;
     settled_ids?: string[];
+    conversation_log?: string[];
+    starter_gift_claimed?: boolean;
   };
   events?: {
     active_event?: {
@@ -280,6 +282,7 @@ export interface GardenState {
     last_used_area_id?: string | null;
     last_used_time_period?: TimePeriod | null;
     temporal_trace_active?: boolean;
+    time_stop_active?: boolean;
     noticed_by_character_ids?: string[];
   }>;
   anomaly_cycle?: {
@@ -387,6 +390,7 @@ export type TargetType = 'character' | 'area' | 'facility';
 export type SceneMode = 'garden' | 'gal' | 'facility' | 'settings' | 'shop' | 'inventory' | 'opportunities';
 export type GalBeatKind = 'narration' | 'speech' | 'action';
 export type GalVisualMode = 'normal' | 'nude' | 'sexual';
+export type GalSexualAct = 'vaginal' | 'anal' | 'none';
 export type GalReaction =
   | 'neutral'
   | 'smile'
@@ -408,7 +412,7 @@ export interface TargetAction {
   label: string;
   description: string;
   target: InteractionTarget;
-  mode: 'gal' | 'facility' | 'battle' | 'battle_narrative' | 'close';
+  mode: 'gal' | 'facility' | 'battle' | 'battle_narrative' | 'duel' | 'close';
   intent: string;
   disabled?: boolean;
   disabledReason?: string;
@@ -424,6 +428,7 @@ export interface GalBeat {
   visualMode: GalVisualMode;
   reactionId: GalReaction;
   poseId: string;
+  actId: GalSexualAct;
   text: string;
 }
 
@@ -493,6 +498,8 @@ export interface DuelCardBridgeStartResult {
 export interface DuelCardBridgeSettlementResult {
   won: boolean;
   zakoTagCount: number;
+  previousZakoTagCount: number;
+  zakoTagDelta: -1 | 0 | 1;
   message: string;
   alreadySettled: boolean;
 }
@@ -515,6 +522,7 @@ export interface GardenBridge {
   settleDungeonResult(result: BattleResult): Promise<{ rewardCoins: number; alreadySettled: boolean }>;
   applyTestJump(jump: import('./test-tools').TestJumpId): Promise<void>;
   purchaseShopItem(itemId: string, purchaseId: string): Promise<void>;
+  claimStarterGift(): Promise<void>;
   useOpportunityCard(useId: string): Promise<OpportunityCardBridgeResult>;
   beginDuelCard(targetCharacterId: string, useId: string): Promise<DuelCardBridgeStartResult>;
   cancelDuelCard(useId: string): Promise<void>;

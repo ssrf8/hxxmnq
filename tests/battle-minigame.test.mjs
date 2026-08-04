@@ -617,7 +617,7 @@ test('主线与副本分流锚点仍指向既有 bridge 方法', async () => {
   assert.match(app, /bridge\.settleDungeonResult\(result\)/);
   assert.match(app, /activeBattleKind === 'dungeon'/);
   assert.match(app, /activeBattleKind === 'practice'/);
-  assert.match(app, /练习（不结算）/);
+  assert.match(app, /本层演练/);
   assert.match(app, /gg-battle-narrative/);
   assert.match(app, /new BattleEngine\(/);
   assert.doesNotMatch(app, /Mvu\.(get|replace)MvuData/);
@@ -657,11 +657,11 @@ test('战斗中可暂停并通过内置面板调整音效与 BGM', async () => {
   assert.match(app, /battle\.setPaused\(true\)/);
   assert.match(app, /function closeBattleAudioSettings\(\)/);
   assert.match(app, /setBattleBgmVolume/);
-  assert.match(app, /setBattleBgmTrack/);
+  assert.match(app, /syncBattleBgmForKind/);
   assert.match(app, /battlePauseButton\.textContent = hud\.paused \? '继续' : '暂停'/);
   assert.match(html, /id="gg-battle-settings-sfx-volume" type="range"/);
   assert.match(html, /id="gg-battle-settings-bgm-volume" type="range"/);
-  assert.match(html, /id="gg-battle-settings-bgm-track"/);
+  assert.doesNotMatch(html, /id="gg-battle-settings-bgm-track"/);
   assert.match(styles, /\.gg-battle-audio-dialog\[open\]/);
   assert.match(styles, /\.gg-battle-audio-range input\[type="range"\]::-webkit-slider-thumb/);
   assert.match(styles, /\.gg-battle-pause\[aria-pressed="true"\]/);
@@ -678,7 +678,7 @@ test('BGM 模板只接受 HTTPS 曲源并支持曲目、音量、暂停与停止
   assert.equal(catalog[1].sourceUrl, null);
 
   const audio = {
-    src: '', loop: false, preload: '', volume: 0, currentTime: 0, playCalls: 0, pauseCalls: 0,
+    src: '', loop: false, preload: '', volume: 0, currentTime: 0, playCalls: 0, pauseCalls: 0, onended: null, onerror: null,
     play() { this.playCalls += 1; return Promise.resolve(); },
     pause() { this.pauseCalls += 1; },
   };
@@ -694,6 +694,34 @@ test('BGM 模板只接受 HTTPS 曲源并支持曲目、音量、暂停与停止
   assert.equal(audio.currentTime, 0);
   bus.setTrack('boss_theme');
   assert.equal(await bus.play(), false);
+  bus.setTrack('stage_theme');
+  bus.setPlaylist('stage_theme', ['https://media.example.com/one.ogg', 'https://media.example.com/two.ogg']);
+  assert.equal(await bus.play(), true);
+  const firstSource = audio.src;
+  audio.onended();
+  assert.notEqual(audio.src, firstSource);
+  assert.equal(audio.loop, false);
+});
+
+test('本地 BGM 链接会识别网易云分享页，但不会提取受限音源', async () => {
+  const bgm = await importTypescript('../src/battle/battle-bgm.ts');
+  const links = bgm.parseLocalBgmLinks([
+    'https://music.163.com/#/song?id=12345',
+    'https://music.163.com/#/playlist?id=67890',
+    'https://media.example.com/gensokyo/duel.ogg',
+    'javascript:alert(1)',
+    'https://music.163.com/#/song?id=12345',
+  ]);
+  assert.deepEqual(links, [
+    { sourceUrl: 'https://music.163.com/#/song?id=12345', kind: 'netease_song', id: '12345' },
+    { sourceUrl: 'https://music.163.com/#/playlist?id=67890', kind: 'netease_playlist', id: '67890' },
+    { sourceUrl: 'https://media.example.com/gensokyo/duel.ogg', kind: 'direct_audio', id: null },
+  ]);
+  assert.equal(
+    bgm.resolvePlayableLocalBgmSource(links[0]),
+    'https://music.163.com/song/media/outer/url?id=12345',
+  );
+  assert.equal(bgm.resolvePlayableLocalBgmSource(links[1]), null);
 });
 
 test('触控专注／Bomb 与窄屏样式不污染全局', async () => {
@@ -1784,4 +1812,47 @@ test('R49-G 激光持续擦弹：贴线可多次擦、不判中弹', async () =>
   const snap = sim.snapshot();
   assert.equal(snap.stats.misses, 0, 'riding the beam edge must not count as a hit');
   assert.ok(snap.stats.grazes >= 2, `laser should re-graze on ticks, got ${snap.stats.grazes}`);
+});
+
+test('符卡之塔：Boss 顺序随机、楼层递增，杂鱼标签同时降低强度与结算奖励', async () => {
+  const tower = await importTypescript('../src/ui/bullet-tower-rules.ts');
+  const dungeon = await importTypescript('../src/ui/dungeon-rules.ts');
+  const entries = [
+    { id: 'cirno', title: '琪露诺', boss: '琪露诺', theme: 'ice', config: baseConfig },
+    { id: 'alice', title: '爱丽丝', boss: '爱丽丝', theme: 'forest', config: baseConfig },
+    { id: 'sakuya', title: '咲夜', boss: '咲夜', theme: 'boundary', config: baseConfig },
+  ];
+  const run = tower.createBulletTowerRun(entries, () => 0);
+  assert.deepEqual(run.order.map((entry) => entry.id), ['alice', 'sakuya', 'cirno']);
+  assert.equal(run.currentFloor, 0, 'new runs always start from floor one');
+
+  assert.equal(tower.bulletTowerDifficultyForTags(0).rewardMultiplier, 1);
+  assert.equal(tower.bulletTowerDifficultyForTags(1).rewardMultiplier, 0.85);
+  assert.equal(tower.bulletTowerDifficultyForTags(2).rewardMultiplier, 0.7);
+  assert.equal(tower.bulletTowerDifficultyForTags(99).rewardMultiplier, 0.55, 'three or more tags stay in the assisted cap');
+  assert.equal(dungeon.dungeonReward('clean_win', 0), 12);
+  assert.equal(dungeon.dungeonReward('clean_win', 1), 10);
+  assert.equal(dungeon.dungeonReward('narrow_win', 2), 5);
+  assert.equal(dungeon.dungeonReward('loss', 3), 1);
+
+  const failedState = {
+    battle: { dungeon_unlocked: true, rewarded_ids: [] },
+    resources: { coins: 0 },
+    inventory: { card_runtime: { duel: { zako_tag_count: 1 } } },
+    environment: { day: 1, time_period: '清晨' },
+  };
+  const loss = { settlement_id: 'tower-loss-tags', config_id: 'fairy_pattern_practice_v1', outcome: 'loss', remaining_lives: 0, grazes: 0, duration_ms: 1, hits: 0, damage: 0, phases_cleared: 0, objective_ratio: 0 };
+  const settledLoss = dungeon.settleDungeonResult(failedState, loss);
+  assert.equal(settledLoss.resources.coins, 2, 'loss reward uses the tag count before the new tag is added');
+  assert.equal(settledLoss.inventory.card_runtime.duel.zako_tag_count, 2, 'tower loss adds exactly one tag');
+  assert.throws(() => dungeon.settleDungeonResult(settledLoss, loss), /已经结算/, 'retrying one settlement cannot add tags again');
+
+  const firstFloor = tower.createBulletTowerFloorConfig(baseConfig, 0, 0);
+  const thirdFloor = tower.createBulletTowerFloorConfig(baseConfig, 2, 0);
+  const assistedThirdFloor = tower.createBulletTowerFloorConfig(baseConfig, 2, 3);
+  assert.ok(thirdFloor.phases[0].hp > firstFloor.phases[0].hp, 'floor three must be harder than floor one for the same boss');
+  assert.ok(assistedThirdFloor.phases[0].hp < thirdFloor.phases[0].hp, 'tags reduce the selected floor pressure');
+  assert.equal(assistedThirdFloor.player.lives, thirdFloor.player.lives + 1);
+  assert.match(assistedThirdFloor.presentation.stage_subtitle, /第 3 层 · 援助/);
+  assert.equal(baseConfig.phases[0].hp, 40, 'source configs remain immutable between runs');
 });

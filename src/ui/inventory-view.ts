@@ -1,12 +1,14 @@
 import { inventoryDisplayRows } from './inventory-rules';
 import type { GardenState } from './types';
 
+const PAGE_SIZE = 4;
+let currentPage = 0;
+
 const itemMarks: Record<string, string> = {
   incident_trigger_card: '异',
   emergency_repair_kit: '修',
   sakuya_watch: '刻',
   opportunity_card: '缘',
-  spell_duel_card: '斗',
   foreign_vibrator: '振',
   foreign_egg: '蛋',
   reimu_coin_bait: '币',
@@ -72,8 +74,11 @@ export function renderInventoryView(
     root.append(introduction, empty);
     return;
   }
+  const pageCount = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+  currentPage = Math.max(0, Math.min(currentPage, pageCount - 1));
+  const pageRows = rows.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
 
-  for (const row of rows) {
+  for (const row of pageRows) {
     const card = document.createElement('article');
     card.className = 'gg-inventory-item';
     card.dataset.kind = row.kind;
@@ -97,9 +102,7 @@ export function renderInventoryView(
     titleLine.append(title, kind);
     const details = document.createElement('p');
     details.className = 'gg-inventory-description';
-    details.textContent = row.item_id === 'spell_duel_card'
-      ? `${row.description} 当前杂鱼标签：${state.inventory?.card_runtime?.duel?.zako_tag_count ?? 0} 枚；下次难度：${duelDifficultyLabel(state.inventory?.card_runtime?.duel?.zako_tag_count ?? 0)}。`
-      : row.description;
+    details.textContent = row.description;
     const status = document.createElement('p');
     status.className = 'gg-inventory-status';
     status.dataset.available = String(row.usable);
@@ -113,7 +116,7 @@ export function renderInventoryView(
     quantity.setAttribute('aria-label', `数量 ${row.quantity}`);
     quantity.textContent = row.kind === 'key_item' ? '唯一' : `×${row.quantity}`;
     side.append(quantity);
-    if (['incident_trigger_card', 'sakuya_watch', 'opportunity_card', 'spell_duel_card'].includes(row.item_id)) {
+    if (['incident_trigger_card', 'sakuya_watch', 'opportunity_card'].includes(row.item_id)) {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'gg-inventory-use';
@@ -131,5 +134,27 @@ export function renderInventoryView(
     card.append(mark, content, side);
     list.append(card);
   }
-  root.append(introduction, list);
+  const pager = document.createElement('nav');
+  pager.className = 'gg-inventory-pager';
+  pager.setAttribute('aria-label', '背包分页');
+  const prevButton = document.createElement('button');
+  prevButton.type = 'button';
+  prevButton.textContent = '‹ 上一页';
+  const pageLabel = document.createElement('span');
+  pageLabel.setAttribute('aria-live', 'polite');
+  pageLabel.textContent = `${currentPage + 1} / ${pageCount}`;
+  const nextButton = document.createElement('button');
+  nextButton.type = 'button';
+  nextButton.textContent = '下一页 ›';
+  prevButton.disabled = currentPage <= 0;
+  nextButton.disabled = currentPage >= pageCount - 1;
+  pager.hidden = pageCount <= 1;
+  prevButton.addEventListener('click', () => {
+    if (currentPage > 0) { currentPage -= 1; renderInventoryView(root, state, useItem); }
+  });
+  nextButton.addEventListener('click', () => {
+    if (currentPage < pageCount - 1) { currentPage += 1; renderInventoryView(root, state, useItem); }
+  });
+  pager.append(prevButton, pageLabel, nextButton);
+  root.append(introduction, list, pager);
 }

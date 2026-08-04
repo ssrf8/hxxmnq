@@ -32,6 +32,10 @@ export function advanceOneTimePeriod(before: GardenState): GardenState {
   const next = (current < 0 ? 0 : current + 1) % TIME_PERIODS.length;
   state.environment.time_period = TIME_PERIODS[next];
   if (next === 0) state.environment.day = (state.environment.day ?? 1) + 1;
+  // 怀表时停只在当前时段内生效，跨时段自动失效。
+  if (state.key_items?.sakuya_watch) {
+    state.key_items.sakuya_watch.time_stop_active = false;
+  }
   return state;
 }
 

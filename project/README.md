@@ -1,7 +1,7 @@
 # 幻想乡物语 · 项目总览（唯一入口文档）
 
 > 读完本文档即可对整个项目建立全貌认知；需要深入某个领域时，按 §3 导航表跳转对应文档。
-> 最后整理：2026-08-02（r63 轻量 R2 候选：GAL 立绘、琪露诺静态／移动帧校准、顶部残留清理、素材加载重试与 GAL 事务竞态修复已进入维护源；新不可变 R2 release `0.2.0-r62-0e5ecacdee9f` 已发布到唯一桶 `hxxwy`，114 个素材及最后发布的 manifest 全部校验通过。r63 固定生产域名、release ID 与 manifest 哈希，包体为 2,145,471 bytes；`check:ui`、`npm test` 200/200、R2 专项 16/16、包内 UI parity 与秘密扫描通过。完整打包／上传步骤统一见 `project/r2-packaging-runbook.md`；真实 SillyTavern 导入仍待所有者复验）。
+> 最后整理：2026-08-03（新增成人体位图片固定命名与 R2 免重打包更新合同；灵梦允许缺图首发，sexual CG 保持原始 PNG 字节、不转 WebP，后续按预留名称上传媒体并最后更新 live manifest）。
 
 ---
 
@@ -15,25 +15,31 @@
 2. **游戏 UI 层**（`src/ui/`，约 40 个 TS 模块）：庭园地图 canvas、GAL 剧情演出、设施/商店/背包视图、符卡弹幕小游戏；视图渲染、规则纯函数、桥接事务三组分层。
 3. **状态与模型层**：`stat_data`（MVU 变量）是唯一正式游戏状态；剧情由主模型生成、变量由 MagVarUpdate 额外模型以 JSONPatch 更新；**一切关键状态（资源/战斗/事件/在场/时间/UID）由本地 bridge 独占写入，模型只做叙事与开放语义字段**——这是全项目最重要的一条主轴。
 
-交付形态：`scripts/package-checkpoint.mjs` 把 UI、世界书和初始状态打进一张 `chara_card_v2` JSON 测试检查点卡，按 `0.2.0-rN` 序列独立存放于 `dist/` 并拒绝覆盖。日常调试可使用全素材内嵌构建；交付给所有者测试的轻量卡使用固定 `remote-r2` manifest，仅保留开场所需的少量内嵌素材。两种模式不得混淆。
+交付形态：`scripts/package-checkpoint.mjs` 把 UI、世界书和初始状态打进一张 `chara_card_v2` JSON 测试检查点卡，按 `0.2.0-rN` 序列独立存放于 `dist/` 并拒绝覆盖；需要标准角色卡时由 `scripts/embed-card-png.mjs` 把该 JSON 作为 `chara` tEXt chunk 嵌入 PNG 立绘，输出可被 SillyTavern 直接导入的 `.png` 卡片（立绘像素原样保留，不重编码）。日常调试可使用全素材内嵌构建；交付给所有者测试的轻量卡使用固定 `remote-r2` manifest，仅保留开场所需的少量内嵌素材。两种模式不得混淆。
 
 ## 2. 当前状态速览
 
 | 项 | 状态 |
 |---|---|
-| 最新打包 | `0.2.0-r63`（SHA-256 `0923e1c5…0183f06`，2,145,471 bytes）——固定使用生产 R2 release `0.2.0-r62-0e5ecacdee9f` 与 manifest 哈希 `0f068864…5a8965`；r62 肥版和旧检查点均未覆盖。待真实 SillyTavern 导入验收 |
+| 当前有效轻量包 | `0.2.0-r92`（**已发布**）——SHA-256 `4303a3523c6586b77f65fcb9f6ec225278006c161f84523b55369ce10e62aeb9`，2,261,842 bytes（JSON）/ PNG 卡片 3,850,396 bytes、SHA-256 `3cd6d2ad2dbd3b51e38a40c57693d5ba75070f3b139bd69a90e010e64b87e530`，立绘 512×853（sharp 压缩）。remote-r2 模式、26 条世界书、UI 脚本 `gensokyo-garden-ui-020-r92`、包内 UI 与 `dist/runtime/ui-mount.js` 逐字节一致。本包含两项修复：宿主层残留清理（心跳+守卫）与温室研究交流单轮化（修复新手教程第 9 步卡死） |
+| 正式发布版卡片 | `幻想乡物语·移动庭园`（0.2.0-r92，**正式版**）——JSON 2,261,814 bytes、SHA-256 `938f5377724e4e5a7d74ca88e746c70cf7c0b42d60e3ef92a5b940dd98740929`；PNG 3,850,356 bytes、SHA-256 `e565e72249c9c5474b71a8d5d6891e091a74a2829cb2944b2fc8cc77a41040ea`（立绘 512×853 sharp 压缩）。卡片名 `幻想乡物语·移动庭园`、开场标签 `<移动庭园 version="0.2.0">`、creator_notes 标注正式发布版；功能内容（3 个 UI 脚本 content、26 条世界书、MVU 状态）与 `0.2.0-r92` 测试检查点逐字节一致。交付给玩家用正式版 PNG；开发/验收用测试检查点 |
+| PNG 卡片形态（r84） | 新增 `scripts/embed-card-png.mjs`：把 `chara_card_v2` JSON 作为 `chara` tEXt chunk 嵌入 PNG 立绘，输出标准 SillyTavern 可导入 `.png` 卡片（立绘像素原样保留、不重编码、CRC 正确）。r84 起交付 JSON 与 PNG 双形态；立绘源 `D:\浏览器下载\MiaoMiao_Harem_AnimaBase_single_00504_.png` |
+| 错误留档（禁止导入） | `0.2.0-r72`（280,326,339 bytes）——最后一次构建误为 embedded，导致全素材内嵌；保留作事故证据，后续改动改由 r73 remote-r2 候选重新打包 |
 | 已实机验收基线 | `0.2.0-r32-extra-model-binding`（角色世界书绑定 + 额外模型变量路线） |
 | 里程碑 | M0 complete / M1 施工完但 R37 集中验收未跑 / M2 施工完但 R45 验收未跑 / M3 进行中 |
-| 离线门禁 | 当前 remote-r2 维护源已通过 `check:ui`、`npm test`（200/200）与 R2 专项 16/16；r63 dry-run 和正式写入均为 2,145,471 bytes、SHA-256 `0923e1c5…0183f06`。包内 UI 与 `dist/runtime/ui-mount.js` 逐字节一致，只保留 2 个开场 data URI，并通过 Cloudflare/S3 秘密标记扫描。真实 SillyTavern 仍待所有者验收 |
+| 离线门禁 | 当前 remote-r2 维护源已通过 `check:ui`、`npm test`（217/217）与 R2 专项；r92 dry-run 和正式写入均为 2,261,842 bytes、SHA-256 `4303a352…aeb9`。包内 UI 与 `dist/runtime/ui-mount.js` 逐字节一致，并通过 Cloudflare/S3 秘密标记扫描。已发布（见上方当前有效轻量包行）；真实 SillyTavern 实机验收由所有者跟进 |
 | 角色人设世界书 | 第一版八名固定角色均已完成完整人设扩写，并继续各占一个独立绿灯条目，连同八条基础世界书共 16 条。米斯蒂娅已补齐老板娘／歌手、料理与账目反差、夜雀能力及撤离型战斗逻辑；咲夜已补齐潇洒与天然、对蕾米莉亚的主动忠诚、时间／空间／飞刀／料理及能力边界。所有者私设与原作资料分层标注；人设内部增加小节不会增加世界书条目数。八人仍待真实对话统一复核语气密度、关系递进、能力尺度和提示预算 |
+| 道具绿灯世界书 | 新增 `item-greenlight.v1` 路由表（`src/lorebook/item-routing.json`）与 8 条道具世界书（`src/lorebook/items/*.xml`）：振动棒、跳蛋（无角色限定，写明适用范围），金币·钓饵（限灵梦）、青蛙诱饵／冰之玩具（限琪露诺）、梦境菇·同步／服从之页（限魔理沙）、人偶化·暂停（限爱丽丝）。条目由 `GSK_ITEM_*_ACTIVE` 绿灯标记按 `scene_item_context` 登记加载，与角色绿灯同构（注入【道具档案绿灯】段、防递归诱发）；打包条目 id 从 18 起，`lorebook_entries` 现为 25（17 基础／角色 + 8 道具）。效果限定只在条目内容层约束模型，代码级强制未做 |
+| 怀表·时停（r81） | 十六夜咲夜的怀表是世界书 26 条中的 `[mvu_plot][special]` const 常驻条目（`src/lorebook/items/sakuya_watch.xml`，entry 16），不依赖场景道具绿灯。使用后 `key_items.sakuya_watch.time_stop_active=true`，`buildPromptContext` 注入【时间停止】段（角色定身、不能主动行动/说话/反应，玩家可自由行动，不替被定身角色编写反应）；`advanceOneTimePeriod` 跨时段自动复位（时停只持续当前时段）。一天一次、战斗不可用、可留下时间痕迹触发调查事件 |
+| 跨对话记忆（r80） | `interaction.conversation_log`：string[]，**所有角色共用一个数组**，每条格式 `角色ID: 一句话摘要`（≤120 字），由模型每轮在 UpdateVariable 中追加；schema `list(text('',120),24)` 为**追加+截断 FIFO**——新条目追加到末尾、不覆盖旧条目，超过 24 条时最旧被挤出。结束对话不清空；重新开场时 `buildPromptContext` 取尾 6 条、按在场角色 ID 过滤注入【最近互动回顾：结束对话不会抹去这些记忆】段（不在场角色的条目不注入）。字段登记见 `src/schema/field-ledger.md` |
 | 像素角色动画 | Alice、Cirno、Mystia、Nitori、Reimu、Sakuya、Suika 的 604 张所有者验收独立帧已按原字节归档，并生成 `209×209`、逐角色可变列的 `sequence-approved-v1` 图集接入庭园运行时；七人仅在移动时播放各自的 `80–110ms` 四方向序列，休息、转向预备、收步及 reduced motion 优先显示现有 `2×2` 四视图 turnaround 静态待机图，不播放待机切帧、呼吸或上下浮动；静态图按角色和朝向应用从素材透明包围盒实测得到的缩放、水平中心与脚底对齐参数，使其与对应动作帧保持同一视觉尺寸，加载失败时才回退动作图对应方向首帧。运行时已由固定横向往返升级为区域锚点周围的受限二维随机巡游：每次选择一个上下左右单轴长程，单段距离为 `0.034–0.080`，典型移动约持续 `2–5s`；抵达后保持朝向、收步并强制休息，再生成下一次行动。加载失败自动回退旧 V2 或旧四帧图集。Cirno 使用独立方向锚点，Suika 保留 `y≈313` 源锚点和已修正的背面顺序。魔理沙本批无序列，继续使用 V2 r2，停止时同样使用 turnaround 对应朝向站姿。旧 `sequence-v1` P0 候选未覆盖。详见动画专项文档 §13.7 |
 | 庭园地图分层 | manifest 使用所有者提供的 `1672×941` 横向底图之 Q70 WebP 运行版 `garden-base-owner-v3.webp`，同名 PNG 维护源保留，中央主屋直接复用底图。13 张 V3 正常设施形态已按四组共享透明画布接入，并登记独立尺寸、渲染中心、角色落脚点、标签锚点与精确命中多边形；旧 V2 底图、设施、损坏层及已退役主屋叠图共 37 个文件已按原相对路径移至 `旧素材/`，不再混入活动资产清单。所有者提供的完整透明废墟图已确定性正规化为三组同画布替换图，妖精花园／月见温泉／宴会广场进入 damaged 时替换正常设施；建议的两张主屋状态层仍待补。地图合成预览已检查，真实 SillyTavern 验收未执行。详见 `project/v3-map-facility-asset-checklist.md` |
-| 前端视觉入口 | 顶栏只保留「幻想乡案内」入口；打开原生单例大面板后，以大尺寸平滑插画卡进入符卡副本、灵梦小店与背包，开放庭园／全屏／设置作为次级操作。角色点击菜单为八名登记角色统一提供一次“摸摸头”，只发起普通 GAL 尝试，不预设接受、不做本地状态结算。设施“查看”只显示文字详情；背包为独立道具袋视图，GAL 道具选择为御札式选择槽。浏览器缩放补偿只服务角色小人与目标菜单，地图滚轮缩放保持锚点语义 |
+| 前端视觉入口 | 顶栏只保留「幻想乡案内」入口；打开原生单例大面板后，以大尺寸平滑插画卡进入符卡副本、灵梦小店与背包，开放庭园／全屏／设置作为次级操作。角色点击菜单为八名登记角色统一提供一次“摸摸头”与本地「符卡对战」；后者不消耗道具，战后用弹窗明确结算杂鱼标签（胜利减一、失败加一，标签降低后续对战强度）。设施“查看”只显示文字详情；背包为独立道具袋视图（每页 4 件，翻页控件）；GAL 道具选择为御札式选择槽（每页 6 件，长按看详情，怀表可即时使用）。符卡副本选关为单卡居中的横版关卡公告卡。浏览器缩放补偿只服务角色小人与目标菜单，地图滚轮缩放保持锚点语义 |
 | 教程与测试 | “开放庭园”从正式 `stat_data` 派生 11 步教程进度、当前步骤和下一步说明，不另存 UI 进度；测试快进扩展为分组控制面板，覆盖 7 个教程断点、M1/M2 场景、道具恢复以及八名角色单独／全员进庄园和清空在场状态 |
 | GAL 视觉 | 舞台使用 `gensokyo-gal-shrine-background-v1.png`；顶部新增小型“历史”按钮并复用既有滚动弹窗。新玩家消息以 `gensokyoUserVisibleText` 元数据区分真实可见输入与程序提示：手动输入显示原文、建议回应显示按钮文字，自动设施／事件提示不冒充玩家发言；旧聊天采用保守净化兼容。所有文本以 `textContent` 渲染，关闭弹窗后焦点返回入口。LLM 表现协议、`scene.v1` 与庭园正文继续支持 `normal / nude / sexual` 三值 `visual_mode`；真实 SillyTavern 的历史净化、键盘焦点、逐表情与窄屏仍待执行 |
-| 弹幕战视觉／音效 | etama3 敌弹图集按 shape×hue 绘制并保留几何回退；自机普通／专注射击使用米白纸符、深色描边、红／青符印、金色顶签与双尾带，不再复用敌弹式辉光椭圆；P 点保留红方块白像素 P，并增加独立四角拾取框。固定三副本与任意角色对战卡均使用独立 Boss 四状态图集及 S0／S1／S2 cut-in；花妖核心与蓝／金双帧妖精 sprite 已接入。14 个事件 WAV 通过应用级 WebAudio 总线播放；战斗弹窗可暂停，并通过内置“音频设置”分别控制音效、BGM 曲目和 BGM 音量。BGM 目录当前仅有三首 `source_url:null` 模板，未来只接受 HTTPS R2 曲源，缺曲静默且不阻塞模拟；偏好只存本机。手机拖动自动射击、双指专注、双击 Bomb 与桌面键盘语义保持。模拟、碰撞、结算和 `BattleResult` 未因视觉／音频设置改变；真实 SillyTavern 的音频权限、纸符可读性、四状态、cut-in、妖精动画、多点触控和宿主缩放仍待验收 |
+| 弹幕战视觉／音效 | etama3 敌弹图集按 shape×hue 绘制并保留几何回退；自机普通／专注射击使用米白纸符、深色描边、红／青符印、金色顶签与双尾带，不再复用敌弹式辉光椭圆；P 点保留红方块白像素 P，并增加独立四角拾取框。固定三副本与任意角色符卡对战均使用独立 Boss 四状态图集及 S0／S1／S2 cut-in；花妖核心与蓝／金双帧妖精 sprite 已接入。14 个事件 WAV 通过应用级 WebAudio 总线播放；战斗弹窗可暂停，并通过内置“音频设置”分别控制音效、BGM 曲目和 BGM 音量。BGM 目录当前仅有三首 `source_url:null` 模板，未来只接受 HTTPS R2 曲源，缺曲静默且不阻塞模拟；偏好只存本机。手机拖动自动射击、双指专注、双击 Bomb 与桌面键盘语义保持。模拟、碰撞、结算和 `BattleResult` 未因视觉／音频设置改变；真实 SillyTavern 的音频权限、纸符可读性、四状态、cut-in、妖精动画、多点触控和宿主缩放仍待验收 |
 | 素材发布 | 唯一桶 `hxxwy` 的当前不可变 release 为 `0.2.0-r62-0e5ecacdee9f`：114 个素材共 54,971,703 bytes，manifest 最后上传；113 个对象通过 HEAD 元数据校验，SVG 通过 GET 字节与 SHA-256 兜底，琪露诺更新 WebP 完整 GET 哈希匹配，公网 manifest 与本地逐字节一致。声明哈希为 `0f068864…5a8965`。轻量包最后一次构建必须显式使用该 manifest；详见 `project/r2-packaging-runbook.md`。旧 release 暂不删除，因为 r56–r61 仍固定引用 `0.2.0-r55-1ef0d7d6cbab` |
-| 活跃工作线 | ①修复战斗素材普通预加载与 anonymous CORS atlas 的缓存模式冲突，新增顺序回归测试并发布新的不可覆盖 release ②在浏览器与真实 SillyTavern 复验玩家、Boss、敌弹、特效、妖精贴图及首次手势解锁、暂停恢复、音效／BGM 分轨、缓存和断网回退，之后再决定是否关闭 `r2.dev` ③机遇卡、对战卡与杂鱼标签阶段 A–C 已完成，等待正式卡面／小鱼干素材并验收胜败分流 ④按设施清单验收共享废墟、命中和缩放 ⑤R11–R16、弹幕和 M1/M2 集中实机验收欠账 |
+| 活跃工作线 | ①修复战斗素材普通预加载与 anonymous CORS atlas 的缓存模式冲突，新增顺序回归测试并发布新的不可覆盖 release ②在浏览器与真实 SillyTavern 复验玩家、Boss、敌弹、特效、妖精贴图及首次手势解锁、暂停恢复、音效／BGM 分轨、缓存和断网回退，之后再决定是否关闭 `r2.dev` ③机遇卡、对战卡与杂鱼标签阶段 A–C 已完成，等待正式卡面／小鱼干素材并验收胜败分流 ④按设施清单验收共享废墟、命中和缩放 ⑤R11–R16、弹幕和 M1/M2 集中实机验收欠账 ⑥道具绿灯世界书 8 件已完成（含仅对爱丽丝生效等限定），等待真实 SillyTavern 导入验收限定效果；服从之页／人偶化等限定的代码级强制未做 |
 | 目标环境 | SillyTavern 1.18.0 + Tavern Helper 4.8.19 + MagVarUpdate（固定 commit） |
 
 ## 3. 导航表：想了解什么 → 读哪个文档
@@ -71,6 +77,9 @@
 | 从素材 staging、R2 上传到轻量角色卡打包的逐步命令与删除规则 | `project/r2-packaging-runbook.md`（打包／上传前先读） |
 | 战斗 BGM 曲目模板、R2 URL 填写与缺曲回退 | `project/battle-bgm-r2-template.md` |
 | GAL 正常／全裸／成人姿势变量、稳定抽卡与 R2 滚动卡池 | `project/gal-portrait-variable-and-r2-pool-plan.md` |
+| 成人体位图片固定名称、灵梦缺图首发与后续只更新 R2 的操作合同 | `project/nsfw-pose-live-asset-naming-plan.md` |
+| 灵梦首批成人 CG 的本地审计、台账、客户端前置与 R2 live 上传／回滚计划 | `project/nsfw-cg-r2-live-update-plan.md` |
+| 面向后续主 Agent／子 Agent 的成人 CG 逐步执行手册、命令、停止条件与报告模板 | `project/nsfw-cg-agent-execution-runbook.md` |
 | 机遇卡、任意角色对战卡、杂鱼标签与胜负分流 | `project/opportunity-duel-card-plan.md` |
 | M1 集中实机验收清单（未执行） | `project/r37-acceptance-checklist.md` |
 | M2 所有者验收清单（未执行，含 9 个测试快进按钮用法） | `project/r45-owner-acceptance-checklist.md` |
@@ -82,6 +91,7 @@
 | 每个 MVU 字段的类型/写入者/上限/迁移 | `src/schema/field-ledger.md` |
 | 世界书条目路由（进剧情阶段还是变量阶段） | `src/lorebook/routing-plan.json` + `model-projection.md` |
 | 角色人设源、绿灯路由与扩写进度 | `src/lorebook/characters/*.xml` + `src/lorebook/character-routing.json` + `project/agent-handoff.md` 顶部 |
+| 道具世界书条目路由与生效限定 | `src/lorebook/items/*.xml` + `src/lorebook/item-routing.json` + `src/ui/item-greenlights.ts` |
 | 素材清单与评审流程（approved / pending-unified-review） | `src/assets/asset-manifest.json` |
 | 商店商品与解锁门 | `src/shop/catalog.json` |
 | 符卡战配置结构与白名单 | `src/battle/configs/`（四份同构 JSON）+ `dungeon-registry.json` |
@@ -115,7 +125,7 @@ dist/            构建产物与历史检查点——不进 git，不许覆盖
 
 ```bash
 npm run check:ui              # TypeScript 类型检查
-npm test                      # node --test，当前 194 项
+npm test                      # node --test，当前 214 项
 npm run build:ui              # esbuild 打包 + 素材内嵌 → dist/
 npm run check:assets:r2       # R2 活动素材、调度元数据与发布边界预检
 npm run package:checkpoint:dry  # 打包演练（不落盘成品）
@@ -123,7 +133,7 @@ npm run package:checkpoint    # 正式打包（需所有者授权；拒绝覆盖
 npm run preview               # 本地预览 http://127.0.0.1:8765/ui/index.html（注意必须带 /ui/ 路径）
 ```
 
-修改维护源后的固定顺序：`check:ui → test → build:ui → package:checkpoint:dry`。要新检查点时先把 `package.json` 两个脚本与 `project/manifest.json` 指针升到未占用的 rN。
+修改维护源后的固定顺序：轻量包必须执行 `check:ui → test → build:ui:remote → package:checkpoint:dry`，绝不可在打包前运行裸 `build:ui`。`package:checkpoint` 已增加 remote-r2 模式门禁与 10 MiB 停止线；要新检查点时先把 `package.json` 两个脚本与 `project/manifest.json` 指针升到未占用的 rN。详见 `project/r2-packaging-runbook.md` 的“轻量角色卡强制门禁”。
 
 ## 6. 硬约束速记（详见 contract.md）
 

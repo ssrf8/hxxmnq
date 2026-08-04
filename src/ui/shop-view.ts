@@ -13,6 +13,13 @@ const categories: ReadonlyArray<{ id: ShopCategory; label: string }> = [
 
 let selectedCategory: ShopCategory = 'all';
 let selectedItemId = '';
+let currentPage = 0;
+const PAGE_SIZE = 10;
+
+export interface ShopNotice {
+  text: string;
+  kind: 'success' | 'error';
+}
 
 function itemSummary(item: ReturnType<typeof listShopItems>[number], state: GardenState) {
   if (item.item_type === 'resource') return `物资 +${item.quantity}`;
@@ -22,11 +29,50 @@ function itemSummary(item: ReturnType<typeof listShopItems>[number], state: Gard
   return state.key_items?.[item.item_id]?.obtained ? '已经持有' : '唯一关键物品';
 }
 
+function showItemDetailDialog(item: { title: string; blurb?: string; description?: string }) {
+  const dialog = document.createElement('dialog');
+  dialog.className = 'gg-shop-detail-dialog';
+  dialog.setAttribute('aria-labelledby', 'gg-shop-detail-dialog-title');
+  const shell = document.createElement('div');
+  shell.className = 'gg-shop-detail-dialog-shell';
+  const header = document.createElement('header');
+  header.className = 'gg-shop-detail-dialog-header';
+  const title = document.createElement('h2');
+  title.id = 'gg-shop-detail-dialog-title';
+  title.textContent = item.title;
+  const close = document.createElement('button');
+  close.type = 'button';
+  close.className = 'gg-shop-detail-dialog-close';
+  close.setAttribute('aria-label', '关闭详细介绍');
+  close.textContent = '关闭';
+  header.append(title, close);
+  const body = document.createElement('div');
+  body.className = 'gg-shop-detail-dialog-body';
+  const blurb = document.createElement('p');
+  blurb.className = 'gg-shop-detail-dialog-blurb';
+  blurb.textContent = item.blurb ?? item.description ?? '';
+  body.append(blurb);
+  const fullText = item.description ?? '';
+  if (fullText && fullText !== (item.blurb ?? '')) {
+    const full = document.createElement('p');
+    full.className = 'gg-shop-detail-dialog-full';
+    full.textContent = fullText;
+    body.append(full);
+  }
+  shell.append(header, body);
+  dialog.append(shell);
+  close.addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
+  dialog.addEventListener('close', () => dialog.remove());
+  document.body.append(dialog);
+  dialog.showModal();
+}
+
 export function renderShopView(
   root: HTMLElement,
   state: GardenState,
   buy: (itemId: string) => void,
-  use: (itemId: string) => void,
+  notice?: ShopNotice,
 ) {
   root.replaceChildren();
   const blocked = shopBlock(state);
@@ -77,6 +123,20 @@ export function renderShopView(
 
   const cards = new Map<string, HTMLElement>();
   const emptySlots: HTMLElement[] = [];
+  const pager = document.createElement('nav');
+  pager.className = 'gg-shop-pager';
+  pager.setAttribute('aria-label', '商品分页');
+  const prevButton = document.createElement('button');
+  prevButton.type = 'button';
+  prevButton.textContent = '‹ 上一页';
+  prevButton.addEventListener('click', () => { currentPage -= 1; renderPage(); });
+  const pageLabel = document.createElement('span');
+  pageLabel.setAttribute('aria-live', 'polite');
+  const nextButton = document.createElement('button');
+  nextButton.type = 'button';
+  nextButton.textContent = '下一页 ›';
+  nextButton.addEventListener('click', () => { currentPage += 1; renderPage(); });
+  pager.append(prevButton, pageLabel, nextButton);
   const renderSelection = () => {
     const selected = items.find((item) => item.item_id === selectedItemId);
     for (const [itemId, card] of cards) {
@@ -93,42 +153,50 @@ export function renderShopView(
     const title = document.createElement('h3');
     title.textContent = selected.title;
     const copy = document.createElement('p');
+    copy.className = 'gg-shop-detail-summary';
     copy.textContent = `${itemSummary(selected, state)} · 售价 ${selected.price} 金币`;
     detail.append(title, copy);
-    const usable = (selected.item_type === 'trigger_item'
-      && selected.item_id === 'incident_trigger_card'
-      && (state.inventory?.consumables?.[selected.item_id] ?? 0) > 0)
-      || (selected.item_type === 'key_item' && state.key_items?.[selected.item_id]?.obtained);
-    if (usable) {
-      const useButton = document.createElement('button');
-      useButton.type = 'button';
-      useButton.className = 'gg-shop-use';
-      useButton.textContent = selected.item_type === 'key_item'
-        ? state.key_items?.sakuya_watch?.state === 'daily_cooldown' ? '今日已使用' : '使用怀表'
-        : '启用异变';
-      useButton.disabled = selected.item_type === 'key_item'
-        && state.key_items?.sakuya_watch?.state === 'daily_cooldown';
-      useButton.addEventListener('click', () => use(selected.item_id));
-      detail.append(useButton);
+    const blurbText = selected.blurb ?? selected.description ?? '';
+    if (blurbText) {
+      const blurb = document.createElement('p');
+      blurb.className = 'gg-shop-detail-blurb';
+      blurb.textContent = blurbText;
+      blurb.title = '点击查看详细介绍';
+      blurb.addEventListener('click', () => showItemDetailDialog(selected));
+      detail.append(blurb);
     }
     buyButton.textContent = `购买 · ${selected.price} 金币`;
     buyButton.disabled = Boolean(blocked)
       || Boolean(selected.unique && state.key_items?.[selected.item_id]?.obtained);
   };
 
+  const renderPage = () => {
+    const visible = items.filter((item) => (
+      selectedCategory === 'all' || (selectedCategory !== 'charm' && item.item_type === selectedCategory)
+    ));
+    const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
+    currentPage = Math.max(0, Math.min(currentPage, pageCount - 1));
+    const pageItems = visible.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
+    for (const item of items) cards.get(item.item_id)!.hidden = !pageItems.includes(item);
+    const emptyCount = Math.max(0, PAGE_SIZE - pageItems.length);
+    emptySlots.forEach((slot, index) => { slot.hidden = index >= emptyCount; });
+    if (!pageItems.some((item) => item.item_id === selectedItemId)) {
+      selectedItemId = pageItems[0]?.item_id ?? '';
+    }
+    prevButton.disabled = currentPage <= 0;
+    nextButton.disabled = currentPage >= pageCount - 1;
+    pageLabel.textContent = `${currentPage + 1} / ${pageCount}`;
+    pager.hidden = pageCount <= 1;
+    renderSelection();
+  };
+
   const applyCategory = (category: ShopCategory) => {
     selectedCategory = category;
+    currentPage = 0;
     for (const button of tabs.querySelectorAll<HTMLButtonElement>('button')) {
       button.setAttribute('aria-pressed', String(button.dataset.category === category));
     }
-    const visible = items.filter((item) => category === 'all' || (category !== 'charm' && item.item_type === category));
-    for (const item of items) cards.get(item.item_id)!.hidden = !visible.includes(item);
-    const emptyCount = Math.max(0, 10 - visible.length);
-    emptySlots.forEach((slot, index) => { slot.hidden = index >= emptyCount; });
-    if (!visible.some((item) => item.item_id === selectedItemId)) {
-      selectedItemId = visible[0]?.item_id ?? '';
-    }
-    renderSelection();
+    renderPage();
   };
 
   for (const category of categories) {
@@ -173,6 +241,22 @@ export function renderShopView(
   buyButton.addEventListener('click', () => {
     if (selectedItemId) buy(selectedItemId);
   });
-  root.append(heading, wallet, tabs, list, detail, actions, note);
+  let noticeEl: HTMLElement | null = null;
+  if (notice) {
+    noticeEl = document.createElement('div');
+    noticeEl.className = 'gg-shop-notice';
+    noticeEl.dataset.kind = notice.kind;
+    noticeEl.setAttribute('role', 'status');
+    noticeEl.textContent = notice.text;
+    const dismissTimer = window.setTimeout(() => {
+      noticeEl?.classList.add('gg-shop-notice-leave');
+      window.setTimeout(() => noticeEl?.remove(), 450);
+    }, 4200);
+    noticeEl.addEventListener('click', () => {
+      window.clearTimeout(dismissTimer);
+      noticeEl?.remove();
+    });
+  }
+  root.append(heading, wallet, tabs, list, pager, ...(noticeEl ? [noticeEl, detail] : [detail]), actions, note);
   applyCategory(selectedCategory);
 }

@@ -92,7 +92,7 @@ test('机遇卡在无候选、访客满员或受控事务中不消费', async ()
   assert.equal(state.inventory.consumables.opportunity_card, 1);
 });
 
-test('两张卡通过本地商店目录购买并遵守开放条件与堆叠上限', async () => {
+test('机遇卡通过本地商店目录购买并遵守开放条件与堆叠上限', async () => {
   const shop = await importTypescript('../src/ui/shop-rules.ts');
   const state = await baseState();
   state.resources.coins = 100;
@@ -105,12 +105,6 @@ test('两张卡通过本地商店目录购买并遵守开放条件与堆叠上�
   assert.equal(boughtOpportunity.resources.coins, 60);
   assert.equal(boughtOpportunity.inventory.consumables.opportunity_card, 1);
 
-  const duelReady = structuredClone(state);
-  duelReady.battle.dungeon_unlocked = true;
-  const boughtDuel = shop.purchaseShopItem(duelReady, 'spell_duel_card', 'purchase:duel:1');
-  assert.equal(boughtDuel.resources.coins, 76);
-  assert.equal(boughtDuel.inventory.consumables.spell_duel_card, 1);
-
   const capped = structuredClone(state);
   capped.inventory.consumables.opportunity_card = 9;
   assert.throws(
@@ -119,10 +113,9 @@ test('两张卡通过本地商店目录购买并遵守开放条件与堆叠上�
   );
 });
 
-test('对战卡按零枚极难、一至二枚标准、三枚以上援助锁定难度，取消不消费', async () => {
+test('角色对战按零枚极难、一至二枚标准、三枚以上援助锁定难度，取消不改变标签', async () => {
   const duel = await importTypescript('../src/ui/duel-card-rules.ts');
   const state = await baseState();
-  state.inventory.consumables.spell_duel_card = 2;
 
   state.inventory.card_runtime.duel.zako_tag_count = 0;
   const hard = duel.beginDuelCard(state, 'marisa', 'duel:hard:1');
@@ -133,14 +126,12 @@ test('对战卡按零枚极难、一至二枚标准、三枚以上援助锁定�
   const standard = duel.beginDuelCard(state, 'reimu', 'duel:standard:1');
   assert.equal(standard.difficultyTier, 'standard');
   assert.equal(standard.configId, 'character_duel_standard_v1');
-  assert.equal(standard.state.inventory.consumables.spell_duel_card, 2);
   assert.equal(standard.state.inventory.card_runtime.duel.pending_battle.target_character_id, 'reimu');
   const replay = duel.beginDuelCard(standard.state, 'reimu', 'duel:standard:1');
   assert.equal(replay.alreadyStarted, true);
 
   const cancelled = duel.cancelDuelCard(standard.state, 'duel:standard:1');
   assert.equal(cancelled.inventory.card_runtime.duel.pending_battle, null);
-  assert.equal(cancelled.inventory.consumables.spell_duel_card, 2);
 
   state.inventory.card_runtime.duel.zako_tag_count = 3;
   const assisted = duel.beginDuelCard(state, 'alice', 'duel:assisted:1');
@@ -149,10 +140,9 @@ test('对战卡按零枚极难、一至二枚标准、三枚以上援助锁定�
   assert.throws(() => duel.beginDuelCard(state, 'unregistered', 'duel:bad:1'), /没有登记对战档案/);
 });
 
-test('角色对话中只允许向当前交谈对象亮出对战卡', async () => {
+test('角色对话中只允许向当前交谈对象发起对战', async () => {
   const duel = await importTypescript('../src/ui/duel-card-rules.ts');
   const state = await baseState();
-  state.inventory.consumables.spell_duel_card = 1;
   state.interaction.current_session = {
     uid: 'interaction_dialogue_duel_1',
     type: 'character',
@@ -160,8 +150,8 @@ test('角色对话中只允许向当前交谈对象亮出对战卡', async () =>
     participant_character_ids: ['marisa'],
   };
 
-  assert.equal(duel.duelCardBlock(state, 'marisa'), '');
-  assert.match(duel.duelCardBlock(state, 'reimu'), /只能向当前角色/);
+  assert.equal(duel.characterDuelBlock(state, 'marisa'), '');
+  assert.match(duel.characterDuelBlock(state, 'reimu'), /只能向当前对话角色/);
   const started = duel.beginDuelCard(state, 'marisa', 'duel:dialogue:1');
   assert.equal(started.state.interaction.current_session.uid, 'interaction_dialogue_duel_1');
   assert.equal(started.state.inventory.card_runtime.duel.pending_battle.target_character_id, 'marisa');
@@ -172,7 +162,6 @@ test('对战失败纯本地加一枚杂鱼标签，不产生胜利剧情或正�
   const state = await baseState();
   state.resources.coins = 37;
   state.environment = { day: 4, time_period: '黄昏' };
-  state.inventory.consumables.spell_duel_card = 2;
   state.inventory.card_runtime.duel.zako_tag_count = 3;
   const started = duel.beginDuelCard(state, 'cirno', 'duel:loss:1').state;
   const result = battleResult('character_duel_assisted_v1', 'loss', 'duel-result:loss:1');
@@ -180,7 +169,8 @@ test('对战失败纯本地加一枚杂鱼标签，不产生胜利剧情或正�
 
   assert.equal(settled.won, false);
   assert.equal(settled.zakoTagCount, 4);
-  assert.equal(settled.state.inventory.consumables.spell_duel_card, 1);
+  assert.equal(settled.previousZakoTagCount, 3);
+  assert.equal(settled.zakoTagDelta, 1);
   assert.equal(settled.state.inventory.card_runtime.duel.pending_battle, null);
   assert.equal(settled.state.inventory.card_runtime.duel.pending_victory_dialogue, null);
   assert.equal(settled.state.resources.coins, 37);
@@ -198,7 +188,6 @@ test('对战胜利减一枚杂鱼标签且只创建待提交的胜利要求', as
   const state = await baseState();
   state.resources.coins = 19;
   state.environment = { day: 7, time_period: '夜晚' };
-  state.inventory.consumables.spell_duel_card = 1;
   state.inventory.card_runtime.duel.zako_tag_count = 3;
   const started = duel.beginDuelCard(state, 'sakuya', 'duel:win:1').state;
   const settled = duel.settleDuelCard(
@@ -208,7 +197,8 @@ test('对战胜利减一枚杂鱼标签且只创建待提交的胜利要求', as
 
   assert.equal(settled.won, true);
   assert.equal(settled.zakoTagCount, 2);
-  assert.equal(settled.state.inventory.consumables.spell_duel_card, 0);
+  assert.equal(settled.previousZakoTagCount, 3);
+  assert.equal(settled.zakoTagDelta, -1);
   assert.equal(settled.state.resources.coins, 19);
   assert.deepEqual(settled.state.environment, { day: 7, time_period: '夜晚' });
   assert.deepEqual(settled.state.inventory.card_runtime.duel.pending_victory_dialogue, {
@@ -239,7 +229,6 @@ test('对战胜利减一枚杂鱼标签且只创建待提交的胜利要求', as
 test('对战卡拒绝叙事替代、错配配置和非法数值且不修改输入状态', async () => {
   const duel = await importTypescript('../src/ui/duel-card-rules.ts');
   const state = await baseState();
-  state.inventory.consumables.spell_duel_card = 1;
   state.inventory.card_runtime.duel.zako_tag_count = 1;
   const started = duel.beginDuelCard(state, 'marisa', 'duel:guard:1').state;
   const snapshot = structuredClone(started);
@@ -278,6 +267,7 @@ test('旧存档迁移幂等补齐卡片状态并清理非法 pending', async () 
   const once = migration.migrateGardenState(legacy);
   const twice = migration.migrateGardenState(once);
   assert.equal(once.inventory.consumables.opportunity_card, 99);
+  assert.equal(once.inventory.consumables.spell_duel_card, undefined);
   assert.equal(once.inventory.card_runtime.duel.zako_tag_count, 99);
   assert.equal(once.inventory.card_runtime.opportunity.pending, null);
   assert.equal(once.inventory.card_runtime.duel.pending_battle, null);
@@ -319,7 +309,7 @@ test('三档对战配置均为本地白名单，零标签档具备原作 Hard �
   );
 });
 
-test('Preview Bridge 会持久结算机遇卡，并预留、取消及按锁定极难配置结算对战卡', async () => {
+test('Preview Bridge 会持久结算机遇卡，并预留、取消及按锁定极难配置结算角色对战', async () => {
   const bridgeModule = await importTypescript('../src/ui/bridge.ts');
   const preview = bridgeModule.createPreviewBridge();
   await preview.applyTestJump('r30_shop_ready');
@@ -330,21 +320,16 @@ test('Preview Bridge 会持久结算机遇卡，并预留、取消及按锁定�
   assert.ok(stored.presence_snapshot.present_character_ids.includes(opportunity.selectedCharacterId));
   assert.ok(stored.inventory.card_runtime.settled_use_ids.includes('opportunity:bridge:1'));
 
-  await preview.applyTestJump('r30_shop_ready');
-  await preview.purchaseShopItem('spell_duel_card', 'purchase:bridge-duel:1');
-
   const started = await preview.beginDuelCard('sakuya', 'duel:bridge:1');
   assert.equal(started.difficultyTier, 'hard');
   assert.equal(started.configId, 'character_duel_hard_v1');
   assert.equal(started.config.presentation.boss_name, '十六夜咲夜');
   stored = await preview.readState();
   assert.equal(stored.inventory.card_runtime.duel.pending_battle.use_id, 'duel:bridge:1');
-  assert.equal(stored.inventory.consumables.spell_duel_card, 1);
 
   await preview.cancelDuelCard('duel:bridge:1');
   stored = await preview.readState();
   assert.equal(stored.inventory.card_runtime.duel.pending_battle, null);
-  assert.equal(stored.inventory.consumables.spell_duel_card, 1);
 
   await preview.beginDuelCard('sakuya', 'duel:bridge:2');
   const settled = await preview.settleDuelCard(
@@ -353,12 +338,9 @@ test('Preview Bridge 会持久结算机遇卡，并预留、取消及按锁定�
   assert.equal(settled.won, false);
   assert.equal(settled.zakoTagCount, 1);
   stored = await preview.readState();
-  assert.equal(stored.inventory.consumables.spell_duel_card, 0);
   assert.equal(stored.inventory.card_runtime.duel.pending_battle, null);
   assert.equal(stored.inventory.card_runtime.duel.pending_victory_dialogue, null);
 
-  await preview.applyTestJump('r30_shop_ready');
-  await preview.purchaseShopItem('spell_duel_card', 'purchase:bridge-duel:2');
   const standard = await preview.beginDuelCard('reimu', 'duel:bridge:3');
   assert.equal(standard.difficultyTier, 'standard');
   await preview.settleDuelCard(
@@ -379,18 +361,18 @@ test('Preview Bridge 会持久结算机遇卡，并预留、取消及按锁定�
   assert.ok((await preview.listMessages()).some((entry) => entry.role === 'user' && entry.text.includes(requestText)));
 });
 
-test('阶段 C 界面提供机遇卡、对战选择、胜利要求及窄屏可访问入口', async () => {
+test('阶段 C 界面提供机遇卡、角色对战结算、胜利要求及窄屏可访问入口', async () => {
   const document = await read('../src/ui/index.html');
   const controller = await read('../src/ui/app.ts');
   const inventory = await read('../src/ui/inventory-view.ts');
   const styles = await read('../src/ui/styles.css');
-  assert.match(document, /id="gg-duel-dialog"[\s\S]*?id="gg-duel-targets"/);
+  assert.match(document, /id="gg-duel-result-dialog"[\s\S]*?id="gg-duel-result-confirm"/);
   assert.match(document, /id="gg-duel-victory-dialog"[\s\S]*?id="gg-duel-victory-request"[^>]*maxlength="240"/);
   assert.match(inventory, /opportunity_card: '缘'/);
-  assert.match(inventory, /spell_duel_card: '斗'/);
+  assert.doesNotMatch(inventory, /spell_duel_card/);
   assert.match(controller, /activeBattleKind === 'duel'[\s\S]*?bridge\.settleDuelCard/);
-  assert.match(controller, /settled\.won[\s\S]*?openDuelVictoryDialog/);
+  assert.match(controller, /openDuelResultDialog\(settled\)/);
   assert.match(controller, /bridge\.useOpportunityCard/);
   assert.match(controller, /bridge\.sendDuelVictoryRequest/);
-  assert.match(styles, /@media \(max-width: 520px\)[\s\S]*?\.gg-duel-targets \{ grid-template-columns: 1fr/);
+  assert.match(styles, /@media \(max-width: 520px\)[\s\S]*?#gg-duel-result-confirm/);
 });

@@ -19,7 +19,12 @@ export class SettlementAttemptCoordinator {
 export function reconcileHostGenerationActivity(
   active: boolean,
   transaction: { assistantResponded: boolean },
+  nativeButtonGenerating?: boolean | null,
 ) {
+  // Luker exposes its real generation lifecycle through the native send/stop
+  // controls. When that surface is available it wins over a provisional assistant
+  // floor, which may still be an empty fake-stream placeholder.
+  if (typeof nativeButtonGenerating === 'boolean') return nativeButtonGenerating;
   return active && !transaction.assistantResponded;
 }
 

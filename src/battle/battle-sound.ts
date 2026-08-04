@@ -73,7 +73,7 @@ const EVENT_GAIN: Record<BattleSfxId, number> = {
   battle_lose: 0.68,
 };
 
-const clampVolume = (value: number) => Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0.6));
+const clampVolume = (value: number) => Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0.01));
 
 /**
  * Shared application-level WebAudio bus.
@@ -89,7 +89,7 @@ export function createBattleSoundBus(
   let context: AudioContext | null = null;
   let masterGain: GainNode | null = null;
   let muted = options.muted ?? false;
-  let volume = clampVolume(options.volume ?? 0.6);
+  let volume = clampVolume(options.volume ?? 0.01);
   let destroyed = false;
   const buffers = new Map<BattleSfxId, AudioBuffer>();
   const loads = new Map<BattleSfxId, Promise<AudioBuffer | null>>();

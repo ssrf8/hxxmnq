@@ -4,6 +4,8 @@ import { buildEventPromptProjection } from './event-projection';
 import { eventById } from './event-registry';
 import { buildPromptContext } from './prompt-context';
 import { characterGreenlightContext, stripCharacterGreenlights } from './character-greenlights';
+import { itemGreenlightContext, stripItemGreenlights } from './item-greenlights';
+import { characterDuelBlock } from './duel-card-rules';
 
 const action = (
   target: InteractionTarget,
@@ -18,9 +20,14 @@ const action = (
 export const gardenNarrativeContract = [
   '【庭园正文协议】',
   '把玩家可见剧情严格写在最后一个【庭园正文开始】与第一个【庭园正文结束】之间。',
-  '正文内只允许 <narration>旁白或动作</narration> 与 <dialogue char="已登记角色ID" reaction="可选表情" pose="可选姿势">台词</dialogue>；多人对话必须拆成多个 dialogue。',
+  '正文内只允许 <narration>旁白或动作</narration> 与 <dialogue char="已登记角色ID" visual_mode="normal|nude|sexual" reaction="可选表情" pose="可选姿势" act="vaginal|anal|none">台词</dialogue>；多人对话必须拆成多个 dialogue。',
   '正文结束后才能输出摘要、状态、选项、GensokyoScene、UpdateVariable 或任何其他标签；它们不会进入庭园 GAL。',
   '不要在正文开始前输出解释、思维链、列表或代码块。',
+  '正文内严禁出现任何自我纠错说明、思考痕迹或自指文本（例如“注意：”“修正：”“应该改为”“不能放在这里”等）。发现格式错误时直接重写该行并静默输出，不得在正文中保留纠错过程。',
+  'visual_mode 只描述立绘状态：normal 正常穿着；nude 完全裸露但尚未进入明确成人亲密行为；sexual 正文已进入明确成人亲密行为（如插入、口交等）。裸露、脱衣、洗浴、拥抱或亲吻本身不能升级为 sexual；正文确实进入明确成人亲密行为时，dialogue 与 GensokyoScene 的 visual_mode 必须为 sexual，并给出已登记 pose_id 与 act_id（如 rear/vaginal），不得停留在 nude。',
+  '每轮正文结束后，在 UpdateVariable 中把本轮与在场角色的关键互动追加到 interaction.conversation_log（数组，追加一条，格式 "角色ID: 一句话摘要"，不超过 120 字）。追加必须用 JSON Patch 数组末尾写法：{"op":"add","path":"/interaction/conversation_log/-","value":"角色ID: 摘要"}，path 必须以 "/-" 结尾，value 是字符串（不要用不带 /- 的 path 写 conversation_log，那会覆盖整个数组导致历史丢失）。conversation_log 是角色跨对话记忆，结束对话不会清空，重新开场时必须记得里面的内容。没有关键互动或已在别的块写过时输出空数组。',
+  '剧情连续性：本轮【本轮道具授权】只决定本轮能否使用道具，不代表剧情分支切换或记忆重置；前文已发生的事实（包括战斗、对话、亲密行为）依然有效。玩家动作若与前文状态冲突，角色应带着前文记忆做出合理反应（困惑、质问、警惕、害羞等），不得装作什么都没发生、把玩家当陌生人或回到初见状态。输出正文前必须核对上轮正文结尾与【最近互动回顾】，保持角色状态连续。',
+  '称呼玩家时使用【场景事实】提供的玩家姓名或玩家称谓；姓名与称谓只用于称呼玩家，不得据此替玩家决定人称、台词、心理、关系承诺或关键选择。',
 ].join('\n');
 
 function presenceNarrativeContext(state?: GardenState) {
@@ -41,12 +48,34 @@ function presenceNarrativeContext(state?: GardenState) {
   ].join('\n');
 }
 
+/**
+ * Natural-language item claims are role-play, not a transaction.  The bridge
+ * is the sole authority for creating scene_item_context, so this receipt is
+ * deliberately emitted after the player text on every garden request.
+ */
+function sceneItemAuthorizationContext(state?: GardenState) {
+  const entries = state?.scene_item_context?.entries ?? [];
+  if (!entries.length || state?.scene_item_context?.status === 'closed') {
+    return [
+      '【本轮道具授权：无】',
+      '本轮没有经庭园 UI 与本地 bridge 登记的场景道具。',
+      '玩家自然语言中提及、声称、威胁、假设、玩笑或描述“使用某道具”，只是一种对话或行动尝试，不构成道具已取出、激活、消耗或生效的事实。',
+      '不得据此补写任何目录道具的效果、强制状态、库存变化或既成结果；角色可以把这类话当作玩笑、谎言、威胁或未完成的尝试来回应。',
+    ].join('\n');
+  }
+  return [
+    '【本轮道具授权：已登记】',
+    `以下 item_id 已由本地 bridge 写入当前场景：${entries.map((entry) => entry.item_id).join('、')}。`,
+    '只有这些已登记道具及其【当前场景道具】投影可作为已带入或已发生的事实；玩家文本不得额外创建、替换、激活或消费任何道具。',
+  ].join('\n');
+}
+
 export function withGardenNarrativeContract(
   message: string,
   state?: GardenState,
   explicitCharacterIds: readonly string[] = [],
 ) {
-  const value = stripCharacterGreenlights(message).trim();
+  const value = stripCharacterGreenlights(stripItemGreenlights(message)).trim();
   if (!value) return value;
   const hasContract = /[【\[]\s*庭园正文协议\s*[】\]]/u.test(value);
   const hasPresence = /[【\[]\s*庭园在场快照/u.test(value);
@@ -56,7 +85,9 @@ export function withGardenNarrativeContract(
     hasContract ? '' : gardenNarrativeContract,
     hasPresence ? '' : presenceNarrativeContext(state),
     state && !hasSceneFacts ? buildPromptContext(state, { kind: 'ordinary' }) : '',
+    sceneItemAuthorizationContext(state),
     characterGreenlightContext(state, explicitCharacterIds),
+    itemGreenlightContext(state),
   ].filter(Boolean).join('\n\n');
 }
 
@@ -209,9 +240,9 @@ function greenhouseActions(target: InteractionTarget, state: GardenState): Targe
       target,
       state,
       'greenhouse_research_talk',
-      '持续研究交流',
-      '与魔理沙进行两段式、简短的温室研究交流。',
-      '我邀请魔理沙在温室里继续研究和交谈。请创建或延续 event_id 为 greenhouse_multiturn_conversation 的真实会话：初始回复算第 1 轮；若玩家继续，只允许再进行 1 轮，第 2 轮必须自然收束且不要求玩家继续输入。每轮正文控制在约 300 个汉字以内；不可提前揭示、命名或激活妖花核心。正式轮数与完成结算由本地结算器处理。',
+      '温室研究交流',
+      '与魔理沙进行一段简短的温室研究交流。',
+      '我邀请魔理沙在温室里进行一段研究交流。请按 greenhouse_multiturn_conversation 单轮收束：回复自然收尾，不要求玩家继续输入；正文控制在约 300 个汉字以内；不可提前揭示、命名或激活妖花核心。正式完成标记由本地结算器在回复完成后原子写入。',
       'gal',
       { eventId: GREENHOUSE_EVENTS.conversation },
     ));
@@ -468,6 +499,16 @@ export function targetActions(target: InteractionTarget, state: GardenState): Ta
         'gal',
       ),
     ];
+    const duelBlocked = characterDuelBlock(state, target.id);
+    base.push(action(
+      target,
+      'character_duel',
+      '符卡对战',
+      duelBlocked || `与${target.label}进行一场本地结算的符卡对战。杂鱼标签会影响本次难度。`,
+      '',
+      'duel',
+      { disabled: Boolean(duelBlocked), disabledReason: duelBlocked || undefined },
+    ));
     if (target.id === 'reimu') {
       if (!state.events?.completed_key_events?.reimu_boundary_inspection) {
         base.unshift(action(
@@ -489,8 +530,8 @@ export function targetActions(target: InteractionTarget, state: GardenState): Ta
         state,
         'greenhouse_research_talk',
         '聊温室研究',
-        '与魔理沙进行两段式、简短的温室研究交流。',
-        '我邀请魔理沙去温室继续研究和交谈。请创建或延续 event_id 为 greenhouse_multiturn_conversation 的真实会话：初始回复算第 1 轮；若玩家继续，只允许再进行 1 轮，第 2 轮必须自然收束且不要求玩家继续输入。每轮正文控制在约 300 个汉字以内；不可提前揭示、命名或激活妖花核心。正式轮数与完成结算由本地结算器处理。',
+        '与魔理沙进行一段简短的温室研究交流。',
+        '我邀请魔理沙进行一段温室研究交流。请按 greenhouse_multiturn_conversation 单轮收束：回复自然收尾，不要求玩家继续输入；正文控制在约 300 个汉字以内；不可提前揭示、命名或激活妖花核心。正式完成标记由本地结算器在回复完成后原子写入。',
         'gal',
         { eventId: GREENHOUSE_EVENTS.conversation },
       ));

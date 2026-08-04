@@ -21,6 +21,16 @@ export interface PromptContextOptions {
 }
 
 /**
+ * 玩家主动提供并经开场 UI 确认的身份事实：姓名与称谓（如“中性称谓/他/她”）。
+ * 只用于称呼玩家，不授予模型替玩家决定人称、台词、心理或关系的权限。
+ */
+function playerIdentityLine(state: GardenState) {
+  const name = state.player?.name?.trim() || '未命名旅人';
+  const pronoun = state.player?.pronouns?.trim();
+  return pronoun ? `玩家姓名：${name}（可用「${pronoun}」称呼）` : `玩家姓名：${name}`;
+}
+
+/**
  * Builds the minimum layered prompt facts for an LLM call.
  * Hidden anomaly origin is only included for daily investigation / final resolution.
  */
@@ -33,9 +43,35 @@ export function buildPromptContext(state: GardenState, options: PromptContextOpt
     `日期：第 ${state.environment?.day ?? 1} 日 ${state.environment?.time_period ?? '清晨'}`,
     `天气：${state.environment?.weather ?? '晴'}`,
     `玩家区域：${state.player?.current_area_id ?? 'central_courtyard'}`,
+    playerIdentityLine(state),
     `在场角色：${(state.presence_snapshot?.present_character_ids ?? []).join('、') || '无'}`,
     `绝对时段序号：${periodSerialFromState(state)}`,
   ].join('\n'));
+
+  if (state.key_items?.sakuya_watch?.time_stop_active) {
+    sections.push([
+      '【时间停止】',
+      '十六夜咲夜的怀表正在生效：庭园内除玩家外的一切都陷入静止。角色不能主动行动、移动、说话或做出反应，如同被冻结；玩家的动作与话语依然有效，可以自由行动、触碰或摆弄被定身的角色。',
+      '静止中的角色没有内心活动，也听不见玩家的话（除非玩家特意描述解除静止的方式）；不要替被定身角色编写反应。时停会在本轮结束时随时段推进自然解除。',
+    ].join('\n'));
+  }
+
+  const conversationLog = state.interaction?.conversation_log ?? [];
+  if (conversationLog.length) {
+    const presentIds = new Set(state.presence_snapshot?.present_character_ids ?? []);
+    // 日志条目约定以角色 ID 开头（如 "reimu: 在中央庭院聊了妖花核心"），按在场角色过滤。
+    const relevant = conversationLog.slice(-6).filter((entry) => {
+      if (presentIds.size === 0) return true;
+      return [...presentIds].some((id) => entry.startsWith(`${id}:`) || entry.startsWith(`${id}：`) || entry.includes(` ${id} `));
+    });
+    if (relevant.length) {
+      sections.push([
+        '【最近互动回顾：结束对话不会抹去这些记忆】',
+        '以下是你此前与在场角色实际发生过的互动摘要，角色应该记得这些事；不要在重新开场时把它们当成没发生过。',
+        ...relevant.map((entry) => `- ${entry}`),
+      ].join('\n'));
+    }
+  }
 
   if (openGardenProjectsVisible(state)) {
     sections.push([
@@ -97,6 +133,7 @@ export function buildPromptContext(state: GardenState, options: PromptContextOpt
       return [
         '【场景事实】',
         `日期：第 ${state.environment?.day ?? 1} 日 ${state.environment?.time_period ?? '清晨'}`,
+        playerIdentityLine(state),
         projection ? buildOrdinaryAnomalyPrompt(state) : '',
         options.includeSceneItems === false ? '' : sceneItemPrompt(state),
       ].filter(Boolean).join('\n\n');
