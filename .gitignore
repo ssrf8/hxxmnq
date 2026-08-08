@@ -9,3 +9,4 @@ repro-st1.17.0.js
 /_git_push_err.txt
 /_git_push_out.txt
 .env
+.reasonix/
