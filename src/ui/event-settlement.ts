@@ -2,6 +2,7 @@ import type { GardenState, VisitorMeta } from './types';
 import { eventById, eventResultForAction } from './event-registry';
 import { advanceOneTimePeriod, enforceMonotonicTime, periodSerialFromState } from './time-rules';
 import { buildVisitorMetaForArrival } from './visitor-rules';
+import { reconcileCharacterVisitsFromState } from './character-memory';
 
 export interface GardenActionMarker {
   version: 'garden-action.v1';
@@ -200,7 +201,8 @@ export function applyPresenceUpdate(state: GardenState, assistantText: string): 
         .filter(([, meta]) => meta !== undefined),
     ),
   };
-  return next;
+  // B1-T09：模型 presence 回执写点 → visit 生命周期协调（cause=model-presence）。
+  return reconcileCharacterVisitsFromState(state, next, 'model-presence');
 }
 
 export function localSettlementAction(
@@ -827,6 +829,11 @@ export function applyLocalSettlement(
     state.events.settled_ids = Array.from(new Set([...(state.events.settled_ids ?? []), action.settlement_id])).slice(-256);
   }
   applyLocalPresenceTransition(state, action);
+  // B1-T09：本地事件导致的任何 presence 变化统一协调 visit 生命周期
+  // （cause=event；覆盖 applyLocalPresenceTransition 与事件内直接追加 present_character_ids 的路径）。
+  const reconciled = reconcileCharacterVisitsFromState(before, state, 'event');
+  state.interaction = reconciled.interaction;
+  state.uid_counters = reconciled.uid_counters;
   return state;
 }
 

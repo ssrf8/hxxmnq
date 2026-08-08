@@ -68,3 +68,171 @@
 ## 未知字段策略
 
 所有正式对象使用 passthrough，迁移时保留未知字段，避免旧聊天被静默裁剪。只有展示快照和有明确上限的列表会在 schema 阶段限长；语义去重与跨引用清理由桥接校验负责。
+
+---
+
+# GAL 角色记忆模型（第一批 v1）
+
+> 固定模型标识（冻结，不得更名/换容量/改语义）：
+>
+>     modelId: gensokyo-character-memory
+>     modelVersion: character-visit-memory.v1
+>     storage.root: stat_data.interaction.visit_memory
+>     storage.scope: message
+>     storage.strategy: multi-floor
+>
+> 同层兼容不声称、不新增，标记 DBR-C8-UNVERIFIED。数据库本批完全不接。
+> chat metadata / localStorage / sessionStorage 不得保存正式记忆。
+> 旧 conversation_log 与 current_relationship_facts 本批仍由旧协议写入并保留。
+
+## 集中容量常量（值冻结）
+
+| 常量 | 值 | 说明 |
+|---|---|---|
+| STORY_SUMMARIES_PER_CHARACTER | 48 | 每角色剧情梗概总计（active+closed 全部 turn） |
+| ACTIVE_TURNS_PER_CHARACTER | 16 | active_visit 单次最多 turn |
+| CLOSED_VISITS_PER_CHARACTER | 4 | 每角色保留最近 closed visit 数 |
+| TURNS_PER_CLOSED_VISIT | 16 | 每个 closed visit 结构上限 turn 数 |
+| LEGACY_MEMORIES_PER_CHARACTER | 16 | 每角色 legacy story 条数（不计入 48） |
+| LEGACY_UNASSIGNED_LIMIT | 24 | legacy_unassigned 条数 |
+| RELATIONSHIP_MEMORIES_PER_CHARACTER | 12 | 每角色关系记忆条数 |
+| TURN_SUMMARY_CHARS | 160 | turn summary 字符上限 |
+| RELATIONSHIP_SUMMARY_CHARS | 160 | relationship summary 字符上限 |
+
+## 根结构：interaction.visit_memory
+
+| 路径 | 类型/默认值 | 写入者 | 读取者/渲染者 | 清理与迁移 |
+|---|---|---|---|---|
+| `interaction.visit_memory.version` | 字面量 `character-visit-memory.v1` | 迁移器/schema | schema、投影器 | 只由幂等迁移维护；不随版本发布随意改 |
+| `interaction.visit_memory.by_character` | Record<CharacterId, CharacterMemory>，动态字典 | migration/bootstrap、presence reconciliation、upsert helper（本批无生产 turn 写入者） | 投影器、迁移器 | 每角色独立；固定角色初始空结构；动态角色懒创建；角色总计 48 与 12 均为每角色额度 |
+| `interaction.visit_memory.legacy_unassigned` | LegacyMemory[]，上限 24 | deterministic migration（conversation_log） | 只读（本批不投影） | 未知角色/无前缀/空正文进入；稳定 legacy_id 去重；FIFO 裁剪 |
+| `interaction.visit_memory.migration` | migration 元数据对象 | deterministic migration | 迁移器 | 见下方 migration 元数据 |
+| `uid_counters.character_visit` | integer，初始 ≥1 | Bridge/domain helper（nextCharacterVisitId） | visit_id 分配 | 单调递增、左补零；禁止数组下标当 ID |
+
+## CharacterMemory
+
+| 字段 | 类型/默认值 | 写入者 | 说明 |
+|---|---|---|---|
+| `character_id` | string | migration/ensure | 必须等于 characters 外层 key |
+| `active_visit` | VisitRecord \| null | presence reconciliation | 初始/关闭后为 null |
+| `closed_visits` | VisitRecord[]，上限 4 | presence reconciliation | 关闭时压入；裁剪保留最近 |
+| `legacy_memories` | LegacyMemory[]，上限 16 | deterministic migration | 迁入的旧 conversation_log 条目 |
+| `relationship_memories` | RelationshipMemory[]，上限 12 | deterministic migration（本批）；后续 Bridge 提交器 | 每角色独立 |
+
+## VisitRecord
+
+| 字段 | 类型/默认值 | 写入者 | 说明 |
+|---|---|---|---|
+| `visit_id` | string，`character_visit_` + 左补零单调 counter | Bridge/domain helper | 稳定 ID，禁止下标/随机/现实时间 |
+| `character_id` | string | reconciliation | 与 CharacterMemory 一致 |
+| `source` | `scheduler\|event\|model-presence\|bootstrap\|reconcile` | reconciliation | cause 映射固定 |
+| `arrival_uid` | string \| null | reconciliation（从 visitor_meta 捕获） | 缺失时 null |
+| `started_day` | number\|string\|null | reconciliation（游戏时钟） | 无可靠时间时为 null |
+| `started_time_period` | string\|null | reconciliation | 同上 |
+| `started_period_serial` | number\|null | reconciliation（periodSerialFromState） | 同上 |
+| `ended_day` | number\|string\|null | reconciliation | 关闭时填 |
+| `ended_time_period` | string\|null | reconciliation | 关闭时填 |
+| `ended_period_serial` | number\|null | reconciliation | 关闭时填 |
+| `end_reason` | `null\|scheduled-departure\|presence-receipt\|event-leave\|reconcile` | reconciliation | 关闭时填 |
+| `turns` | VisitTurn[]，active 上限 16 | 本批仅 upsert helper + 测试 | 关闭后随 visit 进入 closed_visits |
+
+## VisitTurn
+
+| 字段 | 类型/默认值 | 写入者 | 说明 |
+|---|---|---|---|
+| `turn_id` | string = `request_id + ':' + character_id` | 本批仅 helper | 逻辑身份；重试/重生成按此覆盖 |
+| `request_id` | string | 后续提交器 | 本批迁移不产生 turn |
+| `character_id` | string | 后续提交器 | 与 visit 一致 |
+| `scene_id` | string \| null | 后续提交器 | 无则 null |
+| `assistant_message_id` | number \| null | 后续提交器 | 无则 null |
+| `assistant_swipe_id` | number \| null | 后续提交器 | 无则 null |
+| `latest_attempt_id` | string \| null | 后续提交器 | 审计最新提交 |
+| `latest_commit_key` | string \| null | 后续提交器 | 审计最新提交 |
+| `day` | number\|string\|null | Bridge 盖章 | 不用现实时间 |
+| `time_period` | string\|null | Bridge 盖章 | 同上 |
+| `period_serial` | number\|null | Bridge 盖章 | 同上 |
+| `summary` | string，≤160 字符 | 本批无生产写入者 | 清洗后摘要 |
+
+## LegacyMemory
+
+| 字段 | 类型/默认值 | 写入者 | 说明 |
+|---|---|---|---|
+| `legacy_id` | string | deterministic migration | 基于角色 + 规范化文本稳定 hash；禁止 Date.now/random |
+| `character_id` | string \| null | migration | 已知角色则填；未知/无前缀为 null（进 unassigned） |
+| `text` | string | migration | 规范化文本 |
+| `source` | 字面量 `conversation_log.v0` | migration | 固定标记 |
+
+## RelationshipMemory
+
+| 字段 | 类型/默认值 | 写入者 | 说明 |
+|---|---|---|---|
+| `relationship_memory_id` | string | migration（复用旧 fact.id 稳定组合）/ 后续 Bridge | `legacy_relation:<characterId>:<fact.id>` |
+| `character_id` | string | migration/Bridge | 来自 characters 外层 key，不猜 subjects |
+| `request_id` | string，默认 '' | migration | 空字符串表示 legacy |
+| `visit_id` | string \| null | migration/Bridge | legacy 为 null |
+| `day` | number\|string\|null | migration | 仅旧字段有结构化可靠值时填，否则 null |
+| `time_period` | string\|null | 同上 | 不猜日期 |
+| `period_serial` | number\|null | 同上 | 同上 |
+| `kind` | `relationship_state\|milestone\|boundary\|conflict\|reconciliation` | migration/Bridge | 明确边界→boundary；明确冲突→conflict；明确和解→reconciliation；其他→milestone；relationship_state 仅严格结构/白名单 |
+| `relationship_label` | `stranger\|acquaintance\|friend\|close_friend\|lover\|estranged\|null` | migration/Bridge | 只有明确写出且命中受控映射才填；kiss/sex 不自动判 lover |
+| `event_kind` | `trust\|affection\|confession\|kiss\|adult_intimacy\|promise\|breakup\|null` | migration/Bridge | 只接受受控映射可证明的；不猜词 |
+| `summary` | string，≤160 字符 | migration/Bridge | 中性梗概 |
+| `significance` | 1\|2\|3，默认 2 | migration/Bridge | 本批不做自然语言重要性评分 |
+| `active` | boolean | migration（继承旧 fact.active） | 旧 active 保留；多 active state 归一后标 inactive 不删除 |
+| `latest_attempt_id` | string \| null | 后续 | legacy 为 null |
+| `latest_commit_key` | string \| null | 后续 | legacy 为 null |
+
+## migration 元数据（interaction.visit_memory.migration）
+
+| 字段 | 说明 |
+|---|---|
+| `revision` | 当前迁移 revision（非 boolean 开关；revision 不是“永远跳过导入”） |
+| `conversation_log_fingerprint` | conversation_log 规范化源 fingerprint（仅判断输入是否变化/诊断，不代替记录级 upsert） |
+| `relationship_facts_fingerprint` | 每角色 current_relationship_facts 规范化源 fingerprint（同上） |
+| `migrated_at_serial` | 迁移运行时的游戏 period serial（诊断用，非 ID 来源） |
+
+规则：
+- 迁移可重复；旧源新增项可增量导入，不重复追加；
+- fingerprint 只用于判断输入变化或记录诊断，不能代替记录级 upsert；
+- 旧关系事实的 active/fact/last_confirmed_at 变化后，即使 ID 见过也必须更新对应关系记忆；
+- 迁移失败时保留原 conversation_log / current_relationship_facts。
+
+## 入场边界（冻结语义）
+
+- absent → present：打开新 visit（新 visit_id）；
+- present → absent：关闭 active visit（填结束字段后压入 closed_visits）；
+- present → present：不变（area/view 变化不离场）；
+- absent → absent：不变；
+- 关闭 GAL（endConversationLocal）：不离场，active_visit 不变；
+- 同事务 leave 再 arrive：两个不同 visit_id（先关后开）。
+
+## 写入权（第一批）
+
+| 字段 | 写入者 |
+|---|---|
+| visit ID/counter | Bridge/domain helper（nextCharacterVisitId） |
+| active/closed visit 生命周期 | presence reconciliation（reconcileCharacterVisits） |
+| 迁入的 legacy story | deterministic migration（migrateGardenState 内） |
+| 迁入的旧关系事实 | deterministic migration |
+| 新 VisitTurn | 本批没有生产写入者，仅纯 upsert helper + 测试 |
+| 新关系候选 | 本批不存在 |
+
+旧字段（conversation_log、current_relationship_facts）在本批仍维持原写入者；禁止为“统一”提前修改 target-actions、prompt-context 或变量规则。
+
+## 裁剪规则（冻结）
+
+剧情 48 条（每角色）：
+1. active_visit turns 保留最近 16；
+2. closed_visits 保留最近 4 个 visit；
+3. 每个 closed visit turns 保留最近 16；
+4. active + closed 全部 turn 若超 48：保留 active 最近 turn，从最新 closed visit 向更旧填充剩余额度，删更旧 turn；
+5. 删除 turn 后 closed visit 可留空，但不得删除 visit 边界记录；
+6. 同 turn_id 去重保留后出现/更新版本；无 turn_id 的 malformed 项不得编造随机 ID。
+
+关系 12 条（每角色）固定优先级：
+1. 唯一 active relationship_state；
+2. 当前仍有效的 boundary/conflict；
+3. significance 3；
+4. 更新/发生时间较新；
+5. 原数组稳定顺序 tie-breaker。
+多条 active relationship_state：选 period_serial 最大者；serial 同值选数组最后者；其余标 inactive 不删除，再执行 12 条裁剪。

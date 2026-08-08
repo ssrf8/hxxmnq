@@ -62,6 +62,119 @@ const characterViewSchema = z.object({
   facing: z.enum(['front', 'back', 'left', 'right']).prefault('front').catch('front'),
 }).passthrough().prefault({});
 
+// ===== GAL 角色入场记忆（character-visit-memory.v1）=====
+// modelId: gensokyo-character-memory；storage.root: stat_data.interaction.visit_memory
+// 结构上限在此限定（turns 16 / closed 4 / relationship 12 / legacy 16 / unassigned 24）；
+// 每角色剧情总计 48 是跨数组业务不变量，由 character-memory normalizer 执行，不由 Zod 单个 list 证明。
+// nullable 字段（day/period_serial/source 等）把 z.null() 放 union 最前，保证 null 语义与 TS 类型一致。
+
+// day 同时兼容正式数字时钟与旧档字符串日期。这里不能复用带 catch 的
+// integer/text helper：union 分支内部 catch 会提前吞掉另一种合法类型。
+const nullableDay = (fallback = null) => z.union([
+  z.null(),
+  z.number().int().transform(value => Math.min(999999, Math.max(1, value))),
+  z.string().transform(value => value.slice(0, 40)),
+]).prefault(fallback).catch(fallback);
+const nullableSerial = (fallback = null) => z.union([z.null(), integer(0, 0, 99999999)])
+  .prefault(fallback).catch(fallback);
+const nullableMessageId = (fallback = null) => z.union([z.null(), integer(0, 0, 999999)])
+  .prefault(fallback).catch(fallback);
+
+const legacyMemorySchema = z.object({
+  legacy_id: text('', 96),
+  character_id: z.union([z.null(), text('', 48)]).prefault(null).catch(null),
+  text: text('', 240),
+  source: z.literal('conversation_log.v0').prefault('conversation_log.v0').catch('conversation_log.v0'),
+}).passthrough().prefault({});
+
+const visitTurnSchema = z.object({
+  turn_id: text('', 160),
+  request_id: text('', 96),
+  character_id: text('', 48),
+  scene_id: z.union([z.null(), text('', 96)]).prefault(null).catch(null),
+  assistant_message_id: nullableMessageId(),
+  assistant_swipe_id: nullableMessageId(),
+  latest_attempt_id: z.union([z.null(), text('', 96)]).prefault(null).catch(null),
+  latest_commit_key: z.union([z.null(), text('', 96)]).prefault(null).catch(null),
+  day: nullableDay(),
+  time_period: z.union([z.null(), text('', 24)]).prefault(null).catch(null),
+  period_serial: nullableSerial(),
+  summary: text('', 160),
+}).passthrough().prefault({});
+
+const visitRecordSchema = z.object({
+  visit_id: text('', 64),
+  character_id: text('', 48),
+  source: z.enum(['scheduler', 'event', 'model-presence', 'bootstrap', 'reconcile'])
+    .prefault('scheduler').catch('scheduler'),
+  arrival_uid: z.union([z.null(), text('', 96)]).prefault(null).catch(null),
+  started_day: nullableDay(),
+  started_time_period: z.union([z.null(), text('', 24)]).prefault(null).catch(null),
+  started_period_serial: nullableSerial(),
+  ended_day: nullableDay(),
+  ended_time_period: z.union([z.null(), text('', 24)]).prefault(null).catch(null),
+  ended_period_serial: nullableSerial(),
+  end_reason: z.union([
+    z.null(),
+    z.enum(['scheduled-departure', 'presence-receipt', 'event-leave', 'reconcile']),
+  ]).prefault(null).catch(null),
+  turns: list(visitTurnSchema, 16),
+}).passthrough().prefault({});
+
+const relationshipMemorySchema = z.object({
+  relationship_memory_id: text('', 128),
+  character_id: text('', 48),
+  request_id: text('', 96),
+  visit_id: z.union([z.null(), text('', 64)]).prefault(null).catch(null),
+  day: nullableDay(),
+  time_period: z.union([z.null(), text('', 24)]).prefault(null).catch(null),
+  period_serial: nullableSerial(),
+  kind: z.enum(['relationship_state', 'milestone', 'boundary', 'conflict', 'reconciliation'])
+    .prefault('milestone').catch('milestone'),
+  relationship_label: z.union([
+    z.null(),
+    z.enum(['stranger', 'acquaintance', 'friend', 'close_friend', 'lover', 'estranged']),
+  ]).prefault(null).catch(null),
+  event_kind: z.union([
+    z.null(),
+    z.enum(['trust', 'affection', 'confession', 'kiss', 'adult_intimacy', 'promise', 'breakup']),
+  ]).prefault(null).catch(null),
+  summary: text('', 160),
+  significance: integer(2, 1, 3),
+  active: boolean(true),
+  latest_attempt_id: z.union([z.null(), text('', 96)]).prefault(null).catch(null),
+  latest_commit_key: z.union([z.null(), text('', 96)]).prefault(null).catch(null),
+}).passthrough().prefault({});
+
+const characterMemorySchema = z.object({
+  character_id: text('', 48),
+  active_visit: z.union([visitRecordSchema, z.null()]).prefault(null).catch(null),
+  closed_visits: list(visitRecordSchema, 4),
+  legacy_memories: list(legacyMemorySchema, 16),
+  relationship_memories: list(relationshipMemorySchema, 12),
+}).passthrough().prefault({}).catch({
+  character_id: '',
+  active_visit: null,
+  closed_visits: [],
+  legacy_memories: [],
+  relationship_memories: [],
+});
+
+const characterVisitMigrationSchema = z.object({
+  revision: text('', 64),
+  conversation_log_fingerprint: z.union([z.null(), text('', 96)]).prefault(null).catch(null),
+  relationship_facts_fingerprint: z.union([dictionary(text('', 96)), z.null()]).prefault(null).catch(null),
+  migrated_at_serial: nullableSerial(),
+}).passthrough().prefault({});
+
+const visitMemoryStateSchema = z.object({
+  version: z.literal('character-visit-memory.v1')
+    .prefault('character-visit-memory.v1').catch('character-visit-memory.v1'),
+  by_character: dictionary(characterMemorySchema),
+  legacy_unassigned: list(legacyMemorySchema, 24),
+  migration: characterVisitMigrationSchema,
+}).passthrough().prefault({});
+
 const interactionSessionSchema = z.object({
   uid: text('', 48),
   type: z.enum(['character', 'facility', 'event']).prefault('character').catch('character'),
@@ -172,6 +285,7 @@ const Schema = z.object({
     settled_ids: list(text('', 64), 64),
     conversation_log: list(text('', 120), 24),
     starter_gift_claimed: boolean(false),
+    visit_memory: visitMemoryStateSchema,
   }).passthrough().prefault({}),
   events: z.object({
     active_event: z.union([eventSchema, z.null()]).prefault(null).catch(null),
@@ -395,6 +509,7 @@ const Schema = z.object({
     interaction: integer(1, 1, 999999),
     battle: integer(1, 1, 999999),
     relationship_fact: integer(1, 1, 999999),
+    character_visit: integer(1, 1, 999999),
   }).passthrough().prefault({}),
 }).passthrough().prefault({});
 

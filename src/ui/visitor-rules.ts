@@ -2,6 +2,7 @@ import visitCatalog from '../visitors/visit-profiles.json';
 import duelCatalog from '../battle/duel-profiles.json';
 import type { GardenState, TimePeriod, VisitPlan, VisitSource, VisitorMeta } from './types';
 import { periodSerialFromState } from './time-rules';
+import { reconcileCharacterVisitsFromState } from './character-memory';
 
 export interface VisitProfile {
   character_id: string;
@@ -288,7 +289,10 @@ export function evaluateVisitScheduler(
     state.visit_scheduler!.last_processed_serial = serial;
   }
 
-  return { state, notices };
+  // B1-T09：visitor scheduler 写点（departures + committed arrivals）→ visit 生命周期协调
+  // （cause=scheduler；before 为函数入参，协调基于本次 scheduler 产生的 presence 差异）。
+  const reconciled = reconcileCharacterVisitsFromState(before, state, 'scheduler');
+  return { state: reconciled, notices };
 }
 
 function maybeScheduleRandomVisit(state: GardenState, serial: number, chatId: string) {
@@ -522,5 +526,8 @@ export function commitOpportunityArrival(
     ...(state.visit_scheduler!.pending_notices ?? []),
     notice,
   ].slice(-12);
-  return { state, notice };
+  // B1-T09：opportunity card 到达写点 → visit 生命周期协调
+  // （cause=event：本地受控道具路径，不使用模型回执/时间调度 cause）。
+  const reconciled = reconcileCharacterVisitsFromState(before, state, 'event');
+  return { state: reconciled, notice };
 }

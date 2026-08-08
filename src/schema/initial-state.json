@@ -177,7 +177,75 @@
     "current_session": null,
     "settled_ids": [],
     "conversation_log": [],
-    "starter_gift_claimed": false
+    "starter_gift_claimed": false,
+    "visit_memory": {
+      "version": "character-visit-memory.v1",
+      "by_character": {
+        "reimu": {
+          "character_id": "reimu",
+          "active_visit": null,
+          "closed_visits": [],
+          "legacy_memories": [],
+          "relationship_memories": []
+        },
+        "marisa": {
+          "character_id": "marisa",
+          "active_visit": null,
+          "closed_visits": [],
+          "legacy_memories": [],
+          "relationship_memories": []
+        },
+        "cirno": {
+          "character_id": "cirno",
+          "active_visit": null,
+          "closed_visits": [],
+          "legacy_memories": [],
+          "relationship_memories": []
+        },
+        "alice": {
+          "character_id": "alice",
+          "active_visit": null,
+          "closed_visits": [],
+          "legacy_memories": [],
+          "relationship_memories": []
+        },
+        "mystia": {
+          "character_id": "mystia",
+          "active_visit": null,
+          "closed_visits": [],
+          "legacy_memories": [],
+          "relationship_memories": []
+        },
+        "suika": {
+          "character_id": "suika",
+          "active_visit": null,
+          "closed_visits": [],
+          "legacy_memories": [],
+          "relationship_memories": []
+        },
+        "nitori": {
+          "character_id": "nitori",
+          "active_visit": null,
+          "closed_visits": [],
+          "legacy_memories": [],
+          "relationship_memories": []
+        },
+        "sakuya": {
+          "character_id": "sakuya",
+          "active_visit": null,
+          "closed_visits": [],
+          "legacy_memories": [],
+          "relationship_memories": []
+        }
+      },
+      "legacy_unassigned": [],
+      "migration": {
+        "revision": "",
+        "conversation_log_fingerprint": null,
+        "relationship_facts_fingerprint": null,
+        "migrated_at_serial": null
+      }
+    }
   },
   "events": {
     "active_event": null,
@@ -328,6 +396,7 @@
     "event": 1,
     "interaction": 1,
     "battle": 1,
-    "relationship_fact": 1
+    "relationship_fact": 1,
+    "character_visit": 1
   }
 }

@@ -1,4 +1,9 @@
 import type { GardenState } from './types';
+import {
+  migrateConversationLogToLegacyMemory,
+  migrateRelationshipFactsToMemory,
+  repairCharacterVisitsAgainstPresence,
+} from './character-memory';
 import { deriveKnownCharacters } from './visitor-rules';
 
 const MAX_REWARDED_IDS = 256;
@@ -25,7 +30,7 @@ function defaultFacilityRuntime() {
 
 /** Idempotent, non-destructive defaults for saves created before M2. */
 export function migrateGardenState(before: GardenState): GardenState {
-  const state = structuredClone(before);
+  let state = structuredClone(before);
   state.resources ??= {};
   if (!Number.isInteger(state.resources.coins) || (state.resources.coins ?? 0) < 0) state.resources.coins = 0;
   state.resources.coins = Math.min(99999, state.resources.coins ?? 0);
@@ -143,6 +148,12 @@ export function migrateGardenState(before: GardenState): GardenState {
       new Set(entries.map((entry) => String(entry).slice(0, 120))),
     ).slice(-24);
   }
+  // GAL 角色记忆：把旧 conversation_log 确定性增量迁移进 visit_memory legacy 结构。
+  // 旧 conversation_log 本批仍保留（旧协议继续写）；新结构由 character-memory 纯迁移维护。
+  state = migrateConversationLogToLegacyMemory(state);
+  // GAL 角色记忆：把每角色 current_relationship_facts 确定性迁移进 relationship_memories。
+  // 旧 current_relationship_facts 本批仍保留（现有事件/变量链继续使用）。
+  state = migrateRelationshipFactsToMemory(state);
   state.events ??= {};
   state.events.settled_ids = Array.from(new Set(state.events.settled_ids ?? [])).slice(-256);
   state.events.waiting_events = Array.isArray(state.events.waiting_events) ? state.events.waiting_events.slice(0, 3) : [];
@@ -235,5 +246,8 @@ export function migrateGardenState(before: GardenState): GardenState {
   state.ui_flags ??= {};
   state.ui_flags.graduation_acknowledged ??= false;
   state.ui_flags.last_visit_notice_serial ??= null;
+  // B1-T09：load/migration 修复——当前在场但无 active_visit → bootstrap；
+  // 当前 absent 但有 active_visit → reconcile 关闭。幂等，只在迁移/加载路径调用。
+  state = repairCharacterVisitsAgainstPresence(state);
   return state;
 }
