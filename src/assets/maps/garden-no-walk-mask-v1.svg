@@ -1,6 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1672" height="941" viewBox="0 0 1672 941">
+<svg xmlns="http://www.w3.org/2000/svg" width="1672" height="1722" viewBox="0 0 1672 1722">
   <title>庭园不可行走蒙版 v1</title>
-  <desc>透明区域可行走；洋红区域不可行走。桥面留空，可供角色通过。</desc>
+  <desc>透明区域可行走；洋红区域不可行走。桥面留空，可供角色通过。
+    v1 形状登记于 2026-08-08 拼接前的底图坐标系（y 0-941），画布随 v4 底图扩展至 1722；
+    下段新图区域（y 941-1722）尚未登记阻挡，待所有者确认。</desc>
   <path
     fill="#ff00ff"
     fill-rule="evenodd"

@@ -83,7 +83,7 @@ export function resolveMapFacilitySprite(
 const areaPositions = GARDEN_AREA_POSITIONS;
 const CHARACTER_VISUAL_SCALE = 0.64;
 const FACILITY_VISUAL_SCALE = 0.76;
-const CHARACTER_FOOT_OFFSET_Y = 54 / 941;
+const CHARACTER_FOOT_OFFSET_Y = 54 / 1722;
 const CHARACTER_GROUP_SLOTS: readonly NormalizedPoint[] = Object.freeze([
   { x: 0, y: 0 },
   { x: -0.023, y: 0 },
@@ -199,6 +199,13 @@ export class GardenMap {
   private lastPointer: Point = { x: 0, y: 0 };
   private pointerOrigin: Point = { x: 0, y: 0 };
   private dragOriginCamera: Point = { x: 0, y: 0 };
+  // 双指捏合：记录所有活动指针，第二根手指落下时进入捏合模式。
+  private readonly activePointers = new Map<number, Point>();
+  private pinchActive = false;
+  private pinchMoved = false;
+  private pinchDistance = 0;
+  private pinchMidpoint: Point = { x: 0, y: 0 };
+  private pinchCamera = { x: 0, y: 0, zoom: 1 };
   private readonly resizeObserver: ResizeObserver;
   private readonly reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   private readonly actors = new Map<string, SpriteActor>();
@@ -236,7 +243,7 @@ export class GardenMap {
     this.background.src = mapSource;
     this.navigationMask = new GardenNavigationMask(
       navigationMaskSource,
-      [1672, 941],
+      [1672, 1722],
       () => this.draw(),
     );
     canvas.addEventListener('pointerdown', this.onPointerDown);
@@ -419,8 +426,8 @@ export class GardenMap {
     canvas.dataset.navigationSamples = this.navigationMask.ready
       ? [
         `land:${this.navigationMask.isBlocked({ x: .5, y: .58 }) ? 'blocked' : 'walkable'}`,
-        `river:${this.navigationMask.isBlocked({ x: 700 / 1672, y: 720 / 941 }) ? 'blocked' : 'walkable'}`,
-        `bridge:${this.navigationMask.isBlocked({ x: 729 / 1672, y: 826 / 941 }) ? 'blocked' : 'walkable'}`,
+        `river:${this.navigationMask.isBlocked({ x: 700 / 1672, y: 720 / 1722 }) ? 'blocked' : 'walkable'}`,
+        `bridge:${this.navigationMask.isBlocked({ x: 729 / 1672, y: 826 / 1722 }) ? 'blocked' : 'walkable'}`,
       ].join(',')
       : '';
     const width = canvas.width;
@@ -843,17 +850,28 @@ export class GardenMap {
   }
 
   private onPointerDown = (event: PointerEvent) => {
-    this.dragging = true;
-    this.cameraVelocity = { x: 0, y: 0 };
-    this.lastPointer = this.eventPoint(event);
-    this.pointerOrigin = this.lastPointer;
-    this.dragOriginCamera = { x: this.camera.x, y: this.camera.y };
+    const point = this.eventPoint(event);
+    this.activePointers.set(event.pointerId, point);
     this.canvas.setPointerCapture(event.pointerId);
+    this.cameraVelocity = { x: 0, y: 0 };
+    if (this.activePointers.size === 1) {
+      // 新一轮手势从单指开始，重置捏合标记，让之后的轻点可以选中。
+      this.pinchMoved = false;
+      this.dragging = true;
+      this.lastPointer = point;
+      this.pointerOrigin = point;
+      this.dragOriginCamera = { x: this.camera.x, y: this.camera.y };
+      return;
+    }
+    if (this.activePointers.size === 2) {
+      // 第二根手指落下：暂停单指拖动，进入双指捏合。
+      this.beginPinch();
+    }
   };
 
   private onPointerMove = (event: PointerEvent) => {
     const point = this.eventPoint(event);
-    if (!this.dragging) {
+    if (this.activePointers.size === 0) {
       // 悬停高亮：命中区域/角色时亮起边缘占位框并切换指针。
       const target = this.hitTarget(point);
       const nextId = target?.id ?? null;
@@ -864,6 +882,12 @@ export class GardenMap {
       }
       return;
     }
+    this.activePointers.set(event.pointerId, point);
+    if (this.pinchActive && this.activePointers.size >= 2) {
+      this.updatePinch();
+      return;
+    }
+    if (!this.dragging) return;
     this.canvas.style.cursor = 'grabbing';
     const bounds = this.cameraBounds();
     const overscrollLimitX = resolveAxisOverscrollLimit(
@@ -914,12 +938,30 @@ export class GardenMap {
   }
 
   private onPointerUp = (event: PointerEvent) => {
+    this.activePointers.delete(event.pointerId);
+    if (this.activePointers.size >= 2) {
+      // 仍有至少两根手指：以剩余手指为基准继续捏合。
+      if (this.pinchActive) this.beginPinch();
+      return;
+    }
+    if (this.activePointers.size === 1) {
+      // 捏合结束但还剩一根手指：从该手指当前位置继续单指拖动。
+      this.pinchActive = false;
+      this.dragging = true;
+      const remaining = [...this.activePointers.values()][0];
+      this.lastPointer = remaining;
+      this.pointerOrigin = remaining;
+      this.dragOriginCamera = { x: this.camera.x, y: this.camera.y };
+      this.canvas.style.cursor = 'grabbing';
+      return;
+    }
     const point = this.eventPoint(event);
     const movement = Math.hypot(point.x - this.pointerOrigin.x, point.y - this.pointerOrigin.y);
     this.dragging = false;
     this.canvas.style.cursor = 'grab';
     this.settleCameraToBounds();
-    if (movement > 8) return;
+    // 发生过捏合或拖动时不触发点击选中。
+    if (this.pinchMoved || movement > 8) return;
     const target = this.hitTarget(point);
     if (target) {
       const rect = this.canvas.getBoundingClientRect();
@@ -929,6 +971,38 @@ export class GardenMap {
       });
     }
   };
+
+  private beginPinch() {
+    const [a, b] = [...this.activePointers.values()].slice(0, 2);
+    if (!a || !b) return;
+    this.pinchActive = true;
+    this.dragging = false;
+    this.pinchDistance = Math.max(1, Math.hypot(a.x - b.x, a.y - b.y));
+    this.pinchMidpoint = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    this.pinchCamera = { x: this.camera.x, y: this.camera.y, zoom: this.camera.zoom };
+  }
+
+  private updatePinch() {
+    const [a, b] = [...this.activePointers.values()].slice(0, 2);
+    if (!a || !b) return;
+    const distance = Math.max(1, Math.hypot(a.x - b.x, a.y - b.y));
+    const midpoint = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    if (Math.abs(distance - this.pinchDistance) > 4
+      || Math.hypot(midpoint.x - this.pinchMidpoint.x, midpoint.y - this.pinchMidpoint.y) > 4) {
+      this.pinchMoved = true;
+    }
+    // 与滚轮缩放共用同一套锚点换算：保持两指初始中点下的世界坐标跟随手指。
+    const previousZoom = this.pinchCamera.zoom;
+    const worldX = (this.pinchMidpoint.x - this.canvas.width / 2 - this.pinchCamera.x) / previousZoom;
+    const worldY = (this.pinchMidpoint.y - this.canvas.height / 2 - this.pinchCamera.y) / previousZoom;
+    const nextZoom = Math.min(2, Math.max(1, previousZoom * (distance / this.pinchDistance)));
+    this.camera.zoom = nextZoom;
+    this.camera.x = midpoint.x - this.canvas.width / 2 - worldX * nextZoom;
+    this.camera.y = midpoint.y - this.canvas.height / 2 - worldY * nextZoom;
+    this.cameraVelocity = { x: 0, y: 0 };
+    this.settleCameraToBounds();
+    this.draw();
+  }
 
   private onWheel = (event: WheelEvent) => {
     event.preventDefault();

@@ -1,15 +1,22 @@
 import { build } from 'esbuild';
 import { createHash } from 'node:crypto';
-import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { access, copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, extname } from 'node:path';
 import { PNG } from 'pngjs';
 
 const stableJson = (value) => `${JSON.stringify(value, null, 2)}\n`;
+const exists = async (file) => access(file).then(() => true, () => false);
 
 const buildArgs = Object.fromEntries(process.argv.slice(2).map((arg) => {
   const [key, ...rest] = arg.replace(/^--/, '').split('=');
   return [key, rest.length ? rest.join('=') : true];
 }));
+const uiDelivery = buildArgs['ui-delivery'] ?? 'embedded';
+if (!['embedded', 'remote'].includes(uiDelivery)) throw new Error('--ui-delivery 只允许 embedded 或 remote');
+const uiVersion = buildArgs['ui-version'];
+if (uiDelivery === 'remote' && (typeof uiVersion !== 'string' || !/^r\d+$/.test(uiVersion))) {
+  throw new Error('--ui-delivery=remote 必须显式提供 --ui-version=rN（例如 r95）');
+}
 const assetMode = buildArgs['asset-mode'] ?? 'embedded';
 let remoteAssetConfig = null;
 if (assetMode !== 'embedded') {
@@ -809,8 +816,30 @@ const enhancedMountBundle = [
   // 必须保证每次构建产物 version 不同，旧实例才会走 destroy→重建路径。
   hostShellSource.replace(
     /0\.4\.3-host-generate-r\d+/,
-    `0.4.3-host-generate-${new Date().toISOString().replace(/\D/g, '').slice(0, 14)}`,
+    `0.4.3-host-generate-${uiDelivery === 'remote'
+      ? uiVersion
+      : createHash('sha256').update(JSON.stringify(embedded)).digest('hex').slice(0, 14)}`,
   ),
 ].join('\n');
 await mkdir('dist/runtime', { recursive: true });
 await writeFile('dist/runtime/ui-mount.js', enhancedMountBundle, 'utf8');
+// UI 交付形态：embedded（默认，现状整包内嵌）或 remote（额外产出发布副本 + 卡内 loader）。
+// remote 模式由 scripts/publish-ui.mjs 上传 ui-mount-<version>.js 与 ui-manifest.json，
+// 打包链（package-checkpoint.mjs --ui-delivery=remote）将 ui-loader.js 作为卡内脚本。
+if (uiDelivery === 'remote') {
+  if (!remoteAssetConfig) throw new Error('--ui-delivery=remote 要求 --asset-mode=remote-r2-live 与 --asset-base-url');
+  const versionedMountPath = `dist/runtime/ui-mount-${uiVersion}.js`;
+  if (await exists(versionedMountPath)) {
+    const existingMount = await readFile(versionedMountPath, 'utf8');
+    if (existingMount !== enhancedMountBundle) {
+      throw new Error(`拒绝覆盖不可变 UI 产物：${versionedMountPath} 已存在且内容不同，请使用新的 --ui-version=rN`);
+    }
+  } else {
+    await writeFile(versionedMountPath, enhancedMountBundle, 'utf8');
+  }
+  const manifestUrl = `${remoteAssetConfig.baseUrl}/gensokyo-moving-garden/live/ui/ui-manifest.json`;
+  const loaderTemplate = await readFile('src/runtime/ui-loader.js', 'utf8');
+  const loader = loaderTemplate.replace(/__UI_MANIFEST_URL__/g, manifestUrl);
+  await writeFile('dist/runtime/ui-loader.js', loader, 'utf8');
+  console.log(`[build-ui] remote 交付产物：ui-mount-${uiVersion}.js（${(enhancedMountBundle.length / 1024 / 1024).toFixed(2)} MB）、ui-loader.js（${(loader.length / 1024).toFixed(1)} KB，指向 ${manifestUrl}）`);
+}

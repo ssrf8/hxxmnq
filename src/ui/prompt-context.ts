@@ -21,16 +21,6 @@ export interface PromptContextOptions {
 }
 
 /**
- * 玩家主动提供并经开场 UI 确认的身份事实：姓名与称谓（如“中性称谓/他/她”）。
- * 只用于称呼玩家，不授予模型替玩家决定人称、台词、心理或关系的权限。
- */
-function playerIdentityLine(state: GardenState) {
-  const name = state.player?.name?.trim() || '未命名旅人';
-  const pronoun = state.player?.pronouns?.trim();
-  return pronoun ? `玩家姓名：${name}（可用「${pronoun}」称呼）` : `玩家姓名：${name}`;
-}
-
-/**
  * Builds the minimum layered prompt facts for an LLM call.
  * Hidden anomaly origin is only included for daily investigation / final resolution.
  */
@@ -43,7 +33,7 @@ export function buildPromptContext(state: GardenState, options: PromptContextOpt
     `日期：第 ${state.environment?.day ?? 1} 日 ${state.environment?.time_period ?? '清晨'}`,
     `天气：${state.environment?.weather ?? '晴'}`,
     `玩家区域：${state.player?.current_area_id ?? 'central_courtyard'}`,
-    playerIdentityLine(state),
+    // 玩家姓名不再每轮投影：开场时已注入酒馆原生宏（{{user}} 展开名），模型从系统层读到。
     `在场角色：${(state.presence_snapshot?.present_character_ids ?? []).join('、') || '无'}`,
     `绝对时段序号：${periodSerialFromState(state)}`,
   ].join('\n'));
@@ -133,7 +123,6 @@ export function buildPromptContext(state: GardenState, options: PromptContextOpt
       return [
         '【场景事实】',
         `日期：第 ${state.environment?.day ?? 1} 日 ${state.environment?.time_period ?? '清晨'}`,
-        playerIdentityLine(state),
         projection ? buildOrdinaryAnomalyPrompt(state) : '',
         options.includeSceneItems === false ? '' : sceneItemPrompt(state),
       ].filter(Boolean).join('\n\n');

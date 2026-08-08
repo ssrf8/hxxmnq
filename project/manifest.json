@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "status": "released",
   "released_checkpoint": "0.2.0-r89",
-  "next_checkpoint": "0.2.0-r93-player-name-projection",
+  "next_checkpoint": "0.2.0-r95-ui-remote-hardening",
   "planned_checkpoint_sequence": [
     "0.2.0-r19",
     "0.2.0-r20",
@@ -79,7 +79,9 @@
     "0.2.0-r90",
     "0.2.0-r91",
     "0.2.0-r92",
-    "0.2.0-r93"
+    "0.2.0-r93",
+    "0.2.0-r94",
+    "0.2.0-r95"
   ],
   "source_root": "../src",
   "test_root": "../tests",
@@ -155,7 +157,7 @@
     "opening_controller": "../src/ui/opening.ts",
     "database_adapter": "../src/ui/database-adapter.ts",
     "garden_canvas": "../src/ui/garden-map.ts",
-    "garden_base": "../src/assets/maps/garden-base-owner-v3.png",
+    "garden_base": "../src/assets/maps/garden-base-owner-v4.png",
     "gal_scene_parser": "../src/ui/gal-scene.ts",
     "gal_message_selection": "../src/ui/gal-message-selection.ts",
     "target_actions": "../src/ui/target-actions.ts",
@@ -186,10 +188,10 @@
   "runtime_artifacts": {
     "self_contained_ui_mount": "../dist/runtime/ui-mount.js",
     "mvu_loader": "../src/runtime/01-mvu-loader.js",
-    "checkpoint_card": "../dist/checkpoint-0.2.0-r92/幻想乡物语-测试检查点-0.2.0-r92.json",
-    "checkpoint_png": "../dist/checkpoint-0.2.0-r92/幻想乡物语-测试检查点-0.2.0-r92.png",
-    "current_ui_script": "gensokyo-garden-ui-020-r92",
-    "current_checkpoint": "0.2.0-r92"
+    "checkpoint_card": "../dist/checkpoint-0.2.0-r94/幻想乡物语-测试检查点-0.2.0-r94.json",
+    "checkpoint_png": "../dist/checkpoint-0.2.0-r94/幻想乡物语-测试检查点-0.2.0-r94.png",
+    "current_ui_script": "gensokyo-garden-ui-020-r94",
+    "current_checkpoint": "0.2.0-r94"
   },
   "checkpoint_adapter": {
     "command_dry_run": "npm run package:checkpoint:dry",
@@ -202,13 +204,14 @@
       "../src/schema/initial-state.json",
       "../src/schema/02-mvu-schema.js",
       "../src/runtime/01-mvu-loader.js",
-      "../dist/runtime/ui-mount.js"
+      "../dist/runtime/ui-loader.js",
+      "../dist/runtime/ui-mount-rN.js"
     ]
   },
   "release_artifacts": {
-    "checkpoint_card": "../dist/checkpoint-0.2.0-r92/幻想乡物语-正式版-0.2.0-r92.json",
-    "checkpoint_png": "../dist/checkpoint-0.2.0-r92/幻想乡物语-正式版-0.2.0-r92.png",
+    "checkpoint_card": "../dist/checkpoint-0.2.0-r93/幻想乡物语-正式版-0.2.0-r93.json",
+    "checkpoint_png": "../dist/checkpoint-0.2.0-r93/幻想乡物语-正式版-0.2.0-r93.png",
     "card_name": "幻想乡物语·移动庭园",
-    "version": "0.2.0-r92"
+    "version": "0.2.0-r93"
   }
 }

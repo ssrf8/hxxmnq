@@ -68,8 +68,9 @@ export class OpeningController {
     if (!this.context) {
       this.context = await this.bridge.getOpeningContext();
       const saved = this.loadDraft();
+      // 玩家姓名开放输入：草稿优先；无草稿时预填酒馆当前用户名（旧酒馆读不到则为空，由玩家手动填写）。
       this.writeDraft(saved ?? normalizedDraft({
-        playerName: this.context.personaName,
+        playerName: this.context.personaName || '',
         playerPronouns: '中性称谓',
         playerAppearance: this.context.personaDescription,
         gardenName: '无名庭园',
@@ -151,15 +152,17 @@ export class OpeningController {
     this.writeDraft(draft);
     this.saveDraft();
     this.renderPreview();
-    this.setStatus(this.context.personaName ? '已读取当前 Persona，可继续修改' : '当前没有可读取的 Persona，保留现有草稿');
+    this.setStatus(this.context.personaName ? '已读取当前 Persona 作为玩家身份' : '当前没有可读取的 Persona，请先在酒馆设置用户名', this.context.personaName ? false : true);
   }
 
   private async commit() {
     if (!this.context || this.busy) return;
     const draft = this.readDraft();
-    if (!draft.playerName.trim()) return this.setStatus('请先填写玩家姓名', true);
-    if (!draft.playerPronouns.trim()) return this.setStatus('请填写称谓或代词', true);
-    if (!draft.gardenName.trim()) return this.setStatus('庭园总得有个暂用名吧', true);
+    const resolvedName = draft.playerName.trim() || this.context?.personaName || '';
+    if (!resolvedName) return this.setStatus('请填写玩家姓名（或先在酒馆设置用户名）', true);
+    const resolved = { ...draft, playerName: resolvedName };
+    if (!resolved.playerPronouns.trim()) return this.setStatus('请填写称谓或代词', true);
+    if (!resolved.gardenName.trim()) return this.setStatus('庭园总得有个暂用名吧', true);
     this.busy = true;
     this.button('gg-opening-commit').disabled = true;
     this.form.setAttribute('aria-busy', 'true');
@@ -173,15 +176,24 @@ export class OpeningController {
         this.loadingRoot.hidden = true;
         if (snapshot.failed) this.setAssetFallbackStatus(snapshot);
       }
-      const result = await this.bridge.initializeOpening(draft, frozenChatId);
+      const result = await this.bridge.initializeOpening(resolved, frozenChatId);
+      // 把玩家输入的名字注入酒馆原生宏（{{user}} 展开名）：模型从系统层读到，
+      // 无需每轮在提示词里投影；旧酒馆不支持时静默降级，名字仍保留在卡内资料。
+      let userNameNote = '';
+      try {
+        const injected = await this.bridge.applyUserNameToHost(resolvedName);
+        if (!injected.injected) userNameNote = '；未能写入酒馆原生宏（当前酒馆可能不支持），名字仅保留在卡内资料中';
+      } catch {
+        userNameNote = '；写入酒馆原生宏失败，名字仅保留在卡内资料中';
+      }
       sessionStorage.removeItem(storageKey(frozenChatId));
       const loadWarning = this.assetPreloader.snapshot.failed
         ? `；${this.assetPreloader.snapshot.failed} 项素材已降级显示`
         : '';
       this.setStatus((result.alreadyCommitted
         ? '开局资料已经存在，移动庭园的结界正在重新开启'
-        : '庭守钥已经苏醒，移动庭园的结界正在开启') + loadWarning,
-      this.assetPreloader.snapshot.failed > 0);
+        : '庭守钥已经苏醒，移动庭园的结界正在开启') + loadWarning + userNameNote,
+      this.assetPreloader.snapshot.failed > 0 || Boolean(userNameNote));
       this.requestRefresh();
     } catch (error) {
       this.loadingRoot.hidden = true;

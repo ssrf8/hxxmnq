@@ -26,7 +26,8 @@
       <p class="gg-opening-sub">打开祖父留下的最后一封信</p>
       <p class="gg-visually-hidden">确认身份后会在当前开场楼层写入初始资料并直接进入庭园，不会发送消息或调用语言模型。</p>
       <form id="gg-opening-form" class="gg-opening-form">
-        <label class="gg-opening-field">玩家姓名<input id="gg-opening-name" name="playerName" maxlength="40" autocomplete="off" required></label>
+        <label class="gg-opening-field">玩家姓名<input id="gg-opening-name" name="playerName" maxlength="40" autocomplete="off" placeholder="默认使用酒馆用户名" required></label>
+        <p class="gg-note">默认使用酒馆当前用户名（{{user}}）；旧酒馆读不到时可手动填写——填写后会把名字注入酒馆原生宏，全程（含原生聊天）以该名字称呼玩家。</p>
         <label class="gg-opening-field" hidden>称谓或代词<input id="gg-opening-pronouns" name="playerPronouns" maxlength="40" value="中性称谓"></label>
         <label class="gg-opening-field">外貌简述<textarea id="gg-opening-appearance" name="playerAppearance" rows="3" maxlength="500" placeholder="可以留空"></textarea></label>
         <label class="gg-opening-field">庭园名称<input id="gg-opening-garden" name="gardenName" maxlength="60" value="无名庭园" required></label>

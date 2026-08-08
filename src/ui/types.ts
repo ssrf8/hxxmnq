@@ -507,6 +507,7 @@ export interface DuelCardBridgeSettlementResult {
 export interface GardenBridge {
   readState(): Promise<GardenState>;
   getOpeningContext(): Promise<OpeningContext>;
+  applyUserNameToHost(name: string): Promise<{ injected: boolean; method: string; reason?: string }>;
   getOpeningProgress(): Promise<OpeningProgress>;
   initializeOpening(draft: OpeningDraft, expectedChatId: string): Promise<OpeningInitializeResult>;
   commitOpening(draft: OpeningDraft, message: string, expectedChatId: string): Promise<OpeningCommitResult>;

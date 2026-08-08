@@ -11,7 +11,7 @@ export interface GardenMaskSampler {
 
 export const GARDEN_FOOTPRINT_RADIUS = Object.freeze({
   x: 12 / 1672,
-  y: 7 / 941,
+  y: 7 / 1722,
 });
 
 const clampUnit = (value: number) => Math.min(1, Math.max(0, value));

@@ -1,6 +1,7 @@
-import type { GardenState } from './types';
+import type { GardenState, VisitorMeta } from './types';
 import { eventById, eventResultForAction } from './event-registry';
-import { advanceOneTimePeriod, enforceMonotonicTime } from './time-rules';
+import { advanceOneTimePeriod, enforceMonotonicTime, periodSerialFromState } from './time-rules';
+import { buildVisitorMetaForArrival } from './visitor-rules';
 
 export interface GardenActionMarker {
   version: 'garden-action.v1';
@@ -189,9 +190,15 @@ export function applyPresenceUpdate(state: GardenState, assistantText: string): 
     presentCharacterIds.push(id);
     characterViews[id] = view;
   }
+  const previousVisitorMeta = next.presence_snapshot?.visitor_meta ?? {};
   next.presence_snapshot = {
     present_character_ids: presentCharacterIds,
     character_views: characterViews,
+    visitor_meta: Object.fromEntries(
+      presentCharacterIds
+        .map((id) => [id, structuredClone(previousVisitorMeta[id])])
+        .filter(([, meta]) => meta !== undefined),
+    ),
   };
   return next;
 }
@@ -232,6 +239,45 @@ export function hasLocalPresenceTransition(action: GardenActionMarker) {
   return Boolean(transition?.arrive?.length || transition?.leave?.length);
 }
 
+/**
+ * 计算事件在场迁移后的 visitor_meta（纯函数，不写 state）。
+ * - 迁移后在场角色：保留原 meta（含未知 passthrough 字段）；
+ * - 仅为真正新增（迁移前不在场）且无 meta 的 arrive 角色生成确定性事件 meta；
+ * - 不在迁移后名单的角色（含 leave）meta 一律不保留。
+ * 现有事件登记没有 leave，因此 leave 行为只能在该纯函数层面测试；
+ * 生产 JSON 不伪造 leave transition。
+ */
+export function mergeEventPresenceVisitorMeta(
+  previousVisitorMeta: Record<string, VisitorMeta>,
+  presentCharacterIds: string[],
+  arrivedIds: ReadonlySet<string>,
+  previousPresent: ReadonlySet<string>,
+  state: GardenState,
+  action: GardenActionMarker,
+): Record<string, VisitorMeta> {
+  const serial = periodSerialFromState(state);
+  const visitorMeta: Record<string, VisitorMeta> = {};
+  for (const characterId of presentCharacterIds) {
+    if (previousVisitorMeta[characterId] !== undefined) {
+      visitorMeta[characterId] = previousVisitorMeta[characterId];
+      continue;
+    }
+    // 只为真正新增（迁移前不在场）且无 meta 的 arrive 角色生成确定性事件 meta。
+    if (!arrivedIds.has(characterId) || previousPresent.has(characterId)) continue;
+    const arrivalUid = action.settlement_id
+      ?? `event:${action.event_id}:${characterId}:${serial}`;
+    const meta = buildVisitorMetaForArrival(
+      state,
+      characterId,
+      arrivalUid,
+      `event:${action.event_id}`,
+      'event',
+    );
+    if (meta) visitorMeta[characterId] = meta;
+  }
+  return visitorMeta;
+}
+
 function applyLocalPresenceTransition(state: GardenState, action: GardenActionMarker) {
   if (!action.event_id) return;
   const transition = eventById.get(action.event_id)?.presence_transition;
@@ -239,6 +285,8 @@ function applyLocalPresenceTransition(state: GardenState, action: GardenActionMa
   const knownCharacterIds = new Set(Object.keys(state.characters ?? {}));
   const knownAreaIds = new Set([...BASE_AREA_IDS, ...Object.keys(state.areas ?? {})]);
   const present = new Set(state.presence_snapshot?.present_character_ids ?? []);
+  const previousPresent = new Set(present);
+  const previousVisitorMeta = structuredClone(state.presence_snapshot?.visitor_meta ?? {});
   const views = structuredClone(state.presence_snapshot?.character_views ?? {});
   for (const arrival of transition.arrive ?? []) {
     if (!knownCharacterIds.has(arrival.character_id)) continue;
@@ -257,9 +305,19 @@ function applyLocalPresenceTransition(state: GardenState, action: GardenActionMa
     delete views[characterId];
   }
   const presentCharacterIds = [...present];
+  const arrivedIds = new Set((transition.arrive ?? []).map((arrival) => arrival.character_id));
+  const visitorMeta = mergeEventPresenceVisitorMeta(
+    previousVisitorMeta,
+    presentCharacterIds,
+    arrivedIds,
+    previousPresent,
+    state,
+    action,
+  );
   state.presence_snapshot = {
     present_character_ids: presentCharacterIds,
     character_views: Object.fromEntries(presentCharacterIds.map((id) => [id, views[id] ?? {}])),
+    visitor_meta: visitorMeta,
   };
 }
 

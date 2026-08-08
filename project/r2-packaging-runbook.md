@@ -301,13 +301,51 @@ npm run package:checkpoint
 正式输出的字节数和 SHA-256 必须与 dry-run 完全一致。继续检查：
 
 - JSON 可解析且为 `chara_card_v2 / 2.0`；
-- 包内 UI 脚本与 `dist/runtime/ui-mount.js` 逐字节一致；
+- 包内 UI 脚本与交付形态一致：embedded 模式与 `dist/runtime/ui-mount.js` 逐字节一致；remote 模式为 `dist/runtime/ui-loader.js`（loader，须含 R2 `ui-manifest.json` 引用且 `ui-mount-<rN>.js` 产物已存在/已发布）；
 - 包内固定的是生产 origin、新 release ID 和新 manifest 哈希；
 - 包内不存在 Token、Access Key、Secret、`cloudflarestorage.com` 管理端点或开发服务器地址；
 - 旧检查点文件未被覆盖。
 
 最后报告：R2 release、manifest 声明哈希、对象数量、素材字节数、角色卡路径、角色卡字节数、
 角色卡 SHA-256、测试数量，以及真实 SillyTavern 验收是否仍待执行。
+
+## UI 远程交付（方案 A，2026-08-04 起）
+
+目标：卡内只留 loader，UI 包与 manifest 指针放 R2，更新 UI 免重发卡。
+
+### 固定坐标
+
+| 对象 | 位置 |
+|---|---|
+| UI 包（不可变） | `https://ssrfrrt.ccwu.cc/gensokyo-moving-garden/live/ui/ui-mount-r<N>.js` |
+| 指针（唯一可变） | `https://ssrfrrt.ccwu.cc/gensokyo-moving-garden/live/ui/ui-manifest.json` |
+| 卡内 loader | `src/runtime/ui-loader.js`（构建时替换 `__UI_MANIFEST_URL__`） |
+
+### 流程
+
+```powershell
+# 1. remote 构建（产出 ui-mount.js + ui-mount-r<N>.js + ui-loader.js）
+npm run build:ui:remote -- --ui-version=r<N>
+
+# 2. 发布 dry-run（不写桶）
+node scripts/publish-ui.mjs --version=r<N> --file=dist/runtime/ui-mount-r<N>.js --dry-run
+
+# 3. 真实上传（需所有者明确授权；凭据在 .env，勿入仓库/聊天/命令参数）
+node scripts/publish-ui.mjs --version=r<N> --file=dist/runtime/ui-mount-r<N>.js
+
+# 4. 打 remote 卡（dry-run 先）
+node scripts/package-checkpoint.mjs --checkpoint=0.2.0-r<N> --dry-run --expect-remote-r2 --ui-delivery=remote
+node scripts/package-checkpoint.mjs --checkpoint=0.2.0-r<N> --expect-remote-r2 --ui-delivery=remote
+```
+
+### 纪律
+
+- `ui-mount-r<N>.js` 不可变：本地构建发现同名不同内容即拒绝，R2 发布使用 `If-None-Match: *` 原子创建；更新 = 新版本号新文件 + 改 manifest 指针。
+- 上传顺序：先 ui-mount（`immutable` 长缓存）→ 公网读回并核对字节、SHA-256、Content-Type、Cache-Control → 以当前 ETag 条件更新 ui-manifest（`no-store`）→ 再次公网逐字节读回 manifest。manifest 是唯一"活"文件；并发更新会被条件写拒绝。
+- loader 强制校验 schema、版本、同源固定路径、bytes 与 sha256 后再经 Blob URL import；sha256 缺失或格式错误不得降级执行。manifest 使用 `no-store`，不可变 UI 包保留浏览器缓存。
+- loader 依赖安全上下文中的 Web Crypto；SillyTavern 必须通过 HTTPS 或浏览器认可的可信 localhost 打开。缺少 `crypto.subtle` 时显示明确错误，不允许跳过完整性校验。
+- remote 卡 JSON 约 290KB（loader 大小随校验逻辑演进，r95 为约 4.2KB）；embedded 模式（`--ui-delivery=embedded` 或缺省）保持整包内嵌，用于开发/验收。
+- 世界书仍内嵌卡内：加新角色人设仍需重发卡，但无需重打包 UI。
 
 ## 旧 R2 release 删除规则
 

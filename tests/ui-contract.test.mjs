@@ -168,6 +168,28 @@ test('浏览器缩放补偿只服务地图交互，三项玩法入口进入大�
   assert.match(styles, /@media \(max-width: 559px\)[\s\S]*?\.gg-launcher-grid \{ grid-template-columns: 1fr/);
 });
 
+test('R33.2 顶栏换装「晨雾结界·像素晨光·玻璃流光」：更透底图 + 流动炫光玻璃 + 便利贴胶带；不改文字与间距', async () => {
+  const styles = await read('../src/ui/styles.css');
+  assert.match(styles, /\.gg-header \{[\s\S]*?--gg-header-paper: rgba\(255, 249, 231, \.9\);[\s\S]*?border: 0;[\s\S]*?repeating-linear-gradient\(90deg, rgba\(214, 181, 119, \.09\)/);
+  assert.match(styles, /\.gg-header \{[\s\S]*?radial-gradient\(circle 52% at 50% 50%, rgba\(240, 200, 130, \.38\)[\s\S]*?radial-gradient\(circle 56% at 50% 50%, rgba\(160, 205, 215, \.32\)[\s\S]*?radial-gradient\(circle 50% at 50% 50%, rgba\(226, 160, 172, \.28\)/);
+  assert.match(styles, /\.gg-header \{[\s\S]*?linear-gradient\(180deg, rgba\(255, 251, 240, \.76\)/);
+  assert.match(styles, /\.gg-header \{[\s\S]*?animation: gg-header-glass-flow 9s/);
+  assert.match(styles, /@keyframes gg-header-glass-flow \{[\s\S]*?background-position: 0 0, 0 0, 135% 50%, 10% 25%, 80% 70%, 20% 60%, 0 0;/);
+  assert.match(styles, /\.gg-header \.gg-title-wrap \{[\s\S]*?clip-path: polygon\(0 8px/);
+  assert.match(styles, /\.gg-header \.gg-title-wrap \{[\s\S]*?filter: drop-shadow\(3px 3px 0 rgba\(150, 110, 74, \.3\)\)/);
+  assert.match(styles, /\.gg-header \.gg-title-wrap::after \{[\s\S]*?height: 8px;[\s\S]*?repeating-linear-gradient\(90deg, rgba\(255, 255, 255, \.18\)/);
+  assert.match(styles, /\.gg-header \.gg-status-line span \{[\s\S]*?border: 2px solid rgba\(178, 130, 86, \.4\);[\s\S]*?border-radius: 2px;[\s\S]*?box-shadow:/);
+  assert.match(styles, /\.gg-header \.gg-status-line #gg-time \{ background: rgba\(255, 250, 218, \.62\); \}/);
+  assert.match(styles, /\.gg-header \.gg-status-line #gg-weather \{ background: rgba\(255, 240, 233, \.62\); \}/);
+  assert.match(styles, /\.gg-header \.gg-status-line #gg-resources \{ background: rgba\(234, 246, 244, \.62\); \}/);
+  assert.match(styles, /\.gg-header #gg-time::before \{ background: #dfa84e; \}/);
+  assert.match(styles, /\.gg-header #gg-weather::before \{ background: var\(--gg-header-red\); \}/);
+  assert.match(styles, /\.gg-header #gg-resources::before \{ background: #86b3b0; \}/);
+  assert.match(styles, /\.gg-header #gg-open-launcher \{[\s\S]*?--btn-hi: rgba\(235, 178, 160, \.9\);[\s\S]*?--btn-lo: rgba\(214, 138, 118, \.88\);/);
+  assert.match(styles, /\.gg-header #gg-open-launcher:active:not\(:disabled\) \{[\s\S]*?translate\(2px, 2px\)/);
+  assert.match(styles, /\.gg-launcher-dialog \{[\s\S]*?border: 4px solid #d9c29a;[\s\S]*?border-radius: 2px;/);
+});
+
 test('设施查看与主屋维修隐藏图片且不影响其他设施行动', async () => {
   const controller = await read('../src/ui/app.ts');
   const styles = await read('../src/ui/styles.css');
@@ -699,6 +721,20 @@ test('庭园地图滚轮缩放不被绘制尺寸抵消，并保持指针锚点',
   assert.doesNotMatch(styles, /#gg-garden-map \{[^}]*min-height: 480px/);
 });
 
+test('庭园地图支持双指捏合缩放，并保持手指中点锚点', async () => {
+  const source = await read('../src/ui/garden-map.ts');
+  assert.match(source, /private readonly activePointers = new Map<number, Point>/);
+  assert.match(source, /pinchDistance = Math\.max\(1, Math\.hypot\(a\.x - b\.x, a\.y - b\.y\)\)/);
+  assert.match(source, /pinchMidpoint = \{ x: \(a\.x \+ b\.x\) \/ 2/);
+  assert.match(source, /activePointers\.set\(event\.pointerId, point\)/);
+  assert.match(source, /setPointerCapture\(event\.pointerId\)/);
+  assert.match(source, /private beginPinch\(\)/);
+  assert.match(source, /private updatePinch\(\)/);
+  assert.match(source, /Math\.min\(2, Math\.max\(1, previousZoom \* \(distance \/ this\.pinchDistance\)\)/);
+  assert.match(source, /this\.camera\.x = midpoint\.x - this\.canvas\.width \/ 2 - worldX \* nextZoom/);
+  assert.match(source, /this\.pinchMoved/);
+});
+
 test('地图相机具有软边界、拖拽阻力和减少动态效果回退', async () => {
   const map = await importTypescript('../src/ui/garden-map.ts');
   const source = await read('../src/ui/garden-map.ts');
@@ -756,13 +792,13 @@ test('人物响应式缩放同步命中、标签与多人间距', async () => {
   assert.match(source, /CHARACTER_FOOT_OFFSET_Y/);
 });
 
-test('所有者提供的 v3 横向庭园底图由素材清单驱动，人物比例保持稳定', async () => {
+test('所有者提供的 v4 拼接庭园底图由素材清单驱动，人物比例保持稳定', async () => {
   const manifest = await read('../src/assets/asset-manifest.json');
   const build = await read('../scripts/build-ui.mjs');
   const map = await read('../src/ui/garden-map.ts');
   const spatial = await read('../src/ui/garden-spatial.ts');
-  assert.match(manifest, /garden-base-owner-v3\.webp/);
-  assert.match(manifest, /"canvas": \[1672, 941\]/);
+  assert.match(manifest, /garden-base-owner-v4\.webp/);
+  assert.match(manifest, /"canvas": \[1672, 1722\]/);
   assert.match(manifest, /"runtime_role": "base-layer"/);
   assert.match(manifest, /"facility_layer_policy": "v3-transparent-sprites-with-damaged-ruin-replacements-integrated"/);
   assert.match(build, /assetManifest\.maps\?\.garden_base/);
@@ -781,7 +817,7 @@ test('庭园不可行走蒙版与底图同画布，并进入预览和自包含�
   const map = await read('../src/ui/garden-map.ts');
   assert.deepEqual(manifest.maps.garden_no_walk_mask.canvas, manifest.maps.garden_base.canvas);
   assert.equal(manifest.maps.garden_no_walk_mask.runtime_role, 'non-walkable-alpha-mask');
-  assert.match(mask, /width="1672" height="941" viewBox="0 0 1672 941"/);
+  assert.match(mask, /width="1672" height="1722" viewBox="0 0 1672 1722"/);
   assert.match(mask, /fill="#ff00ff"/);
   assert.match(mask, /fill-rule="evenodd"/);
   assert.match(build, /mapNoWalkMaskSrc: previewAssetUrl/);
@@ -873,7 +909,7 @@ test('v3 底图启用同画布透明设施，并以共享废墟替换三组 dama
   );
   assert.match(manifest.map_facility_assets.main_house.status, /^retired-from-map/);
   const spatial = await read('../src/ui/garden-spatial.ts');
-  assert.match(spatial, /main_house:\s*\{\s*x:\s*0\.50,\s*y:\s*0\.43\s*\}/);
+  assert.match(spatial, /main_house:\s*\{\s*x:\s*0\.50,\s*y:\s*0\.235\s*\}/);
   for (const id of ['magic_greenhouse', 'fairy_garden', 'moon_spring', 'banquet_plaza']) {
     const geometry = manifest.map_facility_assets[id].geometry;
     assert.ok(geometry.width_ratio > 0.2 && geometry.width_ratio < 0.3);
@@ -1134,7 +1170,7 @@ test('新开局本地写入首层 MVU，不创建消息或调用 LLM', async () 
   assert.match(opening, /export function buildOpeningMessage\(draft: OpeningDraft\)/);
   assert.match(opening, /sessionStorage/);
   assert.match(opening, /appearanceSentence/);
-  assert.match(opening, /bridge\.initializeOpening\(draft, frozenChatId\)/);
+  assert.match(opening, /bridge\.initializeOpening\(resolved, frozenChatId\)/);
   assert.match(opening, /不发送玩家消息，也不会调用 LLM/);
   const commitHandler = opening.slice(opening.indexOf('private async commit()'));
   assert.match(commitHandler, /initializeOpening|sessionStorage\.removeItem/);
@@ -1373,6 +1409,17 @@ test('庭园正文剥离 LLM 自指纠错 CoT 泄漏且不误伤正常台词', a
   assert.match(cleaned, /她瞪大眼睛/u, '正文内容保留');
 });
 
+test('庭园正文段落不设条数上限：25 条以上全部保留直到正文结束', async () => {
+  const parser = await importTypescript('../src/ui/gal-scene.ts');
+  const state = { characters: { reimu: {} } };
+  const body = '【庭园正文开始】\n'
+    + Array.from({ length: 25 }, (_, index) => `<narration>这是第 ${index + 1} 段正文。</narration>\n`).join('')
+    + '【庭园正文结束】';
+  const scene = parser.projectGalScene({ id: 24, text: body }, state, 'reimu');
+  assert.equal(scene.beats.length, 25, '25 条段落应全部保留，不再截断前 24 条');
+  assert.match(scene.beats[24].text, /第 25 段正文/u, '最后一段（第 25 段）应进入 GAL 播放');
+});
+
 test('八名 GAL 角色注册表接入五种表情的着装与全裸槽位', async () => {
   const registry = await importTypescript('../src/ui/gal-portrait-registry.ts');
   assert.deepEqual([...registry.GAL_PORTRAIT_REACTION_IDS], [
@@ -1600,26 +1647,32 @@ test('conversation_log 跨对话记忆：schema 容纳、迁移保留、结束�
   assert.deepEqual(emptyStr.interaction.conversation_log, [], '空白字符串兜底为空数组');
 });
 
-test('玩家姓名与称谓投影进【场景事实】，协议钉住称呼边界', async () => {
+test('玩家姓名不再每轮投影：走酒馆原生宏注入，规则钉住称呼边界', async () => {
   const { buildPromptContext } = await importTypescript('../src/ui/prompt-context.ts');
   const base = {
     environment: { day: 1, time_period: '清晨', weather: '晴' },
     player: { current_area_id: 'central_courtyard' },
     presence_snapshot: { present_character_ids: ['reimu'], character_views: {}, visitor_meta: {} },
   };
-  // 开场 UI 确认过的姓名/称谓进入剧情阶段投影，供角色称呼
-  const named = buildPromptContext({ ...base, player: { ...base.player, name: '  灵梦的饲主  ', pronouns: '他' } });
-  assert.match(named, /玩家姓名：灵梦的饲主（可用「他」称呼）/);
-  // 名字空白时回退“未命名旅人”；旧状态无称谓字段时省略括号提示
-  const anonymous = buildPromptContext({ ...base, player: { ...base.player, name: '   ' } });
-  assert.match(anonymous, /玩家姓名：未命名旅人/);
-  assert.doesNotMatch(anonymous, /可用「/);
+  // 名字由开场时注入酒馆原生宏（{{user}}）承载，场景事实不再每轮投影姓名。
+  const named = buildPromptContext({ ...base, player: { ...base.player, name: '灵梦的饲主', pronouns: '他' } });
+  assert.doesNotMatch(named, /玩家姓名/u, '场景事实不再投影玩家姓名');
+  assert.doesNotMatch(named, /未命名旅人/u);
+  assert.match(named, /在场角色：reimu/u, '场景事实其余字段保留');
   // 称呼边界规则：每轮注入协议（gardenNarrativeContract）与世界书（entries[7]）同步
   const contract = await read('../src/ui/target-actions.ts');
-  assert.match(contract, /称呼玩家时使用【场景事实】提供的玩家姓名或玩家称谓/);
-  assert.match(contract, /不得据此替玩家决定人称、台词、心理、关系承诺或关键选择/);
+  assert.match(contract, /称呼玩家时使用酒馆当前用户名/u);
+  assert.match(contract, /不得据此替玩家决定人称、台词、心理、关系承诺或关键选择/u);
   const worldbook = await read('../src/lorebook/gal-presentation-protocol.md');
-  assert.match(worldbook, /称呼玩家时使用【场景事实】提供的玩家姓名或玩家称谓/);
+  assert.match(worldbook, /称呼玩家时使用酒馆当前用户名/u);
+  // 宏注入链路：提交时把输入注入原生宏（slash persona-set → setUserName 多级探测）
+  const bridge = await read('../src/ui/bridge.ts');
+  assert.match(bridge, /applyUserNameToHost/u);
+  assert.match(bridge, /executeSlashCommandsWithOptions/u);
+  assert.match(bridge, /persona-set mode=temp/u);
+  assert.match(bridge, /setUserName/u);
+  // 旧酒馆适配：getOpeningContext 回退到官方 getContext().name1
+  assert.match(bridge, /getContext\(\)\.name1|ctx\?\.name1|ctx\?\.name1/u);
 });
 
 test('cleanNarrativeText 优先使用 bginfor 后正文，而不是时段元数据', async () => {
@@ -1783,6 +1836,58 @@ test('在场快照会注入每次庭园请求，并以受控回执同步角色�
   assert.equal(leakedDraft.presence_snapshot.character_views.marisa.action, '抵达温室');
   assert.match(bridge, /applyPresenceUpdate/);
   assert.match(bridge, /raw\?\.message \?\? raw\?\.mes/);
+});
+
+test('L1 回执重建快照保留仍在场角色 visitor meta 并删除离场角色', async () => {
+  const settlement = await importTypescript('../src/ui/event-settlement.ts');
+  const state = {
+    characters: {
+      reimu: { name: '博丽灵梦' },
+      marisa: { name: '雾雨魔理沙' },
+      alice: { name: '爱丽丝' },
+    },
+    presence_snapshot: {
+      present_character_ids: ['reimu', 'marisa'],
+      character_views: {
+        reimu: { area_id: 'central_courtyard', action: '等待', facing: 'front' },
+        marisa: { area_id: 'greenhouse_plot', action: '观察温室', facing: 'left' },
+      },
+      visitor_meta: {
+        reimu: {
+          arrival_uid: 'visit:chat:1:reimu',
+          reason_id: 'formal_visit',
+          source: 'random',
+          arrived_period_serial: 2,
+          earliest_departure_serial: 3,
+          planned_departure_serial: 4,
+          passthrough_flag: '保留未知字段',
+        },
+        marisa: {
+          arrival_uid: 'visit:chat:1:marisa',
+          reason_id: 'magic_curiosity',
+          source: 'random',
+          arrived_period_serial: 2,
+          earliest_departure_serial: 3,
+          planned_departure_serial: 5,
+        },
+      },
+    },
+  };
+  const originalSnapshot = structuredClone(state.presence_snapshot);
+  const next = settlement.applyPresenceUpdate(state, [
+    '灵梦留在庭院，魔理沙离开，爱丽丝到场。',
+    '<GensokyoPresence>{"version":"presence.v1","present_character_ids":["reimu","alice"],"character_views":{"reimu":{"area_id":"central_courtyard","action":"等待","facing":"front"},"alice":{"area_id":"greenhouse_plot","action":"抵达温室","facing":"front"}}}</GensokyoPresence>',
+  ].join('\n'));
+  // 仍在场角色保留完整 meta（含未知 passthrough 字段）
+  assert.deepEqual(next.presence_snapshot.present_character_ids, ['reimu', 'alice']);
+  assert.deepEqual(next.presence_snapshot.visitor_meta.reimu, state.presence_snapshot.visitor_meta.reimu);
+  // 已离场角色 view 与 meta 均删除
+  assert.equal(next.presence_snapshot.character_views.marisa, undefined);
+  assert.equal(next.presence_snapshot.visitor_meta.marisa, undefined);
+  // 回执新加入角色不得伪造 visitor meta
+  assert.equal(next.presence_snapshot.visitor_meta.alice, undefined);
+  // 输入 state 未被原地修改
+  assert.deepEqual(state.presence_snapshot, originalSnapshot);
 });
 
 test('时段 schema 接受口语别名并映射到四值', async () => {
@@ -2757,6 +2862,267 @@ test('R31 自由生长方案只由本地单回合结算登记，不提前选型�
   assert.equal(upgradeConfig.events[0].presence_transition.arrive[0].character_id, 'marisa');
 });
 
+test('L2 固定事件到场迁移保留其他访客 meta，并为事件角色生成确定性 event meta', async () => {
+  const settlement = await importTypescript('../src/ui/event-settlement.ts');
+  const visitors = await importTypescript('../src/ui/visitor-rules.ts');
+  const initial = JSON.parse(await read('../src/schema/initial-state.json'));
+  const buildState = () => {
+    const state = structuredClone(initial);
+    state.environment.day = 4;
+    state.environment.time_period = '夜晚';
+    state.resources.materials = 7;
+    state.resources.inspiration = 3;
+    state.facilities.magic_greenhouse.state = '启用';
+    state.facilities.magic_greenhouse.current_form = '基础魔法温室';
+    state.facilities.magic_greenhouse.unlocked_forms = ['基础魔法温室'];
+    state.events.completed_key_events.greenhouse_flower_core = 'clean_win';
+    state.presence_snapshot.present_character_ids = ['reimu'];
+    state.presence_snapshot.character_views = {
+      reimu: { area_id: 'central_courtyard', action: '等待', facing: 'front' },
+    };
+    state.presence_snapshot.visitor_meta = {
+      reimu: {
+        arrival_uid: 'visit:chat:1:reimu',
+        reason_id: 'formal_visit',
+        source: 'random',
+        arrived_period_serial: 14,
+        earliest_departure_serial: 15,
+        planned_departure_serial: 16,
+        passthrough_flag: '保留未知字段',
+      },
+    };
+    return state;
+  };
+  const action = {
+    version: 'garden-action.v1',
+    action_id: 'organize_free_growth_proposal',
+    event_id: 'greenhouse_free_growth_proposal',
+    settlement_id: 'event:greenhouse_free_growth_proposal:42',
+  };
+  const after = settlement.applyLocalSettlement(buildState(), action, 42, [
+    '【庭园正文开始】<narration>魔理沙把方案压在花盆旁。</narration>【庭园正文结束】',
+    '<GensokyoEventResult>{"version":"event-result.v1","event_id":"greenhouse_free_growth_proposal","result":"wild_growth_plan_registered"}</GensokyoEventResult>',
+  ].join('\n'));
+  // 无关在场角色 meta 完整保留
+  assert.deepEqual(after.presence_snapshot.visitor_meta.reimu, {
+    arrival_uid: 'visit:chat:1:reimu',
+    reason_id: 'formal_visit',
+    source: 'random',
+    arrived_period_serial: 14,
+    earliest_departure_serial: 15,
+    planned_departure_serial: 16,
+    passthrough_flag: '保留未知字段',
+  });
+  // 新到场事件角色获得 source:'event' meta，departure serial 大于当前 serial
+  const marisaMeta = after.presence_snapshot.visitor_meta.marisa;
+  assert.ok(marisaMeta);
+  assert.equal(marisaMeta.source, 'event');
+  assert.equal(marisaMeta.arrived_period_serial, 15);
+  assert.equal(marisaMeta.earliest_departure_serial, 16);
+  assert.ok(marisaMeta.planned_departure_serial >= 16);
+  // 相同输入重复结算产生相同 meta
+  const again = settlement.applyLocalSettlement(buildState(), action, 42, [
+    '【庭园正文开始】<narration>魔理沙把方案压在花盆旁。</narration>【庭园正文结束】',
+    '<GensokyoEventResult>{"version":"event-result.v1","event_id":"greenhouse_free_growth_proposal","result":"wild_growth_plan_registered"}</GensokyoEventResult>',
+  ].join('\n'));
+  assert.deepEqual(again.presence_snapshot.visitor_meta.marisa, marisaMeta);
+  // 帮助函数：有档案返回确定性 meta，无档案返回 null（覆盖 leave 缺失场景的公开路径）
+  const metaWithProfile = visitors.buildVisitorMetaForArrival(
+    after, 'marisa', 'event:greenhouse_free_growth_proposal:42', 'event:greenhouse_free_growth_proposal', 'event',
+  );
+  assert.equal(metaWithProfile.source, 'event');
+  assert.equal(metaWithProfile.arrival_uid, 'event:greenhouse_free_growth_proposal:42');
+  assert.equal(metaWithProfile.reason_id, 'event:greenhouse_free_growth_proposal');
+  assert.ok(metaWithProfile.planned_departure_serial >= 16);
+  assert.equal(visitors.buildVisitorMetaForArrival(after, 'unknown_char', 'uid', 'reason', 'event'), null);
+});
+
+test('L3 固定事件推进时段后到期访客在同次协调中离场', async () => {
+  const settlement = await importTypescript('../src/ui/event-settlement.ts');
+  const runtime = await importTypescript('../src/ui/m2-runtime.ts');
+  const initial = JSON.parse(await read('../src/schema/initial-state.json'));
+  const buildState = () => {
+    const state = structuredClone(initial);
+    state.environment.day = 7;
+    state.environment.time_period = '黄昏';
+    state.resources.materials = 12;
+    state.facilities.magic_greenhouse.state = '启用';
+    state.facilities.magic_greenhouse.current_form = '基础魔法温室';
+    state.facilities.magic_greenhouse.unlocked_forms = [
+      '基础魔法温室', '自由生长型温室', '人偶维护型温室', '河童自动化型温室',
+    ];
+    state.facilities.magic_greenhouse.active_effects = ['温室核心保持安静'];
+    Object.assign(state.events.completed_key_events, {
+      marisa_material_rumor: 'greenhouse_clue_found',
+      gain_second_inspiration: 'growth_pattern_understood',
+      clear_greenhouse_foundation: 'foundation_cleared',
+      build_basic_magic_greenhouse: 'basic_greenhouse_enabled',
+      greenhouse_first_use: 'stable_first_growth',
+      greenhouse_multiturn_conversation: 'conversation_settled_after_multiple_turns',
+      greenhouse_flower_core: 'clean_win',
+      greenhouse_free_growth_proposal: 'wild_growth_plan_registered',
+      alice_greenhouse_maintenance_proposal: 'doll_maintenance_plan_registered',
+      nitori_greenhouse_automation_proposal: 'kappa_automation_plan_registered',
+    });
+    // 咲夜到访：planned_departure_serial = 当前 serial(26) + 1 = 27
+    state.presence_snapshot.present_character_ids = ['reimu', 'sakuya'];
+    state.presence_snapshot.character_views = {
+      reimu: { area_id: 'central_courtyard', action: '等待', facing: 'front' },
+      sakuya: { area_id: 'central_courtyard', action: '观察', facing: 'front' },
+    };
+    state.presence_snapshot.visitor_meta = {
+      sakuya: {
+        arrival_uid: 'visit:chat:1:sakuya',
+        reason_id: 'time_trace',
+        source: 'random',
+        arrived_period_serial: 25,
+        earliest_departure_serial: 26,
+        planned_departure_serial: 27,
+      },
+    };
+    return state;
+  };
+  const action = {
+    version: 'garden-action.v1',
+    action_id: 'select_free_growth',
+    event_id: 'select_greenhouse_form',
+    settlement_id: 'event:select_greenhouse_form:test-l3',
+  };
+  const before = buildState();
+  const settled = settlement.applyLocalSettlement(before, action, 81, [
+    '【庭园正文开始】改造完成。【庭园正文结束】',
+    '<GensokyoEventResult>{"version":"event-result.v1","event_id":"select_greenhouse_form","result":"selected_free_growth"}</GensokyoEventResult>',
+  ].join('\n'));
+  // 事件推进了一个时段：黄昏(26) → 夜晚(27)
+  assert.equal(settled.environment.time_period, '夜晚');
+  // 与 bridge 相同：reconcileM2Runtime(safeCurrent, nextState, chatId)
+  const reconciled = runtime.reconcileM2Runtime(before, settled, 'chat-l3');
+  assert.equal(reconciled.presence_snapshot.present_character_ids.includes('sakuya'), false);
+  assert.equal(reconciled.presence_snapshot.visitor_meta.sakuya, undefined);
+  assert.ok((reconciled.visit_scheduler.cooldown_until?.sakuya ?? 0) > 27);
+  const departureNotices = (reconciled.visit_scheduler.pending_notices ?? [])
+    .filter((text) => text.includes('十六夜咲夜离开了庭园'));
+  assert.equal(departureNotices.length, 1);
+  // 幂等：再次协调不重复离场通知
+  const again = runtime.reconcileM2Runtime(before, reconciled, 'chat-l3');
+  assert.equal(again.presence_snapshot.present_character_ids.includes('sakuya'), false);
+  assert.equal((again.visit_scheduler.pending_notices ?? []).filter((text) => text.includes('十六夜咲夜离开了庭园')).length, 1);
+});
+
+test('L2b 事件 arrive 不会给结算前已在场且无 meta 的角色强加离场期限', async () => {
+  const settlement = await importTypescript('../src/ui/event-settlement.ts');
+  const initial = JSON.parse(await read('../src/schema/initial-state.json'));
+  const state = structuredClone(initial);
+  state.environment.day = 4;
+  state.environment.time_period = '夜晚';
+  state.resources.materials = 7;
+  state.facilities.magic_greenhouse.state = '启用';
+  state.facilities.magic_greenhouse.current_form = '基础魔法温室';
+  state.facilities.magic_greenhouse.unlocked_forms = ['基础魔法温室'];
+  state.events.completed_key_events.greenhouse_flower_core = 'clean_win';
+  state.presence_snapshot.present_character_ids = ['reimu', 'marisa'];
+  state.presence_snapshot.character_views = {
+    reimu: { area_id: 'central_courtyard', action: '等待', facing: 'front' },
+    marisa: { area_id: 'greenhouse_plot', action: '看花', facing: 'front' },
+  };
+  // marisa 结算前已在场但没有任何 meta。
+  state.presence_snapshot.visitor_meta = {
+    reimu: { arrival_uid: 'visit:l2b:reimu', source: 'random', planned_departure_serial: 20 },
+  };
+  const action = {
+    version: 'garden-action.v1',
+    action_id: 'organize_free_growth_proposal',
+    event_id: 'greenhouse_free_growth_proposal',
+    settlement_id: 'event:greenhouse_free_growth_proposal:l2b',
+  };
+  const after = settlement.applyLocalSettlement(state, action, 91, [
+    '【庭园正文开始】<narration>魔理沙把方案压在花盆旁。</narration>【庭园正文结束】',
+    '<GensokyoEventResult>{"version":"event-result.v1","event_id":"greenhouse_free_growth_proposal","result":"wild_growth_plan_registered"}</GensokyoEventResult>',
+  ].join('\n'));
+  // marisa 仍在场，但不得被误判为事件新到场而强加 meta。
+  assert.ok(after.presence_snapshot.present_character_ids.includes('marisa'));
+  assert.equal(after.presence_snapshot.visitor_meta.marisa, undefined);
+  // 原有在场角色 meta 保留。
+  assert.equal(after.presence_snapshot.visitor_meta.reimu.planned_departure_serial, 20);
+});
+
+test('L2c 固定事件 leave 迁移的 meta 清理与真正新增判定', async () => {
+  const settlement = await importTypescript('../src/ui/event-settlement.ts');
+  const initial = JSON.parse(await read('../src/schema/initial-state.json'));
+  const state = structuredClone(initial);
+  state.environment.day = 4;
+  state.environment.time_period = '夜晚';
+  const action = {
+    version: 'garden-action.v1',
+    action_id: 'organize_free_growth_proposal',
+    event_id: 'greenhouse_free_growth_proposal',
+    settlement_id: 'event:greenhouse_free_growth_proposal:l2c',
+  };
+  const previousMeta = {
+    reimu: { arrival_uid: 'visit:l2c:reimu', source: 'random', planned_departure_serial: 20 },
+    marisa: { arrival_uid: 'visit:l2c:marisa', source: 'random', planned_departure_serial: 20 },
+  };
+  // leave 场景：marisa 不在迁移后名单 → meta 必须清理；reimu 仍在场 → meta 保留。
+  const afterLeave = settlement.mergeEventPresenceVisitorMeta(
+    structuredClone(previousMeta),
+    ['reimu'],
+    new Set(['marisa']),
+    new Set(['reimu', 'marisa']),
+    state,
+    action,
+  );
+  assert.deepEqual(afterLeave, {
+    reimu: { arrival_uid: 'visit:l2c:reimu', source: 'random', planned_departure_serial: 20 },
+  });
+  // 已在场但无 meta 的 arrive 角色：不得被误判为新增而强加离场期限。
+  const alreadyPresent = settlement.mergeEventPresenceVisitorMeta(
+    {},
+    ['reimu', 'marisa'],
+    new Set(['marisa']),
+    new Set(['reimu', 'marisa']),
+    state,
+    action,
+  );
+  assert.equal(alreadyPresent.marisa, undefined);
+  // 真正新增的 arrive 角色：生成确定性 event meta。
+  const trulyNew = settlement.mergeEventPresenceVisitorMeta(
+    {},
+    ['reimu', 'marisa'],
+    new Set(['marisa']),
+    new Set(['reimu']),
+    state,
+    action,
+  );
+  assert.equal(trulyNew.marisa.source, 'event');
+  assert.equal(trulyNew.marisa.arrival_uid, 'event:greenhouse_free_growth_proposal:l2c');
+  assert.equal(trulyNew.marisa.arrived_period_serial, 15);
+});
+
+test('L5 固定结算写盘前按 restore→settle→presence→reconcile→write→projection 顺序执行', async () => {
+  const bridge = await read('../src/ui/bridge.ts');
+  const persist = bridge.slice(
+    bridge.indexOf('const persistLocalSettlement = async'),
+    bridge.indexOf('const persistStagedLocalSession'),
+  );
+  assert.ok(persist.length > 0, '应能定位 persistLocalSettlement');
+  const steps = [
+    /restoreLocalEventOwnership\(ownershipBase, current, true\)/,
+    /const settledState = applyLocalSettlement\(/,
+    /hasLocalPresenceTransition\(action\)/,
+    /applyPresenceUpdate\(settledState, assistantText\)/,
+    /const reconciledState = reconcileM2Runtime\(safeCurrent, nextState, currentChatId\(\)\)/,
+    /data\.stat_data = reconciledState;/,
+    /await mvu\.replaceMvuData\(data, options\)/,
+    /settlementProjection\(reread, action, assistantMessageId, reconciledState\)/,
+  ];
+  let cursor = 0;
+  for (const step of steps) {
+    const match = persist.slice(cursor).search(step);
+    assert.ok(match >= 0, `persistLocalSettlement 应包含 ${step}`);
+    cursor += match + 1;
+  }
+});
+
 test('R33 爱丽丝维护方案与受控会话 UID 都由 bridge 本地链路拥有', async () => {
   const settlement = await importTypescript('../src/ui/event-settlement.ts');
   const rules = await importTypescript('../src/ui/greenhouse-rules.ts');
@@ -3240,4 +3606,116 @@ test('GAL 回复落盘后释放本地提交锁时，重新渲染道具选择器'
   const submitFinally = app.match(/async function submitGalMessage\([\s\S]*?\n  \} finally \{([\s\S]*?)\n  \}\n\}/);
   assert.ok(submitFinally, '应能定位 GAL 提交收尾');
   assert.match(submitFinally[1], /submissionInFlight = false;[\s\S]*?if \(currentView === 'gal'\) renderSceneItemPicker\(\);/);
+});
+
+test('远程 UI 交付：loader 模板结构完整，构建脚本支持双模式', async () => {
+  const loader = await read('../src/runtime/ui-loader.js');
+  assert.match(loader, /__UI_MANIFEST_URL__/, 'loader 模板必须保留 manifest URL 占位符');
+  assert.match(loader, /schema_version !== 'gensokyo-ui-live\.v1'/, 'loader 必须强制校验 manifest schema');
+  assert.match(loader, /\^\[a-f0-9\]\{64\}\$/, 'loader 必须拒绝缺失或非法 sha256');
+  assert.match(loader, /uiUrl\.origin !== manifestUrl\.origin/, 'loader 必须限制远程包 origin');
+  assert.match(loader, /bytes\.byteLength !== manifest\.bytes/, 'loader 必须校验下载字节数');
+  assert.match(loader, /globalThis\.crypto\?\.subtle/, 'loader 必须显式检测安全上下文 Web Crypto 能力');
+  assert.match(loader, /crypto\.subtle\.digest\('SHA-256'/, 'loader 必须做 sha256 完整性校验');
+  assert.match(loader, /URL\.createObjectURL\(new Blob\(\[bytes\]/, 'loader 必须经 Blob URL import 远程包');
+  assert.match(loader, /ui-manifest HTTP|HTTP \$\{/, 'loader 必须对 manifest/包失败做 HTTP 状态检查');
+  assert.match(loader, /gensokyo-ui-load-error/, 'loader 失败时必须显示可见兜底提示');
+  assert.match(loader, /fetch\(MANIFEST_URL, \{ cache: 'no-store'/, 'manifest 指针必须 no-store 拉取');
+  assert.doesNotMatch(loader, /fetch\(uiUrl, \{[^}]*cache: 'no-store'/, '不可变 UI 包不得禁用浏览器缓存');
+  const build = await read('../scripts/build-ui.mjs');
+  assert.match(build, /ui-delivery/, 'build-ui 必须支持 --ui-delivery');
+  assert.match(build, /ui-mount-\$\{uiVersion\}\.js/, 'remote 必须产出版本化发布副本');
+  assert.match(build, /拒绝覆盖不可变 UI 产物/, 'remote 构建不得用不同内容覆盖既有版本号');
+  assert.match(build, /uiDelivery === 'remote'[\s\S]*?uiVersion/, 'remote 宿主版本必须由发布版本决定');
+  assert.doesNotMatch(build, /new Date\(\)\.toISOString\(\).*host-generate/s, '构建产物不得因当前时间而不可复现');
+  assert.match(build, /ui-loader\.js/, 'remote 必须产出卡内 loader');
+  const packer = await read('../scripts/package-checkpoint.mjs');
+  assert.match(packer, /ui-delivery/, '打包器必须支持 --ui-delivery');
+  assert.match(packer, /ui-loader\.js/, '打包器 remote 模式必须内嵌 loader');
+  assert.match(packer, /versionedMount !== currentMount/, '打包器必须拒绝版本化副本与当前 UI 串线');
+  const packageJson = JSON.parse(await read('../package.json'));
+  assert.match(packageJson.scripts['build:ui:remote'], /--ui-delivery=remote/);
+  assert.match(packageJson.scripts['package:checkpoint:dry'], /--ui-delivery=remote/);
+  assert.match(packageJson.scripts['package:checkpoint'], /--ui-delivery=remote/);
+});
+
+test('远程 UI loader：缺失哈希或跨源 URL 在下载 UI 前即被拒绝', async () => {
+  const { runInNewContext } = await import('node:vm');
+  const template = await read('../src/runtime/ui-loader.js');
+  const source = template.replaceAll(
+    '__UI_MANIFEST_URL__',
+    'https://ssrfrrt.ccwu.cc/gensokyo-moving-garden/live/ui/ui-manifest.json',
+  );
+  const validBase = {
+    schema_version: 'gensokyo-ui-live.v1',
+    version: 'r95',
+    sha256: 'a'.repeat(64),
+    bytes: 123,
+    url: 'https://ssrfrrt.ccwu.cc/gensokyo-moving-garden/live/ui/ui-mount-r95.js',
+  };
+  for (const manifest of [
+    { ...validBase, sha256: undefined },
+    { ...validBase, url: 'https://evil.example/ui-mount-r95.js' },
+  ]) {
+    let fetchCalls = 0;
+    const hostDocument = {
+      body: { appendChild() {} },
+      createElement: () => ({ style: {}, textContent: '' }),
+      getElementById: () => null,
+    };
+    const context = {
+      URL,
+      console: { error() {} },
+      crypto: { subtle: { digest: async () => new ArrayBuffer(32) } },
+      document: hostDocument,
+      fetch: async () => {
+        fetchCalls += 1;
+        return { ok: true, json: async () => manifest };
+      },
+      window: { parent: { document: hostDocument } },
+    };
+    runInNewContext(source, context);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    assert.equal(fetchCalls, 1, '非法 manifest 只能被读取一次，不得继续下载 UI');
+  }
+});
+
+test('远程 UI 交付：已构建 loader 可用，过期版本化副本会被打包器拒绝', async () => {
+  const { access, readFile } = await import('node:fs/promises');
+  const { spawnSync } = await import('node:child_process');
+  const { join } = await import('node:path');
+  const root = fileURLToPath(new URL('..', import.meta.url));
+  const exists = async (p) => access(join(root, p)).then(() => true, () => false);
+  if (!(await exists('dist/runtime/ui-loader.js'))) return; // 仅 remote 构建后校验
+  const loader = await readFile(join(root, 'dist/runtime/ui-loader.js'), 'utf8');
+  assert.doesNotMatch(loader, /__UI_MANIFEST_URL__/, '构建产物不得残留占位符');
+  assert.match(loader, /https:\/\/ssrfrrt\.ccwu\.cc\/gensokyo-moving-garden\/live\/ui\/ui-manifest\.json/);
+  const packageJson = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'));
+  const checkpoint = packageJson.scripts['package:checkpoint:dry'].match(/--checkpoint=(0\.2\.0-r\d+)/)?.[1];
+  assert.ok(checkpoint, '应能从 dry-run 命令解析检查点');
+  const suffix = checkpoint.split('-').at(-1);
+  const versionedPath = `dist/runtime/ui-mount-${suffix}.js`;
+  if (await exists(versionedPath)) {
+    const remote = await readFile(join(root, versionedPath), 'utf8');
+    const local = await readFile(join(root, 'dist/runtime/ui-mount.js'), 'utf8');
+    if (remote !== local) {
+      const result = spawnSync(process.execPath, [
+        'scripts/package-checkpoint.mjs', `--checkpoint=${checkpoint}`, '--dry-run', '--expect-remote-r2', '--ui-delivery=remote',
+      ], { cwd: root, encoding: 'utf8' });
+      assert.notEqual(result.status, 0, '过期版本化副本必须阻止打包');
+      assert.match(`${result.stdout}\n${result.stderr}`, /与当前 dist\/runtime\/ui-mount\.js 不一致/);
+    }
+  }
+});
+
+test('远程 UI 发布：不可变对象条件写，manifest 乐观锁，切指针前后均读回校验', async () => {
+  const publisher = await read('../scripts/publish-ui.mjs');
+  assert.match(publisher, /只有明确 404 才视为不存在/);
+  assert.match(publisher, /'if-none-match': '\*'/, '不可变 UI 必须使用原子条件创建');
+  assert.match(publisher, /'if-match': manifestHead\.etag/, 'manifest 更新必须绑定读取到的 ETag');
+  const uiVerify = publisher.indexOf('await verifyPublicObject(uiUrl');
+  const manifestPut = publisher.indexOf('await putObject(manifestKey');
+  const manifestVerify = publisher.indexOf('await verifyPublicObject(`${publicOrigin}/${manifestKey}`');
+  assert.ok(uiVerify >= 0 && manifestPut > uiVerify, '必须先读回校验 UI，再更新 manifest');
+  assert.ok(manifestVerify > manifestPut, '更新 manifest 后必须再次公网读回校验');
 });

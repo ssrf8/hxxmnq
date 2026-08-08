@@ -138,7 +138,9 @@ function gardenProtocolBeats(value: string, knownCharacters: Set<string>) {
     }, knownCharacters);
     if (beat) beats.push(beat);
   }
-  return { ...section, beats: beats.slice(0, 24) };
+  // 段落不设条数上限：从【庭园正文开始】解析到【庭园正文结束】，全部段落进入 GAL 播放，
+  // 直到正文结束为止（不再截断前 24 条）。
+  return { ...section, beats };
 }
 
 function stripNarrativeNoise(text: string) {

@@ -16,6 +16,9 @@ const WORLDBOOK_NAME = `幻想乡物语·移动庭园 ${CHECKPOINT}`;
 const DRY_RUN = process.argv.includes('--dry-run');
 const REPLACE_EXISTING = process.argv.includes('--replace');
 const EXPECT_REMOTE_R2 = process.argv.includes('--expect-remote-r2');
+const uiDeliveryArg = process.argv.find(argument => argument.startsWith('--ui-delivery='));
+const UI_DELIVERY = uiDeliveryArg ? uiDeliveryArg.slice('--ui-delivery='.length) : 'embedded';
+if (!['embedded', 'remote'].includes(UI_DELIVERY)) throw new Error('--ui-delivery 只允许 embedded 或 remote');
 
 const source = async file => readFile(path.resolve(file), 'utf8');
 const json = async file => JSON.parse(await source(file));
@@ -68,12 +71,25 @@ const [
   json('src/schema/initial-state.json'),
   source('src/runtime/01-mvu-loader.js'),
   source('src/schema/02-mvu-schema.js'),
-  source('dist/runtime/ui-mount.js'),
+  source(UI_DELIVERY === 'remote' ? 'dist/runtime/ui-loader.js' : 'dist/runtime/ui-mount.js'),
   json('src/lorebook/character-routing.json'),
   json('src/lorebook/item-routing.json'),
 ]);
 
-if (EXPECT_REMOTE_R2 && !uiMount.includes('"mode":"remote-r2-live"')) {
+if (UI_DELIVERY === 'remote') {
+  if (!uiMount.includes('ui-manifest.json') || !uiMount.includes('https://')) {
+    throw new Error('拒绝打包：dist/runtime/ui-loader.js 不是合法远程 loader（缺少 ui-manifest.json 引用）。请先运行 npm run build:ui:remote -- --ui-delivery=remote --ui-version=<rN>。');
+  }
+  const remoteMountPath = `dist/runtime/ui-mount-${CHECKPOINT_SUFFIX}.js`;
+  if (!(await exists(remoteMountPath))) {
+    throw new Error(`拒绝打包：缺少 remote 构建产物 ${remoteMountPath}。请先运行 npm run build:ui:remote -- --ui-delivery=remote --ui-version=${CHECKPOINT_SUFFIX}。`);
+  }
+  const currentMount = await source('dist/runtime/ui-mount.js');
+  const versionedMount = await source(remoteMountPath);
+  if (versionedMount !== currentMount) {
+    throw new Error(`拒绝打包：${remoteMountPath} 与当前 dist/runtime/ui-mount.js 不一致。不得复用已发布版本号，请升级检查点并重新 remote 构建。`);
+  }
+} else if (EXPECT_REMOTE_R2 && !uiMount.includes('"mode":"remote-r2-live"')) {
   throw new Error('拒绝打包：当前 dist/runtime/ui-mount.js 不是 remote-r2-live 构建。请先运行 npm run build:ui:remote，再重新 dry-run。');
 }
 

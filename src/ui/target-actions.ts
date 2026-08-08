@@ -27,7 +27,7 @@ export const gardenNarrativeContract = [
   'visual_mode 只描述立绘状态：normal 正常穿着；nude 完全裸露但尚未进入明确成人亲密行为；sexual 正文已进入明确成人亲密行为（如插入、口交等）。裸露、脱衣、洗浴、拥抱或亲吻本身不能升级为 sexual；正文确实进入明确成人亲密行为时，dialogue 与 GensokyoScene 的 visual_mode 必须为 sexual，并给出已登记 pose_id 与 act_id（如 rear/vaginal），不得停留在 nude。',
   '每轮正文结束后，在 UpdateVariable 中把本轮与在场角色的关键互动追加到 interaction.conversation_log（数组，追加一条，格式 "角色ID: 一句话摘要"，不超过 120 字）。追加必须用 JSON Patch 数组末尾写法：{"op":"add","path":"/interaction/conversation_log/-","value":"角色ID: 摘要"}，path 必须以 "/-" 结尾，value 是字符串（不要用不带 /- 的 path 写 conversation_log，那会覆盖整个数组导致历史丢失）。conversation_log 是角色跨对话记忆，结束对话不会清空，重新开场时必须记得里面的内容。没有关键互动或已在别的块写过时输出空数组。',
   '剧情连续性：本轮【本轮道具授权】只决定本轮能否使用道具，不代表剧情分支切换或记忆重置；前文已发生的事实（包括战斗、对话、亲密行为）依然有效。玩家动作若与前文状态冲突，角色应带着前文记忆做出合理反应（困惑、质问、警惕、害羞等），不得装作什么都没发生、把玩家当陌生人或回到初见状态。输出正文前必须核对上轮正文结尾与【最近互动回顾】，保持角色状态连续。',
-  '称呼玩家时使用【场景事实】提供的玩家姓名或玩家称谓；姓名与称谓只用于称呼玩家，不得据此替玩家决定人称、台词、心理、关系承诺或关键选择。',
+  '称呼玩家时使用酒馆当前用户名（开场已注入酒馆原生宏的名字）或玩家在开场确认的姓名；姓名与称谓只用于称呼玩家，不得据此替玩家决定人称、台词、心理、关系承诺或关键选择。',
 ].join('\n');
 
 function presenceNarrativeContext(state?: GardenState) {

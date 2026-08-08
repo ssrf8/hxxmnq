@@ -733,24 +733,24 @@
   },
   "maps": {
     "garden_base": {
-      "status": "owner-approved-v3-integrated-pending-runtime-validation",
-      "source": "maps/garden-base-owner-v3.webp",
-      "canvas": [1672, 941],
-      "composition": "owner-supplied-spring-residence-garden-v3",
+      "status": "owner-approved-v4-stitched-pending-runtime-validation",
+      "source": "maps/garden-base-owner-v4.webp",
+      "canvas": [1672, 1722],
+      "composition": "owner-supplied-spring-residence-garden-v3-stitched-with-new-lower-map-2026-08-08",
       "runtime_role": "base-layer",
       "facility_layer_policy": "v3-transparent-sprites-with-damaged-ruin-replacements-integrated",
       "character_visual_scale": 0.64,
       "facility_visual_scale": 0.76,
-      "provenance": "owner-supplied 2026-07-29; SHA-256 2887f14dd6b65e8437a5701e62b3b74d18abeae882697868865639945f86f971"
+      "provenance": "synthesized 2026-08-08 by scripts/stitch-map-layers.mjs: garden-base-owner-v3.png (1672x941) at (0,0) + ChatGPT Image 2026年8月8日 03_14_07.png (1672x941) at (0,781); canvas 1672x1722; PNG sha256 41debf6ed97c4dd8c1c6de7b14fafde0cecfa3bea80f1cb9845fa92798b40d32, Q70 WebP sha256 b51c9234929348a649db74d03583bc71066c04846f72fee6592beac1e3142b95; report project/map-stitch-2026-08-08.json"
     },
     "garden_no_walk_mask": {
       "status": "project-authored-v1-integrated-pending-runtime-validation",
       "source": "maps/garden-no-walk-mask-v1.svg",
-      "canvas": [1672, 941],
+      "canvas": [1672, 1722],
       "runtime_role": "non-walkable-alpha-mask",
       "alpha_contract": "transparent-walkable-alpha-gte-128-blocked",
-      "coverage": "river-and-pond-with-transparent-bridge-corridor",
-      "provenance": "project-authored deterministic SVG mask 2026-07-30"
+      "coverage": "river-and-pond-with-transparent-bridge-corridor; lower stitched region not yet registered",
+      "provenance": "project-authored deterministic SVG mask 2026-07-30; canvas extended to 1672x1722 for v4 base on 2026-08-08"
     }
   },
   "map_facility_assets": {

@@ -8,3 +8,4 @@ repro-st1.17.0.js
 /_gal_parts1.txt
 /_git_push_err.txt
 /_git_push_out.txt
+.env

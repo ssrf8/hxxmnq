@@ -3342,13 +3342,13 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
 .gg-header #gg-open-dungeon:focus-visible { outline: 3px solid #e6b5ff; outline-offset: 2px; }
 #gg-open-dungeon:disabled img { opacity: .48; filter: grayscale(.4); }
 
-/* 顶栏：博丽符纸色 + 像素结界纹；不恢复旧式最外层黑框。 */
+/* 顶栏：博丽符纸色 + 像素结界纹 → 晨雾结界·像素晨光·玻璃流光：淡雅半透明纸玻璃 + 流动炫光（淡金/淡青/淡玫柔光晕缓缓漂移 + 亮带横掠）+ 微尘明灭；底图更透，不恢复旧式最外层黑框。 */
 .gg-header {
-  --gg-header-paper: #f5dfba;
-  --gg-header-paper-deep: #ddb98b;
-  --gg-header-red: #a9363f;
-  --gg-header-red-dark: #76242d;
-  --gg-header-ink: #4b2c2a;
+  --gg-header-paper: rgba(255, 249, 231, .9);
+  --gg-header-paper-deep: rgba(242, 224, 192, .84);
+  --gg-header-red: #d98b7c;
+  --gg-header-red-dark: #a4655a;
+  --gg-header-ink: #6b4a38;
   position: relative;
   isolation: isolate;
   flex-direction: row;
@@ -3358,57 +3358,94 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
   overflow: hidden;
   border: 0;
   background:
-    linear-gradient(135deg, rgba(169, 54, 63, .14) 25%, transparent 25%) 0 0 / 16px 16px,
-    linear-gradient(315deg, rgba(169, 54, 63, .1) 25%, transparent 25%) 0 0 / 16px 16px,
-    linear-gradient(180deg, #fff0cf 0%, var(--gg-header-paper) 55%, var(--gg-header-paper-deep) 100%);
+    repeating-linear-gradient(90deg, rgba(214, 181, 119, .09) 0 2px, transparent 2px 8px) 0 0 / auto auto,
+    repeating-linear-gradient(0deg, rgba(214, 181, 119, .07) 0 2px, transparent 2px 8px) 0 0 / auto auto,
+    linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, .55) 42%, rgba(255, 238, 205, .38) 50%, transparent 62%) 135% 50% / 250% 250% no-repeat,
+    radial-gradient(circle 52% at 50% 50%, rgba(240, 200, 130, .38), transparent 72%) 10% 25% / 170% 170% no-repeat,
+    radial-gradient(circle 56% at 50% 50%, rgba(160, 205, 215, .32), transparent 74%) 80% 70% / 190% 190% no-repeat,
+    radial-gradient(circle 50% at 50% 50%, rgba(226, 160, 172, .28), transparent 72%) 20% 60% / 175% 175% no-repeat,
+    linear-gradient(180deg, rgba(255, 251, 240, .76) 0%, rgba(252, 243, 224, .66) 55%, rgba(246, 232, 204, .56) 100%) 0 0 / auto auto;
+  animation: gg-header-glass-flow 9s ease-in-out infinite;
+  -webkit-backdrop-filter: blur(5px) saturate(1.02);
+  backdrop-filter: blur(5px) saturate(1.02);
   box-shadow:
-    inset 0 3px 0 rgba(255, 250, 225, .85),
+    inset 0 3px 0 rgba(255, 255, 255, .6),
     inset 0 -4px 0 var(--gg-header-red-dark),
-    inset 0 -7px 0 rgba(255, 239, 204, .75);
+    inset 0 -7px 0 rgba(255, 252, 236, .65),
+    0 4px 0 rgba(150, 110, 74, .18);
 }
+/* 晨光微尘：淡金像素星屑明灭（取代夜祭旗条）。 */
 .gg-header::before {
   content: "";
   position: absolute;
   z-index: -1;
-  inset: 5px 7px auto;
-  height: 3px;
-  background: repeating-linear-gradient(90deg, var(--gg-header-red) 0 12px, transparent 12px 18px, #d99a52 18px 22px, transparent 22px 28px);
-  opacity: .8;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle 1.5px at 7% 30%, rgba(224, 166, 92, .6) 99%, transparent 100%),
+    radial-gradient(circle 1px at 15% 14%, rgba(224, 166, 92, .42) 99%, transparent 100%),
+    radial-gradient(circle 1.5px at 24% 62%, rgba(214, 120, 110, .46) 99%, transparent 100%),
+    radial-gradient(circle 1px at 37% 28%, rgba(224, 166, 92, .5) 99%, transparent 100%),
+    radial-gradient(circle 1px at 48% 70%, rgba(214, 120, 110, .36) 99%, transparent 100%),
+    radial-gradient(circle 1.5px at 61% 24%, rgba(224, 166, 92, .45) 99%, transparent 100%),
+    radial-gradient(circle 1px at 74% 58%, rgba(224, 166, 92, .55) 99%, transparent 100%),
+    radial-gradient(circle 1.5px at 88% 34%, rgba(214, 120, 110, .46) 99%, transparent 100%);
+  animation: gg-dust-twinkle 3.6s ease-in-out infinite;
 }
-.gg-header::after {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  right: -18px;
-  top: -26px;
-  width: 116px;
-  height: 116px;
-  border: 12px double rgba(169, 54, 63, .14);
-  transform: rotate(45deg);
+/* 流动炫光：淡金/淡青/淡玫三团柔光晕缓缓漂移，白亮带自右向左横掠，如光在玻璃纸上流转。 */
+@keyframes gg-header-glass-flow {
+  0%   { background-position: 0 0, 0 0, 135% 50%, 10% 25%, 80% 70%, 20% 60%, 0 0; }
+  50%  { background-position: 0 0, 0 0, 50% 50%, 60% 55%, 30% 30%, 65% 25%, 0 0; }
+  100% { background-position: 0 0, 0 0, -45% 50%, 10% 25%, 80% 70%, 20% 60%, 0 0; }
+}
+/* 微尘明灭 */
+@keyframes gg-dust-twinkle {
+  0%, 100% { opacity: .5; }
+  50% { opacity: 1; }
 }
 .gg-header .gg-title-wrap {
   position: relative;
   flex: 0 1 190px;
   min-width: 140px;
   padding: .3rem .65rem .34rem .8rem;
-  clip-path: polygon(0 7px, 7px 7px, 7px 0, calc(100% - 7px) 0, calc(100% - 7px) 7px, 100% 7px, 100% calc(100% - 7px), calc(100% - 7px) calc(100% - 7px), calc(100% - 7px) 100%, 7px 100%, 7px calc(100% - 7px), 0 calc(100% - 7px));
-  background: linear-gradient(180deg, rgba(255, 249, 224, .94), rgba(245, 218, 178, .94));
+  clip-path: polygon(0 8px, 8px 8px, 8px 0, calc(100% - 8px) 0, calc(100% - 8px) 8px, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 8px calc(100% - 8px), 0 calc(100% - 8px));
+  background:
+    repeating-linear-gradient(90deg, rgba(214, 181, 119, .12) 0 3px, transparent 3px 9px),
+    repeating-linear-gradient(0deg, rgba(214, 181, 119, .08) 0 2px, transparent 2px 6px),
+    linear-gradient(180deg, rgba(255, 251, 240, .88), rgba(250, 238, 214, .78));
   color: var(--gg-header-ink);
-  box-shadow: inset 0 0 0 2px rgba(118, 36, 45, .58), inset 4px 0 0 var(--gg-header-red);
+  box-shadow: inset 0 0 0 2px rgba(178, 130, 86, .42), inset 4px 0 0 var(--gg-header-red);
+  filter: drop-shadow(3px 3px 0 rgba(150, 110, 74, .3));
+}
+/* 便利贴胶带：半透明胶带横条压在便签上缘，强化“随手贴”手账感。 */
+.gg-header .gg-title-wrap::after {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 18%;
+  right: 18%;
+  height: 8px;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, .18) 0 12px, transparent 12px 24px),
+    linear-gradient(180deg, rgba(255, 250, 228, .55), rgba(250, 237, 200, .38));
+  box-shadow: 0 1px 0 rgba(178, 130, 86, .18);
+  opacity: .85;
 }
 .gg-header .gg-title-wrap::before {
   content: "博丽结界";
   position: absolute;
   right: .42rem;
   top: .28rem;
-  color: rgba(118, 36, 45, .42);
-  font: 700 .56rem/1 "SimSun", serif;
+  color: rgba(126, 92, 66, .42);
+  font: 700 .56rem/1 "Fusion Pixel 12px Proportional zh_hans", "Ark Pixel 12px zh_cn", "Zpix", "SimSun", monospace;
   letter-spacing: .08em;
   writing-mode: vertical-rl;
+  text-shadow: 1px 1px 0 rgba(255, 255, 244, .6);
 }
 .gg-header .gg-title-wrap .gg-eyebrow {
   display: block;
-  color: var(--gg-header-red-dark);
+  color: #a8743d;
   font: 700 .62rem/1.2 "Fusion Pixel 12px Proportional zh_hans", "Ark Pixel 12px zh_cn", "Zpix", "SimSun", monospace;
   letter-spacing: .12em;
 }
@@ -3417,7 +3454,7 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
   color: var(--gg-header-ink);
   font-size: clamp(1.02rem, 2.2vw, 1.28rem);
   line-height: 1.15;
-  text-shadow: 1px 1px rgba(255, 249, 226, .9);
+  text-shadow: 1px 1px 0 rgba(255, 255, 244, .85);
 }
 .gg-header .gg-status-line {
   flex: 1 1 270px;
@@ -3435,31 +3472,42 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
   align-items: center;
   min-height: 1.85rem;
   padding: .23rem .52rem .28rem;
-  border: 2px solid rgba(118, 36, 45, .48);
+  border: 2px solid rgba(178, 130, 86, .4);
   border-radius: 2px;
-  background: rgba(255, 246, 218, .82);
+  clip-path: polygon(5px 0, calc(100% - 5px) 0, 100% 5px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0 calc(100% - 5px), 0 5px);
+  background: rgba(255, 253, 246, .6);
   color: var(--gg-header-ink);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 244, .72), 2px 2px 0 rgba(118, 36, 45, .2);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .75);
+  filter: drop-shadow(2px 2px 0 rgba(150, 110, 74, .22));
 }
 .gg-header .gg-status-line span::before {
-  width: .48em;
-  height: .48em;
+  width: .5em;
+  height: .5em;
   border-radius: 0;
   background: var(--gg-header-red);
+  box-shadow: 0 0 0 2px rgba(255, 255, 244, .85);
   transform: rotate(45deg);
 }
+/* 状态徽记分色：时间＝淡金、天气＝淡朱、物资＝淡青；便签纸色分色：淡柠檬／淡樱／淡水 */
+.gg-header #gg-time::before { background: #dfa84e; }
+.gg-header #gg-weather::before { background: var(--gg-header-red); }
+.gg-header #gg-resources::before { background: #86b3b0; }
+.gg-header .gg-status-line #gg-time { background: rgba(255, 250, 218, .62); }
+.gg-header .gg-status-line #gg-weather { background: rgba(255, 240, 233, .62); }
+.gg-header .gg-status-line #gg-resources { background: rgba(234, 246, 244, .62); }
 .gg-header #gg-open-opportunities,
 .gg-header #gg-fullscreen,
 .gg-header #gg-open-settings {
   border-radius: 2px;
-  box-shadow: inset 0 0 0 1px rgba(255, 248, 218, .65), 3px 3px 0 rgba(92, 37, 38, .3);
+  clip-path: polygon(6px 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0 calc(100% - 6px), 0 6px);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .7), 2px 2px 0 rgba(150, 110, 74, .2);
   font-family: "Fusion Pixel 12px Proportional zh_hans", "Ark Pixel 12px zh_cn", "Zpix", "SimSun", monospace;
 }
 .gg-header #gg-open-opportunities:hover:not(:disabled),
 .gg-header #gg-fullscreen:hover:not(:disabled),
 .gg-header #gg-open-settings:hover:not(:disabled) {
   transform: translate(-1px, -1px);
-  box-shadow: inset 0 0 0 1px rgba(255, 248, 218, .72), 4px 4px 0 rgba(92, 37, 38, .3);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .8), 3px 3px 0 rgba(150, 110, 74, .2);
 }
 .gg-header #gg-open-shop,
 .gg-header #gg-open-inventory {
@@ -3940,19 +3988,26 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
 
 /* ---- 大型功能入口面板：高分辨率入口插画不参与像素化缩放链。 ---- */
 .gg-header #gg-open-launcher {
-  --btn-line: #783640;
-  --btn-hi: #fff0cf;
-  --btn-lo: #d9b17d;
-  --btn-ink: #4b2829;
+  --btn-line: rgba(178, 130, 86, .55);
+  --btn-hi: rgba(235, 178, 160, .9);
+  --btn-lo: rgba(214, 138, 118, .88);
+  --btn-ink: #6b3a2c;
   --btn-glyph: "◇";
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   min-width: 148px;
   margin-left: auto;
   border-radius: 2px;
+  clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px);
   font-family: "Fusion Pixel 12px Proportional zh_hans", "Ark Pixel 12px zh_cn", "Zpix", "SimSun", monospace;
   font-size: .82rem;
-  box-shadow: inset 0 0 0 1px rgba(255, 248, 218, .72), 4px 4px 0 rgba(92, 37, 38, .3);
+  box-shadow: inset 0 0 0 2px rgba(255, 248, 230, .85), inset 0 -3px 0 rgba(150, 80, 66, .3);
+  filter: drop-shadow(2px 2px 0 rgba(150, 110, 74, .2));
+}
+.gg-header #gg-open-launcher:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: inset 0 0 0 2px rgba(255, 248, 230, .7), inset 0 -1px 0 rgba(150, 80, 66, .25);
+  filter: drop-shadow(1px 1px 0 rgba(150, 110, 74, .15));
 }
 .gg-header #gg-open-launcher:focus-visible {
   outline: 3px solid var(--gg-focus);
@@ -3966,21 +4021,92 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
   margin: auto;
   padding: 0;
   overflow: hidden;
-  border: 3px solid #873844;
-  border-radius: 4px;
-  background: #171417;
+  border: 4px solid #d9c29a;
+  border-radius: 2px;
+  /* 半透明纸玻璃：让庭园景色透进来 */
+  background: rgba(255, 251, 240, .26);
   color: var(--gg-text);
-  box-shadow: inset 0 0 0 2px rgba(232, 195, 122, .2), 0 24px 70px rgba(0, 0, 0, .7);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .4), 6px 6px 0 rgba(150, 110, 74, .22), 0 24px 70px rgba(60, 40, 24, .3);
 }
-.gg-launcher-dialog::backdrop { background: rgba(7, 6, 10, .78); }
+/* 出场：以按钮为原点从小变大「长」出。--from-x/y 是「按钮中心 − 视口中心」，配合 transform-origin: top right 时缩放先于平移，故 0% 的平移需减去/加上自身半宽高（-50%/+50%），让右上角锚点精确落在按钮中心 */
+.gg-launcher-dialog[open] {
+  transform-origin: top right;
+  animation: gg-launcher-fly-in .2s cubic-bezier(.22, .8, .3, 1) backwards;
+}
+@keyframes gg-launcher-fly-in {
+  0% {
+    opacity: 0;
+    transform: translate(calc(var(--from-x, 0px) - 50%), calc(var(--from-y, 0px) + 50%)) scale(.1);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+}
+/* 退场：以案内按钮为原点反向收起（如被灵力收回）——反向 fly-in + 3° 微旋收拢，收至按钮处化为金芒。退场期间弹窗仍保持 [open]，故用 [open].gg-closing 提高优先级盖过入场动画 */
+.gg-launcher-dialog[open].gg-closing {
+  transform-origin: top right;
+  animation: gg-launcher-fly-out .45s cubic-bezier(.6, .04, .76, .3) forwards;
+}
+@keyframes gg-launcher-fly-out {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(var(--from-x, 0px) - 50%), calc(var(--from-y, 0px) + 50%)) scale(.06) rotate(3deg);
+  }
+}
+/* 退场配套：背板淡出 + 内容反向敛入 */
+.gg-launcher-dialog[open].gg-closing::backdrop { animation: gg-launcher-fade-out .35s ease forwards; }
+@keyframes gg-launcher-fade-out { to { opacity: 0; } }
+.gg-launcher-dialog[open].gg-closing .gg-launcher-header,
+.gg-launcher-dialog[open].gg-closing .gg-launcher-card,
+.gg-launcher-dialog[open].gg-closing .gg-launcher-secondary {
+  animation: gg-launcher-sink-in .2s ease-in forwards;
+}
+@keyframes gg-launcher-sink-in {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: translateY(-8px); }
+}
+.gg-launcher-dialog::backdrop { background: rgba(12, 7, 16, .14); }
 .gg-launcher-shell {
+  position: relative;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   max-height: min(814px, calc(100dvh - 38px));
   background:
-    linear-gradient(135deg, rgba(142, 52, 65, .12) 25%, transparent 25%) 0 0 / 20px 20px,
-    radial-gradient(circle at 50% -10%, rgba(119, 78, 142, .28), transparent 42%),
-    linear-gradient(155deg, #282022, #151719 68%);
+    /* 像素块棋盘格：16px 一格，淡粉白相间 */
+    conic-gradient(rgba(255, 214, 224, .07) 25%, transparent 0 50%, rgba(255, 214, 224, .07) 0 75%, transparent 0) 0 0 / 16px 16px,
+    radial-gradient(circle at 50% -10%, rgba(228, 128, 164, .16), transparent 48%),
+    linear-gradient(155deg, rgba(88, 42, 64, .18), rgba(36, 24, 36, .3) 68%);
+}
+/* 炫彩流光层：缓慢流动的动态渐变色，screen 混合叠在像素格之上 */
+.gg-launcher-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(120deg, #ff8ad0, #c79bff, #7fb0ff, #6ff0c8, #ffd166, #ff8ad0);
+  background-size: 250% 250%;
+  opacity: .38;
+  mix-blend-mode: screen;
+  animation: gg-aurora-flow 4s ease-in-out infinite, gg-aurora-hue 7s linear infinite;
+  will-change: background-position, filter;
+}
+@keyframes gg-aurora-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes gg-aurora-hue {
+  from { filter: hue-rotate(0deg); }
+  to { filter: hue-rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gg-launcher-shell::before { animation: none; }
 }
 .gg-launcher-header {
   position: relative;
@@ -3990,8 +4116,8 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
   justify-content: space-between;
   gap: 1rem;
   padding: 1rem 1.15rem .9rem;
-  border-bottom: 1px solid rgba(232, 195, 122, .34);
-  background: linear-gradient(180deg, rgba(119, 45, 55, .34), rgba(36, 28, 30, .92));
+  border-bottom: 1px solid rgba(240, 160, 186, .22);
+  background: linear-gradient(180deg, rgba(146, 58, 88, .16), rgba(60, 30, 44, .26));
 }
 .gg-launcher-header h2 { margin: .12rem 0 .22rem; font: 700 clamp(1.35rem, 3vw, 2rem)/1.15 var(--gg-font-serif); letter-spacing: .08em; }
 .gg-launcher-header .gg-eyebrow { margin: 0; color: #dfbd74; }
@@ -4007,6 +4133,8 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
   font-weight: 700;
 }
 .gg-launcher-grid {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(.75rem, 1.6vw, 1.2rem);
@@ -4069,12 +4197,14 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
 .gg-launcher-copy strong { color: #fff0d2; font: 700 clamp(1.05rem, 2vw, 1.35rem)/1.2 var(--gg-font-serif); letter-spacing: .06em; }
 .gg-launcher-copy small { color: #d5c8b8; font-size: .76rem; line-height: 1.55; overflow-wrap: anywhere; }
 .gg-launcher-secondary {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: .65rem;
   padding: .8rem 1.15rem 1rem;
   border-top: 1px solid rgba(232, 195, 122, .28);
-  background: rgba(12, 13, 16, .52);
+  background: rgba(12, 13, 16, .3);
 }
 .gg-launcher-secondary button {
   min-height: 48px;
@@ -4087,9 +4217,96 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
 .gg-launcher-secondary button:hover:not(:disabled) { border-color: #d1aa62; filter: brightness(1.08); }
 .gg-launcher-secondary button:focus-visible { outline: 3px solid #f1cc78; outline-offset: 2px; }
 
+/* ---- 案内对话框入场：逐层登场 ---- */
+.gg-launcher-dialog[open]::backdrop { animation: gg-launcher-fade-in var(--gg-dur-2) ease; }
+@keyframes gg-launcher-fade-in { from { opacity: 0; } }
+.gg-launcher-dialog[open] .gg-launcher-header,
+.gg-launcher-dialog[open] .gg-launcher-card,
+.gg-launcher-dialog[open] .gg-launcher-secondary {
+  animation: gg-launcher-rise-in var(--gg-dur-2) ease backwards;
+}
+.gg-launcher-dialog[open] .gg-launcher-card:nth-child(1) { animation-delay: 25ms; }
+.gg-launcher-dialog[open] .gg-launcher-card:nth-child(2) { animation-delay: 50ms; }
+.gg-launcher-dialog[open] .gg-launcher-card:nth-child(3) { animation-delay: 75ms; }
+.gg-launcher-dialog[open] .gg-launcher-secondary { animation-delay: 100ms; }
+@keyframes gg-launcher-rise-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---- 案内按钮点击星屑：像素金星从按钮中心迸出 ---- */
+.gg-stardust {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  clip-path: polygon(50% 0, 63% 37%, 100% 50%, 63% 63%, 50% 100%, 37% 63%, 0 50%, 37% 37%);
+  animation: gg-stardust-fly 1.1s cubic-bezier(.12, .82, .38, 1) forwards;
+  filter: drop-shadow(0 0 6px rgba(255, 225, 150, .95)) drop-shadow(0 0 16px rgba(255, 200, 120, .6)) brightness(1.2);
+}
+@keyframes gg-stardust-fly {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+  25% { opacity: 1; }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--rot, 90deg)) scale(.35);
+  }
+}
+/* 中心闪光：点击瞬间的金白光爆，先于星屑扩散 */
+.gg-stardust-flash {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  left: 0;
+  top: 0;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 244, 200, .95), rgba(255, 214, 130, .45) 45%, transparent 70%);
+  transform: translate(-50%, -50%) scale(.3);
+  animation: gg-stardust-flash .45s ease-out forwards;
+}
+@keyframes gg-stardust-flash {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(.3);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(3.2);
+  }
+}
+/* 星屑回收：关闭时星屑从按钮四周向按钮中心敛回（方向与迸发相反，收束即止） */
+.gg-stardust-recall { animation: gg-stardust-recall-fly .5s cubic-bezier(.55, .06, .68, .19) forwards; }
+@keyframes gg-stardust-recall-fly {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--rot, 90deg)) scale(.3);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gg-launcher-dialog[open] { animation: none; }
+  .gg-launcher-dialog[open]::backdrop,
+  .gg-launcher-dialog[open] .gg-launcher-header,
+  .gg-launcher-dialog[open] .gg-launcher-card,
+  .gg-launcher-dialog[open] .gg-launcher-secondary { animation: none; }
+  .gg-launcher-dialog[open].gg-closing,
+  .gg-launcher-dialog[open].gg-closing::backdrop,
+  .gg-launcher-dialog[open].gg-closing .gg-launcher-header,
+  .gg-launcher-dialog[open].gg-closing .gg-launcher-card,
+  .gg-launcher-dialog[open].gg-closing .gg-launcher-secondary { animation: none; }
+  .gg-stardust, .gg-stardust-flash, .gg-stardust-recall { animation: none; }
+}
+
 @media (max-width: 899px) {
-  .gg-launcher-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .gg-launcher-card-dungeon { grid-column: 1 / -1; }
+  .gg-launcher-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .gg-launcher-dialog #gg-open-dungeon,
   .gg-launcher-dialog #gg-open-shop,
   .gg-launcher-dialog #gg-open-inventory { min-height: 190px; }
@@ -4106,7 +4323,6 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
   .gg-launcher-header h2 { font-size: 1.3rem; }
   .gg-launcher-summary { font-size: .72rem; }
   .gg-launcher-grid { grid-template-columns: 1fr; gap: .65rem; padding: .65rem; }
-  .gg-launcher-card-dungeon { grid-column: auto; }
   .gg-launcher-dialog #gg-open-dungeon,
   .gg-launcher-dialog #gg-open-shop,
   .gg-launcher-dialog #gg-open-inventory {

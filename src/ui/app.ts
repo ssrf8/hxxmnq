@@ -873,11 +873,120 @@ function openLauncher() {
   updateLauncherSummary();
   if (launcherDialog.open) return;
   launcherOpener = document.activeElement instanceof HTMLElement ? document.activeElement : launcherButton;
+  // 记录案内按钮相对视口中心的偏移，让对话框从按钮位置飞入展开（dialog 居中于视口）
+  const btnRect = launcherButton.getBoundingClientRect();
+  launcherDialog.style.setProperty('--from-x', `${btnRect.left + btnRect.width / 2 - innerWidth / 2}px`);
+  launcherDialog.style.setProperty('--from-y', `${btnRect.top + btnRect.height / 2 - innerHeight / 2}px`);
   launcherDialog.showModal();
 }
 
+/** 星屑迸发：点击案内按钮时从按钮中心喷出像素星 + 一道中心闪光，飞出后自毁 */
+function burstStardust(anchor: HTMLElement) {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const rect = anchor.getBoundingClientRect();
+  const originX = rect.left + rect.width / 2;
+  const originY = rect.top + rect.height / 2;
+  // 中心闪光：先于星屑爆开
+  const flash = document.createElement('span');
+  flash.className = 'gg-stardust-flash';
+  flash.style.left = `${originX}px`;
+  flash.style.top = `${originY}px`;
+  flash.addEventListener('animationend', () => flash.remove(), { once: true });
+  document.body.appendChild(flash);
+  for (let i = 0; i < 16; i++) {
+    const star = document.createElement('span');
+    star.className = 'gg-stardust';
+    const angle = (Math.PI * 2 * i) / 16 + (Math.random() - .5) * .4;
+    const dist = 85 + Math.random() * 65;
+    star.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
+    star.style.setProperty('--dy', `${Math.sin(angle) * dist - 22}px`);
+    star.style.setProperty('--rot', `${(Math.random() - .5) * 320}deg`);
+    const size = 10 + Math.random() * 10;
+    star.style.width = `${size}px`;
+    star.style.height = `${size}px`;
+    star.style.left = `${originX}px`;
+    star.style.top = `${originY}px`;
+    // 以金色为主、偶点缀粉，贴近按钮灯笼金配色
+    const hue = Math.random() < .7 ? 44 : 328;
+    star.style.background = `hsl(${hue} 100% ${62 + Math.random() * 18}% / ${.8 + Math.random() * .2})`;
+    star.addEventListener('animationend', () => star.remove(), { once: true });
+    document.body.appendChild(star);
+  }
+}
+
+let launcherClosing = false;
+let launcherCloseTimer: number | undefined;
+
 function closeLauncher() {
-  if (launcherDialog.open) launcherDialog.close();
+  if (!launcherDialog.open || launcherClosing) return;
+  // 减少动效偏好：跳过退场动画，直接关闭
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    launcherDialog.close();
+    return;
+  }
+  launcherClosing = true;
+  // 退场：先播放收起动画（飞回案内按钮），动画播完再真正 close，否则 dialog 会无动画瞬关
+  launcherDialog.classList.add('gg-closing');
+  const onCloseEnd = (event: AnimationEvent) => {
+    if (event.target !== launcherDialog || event.animationName !== 'gg-launcher-fly-out') return;
+    launcherDialog.removeEventListener('animationend', onCloseEnd);
+    finishLauncherClose();
+  };
+  launcherDialog.addEventListener('animationend', onCloseEnd);
+  // 兜底：动画事件被节流/后台吞掉时，600ms 后强制收尾
+  launcherCloseTimer = window.setTimeout(finishLauncherClose, 600);
+}
+
+/** 收尾：真正关闭弹窗并清理退场状态，随后星屑向案内按钮敛回收尾 */
+function finishLauncherClose() {
+  if (launcherCloseTimer !== undefined) {
+    window.clearTimeout(launcherCloseTimer);
+    launcherCloseTimer = undefined;
+  }
+  launcherClosing = false;
+  if (!launcherDialog.open) {
+    // 已被其他路径关闭，仅复原退场 class
+    launcherDialog.classList.remove('gg-closing');
+    return;
+  }
+  // 先 close（移除 [open]，退场规则自然失效）再卸 class，避免动画被摘除后瞬间闪回全尺寸
+  launcherDialog.close();
+  launcherDialog.classList.remove('gg-closing');
+  // 灵力回收：面板已收起，金芒一闪、四周星屑敛回案内按钮
+  recallStardust(launcherButton);
+}
+
+/** 星屑回收：关闭时从按钮四周向按钮中心敛回金/粉星屑 + 中心闪光（方向与迸发相反） */
+function recallStardust(anchor: HTMLElement) {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const rect = anchor.getBoundingClientRect();
+  const targetX = rect.left + rect.width / 2;
+  const targetY = rect.top + rect.height / 2;
+  const flash = document.createElement('span');
+  flash.className = 'gg-stardust-flash';
+  flash.style.left = `${targetX}px`;
+  flash.style.top = `${targetY}px`;
+  flash.addEventListener('animationend', () => flash.remove(), { once: true });
+  document.body.appendChild(flash);
+  for (let i = 0; i < 14; i++) {
+    const star = document.createElement('span');
+    star.className = 'gg-stardust gg-stardust-recall';
+    const angle = (Math.PI * 2 * i) / 14 + (Math.random() - .5) * .4;
+    const dist = 90 + Math.random() * 60;
+    // 起点在按钮四周一圈，向按钮中心收拢
+    star.style.left = `${targetX + Math.cos(angle) * dist}px`;
+    star.style.top = `${targetY + Math.sin(angle) * dist}px`;
+    star.style.setProperty('--dx', `${-Math.cos(angle) * dist}px`);
+    star.style.setProperty('--dy', `${-Math.sin(angle) * dist}px`);
+    star.style.setProperty('--rot', `${(Math.random() - .5) * 200}deg`);
+    const size = 8 + Math.random() * 8;
+    star.style.width = `${size}px`;
+    star.style.height = `${size}px`;
+    const hue = Math.random() < .7 ? 44 : 328;
+    star.style.background = `hsl(${hue} 100% ${62 + Math.random() * 18}% / ${.8 + Math.random() * .2})`;
+    star.addEventListener('animationend', () => star.remove(), { once: true });
+    document.body.appendChild(star);
+  }
 }
 
 function navigateFromLauncher(action: () => void) {
@@ -1974,10 +2083,20 @@ globalThis.addEventListener('keydown', (event) => {
   hideTargetMenu();
   gardenMapCanvas.focus({ preventScroll: true });
 });
-launcherButton.addEventListener('click', openLauncher);
+launcherButton.addEventListener('click', () => {
+  // 星屑先迸出，但不等它播完——约半程（闪光将尽时）弹窗同步展开，弹窗像从金芒里长出；
+  // 顶层对话框会盖住部分星屑，但半透明玻璃下余烬仍可见，整体一气呵成
+  burstStardust(launcherButton);
+  setTimeout(openLauncher, 250);
+});
 byId('gg-close-launcher').addEventListener('click', closeLauncher);
 launcherDialog.addEventListener('click', (event) => {
   if (event.target === launcherDialog) closeLauncher();
+});
+// 拦截 Esc 默认瞬关：改为走退场动画路径（否则按 Esc 会无动画立即关闭）
+launcherDialog.addEventListener('cancel', (event) => {
+  event.preventDefault();
+  closeLauncher();
 });
 launcherDialog.addEventListener('close', () => {
   if (document.activeElement === document.body && launcherOpener?.isConnected) launcherOpener.focus();

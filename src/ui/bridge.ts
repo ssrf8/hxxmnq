@@ -63,7 +63,17 @@ type HostGlobals = typeof globalThis & {
   };
   getChatMessages?: (range: string | number, options?: Record<string, unknown>) => Array<Record<string, unknown>>;
   getLastMessageId?: () => number;
-  SillyTavern?: { stopGeneration?: () => boolean; getCurrentChatId?: () => string; getContext?: () => { chat?: Array<Record<string, unknown>>; characterId?: unknown } };
+  SillyTavern?: {
+    stopGeneration?: () => boolean;
+    getCurrentChatId?: () => string;
+    getContext?: () => {
+      chat?: Array<Record<string, unknown>>;
+      characterId?: unknown;
+      name1?: string;
+      setUserName?: (name: string, options?: { toastPersonaNameChange?: boolean }) => void;
+      executeSlashCommandsWithOptions?: (command: string) => Promise<unknown> | void;
+    };
+  };
   createChatMessages?: (messages: Array<Record<string, unknown>>, options?: Record<string, unknown>) => Promise<void>;
   triggerSlash?: (command: string) => Promise<string | undefined>;
   getTavernVersion?: () => string;
@@ -499,10 +509,13 @@ export function createHostBridge(): GardenBridge | null {
     const nextState = hasLocalPresenceTransition(action)
       ? settledState
       : applyPresenceUpdate(settledState, assistantText);
-    data.stat_data = nextState;
+    // 固定事件可能推进时段：写盘前基于结算前后状态运行一次统一调度，
+    // 让到期离场/到期计划/活动生命周期在同一个写盘事务内完成。
+    const reconciledState = reconcileM2Runtime(safeCurrent, nextState, currentChatId());
+    data.stat_data = reconciledState;
     await mvu.replaceMvuData(data, options);
     const reread = mvu.getMvuData(options).stat_data ?? {};
-    if (!settlementProjection(reread, action, assistantMessageId, nextState)) {
+    if (!settlementProjection(reread, action, assistantMessageId, reconciledState)) {
       throw new Error(`事件 ${action.event_id} 写入后复读校验失败`);
     }
   };
@@ -755,8 +768,35 @@ export function createHostBridge(): GardenBridge | null {
         const persona = g.getPersona?.('current');
         personaName = persona?.name || personaName;
         personaDescription = persona?.description ?? '';
+        // 官方 ST 1.17 及以后没有 getCurrentPersonaName/getPersona（宿主自定义才有）：
+        // 回退到官方 getContext().name1（当前用户名，即 {{user}} 展开源），兼容旧酒馆自动填充。
+        if (!personaName) {
+          const ctx = g.SillyTavern?.getContext?.();
+          personaName = String(ctx?.name1 ?? '').trim();
+        }
       } catch { /* Persona is optional. */ }
       return { chatId: currentChatId(), personaName, personaDescription };
+    },
+    async applyUserNameToHost(name) {
+      const clean = String(name ?? '').trim();
+      if (!clean) return { injected: false, method: 'none', reason: 'empty' };
+      const ctx = g.SillyTavern?.getContext?.();
+      if (!ctx) return { injected: false, method: 'none', reason: 'no-context' };
+      // 把玩家输入注入酒馆原生宏（{{user}} 展开名），模型从系统层读到，无需每轮投影。
+      // 多级探测：官方 slash → 官方/旧版 setUserName → 不支持则静默降级（stat_data 兜底照常写入）。
+      if (typeof ctx.executeSlashCommandsWithOptions === 'function') {
+        try {
+          await ctx.executeSlashCommandsWithOptions(`/persona-set mode=temp ${JSON.stringify(clean)}`);
+          return { injected: true, method: 'slash-persona-set' };
+        } catch { /* fall through to setUserName */ }
+      }
+      if (typeof ctx.setUserName === 'function') {
+        try {
+          ctx.setUserName(clean, { toastPersonaNameChange: false });
+          return { injected: true, method: 'setUserName' };
+        } catch { /* fall through */ }
+      }
+      return { injected: false, method: 'none', reason: 'unsupported' };
     },
     async getOpeningProgress() {
       return openingProgress();
@@ -1539,6 +1579,7 @@ export function createPreviewBridge(): GardenBridge {
   return {
     async readState() { return structuredClone(previewState); },
     async getOpeningContext() { return { chatId: 'offline-preview-chat', personaName: '预览玩家', personaDescription: '来自外界的年轻旅人。' }; },
+    async applyUserNameToHost() { return { injected: false, method: 'preview' }; },
     async getOpeningProgress() {
       return {
         messageSubmitted: Boolean(previewOpeningDraft),

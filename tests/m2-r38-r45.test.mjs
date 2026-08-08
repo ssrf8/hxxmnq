@@ -135,6 +135,203 @@ test('R38 来访调度：相同 seed 稳定、未认识拒绝、人数上限与�
     || invited.result !== 'accept_now');
 });
 
+test('R38 来访调度 deferred 到期有名额即落地，满员只延期一时段且不重复通知', async () => {
+  const visitors = await importTypescript('../src/ui/visitor-rules.ts');
+  const migration = await importTypescript('../src/ui/state-migrations.ts');
+  const buildBase = () => migration.migrateGardenState({
+    environment: { day: 2, time_period: '白昼' },
+    events: { completed_key_events: { nitori_greenhouse_automation_proposal: 'done' } },
+    presence_snapshot: { present_character_ids: [], character_views: {} },
+    visit_scheduler: {
+      version: 'visit.v1',
+      known_characters: [],
+      plans: [],
+      cooldown_until: {},
+      invitation_cooldowns: {},
+      last_processed_serial: 5,
+      pending_notices: [],
+    },
+  });
+  const deferredPlan = {
+    plan_id: 'invite:deferred:nitori',
+    character_id: 'nitori',
+    kind: 'invitation',
+    due_serial: 5,
+    status: 'deferred',
+    roll_seed: 'invite:deferred:nitori',
+    reason_id: 'invitation',
+    target_area_id: 'greenhouse_plot',
+    source: 'invitation',
+  };
+  // 有名额：deferred 到期后落地，meta 完整、计划移除、notice 只一次
+  let state = buildBase();
+  state.visit_scheduler.plans = [structuredClone(deferredPlan)];
+  const first = visitors.evaluateVisitScheduler(state, { chatId: 'chat-deferred', commitArrivals: true, busy: false });
+  assert.ok(first.state.presence_snapshot.present_character_ids.includes('nitori'));
+  const meta = first.state.presence_snapshot.visitor_meta.nitori;
+  assert.ok(meta);
+  assert.equal(meta.source, 'invitation');
+  assert.ok(meta.planned_departure_serial >= 6);
+  assert.equal(first.state.visit_scheduler.plans.some((p) => p.plan_id === 'invite:deferred:nitori'), false);
+  assert.equal(first.notices.filter((text) => text.includes('河城荷取')).length, 1);
+  // 重放：不重复到场、不重复 notice
+  const second = visitors.evaluateVisitScheduler(first.state, { chatId: 'chat-deferred', commitArrivals: true, busy: false });
+  assert.ok(second.state.presence_snapshot.present_character_ids.includes('nitori'));
+  assert.equal(second.notices.filter((text) => text.includes('河城荷取')).length, 0);
+  // 满员：保持 deferred，只把 due_serial 精确推进到 serial+1
+  const full = buildBase();
+  full.presence_snapshot.present_character_ids = ['reimu', 'marisa', 'alice'];
+  full.presence_snapshot.character_views = {
+    reimu: { area_id: 'central_courtyard' },
+    marisa: { area_id: 'greenhouse_plot' },
+    alice: { area_id: 'greenhouse_plot' },
+  };
+  full.presence_snapshot.visitor_meta = {
+    reimu: { planned_departure_serial: 99 },
+    marisa: { planned_departure_serial: 99 },
+    alice: { planned_departure_serial: 99 },
+  };
+  full.visit_scheduler.plans = [structuredClone(deferredPlan)];
+  const fullResult = visitors.evaluateVisitScheduler(full, { chatId: 'chat-deferred', commitArrivals: true, busy: false });
+  const kept = fullResult.state.visit_scheduler.plans.find((p) => p.plan_id === 'invite:deferred:nitori');
+  assert.ok(kept);
+  assert.equal(kept.status, 'deferred');
+  assert.equal(kept.due_serial, 6);
+  assert.equal(fullResult.state.presence_snapshot.present_character_ids.includes('nitori'), false);
+});
+
+test('R38 邀请 accept 命中但满员时返回 reschedule 且幂等保持，不谎报 accept_now', async () => {
+  const visitors = await importTypescript('../src/ui/visitor-rules.ts');
+  const migration = await importTypescript('../src/ui/state-migrations.ts');
+  const buildBase = (presentIds) => {
+    const state = migration.migrateGardenState({
+      environment: { day: 2, time_period: '白昼' },
+      events: { completed_key_events: { reimu_boundary_inspection: 'done' } },
+      presence_snapshot: {
+        present_character_ids: presentIds,
+        character_views: Object.fromEntries(presentIds.map((id) => [id, { area_id: 'central_courtyard' }])),
+        visitor_meta: Object.fromEntries(presentIds.map((id) => [id, { planned_departure_serial: 99 }])),
+      },
+      visit_scheduler: {
+        version: 'visit.v1',
+        known_characters: [],
+        plans: [],
+        cooldown_until: {},
+        invitation_cooldowns: {},
+        last_processed_serial: 5,
+        pending_notices: [],
+      },
+    });
+    return state;
+  };
+  // 固定小循环找一个稳定命中 accept roll 的 inviteId，之后断言该 ID 的结果，不依赖不稳定随机数。
+  let acceptId = '';
+  for (let i = 0; i < 300 && !acceptId; i += 1) {
+    const id = `invite:accept-loop:${i}`;
+    const probe = visitors.inviteCharacter(buildBase([]), 'reimu', id, 'chat-invite');
+    if (probe.result === 'accept_now') acceptId = id;
+  }
+  assert.ok(acceptId, '应当能找到稳定命中 accept roll 的 inviteId');
+  // 空场：真到场 → accept_now
+  const openResult = visitors.inviteCharacter(buildBase([]), 'reimu', acceptId, 'chat-invite');
+  assert.equal(openResult.result, 'accept_now');
+  assert.ok(openResult.state.presence_snapshot.present_character_ids.includes('reimu'));
+  // 满员：accept roll 命中但协调后未到场 → reschedule + deferred，不谎报 accept_now
+  const fullState = buildBase(['marisa', 'alice', 'nitori']);
+  const fullResult = visitors.inviteCharacter(fullState, 'reimu', acceptId, 'chat-invite');
+  assert.equal(fullResult.result, 'reschedule');
+  assert.equal(fullResult.state.presence_snapshot.present_character_ids.includes('reimu'), false);
+  const kept = fullResult.state.visit_scheduler.plans.find((p) => p.plan_id === acceptId);
+  assert.ok(kept);
+  assert.equal(kept.status, 'deferred');
+  // 幂等：同 inviteId 再邀 → 仍 reschedule，deferred 不得被解释为 accept_now
+  const replay = visitors.inviteCharacter(fullResult.state, 'reimu', acceptId, 'chat-invite');
+  assert.equal(replay.result, 'reschedule');
+  const replayPlan = replay.state.visit_scheduler.plans.find((p) => p.plan_id === acceptId);
+  assert.equal(replayPlan.status, 'deferred');
+});
+
+test('R38 第1日清晨 planned_departure_serial=0 视为到期并可正常离场', async () => {
+  const visitors = await importTypescript('../src/ui/visitor-rules.ts');
+  const migration = await importTypescript('../src/ui/state-migrations.ts');
+  const state = migration.migrateGardenState({
+    environment: { day: 1, time_period: '清晨' },
+    events: { completed_key_events: { reimu_boundary_inspection: 'yes' } },
+    presence_snapshot: {
+      present_character_ids: ['reimu'],
+      character_views: { reimu: { area_id: 'central_courtyard', action: '等待', facing: 'front' } },
+      visitor_meta: {
+        reimu: {
+          arrival_uid: 'visit:zero:reimu',
+          reason_id: 'formal_visit',
+          source: 'random',
+          arrived_period_serial: 0,
+          earliest_departure_serial: 0,
+          planned_departure_serial: 0,
+        },
+      },
+    },
+    visit_scheduler: {
+      version: 'visit.v1',
+      known_characters: [],
+      plans: [],
+      cooldown_until: {},
+      invitation_cooldowns: {},
+      last_processed_serial: null,
+      pending_notices: [],
+    },
+  });
+  assert.equal(state.environment.day, 1);
+  assert.equal(state.environment.time_period, '清晨');
+  const result = visitors.evaluateVisitScheduler(state, { chatId: 'chat-zero', commitArrivals: true, busy: false });
+  assert.equal(result.state.presence_snapshot.present_character_ids.includes('reimu'), false);
+  assert.equal(result.state.presence_snapshot.visitor_meta.reimu, undefined);
+  assert.equal(result.state.presence_snapshot.character_views.reimu, undefined);
+  assert.ok((result.state.visit_scheduler.cooldown_until?.reimu ?? 0) > 0);
+  assert.equal(result.notices.filter((text) => text.includes('博丽灵梦离开了庭园')).length, 1);
+  // 重放不重复离场通知
+  const replay = visitors.evaluateVisitScheduler(result.state, { chatId: 'chat-zero', commitArrivals: true, busy: false });
+  assert.equal((replay.state.visit_scheduler.pending_notices ?? []).filter((text) => text.includes('博丽灵梦离开了庭园')).length, 1);
+});
+
+test('R38 邀请冷却中的角色被明确拒绝，不创建“改约”计划', async () => {
+  const visitors = await importTypescript('../src/ui/visitor-rules.ts');
+  const migration = await importTypescript('../src/ui/state-migrations.ts');
+  const buildBase = (cooldownUntil) => migration.migrateGardenState({
+    environment: { day: 2, time_period: '白昼' },
+    events: { completed_key_events: { reimu_boundary_inspection: 'done' } },
+    presence_snapshot: { present_character_ids: [], character_views: {} },
+    visit_scheduler: {
+      version: 'visit.v1',
+      known_characters: [],
+      plans: [],
+      cooldown_until: cooldownUntil,
+      invitation_cooldowns: {},
+      last_processed_serial: 5,
+      pending_notices: [],
+    },
+  });
+  // 普通来访冷却中（刚离场）：明确拒绝，且不创建任何计划，避免“说会来但永远不来”。
+  const cooldownState = buildBase({ reimu: 7 });
+  assert.throws(
+    () => visitors.inviteCharacter(cooldownState, 'reimu', 'invite:cooldown:1', 'chat-cd'),
+    /刚离开庭园/,
+  );
+  assert.equal(cooldownState.visit_scheduler.plans.length, 0);
+  // 冷却结束后：accept roll 可正常落地为 accept_now。
+  const cooled = buildBase({ reimu: 5 });
+  let acceptId = '';
+  for (let i = 0; i < 300 && !acceptId; i += 1) {
+    const id = `invite:cooldown-accept:${i}`;
+    const probe = visitors.inviteCharacter(cooled, 'reimu', id, 'chat-cd');
+    if (probe.result === 'accept_now') acceptId = id;
+  }
+  assert.ok(acceptId, '冷却结束后应当能找到稳定命中 accept 的 inviteId');
+  const accepted = visitors.inviteCharacter(cooled, 'reimu', acceptId, 'chat-cd');
+  assert.equal(accepted.result, 'accept_now');
+  assert.ok(accepted.state.presence_snapshot.present_character_ids.includes('reimu'));
+});
+
 test('R38 教程毕业由首次选型派生，机会面板同时展示三设施', async () => {
   const open = await importTypescript('../src/ui/open-garden-rules.ts');
   const state = await baseState();

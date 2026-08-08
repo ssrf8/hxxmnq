@@ -1,0 +1,45 @@
+{
+  "generated_at": "2026-08-07 19:31:05",
+  "params": {
+    "base": {
+      "source": "src/assets/maps/garden-base-owner-v3.png",
+      "width": 1672,
+      "height": 941
+    },
+    "layers": [
+      {
+        "source": "ChatGPT Image 2026年8月8日 03_14_07.png",
+        "width": 1672,
+        "height": 941,
+        "offsetX": -0.07,
+        "offsetY": 781.39,
+        "scale": 1
+      }
+    ],
+    "canvas": {
+      "width": 1672,
+      "height": 1722
+    }
+  },
+  "resolution": {
+    "offset_rounding": "offsetX/offsetY 经 Math.round 取整；scale 原样"
+  },
+  "placements": [
+    {
+      "source": "ChatGPT Image 2026年8月8日 03_14_07.png",
+      "offsetX": 0,
+      "offsetY": 781,
+      "scale": 1
+    }
+  ],
+  "outputs": {
+    "src/assets/maps/garden-base-owner-v4.png": {
+      "bytes": 8891383,
+      "sha256": "41debf6ed97c4dd8c1c6de7b14fafde0cecfa3bea80f1cb9845fa92798b40d32"
+    },
+    "src/assets/maps/garden-base-owner-v4.webp": {
+      "bytes": 555344,
+      "sha256": "b51c9234929348a649db74d03583bc71066c04846f72fee6592beac1e3142b95"
+    }
+  }
+}

@@ -1,6 +1,6 @@
 import visitCatalog from '../visitors/visit-profiles.json';
 import duelCatalog from '../battle/duel-profiles.json';
-import type { GardenState, TimePeriod, VisitPlan, VisitSource } from './types';
+import type { GardenState, TimePeriod, VisitPlan, VisitSource, VisitorMeta } from './types';
 import { periodSerialFromState } from './time-rules';
 
 export interface VisitProfile {
@@ -64,6 +64,32 @@ export function hashSeed(value: string): number {
 export function stableRoll(seed: string, modulo: number): number {
   if (!Number.isInteger(modulo) || modulo <= 0) return 0;
   return hashSeed(seed) % modulo;
+}
+
+/**
+ * 根据角色来访档案构造确定性的 VisitorMeta（不写 state）。
+ * 无档案时返回 null。arrivalUid / reasonId 由调用方提供稳定且可复现的标识。
+ */
+export function buildVisitorMetaForArrival(
+  state: GardenState,
+  characterId: string,
+  arrivalUid: string,
+  reasonId: string,
+  source: VisitSource,
+): VisitorMeta | null {
+  const profile = profileById.get(characterId);
+  if (!profile) return null;
+  const serial = periodSerialFromState(state);
+  const stay = profile.stay_period_range[0]
+    + stableRoll(`stay:${arrivalUid}`, profile.stay_period_range[1] - profile.stay_period_range[0] + 1);
+  return {
+    arrival_uid: arrivalUid,
+    reason_id: reasonId,
+    source,
+    arrived_period_serial: serial,
+    earliest_departure_serial: serial + 1,
+    planned_departure_serial: serial + stay,
+  };
 }
 
 export function isCharacterKnown(state: GardenState, characterId: string): boolean {
@@ -182,7 +208,7 @@ export function evaluateVisitScheduler(
   const present = new Set(state.presence_snapshot?.present_character_ids ?? []);
   for (const characterId of [...present]) {
     const meta = state.presence_snapshot?.visitor_meta?.[characterId];
-    if (!meta?.planned_departure_serial) continue;
+    if (meta?.planned_departure_serial == null) continue;
     if (meta.planned_departure_serial > serial) continue;
     if (busy && (state.interaction?.current_session?.participant_character_ids?.includes(characterId)
       || state.events?.active_event?.participant_character_ids?.includes(characterId))) {
@@ -203,7 +229,9 @@ export function evaluateVisitScheduler(
   state.presence_snapshot!.present_character_ids = Array.from(present);
 
   // Commit due plans at safe points only.
-  const duePlans = (state.visit_scheduler!.plans ?? []).filter((plan) => plan.status === 'scheduled' && (plan.due_serial ?? 0) <= serial);
+  const duePlans = (state.visit_scheduler!.plans ?? []).filter((plan) => (
+    (plan.status === 'scheduled' || plan.status === 'deferred') && (plan.due_serial ?? 0) <= serial
+  ));
   for (const plan of duePlans) {
     if (busy && !options.commitArrivals) {
       continue;
@@ -326,9 +354,17 @@ export function inviteCharacter(
   ensureScheduler(state);
   if ((state.visit_scheduler!.plans ?? []).some((plan) => plan.plan_id === inviteId)) {
     const existing = state.visit_scheduler!.plans!.find((plan) => plan.plan_id === inviteId)!;
+    const currentSerial = periodSerialFromState(state);
+    const result = existing.status === 'cancelled'
+      ? 'decline'
+      : existing.status === 'deferred'
+        ? 'reschedule'
+        : existing.due_serial === currentSerial
+          ? 'accept_now'
+          : 'reschedule';
     return {
       state,
-      result: existing.status === 'cancelled' ? 'decline' : existing.due_serial === periodSerialFromState(state) ? 'accept_now' : 'reschedule',
+      result,
       message: existing.status === 'cancelled' ? '邀请已被拒绝。' : '邀请结果已登记。',
     };
   }
@@ -338,6 +374,11 @@ export function inviteCharacter(
   const serial = periodSerialFromState(state);
   if ((state.visit_scheduler!.invitation_cooldowns?.[characterId] ?? 0) > serial) {
     throw new Error('该角色的邀请仍在冷却中');
+  }
+  // 普通来访冷却（刚离场）期间不接受新邀请：明确拒绝，避免 accept roll 命中后
+  // 计划被 scheduler 取消却仍向玩家谎报“之后会来”。
+  if ((state.visit_scheduler!.cooldown_until?.[characterId] ?? 0) > serial) {
+    throw new Error('该角色刚离开庭园，暂时不能邀请');
   }
   if ((state.presence_snapshot?.present_character_ids ?? []).includes(characterId)) {
     throw new Error('该角色已在庭园中');
@@ -381,10 +422,31 @@ export function inviteCharacter(
   state.visit_scheduler!.plans = [...(state.visit_scheduler!.plans ?? []), scheduledPlan].slice(-32);
   if (result === 'accept_now') {
     const committed = evaluateVisitScheduler(state, { chatId, commitArrivals: true, busy: false });
+    const arrived = Boolean(
+      committed.state.presence_snapshot?.present_character_ids?.includes(characterId),
+    );
+    const keptPlan = committed.state.visit_scheduler?.plans?.find((plan) => plan.plan_id === inviteId);
+    if (arrived) {
+      return {
+        state: committed.state,
+        result: 'accept_now',
+        message: `${profile.display_name}答应现在过来。`,
+      };
+    }
+    // accept roll 命中但协调后未到场（如满员被 defer）：如实返回改约。
+    if (keptPlan?.status === 'deferred') {
+      return {
+        state: committed.state,
+        result: 'reschedule',
+        message: `${profile.display_name}现在过来的人已经满了，改约到之后的时段再来。`,
+      };
+    }
+    // 协调后未到场且计划已不存在（例如被 scheduler 因冷却取消并删除）：
+    // 绝不能谎报“之后会来”，明确拒绝。
     return {
       state: committed.state,
-      result,
-      message: `${profile.display_name}答应现在过来。`,
+      result: 'decline',
+      message: `${profile.display_name}现在不方便过来。`,
     };
   }
   return {

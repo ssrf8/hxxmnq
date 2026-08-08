@@ -14,14 +14,14 @@ export const GARDEN_AREA_LABELS: Readonly<Record<string, string>> = Object.freez
 
 /** Shared logical map coordinates used by both rendering and local proximity rules. */
 export const GARDEN_AREA_POSITIONS: Readonly<Record<string, GardenPoint>> = Object.freeze({
-  // The v3 base paints the residence into the upper-center. Other facilities
-  // remain interactive plot markers until matching transparent v3 sprites arrive.
-  main_house: { x: 0.50, y: 0.43 },
-  central_courtyard: { x: 0.50, y: 0.58 },
-  greenhouse_plot: { x: 0.19, y: 0.27 },
-  fairy_garden_plot: { x: 0.81, y: 0.36 },
-  moon_spring_plot: { x: 0.22, y: 0.70 },
-  banquet_plaza_plot: { x: 0.78, y: 0.69 },
+  // v4（2026-08-08 拼接：v3 底图 + 下段新图）画布 1672×1722；
+  // 以下 y 为按旧 941 高归一化坐标乘 941/1722 重算，视觉位置未变。
+  main_house: { x: 0.50, y: 0.235 },
+  central_courtyard: { x: 0.50, y: 0.317 },
+  greenhouse_plot: { x: 0.19, y: 0.148 },
+  fairy_garden_plot: { x: 0.81, y: 0.197 },
+  moon_spring_plot: { x: 0.22, y: 0.383 },
+  banquet_plaza_plot: { x: 0.78, y: 0.377 },
 });
 
 /**
