@@ -191,6 +191,134 @@ export interface CardRuntimeState {
   };
 }
 
+// ===== GAL 角色入场记忆（character-visit-memory.v1）=====
+// 固定模型标识：gensokyo-character-memory / character-visit-memory.v1
+// storage.root: stat_data.interaction.visit_memory（normal multi-floor MVU）
+// 本批只添加兼容类型，不改变现有关系事实语义、事件登记或生成请求。
+
+export type CharacterMemoryVersion = 'character-visit-memory.v1';
+
+export type CharacterMemorySource =
+  | 'scheduler'
+  | 'event'
+  | 'model-presence'
+  | 'bootstrap'
+  | 'reconcile';
+
+export type CharacterVisitEndReason =
+  | 'scheduled-departure'
+  | 'presence-receipt'
+  | 'event-leave'
+  | 'reconcile';
+
+export type RelationshipMemoryKind =
+  | 'relationship_state'
+  | 'milestone'
+  | 'boundary'
+  | 'conflict'
+  | 'reconciliation';
+
+export type RelationshipLabel =
+  | 'stranger'
+  | 'acquaintance'
+  | 'friend'
+  | 'close_friend'
+  | 'lover'
+  | 'estranged';
+
+export type RelationshipEventKind =
+  | 'trust'
+  | 'affection'
+  | 'confession'
+  | 'kiss'
+  | 'adult_intimacy'
+  | 'promise'
+  | 'breakup';
+
+export interface LegacyMemory {
+  legacy_id: string;
+  character_id: string | null;
+  text: string;
+  source: 'conversation_log.v0';
+  [key: string]: unknown;
+}
+
+export interface VisitTurn {
+  turn_id: string;
+  request_id: string;
+  character_id: string;
+  scene_id: string | null;
+  assistant_message_id: number | null;
+  assistant_swipe_id: number | null;
+  latest_attempt_id: string | null;
+  latest_commit_key: string | null;
+  day: number | string | null;
+  time_period: string | null;
+  period_serial: number | null;
+  summary: string;
+  [key: string]: unknown;
+}
+
+export interface VisitRecord {
+  visit_id: string;
+  character_id: string;
+  source: CharacterMemorySource;
+  arrival_uid: string | null;
+  started_day: number | string | null;
+  started_time_period: string | null;
+  started_period_serial: number | null;
+  ended_day: number | string | null;
+  ended_time_period: string | null;
+  ended_period_serial: number | null;
+  end_reason: CharacterVisitEndReason | null;
+  turns: VisitTurn[];
+  [key: string]: unknown;
+}
+
+export interface RelationshipMemory {
+  relationship_memory_id: string;
+  character_id: string;
+  request_id: string;
+  visit_id: string | null;
+  day: number | string | null;
+  time_period: string | null;
+  period_serial: number | null;
+  kind: RelationshipMemoryKind;
+  relationship_label: RelationshipLabel | null;
+  event_kind: RelationshipEventKind | null;
+  summary: string;
+  significance: 1 | 2 | 3;
+  active: boolean;
+  latest_attempt_id: string | null;
+  latest_commit_key: string | null;
+  [key: string]: unknown;
+}
+
+export interface CharacterMemory {
+  character_id: string;
+  active_visit: VisitRecord | null;
+  closed_visits: VisitRecord[];
+  legacy_memories: LegacyMemory[];
+  relationship_memories: RelationshipMemory[];
+  [key: string]: unknown;
+}
+
+export interface CharacterVisitMigrationMetadata {
+  revision: string;
+  conversation_log_fingerprint: string | null;
+  relationship_facts_fingerprint: Record<string, string> | null;
+  migrated_at_serial: number | null;
+  [key: string]: unknown;
+}
+
+export interface CharacterVisitMemoryState {
+  version: CharacterMemoryVersion;
+  by_character: Record<string, CharacterMemory>;
+  legacy_unassigned: LegacyMemory[];
+  migration: CharacterVisitMigrationMetadata;
+  [key: string]: unknown;
+}
+
 export interface GardenState {
   meta?: { initialized?: boolean; opening_committed?: boolean; schema_version?: string };
   environment?: { day?: number; time_period?: TimePeriod; season?: string; weather?: string; anomaly_weather?: string | null };
@@ -244,6 +372,7 @@ export interface GardenState {
     settled_ids?: string[];
     conversation_log?: string[];
     starter_gift_claimed?: boolean;
+    visit_memory?: CharacterVisitMemoryState;
   };
   events?: {
     active_event?: {
@@ -343,7 +472,7 @@ export interface GardenState {
     last_visit_notice_serial?: number | null;
   };
   memory?: { long_term_notes?: string[] };
-  uid_counters?: { interaction?: number; [key: string]: number | undefined };
+  uid_counters?: { interaction?: number; character_visit?: number; [key: string]: number | undefined };
   [key: string]: unknown;
 }
 
