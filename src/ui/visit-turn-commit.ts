@@ -18,11 +18,11 @@ const PRESENCE_PATTERN = /<GensokyoPresence>[\s\S]*?<\/GensokyoPresence>/giu;
 const SCENE_PATTERN = /<GensokyoScene\b[^>]*>([\s\S]*?)<\/GensokyoScene>/giu;
 const HTML_TAG_PATTERN = /<[^>]+>/gu;
 
-/** runbook §3.7：summary 最长 160 字符。 */
-export const TURN_SUMMARY_CHARS = 160;
-/** 玩家输入段与角色台词段的各自截断上限（合计 ≤160 时保留分隔符空间）。 */
-export const TURN_PLAYER_PART_CHARS = 72;
-export const TURN_ROLE_PART_CHARS = 84;
+/** 新 VisitTurn 摘要目标：足够召回，但不把整段正文重新塞回状态。 */
+export const TURN_SUMMARY_MIN_CHARS = 80;
+export const TURN_SUMMARY_CHARS = 100;
+export const TURN_PLAYER_PART_CHARS = 36;
+export const TURN_ROLE_PART_CHARS = 48;
 
 export interface VisitTurnCommitRequestRef {
   requestId: string;
@@ -141,6 +141,25 @@ function truncate(value: string, maximum: number): string {
   return String(value ?? '').replace(/\s+/gu, ' ').trim().slice(0, maximum);
 }
 
+function buildRecallSummary(input: VisitTurnCommitInput, displayName: string, line: string | undefined, body: string) {
+  const player = truncate(input.request.visibleUserText, TURN_PLAYER_PART_CHARS) || '未记录明确发言';
+  const clock = [input.clock.day == null ? '' : `第${input.clock.day}日`, input.clock.time_period ?? '']
+    .filter(Boolean)
+    .join('·');
+  const parts = [
+    `${clock ? `${clock}，` : ''}玩家行动：${player}`,
+    line
+      ? `${displayName}回应：${truncate(line, TURN_ROLE_PART_CHARS)}`
+      : `现场经过：${truncate(body, TURN_ROLE_PART_CHARS) || '未记录更多可见经过'}`,
+  ];
+  if (line && body) parts.push(`现场经过：${truncate(body, TURN_ROLE_PART_CHARS)}`);
+  let summary = parts.join('；');
+  if (summary.length < TURN_SUMMARY_MIN_CHARS) {
+    summary += '；只把上述行动、现场经过和角色明确回应作为后续回忆依据，不额外推断未发生的关系变化、道具得失、任务结果或隐藏动机。';
+  }
+  return truncate(summary, TURN_SUMMARY_CHARS);
+}
+
 /**
  * 从已接受的回复构造每角色最多一条 VisitTurn（纯函数，可复算）。
  * - 只处理 request 冻结的 relevantCharacterIds 且 visit ID 非 null 的角色；
@@ -184,7 +203,6 @@ export function buildVisitTurnCommit(input: VisitTurnCommitInput): VisitTurnComm
   if (eligible.length === 0) return { ok: true, turns: [], diagnostics };
 
   const names = input.characterNames ?? {};
-  const playerText = truncate(input.request.visibleUserText, TURN_PLAYER_PART_CHARS);
   const bodySummary = truncate(cleanVisibleSummary(raw, section.body), TURN_ROLE_PART_CHARS);
 
   const turns: VisitTurn[] = [];
@@ -194,12 +212,11 @@ export function buildVisitTurnCommit(input: VisitTurnCommitInput): VisitTurnComm
     const line = dialogue.get(characterId);
     const displayName = names[characterId] ?? characterId;
     if (line) {
-      const rolePart = truncate(line, TURN_ROLE_PART_CHARS);
-      turns.push(makeTurn(input, characterId, `玩家：${playerText}；${displayName}：${rolePart}`));
+      turns.push(makeTurn(input, characterId, buildRecallSummary(input, displayName, line, bodySummary)));
     } else {
       // 无台词但属主目标/显式参与者：用清洗后的可见正文兜底
       withoutDialogue.push(characterId);
-      turns.push(makeTurn(input, characterId, `玩家：${playerText}；本轮：${bodySummary}`));
+      turns.push(makeTurn(input, characterId, buildRecallSummary(input, displayName, undefined, bodySummary)));
     }
   }
   // 记录被跳过（有台词但不相关）的角色：不在 turns 中，仅诊断
@@ -221,16 +238,9 @@ function makeTurn(
 ): VisitTurn {
   return {
     turn_id: `${input.request.requestId}:${characterId}`,
-    request_id: input.request.requestId,
     character_id: characterId,
-    scene_id: input.request.sceneId,
-    assistant_message_id: input.attempt.assistantMessageId,
-    assistant_swipe_id: input.attempt.assistantSwipeId,
-    latest_attempt_id: input.attempt.attemptId,
-    latest_commit_key: input.attempt.commitKey,
     day: input.clock.day,
     time_period: input.clock.time_period,
-    period_serial: input.clock.period_serial,
     summary: truncate(summary, TURN_SUMMARY_CHARS),
   };
 }
@@ -307,16 +317,9 @@ export type VisitTurnVerificationResult =
 
 const visitTurnFields: ReadonlyArray<keyof VisitTurn> = [
   'turn_id',
-  'request_id',
   'character_id',
-  'scene_id',
-  'assistant_message_id',
-  'assistant_swipe_id',
-  'latest_attempt_id',
-  'latest_commit_key',
   'day',
   'time_period',
-  'period_serial',
   'summary',
 ];
 
@@ -353,7 +356,7 @@ export function verifyCommittedVisitTurns(
   if (expectedTurns.length === 0) {
     const unexpected = visits
       .flatMap((visit) => visit.turns)
-      .find((turn) => turn.request_id === request.requestId || turn.turn_id.startsWith(`${request.requestId}:`));
+      .find((turn) => turn.turn_id.startsWith(`${request.requestId}:`));
     return unexpected
       ? { ok: false, code: 'unexpected-turn', characterId: unexpected.character_id, turnId: unexpected.turn_id }
       : { ok: true };
@@ -389,7 +392,7 @@ export function verifyCommittedVisitTurns(
 export function verifyVisitTurnAuditRefs(
   state: GardenState,
   request: Pick<VisitTurnCommitRequestRef, 'requestId' | 'relevantCharacterIds' | 'visitIdsByCharacter'>,
-  attempt: Pick<VisitTurnCommitAttemptRef, 'attemptId' | 'commitKey' | 'assistantMessageId' | 'assistantSwipeId'>,
+  _attempt: Pick<VisitTurnCommitAttemptRef, 'attemptId' | 'commitKey' | 'assistantMessageId' | 'assistantSwipeId'>,
 ): boolean {
   const expectedCharacters = request.relevantCharacterIds.filter((characterId) => (
     request.visitIdsByCharacter[characterId] != null
@@ -403,13 +406,7 @@ export function verifyVisitTurnAuditRefs(
     const occurrences = visits.flatMap((visit) => visit.turns).filter((turn) => turn.turn_id === expectedTurnId);
     if (targetVisits.length !== 1 || occurrences.length !== 1) return false;
     const turn = targetVisits[0].turns.find((entry) => entry.turn_id === expectedTurnId);
-    return Boolean(turn
-      && turn.request_id === request.requestId
-      && turn.character_id === characterId
-      && turn.latest_attempt_id === attempt.attemptId
-      && turn.latest_commit_key === attempt.commitKey
-      && turn.assistant_message_id === attempt.assistantMessageId
-      && turn.assistant_swipe_id === attempt.assistantSwipeId);
+    return Boolean(turn && turn.character_id === characterId);
   });
 }
 

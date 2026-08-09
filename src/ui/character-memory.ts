@@ -30,7 +30,7 @@ export const TURNS_PER_CLOSED_VISIT = 16;
 export const LEGACY_MEMORIES_PER_CHARACTER = 16;
 export const LEGACY_UNASSIGNED_LIMIT = 24;
 export const RELATIONSHIP_MEMORIES_PER_CHARACTER = 12;
-export const TURN_SUMMARY_CHARS = 160;
+export const TURN_SUMMARY_CHARS = 100;
 export const RELATIONSHIP_SUMMARY_CHARS = 160;
 
 // 固定迁移元数据标识
@@ -166,18 +166,10 @@ export function normalizeVisitTurn(value: unknown): VisitTurn | null {
   const characterId = typeof value.character_id === 'string' ? value.character_id.slice(0, 48) : '';
   const summary = typeof value.summary === 'string' ? value.summary.slice(0, TURN_SUMMARY_CHARS) : '';
   return {
-    ...value,
     turn_id: turnId,
-    request_id: normalizeNullableText(value.request_id, 96) ?? '',
     character_id: characterId,
-    scene_id: normalizeNullableText(value.scene_id, 96),
-    assistant_message_id: normalizeNullableInt(value.assistant_message_id),
-    assistant_swipe_id: normalizeNullableInt(value.assistant_swipe_id),
-    latest_attempt_id: normalizeNullableText(value.latest_attempt_id, 96),
-    latest_commit_key: normalizeNullableText(value.latest_commit_key, 96),
     day: normalizeDay(value.day),
     time_period: normalizeNullableText(value.time_period, 24),
-    period_serial: normalizeNullableInt(value.period_serial),
     summary,
   };
 }

@@ -89,18 +89,11 @@ const legacyMemorySchema = z.object({
 
 const visitTurnSchema = z.object({
   turn_id: text('', 160),
-  request_id: text('', 96),
   character_id: text('', 48),
-  scene_id: z.union([z.null(), text('', 96)]).prefault(null).catch(null),
-  assistant_message_id: nullableMessageId(),
-  assistant_swipe_id: nullableMessageId(),
-  latest_attempt_id: z.union([z.null(), text('', 96)]).prefault(null).catch(null),
-  latest_commit_key: z.union([z.null(), text('', 96)]).prefault(null).catch(null),
   day: nullableDay(),
   time_period: z.union([z.null(), text('', 24)]).prefault(null).catch(null),
-  period_serial: nullableSerial(),
-  summary: text('', 160),
-}).passthrough().prefault({});
+  summary: text('', 100),
+}).prefault({});
 
 const visitRecordSchema = z.object({
   visit_id: text('', 64),

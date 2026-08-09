@@ -167,7 +167,6 @@ for (const profile of itemProfiles) {
   itemGreenlights.add(profile.greenlight);
 }
 const itemContents = await Promise.all(itemProfiles.map(({ id }) => source(`src/lorebook/items/${id}.xml`)));
-const sakuyaWatch = await source('src/lorebook/items/sakuya_watch.xml');
 const entry = (
   id,
   comment,
@@ -215,40 +214,42 @@ const entry = (
   },
 });
 
+const routedEntry = (...args) => {
+  const result = entry(...args);
+  result.extensions.exclude_recursion = true;
+  result.extensions.prevent_recursion = true;
+  result.extensions.match_whole_words = true;
+  result.extensions.case_sensitive = true;
+  return result;
+};
+
 const loreEntries = [
   entry(0, '[mvu_plot][core] 角色卡身份与玩家权边界', identity, [], true),
   entry(1, '[mvu_plot][core] 会移动的结界领地', movingGarden, [], true),
   entry(9, '[mvu_plot][core] 幻想乡基础世界观', gensokyoBasics, [], true),
-  entry(16, '[mvu_plot][special] 怀表·时间停止', sakuyaWatch, [], true),
   entry(2, '[mvu_update] 变量更新规则', variableRules, [], true, 'after_char'),
   entry(3, '[mvu_update] 最新 MVU 状态（含本地私有字段）', projection, [], true, 'after_char', 0, 4),
   entry(8, '[mvu_update] 变量输出格式', variableOutputFormat, [], true, 'after_char'),
   entry(7, '[mvu_plot][interaction] GAL 表现与会话协议', galPresentation, [], true, 'after_char'),
-  entry(4, '[mvu_plot][opening] 移动庭园首次行动引导', openingGuidance, ['庭守钥', '第一次行动'], false),
+  routedEntry(4, '[mvu_plot][opening] 移动庭园首次行动引导', openingGuidance, ['GSK_OPENING_GUIDANCE_ACTIVE'], false),
   entry(6, '[initvar] 移动庭园初始状态', `<initvar>\n${JSON.stringify(initialState, null, 2)}\n</initvar>`),
   ...characterProfiles.map((profile, index) => {
-    const result = entry(
+    return routedEntry(
       10 + index,
       `[mvu_plot][character] ${profile.label}`,
       characterContents[index],
       [profile.greenlight],
       false,
     );
-    result.extensions.exclude_recursion = true;
-    result.extensions.prevent_recursion = true;
-    return result;
   }),
   ...itemProfiles.map((profile, index) => {
-    const result = entry(
+    return routedEntry(
       18 + index,
       `[mvu_plot][item] ${profile.label}`,
       itemContents[index],
       [profile.greenlight],
       false,
     );
-    result.extensions.exclude_recursion = true;
-    result.extensions.prevent_recursion = true;
-    return result;
   }),
 ];
 

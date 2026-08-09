@@ -29,6 +29,7 @@ import {
   restoreGalGenerationRequestV2,
   resolveAssistantMessageByCommitKey,
   resolvePlayerMessageByMetadata,
+  storedUserMessageMatchesRequestV2,
   parseAttemptMetadata,
   resolveLatestAssistantForRegeneration,
   analyzeChatRestore,
@@ -39,6 +40,7 @@ import {
   type RequestChatSnapshot,
 } from './gal-generation-request';
 import { buildGalGenerateConfig } from './gal-generate-config';
+import { buildGalCurrentTurnInjections } from './gal-prompt-injection';
 import {
   createRegenerationCommitReceiptV1,
   GAL_REGENERATION_RECEIPT_DATA_KEY,
@@ -106,6 +108,7 @@ import {
   applyLocalSettlement,
   findRecordedLocalSettlement,
   hasLocalPresenceTransition,
+  isLocalSettlementActionMarker,
   localSettlementAction,
   parseGardenAction,
   restoreLocalEventOwnership,
@@ -156,6 +159,10 @@ type HostGlobals = typeof globalThis & {
   getCurrentPersonaName?: () => string | null;
   getPersona?: (personaId: string) => { name?: string; description?: string };
   eventOn?: (eventName: string, listener: (...args: unknown[]) => void) => { stop: () => void };
+  injectPrompts?: (
+    prompts: Array<{ id: string; position: 'in_chat' | 'none'; depth: number; role: 'system' | 'user' | 'assistant'; content: string; should_scan?: boolean }>,
+    options?: { once?: boolean },
+  ) => { uninject: () => void };
   tavern_events?: Record<string, string>;
   /** TavernHelper iframe 事件（generate() 的 GENERATION_STARTED、STREAM 事件、GENERATION_ENDED 等）。 */
   iframe_events?: Record<string, string>;
@@ -843,6 +850,9 @@ export function createHostBridge(): GardenBridge | null {
   let pendingHelperResult: string | null = null;
   // Phase 2 增量 D：helper-generate 流式文本（pending GAL 指示投影）。
   let pendingStreamText = '';
+  // createChatMessages 会在 Promise 完成前先发 MESSAGE_RECEIVED / MVU 事件。
+  // assistant 尚未完整持久化时禁止 settlement 写同一个 message-scope，避免旧 data 回写覆盖本轮 VisitTurn。
+  let assistantPersistenceInFlight = false;
   const transactions = new MessageTransactionCoordinator({
     currentChatId,
     listMessages: activeMessages,
@@ -856,6 +866,17 @@ export function createHostBridge(): GardenBridge | null {
       );
     },
     async prepareGeneration() {
+      const current = transactions.read();
+      if (pendingRequest?.schema === REQUEST_SCHEMA_V2
+        && current.requestId === pendingRequest.requestId) {
+        const player = activeMessages().find((message) => (
+          Number(message.message_id) === current.userMessageId
+        ));
+        const stored = player?.message ?? player?.mes;
+        if (!storedUserMessageMatchesRequestV2(pendingRequest, stored)) {
+          throw new Error('真实玩家楼层与冻结请求不一致：已拒绝生成');
+        }
+      }
       // createChatMessages resolves after insertion, but Luker may still be
       // draining message/regex refresh callbacks. Keep the GAL busy overlay up
       // while giving the long-lived generation listener a stable turn.
@@ -934,6 +955,12 @@ export function createHostBridge(): GardenBridge | null {
   };
 
   const persistCommitSettled = async (snapshot: MessageTransactionSnapshot) => {
+    const userMessage = activeMessages().find((item) => Number(item.message_id) === Number(snapshot.userMessageId));
+    const userAction = parseGardenAction(String(userMessage?.message ?? userMessage?.mes ?? ''));
+    // 本地托管剧情以“非空回复 + 白名单结算复读”为完整合同；VisitTurn/lifecycle
+    // 只服务附属记忆与重生成审计，不能反过来阻断教程或其他固定事件。
+    if (snapshot.receiptPolicy === 'next-nonempty-assistant'
+      || (userAction && isLocalSettlementActionMarker(userAction))) return;
     const assistantMessageId = Number(snapshot.assistantMessageId);
     if (!snapshot.requestId || !snapshot.attemptId || !snapshot.commitKey
       || !Number.isInteger(assistantMessageId) || assistantMessageId < 0) return;
@@ -1045,10 +1072,15 @@ export function createHostBridge(): GardenBridge | null {
       ...baseData,
       [COMMIT_LIFECYCLE_KEY]: buildCommitLifecycle(attempt, 'pending'),
     };
-    await g.createChatMessages?.(
-      [{ role: 'assistant', message: text, is_hidden: false, data, extra: buildAttemptMetadata(attempt) }],
-      { insert_before: 'end', refresh: 'affected' },
-    );
+    assistantPersistenceInFlight = true;
+    try {
+      await g.createChatMessages?.(
+        [{ role: 'assistant', message: text, is_hidden: false, data, extra: buildAttemptMetadata(attempt) }],
+        { insert_before: 'end', refresh: 'affected' },
+      );
+    } finally {
+      assistantPersistenceInFlight = false;
+    }
   };
 
   /**
@@ -1191,10 +1223,15 @@ export function createHostBridge(): GardenBridge | null {
             ...baseDataForSt,
             [COMMIT_LIFECYCLE_KEY]: buildCommitLifecycle(attempt, 'pending'),
           };
-          await g.createChatMessages?.(
-            [{ ...stFloor, data: dataForSt, extra: { ...(stFloor.extra ?? {}), ...buildAttemptMetadata(attempt) } }],
-            { refresh: 'affected' },
-          );
+          assistantPersistenceInFlight = true;
+          try {
+            await g.createChatMessages?.(
+              [{ ...stFloor, data: dataForSt, extra: { ...(stFloor.extra ?? {}), ...buildAttemptMetadata(attempt) } }],
+              { refresh: 'affected' },
+            );
+          } finally {
+            assistantPersistenceInFlight = false;
+          }
           trace('st_persisted', stFloor.message_id);
         } else {
           await writeHelperAssistantMessage(attempt, text);
@@ -1206,6 +1243,10 @@ export function createHostBridge(): GardenBridge | null {
         console.warn('[gal:helper-generate] assistant 落楼失败，已保留生成结果供显式重试：', error instanceof Error ? error.message : String(error));
         throw error;
       }
+      // generate() 已返回非空正文，且本次精确 assistant 楼层已成功持久化；这就是
+      // Helper 路径的完成权威。不要继续依赖宿主可能缺失的通用 GENERATION_ENDED。
+      hostGenerationActive = false;
+      transactions.markGenerationEnded();
     } finally {
       unsubs.forEach((stop) => { try { stop(); } catch { /* ignore */ } });
       pendingStreamText = '';
@@ -1317,7 +1358,6 @@ export function createHostBridge(): GardenBridge | null {
     action: GardenActionMarker,
     assistantMessageId: number,
     assistantText: string,
-    snapshot?: MessageTransactionSnapshot,
   ) => {
     const mvu = await requireMvu();
     if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持本地事件结算');
@@ -1356,20 +1396,10 @@ export function createHostBridge(): GardenBridge | null {
       // 让到期离场/到期计划/活动生命周期在同一个写盘事务内完成。
       return reconcileM2Runtime(safeCurrent, nextState, currentChatId());
     };
-    const commitSnapshot = snapshot ?? transactions.read();
-    const outcome = await finalizeAcceptedAssistant({
-      mvu: mvu as FinalizeAcceptedAssistantInput['mvu'],
-      options,
-      currentData: data,
-      before,
-      assistantText,
-      pendingRequest,
-      snapshot: commitSnapshot,
-      characterNames: characterNamesOf(before),
-      readAssistantIdentity: readAcceptedAssistantIdentity(commitSnapshot),
-      transformFinalState,
-    });
-    void outcome;
+    // 固定剧情的模型职责只有叙事。收到本轮非空 assistant 后直接应用本地
+    // 白名单结算，不再要求 VisitTurn、swipe、attempt 或 lifecycle 审计通过。
+    data.stat_data = transformFinalState(isRecord(data.stat_data) ? data.stat_data as GardenState : before);
+    await mvu.replaceMvuData(data, options);
     // settlementProjection 继续负责事件事实（不得冒充 VisitTurn 验证器）。
     const reread = mvu.getMvuData(options).stat_data ?? {};
     if (!settlementProjection(reread, action, assistantMessageId, reread as GardenState)) {
@@ -1586,7 +1616,6 @@ export function createHostBridge(): GardenBridge | null {
         || attemptMeta.value.ownerCharacterId !== String(g.SillyTavern?.getContext?.().characterId ?? '')) {
         return false;
       }
-      if (mvu?.isDuringExtraAnalysis?.()) return false;
       const before = persistedStateBefore(mvu, assistantMessageId) ?? current;
       const options = { type: 'message' as const, message_id: assistantMessageId };
       const data = structuredClone(mvu!.getMvuData(options)) as Record<string, unknown>;
@@ -1672,7 +1701,6 @@ export function createHostBridge(): GardenBridge | null {
         || attemptMeta.value.ownerCharacterId !== String(g.SillyTavern?.getContext?.().characterId ?? '')) {
         return false;
       }
-      if (mvu?.isDuringExtraAnalysis?.()) return false;
       const before = persistedStateBefore(mvu, assistantMessageId) ?? current;
       const options = { type: 'message' as const, message_id: assistantMessageId };
       const data = structuredClone(mvu!.getMvuData(options)) as Record<string, unknown>;
@@ -1742,25 +1770,29 @@ export function createHostBridge(): GardenBridge | null {
   };
 
   const settlePendingAfterReply = (forceReady = false): Promise<boolean> => {
+    if (assistantPersistenceInFlight) return Promise.resolve(false);
     return settlementAttempts.run(forceReady, async (attemptForceReady) => {
       const snapshot = readTransaction();
       try {
         if ((pendingSettlement || pendingOwnershipBefore || pendingSystemOperation) && snapshot.assistantResponded) {
           assistantObservedAt ||= Date.now();
           const mvu = await requireMvu();
-          if (!attemptForceReady && !variableStageReady(mvu)) return false;
+          // 本地托管剧情的事实由代码拥有；精确的非空 assistant 已落楼后，
+          // 固定事件、异变收束和决斗胜利都不再等待模型变量阶段。
+          if (!attemptForceReady && !pendingSettlement && !pendingSystemOperation && !variableStageReady(mvu)) return false;
           if (pendingSettlement) await persistPendingSettlement(snapshot);
           else if (pendingOwnershipBefore) await preserveLocalOwnership(pendingOwnershipBefore, snapshot);
           lastError = '';
           return true;
         }
         const mvu = await requireMvu();
-        if (mvu.isDuringExtraAnalysis?.()) return false;
         const current = latestPersistedState(mvu);
+        const recorded = findRecordedLocalSettlement(activeMessages(), current);
         if (recoverCompletedCurrentTransaction(current)) return true;
         if (await recoverRecordedAnomalyResolution(mvu, current)) return true;
         if (await recoverRecordedDuelVictory(mvu, current)) return true;
-        const recorded = findRecordedLocalSettlement(activeMessages(), current);
+        // 本地托管剧情先按精确楼层恢复；只有自由对话恢复仍等待 MVU。
+        if (mvu.isDuringExtraAnalysis?.() && !recorded) return false;
         if (!recorded) {
           if (snapshot.recovery !== 'settlement') return false;
           if (snapshot.requestSchema === REQUEST_SCHEMA_V2) {
@@ -1772,7 +1804,6 @@ export function createHostBridge(): GardenBridge | null {
             return true;
           }
           transactions.markSettlementSucceeded();
-          await persistCommitSettled(transactions.read());
           lastError = '';
           return true;
         }
@@ -1819,7 +1850,6 @@ export function createHostBridge(): GardenBridge | null {
     if (snapshot.phase !== 'settled') {
       throw new Error(snapshot.lastError || '回复已收到，但本地游戏状态尚未完成结算');
     }
-    await persistCommitSettled(snapshot);
     return snapshot;
   };
 
@@ -2047,10 +2077,10 @@ export function createHostBridge(): GardenBridge | null {
           const turns: ReplayVisitTurnCommitV1[] = result.turns.map((turn) => ({
             turnId: turn.turn_id,
             summary: turn.summary,
-            assistantMessageId: turn.assistant_message_id ?? replayContext!.assistantMessageId,
-            assistantSwipeId: turn.assistant_swipe_id ?? replayContext!.assistantSwipeId,
-            attemptId: turn.latest_attempt_id ?? replayContext!.attemptId,
-            commitKey: turn.latest_commit_key ?? replayContext!.commitKey,
+            assistantMessageId: replayContext!.assistantMessageId,
+            assistantSwipeId: replayContext!.assistantSwipeId,
+            attemptId: replayContext!.attemptId,
+            commitKey: replayContext!.commitKey,
             characterId: turn.character_id,
             gameDay: typeof turn.day === 'number' ? turn.day : null,
           }));
@@ -2318,8 +2348,11 @@ export function createHostBridge(): GardenBridge | null {
         pendingRequest = v2.request;
         const snapshot = await transactions.submit({
           kind,
-          message: value,
+          // v5：把协议、在场快照、场景事实和道具授权真实写入 user 楼层；
+          // helper generate 只能逐字复用同一冻结正文，不能在请求期重新拼接。
+          message: v2.request.modelUserInput,
           request: v2.request,
+          receiptPolicy: action ? 'next-nonempty-assistant' : 'exact-attempt',
           extra: {
             gensokyoUserVisibleText: userVisibleText?.trim() || null,
             ...requestMetadata,
@@ -2329,7 +2362,8 @@ export function createHostBridge(): GardenBridge | null {
           throw new Error(snapshot.lastError || '没有收到 assistant 回复，可以安全重试');
         }
         assistantObservedAt = Date.now();
-        await waitForVariableStage(snapshot.assistantMessageId);
+        // 固定剧情只要求收到精确、非空的 assistant 回复；其结果由本地白名单结算。
+        if (!action) await waitForVariableStage(snapshot.assistantMessageId);
         return await requirePendingSettlement();
       } catch (error) {
         lastError = error instanceof Error ? error.message : String(error);
@@ -2381,7 +2415,7 @@ export function createHostBridge(): GardenBridge | null {
         pendingRequest = v2.request;
         const snapshot = await transactions.submit({
           kind: 'settlement',
-          message: value,
+          message: v2.request.modelUserInput,
           request: v2.request,
           transactionId: operationId,
           extra: {
@@ -2397,7 +2431,7 @@ export function createHostBridge(): GardenBridge | null {
           throw new Error(snapshot.lastError || '没有收到 assistant 回复，可以安全重试');
         }
         assistantObservedAt = Date.now();
-        await waitForVariableStage(snapshot.assistantMessageId);
+        // 异变状态与奖励由 resolveAnomaly 本地结算；正文到达即可提交。
         return await requirePendingSettlement();
       } catch (error) {
         lastError = error instanceof Error ? error.message : String(error);
@@ -2462,7 +2496,7 @@ export function createHostBridge(): GardenBridge | null {
         pendingRequest = v2.request;
         const snapshot = await transactions.submit({
           kind: 'battle',
-          message: value,
+          message: v2.request.modelUserInput,
           request: v2.request,
           transactionId: operationId,
           extra: {
@@ -2479,7 +2513,7 @@ export function createHostBridge(): GardenBridge | null {
           throw new Error(snapshot.lastError || '没有收到 assistant 回复，可以安全重试');
         }
         assistantObservedAt = Date.now();
-        await waitForVariableStage(snapshot.assistantMessageId);
+        // 胜负与奖励已由本地战斗结果锁定；正文到达即可提交。
         return await requirePendingSettlement();
       } catch (error) {
         lastError = error instanceof Error ? error.message : String(error);
@@ -2519,12 +2553,16 @@ export function createHostBridge(): GardenBridge | null {
           pendingHelperResult = null;
           assistantObservedAt = Date.now();
           const after = transactions.read();
-          await waitForVariableStage(after.assistantMessageId);
+          if (!pendingSettlement && !pendingSystemOperation) {
+            await waitForVariableStage(after.assistantMessageId);
+          }
           return await requirePendingSettlement();
         }
         if ((pendingSettlement || pendingOwnershipBefore) && current.assistantResponded) {
           assistantObservedAt ||= Date.now();
-          await waitForVariableStage(current.assistantMessageId);
+          if (!pendingSettlement && !pendingSystemOperation) {
+            await waitForVariableStage(current.assistantMessageId);
+          }
           return await requirePendingSettlement();
         }
         // Phase 3：V2 停止后的默认恢复 = 从头重试（新 attempt，计划 §3.2），
@@ -2550,7 +2588,9 @@ export function createHostBridge(): GardenBridge | null {
           await persistCommitSettled(settled);
           return settled;
         }
-        await waitForVariableStage(snapshot.assistantMessageId);
+        if (!pendingSettlement && !pendingSystemOperation) {
+          await waitForVariableStage(snapshot.assistantMessageId);
+        }
         return await requirePendingSettlement();
       } finally {
         transactionOperationInFlight = false;
@@ -3001,12 +3041,17 @@ export function createHostBridge(): GardenBridge | null {
           currentChatId,
           listMessages: () => readRawMessages({ include_swipes: false, hide_state: 'all' }),
           readMvuData: () => snapshotMvu(mvu),
+          readMessageMvu: (messageId) => structuredClone(mvu.getMvuData({ type: 'message', message_id: messageId })) as Record<string, unknown>,
           deleteMessages: (ids) => g.deleteChatMessages!(ids, { refresh: 'none' }),
           createMessages: (messages) => g.createChatMessages!(
             messages.map((message) => ({ ...message })),
             { insert_before: 'end', refresh: 'none' },
           ),
           replaceChatMvu: (data) => mvu.replaceMvuData(structuredClone(data), { type: 'chat' }),
+          replaceMessageMvu: (data, messageId) => mvu.replaceMvuData(
+            structuredClone(data),
+            { type: 'message', message_id: messageId },
+          ),
           clearTransientState: () => {
             pendingRequest = null;
             pendingHelperResult = null;
@@ -3041,6 +3086,18 @@ export function createHostBridge(): GardenBridge | null {
         refresh();
       });
       subscribe(g.tavern_events?.MESSAGE_SWIPED);
+      subscribe(g.tavern_events?.GENERATION_AFTER_COMMANDS, async (_type, _options, dryRun) => {
+        if (dryRun === true || !g.injectPrompts) return;
+        const transaction = transactions.read();
+        if (transaction.phase === 'generating' && pendingRequest?.schema === REQUEST_SCHEMA_V2) return;
+        try {
+          const mvu = await requireMvu();
+          const [route] = buildGalCurrentTurnInjections({ state: latestPersistedState(mvu) });
+          g.injectPrompts([{ id: 'gensokyo-native-route-scan', ...route }], { once: true });
+        } catch (error) {
+          console.warn('[gal:prompt] 原生世界书路由注入失败：', error instanceof Error ? error.message : String(error));
+        }
+      });
       subscribe(g.tavern_events?.CHAT_CHANGED, () => {
         const token = ++chatRestoreToken;
         const expectedChatId = currentChatId();

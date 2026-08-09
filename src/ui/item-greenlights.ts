@@ -14,6 +14,7 @@ const reservedTokenPattern = new RegExp(`(?:${allTokens.join('|')})`, 'giu');
 
 function activeStateItemIds(state?: GardenState): string[] {
   if (!state) return [];
+  if (state.scene_item_context?.status === 'closed') return [];
   return (state.scene_item_context?.entries ?? [])
     .map((entry) => entry.item_id)
     .filter((id): id is string => Boolean(id));
@@ -33,15 +34,23 @@ export function stripItemGreenlights(message: string): string {
   return message.replace(reservedTokenPattern, '');
 }
 
+export function itemGreenlightTokens(
+  state?: GardenState,
+  explicitItemIds: readonly string[] = [],
+): string[] {
+  return resolveItemGreenlightIds(state, explicitItemIds)
+    .map((id) => routeById.get(id)!.greenlight);
+}
+
 export function itemGreenlightContext(
   state?: GardenState,
   explicitItemIds: readonly string[] = [],
 ): string {
-  const ids = resolveItemGreenlightIds(state, explicitItemIds);
-  if (!ids.length) return '';
+  const tokens = itemGreenlightTokens(state, explicitItemIds);
+  if (!tokens.length) return '';
   return [
     '【道具档案绿灯】',
-    ids.map((id) => routeById.get(id)!.greenlight).join(' '),
+    tokens.join(' '),
     '以上保留标记只负责加载本轮相关道具条目，不代表道具在场、已使用或必然生效；道具的实际使用仍以【本轮道具授权】为准。',
   ].join('\n');
 }

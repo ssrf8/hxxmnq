@@ -33,6 +33,13 @@ const SYNTHETIC = [
 const INJECT = {
   position: 'in_chat', depth: 1, role: 'system', content: '【庭园正文协议】\n测试注入', should_scan: false,
 };
+const V3_INJECTS = [
+  { position: 'in_chat', depth: 0, role: 'system', content: '【庭园正文协议】\n测试末尾注入', should_scan: false },
+  { position: 'none', depth: 0, role: 'system', content: 'GSK_CHAR_REIMU_ACTIVE', should_scan: true },
+];
+const V4_INJECTS = [
+  { position: 'none', depth: 0, role: 'system', content: 'GSK_CHAR_REIMU_ACTIVE', should_scan: true },
+];
 const hashText = (value) => {
   let hash = 0x811c9dc5;
   for (let i = 0; i < value.length; i += 1) {
@@ -71,6 +78,69 @@ const injectedRequest = (overrides = {}) => v2Request({
   promptInjects: [INJECT],
   promptInjectsHash: hashText(INJECT.content),
   ...overrides,
+});
+
+const v3InjectedRequest = (overrides = {}) => v2Request({
+  promptRevision: 'gal-prompt.v3',
+  promptInjects: V3_INJECTS,
+  promptInjectsHash: hashText(JSON.stringify(V3_INJECTS)),
+  ...overrides,
+});
+
+const v4InjectedRequest = (overrides = {}) => v2Request({
+  promptRevision: 'gal-prompt.v4',
+  modelUserInput: '你好，灵梦\n\n【庭园正文协议】\n严格包裹正文。',
+  promptInjects: V4_INJECTS,
+  promptInjectsHash: hashText(JSON.stringify(V4_INJECTS)),
+  ...overrides,
+});
+
+const v5InjectedRequest = (overrides = {}) => v2Request({
+  promptRevision: 'gal-prompt.v5',
+  modelUserInput: '你好，灵梦\n\n【庭园正文协议】\n严格包裹正文。',
+  promptInjects: V4_INJECTS,
+  promptInjectsHash: hashText(JSON.stringify(V4_INJECTS)),
+  ...overrides,
+});
+
+test('gal-prompt.v5 config 逐字复用真实玩家楼层正文，injects 只保留扫描胶囊', () => {
+  const request = v5InjectedRequest();
+  const result = g.buildGalGenerateConfig(request, { generationId: 'gal-gen-v5' });
+  assert.equal(result.ok, true);
+  assert.equal(result.built.config.user_input, request.modelUserInput);
+  assert.deepEqual(result.built.config.injects, V4_INJECTS);
+  assert.equal(result.built.config.overrides.chat_history.with_depth_entries, false);
+});
+
+test('gal-prompt.v4 config 把正文协议留在 user_input，injects 只保留扫描胶囊', () => {
+  const result = g.buildGalGenerateConfig(v4InjectedRequest(), { generationId: 'gal-gen-v4' });
+  assert.equal(result.ok, true);
+  assert.match(result.built.config.user_input, /^你好，灵梦[\s\S]*【庭园正文协议】/u);
+  assert.deepEqual(result.built.config.injects, V4_INJECTS);
+});
+
+test('gal-prompt.v3 config 保留“末尾非扫描上下文 + 不可见扫描胶囊”双注入', () => {
+  const result = g.buildGalGenerateConfig(v3InjectedRequest(), { generationId: 'gal-gen-v3' });
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.built.config.injects, V3_INJECTS);
+  assert.equal(result.built.config.injects[0].depth, 0);
+  assert.equal(result.built.config.injects[0].should_scan, false);
+  assert.equal(result.built.config.injects[1].position, 'none');
+  assert.equal(result.built.config.injects[1].should_scan, true);
+});
+
+test('gal-prompt.v3 拒绝调换顺序、在扫描胶囊夹带自然语言或 hash 漂移', () => {
+  const invalid = [
+    v3InjectedRequest({ promptInjects: [...V3_INJECTS].reverse() }),
+    v3InjectedRequest({ promptInjects: [V3_INJECTS[0], { ...V3_INJECTS[1], content: 'GSK_CHAR_REIMU_ACTIVE 庭园正文' }] }),
+    v3InjectedRequest({ promptInjectsHash: 'deadbeef' }),
+  ];
+  for (const request of invalid) {
+    assert.deepEqual(
+      g.buildGalGenerateConfig(request, { generationId: 'gal-gen-v3-invalid' }),
+      { ok: false, code: 'invalid-injection' },
+    );
+  }
 });
 
 test('gal-prompt.v2 config 只在 injects 携带单条冻结 system 注入', () => {

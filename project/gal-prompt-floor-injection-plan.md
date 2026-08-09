@@ -1,10 +1,14 @@
 # GAL 提示词楼层注入专项计划
 
-> 状态：静态实施完成（702/702 测试通过；未做实机 prompt 观察）
+> 状态：历史 v3 实施记录（当时 710/710；未做实机 prompt 观察）；当前 v5 合同与 719/719 静态证据见 `project/gal-real-user-message-dual-format-plan.md`
 > 日期：2026-08-09
 > 执行者：主 Agent 直接实施
 > 目标运行时：SillyTavern 1.18.0 + Tavern Helper / JS-Slash-Runner 4.8.18
 > 性质：只改 GAL 生成请求中的模型可见上下文布局；不与存档、数据库、R2、打包或发布混做。
+
+> 2026-08-10 所有者新裁定与实施：`gal-prompt.v5` 已在维护源码完成静态施工，改为先把玩家原文、正文协议、在场快照、场景事实和道具授权写入真实 user 楼层，再逐字复用并在生成前复读校验；常驻世界书恢复完整格式定义与正确示范，原生发送只依赖世界书格式强调。synthetic history 与真实旧楼层隔离保持不变。完整合同与 719/719 静态证据见 `project/gal-real-user-message-dual-format-plan.md`。本文件其余部分保留 v2/v3/v4 迁移历史；v5 尚未实机验收、打包或发布。
+
+> 2026-08-09 后续修订：新请求已升级为 `gal-prompt.v3`。正文协议、在场快照、场景事实与本轮道具授权改为 `position:'in_chat' / depth:0 / role:'system' / should_scan:false`，在最终提示中位于玩家输入之后；角色、道具和开场的不透明路由键进入第二条 `position:'none' / should_scan:true` 扫描胶囊，不出现在最终模型提示中。旧 `gal-prompt.v1` 无注入和 `gal-prompt.v2` 单条 depth 1 注入继续按冻结 metadata 原样恢复。下文保留 v2 的原始实施基线，涉及“唯一 depth 1 注入”的段落均由本修订覆盖。
 
 ## 1. 本次裁定
 

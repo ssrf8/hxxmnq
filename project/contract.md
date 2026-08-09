@@ -49,11 +49,13 @@
 - 一次 assistant 回复渲染庭园正文协议内的全部演出片段；片段全部播放后才允许玩家提交下一次回应。旧消息格式仅由本地只读兼容路径处理，不属于模型输出协议。
 - 结束聊天必须立即执行幂等本地清理并返回庭院，不调用 LLM、不推进时段；固定事件或异变最终收束只有在各自明确入口中才允许生成收尾。
 - 角色立绘由本地素材注册表解析；LLM 只可选择白名单角色、反应和姿态标签。
-- 成人体位图片使用冻结的 `character_id + pose_id + act_id + candidate_no` 语义和固定 `.png` live source；缺图由 manifest 缺项与 `nude`／`normal` fallback 表达，不得上传伪占位。sexual CG 必须以所有者提供的原始 PNG 字节发布，不得压缩、转 WebP、缩放、改 Alpha、量化或重编码，维护源与 R2 对象 SHA-256 必须一致。首个公开包完成动态 manifest resolver 后，在既有白名单内补图、替换同名候选或增加 `01–99` 候选只能更新 R2 媒体并最后更新 `live/manifest.json`，不得要求重新打包角色卡；新增语义或修改选择算法仍须重新构建与验收。
+- 体位图片使用冻结的 `character_id + pose_id + act_id + candidate_no` 语义和固定 `.png` live source；缺图由 manifest 缺项与 `nude`／`normal` fallback 表达，不得上传伪占位。sexual CG 必须以所有者提供的原始 PNG 字节发布，不得压缩、转 WebP、缩放、改 Alpha、量化或重编码，维护源与 R2 对象 SHA-256 必须一致。首个公开包完成动态 manifest resolver 后，在既有白名单内补图、替换同名候选或增加 `01–99` 候选只能更新 R2 媒体并最后更新 `live/manifest.json`，不得要求重新打包角色卡；新增语义或修改选择算法仍须重新构建与验收。
 - 变量更新只使用目标 MVU 支持的 JSONPatch `add`、`replace`、`remove`。
 - 正式运行采用 MagVarUpdate 额外模型解析：`[mvu_plot]` 只进入剧情阶段，`[mvu_update]` 只进入变量阶段；D0 的完整 `{{format_message_variable::stat_data}}` 最新快照只进入变量阶段，剧情阶段由 UI 请求注入脱敏投影。
-- 新建 GAL 请求使用 `gal-prompt.v2`：清理后的玩家原文只进入 `user_input`，本轮庭园规则和脱敏状态只进入唯一一条 depth 1 `system/in_chat` inject，冻结 synthetic history 只进入 `overrides.chat_history.prompts`；不得发送 SillyTavern 原生旧聊天历史。旧 `gal-prompt.v1` metadata 只按旧的无 inject 语义兼容恢复，不得静默升级。
+- 新建 GAL 请求使用 `gal-prompt.v5`：庭园 UI 在创建 assistant 前，先把清理后的玩家原文、正文协议、在场快照、场景事实和本轮道具授权一次性写入 `is_hidden:false` 的真实 SillyTavern user 楼层；三类生成入口都必须在触发模型前复读该楼层，并确认正文与冻结 `modelUserInput` 逐字一致。`generate.user_input` 只能复用这份冻结正文，不得在生成期或最终 prompt 事件中重新拼接上下文。角色、道具及开场路由键仍只进入 `position:none / should_scan:true` 的不可见扫描胶囊。酒馆原生 Chat Completion 不改写玩家消息，GAL 格式只由常驻 `[mvu_plot]` 世界书的完整定义和正确示范约束；扫描胶囊不承担格式。冻结 synthetic history 只进入 `overrides.chat_history.prompts`，固定 `with_depth_entries:false`，不得发送 SillyTavern 原生旧聊天历史。旧 `gal-prompt.v1/v2/v3/v4` metadata 均按原语义恢复，不得静默升级。
 - 变量阶段每轮必须返回一个且仅一个 `<UpdateVariable><JSONPatch>...</JSONPatch></UpdateVariable>`；没有合法变化时返回空数组，不得遗忘或省略变量块。
+- `[mvu_update]` 的变量规则、输出格式和 D0 完整状态只供额外变量模型使用；看见完整 `stat_data` 不等于拥有全部写权。`interaction.visit_memory` 整棵根由 bridge settlement 独占，变量模型即使从正文中读到看似完整的 turn/request/attempt/message/swipe 也必须忽略，若本轮没有其他获授权变化则输出空补丁。
+- 新 VisitTurn 只持久化 `turn_id`、`character_id`、`day`、`time_period`、`summary`；摘要由已接受的庭园正文确定性生成并限制为 80–100 字。request、attempt、commit、assistant message、swipe、scene 与 period serial 只属于事务生命周期/提交回执，不进入长期召回。
 - assistant 楼层的模型协议只使用庭园剧情正文及可选 `GensokyoPresence` 在场回执；`narration` 与 `dialogue` 同时承担 GAL 文字和立绘提示，不得再生成第二份 GAL 表现数据。两者都不是额外模型的变量块。
 - 额外模型只写具体关系事实、覆盖式互动摘要/焦点、长期记忆和不承担下游前置的开放语义字段。
 - 本地 bridge 独占开场继承确认、资源、商店、战斗、在场回执、UID/计数器、会话创建/关闭/幂等结算、主事件推进、设施/区域解锁、路线选择和真实消息楼层字段。

@@ -488,3 +488,20 @@ test('返修：coordinator 主链忽略相邻无 metadata assistant，只接受�
   assert.equal(result.phase, 'settling');
   assert.equal(result.assistantMessageId, 2);
 });
+
+test('本地剧情最简回执：V2 不要求玩家 request 反查或 assistant attempt metadata', async () => {
+  const request = makeV2RequestForRetry();
+  const { host } = makeFlexibleHost();
+  const coordinator = new MessageTransactionCoordinator(host);
+  const result = await coordinator.submit({
+    kind: 'interaction',
+    message: request.modelUserInput,
+    request,
+    receiptPolicy: 'next-nonempty-assistant',
+    extra: {},
+  });
+  assert.equal(result.phase, 'settling');
+  assert.equal(result.assistantResponded, true);
+  assert.equal(result.assistantMessageId, 2);
+  assert.equal(result.receiptPolicy, 'next-nonempty-assistant');
+});

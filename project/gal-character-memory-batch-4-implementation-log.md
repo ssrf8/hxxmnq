@@ -401,7 +401,7 @@ build report：ui_channel / ui_version / memory_profile / memory_adapter / ui_ma
 
 ### B4-T03 必测结果（15/15）
 
-完整合法行、缺 stable ID、错 character ID、错 scope、错 enum、day number/string/null、超长文本、HTML/协议片段、未知字段、旧 schema、成人关系事件不推导 relationship state、转换前后不含完整正文、scope/key 精确算法、hash 稳定性、预算常量。
+完整合法行、缺 stable ID、错 character ID、错 scope、错 enum、day number/string/null、超长文本、HTML/协议片段、未知字段、旧 schema、关系事件不推导 relationship state、转换前后不含完整正文、scope/key 精确算法、hash 稳定性、预算常量。
 
 ---
 

@@ -18,7 +18,7 @@ function activeStateCharacterIds(state?: GardenState): string[] {
   const banquet = state.garden_activities?.banquet;
   const refitCharacterIds = Object.values(state.facility_runtime ?? {})
     .map((runtime) => runtime.pending_refit?.selected_character_id ?? '');
-  const sceneItemCharacterIds = (state.scene_item_context?.entries ?? [])
+  const sceneItemCharacterIds = (state.scene_item_context?.status === 'closed' ? [] : (state.scene_item_context?.entries ?? []))
     .map((entry) => entry.initial_target_character_id ?? '');
   return [
     ...(state.presence_snapshot?.present_character_ids ?? []),
@@ -45,15 +45,23 @@ export function stripCharacterGreenlights(message: string): string {
   return message.replace(reservedTokenPattern, '');
 }
 
+export function characterGreenlightTokens(
+  state?: GardenState,
+  explicitCharacterIds: readonly string[] = [],
+): string[] {
+  return resolveCharacterGreenlightIds(state, explicitCharacterIds)
+    .map((id) => routeById.get(id)!.greenlight);
+}
+
 export function characterGreenlightContext(
   state?: GardenState,
   explicitCharacterIds: readonly string[] = [],
 ): string {
-  const ids = resolveCharacterGreenlightIds(state, explicitCharacterIds);
-  if (!ids.length) return '';
+  const tokens = characterGreenlightTokens(state, explicitCharacterIds);
+  if (!tokens.length) return '';
   return [
     '【角色档案绿灯】',
-    ids.map((id) => routeById.get(id)!.greenlight).join(' '),
+    tokens.join(' '),
     '以上保留标记只负责加载本轮相关角色档案，不代表角色抵达、在场或建立关系。',
   ].join('\n');
 }

@@ -247,16 +247,9 @@ export interface LegacyMemory {
 
 export interface VisitTurn {
   turn_id: string;
-  request_id: string;
   character_id: string;
-  scene_id: string | null;
-  assistant_message_id: number | null;
-  assistant_swipe_id: number | null;
-  latest_attempt_id: string | null;
-  latest_commit_key: string | null;
   day: number | string | null;
   time_period: string | null;
-  period_serial: number | null;
   summary: string;
   [key: string]: unknown;
 }
@@ -608,7 +601,7 @@ export type MessageTransactionPhase =
  * 发送请求的调用方结构化上下文（第二批 V2）：sceneId 兼容旧路径；
  * mainTargetCharacterId / actionTargetCharacterId / eventParticipants / sessionParticipants
  * 由各入口显式传入（runbook §3.4 优先级），不在各入口各写一套优先级；
- * explicitCharacterIds 供冻结的请求期 system inject 构造角色绿灯上下文；
+ * explicitCharacterIds 供冻结的请求期不可见 WI 扫描胶囊构造角色绿灯；
  * relevantCharacterIds / visitIdsByCharacter 由请求时冻结纯函数产出。
  */
 export interface GalRequestContext {
@@ -637,6 +630,8 @@ export interface MessageTransactionSnapshot {
   phase: MessageTransactionPhase;
   userMessageCreated: boolean;
   assistantResponded: boolean;
+  /** 本地托管剧情只等待当前玩家楼层之后的首条非空回复，不依赖 attempt/VisitTurn 审计。 */
+  receiptPolicy?: 'exact-attempt' | 'next-nonempty-assistant';
   userMessageId?: number;
   assistantMessageId?: number;
   startedAt?: number;

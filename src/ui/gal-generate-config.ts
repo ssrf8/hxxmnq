@@ -16,8 +16,9 @@ import {
   type SyntheticHistoryMessage,
 } from './gal-generation-request';
 import {
-  GAL_PROMPT_REVISION,
-  isValidGalPromptInjection,
+  galPromptInjectsFingerprintInput,
+  isSupportedGalPromptRevision,
+  isValidGalPromptInjectsForRevision,
   LEGACY_GAL_PROMPT_REVISION,
   type GalPromptInjection,
 } from './gal-prompt-injection';
@@ -85,18 +86,15 @@ export function buildGalGenerateConfig(
 ): BuildGalGenerateConfigResult {
   if (request.schema !== REQUEST_SCHEMA_V2) return { ok: false, code: 'not-v2' };
   if (!isNonEmptySystemOnly(request.syntheticHistory)) return { ok: false, code: 'invalid-history' };
-  if (request.promptRevision !== LEGACY_GAL_PROMPT_REVISION && request.promptRevision !== GAL_PROMPT_REVISION) {
+  if (!isSupportedGalPromptRevision(request.promptRevision)) {
     return { ok: false, code: 'unknown-prompt-revision' };
   }
-  if (request.promptRevision === GAL_PROMPT_REVISION
-    && (!Array.isArray(request.promptInjects)
-      || request.promptInjects.length !== 1
-      || !isValidGalPromptInjection(request.promptInjects[0])
-      || request.promptInjectsHash !== computeContextFingerprint(request.promptInjects[0].content))) {
-    return { ok: false, code: 'invalid-injection' };
-  }
-  if (request.promptRevision === LEGACY_GAL_PROMPT_REVISION
-    && (request.promptInjects !== undefined || request.promptInjectsHash !== undefined)) {
+  if (!isValidGalPromptInjectsForRevision(request.promptRevision, request.promptInjects)
+    || (request.promptRevision !== LEGACY_GAL_PROMPT_REVISION
+      && request.promptInjectsHash !== computeContextFingerprint(
+        galPromptInjectsFingerprintInput(request.promptRevision, request.promptInjects!),
+      ))
+    || (request.promptRevision === LEGACY_GAL_PROMPT_REVISION && request.promptInjectsHash !== undefined)) {
     return { ok: false, code: 'invalid-injection' };
   }
 
@@ -105,7 +103,7 @@ export function buildGalGenerateConfig(
     user_input: request.modelUserInput,
     should_stream: false,
     should_silence: true,
-    ...(request.promptRevision === GAL_PROMPT_REVISION ? {
+    ...(request.promptRevision !== LEGACY_GAL_PROMPT_REVISION ? {
       injects: request.promptInjects!.map((item) => ({ ...item })),
     } : {}),
     overrides: {

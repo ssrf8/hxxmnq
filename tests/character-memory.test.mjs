@@ -130,7 +130,7 @@ test('initial-state：8 个固定角色独立空结构、counter≥1、旧字段
 
 // ===== B1-T10：normalize 与未知字段保留 =====
 
-test('normalize：合法 v1 完整 fixture 保留未知字段，malformed 单角色不清空其他角色', async () => {
+test('normalize：VisitTurn 裁掉多余字段，其他层未知字段保留，malformed 单角色不清空其他角色', async () => {
   const cm = await importTypescript('../src/ui/character-memory.ts');
   const input = visitMemoryFixture({
     by_character: {
@@ -164,7 +164,7 @@ test('normalize：合法 v1 完整 fixture 保留未知字段，malformed 单角
   assert.equal(normalized.customRoot, 'keep-root');
   assert.equal(normalized.by_character.reimu.unknownTop, 'keep-me');
   assert.equal(normalized.by_character.marisa.unknownChar, 'keep');
-  assert.equal(normalized.by_character.reimu.active_visit.turns[0].custom, 42);
+  assert.equal('custom' in normalized.by_character.reimu.active_visit.turns[0], false);
   assert.equal(normalized.by_character.reimu.active_visit.turns[0].turn_id, 't:a');
 
   // malformed 单角色不清空其他角色
@@ -202,7 +202,7 @@ test('migration：malformed 单角色先归一化，不崩溃也不清空其他�
   assert.equal(migrated.interaction.visit_memory.by_character.marisa.unknownChar, 'keep');
 });
 
-test('normalize：文本截断到 160 字符上限', async () => {
+test('normalize：关系摘要上限 160，VisitTurn 摘要上限 100', async () => {
   const cm = await importTypescript('../src/ui/character-memory.ts');
   const long = 'x'.repeat(300);
   const rel = cm.normalizeRelationshipMemory({
@@ -215,7 +215,7 @@ test('normalize：文本截断到 160 字符上限', async () => {
   });
   assert.equal(rel.summary.length, 160);
   const turn = cm.normalizeVisitTurn({ turn_id: 'a', character_id: 'reimu', summary: long });
-  assert.equal(turn.summary.length, 160);
+  assert.equal(turn.summary.length, 100);
 });
 
 // ===== B1-T10：conversation_log 迁移 =====

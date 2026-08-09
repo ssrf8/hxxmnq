@@ -10,3 +10,9 @@ repro-st1.17.0.js
 /_git_push_out.txt
 .env
 .reasonix/
+.playwright-mcp/
+.sandbox/
+verify*.log
+_gal_watch.cjs
+runtime-bundle-capture.js
+garden-map-current.png

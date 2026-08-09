@@ -1,4 +1,4 @@
-# 成人 CG 维护、协作 Agent 与 R2 live 更新详细操作手册
+#  CG 维护、协作 Agent 与 R2 live 更新详细操作手册
 
 > 面向对象：不了解项目历史的主 Agent、子 Agent、人工维护者  
 > 最后更新：2026-08-03  
@@ -313,7 +313,7 @@ candidate_no
 - 未知 pose、未知 act、编号 `00/100`、重复 asset ID、重复 source、错误 pool ID 被拒绝；
 - `.webp` sexual 路径、`image/webp`、路径穿越、反斜杠、中文运行路径被拒绝；
 - manifest sexual 增强层失败时核心 184 项仍可用，正文与结算不阻断；
-- 成人内容开关关闭时不发出 sexual 网络请求。
+- 内容开关关闭时不发出 sexual 网络请求。
 
 ### 8.3 原图不变
 

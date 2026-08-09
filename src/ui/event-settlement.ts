@@ -210,13 +210,7 @@ export function localSettlementAction(
   state: GardenState,
 ): GardenActionMarker | null {
   const parsed = parseGardenAction(message);
-  if (parsed && LOCAL_EVENT_ACTIONS.has(parsed.action_id) && parsed.event_id) {
-    const event = eventById.get(parsed.event_id);
-    const registeredAction = event?.trigger_action_ids.includes(parsed.action_id);
-    const registeredAlias = (parsed.action_id === 'end_conversation' && parsed.event_id === 'greenhouse_multiturn_conversation')
-      || (parsed.action_id === 'resume_battle_settlement' && parsed.event_id === 'greenhouse_flower_core');
-    if (event && (registeredAction || registeredAlias)) return parsed;
-  }
+  if (parsed && isLocalSettlementActionMarker(parsed)) return parsed;
   const session = state.interaction?.current_session;
   if (!parsed && session?.event_id === 'greenhouse_multiturn_conversation') {
     return {
@@ -228,6 +222,18 @@ export function localSettlementAction(
     };
   }
   return null;
+}
+
+/** 判断显式行动标记是否属于本地白名单事件；不读取或修改状态。 */
+export function isLocalSettlementActionMarker(parsed: GardenActionMarker): boolean {
+  if (LOCAL_EVENT_ACTIONS.has(parsed.action_id) && parsed.event_id) {
+    const event = eventById.get(parsed.event_id);
+    const registeredAction = event?.trigger_action_ids.includes(parsed.action_id);
+    const registeredAlias = (parsed.action_id === 'end_conversation' && parsed.event_id === 'greenhouse_multiturn_conversation')
+      || (parsed.action_id === 'resume_battle_settlement' && parsed.event_id === 'greenhouse_flower_core');
+    return Boolean(event && (registeredAction || registeredAlias));
+  }
+  return false;
 }
 
 /** 温室研究交流已改为单轮固定结算：不再创建受控会话。保留导出以兼容桥接调用（原样返回）。 */

@@ -116,14 +116,14 @@
 12 条关系记忆同时容纳：
 
 - 当前关系定义：陌生、认识、朋友、挚友、恋人、疏远；
-- 关系里程碑：信任、表白、接吻、成人亲密、承诺、分手；
+- 关系里程碑：信任、表白、接吻、亲密、承诺、分手；
 - 关系边界；
 - 冲突；
 - 和解。
 
 同一角色最多一条 active 的 relationship_state。
 
-接吻或成人亲密只能证明事件发生，不能自动升级为 lover。只有明确建立关系的正式事实才能创建或切换 relationship_state。
+接吻或亲密只能证明事件发生，不能自动升级为 lover。只有明确建立关系的正式事实才能创建或切换 relationship_state。
 
 ### 2.4 入场边界
 
@@ -830,7 +830,7 @@ marisa/alice/nitori 等事件写入的 current_relationship_facts 仍需继续�
 - 不修改 event-registry projection keys；
 - 不修改变量模型规则；
 - 不加入 relationship candidate inbox；
-- 不根据成人 visual_mode 生成关系记录；
+- 不根据 visual_mode 生成关系记录；
 - 不将亲密自动等于恋人。
 
 ### 测试最低集合

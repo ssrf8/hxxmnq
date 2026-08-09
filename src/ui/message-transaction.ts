@@ -11,6 +11,8 @@ interface SubmitRequest {
   transactionId?: string;
   /** Phase 2 增量 A：本次逻辑请求（bridge 已创建并写入玩家楼层 metadata；V1 或 V2）。 */
   request?: GalAnyRequest;
+  /** 本地白名单事件的最简完成合同：当前玩家楼层之后出现非空 assistant 即收到回执。 */
+  receiptPolicy?: 'exact-attempt' | 'next-nonempty-assistant';
   extra?: Record<string, unknown>;
   matchesExisting?: (message: RawMessage) => boolean;
 }
@@ -89,6 +91,7 @@ export class MessageTransactionCoordinator {
       phase: 'submitting_user',
       userMessageCreated: false,
       assistantResponded: false,
+      receiptPolicy: request.receiptPolicy ?? 'exact-attempt',
       startedAt: Date.now(),
       ...(request.request ? {
         requestId: request.request.requestId,
@@ -130,7 +133,7 @@ export class MessageTransactionCoordinator {
 
       // Phase 2 增量 A：本次新创建的玩家楼层按 request metadata 精确反查一致性校验。
       // 仅在本次创建时执行（兼容既有 existing 复用路径）；0 条或多条都不猜 ID。
-      if (request.request && createdUserMessage) {
+      if (request.request && createdUserMessage && request.receiptPolicy !== 'next-nonempty-assistant') {
         const resolve = resolvePlayerMessageByMetadata(this.host.listMessages(), request.request.requestId);
         if (!resolve.ok) {
           this.snapshot.phase = 'failed';
@@ -467,17 +470,19 @@ export class MessageTransactionCoordinator {
     const assistantCandidates = messages
       .slice(userIndex + 1)
       .filter((message) => message.role === 'assistant' && String(message.message ?? '').trim());
-    const assistant = this.snapshot.requestSchema === 'gal-generation-request.v2'
-      ? assistantCandidates.find((message) => {
-        const metadata = parseAttemptMetadata(message.extra);
-        return metadata.ok
-          && metadata.value.requestId === this.snapshot.requestId
-          && metadata.value.attemptId === this.snapshot.attemptId
-          && metadata.value.commitKey === this.snapshot.commitKey
-          && metadata.value.chatId === this.snapshot.chatId
-          && metadata.value.ownerCharacterId === this.snapshot.ownerCharacterId;
-      })
-      : assistantCandidates[0];
+    const assistant = this.snapshot.receiptPolicy === 'next-nonempty-assistant'
+      ? assistantCandidates[0]
+      : this.snapshot.requestSchema === 'gal-generation-request.v2'
+        ? assistantCandidates.find((message) => {
+          const metadata = parseAttemptMetadata(message.extra);
+          return metadata.ok
+            && metadata.value.requestId === this.snapshot.requestId
+            && metadata.value.attemptId === this.snapshot.attemptId
+            && metadata.value.commitKey === this.snapshot.commitKey
+            && metadata.value.chatId === this.snapshot.chatId
+            && metadata.value.ownerCharacterId === this.snapshot.ownerCharacterId;
+        })
+        : assistantCandidates[0];
     if (!assistant) return;
     const assistantWasAlreadyObserved = this.snapshot.assistantResponded;
     this.snapshot.assistantResponded = true;

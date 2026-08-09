@@ -67,7 +67,7 @@
 - `src/ui/bridge.ts`（+40）、`src/ui/opening.ts`（+28）、`src/ui/gal-scene.ts`、`src/ui/types.ts`（+1）、`src/ui/index.html`（+3）：与上述视觉/入口及既有事务逻辑配套
 
 ### E. 发布脚本与素材发布（未提交工作线）
-- `scripts/publish-cg-r2.mjs`、`scripts/publish-cg-r2-finalize.mjs`（新增）：成人 CG R2 live 上传/终稿脚本（对应 nsfw-cg-r2-live-update-plan）
+- `scripts/publish-cg-r2.mjs`、`scripts/publish-cg-r2-finalize.mjs`（新增）： CG R2 live 上传/终稿脚本（对应 nsfw-cg-r2-live-update-plan）
 - `project/character-arrival-departure-audit.md`（新增）：角色到达/离开审计文档
 - `project/ui-beautification-log.md`（+17）：美化施工日志追加
 

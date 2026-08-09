@@ -1,5 +1,5 @@
 // 第二批 B2-T05 —— VisitTurn 确定性构造器。
-// 覆盖 runbook §3.7：台词提取、无台词兜底、不相关角色跳过、160 字符上限、
+// 覆盖 runbook §3.7：台词提取、无台词兜底、不相关角色跳过、80–100 字摘要、
 // turn_id=requestId:characterId、空/畸形正文拒绝、协议/标签清洗、
 // 确定性（同输入同输出）、不解析 UpdateVariable、不创建 RelationshipMemory。
 import assert from 'node:assert/strict';
@@ -59,14 +59,12 @@ test('有台词：玩家段 + 角色名 + 该角色台词，turn_id=requestId:ch
   assert.equal(result.turns.length, 2);
   const reimu = result.turns.find((turn) => turn.character_id === 'reimu');
   assert.equal(reimu.turn_id, 'gal-req-1:reimu');
-  assert.equal(reimu.request_id, 'gal-req-1');
-  assert.equal(reimu.summary, '玩家：你在这里做什么？；博丽灵梦：我在想今晚的晚饭。');
-  assert.equal(reimu.assistant_message_id, 55);
-  assert.equal(reimu.latest_attempt_id, 'gal-req-1:attempt-1');
-  assert.equal(reimu.latest_commit_key, 'gal-req-1:gal-req-1:attempt-1');
+  assert.match(reimu.summary, /玩家行动：你在这里做什么/);
+  assert.match(reimu.summary, /博丽灵梦回应：我在想今晚的晚饭/);
+  assert.ok(reimu.summary.length >= vtc.TURN_SUMMARY_MIN_CHARS);
+  assert.ok(reimu.summary.length <= vtc.TURN_SUMMARY_CHARS);
   assert.equal(reimu.day, 1);
   assert.equal(reimu.time_period, '清晨');
-  assert.equal(reimu.period_serial, 1);
 });
 
 test('多条台词按出现顺序合并，台词去内嵌标签', () => {
@@ -81,7 +79,7 @@ test('多条台词按出现顺序合并，台词去内嵌标签', () => {
   assert.equal(result.ok, true);
   if (!result.ok) return;
   const reimu = result.turns.find((turn) => turn.character_id === 'reimu');
-  assert.equal(reimu.summary, '玩家：你在这里做什么？；博丽灵梦：第一条。；第二条强调。');
+  assert.match(reimu.summary, /博丽灵梦回应：第一条。；第二条强调。/);
 });
 
 // ---- 无台词兜底 ----
@@ -98,9 +96,9 @@ test('无台词但属主目标/显式参与者：用清洗后的正文兜底', (
   if (!result.ok) return;
   const reimu = result.turns.find((turn) => turn.character_id === 'reimu');
   const marisa = result.turns.find((turn) => turn.character_id === 'marisa');
-  assert.match(reimu.summary, /本轮：/);
+  assert.match(reimu.summary, /现场经过：/);
   assert.match(reimu.summary, /月光下/);
-  assert.match(marisa.summary, /雾雨魔理沙：我先走了/);
+  assert.match(marisa.summary, /雾雨魔理沙回应：我先走了/);
   assert.equal(result.diagnostics.charactersWithoutDialogue.includes('reimu'), true);
 });
 
@@ -145,8 +143,8 @@ test('visit ID 为 null 的相关角色不写 turn（无可提交 turn 为正常
   assert.deepEqual(result.turns, []);
 });
 
-// ---- 160 字符上限 ----
-test('summary 最长 160 字符（玩家/台词段各自截断）', () => {
+// ---- 80–100 字召回摘要 ----
+test('summary 保持 80–100 字（玩家/台词段各自截断）', () => {
   const longPlayer = '玩家说了一句很长的话。'.repeat(30);
   const longLine = '非常长的台词。'.repeat(40);
   const result = vtc.buildVisitTurnCommit(baseInput({
@@ -161,6 +159,7 @@ test('summary 最长 160 字符（玩家/台词段各自截断）', () => {
   }));
   assert.equal(result.ok, true);
   if (!result.ok) return;
+  assert.ok(result.turns[0].summary.length >= vtc.TURN_SUMMARY_MIN_CHARS);
   assert.ok(result.turns[0].summary.length <= vtc.TURN_SUMMARY_CHARS);
 });
 
@@ -221,9 +220,7 @@ test('返回对象只含 turns 与诊断，不含任何记忆写入副作用', (
   if (!result.ok) return;
   const keys = Object.keys(result.turns[0]).sort();
   assert.deepEqual(keys, [
-    'assistant_message_id', 'assistant_swipe_id', 'character_id', 'day',
-    'latest_attempt_id', 'latest_commit_key', 'period_serial', 'request_id',
-    'scene_id', 'summary', 'time_period', 'turn_id',
+    'character_id', 'day', 'summary', 'time_period', 'turn_id',
   ].sort());
 });
 

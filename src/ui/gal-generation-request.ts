@@ -9,11 +9,16 @@
 
 import { verifyVisitTurnAuditRefs } from './visit-turn-commit';
 import {
-  buildGalCurrentTurnInjection,
+  buildGalCurrentTurnInjections,
+  buildGalStoredUserMessage,
+  galPromptInjectsFingerprintInput,
   GAL_PROMPT_REVISION,
-  isValidGalPromptInjection,
+  isSupportedGalPromptRevision,
+  isValidGalPromptInjectsForRevision,
   LEGACY_GAL_PROMPT_REVISION,
-  sanitizeGalPlayerInput,
+  PREVIOUS_GAL_PROMPT_REVISION,
+  REQUEST_BODY_GAL_PROMPT_REVISION,
+  SYSTEM_TAIL_GAL_PROMPT_REVISION,
   type GalPromptInjection,
 } from './gal-prompt-injection';
 
@@ -629,7 +634,7 @@ export function analyzeChatRestore(
 // 合同：project/gal-character-memory-batch-2-send-and-synthetic-history-runbook.md §3.2–3.3
 //   - schema: gal-generation-request.v2，extra key: galGenerationRequestV2；
 //   - historyRevision: gal-synthetic-history.v1，memoryRevision: character-visit-memory.v1；
-//   - 新建 V2 请求使用 gal-prompt.v2；旧 gal-prompt.v1 metadata 保持可恢复；
+//   - 新建 V2 请求使用 gal-prompt.v5；旧 gal-prompt.v1–v4 metadata 保持可恢复；
 //   - syntheticHistory 只接受 role:'system'，parser 拒绝空 history；
 //   - V2 写新 key，不覆盖 V1 extra；V1 parser/metadata 兼容读取原样保留；
 //   - 完整 V2 请求持久化到玩家楼层 metadata，reload recovery 复用同一冻结请求。
@@ -669,13 +674,13 @@ export interface GalGenerationRequestV2 {
   syntheticHistory: SyntheticHistoryMessage[];
   /** syntheticHistory 的稳定 hash（synthetic-history 模块产出，随冻结一起持久化）。 */
   syntheticHistoryHash: string;
-  /** v2 新请求冻结的唯一请求期注入；旧 gal-prompt.v1 metadata 中不存在。 */
+  /** v2–v5 的冻结注入；v4/v5 仅保留扫描胶囊。 */
   promptInjects?: GalPromptInjection[];
   promptInjectsHash?: string;
   contextFingerprint: string;
   /** 玩家看到的原文（trim 后）。 */
   visibleUserText: string;
-  /** 本轮传给模型的玩家输入；v2 仅含清理后的玩家原文。 */
+  /** 本轮传给模型的玩家输入；v5 必须逐字等于真实玩家楼层正文。 */
   modelUserInput: string;
   /** 该 request 已进行的模型调用次数（首调 1；retry 递增）。 */
   attemptSeq: number;
@@ -691,7 +696,7 @@ export interface GalGenerationRequestV2Input {
   };
   syntheticHistory: SyntheticHistoryMessage[];
   syntheticHistoryHash: string;
-  promptRevision?: typeof LEGACY_GAL_PROMPT_REVISION | typeof GAL_PROMPT_REVISION;
+  promptRevision?: typeof LEGACY_GAL_PROMPT_REVISION | typeof PREVIOUS_GAL_PROMPT_REVISION | typeof SYSTEM_TAIL_GAL_PROMPT_REVISION | typeof REQUEST_BODY_GAL_PROMPT_REVISION | typeof GAL_PROMPT_REVISION;
   promptInjects?: GalPromptInjection[];
   promptInjectsHash?: string;
   contextFingerprint: string;
@@ -721,6 +726,18 @@ function isSystemOnlyHistory(history: unknown): history is SyntheticHistoryMessa
   return Array.isArray(history) && history.length > 0 && history.every((item) => (
     isRecord(item) && item.role === 'system' && typeof item.content === 'string'
   ));
+}
+
+function hasValidPromptInjects(
+  revision: unknown,
+  injects: unknown,
+  hash: unknown,
+): boolean {
+  if (!isSupportedGalPromptRevision(revision)) return false;
+  if (revision === LEGACY_GAL_PROMPT_REVISION) return injects === undefined && hash === undefined;
+  return isValidGalPromptInjectsForRevision(revision, injects)
+    && typeof hash === 'string'
+    && hash === computeContextFingerprint(galPromptInjectsFingerprintInput(revision, injects));
 }
 
 function visitMapKeysEqual(map: unknown, characterIds: readonly string[]): boolean {
@@ -765,18 +782,10 @@ export function createGalGenerationRequestV2(input: GalGenerationRequestV2Input)
     return { ok: false, reason: 'unknown-revision' };
   }
   const promptRevision = input.promptRevision ?? LEGACY_GAL_PROMPT_REVISION;
-  if (promptRevision !== LEGACY_GAL_PROMPT_REVISION && promptRevision !== GAL_PROMPT_REVISION) {
+  if (!isSupportedGalPromptRevision(promptRevision)) {
     return { ok: false, reason: 'unknown-revision' };
   }
-  if (promptRevision === GAL_PROMPT_REVISION) {
-    if (!Array.isArray(input.promptInjects)
-      || input.promptInjects.length !== 1
-      || !isValidGalPromptInjection(input.promptInjects[0])
-      || typeof input.promptInjectsHash !== 'string'
-      || input.promptInjectsHash !== computeContextFingerprint(input.promptInjects[0].content)) {
-      return { ok: false, reason: 'invalid-injection' };
-    }
-  } else if (input.promptInjects !== undefined || input.promptInjectsHash !== undefined) {
+  if (!hasValidPromptInjects(promptRevision, input.promptInjects, input.promptInjectsHash)) {
     return { ok: false, reason: 'invalid-injection' };
   }
   const now = input.now ?? Date.now();
@@ -795,7 +804,7 @@ export function createGalGenerationRequestV2(input: GalGenerationRequestV2Input)
     visitIdsByCharacter: { ...input.snapshot.visitIdsByCharacter },
     syntheticHistory: input.syntheticHistory.map((item) => ({ role: 'system' as const, content: item.content })),
     syntheticHistoryHash: input.syntheticHistoryHash,
-    ...(promptRevision === GAL_PROMPT_REVISION ? {
+    ...(promptRevision !== LEGACY_GAL_PROMPT_REVISION ? {
       promptInjects: input.promptInjects!.map((item) => ({ ...item })),
       promptInjectsHash: input.promptInjectsHash!,
     } : {}),
@@ -848,7 +857,7 @@ export function buildRequestMetadataV2(request: GalGenerationRequestV2): Record<
       visitIdsByCharacter: request.visitIdsByCharacter,
       syntheticHistory: request.syntheticHistory,
       syntheticHistoryHash: request.syntheticHistoryHash,
-      ...(request.promptRevision === GAL_PROMPT_REVISION ? {
+      ...(request.promptRevision !== LEGACY_GAL_PROMPT_REVISION ? {
         promptInjects: request.promptInjects?.map((item) => ({ ...item })),
         promptInjectsHash: request.promptInjectsHash,
       } : {}),
@@ -914,18 +923,10 @@ export function restoreGalGenerationRequestV2(extra: unknown): RestoreRequestV2R
   if (!isSystemOnlyHistory(value.syntheticHistory)) return { ok: false, code: 'invalid' };
   if (!visitMapKeysEqual(value.visitIdsByCharacter, relevant)) return { ok: false, code: 'invalid' };
   if (typeof value.syntheticHistoryHash !== 'string') return { ok: false, code: 'invalid' };
-  if (value.promptRevision !== LEGACY_GAL_PROMPT_REVISION && value.promptRevision !== GAL_PROMPT_REVISION) {
+  if (!isSupportedGalPromptRevision(value.promptRevision)) {
     return { ok: false, code: 'invalid' };
   }
-  if (value.promptRevision === GAL_PROMPT_REVISION) {
-    if (!Array.isArray(value.promptInjects)
-      || value.promptInjects.length !== 1
-      || !isValidGalPromptInjection(value.promptInjects[0])
-      || typeof value.promptInjectsHash !== 'string'
-      || value.promptInjectsHash !== computeContextFingerprint(value.promptInjects[0].content)) {
-      return { ok: false, code: 'invalid' };
-    }
-  } else if ('promptInjects' in value || 'promptInjectsHash' in value) {
+  if (!hasValidPromptInjects(value.promptRevision, value.promptInjects, value.promptInjectsHash)) {
     return { ok: false, code: 'invalid' };
   }
   // 未知字段 passthrough（field-ledger 策略：正式对象保留未知键，避免旧聊天被静默裁剪）
@@ -958,7 +959,7 @@ export function restoreGalGenerationRequestV2(extra: unknown): RestoreRequestV2R
         : {},
       syntheticHistory: value.syntheticHistory.map((item) => ({ role: 'system' as const, content: String(item.content) })),
       syntheticHistoryHash: String(value.syntheticHistoryHash),
-      ...(value.promptRevision === GAL_PROMPT_REVISION ? {
+      ...(value.promptRevision !== LEGACY_GAL_PROMPT_REVISION ? {
         promptInjects: (value.promptInjects as GalPromptInjection[]).map((item) => ({ ...item })),
         promptInjectsHash: String(value.promptInjectsHash),
       } : {}),
@@ -1017,6 +1018,15 @@ export type GalGenerationRequestV2BuildResult =
       reason: 'empty-input' | 'missing-chat-identity' | 'missing-main-target' | 'empty-history' | 'non-system-history' | 'duplicate-character' | 'visit-map-mismatch' | 'unknown-revision' | 'invalid-injection';
     };
 
+/** v5 的持久化楼层必须与冻结模型输入逐字一致；旧 revision 保持原恢复语义。 */
+export function storedUserMessageMatchesRequestV2(
+  request: GalGenerationRequestV2,
+  storedMessage: unknown,
+): boolean {
+  return request.promptRevision !== GAL_PROMPT_REVISION
+    || (typeof storedMessage === 'string' && storedMessage === request.modelUserInput);
+}
+
 /** 稳定序列化：显式字段拼接，不依赖对象键偶然顺序（runbook §3.2 fingerprint 要求）。 */
 function stableFingerprintFields(fields: ReadonlyArray<readonly [string, unknown]>): string {
   return fields.map(([key, value]) => `${key}=${JSON.stringify(value ?? null)}`).join('\u0000');
@@ -1055,14 +1065,15 @@ export function buildGalGenerationRequestV2(input: GalGenerationRequestV2BuildIn
     characterNames: input.characterNames,
   });
 
-  const modelUserInput = sanitizeGalPlayerInput(value);
+  const modelUserInput = buildGalStoredUserMessage({ playerInput: value, state: input.state });
   if (!modelUserInput) return { ok: false, reason: 'empty-input' };
-  const promptInjection = buildGalCurrentTurnInjection({
+  const promptInjects = buildGalCurrentTurnInjections({
     state: input.state,
     explicitCharacterIds: input.explicitCharacterIds,
   });
-  const promptInjects = [promptInjection];
-  const promptInjectsHash = computeContextFingerprint(promptInjection.content);
+  const promptInjectsHash = computeContextFingerprint(
+    galPromptInjectsFingerprintInput(CURRENT_PROMPT_REVISION, promptInjects),
+  );
   const visibleUserText = value;
   const syntheticHistoryHash = computeContextFingerprint(history.content);
 

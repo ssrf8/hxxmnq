@@ -531,7 +531,7 @@ content_hash
 - 不因数据库存在 `lover` 就修改当前 MVU；
 - `kiss`、`adult_intimacy` 等仍只是事件，不能在归档/召回层推导关系；
 - 同角色最多一条 active relationship state 的约束由 MVU 正式状态负责；数据库召回只展示历史依据；
-- 成人亲密只保留关系层面的中性摘要，不归档露骨正文。
+- 亲密只保留关系层面的中性摘要，不归档露骨正文。
 
 ### 6.5 schema version 与未知字段
 
@@ -1124,7 +1124,7 @@ O02 之后允许：T02-R1 已完成，从 T03 schema/normalizer 开始，随后�
 - HTML/协议片段；
 - 未知字段；
 - 旧 schema；
-- 成人关系事件不推导 relationship state；
+- 关系事件不推导 relationship state；
 - 转换前后不包含完整正文。
 
 ### 禁止

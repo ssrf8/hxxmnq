@@ -24,6 +24,17 @@ const g = await importTypescript('../src/ui/gal-generation-request.ts');
 const SYNTHETIC = [
   { role: 'system', content: '【历史边界】本请求不读取 SillyTavern 真实聊天楼层。' },
 ];
+const PREVIOUS_INJECT = {
+  position: 'in_chat', depth: 1, role: 'system', content: '【庭园正文协议】\n旧 v2 冻结注入', should_scan: false,
+};
+const hashText = (value) => {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < value.length; i += 1) {
+    hash ^= value.charCodeAt(i);
+    hash = (hash * 0x01000193) >>> 0;
+  }
+  return hash.toString(16).padStart(8, '0');
+};
 
 const baseInput = (overrides = {}) => ({
   playerInput: '你好，灵梦',
@@ -200,6 +211,21 @@ test('buildRequestMetadataV2 → restoreGalGenerationRequestV2 逐字段 round-t
   assert.equal(restored.request.modelUserInput, request.modelUserInput);
   assert.equal(restored.request.attemptSeq, request.attemptSeq);
   assert.equal(restored.request.createdAt, request.createdAt);
+});
+
+test('旧 gal-prompt.v2 单注入 metadata 仍按原字节恢复，不升级为当前 revision', () => {
+  const built = g.createGalGenerationRequestV2(baseInput({
+    promptRevision: 'gal-prompt.v2',
+    promptInjects: [PREVIOUS_INJECT],
+    promptInjectsHash: hashText(PREVIOUS_INJECT.content),
+  }));
+  assert.equal(built.ok, true);
+  if (!built.ok) return;
+  const restored = g.restoreGalGenerationRequestV2(g.buildRequestMetadataV2(built.request));
+  assert.equal(restored.ok, true);
+  if (!restored.ok) return;
+  assert.equal(restored.request.promptRevision, 'gal-prompt.v2');
+  assert.deepEqual(restored.request.promptInjects, [PREVIOUS_INJECT]);
 });
 
 test('V1/V2 并存：同一 extra 各自解析互不干扰，V1 不被解释成 V2', () => {

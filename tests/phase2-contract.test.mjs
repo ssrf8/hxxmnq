@@ -41,6 +41,28 @@ test('assistant 落楼失败保留内存结果（pendingHelperResult），禁止
   assert.match(bridge, /pendingHelperResult && !current\.assistantResponded/);
 });
 
+test('Helper 非空正文精确落楼后主动结束本次生成，不依赖通用 ENDED 事件', () => {
+  assert.match(
+    bridge,
+    /pendingHelperResult = text;[\s\S]*?throw error;[\s\S]*?hostGenerationActive = false;\s*transactions\.markGenerationEnded\(\);\s*\} finally \{/,
+  );
+});
+
+test('原生发送只保留世界书扫描路由，不再改写最终 user 消息', () => {
+  assert.match(
+    bridge,
+    /GENERATION_AFTER_COMMANDS[\s\S]*?buildGalCurrentTurnInjections[\s\S]*?gensokyo-native-route-scan[\s\S]*?once: true/,
+  );
+  assert.doesNotMatch(bridge, /CHAT_COMPLETION_PROMPT_READY|appendGalContextToFinalUserMessage/);
+});
+
+test('v5 三类 GAL 入口都把冻结完整正文写入真实 user 楼层并在生成前复读校验', () => {
+  const writes = bridge.match(/message: v2\.request\.modelUserInput/g) ?? [];
+  assert.equal(writes.length, 3);
+  assert.match(bridge, /storedUserMessageMatchesRequestV2\(pendingRequest, stored\)/);
+  assert.match(bridge, /真实玩家楼层与冻结请求不一致：已拒绝生成/);
+});
+
 test('listener 在 finally 清理（unsubs.forEach + pendingStreamText 清空），不依赖正常结束', () => {
   assert.match(bridge, /\} finally \{\r?\n\s+unsubs\.forEach/);
   assert.match(bridge, /pendingStreamText = '';/);
@@ -49,6 +71,32 @@ test('listener 在 finally 清理（unsubs.forEach + pendingStreamText 清空）
 test('MVU timeout 语义：90 秒上限 + 只恢复结算不再生成文本', () => {
   assert.match(bridge, />= 90000/);
   assert.match(bridge, /只恢复结算，不再生成文本/);
+});
+
+test('本地托管剧情收到精确非空回复后直接结算，只有自由对话等待 MVU', () => {
+  const sendStart = bridge.indexOf('async sendUserMessage(text');
+  const sendEnd = bridge.indexOf('async sendAnomalyResolution(text)', sendStart);
+  const sendMethod = bridge.slice(sendStart, sendEnd);
+  const anomalyStart = sendEnd;
+  const anomalyEnd = bridge.indexOf('async sendDuelVictoryRequest(', anomalyStart);
+  const anomalyMethod = bridge.slice(anomalyStart, anomalyEnd);
+  const duelEnd = bridge.indexOf('async getTransactionState()', anomalyEnd);
+  const duelMethod = bridge.slice(anomalyEnd, duelEnd);
+  const anomalyRecoveryStart = bridge.indexOf('const recoverRecordedAnomalyResolution');
+  const anomalyRecoveryEnd = bridge.indexOf('const recoverRecordedDuelVictory', anomalyRecoveryStart);
+  const anomalyRecovery = bridge.slice(anomalyRecoveryStart, anomalyRecoveryEnd);
+  const duelRecoveryEnd = bridge.indexOf('const recoverCompletedCurrentTransaction', anomalyRecoveryEnd);
+  const duelRecovery = bridge.slice(anomalyRecoveryEnd, duelRecoveryEnd);
+  assert.match(sendMethod, /if \(!action\) await waitForVariableStage\(snapshot\.assistantMessageId\);/);
+  assert.doesNotMatch(anomalyMethod, /waitForVariableStage/);
+  assert.doesNotMatch(duelMethod, /waitForVariableStage/);
+  assert.doesNotMatch(anomalyRecovery, /isDuringExtraAnalysis/);
+  assert.doesNotMatch(duelRecovery, /isDuringExtraAnalysis/);
+  assert.match(bridge, /if \(!attemptForceReady && !pendingSettlement && !pendingSystemOperation && !variableStageReady\(mvu\)\) return false;/);
+  assert.match(
+    bridge,
+    /recoverRecordedAnomalyResolution\(mvu, current\)[\s\S]*?recoverRecordedDuelVictory\(mvu, current\)[\s\S]*?if \(mvu\.isDuringExtraAnalysis\?\.\(\) && !recorded\) return false;/,
+  );
 });
 
 test('stream 投影：CustomEvent 广播 + app 监听更新 gg-scene-text（Promise 权威，展示层）', () => {
@@ -72,6 +120,27 @@ test('retry attemptSeq 递增：由完成的 snapshot 推进一次（V1/V2 按 s
 test('writeHelperAssistantMessage 幂等：commitKey 反查 0 条才写/多条歧义失败', () => {
   assert.match(bridge, /resolveAssistantMessageByCommitKey\(activeMessages\(\), attempt\.requestId, attempt\.attemptId\)/);
   assert.match(bridge, /助手楼层 commitKey 反查歧义，禁止猜 ID/);
+});
+
+test('P0：assistant 两条持久化路径完成前，提前到达的 MVU 事件不得启动 settlement', () => {
+  assert.match(bridge, /let assistantPersistenceInFlight = false;/);
+  assert.equal((bridge.match(/assistantPersistenceInFlight = true;/g) ?? []).length, 2);
+  assert.equal((bridge.match(/assistantPersistenceInFlight = false;/g) ?? []).length, 3);
+  assert.equal((bridge.match(/finally \{\r?\n\s+assistantPersistenceInFlight = false;/g) ?? []).length, 2);
+  assert.match(
+    bridge,
+    /const settlePendingAfterReply = \(forceReady = false\): Promise<boolean> => \{\r?\n\s+if \(assistantPersistenceInFlight\) return Promise\.resolve\(false\);/,
+  );
+  // 精确 VisitTurn 复读仍是提交门禁；竞态修复不得用放宽验证掩盖 missing-turn。
+  assert.match(bridge, /throw new Error\(`VisitTurn 精确复读失败（\$\{verified\.code\}）：保持 settlement pending`\);/);
+});
+
+test('P1：一次 settlement 只由统一收尾路径复读 commit，不在回调和返回前重复验证', () => {
+  const start = bridge.indexOf('const settlePendingAfterReply');
+  const end = bridge.indexOf('const readAllSwipesMessage', start);
+  const settlementFlow = bridge.slice(start, end);
+  assert.equal((settlementFlow.match(/persistCommitSettled\(/g) ?? []).length, 1);
+  assert.match(settlementFlow, /\.then\(async \(settled\) => \{[\s\S]*?await persistCommitSettled\(transactions\.read\(\)\);/);
 });
 
 test('chat identity 写前复核：切聊天不落楼', () => {

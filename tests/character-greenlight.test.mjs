@@ -38,6 +38,12 @@ test('角色绿灯只从正式活动上下文与显式代码选择派生', async
   assert.match(context, /GSK_CHAR_REIMU_ACTIVE/);
   assert.match(context, /GSK_CHAR_CIRNO_ACTIVE/);
   assert.doesNotMatch(context, /GSK_CHAR_MYSTIA_ACTIVE/);
+  assert.deepEqual(
+    greenlights.resolveCharacterGreenlightIds({
+      scene_item_context: { status: 'closed', entries: [{ initial_target_character_id: 'sakuya' }] },
+    }),
+    [],
+  );
 });
 
 test('玩家文本中的保留绿灯会被清除并按可信状态重建', async () => {
@@ -86,8 +92,11 @@ test('角色世界书只使用唯一绿灯主键并禁止递归诱发', async ()
   assert.ok(routing.profiles.every((profile) => /^GSK_CHAR_[A-Z0-9_]+_ACTIVE$/u.test(profile.greenlight)));
   assert.doesNotMatch(packer, /reimu:\s*\['博丽灵梦'/u);
   assert.match(packer, /\[profile\.greenlight\]/);
-  assert.match(packer, /result\.extensions\.exclude_recursion = true/);
-  assert.match(packer, /result\.extensions\.prevent_recursion = true/);
+  assert.match(packer, /const routedEntry/);
+  assert.match(packer, /exclude_recursion = true/);
+  assert.match(packer, /prevent_recursion = true/);
+  assert.match(packer, /match_whole_words = true/);
+  assert.match(packer, /case_sensitive = true/);
 });
 
 test('道具绿灯只从场景道具登记派生，且只对已注册道具生效', async () => {
@@ -107,6 +116,10 @@ test('道具绿灯只从场景道具登记派生，且只对已注册道具生�
   assert.match(context, /GSK_ITEM_DOLL_PAUSE_ACTIVE/);
   assert.match(context, /GSK_ITEM_FOREIGN_VIBRATOR_ACTIVE/);
   assert.doesNotMatch(context, /unknown_gizmo/);
+  assert.deepEqual(
+    greenlights.resolveItemGreenlightIds({ scene_item_context: { ...state.scene_item_context, status: 'closed' } }),
+    [],
+  );
 });
 
 test('玩家文本中的道具绿灯保留标记会被清除，未登记道具不注入绿灯', async () => {
@@ -134,6 +147,13 @@ test('道具世界书条目使用唯一道具绿灯主键并禁止递归诱发',
   assert.match(xml, /人偶化·暂停_alice_doll_pause/);
   assert.match(packer, /itemRouting\.profiles/);
   assert.match(packer, /18 \+ index/);
-  assert.match(packer, /result\.extensions\.exclude_recursion = true/);
-  assert.match(packer, /result\.extensions\.prevent_recursion = true/);
+  assert.match(packer, /routedEntry/);
+  assert.match(packer, /exclude_recursion = true/);
+  assert.match(packer, /prevent_recursion = true/);
+});
+
+test('开场引导也只接受不透明路由键，不再被庭守钥等剧情文字误召回', async () => {
+  const packer = await read('../scripts/package-checkpoint.mjs');
+  assert.match(packer, /GSK_OPENING_GUIDANCE_ACTIVE/);
+  assert.doesNotMatch(packer, /openingGuidance, \['庭守钥', '第一次行动'\]/);
 });

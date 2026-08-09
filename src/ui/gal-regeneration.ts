@@ -19,8 +19,9 @@ import {
   REQUEST_SCHEMA_V2,
 } from './gal-generation-request';
 import {
-  GAL_PROMPT_REVISION,
-  isValidGalPromptInjection,
+  galPromptInjectsFingerprintInput,
+  isSupportedGalPromptRevision,
+  isValidGalPromptInjectsForRevision,
   LEGACY_GAL_PROMPT_REVISION,
 } from './gal-prompt-injection';
 
@@ -165,7 +166,7 @@ function isFrozenV2RequestShape(value: unknown): value is Record<string, unknown
   if (!isNonEmptyString(value.requestId)) return false;
   if (!isNonEmptyString(value.chatId)) return false;
   if (!isNonEmptyString(value.ownerCharacterId)) return false;
-  if (value.promptRevision !== LEGACY_GAL_PROMPT_REVISION && value.promptRevision !== GAL_PROMPT_REVISION) return false;
+  if (!isSupportedGalPromptRevision(value.promptRevision)) return false;
   if (value.historyRevision !== HISTORY_REVISION || value.memoryRevision !== MEMORY_REVISION) return false;
   if (value.sceneId !== null && typeof value.sceneId !== 'string') return false;
   if (value.stateMessageIdBeforeGeneration !== null && !isNonNegativeInt(value.stateMessageIdBeforeGeneration)) return false;
@@ -185,15 +186,13 @@ function isFrozenV2RequestShape(value: unknown): value is Record<string, unknown
     return false;
   }
   if (!isNonEmptyString(value.syntheticHistoryHash)) return false;
-  if (value.promptRevision === GAL_PROMPT_REVISION) {
-    if (!Array.isArray(value.promptInjects)
-      || value.promptInjects.length !== 1
-      || !isValidGalPromptInjection(value.promptInjects[0])
-      || !isNonEmptyString(value.promptInjectsHash)
-      || value.promptInjectsHash !== computeContextFingerprint(value.promptInjects[0].content)) return false;
-  } else if ('promptInjects' in value || 'promptInjectsHash' in value) {
-    return false;
-  }
+  if (!isValidGalPromptInjectsForRevision(value.promptRevision, value.promptInjects)) return false;
+  if (value.promptRevision !== LEGACY_GAL_PROMPT_REVISION) {
+    if (!isNonEmptyString(value.promptInjectsHash)
+      || value.promptInjectsHash !== computeContextFingerprint(
+        galPromptInjectsFingerprintInput(value.promptRevision, value.promptInjects),
+      )) return false;
+  } else if ('promptInjectsHash' in value) return false;
   if (!isNonEmptyString(value.contextFingerprint)) return false;
   if (typeof value.visibleUserText !== 'string') return false;
   if (typeof value.modelUserInput !== 'string') return false;

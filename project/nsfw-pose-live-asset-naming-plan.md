@@ -1,4 +1,4 @@
-# 成人体位图片固定命名与 R2 免重打包更新规划
+# 体位图片固定命名与 R2 免重打包更新规划
 
 > 决策日期：2026-08-03  
 > 状态：命名合同已确定；客户端 sexual resolver、动态 live manifest 消费与发布工具适配仍待实现  
@@ -192,6 +192,6 @@ characters/reimu/gal/sexual/foot_double/none/01.png
 - [ ] 同池新增 `02` 后客户端能从 manifest 发现并稳定抽取。
 - [ ] 缺图、404、错误 MIME、错误哈希、错误池 ID 和离线状态均安全回退。
 - [ ] manifest 最后上传与 generation 换代测试通过。
-- [ ] 成人内容开关关闭时不请求 sexual 对象。
+- [ ] 内容开关关闭时不请求 sexual 对象。
 - [ ] 真实 SillyTavern 中验证新聊天、旧聊天、Swipe、刷新、慢网、断网和窄屏。
 - [ ] 记录首个具备 R2-only sexual 更新能力的角色卡版本；早于该版本的包不作免重打包承诺。

@@ -1,4 +1,4 @@
-# 成人 CG 首次 R2 live 更新执行计划
+#  CG 首次 R2 live 更新执行计划
 
 > 规划日期：2026-08-03  
 > 状态：generation 2 已于 2026-08-03 发布并完成生产核验  
@@ -87,7 +87,7 @@ R2 原图与完整 live manifest，不再修改包内素材表。
    `gal.<character>.sexual.<pose_id>` 三段旧 key。
 3. 从 manifest 中筛选合法 `pool_id` 的 `01–99` PNG 候选并稳定抽取；不枚举 R2 目录，不接受模型路径。
 4. `anal`／`vaginal` 不交叉回退；池为空回退同反应 `nude`，再回退 `normal`。
-5. 成人内容开关关闭时不请求 sexual 对象；manifest 或媒体失败不得阻断正文与结算。
+5. 内容开关关闭时不请求 sexual 对象；manifest 或媒体失败不得阻断正文与结算。
 
 ### C. live manifest 向后兼容扩展
 
@@ -156,10 +156,10 @@ R2 原图与完整 live manifest，不再修改包内素材表。
 
 - 本地：11/11 PNG 签名、原图／维护源／staging 三方哈希一致；无 WebP 派生物。
 - 配置：11 个 source、asset ID、pool ID、候选号唯一且可逆；2 个双候选池排序稳定。
-- 客户端：9 个现有池可命中；其余 19 个灵梦预留池安全回退；成人开关关闭不请求图片。
+- 客户端：9 个现有池可命中；其余 19 个灵梦预留池安全回退；开关关闭不请求图片。
 - 远端：媒体先于 manifest；生产 GET 哈希一致；CORS 与缓存头正确；manifest generation 单调递增。
 - 兼容：旧轻量卡仍能读取 v1 manifest 与原有 184 项，不因未知可选字段失败。
-- 宿主：真实 SillyTavern 覆盖新聊天、旧聊天、Swipe、刷新、慢网、404、断网和关闭成人内容。
+- 宿主：真实 SillyTavern 覆盖新聊天、旧聊天、Swipe、刷新、慢网、404、断网和关闭内容。
 
 ## 8. 回滚与中断恢复
 

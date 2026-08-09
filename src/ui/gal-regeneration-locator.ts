@@ -14,6 +14,7 @@ import {
   parseAttemptMetadata,
   resolvePlayerMessageByMetadata,
   restoreGalGenerationRequestV2,
+  storedUserMessageMatchesRequestV2,
   type GalGenerationRequestV2,
 } from './gal-generation-request';
 import {
@@ -31,6 +32,8 @@ export interface GalRegenerationMessageViewV1 {
   is_user?: boolean;
   is_system?: boolean;
   message_id?: unknown;
+  message?: unknown;
+  mes?: unknown;
   extra?: unknown;
 }
 
@@ -162,6 +165,10 @@ export function locateGalRegenerationTargetV1(input: GalRegenerationLocatorInput
     }
     // 6. 身份全匹配
     const request = restore.request;
+    const storedMessage = playerFloor?.message ?? playerFloor?.mes;
+    if (!storedUserMessageMatchesRequestV2(request, storedMessage)) {
+      return fail('request-conflict', 'v5 玩家楼层正文与冻结请求不一致');
+    }
     const identityError = checkIdentity(input, request, requestId, playerResolve.messageId, assistantMessageId, sourceAttemptValue);
     if (identityError) return identityError;
 

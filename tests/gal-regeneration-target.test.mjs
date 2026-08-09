@@ -47,6 +47,18 @@ const v2 = () => ({
   createdAt: '2026-08-09T00:00:00.000Z',
 });
 
+const V5_ROUTE = [{
+  position: 'none', depth: 0, role: 'system', content: 'GSK_CHAR_REIMU_ACTIVE', should_scan: true,
+}];
+const v5 = () => ({
+  ...v2(),
+  promptRevision: 'gal-prompt.v5',
+  visibleUserText: '你好',
+  modelUserInput: '你好\n\n【庭园正文协议】\n严格输出庭园正文。',
+  promptInjects: V5_ROUTE,
+  promptInjectsHash: req.computeContextFingerprint(JSON.stringify(V5_ROUTE)),
+});
+
 const attempt = (seq, { requestId = 'gal-req-b3-0001', assistantMessageId = 102, extra = {} } = {}) => ({
   schema: 'gal-generation-attempt.v1',
   requestId,
@@ -113,6 +125,19 @@ test('单 swipe：定位成功，nextAttemptSeq=2，candidateSwipeId=1，身份�
   assert.equal(t.arraysFingerprint, 'fp-1');
   assert.equal(t.originalRequest.schema, 'gal-generation-request.v2');
   assert.equal(result.nextAttemptSeq, 2);
+});
+
+test('v5 重生成要求真实玩家楼层正文与冻结 modelUserInput 逐字一致', () => {
+  const request = v5();
+  const exact = playerFloor({ message: request.modelUserInput, extra: req.buildRequestMetadataV2(request) });
+  assert.equal(locate({ messages: [exact, assistantFloor()] }).ok, true);
+
+  const drifted = playerFloor({ message: request.visibleUserText, extra: req.buildRequestMetadataV2(request) });
+  const result = locate({ messages: [drifted, assistantFloor()] });
+  assert.deepEqual(
+    { ok: result.ok, code: result.code },
+    { ok: false, code: 'request-conflict' },
+  );
 });
 
 // ---- 三 swipe 后 attempt-4 ----

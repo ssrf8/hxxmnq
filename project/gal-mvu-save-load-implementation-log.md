@@ -83,3 +83,9 @@
 - 未触碰正式版名称 / 正式目录 / 正式 manifest（上传前后正式 manifest 336B / sha256=705ee69b… / r94 一致）。
 - 测试通道当前版本：`test-r4`（R2 `gensokyo-moving-garden/test/ui/`）。
 - 正式通道晋升：**未执行**，待所有者决定。
+
+### 7.4 2026-08-10 读档 scope 错配勘误
+
+后续实机连续采样发现，读档后教程步骤会在两个状态版本之间抖动。根因不是教程派生逻辑，而是保存时快照合并了 chat-scope 与 assistant message-scope 的 `stat_data`，恢复时却只调用 `{type:'chat'}`；Helper 4.8.18 的两个作用域彼此独立。上文“只写 chat-scope、没有最后 assistant 状态锚点”的裁定自本节起作废。
+
+当前实现保持 `gensokyo-save.v1`、存档结构和楼层优化不变：楼层重建后，移除 `stat_data` 的会话变量写回 chat-scope，`stat_data` 合并写入最后一个重建 assistant 的 message-scope；正常读档与自动回滚使用同一路径。旧 test-r4 PASS 不覆盖本次回归，仍需在真实宿主验证连续采样稳定、刷新持久化及下一回合续写。

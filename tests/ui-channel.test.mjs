@@ -308,7 +308,7 @@ test('UI 测试入口打包：真实产物卡名固定、只含测试 loader、�
 
   if (!(await access(entryFile).then(() => true, () => false))) {
     const result = spawnSync(process.execPath, [
-      'scripts/package-checkpoint.mjs', '--release-kind=test', '--ui-channel=test', '--runtime-root=dist/runtime/test', '--expect-remote-r2', '--ui-delivery=remote',
+      'scripts/package-checkpoint.mjs', '--release-kind=test', '--runtime-root=dist/runtime/test', '--expect-remote-r2', '--ui-delivery=embedded',
     ], { cwd: root, encoding: 'utf8' });
     assert.equal(result.status, 0, `真实打包应成功：${result.stderr}`);
   }
@@ -323,10 +323,20 @@ test('UI 测试入口打包：真实产物卡名固定、只含测试 loader、�
   assert.match(card.data.character_version, /ui-test-entry/, 'character_version 使用固定入口标识');
   const uiScript = card.data.extensions.tavern_helper.scripts.find((s) => s.id.includes('garden-ui'));
   assert.ok(uiScript, '测试入口必须内嵌 UI 脚本');
-  assert.match(uiScript.content, /gensokyo-moving-garden\/test\/ui\/ui-manifest\.json/, '测试入口 loader 必须引用测试 UI manifest');
-  assert.doesNotMatch(uiScript.content, /gensokyo-moving-garden\/live\/ui\//, '测试入口 loader 不得引用正式 UI manifest');
-  assert.match(uiScript.content, /const CHANNEL = 'test'/, '测试入口 loader 必须为 test 通道');
-  // 防回归：入口卡复用已有产物时必须仍是新体系版本正则（曾因旧 g12hex loader 混入导致加载失败）。
-  assert.match(uiScript.content, /VERSION_PATTERN = CHANNEL === 'test' \? \/\^test-r\[1-9\]\\d\*\$/, '入口卡 loader 版本正则必须为 test-r<N>');
-  assert.doesNotMatch(uiScript.content, /test-r\[1-9\]\\d\*-g\[a-f0-9\]\{12\}/, '入口卡 loader 不得残留旧体系 g12hex 版本正则');
+  if (/const embedded/.test(uiScript.content)) {
+    // embedded 交付（2026-08-09 起确立）：完整 UI 整包内嵌在卡内，不引用任何远程 UI manifest；
+    // 资产仍走共享 R2 live（代码内嵌、素材远端）。
+    assert.doesNotMatch(uiScript.content, /gensokyo-moving-garden\/test\/ui\/ui-manifest\.json/, 'embedded 版不得引用测试 UI manifest');
+    assert.doesNotMatch(uiScript.content, /gensokyo-moving-garden\/live\/ui\/ui-manifest\.json/, 'embedded 版不得引用正式 UI manifest（注意 live/ui/*.webp 等资产图片路径不算）');
+    assert.match(uiScript.content, /assetDeliveryConfig/, 'embedded 版必须携带资产投递配置');
+    assert.match(uiScript.content, /remote-r2-live/, 'embedded 版资产必须走 R2 live');
+  } else {
+    // remote loader 交付：loader 引用测试 UI manifest。
+    assert.match(uiScript.content, /gensokyo-moving-garden\/test\/ui\/ui-manifest\.json/, '测试入口 loader 必须引用测试 UI manifest');
+    assert.doesNotMatch(uiScript.content, /gensokyo-moving-garden\/live\/ui\//, '测试入口 loader 不得引用正式 UI manifest');
+    assert.match(uiScript.content, /const CHANNEL = 'test'/, '测试入口 loader 必须为 test 通道');
+    // 防回归：入口卡复用已有产物时必须仍是新体系版本正则（曾因旧 g12hex loader 混入导致加载失败）。
+    assert.match(uiScript.content, /VERSION_PATTERN = CHANNEL === 'test' \? \/\^test-r\[1-9\]\\d\*\$/, '入口卡 loader 版本正则必须为 test-r<N>');
+    assert.doesNotMatch(uiScript.content, /test-r\[1-9\]\\d\*-g\[a-f0-9\]\{12\}/, '入口卡 loader 不得残留旧体系 g12hex 版本正则');
+  }
 });

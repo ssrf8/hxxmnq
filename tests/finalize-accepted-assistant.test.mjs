@@ -146,14 +146,14 @@ test('F03-1：普通 V2 对话无 MVU 变化仍写 VisitTurn（F-B 核心）', a
   const visits = written.stat_data.interaction.visit_memory.by_character.reimu;
   assert.equal(visits.active_visit.turns.length, 1);
   assert.equal(visits.active_visit.turns[0].turn_id, `${request.requestId}:reimu`);
-  assert.equal(visits.active_visit.turns[0].latest_attempt_id, snapshot.attemptId);
+  assert.equal('latest_attempt_id' in visits.active_visit.turns[0], false);
   assert.equal(written[LC].status, 'settled');
   assert.equal(written.gal_regeneration_receipt_v1.schema, 'gal-regeneration-commit-receipt.v1');
   assert.equal(written.gal_regeneration_receipt_v1.attemptId, snapshot.attemptId);
   assert.equal(written.gal_regeneration_receipt_v1.assistantSwipeId, 0);
 });
 
-test('F03-2：同 turn_id retry 覆盖 attempt/commit 审计，不追加', async () => {
+test('F03-2：同 turn_id retry 以精简记录覆盖，不追加', async () => {
   const request = makeV2Request();
   const baseState = makeBaseState();
   baseState.interaction.visit_memory.by_character.reimu.active_visit.turns.push({
@@ -187,8 +187,10 @@ test('F03-2：同 turn_id retry 覆盖 attempt/commit 审计，不追加', async
   });
   const visits = mvu.__peek().stat_data.interaction.visit_memory.by_character.reimu;
   assert.equal(visits.active_visit.turns.length, 1, '不得追加');
-  assert.equal(visits.active_visit.turns[0].latest_attempt_id, `${request.requestId}:attempt-2`);
-  assert.equal(visits.active_visit.turns[0].latest_commit_key, `${request.requestId}:${request.requestId}:attempt-2`);
+  assert.deepEqual(
+    Object.keys(visits.active_visit.turns[0]).sort(),
+    ['character_id', 'day', 'summary', 'time_period', 'turn_id'].sort(),
+  );
 });
 
 test('F03-3：固定事件结算也写 VisitTurn（事件 settlement + turn 同一次写盘）', async () => {
@@ -330,7 +332,7 @@ test('F03-7：lifecycle 复读仍 pending → 抛错不 settled', async () => {
   );
 });
 
-test('F05：assistantSwipeId 精确写入 turn（不再写死 null）', async () => {
+test('F05：swipe 身份留在提交回执，不复制进 VisitTurn', async () => {
   const request = makeV2Request();
   const baseState = makeBaseState();
   const mvu = makeMvu();
@@ -345,8 +347,10 @@ test('F05：assistantSwipeId 精确写入 turn（不再写死 null）', async ()
     readAssistantIdentity: makeIdentityReader(snapshot, 2),
     transformFinalState: (state) => state,
   });
-  const visits = mvu.__peek().stat_data.interaction.visit_memory.by_character.reimu;
-  assert.equal(visits.active_visit.turns[0].assistant_swipe_id, 2, 'swipe id 必须精确写入，而非 null');
+  const written = mvu.__peek();
+  const turn = written.stat_data.interaction.visit_memory.by_character.reimu.active_visit.turns[0];
+  assert.equal('assistant_swipe_id' in turn, false);
+  assert.equal(written.gal_regeneration_receipt_v1.assistantSwipeId, 2);
 });
 
 test('返修：合法空相关角色以零 expected turns settled，不要求历史中存在任意 turn', async () => {

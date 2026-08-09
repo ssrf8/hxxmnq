@@ -1,7 +1,7 @@
 // 第四批 B4-T03 —— 归档 schema、normalizer 与纯记录转换。
 // 覆盖 runbook §10 B4-T03 必测：完整合法行、缺 stable ID、错 character ID、错 scope、
 // 错 enum、day 多形态、超长文本、HTML/协议片段、未知字段、旧 schema、
-// 成人关系事件不推导 relationship state、转换前后不包含完整正文。
+// 关系事件不推导 relationship state、转换前后不包含完整正文。
 // 禁止：不导入 host/window、不写 MVU、不查询数据库、不在 normalizer 中调用 LLM、不用随机 ID。
 import assert from 'node:assert/strict';
 import { build } from 'esbuild';
@@ -207,7 +207,7 @@ test('B4-T03: 错 enum → invalid-enum', () => {
   if (!badEvent.ok) assert.equal(badEvent.error.code, 'invalid-enum');
 });
 
-test('B4-T03: 成人关系事件不推导 relationship state（只记录事件）', () => {
+test('B4-T03: 关系事件不推导 relationship state（只记录事件）', () => {
   // adult_intimacy 是 event_kind，不是 kind；转换不反推 active/label。
   const result = toRelationshipArchiveRecord({
     memory: makeMemory({ kind: 'milestone', event_kind: 'adult_intimacy', relationship_label: null, active: false }),
@@ -324,7 +324,7 @@ test('B4-T03: stableSerializeRecord 确定性与 content hash 稳定性', () => 
   );
 });
 
-test('B4-T03-R1: converter 拒绝伪造 scope、非法时段，并把摘要统一裁到 160', () => {
+test('B4-T03-R1: converter 拒绝伪造 scope、非法时段，并把摘要统一裁到 100', () => {
   const badScope = toStoryArchiveRecord({ turn: makeTurn(), visitId: 'visit-7', archiveScopeId: 'gal-scope.v1|owner=5:x|chat=1:y' });
   assert.equal(badScope.ok, false);
   if (!badScope.ok) assert.equal(badScope.error.code, 'invalid-scope');
@@ -335,7 +335,7 @@ test('B4-T03-R1: converter 拒绝伪造 scope、非法时段，并把摘要统�
 
   const truncated = toStoryArchiveRecord({ turn: makeTurn({ summary: '摘要'.repeat(100) }), visitId: 'visit-7', archiveScopeId: scopeId });
   assert.ok(truncated.ok);
-  if (truncated.ok) assert.equal(truncated.value.summary.length, 160);
+  if (truncated.ok) assert.equal(truncated.value.summary.length, 100);
 });
 
 test('B4-T03-R1: database row 严格拒绝 key/hash/revision/枚举与任意 HTML', () => {

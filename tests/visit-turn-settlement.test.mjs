@@ -97,11 +97,10 @@ test('T10：V2 冻结 visit map 精确写入（reimu 写 active visit；marisa n
   assert.equal(memory.active_visit.turns.length, 1);
   const turn = memory.active_visit.turns[0];
   assert.equal(turn.turn_id, 'gal-req-100:reimu');
-  assert.equal(turn.request_id, 'gal-req-100');
   assert.equal(turn.character_id, 'reimu');
-  assert.equal(turn.assistant_message_id, 42);
   assert.equal(turn.day, 7);
   assert.match(turn.summary, /博丽灵梦/);
+  assert.deepEqual(Object.keys(turn).sort(), ['character_id', 'day', 'summary', 'time_period', 'turn_id'].sort());
   // marisa（null visit）不得产生任何 turn（初始空记录保持无 turn）
   const marisaTurns = result.state.interaction.visit_memory.by_character.marisa?.active_visit?.turns ?? [];
   assert.equal(marisaTurns.length, 0);
@@ -109,7 +108,7 @@ test('T10：V2 冻结 visit map 精确写入（reimu 写 active visit；marisa n
 });
 
 // ---- 同 turn_id retry：upsert 覆盖，不追加 ----
-test('T10：同 turn_id 重试 upsert 覆盖审计字段，不追加重复记录', async () => {
+test('T10：同 turn_id 重试覆盖摘要，不追加重复记录', async () => {
   const vtc = await importTypescript('../src/ui/visit-turn-commit.ts');
   const state = await baseState();
   const first = vtc.applyVisitTurnsToFinalState(makeInput({ finalState: state }));
@@ -123,8 +122,9 @@ test('T10：同 turn_id 重试 upsert 覆盖审计字段，不追加重复记录
   if (!retried.ok) return;
   const turns = retried.state.interaction.visit_memory.by_character.reimu.active_visit.turns;
   assert.equal(turns.length, 1, '同 turn_id 不得追加重复记录');
-  assert.equal(turns[0].latest_attempt_id, 'attempt-2');
-  assert.equal(turns[0].latest_commit_key, 'commit-2');
+  assert.equal(turns[0].turn_id, 'gal-req-100:reimu');
+  assert.equal('latest_attempt_id' in turns[0], false);
+  assert.equal('latest_commit_key' in turns[0], false);
 });
 
 // ---- 精确写 closed visit（生成期间离场）----

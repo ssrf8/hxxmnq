@@ -15,7 +15,8 @@
       "activation": "always-for-variable-stage",
       "target": "variable-model",
       "source": "variable-output-format.md",
-      "budget": "high-priority"
+      "budget": "high-priority",
+      "contract": "每轮只输出一个 UpdateVariable/JSONPatch；无合法变化时输出空数组；不得写 interaction.visit_memory。"
     },
     {
       "id": "current_state_projection",
@@ -31,12 +32,13 @@
       "activation": "always-for-variable-stage",
       "target": "variable-model",
       "source": "variable-update-rules.md",
-      "budget": "high-priority"
+      "budget": "high-priority",
+      "contract": "只写获授权的开放语义字段；interaction.visit_memory 与全部确定性状态由 bridge 独占。"
     },
     {
       "id": "gal_presentation_protocol",
       "label": "GAL 表现与交互会话协议",
-      "activation": "gensokyo-action-or-active-session",
+      "activation": "always-for-plot-stage; request-specific-envelope-is-runtime-injected",
       "target": "plot-model",
       "source": "gal-presentation-protocol.md",
       "budget": "high-priority-during-interaction"
@@ -65,7 +67,25 @@
       "source": "characters/{character_id}.xml",
       "routing_source": "character-routing.json",
       "budget": "dynamic",
-      "contract": "绿灯只由本地剧情上下文根据正式在场、当前会话、当前事件或显式代码选角写入；姓名、别名、历史记录与未在场名单不触发；角色条目不参与递归扫描。"
+      "contract": "绿灯只由本地剧情上下文根据正式在场、当前会话、当前事件或显式代码选角写入，并通过 position:none/should_scan:true 的不可见扫描胶囊触发；姓名、别名、历史记录与未在场名单不触发；角色条目不参与或诱发递归扫描。"
+    },
+    {
+      "id": "item_profiles",
+      "label": "本轮获授权的道具档案",
+      "activation": "greenlight-by-authorized-item-id",
+      "target": "plot-model",
+      "source": "items/{item_id}.xml",
+      "routing_source": "item-routing.json",
+      "budget": "dynamic",
+      "contract": "只把本轮已由本地道具选择器授权的道具绿灯写入不可见扫描胶囊；库存名称、历史消息、脱敏投影与未选中道具不触发。"
+    },
+    {
+      "id": "sakuya_watch_active_effect",
+      "label": "咲夜怀表生效边界",
+      "activation": "runtime-generated-when-time-stop-active",
+      "target": "plot-model",
+      "source": "ui/prompt-context.ts",
+      "budget": "dynamic"
     },
     {
       "id": "event_configs",

@@ -24,16 +24,9 @@ const cm = await importTypescript('../src/ui/character-memory.ts');
 
 const makeTurn = (overrides = {}) => ({
   turn_id: 'req-1:reimu',
-  request_id: 'req-1',
   character_id: 'reimu',
-  scene_id: 'scene:demo',
-  assistant_message_id: 55,
-  assistant_swipe_id: null,
-  latest_attempt_id: 'req-1:attempt-1',
-  latest_commit_key: 'req-1:req-1:attempt-1',
   day: 1,
   time_period: '清晨',
-  period_serial: 1,
   summary: '玩家：你好；灵梦：回应。',
   ...overrides,
 });
@@ -135,17 +128,16 @@ test('visit ID 多处命中（conflict）返回失败且不改 state', () => {
   assert.equal(JSON.stringify(result.state), before);
 });
 
-// ---- 同 turn_id 幂等（retry 覆盖审计字段，不追加） ----
-test('同 turn_id retry upsert 覆盖审计字段，不追加重复记录', () => {
-  const state = makeState({ active_visit: makeVisit('character_visit_000001', [makeTurn({ latest_attempt_id: 'req-1:attempt-1' })]) });
-  const retried = makeTurn({ latest_attempt_id: 'req-1:attempt-2', latest_commit_key: 'req-1:req-1:attempt-2' });
+// ---- 同 turn_id 幂等（retry 覆盖摘要，不追加） ----
+test('同 turn_id retry upsert 覆盖摘要，不追加重复记录', () => {
+  const state = makeState({ active_visit: makeVisit('character_visit_000001', [makeTurn({ summary: '第一次摘要' })]) });
+  const retried = makeTurn({ summary: '第二次摘要' });
   const result = cm.upsertVisitTurnByVisitId(state, 'reimu', 'character_visit_000001', retried);
   assert.equal(result.ok, true);
   if (!result.ok) return;
   const turns = result.state.interaction.visit_memory.by_character.reimu.active_visit.turns;
   assert.equal(turns.length, 1);
-  assert.equal(turns[0].latest_attempt_id, 'req-1:attempt-2');
-  assert.equal(turns[0].latest_commit_key, 'req-1:req-1:attempt-2');
+  assert.equal(turns[0].summary, '第二次摘要');
 });
 
 // ---- 16/4/48 容量 ----

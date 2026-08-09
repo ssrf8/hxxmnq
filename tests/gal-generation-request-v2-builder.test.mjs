@@ -81,23 +81,31 @@ test('buildGalGenerationRequestV2 产出冻结请求：schema/revision/角色/vi
   assert.equal(result.ok, true);
   if (!result.ok) return;
   assert.equal(result.request.schema, 'gal-generation-request.v2');
-  assert.equal(result.request.promptRevision, 'gal-prompt.v2');
+  assert.equal(result.request.promptRevision, 'gal-prompt.v5');
   assert.equal(result.request.historyRevision, 'gal-synthetic-history.v1');
   assert.equal(result.request.memoryRevision, 'character-visit-memory.v1');
   assert.deepEqual(result.relevantCharacterIds, ['reimu']);
   assert.deepEqual(result.visitIdsByCharacter, { reimu: 'character_visit_000001' });
   assert.equal(result.request.syntheticHistory.length, 1);
   assert.equal(result.request.syntheticHistory[0].role, 'system');
-  assert.equal(result.request.modelUserInput, '灵梦，结界怎么样了？');
+  assert.match(result.request.modelUserInput, /^灵梦，结界怎么样了？\n\n【庭园正文协议】/u);
+  assert.match(result.request.modelUserInput, /【庭园在场快照：本轮唯一事实】[\s\S]*【场景事实】/u);
   assert.equal(result.request.promptInjects.length, 1);
   assert.equal(result.request.promptInjects[0].role, 'system');
-  assert.equal(result.request.promptInjects[0].position, 'in_chat');
-  assert.equal(result.request.promptInjects[0].depth, 1);
-  assert.equal(result.request.promptInjects[0].should_scan, false);
-  assert.match(result.request.promptInjects[0].content, /【庭园正文协议】/);
+  assert.equal(result.request.promptInjects[0].position, 'none');
+  assert.equal(result.request.promptInjects[0].depth, 0);
+  assert.equal(result.request.promptInjects[0].should_scan, true);
+  assert.deepEqual(
+    { position: result.request.promptInjects[0].position, depth: result.request.promptInjects[0].depth, role: result.request.promptInjects[0].role, should_scan: result.request.promptInjects[0].should_scan },
+    { position: 'none', depth: 0, role: 'system', should_scan: true },
+  );
+  assert.match(result.request.promptInjects[0].content, /GSK_CHAR_REIMU_ACTIVE/);
+  assert.doesNotMatch(result.request.promptInjects[0].content, /【|庭园|场景|授权/);
   assert.equal(result.request.visibleUserText, '灵梦，结界怎么样了？');
   assert.equal(result.request.contextFingerprint.length, 8);
   assert.ok(result.request.syntheticHistoryHash.length > 0);
+  assert.equal(g.storedUserMessageMatchesRequestV2(result.request, result.request.modelUserInput), true);
+  assert.equal(g.storedUserMessageMatchesRequestV2(result.request, result.request.visibleUserText), false);
 });
 
 test('visible/model input 各只出现一次', () => {
@@ -108,7 +116,7 @@ test('visible/model input 各只出现一次', () => {
   assert.equal(visibleCount, 1);
   const modelCount = result.request.modelUserInput.split('灵梦，结界怎么样了？').length - 1;
   assert.equal(modelCount, 1);
-  assert.doesNotMatch(result.request.modelUserInput, /【庭园正文协议】|【场景事实】/);
+  assert.equal(result.request.modelUserInput.split('【庭园正文协议】').length - 1, 1);
 });
 
 // ---- fingerprint 敏感性与稳定性 ----
@@ -201,7 +209,7 @@ test('V2 metadata round-trip 恢复逐字节相同', () => {
   assert.equal(JSON.stringify(restored.request), JSON.stringify(result.request));
 });
 
-test('gal-prompt.v2 metadata 缺注入、双注入或 hash 漂移时恢复失败闭合', () => {
+test('gal-prompt.v5 metadata 缺注入、额外注入或 hash 漂移时恢复失败闭合', () => {
   const result = g.buildGalGenerationRequestV2(baseInput());
   assert.equal(result.ok, true);
   if (!result.ok) return;

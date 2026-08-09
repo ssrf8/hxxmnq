@@ -429,7 +429,7 @@
 - 新增 `src/ui/synthetic-history.ts`，纯投影器；函数签名只接收 `GardenState`、冻结 relevant IDs、冻结 visit map、角色登记信息；绝不接收 chat messages / SillyTavern context / 宿主 getter。
 - 输出恰好一条 `role:'system'` 消息；无任何可投影内容时返回固定边界消息（§3.5）。
 - 角色块顺序按冻结 relevantCharacterIds；每角色段序：角色头 → 当前关系 → 过去入场（旧到新，最多 2 次，排除冻结 current visit，每次尾部 6 条，带"不可续接"边界句）→ 本次入场（精确按冻结 visit ID，最多尾部 6 条）→ 旧版遗留记忆（只投影该角色自己的；legacy_unassigned 永不投影）。
-- 当前关系最多 6 条：active state 最多 1，active boundary/conflict 优先，其余按 significance 降序 + period_serial 降序稳定排序；成人亲密用中性描述，不自动推断 lover。
+- 当前关系最多 6 条：active state 最多 1，active boundary/conflict 优先，其余按 significance 降序 + period_serial 降序稳定排序；亲密用中性描述，不自动推断 lover。
 - 预算（§3.6）：每角色 ≤900 字符、全部 ≤2800；裁剪优先级从"最不应删除"到"最先删除"：边界文本 → active state/boundary/conflict → 当前 visit → 高 significance 关系事件 → 最近过去 visit → 更早过去 visit → legacy。
 - null 时间显示「时间未记录」，不伪造昨天/今天。
 - 返回深拷贝/新对象（字符串不可变天然满足）；同 state 重复 100 次逐字节相同。

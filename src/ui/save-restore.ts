@@ -6,9 +6,11 @@ export interface SaveRestoreAdapter {
   currentChatId(): string;
   listMessages(): Array<Record<string, unknown>>;
   readMvuData(): Record<string, unknown>;
+  readMessageMvu(messageId: number): Record<string, unknown>;
   deleteMessages(ids: number[]): Promise<void>;
   createMessages(messages: SavedChatMessageV1[]): Promise<void>;
-  replaceChatMvu(mvu: SavedMvuDataV1): Promise<void>;
+  replaceChatMvu(mvu: Record<string, unknown>): Promise<void>;
+  replaceMessageMvu(mvu: Record<string, unknown>, messageId: number): Promise<void>;
   clearTransientState(): Promise<void> | void;
   reloadCurrentChat(): Promise<void>;
 }
@@ -60,6 +62,27 @@ async function assertMvuRoundTrip(adapter: SaveRestoreAdapter, expected: SavedMv
   if (actualHash !== expectedHash) throw new Error('MVU 写后复读不一致');
 }
 
+async function restoreMvuScopes(adapter: SaveRestoreAdapter, saved: SavedMvuDataV1) {
+  const messages = adapter.listMessages();
+  let assistantIndex = -1;
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    if (messages[index].role === 'assistant') {
+      assistantIndex = index;
+      break;
+    }
+  }
+  if (assistantIndex < 0) throw new Error('恢复后的聊天没有 assistant 状态锚点');
+  const messageId = Number.isSafeInteger(messages[assistantIndex].message_id)
+    ? Number(messages[assistantIndex].message_id)
+    : assistantIndex;
+  const chatMvu = cloneJson(saved) as Record<string, unknown>;
+  delete chatMvu.stat_data;
+  const messageMvu = cloneJson(adapter.readMessageMvu(messageId));
+  messageMvu.stat_data = cloneJson(saved.stat_data);
+  await adapter.replaceChatMvu(chatMvu);
+  await adapter.replaceMessageMvu(messageMvu, messageId);
+}
+
 export async function restoreSavePayload(adapter: SaveRestoreAdapter, candidate: unknown): Promise<RestoreResult> {
   // Full schema/checksum validation is expected before this function; the deep
   // payload validation here is deliberately repeated before the first delete.
@@ -83,7 +106,7 @@ export async function restoreSavePayload(adapter: SaveRestoreAdapter, candidate:
     assertChatIdentity();
     await createAll(adapter, target.messages);
     assertChatIdentity();
-    await adapter.replaceChatMvu(cloneJson(target.mvu));
+    await restoreMvuScopes(adapter, target.mvu);
     await assertMvuRoundTrip(adapter, target.mvu);
     assertChatIdentity();
     await adapter.clearTransientState();
@@ -95,7 +118,7 @@ export async function restoreSavePayload(adapter: SaveRestoreAdapter, candidate:
       if (adapter.currentChatId() !== chatId) throw new Error('聊天已切换，不能跨聊天回滚');
       await deleteAll(adapter);
       await createAll(adapter, previousMessages);
-      await adapter.replaceChatMvu(previousMvu as SavedMvuDataV1);
+      await restoreMvuScopes(adapter, previousMvu as SavedMvuDataV1);
       await assertMvuRoundTrip(adapter, previousMvu as SavedMvuDataV1);
       await adapter.clearTransientState();
       await adapter.reloadCurrentChat();

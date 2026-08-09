@@ -1,15 +1,16 @@
 # 运行 API 来源记录（0.2.0）
 
-## GAL 请求期楼层注入（2026-08-09，静态核验）
+## GAL 真实玩家楼层与双重格式约束（2026-08-10，静态核验）
 
 目标运行时固定为 SillyTavern `1.18.0` + JS-Slash-Runner / Tavern Helper `4.8.18`。本节只记录目标版本声明和源码逻辑，未运行探针，也不把静态检查声称为真实宿主最终 prompt 观察。
 
 - `symbol: generate(config.injects)`；surface: Tavern Helper；provenance: `F:/agent airp/SillyTavern/public/scripts/extensions/third-party/JS-Slash-Runner/@types/function/generate.d.ts`；confidence: high（目标版本声明）；runtime_check: 未执行。
-- `InjectionPrompt` 精确字段来自同安装的 `src/function/inject.ts`：`position:'in_chat' | 'none'`、`depth:number`、`role:'system'|'assistant'|'user'`、`content:string`、`should_scan?:boolean`。项目固定使用单条 `{position:'in_chat',depth:1,role:'system',should_scan:false}`，不使用内部私有字段名。
+- `createChatMessages(messages,{insert_before:'end',refresh:'none'})` 来自目标 Helper 的 `@types/function/chat_message.d.ts`。项目用它创建 `role:'user' / is_hidden:false` 的真实楼层；楼层正文包含玩家原文、正文协议、在场快照、场景事实和道具授权。静态源码确认调用形状；真实宿主持久化与重载后保真仍待实机复读。
+- `InjectionPrompt` 精确字段来自同安装的 `src/function/inject.ts`：`position:'in_chat' | 'none'`、`depth:number`、`role:'system'|'assistant'|'user'`、`content:string`、`should_scan?:boolean`。`gal-prompt.v5` 只保留不可见路由胶囊 `{position:'none',depth:0,role:'system',should_scan:true}`，不携带格式或动态事实。
 - `overrides.chat_history.prompts` 与 `with_depth_entries` 来自目标版本 `generate.d.ts`；项目继续只传一条冻结 synthetic system history，并固定 `with_depth_entries:false`，不恢复 SillyTavern 原生旧聊天历史。
-- 新请求冻结为 `gal-prompt.v2`；玩家原文只进入 `user_input`，本轮规则进入 `injects`。旧 `gal-prompt.v1` metadata 继续生成无 `injects` 的兼容配置，不在恢复时升级。
+- 新请求冻结为 `gal-prompt.v5`；`modelUserInput` 与写入并复读的真实玩家楼层正文逐字一致，普通互动、异变收束和决斗胜利三类入口均在 `generate()` 前失败闭合校验。酒馆原生 Chat Completion 不再订阅 `CHAT_COMPLETION_PROMPT_READY` 改写最终 user 消息；`GENERATION_AFTER_COMMANDS` 只保留世界书扫描路由，不承担格式。正文格式由常驻 `[mvu_plot]` GAL 世界书完整定义并提供一份正确示范。旧 `gal-prompt.v1/v2/v3/v4` metadata 继续按各自原配置恢复，不在恢复时升级。
 - 依赖分类：Tavern Helper `generate`/`injects` 为 `host_required`；请求构造器、metadata 和 UI bridge 为随卡/远程 UI 交付的项目运行代码；本专项没有新增远程依赖或玩家安装项。
-- 静态证据：类型检查 PASS，全量 702/702 测试 PASS；真实模型可见顺序“synthetic history → depth 1 inject → user_input”仍以目标 Helper 源码为高置信静态结论，未做实机 prompt 观察。
+- 源码证据：Helper `dataProcessor.ts` 在世界书扫描前注册自定义 inject；SillyTavern `checkWorldInfo()` 只把 `scan:true` 的 extension prompt 加入扫描缓冲。v5 不再依赖最终 prompt 事件修改 user 内容。静态置信度高；真实楼层保存、世界书最终可见性和模型格式服从率仍待实机观察。
 
 ## 第六批 MVU 存档／读档静态 API 裁定（2026-08-09）
 
@@ -18,10 +19,10 @@
 - `@types/function/chat_message.d.ts`：`getChatMessages(range,{include_swipes:false,hide_state:'all'})` 读取活动页；`deleteChatMessages(ids,{refresh:'none'})` 删除指定楼层；`createChatMessages(messages,{insert_before:'end',refresh:'none'})` 按序追加并接受楼层 `data`。
 - `@types/function/worldbook.d.ts`：`getOrCreateChatWorldbook('current')` 返回当前聊天绑定世界书；`getWorldbook(name)` 读取条目；`updateWorldbookWith(name,updater)` 用一次 updater 替换同槽条目并保留其他条目。生产壳优先使用 iframe 平铺函数，缺失时从 `TavernHelper` 门面补齐。
 - `@types/iframe/exported.sillytavern.d.ts`：`SillyTavern.reloadCurrentChat(): Promise<void>`；Bridge 同时兼容平铺 `reloadCurrentChat`，但不把“声明存在”写成刷新时序已验收。
-- MagVarUpdate 声明与源码：`Mvu.getMvuData({type:'chat'})` / `Mvu.replaceMvuData(data,{type:'chat'})` 用于读取和直接恢复完整聊天级 MvuData。实现没有 `setChatMessages` 最后 assistant 锚点，也不会把最终 MVU 合并进某条楼层；各楼层只恢复存档中的原始 `data`。
+- 2026-08-10 实机回归勘误：Helper 4.8.18 的 chat-scope 对应 `chat_metadata.variables`，message-scope 对应 `chat[message_id].variables[swipe_id]`，二者不会自动同步。存档合并快照必须拆分恢复：移除 `stat_data` 后的会话变量写入 `{type:'chat'}`，正式 `stat_data` 合并进重建后最后一个 assistant 并写入 `{type:'message',message_id}`；成功与自动回滚共用该路径。旧“完整 MvuData 只写 chat-scope、无需 assistant 状态锚点”裁定作废。
 - 静态回归：schema/codec/capture 5 项、世界书仓库 4 项、恢复事务 8 项、UI/Bridge 合同 1 项；全量 696/696 PASS。读取时会再次白名单化楼层字段；删除、首/末创建批、MVU 写入与 reload 失败的 fake-host 路径均恢复读档前消息和 MVU。
 
-真实宿主仍须核对：世界书写盘后刷新仍存在、中文长档跨 chunk、Helper 删除/创建的楼层顺序与 `data` 保真、chat-scope MVU 写后复读、`reloadCurrentChat` 与 `CHAT_CHANGED` 的最终收敛。无需做时机探针；按 UI 操作并核对最终聊天/MVU 即可。
+真实宿主仍须核对：读档后目标 assistant 的 message-scope `stat_data` 连续稳定、教程步骤不再抖动、刷新后状态保持，并能继续完成下一回合；静态分 scope fake 不能替代这些时序证据。
 
 ## GAL 事务状态机（Probe A/B/C 与 Phase 0–6 实机证据）
 

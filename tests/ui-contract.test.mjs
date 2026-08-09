@@ -794,9 +794,9 @@ test('庭园地图支持双指捏合缩放，并保持手指中点锚点', async
 test('地图相机具有软边界、拖拽阻力和减少动态效果回退', async () => {
   const map = await importTypescript('../src/ui/garden-map.ts');
   const source = await read('../src/ui/garden-map.ts');
-  const size = map.resolveCoveredMapSize(390, 700, 1672, 941);
+  const size = map.resolveCoveredMapSize(390, 700, 1672, 1722);
   assert.equal(size.height, 700);
-  assert.ok(size.width > 1243 && size.width < 1244);
+  assert.ok(size.width > 679 && size.width < 680);
   assert.deepEqual(map.resolveCameraBounds(390, 700, size.width, size.height, 1), {
     minX: -(size.width - 390) / 2,
     maxX: (size.width - 390) / 2,
@@ -1202,7 +1202,6 @@ test('符卡配置限制敌弹模式与参数上限', async () => {
 
 test('旧主屋维修由本地前置条件与登记结果约束', async () => {
   const actions = await read('../src/ui/target-actions.ts');
-  const rules = await read('../src/lorebook/variable-update-rules.md');
   const events = JSON.parse(await read('../src/lorebook/events/greenhouse-vertical-slice.json'));
   const repair = events.events.find((item) => item.config_id === 'main_house_repair');
   assert.match(actions, /completed\.reimu_boundary_inspection/);
@@ -1210,8 +1209,6 @@ test('旧主屋维修由本地前置条件与登记结果约束', async () => {
   assert.match(actions, /action_id: action\.id/);
   assert.deepEqual(repair.cost, { materials: 1 });
   assert.deepEqual(repair.allowed_results, ['main_house_enabled', 'temporary_shelter_only']);
-  assert.match(rules, /main_house_enabled/);
-  assert.match(rules, /temporary_shelter_only/);
 });
 
 test('新开局本地写入首层 MVU，不创建消息或调用 LLM', async () => {
@@ -1411,7 +1408,7 @@ test('Phase 6：调试楼层开关只改 class/会话存储，不写消息数据
   assert.match(host, /function toggleDebugFloors/);
 });
 
-test('GAL 旧格式只保留本地兼容解析，新模型协议只要求庭园正文', async () => {
+test('GAL 世界书恢复完整庭园正文定义与正确示范，旧 scene 只保留本地兼容解析', async () => {
   const parser = await read('../src/ui/gal-scene.ts');
   const controller = await read('../src/ui/app.ts');
   const protocol = await read('../src/lorebook/gal-presentation-protocol.md');
@@ -1428,10 +1425,23 @@ test('GAL 旧格式只保留本地兼容解析，新模型协议只要求庭园�
   assert.match(await read('../src/ui/index.html'), /data-visual-mode="normal"/);
   assert.doesNotMatch(controller, /innerHTML\s*=/);
   assert.doesNotMatch(protocol, /GensokyoScene|scene\.v1|suggested_replies/);
-  assert.match(protocol, /不再输出第二份表现数据/);
-  assert.match(protocol, /不要输出第二份 GAL 表现 JSON/);
+  assert.ok(Buffer.byteLength(protocol, 'utf8') < 6500, '常驻 GAL 协议应保持紧凑');
+  assert.match(protocol, /## 庭园正文格式（强制）/);
+  assert.match(protocol, /正确格式示范：[\s\S]*【庭园正文开始】[\s\S]*<narration>[\s\S]*<dialogue char="reimu"[\s\S]*【庭园正文结束】/);
+  assert.doesNotMatch(protocol, /当前请求的 system inject/);
+  assert.match(protocol, /不输出第二份 GAL 表现 JSON/);
+  assert.match(protocol, /不得输出 `<UpdateVariable>`、`<GensokyoEventResult>`/);
   assert.match(protocol, /visual_mode/);
+  assert.doesNotMatch(protocol, /event-result\.v1|interaction_<uid_counters|本地事务失败并允许重试/);
   assert.doesNotMatch(packager, /GAL scene\.v1|GensokyoScene/);
+});
+
+test('咲夜怀表只在生效时动态投影，不再作为常驻世界书条目', async () => {
+  const promptContext = await read('../src/ui/prompt-context.ts');
+  const packager = await read('../scripts/package-checkpoint.mjs');
+  assert.match(promptContext, /【时间停止】/);
+  assert.match(promptContext, /不授予伤害、永久记忆或立场变化/);
+  assert.doesNotMatch(packager, /sakuya_watch\.xml|怀表·时间停止/);
 });
 
 test('GAL visual_mode 兼容旧回复并按三种素材语义归一化姿势', async () => {
@@ -1834,13 +1844,13 @@ test('庭园行动追加正文协议，维修固定结算且不开放续聊', as
   const settlement = await importTypescript('../src/ui/event-settlement.ts');
   const app = await read('../src/ui/app.ts');
   assert.match(actions, /【庭园正文开始】/);
-  assert.match(actions, /最后一个【庭园正文开始】/);
+  assert.match(actions, /第一个可见字符必须是【庭园正文开始】/);
   assert.match(actions, /fixedPresentation: true/);
   // R78 协议加固：每轮注入的正文协议必须包含 visual_mode 三值格式与 sexual 触发规则，
   // 防止模型在插入性行为正文中停留在 nude。
   assert.match(actions, /visual_mode="normal\|nude\|sexual"/);
   assert.match(actions, /act="vaginal\|anal\|none"/);
-  assert.match(actions, /正文确实进入明确成人亲密行为时/);
+  assert.match(actions, /正文确实进入明确亲密行为时/);
   assert.match(actions, /必须为 sexual/);
   assert.match(actions, /不得停留在 nude/);
   assert.doesNotMatch(actions, /GensokyoScene/);
@@ -1978,6 +1988,28 @@ test('时段 schema 接受口语别名并映射到四值', async () => {
   assert.match(schema, /晚上:\s*'夜晚'/);
   const rules = await read('../src/lorebook/variable-update-rules.md');
   assert.match(rules, /只能是：清晨、白昼、黄昏、夜晚/);
+});
+
+test('变量模型规则只保留写入合同，不携带本地事件施工手册', async () => {
+  const rules = await read('../src/lorebook/variable-update-rules.md');
+  const format = await read('../src/lorebook/variable-output-format.md');
+  const ledger = await read('../src/schema/field-ledger.md');
+  assert.ok(Buffer.byteLength(rules, 'utf8') < 7000, '变量更新规则应保持为紧凑合同');
+  assert.ok(Buffer.byteLength(format, 'utf8') < 1000, '输出格式只负责外壳，不应重复更新规则');
+  assert.match(rules, /变量模型只可写以下内容/);
+  assert.match(rules, /本地 bridge 独占以下根或语义/);
+  assert.match(rules, /不得通过替换父对象绕过禁写子路径/);
+  assert.match(rules, /interaction\.conversation_log.*已退役/);
+  assert.match(rules, /interaction\.visit_memory.*全部路径/);
+  assert.doesNotMatch(rules, /main_house_enabled|greenhouse_flower_core_tutorial_v1|rewarded_ids|zako_tag_count/);
+  assert.doesNotMatch(rules, /12\/24|28 个标准时段|80 金币|4 物资|3 物资/);
+  assert.match(format, /以 `\[mvu_update\] 变量更新规则` 为准/);
+  assert.match(format, /interaction\.visit_memory.*bridge 独占.*禁止输出/);
+  assert.doesNotMatch(format, /不得整体替换|向数组末尾追加元素|replace` 的目标必须已存在/);
+  assert.match(ledger, /interaction\.current_session[^\n]*bridge 创建\/关闭\/结算/);
+  assert.match(ledger, /interaction\.settled_ids[^\n]*bridge/);
+  assert.match(ledger, /battle\.settled_ids[^\n]*bridge/);
+  assert.match(ledger, /key_items[^\n]*变量模型禁写/);
 });
 
 test('R19 温室行动按线索、灵感、清理、建造和首次使用逐段解锁', async () => {
@@ -2499,7 +2531,6 @@ test('返回原生聊天后重新打开游戏会主动校正事务状态', async
 test('庭园主线只使用本地白名单结算，不依赖预设的第二次解析', async () => {
   const bridge = await read('../src/ui/bridge.ts');
   const registry = await importTypescript('../src/ui/event-registry.ts');
-  const rules = await read('../src/lorebook/variable-update-rules.md');
   const contract = await read('../project/contract.md');
   const app = await read('../src/ui/app.ts');
   assert.match(bridge, /\/trigger await=true/);
@@ -2514,10 +2545,41 @@ test('庭园主线只使用本地白名单结算，不依赖预设的第二次�
   assert.match(bridge, /before\.battle\?\.current\?\.outcome/);
   assert.doesNotMatch(bridge, /json_schema/);
   assert.doesNotMatch(bridge, /第二次结算解析/);
-  assert.match(rules, /不发起第二次模型解析/);
   assert.match(contract, /不发起第二次模型解析/);
   assert.match(app, /restoreInputOnFailure: false/);
   assert.match(app, /galCompose\.hidden = streaming \|\| singleShotEventPresentation/);
+});
+
+test('全部教程剧情动作统一采用本地白名单与非空回复回执', async () => {
+  const settlement = await importTypescript('../src/ui/event-settlement.ts');
+  const registry = await importTypescript('../src/ui/event-registry.ts');
+  const tutorialEventIds = [
+    'reimu_boundary_inspection',
+    'main_house_repair',
+    'marisa_material_rumor',
+    'gain_second_inspiration',
+    'clear_greenhouse_foundation',
+    'build_basic_magic_greenhouse',
+    'greenhouse_first_use',
+    'greenhouse_multiturn_conversation',
+    'greenhouse_flower_core',
+    'greenhouse_free_growth_proposal',
+    'alice_greenhouse_maintenance_proposal',
+    'nitori_greenhouse_automation_proposal',
+    'select_greenhouse_form',
+  ];
+  for (const eventId of tutorialEventIds) {
+    const event = registry.eventById.get(eventId);
+    assert.ok(event, `${eventId} 必须登记在事件注册表`);
+    assert.ok(event.trigger_action_ids.length > 0, `${eventId} 必须提供教程动作`);
+    for (const actionId of event.trigger_action_ids) {
+      assert.equal(settlement.isLocalSettlementActionMarker({
+        version: 'garden-action.v1',
+        action_id: actionId,
+        event_id: eventId,
+      }), true, `${eventId}/${actionId} 必须走最简回执链路`);
+    }
+  }
 });
 
 test('R29 副本只由本地白名单结算金币、时段与幂等记录', async () => {
@@ -3179,7 +3241,7 @@ test('L2c 固定事件 leave 迁移的 meta 清理与真正新增判定', async 
   assert.equal(trulyNew.marisa.arrived_period_serial, 15);
 });
 
-test('L5 固定结算写盘前按 restore→settle→presence→reconcile→write→projection 顺序执行', async () => {
+test('L5 固定剧情收到非空回复后按 restore→settle→presence→reconcile→write→projection 直接结算', async () => {
   const bridge = await read('../src/ui/bridge.ts');
   const persist = bridge.slice(
     bridge.indexOf('const persistLocalSettlement = async'),
@@ -3191,7 +3253,8 @@ test('L5 固定结算写盘前按 restore→settle→presence→reconcile→writ
     /const settledState = applyLocalSettlement\(/,
     /const nextState = hasLocalPresenceTransition\(action\)[\s\S]*?\? settledState[\s\S]*?:\s*applyPresenceUpdate\(settledState, assistantText\)/,
     /return reconcileM2Runtime\(safeCurrent, nextState, currentChatId\(\)\)/,
-    /const outcome = await finalizeAcceptedAssistant\(\{/,
+    /data\.stat_data = transformFinalState\(/,
+    /await mvu\.replaceMvuData\(data, options\)/,
     /settlementProjection\(reread, action, assistantMessageId,/,
   ];
   let cursor = 0;
@@ -3200,6 +3263,8 @@ test('L5 固定结算写盘前按 restore→settle→presence→reconcile→writ
     assert.ok(match >= 0, `persistLocalSettlement 应包含 ${step}`);
     cursor += match + 1;
   }
+  assert.doesNotMatch(persist, /finalizeAcceptedAssistant|applyVisitTurnsToFinalState|requireAcceptedAssistantIdentity/);
+  assert.match(bridge, /receiptPolicy:\s*action\s*\?\s*'next-nonempty-assistant'\s*:\s*'exact-attempt'/);
 });
 
 test('R33 爱丽丝维护方案与受控会话 UID 都由 bridge 本地链路拥有', async () => {

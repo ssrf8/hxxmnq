@@ -775,10 +775,10 @@
       },
       "geometry": {
         "width_ratio": 0.291,
-        "render_center": [0.19, 0.274],
-        "ground_anchor": [0.20, 0.42],
-        "label_anchor": [0.19, 0.105],
-        "hit_polygon": [[0.08, 0.34], [0.09, 0.22], [0.13, 0.14], [0.22, 0.12], [0.29, 0.18], [0.30, 0.33], [0.25, 0.41], [0.15, 0.42]]
+        "render_center": [0.19, 0.150],
+        "ground_anchor": [0.20, 0.230],
+        "label_anchor": [0.19, 0.057],
+        "hit_polygon": [[0.08, 0.186], [0.09, 0.120], [0.13, 0.077], [0.22, 0.066], [0.29, 0.098], [0.30, 0.180], [0.25, 0.224], [0.15, 0.230]]
       },
       "render_contract": "four V3 transparent sprites selected from facilities.magic_greenhouse.current_form; all forms share one normalized canvas and V3 geometry; real-SillyTavern anchor, occlusion and hit validation pending",
       "provenance": "owner-supplied V3 full-map differences extracted against garden-base-owner-v3, normalized with a 24px transparent safety border, and integrated 2026-07-30"
@@ -795,10 +795,10 @@
       "damage_replacement_alpha": "world/map-facilities/fairy-garden/fairy-garden-ruins-v3.webp",
       "geometry": {
         "width_ratio": 0.255,
-        "render_center": [0.81, 0.36],
-        "ground_anchor": [0.82, 0.51],
-        "label_anchor": [0.81, 0.20],
-        "hit_polygon": [[0.68, 0.43], [0.69, 0.30], [0.72, 0.23], [0.84, 0.21], [0.92, 0.27], [0.94, 0.40], [0.90, 0.50], [0.76, 0.52]]
+        "render_center": [0.81, 0.197],
+        "ground_anchor": [0.82, 0.279],
+        "label_anchor": [0.81, 0.109],
+        "hit_polygon": [[0.68, 0.235], [0.69, 0.164], [0.72, 0.126], [0.84, 0.115], [0.92, 0.148], [0.94, 0.219], [0.90, 0.273], [0.76, 0.284]]
       },
       "render_contract": "three V3 transparent normal sprites plus one owner-provided shared ruin replacement on the same normalized canvas and V3 geometry; damaged replaces the normal form instead of overlaying it; real-SillyTavern validation pending",
       "provenance": "normal forms are owner-supplied V3 full-map differences; the damaged replacement is deterministically normalized from the owner-provided 2026-07-30 transparent ruin image without generative redraw"
@@ -815,10 +815,10 @@
       "damage_replacement_alpha": "world/map-facilities/moon-spring/moon-spring-ruins-v3.webp",
       "geometry": {
         "width_ratio": 0.255,
-        "render_center": [0.22, 0.70],
-        "ground_anchor": [0.23, 0.60],
-        "label_anchor": [0.22, 0.55],
-        "hit_polygon": [[0.10, 0.76], [0.11, 0.63], [0.16, 0.57], [0.29, 0.56], [0.40, 0.61], [0.46, 0.72], [0.42, 0.82], [0.31, 0.85], [0.16, 0.84]]
+        "render_center": [0.22, 0.383],
+        "ground_anchor": [0.23, 0.328],
+        "label_anchor": [0.22, 0.301],
+        "hit_polygon": [[0.10, 0.415], [0.11, 0.344], [0.16, 0.311], [0.29, 0.306], [0.40, 0.333], [0.46, 0.393], [0.42, 0.448], [0.31, 0.464], [0.16, 0.459]]
       },
       "render_contract": "three V3 transparent normal sprites plus one owner-provided shared ruin replacement on the same normalized canvas and V3 geometry; damaged replaces the normal form instead of overlaying it; real-SillyTavern validation pending",
       "provenance": "normal forms are owner-supplied V3 full-map differences; the damaged replacement is deterministically normalized from the owner-provided 2026-07-30 transparent ruin image without generative redraw"
@@ -835,10 +835,10 @@
       "damage_replacement_alpha": "world/map-facilities/banquet-plaza/banquet-plaza-ruins-v3.webp",
       "geometry": {
         "width_ratio": 0.265,
-        "render_center": [0.78, 0.69],
-        "ground_anchor": [0.70, 0.79],
-        "label_anchor": [0.78, 0.53],
-        "hit_polygon": [[0.65, 0.75], [0.66, 0.61], [0.70, 0.55], [0.83, 0.54], [0.91, 0.59], [0.94, 0.70], [0.91, 0.81], [0.82, 0.85], [0.70, 0.83]]
+        "render_center": [0.78, 0.377],
+        "ground_anchor": [0.70, 0.432],
+        "label_anchor": [0.78, 0.290],
+        "hit_polygon": [[0.65, 0.410], [0.66, 0.333], [0.70, 0.301], [0.83, 0.295], [0.91, 0.322], [0.94, 0.383], [0.91, 0.443], [0.82, 0.464], [0.70, 0.454]]
       },
       "render_contract": "three V3 transparent normal sprites plus one owner-provided shared ruin replacement on the same normalized canvas and V3 geometry; damaged replaces the normal form instead of overlaying it; real-SillyTavern validation pending",
       "provenance": "normal forms are owner-supplied V3 full-map differences; the damaged replacement is deterministically normalized from the owner-provided 2026-07-30 transparent ruin image without generative redraw"
