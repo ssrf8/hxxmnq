@@ -659,6 +659,26 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 @media (max-width: 700px) {
   .gg-sound-settings { grid-template-columns: 1fr; }
 }
+.gg-save-panel {
+  margin: 0 0 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(214, 181, 119, .42);
+  border-radius: 14px;
+  background: rgba(24, 28, 30, .72);
+}
+.gg-save-panel legend { padding: 0 .4rem; color: #e7c57f; font: 700 .92rem var(--gg-font-serif); }
+.gg-save-panel > .gg-note { margin: 0 0 .8rem; }
+.gg-save-slots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem; }
+.gg-save-slot { display: grid; grid-template-columns: 1fr auto; gap: .55rem; align-items: center; padding: .75rem; border: 1px solid rgba(214, 181, 119, .25); border-radius: 10px; background: rgba(8, 12, 14, .48); }
+.gg-save-slot-copy { display: grid; gap: .18rem; min-width: 0; }
+.gg-save-slot-copy strong, .gg-save-slot-copy small { overflow-wrap: anywhere; }
+.gg-save-slot-copy small { color: var(--gg-muted); }
+.gg-save-slot-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .4rem; }
+.gg-save-slot-actions button { min-height: 40px; }
+.gg-save-panel[aria-busy="true"] { opacity: .78; }
+@media (max-width: 700px) {
+  .gg-save-slots { grid-template-columns: 1fr; }
+}
 .gg-test-tools {
   display: none;
   margin-top: 1.25rem;

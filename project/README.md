@@ -1,7 +1,7 @@
 # 幻想乡物语 · 项目总览（唯一入口文档）
 
 > 读完本文档即可对整个项目建立全貌认知；需要深入某个领域时，按 §3 导航表跳转对应文档。
-> 最后整理：2026-08-08（角色登场／退场“赖场”主链完成两轮修复并通过独立离线验收；真实 SillyTavern 实机验收仍待执行）。
+> 最后整理：2026-08-09（GAL 发送、监听、停止、重生成、角色分次入场记忆、合成历史、双 memory profile、脱敏诊断导出、MVU 多槽存读与请求期提示词楼层注入均已完成代码逻辑施工；全量静态测试 702/702，真实宿主存读与最终 prompt 顺序仍待可选操作核对）。
 
 ---
 
@@ -27,12 +27,15 @@
 | 错误留档（禁止导入） | `0.2.0-r72`（280,326,339 bytes）——最后一次构建误为 embedded，导致全素材内嵌；保留作事故证据，后续改动改由 r73 remote-r2 候选重新打包 |
 | 已实机验收基线 | `0.2.0-r32-extra-model-binding`（角色世界书绑定 + 额外模型变量路线） |
 | 里程碑 | M0 complete / M1 施工完但 R37 集中验收未跑 / M2 施工完但 R45 验收未跑 / M3 进行中 |
-| 离线门禁 | r94 已发布基线保持不变（loader 2,613B，远端 UI SHA-256 `17774106…e7e8`）。下一本地候选已升为 r95：`check:ui` 通过；远程 UI 专项 4/4；连续两次 remote build 字节与 SHA 一致；UI 发布 dry-run 与 `package:checkpoint:dry` 通过（卡 298,937B、强校验 loader 4,231B、UI 1,880,906B / SHA-256 `375f1cd8…4d061`）。加入赖场回归后的当前全量测试为 234/235，唯一失败仍是修复前已存在的「GAL 回复落盘后释放本地提交锁」测试定位正则，与本轮远程交付及赖场修复无关。r95 未上传、未正式写卡；真实 SillyTavern 验收待执行 |
+| 离线门禁 | 当前工作区 `npm run check:ui` 通过，`npm test` **702/702 PASS**，`git diff --check` 通过。r94 已发布基线与 r95 本地候选指针保持不变；本轮未构建、未上传 R2、未发布、未打包，`reasonix.toml` 明确排除于提交。 |
 | 角色来访生命周期 | 2026-08-08 完成两轮“赖场”修复并通过独立离线验收：模型在场回执保留仍在场角色的 `visitor_meta`、固定事件只为真正新增角色生成事件 meta、deferred 计划可恢复、邀请结果不再谎报、固定结算写盘前统一协调、`planned_departure_serial=0` 可正常离场。聚焦测试 15/15；项目全量 234/235，唯一失败为预存 GAL 源码正则测试。旧存档已丢失的 meta 不追溯恢复；真实 SillyTavern 实机验收待执行 |
 | 角色人设世界书 | 第一版八名固定角色均已完成完整人设扩写，并继续各占一个独立绿灯条目，连同八条基础世界书共 16 条。米斯蒂娅已补齐老板娘／歌手、料理与账目反差、夜雀能力及撤离型战斗逻辑；咲夜已补齐潇洒与天然、对蕾米莉亚的主动忠诚、时间／空间／飞刀／料理及能力边界。所有者私设与原作资料分层标注；人设内部增加小节不会增加世界书条目数。八人仍待真实对话统一复核语气密度、关系递进、能力尺度和提示预算 |
 | 道具绿灯世界书 | 新增 `item-greenlight.v1` 路由表（`src/lorebook/item-routing.json`）与 8 条道具世界书（`src/lorebook/items/*.xml`）：振动棒、跳蛋（无角色限定，写明适用范围），金币·钓饵（限灵梦）、青蛙诱饵／冰之玩具（限琪露诺）、梦境菇·同步／服从之页（限魔理沙）、人偶化·暂停（限爱丽丝）。条目由 `GSK_ITEM_*_ACTIVE` 绿灯标记按 `scene_item_context` 登记加载，与角色绿灯同构（注入【道具档案绿灯】段、防递归诱发）；打包条目 id 从 18 起，`lorebook_entries` 现为 25（17 基础／角色 + 8 道具）。效果限定只在条目内容层约束模型，代码级强制未做 |
 | 怀表·时停（r81） | 十六夜咲夜的怀表是世界书 26 条中的 `[mvu_plot][special]` const 常驻条目（`src/lorebook/items/sakuya_watch.xml`，entry 16），不依赖场景道具绿灯。使用后 `key_items.sakuya_watch.time_stop_active=true`，`buildPromptContext` 注入【时间停止】段（角色定身、不能主动行动/说话/反应，玩家可自由行动，不替被定身角色编写反应）；`advanceOneTimePeriod` 跨时段自动复位（时停只持续当前时段）。一天一次、战斗不可用、可留下时间痕迹触发调查事件 |
-| 跨对话记忆（r80） | `interaction.conversation_log`：string[]，**所有角色共用一个数组**，每条格式 `角色ID: 一句话摘要`（≤120 字），由模型每轮在 UpdateVariable 中追加；schema `list(text('',120),24)` 为**追加+截断 FIFO**——新条目追加到末尾、不覆盖旧条目，超过 24 条时最旧被挤出。结束对话不清空；重新开场时 `buildPromptContext` 取尾 6 条、按在场角色 ID 过滤注入【最近互动回顾：结束对话不会抹去这些记忆】段（不在场角色的条目不注入）。字段登记见 `src/schema/field-ledger.md` |
+| GAL 角色入场记忆与合成历史 | 旧 `interaction.conversation_log` 已退役为只读迁移源。正式状态改为每名登记角色独立 `visit_memory`：剧情回合总容量 48、active visit 最多 16 回合、closed visit 最多 4 次，另有 12 条关系记忆（关系状态记录朋友／恋人等当前关系，关系事件记录亲密里程碑）。每次角色重新入场产生新的 visit；当前 visit 与过去 visit 分块投影为一条非空 system synthetic history，旧真实聊天楼层不进入请求。send/retry/regenerate 复用冻结的 V2 request/history。standalone-mvu 与 database-assisted 两 profile 的卡内召回逐字节相同；数据库不参与、不替代、不增强本卡召回构造。详见第四批 R2 文档。 |
+| GAL 脱敏诊断导出 | 设置页提供用户主动触发的本地 JSON 下载，固定 schema `gensokyo-diagnostic.v1`。只导出受控版本、枚举、状态计数和每次导出随机盐 SHA-256 短引用；不读取聊天历史或数据库内容，不包含玩家输入、剧情／关系摘要、DOM、stack、token、Cookie 或凭据，不写 MVU/localStorage，也不上传网络。UTF-8 硬上限 64 KiB；host/preview 共用同一构造器。静态逻辑已封账，真实宿主点击下载未验。 |
+| MVU 存档／读档 | 设置页新增 8 个手动槽。每槽在当前聊天绑定世界书中以永久禁用、空关键词、禁递归的 meta + UTF-8 chunk 保存当前活动页完整楼层和一份完整 MvuData；单槽上限 8 MiB，SHA-256、字节数、分块连续性和 schema 任一不符均在删楼前拒绝。读档倒序分批删楼、按原序重建每层原 `data`，再直接恢复 chat-scope MVU；不保存 swipe、`extra` 或旧 request/transaction/regeneration metadata，也不为最后 assistant 人工补状态。破坏阶段失败会用内存副本恢复旧聊天和旧 MVU。代码逻辑与 fake-host 回滚矩阵已静态通过，真实宿主世界书写盘／重载时序未验。 |
+| GAL 请求期提示词注入 | 新请求固定为 `gal-prompt.v2`：玩家原文只进入 `user_input`；庭园正文协议、在场快照、场景事实及角色／道具授权只进入一条 depth 1 `system/in_chat` inject；每角色 synthetic history 只进入 `overrides.chat_history.prompts`，并固定 `with_depth_entries:false`，不发送原生旧聊天历史。请求 metadata 冻结注入与 hash，send/retry/regenerate 复用同一请求；旧 `gal-prompt.v1` 只按无 inject 旧语义恢复。`GensokyoScene` 不再发送给模型，旧解析仅作本地兼容。 |
 | 像素角色动画 | Alice、Cirno、Mystia、Nitori、Reimu、Sakuya、Suika 的 604 张所有者验收独立帧已按原字节归档，并生成 `209×209`、逐角色可变列的 `sequence-approved-v1` 图集接入庭园运行时；七人仅在移动时播放各自的 `80–110ms` 四方向序列，休息、转向预备、收步及 reduced motion 优先显示现有 `2×2` 四视图 turnaround 静态待机图，不播放待机切帧、呼吸或上下浮动；静态图按角色和朝向应用从素材透明包围盒实测得到的缩放、水平中心与脚底对齐参数，使其与对应动作帧保持同一视觉尺寸，加载失败时才回退动作图对应方向首帧。运行时已由固定横向往返升级为区域锚点周围的受限二维随机巡游：每次选择一个上下左右单轴长程，单段距离为 `0.034–0.080`，典型移动约持续 `2–5s`；抵达后保持朝向、收步并强制休息，再生成下一次行动。加载失败自动回退旧 V2 或旧四帧图集。Cirno 使用独立方向锚点，Suika 保留 `y≈313` 源锚点和已修正的背面顺序。魔理沙本批无序列，继续使用 V2 r2，停止时同样使用 turnaround 对应朝向站姿。旧 `sequence-v1` P0 候选未覆盖。详见动画专项文档 §13.7 |
 | 庭园地图分层 | 2026-08-08 底图升级为 v4 拼接版 `garden-base-owner-v4.webp`（1672×1722：v3 底图 1672×941 于 (0,0) + 下段新图 1672×941 于 (0,781)，由 `scripts/stitch-map-layers.mjs` 确定性合成，PNG 维护源同目录，SHA-256 见 `project/map-stitch-2026-08-08.json`）。中央主屋继续直接复用底图。13 张 V3 正常设施形态按四组共享透明画布接入，登记独立尺寸、渲染中心、角色落脚点、标签锚点与精确命中多边形；损坏形态由三组共享废墟替换图提供。导航蒙版 `garden-no-walk-mask-v1.svg` 画布随 v4 扩展至 1722，旧河道/池面/桥面形状坐标保持；下段新图区域（y 941–1722）未登记阻挡、待所有者确认；重叠带 y 781–941 保留原河道阻挡。区域归一化坐标 `src/ui/garden-spatial.ts` 已按 941/1722 重算（视觉位置不变）。v4 尚未打包、未上 R2、实机验收待执行；v3 原图保留为合成源。详见 `project/map-stitch-2026-08-08.md` 与 `project/garden-navigation-mask-contract.md` |
 | 前端视觉入口 | 顶栏只保留「幻想乡案内」入口；打开原生单例大面板后，以大尺寸平滑插画卡进入符卡副本、灵梦小店与背包，开放庭园／全屏／设置作为次级操作。角色点击菜单为八名登记角色统一提供一次“摸摸头”与本地「符卡对战」；后者不消耗道具，战后用弹窗明确结算杂鱼标签（胜利减一、失败加一，标签降低后续对战强度）。设施“查看”只显示文字详情；背包为独立道具袋视图（每页 4 件，翻页控件）；GAL 道具选择为御札式选择槽（每页 6 件，长按看详情，怀表可即时使用）。符卡副本选关为单卡居中的横版关卡公告卡。浏览器缩放补偿只服务角色小人与目标菜单，地图滚轮缩放保持锚点语义 |
@@ -40,8 +43,8 @@
 | GAL 视觉 | 舞台使用 `gensokyo-gal-shrine-background-v1.png`；顶部新增小型“历史”按钮并复用既有滚动弹窗。新玩家消息以 `gensokyoUserVisibleText` 元数据区分真实可见输入与程序提示：手动输入显示原文、建议回应显示按钮文字，自动设施／事件提示不冒充玩家发言；旧聊天采用保守净化兼容。所有文本以 `textContent` 渲染，关闭弹窗后焦点返回入口。LLM 表现协议、`scene.v1` 与庭园正文继续支持 `normal / nude / sexual` 三值 `visual_mode`；真实 SillyTavern 的历史净化、键盘焦点、逐表情与窄屏仍待执行 |
 | 弹幕战视觉／音效 | etama3 敌弹图集按 shape×hue 绘制并保留几何回退；自机普通／专注射击使用米白纸符、深色描边、红／青符印、金色顶签与双尾带，不再复用敌弹式辉光椭圆；P 点保留红方块白像素 P，并增加独立四角拾取框。固定三副本与任意角色符卡对战均使用独立 Boss 四状态图集及 S0／S1／S2 cut-in；花妖核心与蓝／金双帧妖精 sprite 已接入。14 个事件 WAV 通过应用级 WebAudio 总线播放；战斗弹窗可暂停，并通过内置“音频设置”分别控制音效、BGM 曲目和 BGM 音量。BGM 目录当前仅有三首 `source_url:null` 模板，未来只接受 HTTPS R2 曲源，缺曲静默且不阻塞模拟；偏好只存本机。手机拖动自动射击、双指专注、双击 Bomb 与桌面键盘语义保持。模拟、碰撞、结算和 `BattleResult` 未因视觉／音频设置改变；真实 SillyTavern 的音频权限、纸符可读性、四状态、cut-in、妖精动画、多点触控和宿主缩放仍待验收 |
 | 素材发布 | 唯一桶 `hxxwy` 的当前不可变 release 为 `0.2.0-r62-0e5ecacdee9f`：114 个素材共 54,971,703 bytes，manifest 最后上传；113 个对象通过 HEAD 元数据校验，SVG 通过 GET 字节与 SHA-256 兜底，琪露诺更新 WebP 完整 GET 哈希匹配，公网 manifest 与本地逐字节一致。声明哈希为 `0f068864…5a8965`。轻量包最后一次构建必须显式使用该 manifest；详见 `project/r2-packaging-runbook.md`。旧 release 暂不删除，因为 r56–r61 仍固定引用 `0.2.0-r55-1ef0d7d6cbab` |
-| 活跃工作线 | ①修复战斗素材普通预加载与 anonymous CORS atlas 的缓存模式冲突，新增顺序回归测试并发布新的不可覆盖 release ②在浏览器与真实 SillyTavern 复验玩家、Boss、敌弹、特效、妖精贴图及首次手势解锁、暂停恢复、音效／BGM 分轨、缓存和断网回退，之后再决定是否关闭 `r2.dev` ③机遇卡、对战卡与杂鱼标签阶段 A–C 已完成，等待正式卡面／小鱼干素材并验收胜败分流 ④按设施清单验收共享废墟、命中和缩放 ⑤R11–R16、弹幕和 M1/M2 集中实机验收欠账 ⑥道具绿灯世界书 8 件已完成（含仅对爱丽丝生效等限定），等待真实 SillyTavern 导入验收限定效果；服从之页／人偶化等限定的代码级强制未做 |
-| 目标环境 | SillyTavern 1.18.0 + Tavern Helper 4.8.19 + MagVarUpdate（固定 commit） |
+| 活跃工作线 | ①GAL 事务、角色记忆四批、第五批脱敏诊断、第六批 MVU 多槽存读与提示词楼层注入均已完成静态代码逻辑施工 ②原生 branch/checkpoint 方案已作废，存档只采用“聊天上下文 + 完整 MVU”的聊天世界书槽位 ③动态临时世界书与独立模型语义召回不属于当前正确性依赖，未实施也不阻塞 ④仍待真实宿主核对的主要是存读写盘／回滚与最终 prompt 顺序；既有地图、弹幕、素材、M1/M2 和发布验收欠账不因本轮静态通过自动结清 |
+| 目标环境 | SillyTavern 1.18.0 + Tavern Helper / JS-Slash-Runner 4.8.18 + MagVarUpdate（固定 commit） |
 
 ## 3. 导航表：想了解什么 → 读哪个文档
 
@@ -79,6 +82,12 @@
 | 从素材 staging、R2 上传到轻量角色卡打包的逐步命令与删除规则 | `project/r2-packaging-runbook.md`（打包／上传前先读） |
 | 战斗 BGM 曲目模板、R2 URL 填写与缺曲回退 | `project/battle-bgm-r2-template.md` |
 | GAL 正常／全裸／成人姿势变量、稳定抽卡与 R2 滚动卡池 | `project/gal-portrait-variable-and-r2-pool-plan.md` |
+| GAL 第三批重生成同构：V2 请求复用、指定 swipe、基线重算与独立验收 | `project/gal-character-memory-batch-3-regeneration-runbook.md` |
+| GAL 四批总计划、双 profile 数据库共存最终裁定与实施日志 | `project/gal-character-visit-memory-and-synthetic-history-plan.md` → `project/gal-character-memory-batch-4-database-coexistence-replan.md` → `project/gal-character-memory-batch-4-implementation-log.md` |
+| `docs/` 参考资料与当前项目差距、下一可实施候选 | `project/docs-reference-next-implementation-audit.md` |
+| GAL 第五批脱敏诊断导出：施工合同、隐私白／黑名单、实现证据与静态裁定 | `project/gal-diagnostic-export-batch-5-runbook.md` → `project/gal-diagnostic-export-batch-5-implementation-log.md` |
+| GAL 第六批 MVU 存档／读档：世界书多槽、聊天重建、chat-scope MVU 恢复与失败回滚 | `project/gal-mvu-save-load-plan.md` → `project/gal-mvu-save-load-implementation-log.md` |
+| GAL 请求期提示词楼层注入：纯玩家输入、depth 1 inject、冻结重生成与旧 revision 兼容 | `project/gal-prompt-floor-injection-plan.md` |
 | 成人体位图片固定名称、灵梦缺图首发与后续只更新 R2 的操作合同 | `project/nsfw-pose-live-asset-naming-plan.md` |
 | 灵梦首批成人 CG 的本地审计、台账、客户端前置与 R2 live 上传／回滚计划 | `project/nsfw-cg-r2-live-update-plan.md` |
 | 面向后续主 Agent／子 Agent 的成人 CG 逐步执行手册、命令、停止条件与报告模板 | `project/nsfw-cg-agent-execution-runbook.md` |
@@ -118,7 +127,7 @@ src/shop/        商店目录
 src/assets/      像素素材 + asset-manifest.json（批量生成后统一评审制）
 旧素材/          历史、废弃、被拒绝或可重新生成素材归档（保留原相对路径，不参与构建）
 scripts/         build-ui / package-checkpoint / preview-server
-tests/           三份契约测试（UI 契约 / 弹幕引擎 / M2 规则），esbuild 直测真实源码
+tests/           Node 契约／纯函数／构建隔离测试；当前全量 678 项，部分测试用 esbuild 直测真实源码
 project/         全部文档（本文件所在）
 dist/            构建产物与历史检查点——不进 git，不许覆盖
 ```
@@ -127,7 +136,7 @@ dist/            构建产物与历史检查点——不进 git，不许覆盖
 
 ```bash
 npm run check:ui              # TypeScript 类型检查
-npm test                      # node --test，当前 214 项
+npm test                      # node --test，当前 678 项
 npm run build:ui              # esbuild 打包 + 素材内嵌 → dist/
 npm run check:assets:r2       # R2 活动素材、调度元数据与发布边界预检
 npm run package:checkpoint:dry  # 打包演练（不落盘成品）
@@ -152,5 +161,5 @@ npm run preview               # 本地预览 http://127.0.0.1:8765/ui/index.html
 
 1. 读本文档 §1–§6 → `project/agent-handoff.md` 最新条目 → `project/contract.md`。
 2. 按任务领域从 §3 导航表补读对应细则（美化 → plan+log；弹幕 → handoff+protocol；运行时 bug → r48-gal-transaction-repair-log）。
-3. 动手前与收工前各跑一遍离线门禁；若基线已有失败，记录精确测试名与原因，不得把既有失败归到本轮，也不得写成“全绿”。当前离线基线为 234/235；唯一已知失败是「GAL 回复落盘后释放本地提交锁时，重新渲染道具选择器」测试无法定位提交收尾，属于远程 UI 与赖场修复前已存在的问题。
+3. 动手前与收工前各跑一遍离线门禁；若基线出现失败，记录精确测试名与原因，不得修改阈值掩盖。当前工作区基线为 `check:ui` 通过、`npm test` 678/678、`git diff --check` 通过。
 4. 文档更新纪律：状态变化写 `agent-handoff.md` 顶部新条目；专项进展写对应 log；本文件只在"导航结构或项目形态变化"时更新。

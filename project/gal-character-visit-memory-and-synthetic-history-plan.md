@@ -1,9 +1,11 @@
 # GAL 角色入场记忆与合成历史重构计划
 
-> 状态：规划稿，尚未实施
+> 状态：四批静态实施与返修均已完成并封账；最终数据库共存裁定以 `gal-character-memory-batch-4-database-coexistence-replan.md` 为准
 > 范围：GAL 发送、历史投影、角色离场/再次入场、每角色剧情记忆、每角色关系记忆、数据库增强版、重生成一致性
-> 不在本轮范围：代码修改、卡片打包、R2 发布、实机探针、提示词体系全面重写
+> 本总计划不直接授权：卡片打包、R2 发布、实机探针、提示词体系全面重写；代码修改只按已经单独批准的分批施工单实施
 > 目标运行时依据：SillyTavern 1.18.0 + Tavern Helper / JS-Slash-Runner 4.8.18
+
+> 分批入口：第一批数据基础、第二批发送与合成历史、第三批重生成、第四批双 profile／数据库共存均有独立 runbook 与实施日志；本总计划只保留总合同，冲突时以后批最终裁定和较新的封账记录为准。
 
 ---
 
@@ -331,32 +333,34 @@ by_character 是真正的按角色分库。灵梦、魔理沙等角色不再争�
 #### database-assisted：SP·数据库 VII 增强版
 
 - 建议显示名：幻想乡物语－数据库增强版；
-- 使用现有 AutoCardUpdaterAPI 适配层；
-- MVU 仍保留同样的每角色 48 条剧情梗概 + 12 条关系记忆，作为当前正式状态和离线兜底；
-- 数据库在 MVU 成功结算后异步归档新增/更新的剧情梗概和关系记忆；
-- 超出 MVU 上限的更早记录可从数据库按角色、日期和类别召回；
-- 数据库不可用、超时或写失败不阻断 GAL，不撤销 MVU 提交；
-- 数据库返回内容只作为经过校验的历史候选，不覆盖 active visit、presence、当前关系事实或其他正式状态。
+- MVU 使用与独立版逐字节相同的每角色 48 条剧情梗概 + 12 条关系记忆；
+- synthetic history、hash、request 与 config fingerprint 均不得因 profile 改变；
+- 不主动归档、查询、合并或裁剪数据库记忆；
+- SP·数据库若已安装，可在宿主层独立执行填表、剧情推进和世界书召回；
+- 数据库不可用、关闭或失败不改变本卡 frozen request，也不触发历史切换；
+- 数据库外部文本不能覆盖 active visit、presence、当前关系事实或其他正式状态。
 
 两个版本必须从同一源码和同一 schema 生成，只允许以下差异：
 
 - build profile；
-- 是否装配 database archive/recall adapter；
-- 诊断文案与数据库状态 UI；
-- 数据库增强版的召回来源标记。
+- standalone 是否彻底移除数据库桥；
+- database-assisted 是否保留宿主共存桥；
+- 诊断文案与插件可见性 UI。
 
 不得复制一份 standalone 分支再手工维护 database 分支。
 
 存档兼容：
 
 - 两版使用相同 MVU schema version；
-- 独立版存档切到数据库增强版时，将现有每角色 48 + 12 幂等归档；
-- 数据库增强版切回独立版时，MVU 内仍有完整 48 + 12，不依赖数据库才能继续；
-- 数据库中超过 MVU 容量的冷归档不会反向塞满 stat_data；
+- 两版切换时不迁移、不归档、不回填卡内记忆；
+- 任一版本的 MVU 内均有相同 48 + 12，不依赖数据库继续；
+- 数据库 rows、AM、世界书内容和诊断均不写入 stat_data；
 - 构建 profile 属于发布元数据，不允许模型通过变量修改；
 - 两个产物名称和目录必须明确分开，但都不占用正式版既有文件名，具体打包规则继续服从 R2 测试通道规划。
 
 ### 4.9 数据库逻辑表契约
+
+> **R2 SUPERSEDED**：本节及其后续 archive key、upsert、召回查询设计只保留为历史研究，不再授权生产实现。database-assisted 不为本卡记忆创建逻辑表。新的有效合同见 `gal-character-memory-batch-4-database-coexistence-replan.md`。
 
 数据库增强版至少需要两个逻辑表；物理中文表名与列名在实施 Phase 0 读取 SP·数据库 VII 当前源码/配置后锁定，规划阶段不凭猜测写死。
 
@@ -456,6 +460,15 @@ by_character 是真正的按角色分库。灵梦、魔理沙等角色不再争�
 4. 无明确目标时，才从当前在场角色按稳定顺序选择，最多 4 人。
 
 禁止因为正文提到某角色名字就自动激活该角色记忆。
+
+无角色请求边界（第二批 T08 复核修订）：
+
+- 只有入口明确要求主目标时，主目标缺失才失败；
+- 独处设施剧情、无角色过渡或当前确实无人时，允许 `relevant_character_ids=[]`；
+- 此时 `visitIdsByCharacter={}`，合成历史仍输出固定的非空 system 历史边界；
+- 请求仍使用 V2 Helper generate，不得回退真实历史；
+- 因没有角色归属，本轮不创建 VisitTurn；
+- 不得用卡片 ownerCharacterId、设施 ID 或从玩家自然语言猜出的名字伪造相关角色。
 
 ### 5.3 关系记忆候选与正式提交
 
@@ -958,7 +971,9 @@ VisitTurn 处理：
 - 无记忆时生成非空历史边界消息，绝不传空 prompts；
 - retry 使用同 history/injection hash。
 
-### Phase 6：重生成同构
+### Phase 6：重生成同构（第三批，按所有者 2026-08-09 最新批次顺序）
+
+详细实施与分工以 `project/gal-character-memory-batch-3-regeneration-runbook.md` 为准。2026-08-09 已完成第三批代码逻辑收口：候选生成、冻结基线重放、指定 swipe CAS 写入、receipt/drift、停止围栏与 reload 恢复均已接线并通过静态测试。因所有者明确本轮不做真实宿主时序或探针，事务 transport 仅在 `__GAL_REGENERATION_TRANSPORT__='helper-generate-swipe'` 时启用，默认仍为 `native-regenerate`；这不是自动降级，也不冒充真实宿主验收。
 
 - 重生成使用统一 V2 builder；
 - Helper 生成并受控写入目标 swipe；
@@ -975,25 +990,29 @@ VisitTurn 处理：
 - MVU 与 presence 不双结算；
 - 任一项代码逻辑无法证明则本阶段不通过。
 
-### Phase 7：双版本与数据库归档/召回
+### Phase 7：双版本与数据库共存
+
+> 详细实施入口：`project/gal-character-memory-batch-4-dual-build-and-database-runbook.md`
+> 当前状态：第四批 R2 已于 2026-08-09 实施并通过静态验收。B4-T01/T02/T02-R1 与 T03～T06 的静态研究结果保留，但不接生产数据库记忆 CRUD。standalone-mvu 与 database-assisted 始终使用逐字节相同的卡内 MVU 48 + 12 召回；数据库原生召回只作为宿主额外增强，本卡不读取、不合并、不去重、不依赖它。旧 O03/T07/O04/T08 执行许可全部撤销；R2-T01/O01/T02/T03/O02 已完成，运行时数据库共存未演示并记为 `DBR-C8-UNVERIFIED`。
 
 - 增加 standalone-mvu 与 database-assisted 两个 build profile；
 - 两个 profile 共享同一 schema、事务、投影与测试；
 - standalone 构建不调用 AutoCardUpdaterAPI；
-- database-assisted 接入两个逻辑表的幂等归档；
-- 只按 relevant_character_ids 召回并做 schema 校验、去重与预算裁剪；
-- 数据库失败时回退到 MVU 48 + 12，不阻断生成；
-- 增加数据库来源标签和诊断，不把数据库升级成正式状态源。
+- database-assisted 构造与 standalone 逐字节相同的 MVU 48 + 12 synthetic history；
+- 本卡不主动归档、查询、合并或裁剪数据库记忆；
+- 数据库存在、缺失、关闭或失败均不改变本卡 frozen request；
+- 数据库原生召回只作为宿主外部增强，不升级为本卡正式状态源；
+- database-assisted 只保留必要的宿主共存桥与非事务诊断。
 
 验收：
 
 - 两个构建配置没有复制业务源文件；
 - standalone 全程零数据库 API 调用；
-- database-assisted 在 DB 缺失、抛错、超时、重复记录时均安全；
-- 同 memory ID 不重复 insert；
-- 数据库旧记录不能覆盖 MVU active relationship_state；
-- 召回结果不会泄漏非相关角色；
-- 两版相同 MVU 输入产生相同基础 synthetic history，数据库版只允许增加经过预算裁剪的归档段。
+- database-assisted 的卡内请求构造阶段同样零数据库调用；
+- 两版相同 MVU 输入产生逐字节相同的 synthetic history、hash 与 config fingerprint；
+- database-assisted 不包含自建故事/关系记忆表 CRUD 的生产路径；
+- 数据库 wrapper 缺失、透传或失败时，卡内召回仍完整存在；
+- retry/regenerate 继续复用同一份冻结卡内历史。
 
 ### Phase 8：清理与文档
 
@@ -1090,12 +1109,12 @@ VisitTurn 处理：
 ### 12.7 双版本与数据库
 
 - standalone 构建无 AutoCardUpdaterAPI 调用路径；
-- database-assisted 缺 API 时核心流程完整；
-- 数据库 insert/update 幂等；
-- 数据库返回 malformed row 被拒绝；
-- 跨角色记录不泄漏；
-- MVU 同 ID 优先于数据库；
-- 数据库超时不阻断 MVU 提交；
+- 两 profile 的卡内 synthetic history、hash 与 config fingerprint 逐字节相同；
+- database-assisted 卡内请求构造阶段同样零数据库调用；
+- database-assisted 不包含自建记忆表 insert/update/query 生产路径；
+- 数据库 wrapper 缺失、透传或失败时卡内召回仍完整；
+- retry/regenerate 不读取数据库并复用冻结卡内历史；
+- 数据库外部召回不写入 MVU，也不参与 settled；
 - 每角色 48 条剧情梗概与 12 条关系记忆的 schema/体积基线；
 - 多楼层 fixture 统计 stat_data 增长，超过项目停止线时报告而非暗改额度。
 

@@ -1,11 +1,11 @@
 import type { GardenState, InteractionTarget, TargetAction } from './types';
 import { GREENHOUSE_EVENTS, greenhouseActionBlock } from './greenhouse-rules';
 import { buildEventPromptProjection } from './event-projection';
-import { eventById } from './event-registry';
 import { buildPromptContext } from './prompt-context';
 import { characterGreenlightContext, stripCharacterGreenlights } from './character-greenlights';
 import { itemGreenlightContext, stripItemGreenlights } from './item-greenlights';
 import { characterDuelBlock } from './duel-card-rules';
+import { eventById } from './event-registry';
 
 const action = (
   target: InteractionTarget,
@@ -21,16 +21,15 @@ export const gardenNarrativeContract = [
   '【庭园正文协议】',
   '把玩家可见剧情严格写在最后一个【庭园正文开始】与第一个【庭园正文结束】之间。',
   '正文内只允许 <narration>旁白或动作</narration> 与 <dialogue char="已登记角色ID" visual_mode="normal|nude|sexual" reaction="可选表情" pose="可选姿势" act="vaginal|anal|none">台词</dialogue>；多人对话必须拆成多个 dialogue。',
-  '正文结束后才能输出摘要、状态、选项、GensokyoScene、UpdateVariable 或任何其他标签；它们不会进入庭园 GAL。',
+  '正文结束后才能输出摘要、状态、选项、UpdateVariable 或任何其他标签；它们不会进入庭园 GAL。',
   '不要在正文开始前输出解释、思维链、列表或代码块。',
   '正文内严禁出现任何自我纠错说明、思考痕迹或自指文本（例如“注意：”“修正：”“应该改为”“不能放在这里”等）。发现格式错误时直接重写该行并静默输出，不得在正文中保留纠错过程。',
-  'visual_mode 只描述立绘状态：normal 正常穿着；nude 完全裸露但尚未进入明确成人亲密行为；sexual 正文已进入明确成人亲密行为（如插入、口交等）。裸露、脱衣、洗浴、拥抱或亲吻本身不能升级为 sexual；正文确实进入明确成人亲密行为时，dialogue 与 GensokyoScene 的 visual_mode 必须为 sexual，并给出已登记 pose_id 与 act_id（如 rear/vaginal），不得停留在 nude。',
-  '每轮正文结束后，在 UpdateVariable 中把本轮与在场角色的关键互动追加到 interaction.conversation_log（数组，追加一条，格式 "角色ID: 一句话摘要"，不超过 120 字）。追加必须用 JSON Patch 数组末尾写法：{"op":"add","path":"/interaction/conversation_log/-","value":"角色ID: 摘要"}，path 必须以 "/-" 结尾，value 是字符串（不要用不带 /- 的 path 写 conversation_log，那会覆盖整个数组导致历史丢失）。conversation_log 是角色跨对话记忆，结束对话不会清空，重新开场时必须记得里面的内容。没有关键互动或已在别的块写过时输出空数组。',
-  '剧情连续性：本轮【本轮道具授权】只决定本轮能否使用道具，不代表剧情分支切换或记忆重置；前文已发生的事实（包括战斗、对话、亲密行为）依然有效。玩家动作若与前文状态冲突，角色应带着前文记忆做出合理反应（困惑、质问、警惕、害羞等），不得装作什么都没发生、把玩家当陌生人或回到初见状态。输出正文前必须核对上轮正文结尾与【最近互动回顾】，保持角色状态连续。',
+  'visual_mode 只描述立绘状态：normal 正常穿着；nude 完全裸露但尚未进入明确成人亲密行为；sexual 正文已进入明确成人亲密行为（如插入、口交等）。裸露、脱衣、洗浴、拥抱或亲吻本身不能升级为 sexual；正文确实进入明确成人亲密行为时，dialogue 的 visual_mode 必须为 sexual，并给出已登记 pose_id 与 act_id（如 rear/vaginal），不得停留在 nude。',
+  '剧情连续性：本轮【本轮道具授权】只决定本轮能否使用道具，不代表剧情分支切换或记忆重置；前文已发生的事实（包括战斗、对话、亲密行为）依然有效。玩家动作若与前文状态冲突，角色应带着前文记忆做出合理反应（困惑、质问、警惕、害羞等），不得装作什么都没发生、把玩家当陌生人或回到初见状态。输出正文前必须核对上轮正文结尾，保持角色状态连续。',
   '称呼玩家时使用酒馆当前用户名（开场已注入酒馆原生宏的名字）或玩家在开场确认的姓名；姓名与称谓只用于称呼玩家，不得据此替玩家决定人称、台词、心理、关系承诺或关键选择。',
 ].join('\n');
 
-function presenceNarrativeContext(state?: GardenState) {
+export function presenceNarrativeContext(state?: GardenState) {
   if (!state) return '';
   const present = new Set(state.presence_snapshot?.present_character_ids ?? []);
   const views = state.presence_snapshot?.character_views ?? {};
@@ -53,7 +52,7 @@ function presenceNarrativeContext(state?: GardenState) {
  * is the sole authority for creating scene_item_context, so this receipt is
  * deliberately emitted after the player text on every garden request.
  */
-function sceneItemAuthorizationContext(state?: GardenState) {
+export function sceneItemAuthorizationContext(state?: GardenState) {
   const entries = state?.scene_item_context?.entries ?? [];
   if (!entries.length || state?.scene_item_context?.status === 'closed') {
     return [
@@ -611,21 +610,14 @@ export function buildActionMessage(action: TargetAction, state: GardenState) {
   const eventProjection = action.eventId
     ? buildEventPromptProjection(action.eventId, action.id, state)
     : '';
-  const event = action.eventId ? eventById.get(action.eventId) : undefined;
-  const explicitCharacterIds = [
-    ...(action.target.type === 'character' ? [action.target.id] : []),
-    ...(event?.action_results?.[action.id]
-      ? [event.action_results[action.id]!.proposer_id]
-      : event?.participants ?? []),
-  ];
-  return withGardenNarrativeContract([
+  return [
     '【庭园行动】',
     action.intent,
     eventProjection,
     settlementNotice,
     '',
     `<GensokyoAction>${JSON.stringify(marker)}</GensokyoAction>`,
-  ].join('\n'), state, explicitCharacterIds);
+  ].join('\n');
 }
 
 export function buildSettlementMessage(
@@ -647,13 +639,22 @@ export function buildSettlementMessage(
   const settlementRule = greenhouseConversation
     ? '这是 greenhouse_multiturn_conversation：请依据当前交流深度自然收尾；正式轮数、完成标记和幂等结算由本地结算器处理，不要在 UpdateVariable 中修改这些字段。'
     : '是否推进时段应依据实际内容或事件配置，普通短暂闲聊不要强制推进。';
-  return withGardenNarrativeContract([
+  return [
     '【结束当前交互】',
     `我准备结束与${label}的这次互动，向在场者自然说明自己的打算后暂时离开。`,
     `请给出一次简短自然的收尾。${settlementRule}`,
     '',
     `<GensokyoAction>${JSON.stringify(marker)}</GensokyoAction>`,
-  ].join('\n'), state);
+  ].join('\n');
+}
+
+/**
+ * 事件参与者属于请求结构化上下文，不再偷偷拼进玩家正文。
+ * 调用方须把结果同时交给历史选择器和本轮角色绿灯注入。
+ */
+export function actionEventParticipantIds(action: TargetAction): string[] {
+  if (!action.eventId) return [];
+  return [...(eventById.get(action.eventId)?.participants ?? [])];
 }
 
 const FIXED_PRESENTATION_ACTION_IDS = new Set([

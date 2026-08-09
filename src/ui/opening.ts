@@ -65,6 +65,13 @@ export class OpeningController {
     }
     this.loadingRoot.hidden = true;
     this.runtimeShell.hidden = true;
+    // 聊天切换检测：context 缓存的 chatId 过期则重建。
+    // 否则经 ST「开始新聊天（含清除旧聊天文件）」切换到新聊天后，开场页仍冻结旧聊天 ID，
+    // 点「接过庭守钥」会被 commitOpening 的 chatId 校验拒绝，表现为卡在初始页面进不去。
+    if (this.context) {
+      const live = await this.bridge.getOpeningContext();
+      if (this.context.chatId !== live.chatId) this.context = undefined;
+    }
     if (!this.context) {
       this.context = await this.bridge.getOpeningContext();
       const saved = this.loadDraft();

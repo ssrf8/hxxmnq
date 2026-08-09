@@ -32,6 +32,19 @@ export function shouldTrackHostGenerationStart(dryRun: unknown) {
   return dryRun !== true;
 }
 
+export function isVariableStageReady(input: {
+  updateEpoch: number;
+  baselineEpoch: number;
+  isAnalyzing: boolean;
+  assistantObservedAt: number;
+  now: number;
+  fallbackDelayMs?: number;
+}) {
+  if (input.updateEpoch > input.baselineEpoch) return true;
+  if (input.isAnalyzing || input.assistantObservedAt <= 0) return false;
+  return input.now - input.assistantObservedAt >= (input.fallbackDelayMs ?? 2500);
+}
+
 export class LatestRefreshQueue {
   private requested = false;
   private active: Promise<void> | null = null;

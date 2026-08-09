@@ -17,8 +17,10 @@ import {
 } from '../battle/battle-bgm';
 import { BattleEngine, type BattleConfig } from './battle-engine';
 import { bridge } from './bridge';
+import { DiagnosticExportError, serializeDiagnosticSnapshot } from './diagnostic-export';
 import { LatestRefreshQueue } from './async-coordination';
-import { syncOpeningDatabase, type DatabaseSyncResult } from './database-adapter';
+import { memoryPort } from './memory-adapter-selection';
+import type { DatabaseSyncResult } from './memory-port';
 import { parseGardenAction, settlementProjection } from './event-settlement';
 import { assistantForCurrentTurn } from './gal-message-selection';
 import { mergeRemoteSexualPortraitSources, parseGalPortraitSources, resolveGalPortraitSource } from './gal-portrait-registry';
@@ -51,7 +53,6 @@ import {
 import { buildPromptContext } from './prompt-context';
 import { parseAnomalyClueReceipt } from './anomaly-rules';
 import { consumableCount, listInventoryCatalog } from './inventory-rules';
-import { queueSceneItemUse } from './activity-rules';
 import { rollFacilityRisk } from './facility-rules';
 import { periodSerialFromState } from './time-rules';
 import { OpeningController } from './opening';
@@ -59,9 +60,9 @@ import { AssetPreloader, collectPreloadAssets, type PreloadAsset } from './asset
 import { resolveRemoteRelease } from './asset-remote-resolver';
 import {
   buildActionMessage,
+  actionEventParticipantIds,
   isFixedPresentationAction,
   targetActions,
-  withGardenNarrativeContract,
 } from './target-actions';
 import type {
   BattleResult,
@@ -71,6 +72,8 @@ import type {
   InteractionTarget,
   MessageTransactionKind,
   PendingTask,
+  SaveSlotId,
+  SaveSlotSummary,
   SceneMode,
   TargetAction,
 } from './types';
@@ -101,6 +104,16 @@ const liveStatus = byId<HTMLElement>('gg-live-status');
 const mapHint = byId<HTMLElement>('gg-map-hint');
 const hideUiHintsInput = byId<HTMLInputElement>('gg-hide-ui-hints');
 const hideUiHintsStorageKey = 'gensokyo-garden:hide-ui-hints';
+const debugFloorsInput = byId<HTMLInputElement>('gg-debug-floors');
+const debugBanner = byId<HTMLElement>('gg-debug-banner');
+const diagnosticExportButton = byId<HTMLButtonElement>('gg-export-diagnostics');
+const diagnosticExportStatus = byId<HTMLElement>('gg-diagnostic-export-status');
+const savePanel = byId<HTMLFieldSetElement>('gg-save-panel');
+const saveSlots = byId<HTMLElement>('gg-save-slots');
+const saveStatus = byId<HTMLElement>('gg-save-status');
+// Phase 6 §6.3：与宿主 shell 同源（sessionStorage 'galDebugFloorsVisible'）；
+// 新会话自动关；不写 MVU/聊天/角色卡。
+const debugFloorsStorageKey = 'galDebugFloorsVisible';
 const targetMenu = byId<HTMLElement>('gg-target-menu');
 const targetActionList = byId<HTMLElement>('gg-target-actions');
 const gardenMapCanvas = byId<HTMLCanvasElement>('gg-garden-map');
@@ -265,6 +278,19 @@ hideUiHintsInput.addEventListener('change', () => {
   hideUiHints = hideUiHintsInput.checked;
   try { localStorage.setItem(hideUiHintsStorageKey, hideUiHints ? '1' : '0'); } catch { /* 忽略 */ }
   applyUiHintsHidden();
+});
+// Phase 6 §6.3：调试楼层开关（仅本会话；与宿主 shell 同源 sessionStorage）。
+let debugFloorsVisible = false;
+try {
+  debugFloorsVisible = globalThis.sessionStorage?.getItem(debugFloorsStorageKey) === '1';
+} catch { /* 默认关闭 */ }
+debugFloorsInput.checked = debugFloorsVisible;
+debugBanner.hidden = !debugFloorsVisible;
+debugFloorsInput.addEventListener('change', () => {
+  debugFloorsVisible = debugFloorsInput.checked;
+  try { globalThis.sessionStorage?.setItem(debugFloorsStorageKey, debugFloorsVisible ? '1' : '0'); } catch { /* 忽略 */ }
+  debugBanner.hidden = !debugFloorsVisible;
+  globalThis.dispatchEvent(new CustomEvent('gensokyo-garden:toggle-debug-floors', { detail: { visible: debugFloorsVisible } }));
 });
 const battleSoundBus = createBattleSoundBus(battleSfxSources, {
   muted: !battleSoundEnabled,
@@ -843,6 +869,118 @@ function openSettings() {
   settingsReturnView = sourceView;
   setView('settings');
   renderStarterGiftButton();
+  void refreshSaveSlots();
+}
+
+let saveSlotState: SaveSlotSummary[] = [];
+let saveSlotsBusy = false;
+
+function setSaveSlotsBusy(busy: boolean) {
+  saveSlotsBusy = busy;
+  savePanel.setAttribute('aria-busy', String(busy));
+  saveSlots.querySelectorAll<HTMLButtonElement>('button').forEach((button) => { button.disabled = busy; });
+}
+
+function safeSaveStatus(message: string, error = false) {
+  saveStatus.textContent = message;
+  saveStatus.dataset.error = String(error);
+}
+
+function formatSaveTime(value?: string) {
+  if (!value) return '';
+  const date = new Date(value);
+  return Number.isFinite(date.getTime()) ? date.toLocaleString('zh-CN', { hour12: false }) : '';
+}
+
+function renderSaveSlots() {
+  saveSlots.replaceChildren();
+  for (const slot of saveSlotState) {
+    const card = document.createElement('article');
+    card.className = 'gg-save-slot';
+    card.dataset.slotId = slot.slotId;
+    const copy = document.createElement('span');
+    copy.className = 'gg-save-slot-copy';
+    const title = document.createElement('strong');
+    title.textContent = `${slot.slotId.slice(-2)}号槽 · ${slot.occupied ? (slot.valid ? slot.label : '损坏或不完整') : '空槽'}`;
+    const detail = document.createElement('small');
+    detail.textContent = slot.occupied && slot.valid
+      ? [formatSaveTime(slot.capturedAt), `${slot.messageCount ?? 0} 层`, slot.gameTimeLabel].filter(Boolean).join(' · ')
+      : slot.occupied ? '该槽无法通过完整性校验，不允许读取。' : '尚未保存';
+    copy.append(title, detail);
+    const actions = document.createElement('span');
+    actions.className = 'gg-save-slot-actions';
+    const save = document.createElement('button');
+    save.type = 'button';
+    save.textContent = slot.occupied ? '覆盖' : '保存';
+    save.disabled = saveSlotsBusy;
+    save.addEventListener('click', () => void saveSlot(slot));
+    actions.append(save);
+    if (slot.occupied && slot.valid) {
+      const load = document.createElement('button');
+      load.type = 'button';
+      load.textContent = '读取';
+      load.disabled = saveSlotsBusy;
+      load.addEventListener('click', () => void loadSlot(slot));
+      actions.append(load);
+    }
+    card.append(copy, actions);
+    saveSlots.append(card);
+  }
+}
+
+async function refreshSaveSlots() {
+  if (saveSlotsBusy) return;
+  setSaveSlotsBusy(true);
+  safeSaveStatus('正在读取槽位……');
+  try {
+    saveSlotState = await bridge.listSaveSlots();
+    safeSaveStatus('槽位已同步。');
+  } catch {
+    saveSlotState = [];
+    safeSaveStatus('槽位读取失败。原生聊天不受影响。', true);
+  } finally {
+    renderSaveSlots();
+    setSaveSlotsBusy(false);
+  }
+}
+
+async function saveSlot(slot: SaveSlotSummary) {
+  if (saveSlotsBusy) return;
+  if (slot.occupied) {
+    const confirmed = await confirmInApp({ title: '覆盖存档', message: `${slot.slotId.slice(-2)}号槽现有内容会被替换。`, confirmLabel: '继续覆盖' });
+    if (!confirmed) return;
+  }
+  const label = await promptInApp({ title: slot.occupied ? '覆盖存档' : '保存进度', message: '给这份进度一个简短标签。', confirmLabel: '保存', input: { label: '存档标签', value: slot.label ?? '', maxLength: 24, required: true } });
+  if (label == null) return;
+  setSaveSlotsBusy(true);
+  safeSaveStatus('正在保存聊天与 MVU……');
+  try {
+    await bridge.saveToSlot(slot.slotId as SaveSlotId, label);
+    saveSlotState = await bridge.listSaveSlots();
+    renderSaveSlots();
+    safeSaveStatus('保存完成。');
+  } catch {
+    safeSaveStatus('保存失败；旧槽位和当前进度没有被主动清理。', true);
+  } finally {
+    setSaveSlotsBusy(false);
+  }
+}
+
+async function loadSlot(slot: SaveSlotSummary) {
+  if (saveSlotsBusy || !slot.occupied || !slot.valid) return;
+  const confirmed = await confirmInApp({ title: '读取存档', message: `将读取“${slot.label ?? slot.slotId}”。当前未保存进度会被替换。`, confirmLabel: '确认读取' });
+  if (!confirmed) return;
+  setSaveSlotsBusy(true);
+  safeSaveStatus('正在校验并重建聊天，请勿操作……');
+  try {
+    const result = await bridge.loadFromSlot(slot.slotId as SaveSlotId);
+    safeSaveStatus(`读取完成，已恢复 ${result.restoredMessageCount} 层聊天。`);
+    await refresh();
+  } catch {
+    safeSaveStatus('读取失败；系统已尝试恢复读档前进度。请检查原生聊天。', true);
+  } finally {
+    setSaveSlotsBusy(false);
+  }
 }
 
 function renderStarterGiftButton() {
@@ -1353,7 +1491,8 @@ async function renderGal() {
   }
   if (transaction.phase !== 'submitting_user' && transaction.phase !== 'generating') setGenerating(false);
   const retryButton = byId<HTMLButtonElement>('gg-retry-transaction');
-  retryButton.hidden = transaction.phase !== 'failed' || !transaction.userMessageCreated;
+  // Phase 4：恢复态（incomplete/conflict）禁止自动重发（计划 §4.2）——只显示提示，不提供重试入口。
+  retryButton.hidden = transaction.phase !== 'failed' || !transaction.userMessageCreated || !!transaction.recovery;
   retryButton.textContent = transaction.assistantResponded ? '重试本地结算' : '重试生成';
   if (transaction.phase === 'failed') {
     setStatus(transaction.lastError || '生成失败，可以编辑、继续生成或显示原生聊天。', true);
@@ -1424,6 +1563,41 @@ function renderDiagnostics(transactionPhase: string, transactionError?: string) 
     });
     byId('gg-diagnostics').replaceChildren(fragment);
   });
+}
+
+function diagnosticFilename(capturedAt: string): string {
+  const compact = capturedAt.replace(/\D/g, '').slice(0, 14);
+  const timestamp = compact.length === 14 ? `${compact.slice(0, 8)}-${compact.slice(8)}` : 'unknown-time';
+  return `幻想乡物语-诊断-${timestamp}.json`;
+}
+
+async function downloadDiagnosticSnapshot(): Promise<void> {
+  if (diagnosticExportButton.disabled) return;
+  let objectUrl: string | null = null;
+  diagnosticExportButton.disabled = true;
+  diagnosticExportButton.setAttribute('aria-busy', 'true');
+  diagnosticExportStatus.textContent = '正在生成脱敏诊断……';
+  try {
+    const snapshot = await bridge.buildDiagnosticSnapshot();
+    const json = serializeDiagnosticSnapshot(snapshot);
+    const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+    objectUrl = globalThis.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = objectUrl;
+    link.download = diagnosticFilename(snapshot.capturedAt);
+    link.click();
+    diagnosticExportStatus.textContent = '诊断文件已下载，请分享前人工检查。';
+  } catch (error) {
+    diagnosticExportStatus.textContent = error instanceof DiagnosticExportError
+      ? error.code === 'diagnostic-crypto-unavailable'
+        ? '当前环境缺少安全加密能力，无法生成脱敏诊断。'
+        : '诊断内容超过安全大小上限，已停止导出。'
+      : '诊断导出失败，请稍后重试。';
+  } finally {
+    if (objectUrl) globalThis.URL.revokeObjectURL(objectUrl);
+    diagnosticExportButton.disabled = false;
+    diagnosticExportButton.removeAttribute('aria-busy');
+  }
 }
 
 function hideTargetMenu() {
@@ -1586,7 +1760,12 @@ async function chooseTargetAction(action: TargetAction) {
   sceneSignature = '';
   setView('gal');
   setGenerating(true);
-  await submitGalMessage(buildActionMessage(action, state), 'interaction', { restoreInputOnFailure: false });
+  const eventParticipants = actionEventParticipantIds(action);
+  await submitGalMessage(buildActionMessage(action, state), 'interaction', {
+    restoreInputOnFailure: false,
+    eventParticipants,
+    explicitCharacterIds: eventParticipants,
+  });
 }
 
 function openFacilityAction(action: TargetAction) {
@@ -1645,7 +1824,11 @@ async function confirmFacilityAction() {
     await submitGalMessage(
       buildActionMessage(pendingAction, state),
       'interaction',
-      { restoreInputOnFailure: false },
+      {
+        restoreInputOnFailure: false,
+        eventParticipants: actionEventParticipantIds(pendingAction),
+        explicitCharacterIds: actionEventParticipantIds(pendingAction),
+      },
     );
   } catch (error) {
     workAnimation.hidden = true;
@@ -1660,7 +1843,14 @@ async function submitGalMessage(
   {
     restoreInputOnFailure = true,
     userVisibleText,
-  }: { restoreInputOnFailure?: boolean; userVisibleText?: string } = {},
+    eventParticipants = [],
+    explicitCharacterIds = [],
+  }: {
+    restoreInputOnFailure?: boolean;
+    userVisibleText?: string;
+    eventParticipants?: readonly string[];
+    explicitCharacterIds?: readonly string[];
+  } = {},
 ) {
   const value = text.trim();
   if (submissionInFlight) {
@@ -1678,13 +1868,34 @@ async function submitGalMessage(
   setGenerating(true);
   try {
     const sceneId = state.scene_item_context?.scene_id || activeSceneId || `scene:${Date.now().toString(36)}`;
-    const promptState = selectedItemId
-      ? queueSceneItemUse(state, selectedItemId, itemUseId, sceneId, activeTarget?.type === 'character' ? activeTarget.id : null)
-      : state;
+    const activeTargetCharacterId = activeTarget?.type === 'character' ? activeTarget.id : null;
+    const authorizedCharacterIds = Array.from(new Set([
+      ...(activeTargetCharacterId ? [activeTargetCharacterId] : []),
+      ...explicitCharacterIds,
+    ]));
     const transaction = await bridge.sendUserMessage(
-      withGardenNarrativeContract(value, promptState),
+      value,
       kind,
       userVisibleText,
+      // R1/R2：入口只传纯可见文本 + 结构化 requestContext；注入统一在 bridge 完成一次。
+      // 道具场景传 sceneItemPreview，bridge 基于最新持久状态构造本轮只读 promptState；
+      // 生成成功后由下方 queue_scene_item M2 正式持久化与消费（失败不消费）。
+      {
+        sceneId,
+        mainTargetCharacterId: activeTargetCharacterId,
+        actionTargetCharacterId: activeTargetCharacterId,
+        eventParticipants: [...eventParticipants],
+        explicitCharacterIds: authorizedCharacterIds,
+        requireMainTarget: Boolean(activeTargetCharacterId),
+        ...(selectedItemId ? {
+          sceneItemPreview: {
+            itemId: selectedItemId,
+            useId: itemUseId,
+            sceneId,
+            targetCharacterId: activeTargetCharacterId,
+          },
+        } : {}),
+      },
     );
     if (selectedItemId) {
       await bridge.applyM2Command({
@@ -1785,7 +1996,7 @@ async function performRefresh() {
     renderPendingTasks();
     gardenMap.update(state);
     renderTutorialGuide();
-    databaseSync = await syncOpeningDatabase(state);
+    databaseSync = await memoryPort.syncOpening(state);
     const transaction = await bridge.getTransactionState();
     await renderDiagnostics(transaction.phase, transaction.lastError);
     if (currentView === 'gal') {
@@ -2150,7 +2361,8 @@ byId('gg-retry-transaction').addEventListener('click', async () => {
 });
 byId('gg-stop').addEventListener('click', async () => {
   const stopped = await bridge.stopGeneration();
-  setStatus(stopped ? '生成已停止；可以继续上次生成。' : '当前没有可停止的生成');
+  // Phase 3：具体恢复指引由 phase 派生（refresh 后 failed 显示 lastError：native=继续，helper=从头重试）。
+  setStatus(stopped ? '已请求停止生成……' : '当前没有可停止的生成');
   await refresh();
 });
 byId('gg-regenerate').addEventListener('click', async () => {
@@ -2173,6 +2385,7 @@ sessionHistoryDialog.addEventListener('click', (event) => {
 sessionHistoryDialog.addEventListener('close', () => sessionHistoryButton.focus());
 byId('gg-open-settings').addEventListener('click', () => navigateFromLauncher(openSettings));
 byId('gg-settings-back').addEventListener('click', returnFromSettings);
+diagnosticExportButton.addEventListener('click', () => void downloadDiagnosticSnapshot());
 battleSoundEnabledInput.addEventListener('change', () => {
   setBattleSoundEnabled(battleSoundEnabledInput.checked, battleSoundEnabledInput.checked);
 });
@@ -3260,11 +3473,19 @@ async function runFacilityRemodel(facilityId: string, formId: string) {
       buildPromptContext(state, { kind: 'refit', facilityId, selectedCharacterId: started.selectedCharacterId, actionIntent: `装修切换为 ${formId}` }),
       '写一段简短装修过渡。代码选定角色已经锁定，不得替换；没有角色时写独自装修。不要决定成本、成功与正式形态。',
     ].join('\n\n');
-    await bridge.sendUserMessage(withGardenNarrativeContract(
+    await bridge.sendUserMessage(
       prompt,
-      state,
-      started.selectedCharacterId ? [started.selectedCharacterId] : [],
-    ), 'interaction');
+      'interaction',
+      undefined,
+      // R1：纯文本 + 结构化上下文；注入在 bridge 一次。selectedCharacterId 是代码锁定角色。
+      {
+        sceneId: null,
+        mainTargetCharacterId: started.selectedCharacterId ?? null,
+        actionTargetCharacterId: started.selectedCharacterId ?? null,
+        explicitCharacterIds: started.selectedCharacterId ? [started.selectedCharacterId] : [],
+        requireMainTarget: Boolean(started.selectedCharacterId),
+      },
+    );
     await bridge.applyM2Command({ type: 'commit_refit', transactionId });
     await refresh();
   } catch (error) {
@@ -3306,7 +3527,13 @@ async function runFacilityRecovery(facilityId: string) {
       buildPromptContext(state, { kind: 'facility_action', facilityId, actionIntent: '调查并恢复当前结构状况' }),
       '写一段调查或修复剧情。正式严重度、资源预留、耗时和成功状态由本地代码结算。',
     ].join('\n\n');
-    await bridge.sendUserMessage(withGardenNarrativeContract(prompt, state), 'interaction');
+    await bridge.sendUserMessage(
+      prompt,
+      'interaction',
+      undefined,
+      // R1：设施不是角色，不冒充 mainTarget；无主目标、无显式角色。
+      { sceneId: null, mainTargetCharacterId: null, requireMainTarget: false },
+    );
     await bridge.applyM2Command({ type: 'commit_recovery', transactionId });
     await refresh();
   } catch (error) {
@@ -3459,7 +3686,13 @@ async function runDailyAnomalyInvestigation() {
       '写一段简短调查剧情，不完整揭露源头。正文结束后严格输出：',
       '<GensokyoAnomalyClue>{"version":"anomaly-clue.v1","summary":"本日新增的一条简短线索"}</GensokyoAnomalyClue>',
     ].join('\n\n');
-    await bridge.sendUserMessage(withGardenNarrativeContract(prompt, state, ['reimu']), 'interaction');
+    await bridge.sendUserMessage(
+      prompt,
+      'interaction',
+      undefined,
+      // R1：异变调查代码锁定 reimu 为主目标（显式角色），纯文本 + 结构化上下文。
+      { sceneId: null, mainTargetCharacterId: 'reimu', explicitCharacterIds: ['reimu'], requireMainTarget: true },
+    );
     const reply = await latestAssistantReply();
     if (!reply) throw new Error('没有找到调查回复');
     await bridge.recordAnomalyClue(parseAnomalyClueReceipt(reply.text));
@@ -3485,7 +3718,7 @@ async function runAnomalyResolution(taskId?: string) {
       buildPromptContext(state, { kind: 'final_resolution', includeSceneItems: false }),
       '自然完成最终收束。本轮成功后异变将由本地代码彻底归档，不得开启新异变。',
     ].join('\n\n');
-    await bridge.sendAnomalyResolution(withGardenNarrativeContract(prompt, state));
+    await bridge.sendAnomalyResolution(prompt);
     await refresh();
   } catch (error) {
     if (task) await bridge.applyM2Command({ type: 'release_pending_task', taskId: task.task_id }).catch(() => undefined);
@@ -3740,6 +3973,16 @@ globalThis.addEventListener('beforeunload', () => {
 
 globalThis.addEventListener('gensokyo-garden:resume', () => {
   void refresh();
+});
+
+// Phase 2 增量 D：helper-generate 流式文本投影到 pending GAL 指示（gg-scene-text）。
+// 仅更新生成中的展示文本；不参与事务状态（Promise 才是权威）。
+globalThis.addEventListener('gensokyo-garden:generation-stream', (event) => {
+  const detail = (event as CustomEvent<{ text?: string }>).detail;
+  if (!detail || typeof detail.text !== 'string') return;
+  if (app.dataset.transactionBusy !== 'true') return;
+  const sceneText = byId<HTMLElement>('gg-scene-text');
+  if (sceneText) sceneText.textContent = detail.text;
 });
 
 async function boot() {

@@ -52,11 +52,31 @@ if (originUrl.protocol !== 'https:' || originUrl.username || originUrl.password 
 const s3Origin = endpointUrl.origin;
 const publicOrigin = originUrl.origin;
 
+// ---- 通道固定映射（不允许任意前缀）----
+const CHANNELS = {
+  production: {
+    prefix: 'gensokyo-moving-garden/live/ui',
+    versionPattern: /^r[1-9]\d*$/,
+  },
+  test: {
+    prefix: 'gensokyo-moving-garden/test/ui',
+    versionPattern: /^test-r[1-9]\d*$/,
+  },
+};
+const channelName = args.channel;
+if (typeof channelName !== 'string' || !Object.hasOwn(CHANNELS, channelName)) {
+  throw new Error('必须显式提供 --channel=production|test（发布前缀由固定通道表决定，不支持任意前缀）');
+}
+if (args.prefix !== undefined) throw new Error('不支持 --prefix 参数；发布前缀只能由 --channel 固定决定');
+const channel = CHANNELS[channelName];
+
 // ---- 参数校验 ----
 const version = args.version;
-if (typeof version !== 'string' || !/^r\d+$/.test(version)) throw new Error('必须显式提供 --version=rN');
+if (typeof version !== 'string' || !channel.versionPattern.test(version)) {
+  throw new Error(`--version 与通道 ${channelName} 格式不符（应为 ${channelName === 'test' ? 'test-r<N>' : 'r<N>'}）`);
+}
 const fileArg = args.file;
-if (typeof fileArg !== 'string') throw new Error('必须显式提供 --file=<dist/runtime/ui-mount-rN.js>');
+if (typeof fileArg !== 'string') throw new Error('必须显式提供 --file=<runtimeRoot>/ui-mount-<version>.js');
 const filePath = resolve(ROOT, fileArg);
 if (basename(filePath) !== `ui-mount-${version}.js`) throw new Error(`--file 文件名必须为 ui-mount-${version}.js`);
 const st = await lstat(filePath);
@@ -65,11 +85,21 @@ const bytes = await readFile(filePath);
 const sha256 = createHash('sha256').update(bytes).digest('hex');
 if (sha256 !== env.UI_MOUNT_EXPECTED_SHA256 && env.UI_MOUNT_EXPECTED_SHA256) throw new Error('sha256 与 UI_MOUNT_EXPECTED_SHA256 不一致，拒绝上传');
 
-const uiKey = `gensokyo-moving-garden/live/ui/ui-mount-${version}.js`;
-const manifestKey = 'gensokyo-moving-garden/live/ui/ui-manifest.json';
-const uiUrl = `${publicOrigin}/gensokyo-moving-garden/live/ui/ui-mount-${version}.js`;
+const uiKey = `${channel.prefix}/ui-mount-${version}.js`;
+const manifestKey = `${channel.prefix}/ui-manifest.json`;
+const uiUrl = `${publicOrigin}/${channel.prefix}/ui-mount-${version}.js`;
+// 通道边界停止线：计划中任何写目标跨通道立即失败（固定映射下正常不会触发，防御性保留）。
+const assertChannelBoundary = (key) => {
+  const foreign = channelName === 'test'
+    ? key.startsWith('gensokyo-moving-garden/live/ui/')
+    : key.startsWith('gensokyo-moving-garden/test/ui/');
+  if (foreign) throw new Error(`发布计划越界：${key} 不属于通道 ${channelName}，拒绝执行`);
+};
+assertChannelBoundary(uiKey);
+assertChannelBoundary(manifestKey);
 const manifest = {
   schema_version: 'gensokyo-ui-live.v1',
+  channel: channelName,
   version,
   url: uiUrl,
   sha256,
@@ -140,8 +170,11 @@ async function headObject(key) {
   const { url, headers } = signRequest({ method: 'HEAD', key, body: null, headers: {} });
   const res = await fetch(url, { method: 'HEAD', headers });
   if (res.status === 200) {
-    const etag = res.headers.get('etag');
+    let etag = res.headers.get('etag');
     if (!etag) throw new Error(`HEAD ${key} 成功但缺少 ETag`);
+    // R2 可能返回 weak ETag（W/"..."）；If-Match 只接受 strong ETag，剥掉 W/ 前缀。
+    if (etag.startsWith('W/')) etag = etag.slice(2);
+    if (!etag) throw new Error(`HEAD ${key} 返回的 strong ETag 为空`);
     return { exists: true, etag };
   }
   if (res.status === 404) return { exists: false, etag: null };
@@ -181,6 +214,7 @@ async function verifyPublicObject(url, expectedBody, mime, cacheControl) {
 const plan = {
   mode: dryRun ? 'dry-run-only' : 'upload',
   bucket,
+  channel: channelName,
   objects: [
     { key: uiKey, bytes: bytes.length, mime: 'text/javascript', cache_control: 'public, max-age=31536000, immutable', first: true },
     { key: manifestKey, bytes: Buffer.byteLength(manifestBody), mime: 'application/json', cache_control: 'no-store', first: false },
@@ -189,12 +223,25 @@ const plan = {
   upload_order: ['ui-mount 先（不可变，长缓存）', 'ui-manifest 最后（no-store 指针）'],
 };
 console.log(JSON.stringify(plan, null, 2));
+if (dryRun) {
+  console.log(`bucket       = ${bucket}`);
+  console.log(`channel      = ${channelName}`);
+  console.log(`ui key       = ${uiKey}`);
+  console.log(`manifest key = ${manifestKey}`);
+  console.log(`bytes        = ${bytes.length}`);
+  console.log(`sha256       = ${sha256}`);
+  console.log('dry-run 结束：未执行任何远端写入。');
+}
 
 if (!dryRun) {
   const uiHead = await headObject(uiKey);
-  if (uiHead.exists) throw new Error(`拒绝覆盖：${uiKey} 已存在于 R2（不可变文件名）`);
-  await putObject(uiKey, bytes, 'text/javascript', 'public, max-age=31536000, immutable', { 'if-none-match': '*' });
-  console.log(`已上传 ${uiKey}（${(bytes.length / 1024 / 1024).toFixed(2)} MB）`);
+  if (uiHead.exists) {
+    // 幂等续传：不可变对象已存在则只读回校验（不 PUT），内容与本地一致视为已上传，不一致由后续读回校验拒绝。
+    console.log(`${uiKey} 已存在：跳过上传，读回校验内容一致性（幂等续传）`);
+  } else {
+    await putObject(uiKey, bytes, 'text/javascript', 'public, max-age=31536000, immutable', { 'if-none-match': '*' });
+    console.log(`已上传 ${uiKey}（${(bytes.length / 1024 / 1024).toFixed(2)} MB）`);
+  }
   const verifiedUi = await verifyPublicObject(uiUrl, bytes, 'text/javascript', 'public, max-age=31536000, immutable');
   if (verifiedUi.sha256 !== sha256) throw new Error(`公网 UI sha256 不一致：${verifiedUi.sha256}`);
   console.log(`已读回校验 ${uiUrl}（${verifiedUi.bytes} bytes，sha256=${verifiedUi.sha256}）`);

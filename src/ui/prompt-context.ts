@@ -46,23 +46,6 @@ export function buildPromptContext(state: GardenState, options: PromptContextOpt
     ].join('\n'));
   }
 
-  const conversationLog = state.interaction?.conversation_log ?? [];
-  if (conversationLog.length) {
-    const presentIds = new Set(state.presence_snapshot?.present_character_ids ?? []);
-    // 日志条目约定以角色 ID 开头（如 "reimu: 在中央庭院聊了妖花核心"），按在场角色过滤。
-    const relevant = conversationLog.slice(-6).filter((entry) => {
-      if (presentIds.size === 0) return true;
-      return [...presentIds].some((id) => entry.startsWith(`${id}:`) || entry.startsWith(`${id}：`) || entry.includes(` ${id} `));
-    });
-    if (relevant.length) {
-      sections.push([
-        '【最近互动回顾：结束对话不会抹去这些记忆】',
-        '以下是你此前与在场角色实际发生过的互动摘要，角色应该记得这些事；不要在重新开场时把它们当成没发生过。',
-        ...relevant.map((entry) => `- ${entry}`),
-      ].join('\n'));
-    }
-  }
-
   if (openGardenProjectsVisible(state)) {
     sections.push([
       '【阶段边界：教程已经彻底结束】',

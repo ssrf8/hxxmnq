@@ -6,13 +6,21 @@
   'use strict';
 
   const MANIFEST_URL = '__UI_MANIFEST_URL__';
+  // 编译时注入通道：production（正式，/live/ui/）或 test（测试，/test/ui/）。
+  // 缺失 channel 的旧正式 manifest 视为 production 以保持兼容；测试 loader 必须显式 channel=test。
+  const CHANNEL = '__UI_CHANNEL__';
+  const VERSION_PATTERN = CHANNEL === 'test' ? /^test-r[1-9]\d*$/ : /^r[1-9]\d*$/;
 
   function validateManifest(manifest) {
     if (!manifest || manifest.schema_version !== 'gensokyo-ui-live.v1') {
       throw new Error('ui-manifest schema_version 非法');
     }
-    if (typeof manifest.version !== 'string' || !/^r[1-9]\d*$/.test(manifest.version)) {
-      throw new Error('ui-manifest version 非法');
+    const manifestChannel = CHANNEL === 'test' ? manifest.channel : (manifest.channel ?? 'production');
+    if (manifestChannel !== CHANNEL) {
+      throw new Error(`ui-manifest channel 与当前通道（${CHANNEL}）不一致`);
+    }
+    if (typeof manifest.version !== 'string' || !VERSION_PATTERN.test(manifest.version)) {
+      throw new Error(`ui-manifest version 非法（当前通道 ${CHANNEL}）`);
     }
     if (typeof manifest.sha256 !== 'string' || !/^[a-f0-9]{64}$/.test(manifest.sha256)) {
       throw new Error('ui-manifest sha256 非法或缺失');

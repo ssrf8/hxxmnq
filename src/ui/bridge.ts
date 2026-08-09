@@ -6,12 +6,47 @@ import type {
   MessageTransactionSnapshot,
   OpeningDraft,
   RuntimeDiagnostics,
+  SaveSlotId,
+  VisitTurn,
 } from './types';
 import initialState from '../schema/initial-state.json';
+import { buildDiagnosticSnapshot } from './diagnostic-export';
+import { memoryPort } from './memory-adapter-selection';
 import { MessageTransactionCoordinator } from './message-transaction';
 import { cleanNarrativeText } from './gal-scene';
 import {
+  buildAttemptMetadata,
+  buildChatHistoryForGenerate,
+  buildCommitLifecycle,
+  buildRequestMetadata,
+  buildRequestMetadataV2,
+  buildGalGenerationRequestV2,
+  COMMIT_LIFECYCLE_KEY,
+  advanceGalGenerationRequest,
+  advanceGalGenerationRequestV2,
+  createGalGenerationRequest,
+  REQUEST_SCHEMA_V2,
+  restoreGalGenerationRequestV2,
+  resolveAssistantMessageByCommitKey,
+  resolvePlayerMessageByMetadata,
+  parseAttemptMetadata,
+  resolveLatestAssistantForRegeneration,
+  analyzeChatRestore,
+  type GalGenerationAttempt,
+  type GalAnyRequest,
+  type GalGenerationRequest,
+  type GalGenerationRequestV2,
+  type RequestChatSnapshot,
+} from './gal-generation-request';
+import { buildGalGenerateConfig } from './gal-generate-config';
+import {
+  createRegenerationCommitReceiptV1,
+  GAL_REGENERATION_RECEIPT_DATA_KEY,
+} from './gal-regeneration-receipt';
+import { queueSceneItemUse } from './activity-rules';
+import {
   reconcileHostGenerationActivity,
+  isVariableStageReady,
   SettlementAttemptCoordinator,
   shouldTrackHostGenerationStart,
 } from './async-coordination';
@@ -40,6 +75,33 @@ import { appendDailyClue, resolveAnomaly } from './anomaly-rules';
 import { applyM2Command as applyLocalM2Command } from './m2-commands';
 import { eventById, eventResultForAction } from './event-registry';
 import {
+  applyVisitTurnsToFinalState as applyVisitTurnsCommit,
+  verifyCommittedVisitTurns,
+  verifyVisitTurnAuditRefs,
+} from './visit-turn-commit';
+import {
+  GalRegenerationCoordinatorV1,
+  type RegenerationCoordinatorStateV1,
+  type RegenerationHostPortsV1,
+} from './gal-regeneration-coordinator';
+import { readFrozenBaselineV1 } from './gal-regeneration-baseline';
+import {
+  decideRegenerationDriftV1,
+  fingerprintMvuData,
+  readRegenerationReceiptFromDataV1,
+} from './gal-regeneration-receipt';
+import type { ReplayVisitTurnCommitV1 } from './gal-regeneration-replay';
+import { periodSerialFromState } from './time-rules';
+import { captureSavePayload } from './save-capture';
+import { restoreSavePayload } from './save-restore';
+import {
+  listSaveSlots as listStoredSaveSlots,
+  readSaveSlot,
+  writeSaveSlot,
+  type SaveWorldbookAdapter,
+  type SaveWorldbookEntry,
+} from './save-worldbook-store';
+import {
   applyPresenceUpdate,
   applyLocalSettlement,
   findRecordedLocalSettlement,
@@ -60,8 +122,10 @@ type HostGlobals = typeof globalThis & {
     replaceMvuData: (data: Record<string, unknown>, options: Record<string, unknown>) => Promise<void>;
     events: Record<string, string>;
     isDuringExtraAnalysis?: () => boolean;
+    parseMessage?: (message: string, oldData: Record<string, unknown>) => Promise<Record<string, unknown>>;
   };
   getChatMessages?: (range: string | number, options?: Record<string, unknown>) => Array<Record<string, unknown>>;
+  setChatMessages?: (messages: Array<Record<string, unknown>>, options?: Record<string, unknown>) => Promise<void>;
   getLastMessageId?: () => number;
   SillyTavern?: {
     stopGeneration?: () => boolean;
@@ -70,11 +134,22 @@ type HostGlobals = typeof globalThis & {
       chat?: Array<Record<string, unknown>>;
       characterId?: unknown;
       name1?: string;
+      getCurrentChatId?: () => string;
       setUserName?: (name: string, options?: { toastPersonaNameChange?: boolean }) => void;
       executeSlashCommandsWithOptions?: (command: string) => Promise<unknown> | void;
     };
+    reloadCurrentChat?: () => Promise<void>;
   };
   createChatMessages?: (messages: Array<Record<string, unknown>>, options?: Record<string, unknown>) => Promise<void>;
+  deleteChatMessages?: (messageIds: number[], options?: Record<string, unknown>) => Promise<void>;
+  reloadCurrentChat?: () => Promise<void>;
+  getOrCreateChatWorldbook?: (chatName: 'current', worldbookName?: string) => Promise<string>;
+  getWorldbook?: (worldbookName: string) => Promise<SaveWorldbookEntry[]>;
+  updateWorldbookWith?: (
+    worldbookName: string,
+    updater: (entries: SaveWorldbookEntry[]) => SaveWorldbookEntry[],
+    options?: Record<string, unknown>,
+  ) => Promise<SaveWorldbookEntry[]>;
   triggerSlash?: (command: string) => Promise<string | undefined>;
   getTavernVersion?: () => string;
   getTavernHelperVersion?: () => string;
@@ -82,12 +157,34 @@ type HostGlobals = typeof globalThis & {
   getPersona?: (personaId: string) => { name?: string; description?: string };
   eventOn?: (eventName: string, listener: (...args: unknown[]) => void) => { stop: () => void };
   tavern_events?: Record<string, string>;
-  AutoCardUpdaterAPI?: Record<string, unknown>;
+  /** TavernHelper iframe 事件（generate() 的 GENERATION_STARTED、STREAM 事件、GENERATION_ENDED 等）。 */
+  iframe_events?: Record<string, string>;
+  TavernHelper?: {
+    iframe_events?: Record<string, string>;
+    [key: string]: unknown;
+  };
+  /** TavernHelper generate()（Promise 为唯一权威；generation_id 原样贯穿事件）。 */
+  generate?: (config: Record<string, unknown>) => Promise<unknown>;
+  /** TavernHelper stopGenerationById()：true=已 abort（Promise 将 reject 并发 GENERATION_STOPPED(id)）；false=无此生成（已结束/从未注册）。 */
+  stopGenerationById?: (id: string) => boolean;
+  /** 验收/诊断用 transport 覆盖（'helper-generate' 或 'native-trigger'；缺省 native-trigger）。 */
+  __GAL_GENERATION_TRANSPORT__?: string;
+  /** Explicit opt-in only: static code logic is complete, real-host timing is not claimed here. */
+  __GAL_REGENERATION_TRANSPORT__?: string;
 };
 
 const g = globalThis as HostGlobals;
 const OPENING_MARKER = '<gensokyo_opening transaction="';
 const OPENING_REPAIR_MARKER = '<gensokyo_opening_repair transaction="';
+
+/** 空 MVU 变量域（assistant 楼层写入时的 fallback data）。 */
+const EMPTY_MVU_DATA = {
+  stat_data: {},
+  display_data: {},
+  delta_data: {},
+  schema: { type: 'object', properties: {} },
+  initialized_lorebooks: {},
+};
 
 function parseOpeningMessage(message: string): OpeningDraft {
   const body = message
@@ -109,8 +206,291 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
 
-function mergeState(base: Record<string, unknown>, current: Record<string, unknown>): Record<string, unknown> {
-  const merged = structuredClone(base);
+/** 从 GardenState.characters 提取 characterId → 显示名（合成历史角色块用；缺省回退 id）。 */
+function characterNamesOf(state: GardenState): Record<string, string> {
+  const names: Record<string, string> = {};
+  const characters = state?.characters;
+  if (isRecord(characters)) {
+    for (const [id, entry] of Object.entries(characters)) {
+      const name = isRecord(entry) ? entry.name : undefined;
+      names[id] = typeof name === 'string' && name ? name : id;
+    }
+  }
+  return names;
+}
+
+/** 按 request schema 分派 advance（V1/V2 各自保留冻结语义）。 */
+function advanceAnyRequest(request: GalAnyRequest, completedAttemptSeq: number): GalAnyRequest {
+  return request.schema === REQUEST_SCHEMA_V2
+    ? advanceGalGenerationRequestV2(request, completedAttemptSeq)
+    : advanceGalGenerationRequest(request, completedAttemptSeq);
+}
+
+/**
+ * T10：bridge 侧接线：把冻结请求的 VisitTurn 精确写入最终结算 state。
+ * 纯构造/upsert 逻辑在 visit-turn-commit.applyVisitTurnsToFinalState（可单测）；
+ * 这里只负责把 pendingRequest（V2）换算为 commit 输入并在失败时抛错（保持 settlement pending）。
+ */
+function applyVisitTurnsToFinalState(
+  finalState: GardenState,
+  request: GalAnyRequest | null,
+  snapshot: MessageTransactionSnapshot,
+  assistantText: string,
+  characterNames: Record<string, string>,
+  assistantSwipeId: number | null = null,
+): { state: GardenState; turns: VisitTurn[] } {
+  if (request?.schema !== REQUEST_SCHEMA_V2) return { state: finalState, turns: [] };
+  const v2 = request as GalGenerationRequestV2;
+  const result = applyVisitTurnsCommit({
+    finalState,
+    request: {
+      requestId: v2.requestId,
+      sceneId: v2.sceneId,
+      relevantCharacterIds: v2.relevantCharacterIds,
+      visitIdsByCharacter: v2.visitIdsByCharacter,
+      visibleUserText: v2.visibleUserText ?? '',
+    },
+    attempt: {
+      attemptId: snapshot.attemptId ?? '',
+      commitKey: snapshot.commitKey ?? '',
+      assistantMessageId: Number.isInteger(Number(snapshot.assistantMessageId))
+        ? Number(snapshot.assistantMessageId) : null,
+      // F05：精确 swipe 身份——assistantSwipeId 由调用方从 assistant 楼层解析
+      // （message.swipe_id，当前选中 swipe 的 id），null 表示非 swipe 楼层。
+      assistantSwipeId,
+    },
+    clock: {
+      day: finalState.environment?.day ?? null,
+      time_period: finalState.environment?.time_period ?? null,
+      period_serial: periodSerialFromState(finalState),
+    },
+    acceptedOutput: assistantText,
+    characterNames,
+  });
+  if (!result.ok) {
+    throw new Error(
+      `VisitTurn 提交失败（${result.code}）：保持 settlement pending，不写邻近楼层、不标 settled`,
+    );
+  }
+  return { state: result.state, turns: result.turns };
+}
+
+/**
+ * F03：统一 accepted assistant 结算 helper（runbook §B2-F03 固定顺序 1-9）。
+ * 任意已接受 V2 assistant——包括没有任何 MVU 字段变化的普通闲聊——都必须先
+ * 基于最终 state 构造 VisitTurn，再决定是否需要写盘；只有精确复读证明
+ * VisitTurn 与 lifecycle 同时成立后，调用方才能 markSettlementSucceeded。
+ *
+ * 固定顺序：
+ *   1. 校验当前 chat/owner（调用方完成，此处不重复）；
+ *   2. 按 attempt metadata 校验精确 assistant message（调用方完成）；
+ *   3. 等待既有 variable stage ready（调用方完成）；
+ *   4. 从该 messageId 读取 MVU data（调用方传 currentData）；
+ *   5. 应用 ownership/local settlement，得到最终 GardenState（transformFinalState）；
+ *   6. 无条件对 V2 调用 applyVisitTurnsToFinalState；
+ *   7. 把最终 state 与目标 lifecycle settled 写回同一 messageId（本函数执行）；
+ *   8. 复读并验证（turn + lifecycle 同时成立）；
+ *   9. 验证通过才返回 settled。
+ *
+ * state 相等优化只能放在第 6 步之后，并比较"含 VisitTurn 和 lifecycle 的完整
+ * 目标数据"；只要 turn/lifecycle 有差异就必须写。frozen visit 为 null 导致
+ * 零 turn 是合法情况，但仍验证 request/attempt/commit/lifecycle，不伪造 visit。
+ */
+export interface FinalizeAcceptedAssistantInput {
+  /** MVU 读写接口（bridge 传闭包 requireMvu() 的 mvu）。 */
+  mvu: {
+    getMvuData(options: { type: 'message'; message_id: number }): unknown;
+    replaceMvuData(data: Record<string, unknown>, options: { type: 'message'; message_id: number }): Promise<unknown>;
+  };
+  options: { type: 'message'; message_id: number };
+  /** 写盘前的既有楼层 data（含 stat_data；不含目标 lifecycle）。 */
+  currentData: Record<string, unknown>;
+  /** ownership/local settlement 前的持久化状态基线。 */
+  before: GardenState;
+  assistantText: string;
+  pendingRequest: GalAnyRequest | null;
+  snapshot: MessageTransactionSnapshot;
+  characterNames: Record<string, string>;
+  /** V2 必填：每次调用都重新读取精确 assistant metadata 与当前 swipe。 */
+  readAssistantIdentity?: () => AcceptedAssistantIdentity | null;
+  /** 第 5 步：应用 ownership/local settlement → 最终 GardenState。 */
+  transformFinalState: (state: GardenState) => GardenState;
+}
+
+export type FinalizeAcceptedAssistantResult =
+  | { phase: 'settled' }
+  | { phase: 'noop'; reason: 'already-settled' };
+
+export interface AcceptedAssistantIdentity {
+  messageId: number;
+  swipeId: number;
+  requestId: string;
+  attemptId: string;
+  commitKey: string;
+  chatId: string;
+  ownerCharacterId: string;
+}
+
+function requireAcceptedAssistantIdentity(
+  reader: FinalizeAcceptedAssistantInput['readAssistantIdentity'],
+  snapshot: MessageTransactionSnapshot,
+  options: FinalizeAcceptedAssistantInput['options'],
+): AcceptedAssistantIdentity {
+  const identity = reader?.();
+  if (!identity
+    || !Number.isInteger(identity.messageId)
+    || !Number.isInteger(identity.swipeId)
+    || identity.swipeId < 0
+    || identity.messageId !== options.message_id
+    || identity.messageId !== snapshot.assistantMessageId
+    || identity.requestId !== snapshot.requestId
+    || identity.attemptId !== snapshot.attemptId
+    || identity.commitKey !== snapshot.commitKey
+    || identity.chatId !== snapshot.chatId
+    || identity.ownerCharacterId !== snapshot.ownerCharacterId) {
+    throw new Error('assistant identity/message/swipe/commit 不匹配：保持 settlement pending');
+  }
+  return identity;
+}
+
+function sameAcceptedAssistantIdentity(
+  before: AcceptedAssistantIdentity,
+  after: AcceptedAssistantIdentity,
+) {
+  return before.messageId === after.messageId
+    && before.swipeId === after.swipeId
+    && before.requestId === after.requestId
+    && before.attemptId === after.attemptId
+    && before.commitKey === after.commitKey
+    && before.chatId === after.chatId
+    && before.ownerCharacterId === after.ownerCharacterId;
+}
+
+function verifyFinalizedAssistantData(
+  data: Record<string, unknown>,
+  request: GalAnyRequest | null,
+  snapshot: MessageTransactionSnapshot,
+  expectedTurns: readonly VisitTurn[],
+) {
+  const lifecycle = isRecord(data[COMMIT_LIFECYCLE_KEY]) ? data[COMMIT_LIFECYCLE_KEY] : null;
+  if (lifecycle?.schema !== 'gal-generation-commit.v1'
+    || lifecycle.status !== 'settled'
+    || lifecycle.requestId !== snapshot.requestId
+    || lifecycle.attemptId !== snapshot.attemptId
+    || lifecycle.commitKey !== snapshot.commitKey) {
+    throw new Error('lifecycle 写回后复读身份或状态不一致：保持 settlement pending');
+  }
+  if (request?.schema !== REQUEST_SCHEMA_V2) return;
+  const state = isRecord(data.stat_data) ? data.stat_data as GardenState : {};
+  const verified = verifyCommittedVisitTurns(state, request, expectedTurns);
+  if (!verified.ok) {
+    throw new Error(`VisitTurn 精确复读失败（${verified.code}）：保持 settlement pending`);
+  }
+}
+
+export async function finalizeAcceptedAssistant(
+  input: FinalizeAcceptedAssistantInput,
+): Promise<FinalizeAcceptedAssistantResult> {
+  const {
+    mvu, options, currentData, before, assistantText,
+    pendingRequest, snapshot, characterNames, transformFinalState, readAssistantIdentity,
+  } = input;
+  const identityBefore = pendingRequest?.schema === REQUEST_SCHEMA_V2
+    ? requireAcceptedAssistantIdentity(readAssistantIdentity, snapshot, options)
+    : null;
+  const data = structuredClone(currentData) as Record<string, unknown>;
+  let finalState = transformFinalState(
+    isRecord(data.stat_data) ? data.stat_data as GardenState : before,
+  );
+  // 第 6 步：无条件对 V2 调用 applyVisitTurnsToFinalState（V1/无 request 恒等）。
+  const committed = applyVisitTurnsToFinalState(
+    finalState,
+    pendingRequest,
+    snapshot,
+    assistantText,
+    characterNames,
+    identityBefore?.swipeId ?? null,
+  );
+  finalState = committed.state;
+  if (!snapshot.requestId || !snapshot.attemptId || !snapshot.commitKey) {
+    throw new Error('缺少 attempt 审计标识，不能写 lifecycle：保持 settlement pending');
+  }
+  data.stat_data = finalState;
+  data[COMMIT_LIFECYCLE_KEY] = buildCommitLifecycle({
+    requestId: snapshot.requestId,
+    attemptId: snapshot.attemptId,
+    commitKey: snapshot.commitKey,
+  }, 'settled');
+  // Third-batch source receipt: every newly settled V2 swipe becomes a safe
+  // future regeneration source. The receipt key is excluded from its own hash.
+  if (pendingRequest?.schema === REQUEST_SCHEMA_V2 && identityBefore) {
+    const baselineData = { ...structuredClone(currentData), stat_data: structuredClone(before) };
+    const finalizedWithoutReceipt = structuredClone(data);
+    delete finalizedWithoutReceipt[GAL_REGENERATION_RECEIPT_DATA_KEY];
+    data[GAL_REGENERATION_RECEIPT_DATA_KEY] = createRegenerationCommitReceiptV1({
+      requestId: snapshot.requestId,
+      attemptId: snapshot.attemptId,
+      commitKey: snapshot.commitKey,
+      assistantMessageId: identityBefore.messageId,
+      assistantSwipeId: identityBefore.swipeId,
+      baselineData,
+      modelAppliedData: structuredClone(currentData),
+      finalizedData: finalizedWithoutReceipt,
+      settlementKeys: [],
+    });
+  }
+  // 第 7 步比较：state 相等优化只看"含 VisitTurn + lifecycle 的完整目标数据"。
+  if (JSON.stringify(currentData) === JSON.stringify(data)) {
+    verifyFinalizedAssistantData(data, pendingRequest, snapshot, committed.turns);
+    if (identityBefore) {
+      const identityAfter = requireAcceptedAssistantIdentity(readAssistantIdentity, snapshot, options);
+      if (!sameAcceptedAssistantIdentity(identityBefore, identityAfter)) {
+        throw new Error('assistant swipe 在结算验证期间发生变化：保持 settlement pending');
+      }
+    }
+    return { phase: 'noop', reason: 'already-settled' };
+  }
+  // 第 7 步写盘 + 第 8 步复读验证（turn + lifecycle 同时成立）。
+  // 写盘由调用方通过 IO 注入执行（此处保留统一判定，避免测试与生产路径分叉）。
+  return await settleByWriting(
+    mvu,
+    options,
+    data,
+    pendingRequest,
+    snapshot,
+    committed.turns,
+    identityBefore,
+    readAssistantIdentity,
+  );
+}
+
+/**
+ * 执行写盘 + 复读验证。复读确认 lifecycle settled 且（V2 时）VisitTurn 已落盘，
+ * 才返回 settled；任何缺失都抛错保持 pending（调用方 catch 后 markSettlementFailed）。
+ */
+async function settleByWriting(
+  mvu: FinalizeAcceptedAssistantInput['mvu'],
+  options: FinalizeAcceptedAssistantInput['options'],
+  data: Record<string, unknown>,
+  pendingRequest: GalAnyRequest | null,
+  snapshot: MessageTransactionSnapshot,
+  expectedTurns: readonly VisitTurn[],
+  identityBefore: AcceptedAssistantIdentity | null,
+  readAssistantIdentity: FinalizeAcceptedAssistantInput['readAssistantIdentity'],
+): Promise<FinalizeAcceptedAssistantResult> {
+  await mvu.replaceMvuData(data, options);
+  const reread = structuredClone(mvu.getMvuData(options)) as Record<string, unknown>;
+  verifyFinalizedAssistantData(reread, pendingRequest, snapshot, expectedTurns);
+  if (identityBefore) {
+    const identityAfter = requireAcceptedAssistantIdentity(readAssistantIdentity, snapshot, options);
+    if (!sameAcceptedAssistantIdentity(identityBefore, identityAfter)) {
+      throw new Error('assistant swipe 在写盘期间发生变化：保持 settlement pending');
+    }
+  }
+  return { phase: 'settled' };
+}
+
+function mergeState(base: Record<string, unknown>, current: Record<string, unknown>): Record<string, unknown> {  const merged = structuredClone(base);
   for (const [key, value] of Object.entries(current)) {
     if (isRecord(value) && isRecord(merged[key])) {
       merged[key] = mergeState(merged[key] as Record<string, unknown>, value);
@@ -157,12 +537,35 @@ function hostWindow(): HostGlobals {
   }
 }
 
-function databaseApi(): Record<string, unknown> | undefined {
-  return g.AutoCardUpdaterAPI ?? hostWindow().AutoCardUpdaterAPI;
-}
+// B4-T02：业务代码不再直接探测数据库全局；诊断/能力一律从 memoryPort 读取。
 
 function currentChatId(): string {
-  return String(g.SillyTavern?.getCurrentChatId?.() ?? hostWindow().SillyTavern?.getCurrentChatId?.() ?? '').trim();
+  // ST 1.18 中 getCurrentChatId 位于 getContext() 返回的 context 上，不在 SillyTavern 顶层；
+  // 顶层与 context 两处都探测，兼容不同宿主版本。
+  const direct = g.SillyTavern?.getCurrentChatId?.() ?? hostWindow().SillyTavern?.getCurrentChatId?.();
+  const viaContext = g.SillyTavern?.getContext?.()?.getCurrentChatId?.()
+    ?? hostWindow().SillyTavern?.getContext?.()?.getCurrentChatId?.();
+  return String(direct ?? viaContext ?? '').trim();
+}
+
+/**
+ * Phase 1.2 — 请求前聊天状态快照（纯捕获，不改变任何行为）。
+ * 调用方（sendUserMessage）在创建 request 时传入；本函数不写聊天、不等待事件。
+ */
+function captureRequestSnapshot(sceneId: string | null): RequestChatSnapshot {
+  const raw = readRawMessages({ include_swipes: false, hide_state: 'all' });
+  const last = raw[raw.length - 1];
+  const lastMessageId = last ? Number(last.message_id ?? last.id) : NaN;
+  return {
+    ownerCharacterId: String(g.SillyTavern?.getContext?.().characterId ?? ''),
+    chatId: currentChatId(),
+    stateMessageIdBeforeGeneration: Number.isFinite(lastMessageId) ? lastMessageId : null,
+    stateSwipeIdBeforeGeneration: last && typeof last.swipe_id === 'number' ? last.swipe_id : null,
+    sceneId,
+    historyFingerprintInput: raw
+      .map((message) => `${String(message.message_id ?? message.id ?? '')}:${messageRole(message)}`)
+      .join(','),
+  };
 }
 
 function nativeSendStopButtonGenerating(): boolean | null {
@@ -208,6 +611,9 @@ function messagesFromContextChat(): Array<Record<string, unknown>> {
     const api = g.SillyTavern ?? hostWindow().SillyTavern;
     const chat = api?.getContext?.()?.chat;
     if (!Array.isArray(chat) || chat.length === 0) return [];
+    // 楼层号 = 数组索引（ST 1.18 内存 chat 楼层无 message_id 字段；Helper getChatMessages
+    // 的 message_id 同样是 0 基索引——两视图一致，与 createChatMessages 的追加语义一致）。
+    // role：宿主楼层无 role 字段，用 is_user/is_system 派生。
     return chat.map((item, message_id) => {
       const record = item as Record<string, unknown>;
       const mes = String(record.mes ?? '');
@@ -217,17 +623,33 @@ function messagesFromContextChat(): Array<Record<string, unknown>> {
       return {
         message_id,
         name: String(record.name ?? ''),
-        role: record.is_user ? 'user' : 'assistant',
+        role: record.is_user ? 'user' : record.is_system ? 'system' : 'assistant',
         message: mes,
         swipes,
         swipe_id: typeof record.swipe_id === 'number' ? record.swipe_id : 0,
         extra: record.extra && typeof record.extra === 'object' ? record.extra : {},
+        data: record.data && typeof record.data === 'object' ? record.data : {},
         is_hidden: Boolean(record.is_system),
       };
     });
   } catch {
     return [];
   }
+}
+
+/**
+ * Phase 4 实机修复：ST 1.18 对 assistant 楼层的 extra 规范化——保留键
+ * （send_date/gen_started/gen_finished）平铺，自定义 metadata 包进 extra.extra 子对象；
+ * 玩家楼层则不规范化（自定义直接平铺）。统一展平：合并 extra 与 extra.extra。
+ */
+function flattenMessageExtra(extra: unknown): Record<string, unknown> {
+  if (!extra || typeof extra !== 'object') return {};
+  const rec = extra as Record<string, unknown>;
+  const nested = rec.extra;
+  if (nested && typeof nested === 'object' && Object.keys(nested as Record<string, unknown>).length) {
+    return { ...rec, ...(nested as Record<string, unknown>) };
+  }
+  return rec;
 }
 
 function readRawMessages(options: Record<string, unknown> = {}): Array<Record<string, unknown>> {
@@ -243,6 +665,8 @@ function readRawMessages(options: Record<string, unknown> = {}): Array<Record<st
     if (Number.isInteger(id) && Number(id) >= 0) ranges.push(`0-${id}`);
   } catch { /* optional helper */ }
   ranges.push('0-{{lastMessageId}}');
+  // Phase 4 实机修复：kH 的区间语义中 -1=倒数第一条（单条），'0--1'=0 到倒数第一条（全部）。
+  ranges.push('0--1');
 
   let best: Array<Record<string, unknown>> = [];
   for (const range of ranges) {
@@ -259,10 +683,22 @@ function readRawMessages(options: Record<string, unknown> = {}): Array<Record<st
   }
   // Tavern Helper ranges are not guaranteed to preserve chronological array
   // order. Every transaction is defined by message_id, never by response index.
-  return best.slice().sort((left, right) => Number(left.message_id ?? -1) - Number(right.message_id ?? -1));
+  return best
+    .slice()
+    .sort((left, right) => Number(left.message_id ?? -1) - Number(right.message_id ?? -1))
+    .map((record) => ({ ...record, extra: flattenMessageExtra(record.extra) }));
 }
 
 function activeMessages(): Array<Record<string, unknown>> {
+  // Phase 4 实机修复（skill：target runtime wins）：优先宿主 getContext().chat——真实
+  // message_id（1 基，与 createChatMessages 写侧一致）+ assistant 自定义 metadata 平铺在
+  // extra 顶层。Helper getChatMessages 的 message_id 是数组索引（0 基）、assistant extra
+  // 嵌套（metadata 在 extra.extra）——仅作宿主不可用时的 fallback（readRawMessages 已展平）。
+  const hostChat = (hostWindow().SillyTavern as { getContext?: () => { chat?: Array<Record<string, unknown>> } } | undefined)
+    ?.getContext?.()?.chat;
+  if (Array.isArray(hostChat) && hostChat.length) {
+    return messagesFromContextChat();
+  }
   return readRawMessages({ include_swipes: false, hide_state: 'all' });
 }
 
@@ -270,6 +706,37 @@ function messageRole(message: Record<string, unknown>) {
   if (message.role === 'user' || message.is_user === true) return 'user';
   if (message.role === 'system' || message.is_system === true) return 'system';
   return 'assistant';
+}
+
+/**
+ * 完整 MVU 快照：chat-scope 会话变量 + 当前庭园状态（stat_data）。
+ * 真实 MagVarUpdate 宿主中 stat_data 不存在于 chat scope（getMvuData({type:'chat'})
+ * 只返回 zhihuiji/output_language 等会话变量），而是持久化在每条 assistant 消息
+ * 楼层的 data.stat_data（与 latestPersistedState 同源）；character scope 的
+ * stat_data 是陈旧副本，仅作回退。存档/读档的 readMvuData 必须合并两者，
+ * 否则 captureSavePayload/restoreSavePayload 的 stat_data 校验会失败。
+ */
+function snapshotMvu(mvu: NonNullable<HostGlobals['Mvu']>): Record<string, unknown> {
+  const chatData = structuredClone(mvu.getMvuData({ type: 'chat' })) as Record<string, unknown>;
+  let statData: unknown;
+  try {
+    const raw = readRawMessages({ include_swipes: false, hide_state: 'all' });
+    const lastAssistant = [...raw].reverse().find((message) => messageRole(message) === 'assistant');
+    if (lastAssistant) {
+      const messageId = Number(lastAssistant.message_id);
+      if (Number.isInteger(messageId) && messageId >= 0) {
+        const msgData = mvu.getMvuData({ type: 'message', message_id: messageId }) as Record<string, unknown> | undefined;
+        if (isRecord(msgData?.stat_data)) statData = msgData.stat_data;
+      }
+    }
+  } catch { /* 楼层读取失败时回退 character scope */ }
+  if (!isRecord(statData)) {
+    try {
+      const characterData = mvu.getMvuData({ type: 'character' }) as Record<string, unknown> | undefined;
+      if (isRecord(characterData?.stat_data)) statData = characterData.stat_data;
+    } catch { /* 双源都缺失时快照不含 stat_data */ }
+  }
+  return { ...chatData, ...(isRecord(statData) ? { stat_data: statData } : {}) };
 }
 
 interface PersistedMessage {
@@ -354,10 +821,34 @@ export function createHostBridge(): GardenBridge | null {
   let hostGenerationActive = false;
   let hostGenerationStartedEpoch = 0;
   let regenerationPhase: 'idle' | 'generating' | 'settling' = 'idle';
+  let chatRestoreToken = 0;
+  // Phase 2 增量 A：本桥会话 epoch（iframe/桥重建后变化；初始 chat identity 用）。
+  const sessionEpoch = Date.now();
+  // Phase 2 增量 B：generation transport（计划 §2.7）。迁移期默认 native-trigger；
+  // 只有 helper-generate 实机验收通过后才切换。宿主可注入 __GAL_GENERATION_TRANSPORT__
+  // 覆盖（验收/回滚不碰代码），诊断可见当前值。
+  const generationTransport: 'native-trigger' | 'helper-generate' =
+    (hostWindow() as HostGlobals).__GAL_GENERATION_TRANSPORT__ === 'helper-generate' ? 'helper-generate' : 'native-trigger';
+  // O01/O02: the exact Helper 4.8.18 APIs are wired, but no runtime probe is
+  // claimed in this batch. Production therefore requires an explicit opt-in;
+  // there is no silent fallback after the transactional path starts.
+  const regenerationTransport: 'native-regenerate' | 'helper-generate-swipe' =
+    (hostWindow() as HostGlobals).__GAL_REGENERATION_TRANSPORT__ === 'helper-generate-swipe'
+      ? 'helper-generate-swipe'
+      : 'native-regenerate';
+  let regenerationCoordinator: GalRegenerationCoordinatorV1 | null = null;
+  // 当前逻辑请求（sendUserMessage 创建；helper-generate 构造 generate() config 用）。
+  let pendingRequest: GalAnyRequest | null = null;
+  // Phase 2 增量 D：assistant 落楼失败时保留的已生成文本（显式重试落楼，不再调模型）。
+  let pendingHelperResult: string | null = null;
+  // Phase 2 增量 D：helper-generate 流式文本（pending GAL 指示投影）。
+  let pendingStreamText = '';
   const transactions = new MessageTransactionCoordinator({
     currentChatId,
     listMessages: activeMessages,
     isGenerationActive: () => hostGenerationActive,
+    chatEpoch: () => sessionEpoch,
+    mvuEpoch: () => variableUpdateEpoch,
     async createUserMessage(message, extra) {
       await g.createChatMessages?.(
         [{ role: 'user', message, is_hidden: false, extra }],
@@ -371,6 +862,16 @@ export function createHostBridge(): GardenBridge | null {
       await new Promise<void>((resolve) => globalThis.setTimeout(resolve, 450));
     },
     async triggerGeneration() {
+      const current = transactions.read();
+      // 第二批 V2：冻结请求一律固定 helper-generate 路径（禁 /trigger 静默回退）；
+      // generate() 不可用时 runHelperGenerate 内部 fail-closed（抛错），不落入旧触发分支。
+      const isV2Pending = pendingRequest?.schema === REQUEST_SCHEMA_V2;
+      if (pendingRequest
+        && current.requestId === pendingRequest.requestId
+        && (generationTransport === 'helper-generate' || isV2Pending)) {
+        await runHelperGenerate();
+        return;
+      }
       const startedEpoch = hostGenerationStartedEpoch;
       hostGenerationActive = true;
       await g.triggerSlash?.('/trigger await=true');
@@ -390,6 +891,332 @@ export function createHostBridge(): GardenBridge | null {
     return g.Mvu;
   };
 
+  const collectRuntimeDiagnostics = async (): Promise<RuntimeDiagnostics> => {
+    let mvuReady = false;
+    try { await requireMvu(); mvuReady = true; } catch { mvuReady = false; }
+    return {
+      mode: 'host',
+      tavernVersion: g.getTavernVersion?.() ?? 'unknown',
+      helperVersion: g.getTavernHelperVersion?.() ?? 'unknown',
+      mvuReady,
+      bridgeVersion: '0.4.3-host-generate-r26',
+      generationTransport,
+      regenerationTransport,
+      regenerationBlockedReason: regenerationTransport === 'native-regenerate'
+        ? '事务代码已接线；未做真实宿主时序/探针验收，默认保留 native-regenerate'
+        : undefined,
+      databaseAvailable: memoryPort.capability === 'available',
+      databaseVersion: memoryPort.capability === 'available'
+        ? 'SP·数据库 VII（database-assisted）'
+        : memoryPort.capability === 'unavailable'
+          ? '数据库增强版（能力未就绪）'
+          : '独立 MVU 版：数据库能力未装配',
+      lastError: lastError || undefined,
+    };
+  };
+
+  const readAcceptedAssistantIdentity = (snapshot: MessageTransactionSnapshot) => () => {
+    const assistantMessageId = Number(snapshot.assistantMessageId);
+    const message = activeMessages().find((item) => Number(item.message_id) === assistantMessageId);
+    if (!message || messageRole(message) !== 'assistant') return null;
+    const metadata = parseAttemptMetadata(message.extra);
+    const swipeId = Number(message.swipe_id);
+    if (!metadata.ok || !Number.isInteger(swipeId) || swipeId < 0) return null;
+    return {
+      messageId: assistantMessageId,
+      swipeId,
+      requestId: String(metadata.value.requestId ?? ''),
+      attemptId: String(metadata.value.attemptId ?? ''),
+      commitKey: String(metadata.value.commitKey ?? ''),
+      chatId: String(metadata.value.chatId ?? ''),
+      ownerCharacterId: String(metadata.value.ownerCharacterId ?? ''),
+    } satisfies AcceptedAssistantIdentity;
+  };
+
+  const persistCommitSettled = async (snapshot: MessageTransactionSnapshot) => {
+    const assistantMessageId = Number(snapshot.assistantMessageId);
+    if (!snapshot.requestId || !snapshot.attemptId || !snapshot.commitKey
+      || !Number.isInteger(assistantMessageId) || assistantMessageId < 0) return;
+    const message = activeMessages().find((item) => Number(item.message_id) === assistantMessageId);
+    const metadata = parseAttemptMetadata(message?.extra);
+    if (!metadata.ok || metadata.value.commitKey !== snapshot.commitKey) return;
+    const mvu = await requireMvu();
+    if (!mvu.replaceMvuData) return;
+    const options = { type: 'message' as const, message_id: assistantMessageId };
+    const data = structuredClone(mvu.getMvuData(options)) as Record<string, unknown>;
+    const current = isRecord(data[COMMIT_LIFECYCLE_KEY]) ? data[COMMIT_LIFECYCLE_KEY] : null;
+    if (snapshot.requestSchema === REQUEST_SCHEMA_V2) {
+      if (pendingRequest?.schema !== REQUEST_SCHEMA_V2 || pendingRequest.requestId !== snapshot.requestId) {
+        throw new Error('冻结 V2 request 缺失，禁止单独标记 lifecycle settled');
+      }
+      const identityReader = readAcceptedAssistantIdentity(snapshot);
+      const identityBefore = requireAcceptedAssistantIdentity(identityReader, snapshot, options);
+      const statData = isRecord(data.stat_data) ? data.stat_data as GardenState : {};
+      const assistantText = String(message?.message ?? message?.mes ?? '');
+      const expected = applyVisitTurnsToFinalState(
+        statData,
+        pendingRequest,
+        snapshot,
+        assistantText,
+        characterNamesOf(statData),
+        identityBefore.swipeId,
+      );
+      verifyFinalizedAssistantData(data, pendingRequest, snapshot, expected.turns);
+      const identityAfter = requireAcceptedAssistantIdentity(identityReader, snapshot, options);
+      if (!sameAcceptedAssistantIdentity(identityBefore, identityAfter)) {
+        throw new Error('assistant swipe 在 lifecycle 验证期间发生变化');
+      }
+      return;
+    }
+    if (current?.status === 'settled' && current.commitKey === snapshot.commitKey) return;
+    data[COMMIT_LIFECYCLE_KEY] = buildCommitLifecycle({
+      requestId: snapshot.requestId,
+      attemptId: snapshot.attemptId,
+      commitKey: snapshot.commitKey,
+    }, 'settled');
+    await mvu.replaceMvuData(data, options);
+    // 写后复读：turn + lifecycle 同时成立才视为 settled 确认（两阶段写的第二阶段）。
+    const reread = structuredClone(mvu.getMvuData(options)) as Record<string, unknown>;
+    const rereadLifecycle = isRecord(reread[COMMIT_LIFECYCLE_KEY]) ? reread[COMMIT_LIFECYCLE_KEY] : null;
+    if (rereadLifecycle?.status !== 'settled' || rereadLifecycle?.commitKey !== snapshot.commitKey) {
+      throw new Error('lifecycle 写回后复读仍非 settled');
+    }
+  };
+
+  /**
+   * 从事务快照重建 attempt（helper-generate 的落楼/重试共用）。
+   */
+  const buildAttemptFromSnapshot = (snapshot: MessageTransactionSnapshot): GalGenerationAttempt | null => {
+    if (!snapshot.requestId || !snapshot.attemptId || !snapshot.generationId) return null;
+    return {
+      schema: 'gal-generation-attempt.v1',
+      requestId: snapshot.requestId,
+      attemptId: snapshot.attemptId,
+      generationId: snapshot.generationId,
+      mode: 'send',
+      chatId: snapshot.chatId,
+      ownerCharacterId: snapshot.ownerCharacterId ?? '',
+      commitKey: snapshot.commitKey ?? `${snapshot.requestId}:${snapshot.attemptId}`,
+      createdAt: new Date().toISOString(),
+    };
+  };
+
+  /**
+   * Phase 4 §4.2：挂载时从真实聊天重建事务（iframe/热更新/bundle 重载后内存事务视为丢失）。
+   * 幂等：绑定 ownerCharacterId + chatId + requestId；incomplete/conflict 进入恢复态
+   * （禁止自动重发），confirmed 恢复 settled 与 GAL 投影；none 正常开放发送。
+   */
+  const restoreFromChat = () => {
+    const identity = {
+      ownerCharacterId: String(g.SillyTavern?.getContext?.().characterId ?? ''),
+      chatId: currentChatId(),
+    };
+    if (!identity.chatId) return;
+    const result = analyzeChatRestore(activeMessages(), identity);
+    // F02：恢复出的 request 必须成为本次恢复事务的唯一内存冻结请求；
+    // conflict/none 清空，绝不让上一个 chat/request 残留。
+    if (result.kind === 'incomplete' || result.kind === 'settlement-pending' || result.kind === 'confirmed') {
+      pendingRequest = result.request;
+    } else {
+      pendingRequest = null;
+    }
+    if (transactions.restoreFromChat(result)) {
+      console.debug('[gal:restore]', result.kind);
+    }
+  };
+  restoreFromChat();
+
+  /**
+   * 幂等写入 helper-generate 的 assistant 楼层（commitKey 反查复用；refresh:'affected'
+   * 触发 MESSAGE_RECEIVED → MVU，Probe B 实测）。调用方负责 chat identity 复核。
+   */
+  const writeHelperAssistantMessage = async (attempt: GalGenerationAttempt, text: string): Promise<void> => {
+    const commit = resolveAssistantMessageByCommitKey(activeMessages(), attempt.requestId, attempt.attemptId);
+    if (commit.ok) return; // 已存在：幂等复用
+    if (commit.code === 'ambiguous') throw new Error('助手楼层 commitKey 反查歧义，禁止猜 ID');
+    const mvu = await requireMvu();
+    const latest = latestPersistedMessage(mvu);
+    // MVU 变量域（stat_data 五字段）：ST 原生楼层的 data 结构不含 stat_data，
+    // 必须用最新持久化 state 构造，否则该楼层不参与 MVU 变量更新（Probe B 实测）。
+    const baseData = latest?.state
+      ? { ...EMPTY_MVU_DATA, stat_data: latest.state }
+      : EMPTY_MVU_DATA;
+    const data = {
+      ...baseData,
+      [COMMIT_LIFECYCLE_KEY]: buildCommitLifecycle(attempt, 'pending'),
+    };
+    await g.createChatMessages?.(
+      [{ role: 'assistant', message: text, is_hidden: false, data, extra: buildAttemptMetadata(attempt) }],
+      { insert_before: 'end', refresh: 'affected' },
+    );
+  };
+
+  /**
+   * Phase 2 增量 B：helper-generate 发送路径。
+   * - generate() Promise 为唯一权威；start/stream/end 事件按 generationId 过滤；
+   * - should_silence:true（不干扰 ST 停止按钮）；历史由 overrides.chat_history.prompts 提供
+   *   （排除本次玩家楼层，避免与 user_input 重复）；
+   * - resolve 后：chat identity 复核 → 输出校验（空/空白/tool-call）→ 幂等写 assistant 楼层
+   *   （落楼失败保留内存结果供显式重试，不再自动调模型）；
+   * - stream 文本经 CustomEvent 广播（pending GAL 指示）；listener finally 清理。
+   */
+  const runHelperGenerate = async () => {
+    const snapshot = transactions.read();
+    const request = pendingRequest;
+    if (!request || !g.generate) throw new Error('helper-generate 需要有效 request 与 generate()');
+    const attempt = buildAttemptFromSnapshot(snapshot);
+    if (!attempt) throw new Error('helper-generate 需要有效 attempt 标识');
+    // 当前 snapshot 是本次真实 attempt；pendingRequest 只保存下一次模型调用的序号。
+    pendingRequest = advanceAnyRequest(request, snapshot.attemptSeq ?? request.attemptSeq);
+    const userMessageId = snapshot.userMessageId ?? null;
+    const startedEpoch = hostGenerationStartedEpoch;
+    hostGenerationActive = true;
+    const iframeEvents = g.iframe_events ?? hostWindow().TavernHelper?.iframe_events ?? {};
+    const unsubs: Array<() => void> = [];
+    const subscribe = (name: string | undefined, listener: (...args: unknown[]) => void) => {
+      if (!name || !g.eventOn) return;
+      try {
+        const sub = g.eventOn(name, listener);
+        if (sub && typeof sub.stop === 'function') unsubs.push(sub.stop);
+      } catch { /* ignore */ }
+    };
+    let endedLogged = false;
+    // Phase 3：停止请求（玩家 stop 按钮 → stopGenerationById → 本事件/或 generate reject 到达）。
+    let stopRequested = false;
+    const trace = (event: string, detail: unknown = '') => {
+      console.debug(`[gal:helper-generate] ${attempt.generationId} ${event}`, detail);
+    };
+    subscribe(iframeEvents.GENERATION_STARTED, (id) => { if (id !== attempt.generationId) return; trace('started'); });
+    subscribe(iframeEvents.STREAM_TOKEN_RECEIVED_FULLY, (text, id) => {
+      if (id !== attempt.generationId) return;
+      if (typeof text === 'string') {
+        pendingStreamText = text;
+        // 投影到 pending GAL 指示（app 监听更新生成中文本）。
+        globalThis.dispatchEvent(new CustomEvent('gensokyo-garden:generation-stream', { detail: { text } }));
+      }
+      trace('stream', typeof text === 'string' ? `${text.length} chars` : '?');
+    });
+    subscribe(iframeEvents.GENERATION_ENDED, (text, id) => {
+      if (id !== attempt.generationId || endedLogged) return;
+      endedLogged = true;
+      trace('ended', typeof text === 'string' ? `${text.length} chars` : '?');
+    });
+    // 实机事实：宿主 iframe_events 运行时缺 GENERATION_STOPPED 键（dist 常量 'generation_stopped' 存在）——
+    // 用 fallback 字面量保证订阅；缺订阅也不影响停止语义（stopWasRequested 双源：事件 + phase==='stopping'）。
+    const stoppedEventName = iframeEvents.GENERATION_STOPPED ?? 'generation_stopped';
+    subscribe(stoppedEventName, (id) => {
+      if (id !== attempt.generationId) return;
+      stopRequested = true;
+      trace('stopped');
+    });
+    const stopWasRequested = () => stopRequested || transactions.read().phase === 'stopping';
+    try {
+      // 第二批 V2：生成历史 = 冻结的合成历史（恰好一条、非空、system-only），
+      // 并显式 with_depth_entries:false，杜绝真实楼层/深度条目进入生成调用；
+      // 第三批 T02：V2 config 由统一纯 builder 构造（send 与 regenerate 共用，
+      // builder 不读宿主、不改 request，generation_id 由 attempt 提供）；
+      // V1 兼容路径保留 buildChatHistoryForGenerate（Phase 2 增量 B 语义，仅旧事务恢复用）。
+      const isV2Request = request.schema === REQUEST_SCHEMA_V2;
+      const config = isV2Request
+        ? (() => {
+          const built = buildGalGenerateConfig(request as GalGenerationRequestV2, { generationId: attempt.generationId });
+          if (!built.ok) {
+            throw new Error('V2 冻结请求缺少恰好一条非空 system 合成历史，拒绝生成');
+          }
+          return built.built.config;
+        })()
+        : {
+          generation_id: attempt.generationId,
+          user_input: request.modelUserInput,
+          should_stream: false,
+          should_silence: true,
+          overrides: {
+            chat_history: {
+              prompts: buildChatHistoryForGenerate(activeMessages(), userMessageId),
+            },
+          },
+        };
+      trace('call');
+      // 记录生成前最后楼层 id：ST 1.18 的 generate() 会自动落楼（should_silence 不抑制），
+      // resolve 后若发现新落 assistant 楼层则复用并补 attempt metadata（幂等建立 commitKey），
+      // 未落楼才由本卡写入（避免双写）。
+      const floorsBefore = Number(activeMessages().at(-1)?.message_id ?? 0);
+      let result: unknown;
+      try {
+        result = await g.generate(config);
+      } catch (error) {
+        // Phase 3：停止已请求 → abort 导致的 reject 属预期结束，转入停止对账（不显示为失败）。
+        if (stopWasRequested()) {
+          trace('stopped_rejected');
+          return;
+        }
+        throw error;
+      }
+      trace('resolved', typeof result);
+      // Phase 3：停止后迟到 resolve（abort 竞态下模型可能先返回）——迟到文本不得落正式楼层。
+      if (stopWasRequested()) {
+        trace('late_resolve_ignored');
+        return;
+      }
+      // 输出校验（计划 §2.4）：tool-call 结果不落楼，明确失败供重试。
+      if (typeof result !== 'string') {
+        trace('unsupported_tool_call');
+        throw new Error('模型返回了不支持的 tool-call 结果，请重试本次请求');
+      }
+      const text = result;
+      if (!text.trim()) {
+        // 空/空白结果：不落空楼层（保持可重试）。
+        trace('empty_result');
+        return;
+      }
+      // chat identity 复核（写前）：切聊天不落楼
+      const currentOwnerCharacterId = String(g.SillyTavern?.getContext?.().characterId ?? '');
+      if (currentChatId().trim() !== snapshot.chatId
+        || currentOwnerCharacterId !== snapshot.ownerCharacterId) {
+        trace('ignored_chat_switched');
+        return;
+      }
+      try {
+        const stFloor = activeMessages()
+          .filter((m) => m.role === 'assistant' && Number(m.message_id ?? 0) > floorsBefore)
+          .at(-1);
+        if (stFloor) {
+          // ST 自动落楼：复用楼层并补 attempt metadata + MVU 变量域（幂等 commitKey 语义）。
+          const mvuForSt = await requireMvu();
+          const latestForSt = latestPersistedMessage(mvuForSt);
+          const baseDataForSt = latestForSt?.state
+            ? { ...EMPTY_MVU_DATA, stat_data: latestForSt.state }
+            : EMPTY_MVU_DATA;
+          const dataForSt = {
+            ...baseDataForSt,
+            [COMMIT_LIFECYCLE_KEY]: buildCommitLifecycle(attempt, 'pending'),
+          };
+          await g.createChatMessages?.(
+            [{ ...stFloor, data: dataForSt, extra: { ...(stFloor.extra ?? {}), ...buildAttemptMetadata(attempt) } }],
+            { refresh: 'affected' },
+          );
+          trace('st_persisted', stFloor.message_id);
+        } else {
+          await writeHelperAssistantMessage(attempt, text);
+          trace('persisted');
+        }
+      } catch (error) {
+        // 计划 §2.6：assistant 创建失败——保留内存结果供显式重试落楼，禁止自动再调模型。
+        pendingHelperResult = text;
+        console.warn('[gal:helper-generate] assistant 落楼失败，已保留生成结果供显式重试：', error instanceof Error ? error.message : String(error));
+        throw error;
+      }
+    } finally {
+      unsubs.forEach((stop) => { try { stop(); } catch { /* ignore */ } });
+      pendingStreamText = '';
+      // Phase 3：停止对账——已请求停止则 stopping → failed（可从头重试）。
+      if (stopRequested || transactions.read().phase === 'stopping') {
+        transactions.markStopReconciled();
+      }
+      if (hostGenerationStartedEpoch === startedEpoch) hostGenerationActive = false;
+    }
+  };
+
   let pendingSettlement: {
     before: GardenState;
     action: GardenActionMarker;
@@ -406,6 +1233,7 @@ export function createHostBridge(): GardenBridge | null {
   let pendingVariableEpoch = 0;
   let assistantObservedAt = 0;
   let cardOperationInFlight = false;
+  let saveOperationInFlight = false;
 
   const readTransaction = () => {
     const snapshot = transactions.read();
@@ -434,19 +1262,31 @@ export function createHostBridge(): GardenBridge | null {
     }
   };
 
-  const variableStageReady = (mvu: HostGlobals['Mvu']) => {
-    if (variableUpdateEpoch > pendingVariableEpoch) return true;
-    if (mvu?.isDuringExtraAnalysis?.()) return false;
-    return assistantObservedAt > 0 && Date.now() - assistantObservedAt >= 2500;
+  const variableStageReady = (mvu: HostGlobals['Mvu'], assistantMessageId?: number) => {
+    // helper assistant 会用上一层 stat_data 初始化变量基。存在 stat_data 不能证明
+    // MagVarUpdate 已处理本回复，否则会在真实更新开始前提前进入本地结算。
+    return isVariableStageReady({
+      updateEpoch: variableUpdateEpoch,
+      baselineEpoch: pendingVariableEpoch,
+      isAnalyzing: Boolean(mvu?.isDuringExtraAnalysis?.()),
+      assistantObservedAt,
+      now: Date.now(),
+    });
   };
 
-  const waitForVariableStage = async () => {
+  const waitForVariableStage = async (assistantMessageId?: number) => {
     const startedAt = Date.now();
+    // 绑定助手楼层（如有）：优先等待目标楼层变量；Helper 的 VARIABLE_UPDATE_ENDED 事件
+    // 不带楼层参数，故按 epoch 聚合（Probe B 实测），楼层复核在 getMvuData 层进行。
+    if (Number.isInteger(assistantMessageId)) {
+      console.debug(`[gal:mvu] waitForVariableStage 绑定楼层 ${assistantMessageId}`);
+    }
     while (pendingSettlement || pendingOwnershipBefore || pendingSystemOperation) {
       const mvu = await requireMvu();
-      if (variableStageReady(mvu)) return;
+      if (variableStageReady(mvu, assistantMessageId)) return;
       if (Date.now() - startedAt >= 90000) {
-        throw new Error('额外变量解析超过 90 秒仍未结束，已暂停本地结算以避免覆盖变量结果');
+        // 计划 §2.5：timeout 后不得再次生成文本，只进入“回复已保存、变量结算未完成”恢复状态。
+        throw new Error(`回复已保存，但变量结算未在 90 秒内完成（目标楼层 ${assistantMessageId ?? '未绑定'}）；只恢复结算，不再生成文本`);
       }
       await new Promise<void>((resolve) => globalThis.setTimeout(resolve, 100));
     }
@@ -477,6 +1317,7 @@ export function createHostBridge(): GardenBridge | null {
     action: GardenActionMarker,
     assistantMessageId: number,
     assistantText: string,
+    snapshot?: MessageTransactionSnapshot,
   ) => {
     const mvu = await requireMvu();
     if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持本地事件结算');
@@ -492,30 +1333,46 @@ export function createHostBridge(): GardenBridge | null {
       event_id: action.event_id,
       result: parsedResult,
     })}</GensokyoEventResult>`;
-    const options = { type: 'message', message_id: assistantMessageId };
+    const options = { type: 'message' as const, message_id: assistantMessageId };
     const data = structuredClone(mvu.getMvuData(options)) as Record<string, unknown>;
-    const current = isRecord(data.stat_data) ? data.stat_data as GardenState : {};
     // A local write (notably an acceptance jump) may have updated the previous
     // assistant floor after this request was submitted. Rebase on that durable
     // floor instead of resurrecting the stale send-time snapshot.
     const ownershipBase = persistedStateBefore(mvu, assistantMessageId) ?? before;
-    const safeCurrent = restoreLocalEventOwnership(ownershipBase, current, true);
-    const settledState = applyLocalSettlement(
-      safeCurrent,
-      action,
-      assistantMessageId,
-      settlementText,
-    );
-    const nextState = hasLocalPresenceTransition(action)
-      ? settledState
-      : applyPresenceUpdate(settledState, assistantText);
-    // 固定事件可能推进时段：写盘前基于结算前后状态运行一次统一调度，
-    // 让到期离场/到期计划/活动生命周期在同一个写盘事务内完成。
-    const reconciledState = reconcileM2Runtime(safeCurrent, nextState, currentChatId());
-    data.stat_data = reconciledState;
-    await mvu.replaceMvuData(data, options);
+    // F03：事件结算转换 = ownership 恢复 + 事件结算 + presence + 统一调度（第 5 步），
+    // 之后统一 helper 无条件对 V2 构造 VisitTurn 并写盘 + 复读验证（第 6-8 步）。
+    const transformFinalState = (base: GardenState): GardenState => {
+      const safeCurrent = restoreLocalEventOwnership(ownershipBase, base, true);
+      const settledState = applyLocalSettlement(
+        safeCurrent,
+        action,
+        assistantMessageId,
+        settlementText,
+      );
+      const nextState = hasLocalPresenceTransition(action)
+        ? settledState
+        : applyPresenceUpdate(settledState, assistantText);
+      // 固定事件可能推进时段：写盘前基于结算前后状态运行一次统一调度，
+      // 让到期离场/到期计划/活动生命周期在同一个写盘事务内完成。
+      return reconcileM2Runtime(safeCurrent, nextState, currentChatId());
+    };
+    const commitSnapshot = snapshot ?? transactions.read();
+    const outcome = await finalizeAcceptedAssistant({
+      mvu: mvu as FinalizeAcceptedAssistantInput['mvu'],
+      options,
+      currentData: data,
+      before,
+      assistantText,
+      pendingRequest,
+      snapshot: commitSnapshot,
+      characterNames: characterNamesOf(before),
+      readAssistantIdentity: readAcceptedAssistantIdentity(commitSnapshot),
+      transformFinalState,
+    });
+    void outcome;
+    // settlementProjection 继续负责事件事实（不得冒充 VisitTurn 验证器）。
     const reread = mvu.getMvuData(options).stat_data ?? {};
-    if (!settlementProjection(reread, action, assistantMessageId, reconciledState)) {
+    if (!settlementProjection(reread, action, assistantMessageId, reread as GardenState)) {
       throw new Error(`事件 ${action.event_id} 写入后复读校验失败`);
     }
   };
@@ -561,46 +1418,130 @@ export function createHostBridge(): GardenBridge | null {
     if (!snapshot.assistantResponded || !Number.isInteger(assistantMessageId) || assistantMessageId < 0) return snapshot;
     const mvu = await requireMvu();
     if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持本地事件边界校验');
-    const options = { type: 'message', message_id: assistantMessageId };
+    const options = { type: 'message' as const, message_id: assistantMessageId };
     const data = structuredClone(mvu.getMvuData(options)) as Record<string, unknown>;
-    const current = isRecord(data.stat_data) ? data.stat_data as GardenState : {};
     const raw = activeMessages().find((message) => Number(message.message_id) === assistantMessageId);
     const assistantText = String(raw?.message ?? raw?.mes ?? '');
     const ownershipBase = persistedStateBefore(mvu, assistantMessageId) ?? before;
-    let protectedState = reconcileM2Runtime(ownershipBase, applyPresenceUpdate(
-      restoreLocalEventOwnership(ownershipBase, current),
-      assistantText,
-    ), currentChatId());
-    if (pendingSystemOperation?.type === 'anomaly_resolution') {
-      const operationId = pendingSystemOperation.operationId;
-      if (!protectedState.events?.settled_ids?.includes(operationId)) {
-        protectedState = resolveAnomaly(protectedState, assistantMessageId);
-        protectedState.events ??= {};
-        protectedState.events.settled_ids = Array.from(new Set([
-          ...(protectedState.events.settled_ids ?? []),
-          operationId,
-        ])).slice(-256);
+    // F03：统一 helper——先基于最终 state 构造 VisitTurn，再决定是否写盘；
+    // 只有精确复读证明 VisitTurn 与 lifecycle 同时成立才 settled。
+    // transformFinalState = ownership 恢复 + 系统操作转换（第 5 步）。
+    const transformFinalState = (base: GardenState): GardenState => {
+      let next = reconcileM2Runtime(ownershipBase, applyPresenceUpdate(
+        restoreLocalEventOwnership(ownershipBase, base),
+        assistantText,
+      ), currentChatId());
+      if (pendingSystemOperation?.type === 'anomaly_resolution') {
+        const operationId = pendingSystemOperation.operationId;
+        if (!next.events?.settled_ids?.includes(operationId)) {
+          next = resolveAnomaly(next, assistantMessageId);
+          next.events ??= {};
+          next.events.settled_ids = Array.from(new Set([
+            ...(next.events.settled_ids ?? []),
+            operationId,
+          ])).slice(-256);
+        }
+      } else if (pendingSystemOperation?.type === 'duel_victory_dialogue') {
+        next = completeDuelVictoryDialogue(
+          next,
+          pendingSystemOperation.settlementId ?? '',
+        );
       }
-    } else if (pendingSystemOperation?.type === 'duel_victory_dialogue') {
-      protectedState = completeDuelVictoryDialogue(
-        protectedState,
-        pendingSystemOperation.settlementId ?? '',
-      );
-    }
-    if (JSON.stringify(current) === JSON.stringify(protectedState)) {
-      pendingOwnershipBefore = null;
-      pendingSystemOperation = null;
-      assistantObservedAt = 0;
-      transactions.markSettlementSucceeded();
-      return transactions.read();
-    }
-    data.stat_data = protectedState;
-    await mvu.replaceMvuData(data, options);
+      return next;
+    };
+    const outcome = await finalizeAcceptedAssistant({
+      mvu: mvu as FinalizeAcceptedAssistantInput['mvu'],
+      options,
+      currentData: data,
+      before,
+      assistantText,
+      pendingRequest,
+      snapshot,
+      characterNames: characterNamesOf(before),
+      readAssistantIdentity: readAcceptedAssistantIdentity(snapshot),
+      transformFinalState,
+    });
+    void outcome;
     pendingOwnershipBefore = null;
     pendingSystemOperation = null;
     assistantObservedAt = 0;
     transactions.markSettlementSucceeded();
     return transactions.read();
+  };
+
+  const requireSaveApis = () => {
+    if (!g.deleteChatMessages || !(g.reloadCurrentChat || g.SillyTavern?.reloadCurrentChat) || !g.getOrCreateChatWorldbook || !g.getWorldbook || !g.updateWorldbookWith) {
+      throw new Error('当前 Tavern Helper 未提供存档／读档所需接口');
+    }
+  };
+
+  const saveWorldbookAdapter = (): SaveWorldbookAdapter => {
+    requireSaveApis();
+    return {
+      getOrCreateChatWorldbook: () => g.getOrCreateChatWorldbook!('current'),
+      getWorldbook: (name) => g.getWorldbook!(name),
+      updateWorldbook: (name, updater) => g.updateWorldbookWith!(name, updater, { render: 'debounced' }),
+    };
+  };
+
+  const runSaveOperation = async <T>(operation: () => Promise<T>): Promise<T> => {
+    const transaction = readTransaction();
+    if (saveOperationInFlight
+      || cardOperationInFlight
+      || transactionOperationInFlight
+      || hostGenerationActive
+      || regenerationPhase !== 'idle'
+      || pendingSettlement
+      || pendingOwnershipBefore
+      || pendingSystemOperation
+      || !['idle', 'settled'].includes(transaction.phase)) {
+      throw new Error('当前回复、结算或系统操作仍在处理中，请稍候');
+    }
+    const mvu = await requireMvu();
+    if (mvu.isDuringExtraAnalysis?.()) throw new Error('MVU 额外分析仍在进行，请稍候');
+    requireSaveApis();
+    saveOperationInFlight = true;
+    transactionOperationInFlight = true;
+    try {
+      return await operation();
+    } finally {
+      saveOperationInFlight = false;
+      transactionOperationInFlight = false;
+    }
+  };
+
+  const recoverPendingV2Settlement = async (
+    mvu: HostGlobals['Mvu'],
+    current: GardenState,
+    snapshot: MessageTransactionSnapshot,
+  ) => {
+    if (pendingRequest?.schema !== REQUEST_SCHEMA_V2 || !snapshot.assistantResponded) return false;
+    const assistantMessageId = Number(snapshot.assistantMessageId);
+    if (!Number.isInteger(assistantMessageId) || assistantMessageId < 0) return false;
+    const identityReader = readAcceptedAssistantIdentity(snapshot);
+    requireAcceptedAssistantIdentity(identityReader, snapshot, { type: 'message', message_id: assistantMessageId });
+    const raw = activeMessages().find((message) => Number(message.message_id) === assistantMessageId);
+    const assistantText = String(raw?.message ?? raw?.mes ?? '');
+    const before = persistedStateBefore(mvu, assistantMessageId) ?? current;
+    const options = { type: 'message' as const, message_id: assistantMessageId };
+    const data = structuredClone(mvu!.getMvuData(options)) as Record<string, unknown>;
+    await finalizeAcceptedAssistant({
+      mvu: mvu as FinalizeAcceptedAssistantInput['mvu'],
+      options,
+      currentData: data,
+      before,
+      assistantText,
+      pendingRequest,
+      snapshot,
+      characterNames: characterNamesOf(before),
+      readAssistantIdentity: identityReader,
+      transformFinalState: (base) => reconcileM2Runtime(
+        before,
+        applyPresenceUpdate(restoreLocalEventOwnership(before, base), assistantText),
+        currentChatId(),
+      ),
+    });
+    return true;
   };
 
   const recoverRecordedAnomalyResolution = async (mvu: HostGlobals['Mvu'], current: GardenState) => {
@@ -620,31 +1561,84 @@ export function createHostBridge(): GardenBridge | null {
         ? operation?.operationId ?? ''
         : extra.gensokyoTransactionId ?? '');
       if (!/^[A-Za-z0-9._:-]{1,96}$/u.test(operationId)) continue;
-      if (current.events?.settled_ids?.includes(operationId)) return false;
-      const assistant = messages.slice(index + 1).find((message) => (
-        messageRole(message) === 'assistant' && String(message.message ?? message.mes ?? '').trim()
-      ));
-      const assistantMessageId = Number(assistant?.message_id);
-      if (!assistant || !Number.isInteger(assistantMessageId) || assistantMessageId < 0) return false;
+      // F04：从同一系统操作玩家楼层解析 V2 冻结请求（V2 metadata 损坏不得降级旧恢复）。
+      const restored = restoreGalGenerationRequestV2(user.extra);
+      if (!restored.ok || restored.request.schema !== REQUEST_SCHEMA_V2) return false;
+      const v2 = restored.request;
+      // 从真实 assistant metadata 恢复实际 attempt；禁止用玩家楼层初始 attemptSeq 猜 retry attempt。
+      const recovery = analyzeChatRestore(messages, {
+        chatId: currentChatId(),
+        ownerCharacterId: String(g.SillyTavern?.getContext?.().characterId ?? ''),
+      });
+      if ((recovery.kind !== 'settlement-pending' && recovery.kind !== 'confirmed')
+        || recovery.request.requestId !== v2.requestId
+        || recovery.userMessageId !== Number(user.message_id)) return false;
+      const { attemptId, generationId, commitKey } = recovery.attempt;
+      const assistantMessageId = recovery.assistantMessageId;
+      // 复验 assistant 的 attempt metadata 与 operation/玩家楼层一致（fail closed）。
+      const assistantRaw = messages.find((message) => Number(message.message_id) === assistantMessageId);
+      const attemptMeta = parseAttemptMetadata(assistantRaw?.extra);
+      if (!attemptMeta.ok
+        || attemptMeta.value.requestId !== v2.requestId
+        || attemptMeta.value.attemptId !== attemptId
+        || attemptMeta.value.commitKey !== commitKey
+        || attemptMeta.value.chatId !== currentChatId()
+        || attemptMeta.value.ownerCharacterId !== String(g.SillyTavern?.getContext?.().characterId ?? '')) {
+        return false;
+      }
       if (mvu?.isDuringExtraAnalysis?.()) return false;
       const before = persistedStateBefore(mvu, assistantMessageId) ?? current;
-      const options = { type: 'message', message_id: assistantMessageId };
+      const options = { type: 'message' as const, message_id: assistantMessageId };
       const data = structuredClone(mvu!.getMvuData(options)) as Record<string, unknown>;
-      const assistantState = isRecord(data.stat_data) ? data.stat_data as GardenState : current;
-      let next = restoreLocalEventOwnership(before, assistantState);
-      if (next.anomaly_cycle?.active) next = resolveAnomaly(next, assistantMessageId);
-      next.events ??= {};
-      next.events.settled_ids = Array.from(new Set([...(next.events.settled_ids ?? []), operationId])).slice(-256);
-      data.stat_data = next;
-      await mvu!.replaceMvuData(data, options);
+      const snapshot: MessageTransactionSnapshot = {
+        transactionId: operationId,
+        chatId: currentChatId(),
+        kind: 'settlement',
+        phase: 'settling',
+        userMessageCreated: true,
+        assistantResponded: true,
+        userMessageId: Number(user.message_id),
+        assistantMessageId,
+        requestId: v2.requestId,
+        requestSchema: REQUEST_SCHEMA_V2,
+        attemptId,
+        generationId,
+        commitKey,
+        ownerCharacterId: v2.ownerCharacterId,
+      };
+      // F04：恢复异变时先幂等应用 resolveAnomaly/settled ID，再交给统一 helper 写 VisitTurn。
+      const transformFinalState = (base: GardenState): GardenState => {
+        let next = restoreLocalEventOwnership(before, base);
+        if (next.anomaly_cycle?.active) next = resolveAnomaly(next, assistantMessageId);
+        next.events ??= {};
+        next.events.settled_ids = Array.from(new Set([...(next.events.settled_ids ?? []), operationId])).slice(-256);
+        return next;
+      };
+      const assistantText = String(assistantRaw?.message ?? assistantRaw?.mes ?? '');
+      try {
+        await finalizeAcceptedAssistant({
+          mvu: mvu as FinalizeAcceptedAssistantInput['mvu'],
+          options,
+          currentData: data,
+          before,
+          assistantText,
+          pendingRequest: v2,
+          snapshot,
+          characterNames: characterNamesOf(before),
+          readAssistantIdentity: readAcceptedAssistantIdentity(snapshot),
+          transformFinalState,
+        });
+      } catch (error) {
+        // 恢复失败保持 pending：不写邻近楼层、不标 settled。
+        console.debug('[gal:recover-anomaly]', error instanceof Error ? error.message : String(error));
+        return false;
+      }
       return true;
     }
     return false;
   };
 
   const recoverRecordedDuelVictory = async (mvu: HostGlobals['Mvu'], current: GardenState) => {
-    const pending = current.inventory?.card_runtime?.duel?.pending_victory_dialogue;
-    if (!pending || pending.status !== 'generating') return false;
     const messages = activeMessages();
     for (let index = messages.length - 1; index >= 0; index -= 1) {
       const user = messages[index];
@@ -652,21 +1646,74 @@ export function createHostBridge(): GardenBridge | null {
       const extra = isRecord(user.extra) ? user.extra : {};
       const operation = isRecord(extra.gensokyoSystemOperation) ? extra.gensokyoSystemOperation : null;
       if (operation?.version !== 'system-operation.v1'
-        || operation.type !== 'duel_victory_dialogue'
-        || operation.settlementId !== pending.settlement_id) continue;
-      const assistant = messages.slice(index + 1).find((message) => (
-        messageRole(message) === 'assistant' && String(message.message ?? message.mes ?? '').trim()
-      ));
-      const assistantMessageId = Number(assistant?.message_id);
-      if (!assistant || !Number.isInteger(assistantMessageId) || assistantMessageId < 0) return false;
+        || operation.type !== 'duel_victory_dialogue') continue;
+      const settlementId = String(operation.settlementId ?? '');
+      if (!settlementId) continue;
+      // F04：从同一系统操作玩家楼层解析 V2 冻结请求（V2 metadata 损坏不得降级旧恢复）。
+      const restored = restoreGalGenerationRequestV2(user.extra);
+      if (!restored.ok || restored.request.schema !== REQUEST_SCHEMA_V2) return false;
+      const v2 = restored.request;
+      const recovery = analyzeChatRestore(messages, {
+        chatId: currentChatId(),
+        ownerCharacterId: String(g.SillyTavern?.getContext?.().characterId ?? ''),
+      });
+      if ((recovery.kind !== 'settlement-pending' && recovery.kind !== 'confirmed')
+        || recovery.request.requestId !== v2.requestId
+        || recovery.userMessageId !== Number(user.message_id)) return false;
+      const { attemptId, generationId, commitKey } = recovery.attempt;
+      const assistantMessageId = recovery.assistantMessageId;
+      const assistantRaw = messages.find((message) => Number(message.message_id) === assistantMessageId);
+      const attemptMeta = parseAttemptMetadata(assistantRaw?.extra);
+      if (!attemptMeta.ok
+        || attemptMeta.value.requestId !== v2.requestId
+        || attemptMeta.value.attemptId !== attemptId
+        || attemptMeta.value.commitKey !== commitKey
+        || attemptMeta.value.chatId !== currentChatId()
+        || attemptMeta.value.ownerCharacterId !== String(g.SillyTavern?.getContext?.().characterId ?? '')) {
+        return false;
+      }
       if (mvu?.isDuringExtraAnalysis?.()) return false;
       const before = persistedStateBefore(mvu, assistantMessageId) ?? current;
-      const options = { type: 'message', message_id: assistantMessageId };
+      const options = { type: 'message' as const, message_id: assistantMessageId };
       const data = structuredClone(mvu!.getMvuData(options)) as Record<string, unknown>;
-      const assistantState = isRecord(data.stat_data) ? data.stat_data as GardenState : current;
-      const protectedState = restoreLocalEventOwnership(before, assistantState);
-      data.stat_data = completeDuelVictoryDialogue(protectedState, pending.settlement_id);
-      await mvu!.replaceMvuData(data, options);
+      const snapshot: MessageTransactionSnapshot = {
+        transactionId: `duel-victory:${settlementId}`,
+        chatId: currentChatId(),
+        kind: 'settlement',
+        phase: 'settling',
+        userMessageCreated: true,
+        assistantResponded: true,
+        userMessageId: Number(user.message_id),
+        assistantMessageId,
+        requestId: v2.requestId,
+        requestSchema: REQUEST_SCHEMA_V2,
+        attemptId,
+        generationId,
+        commitKey,
+        ownerCharacterId: v2.ownerCharacterId,
+      };
+      // F04：恢复决斗胜利——本地规则转换 + 统一 helper 写 VisitTurn。
+      const transformFinalState = (base: GardenState): GardenState => (
+        completeDuelVictoryDialogue(restoreLocalEventOwnership(before, base), settlementId)
+      );
+      const assistantText = String(assistantRaw?.message ?? assistantRaw?.mes ?? '');
+      try {
+        await finalizeAcceptedAssistant({
+          mvu: mvu as FinalizeAcceptedAssistantInput['mvu'],
+          options,
+          currentData: data,
+          before,
+          assistantText,
+          pendingRequest: v2,
+          snapshot,
+          characterNames: characterNamesOf(before),
+          readAssistantIdentity: readAcceptedAssistantIdentity(snapshot),
+          transformFinalState,
+        });
+      } catch (error) {
+        console.debug('[gal:recover-duel]', error instanceof Error ? error.message : String(error));
+        return false;
+      }
       return true;
     }
     return false;
@@ -674,6 +1721,8 @@ export function createHostBridge(): GardenBridge | null {
 
   const recoverCompletedCurrentTransaction = (current: GardenState) => {
     const snapshot = transactions.read();
+    // V2 必须经统一 finalizer 验证本次 exact turn/lifecycle；旧事件投影不得捷径 settled。
+    if (snapshot.requestSchema === REQUEST_SCHEMA_V2) return false;
     const assistantMessageId = Number(snapshot.assistantMessageId);
     if (snapshot.phase === 'settled' || !snapshot.assistantResponded
       || !Number.isInteger(assistantMessageId) || assistantMessageId < 0) return false;
@@ -712,7 +1761,21 @@ export function createHostBridge(): GardenBridge | null {
         if (await recoverRecordedAnomalyResolution(mvu, current)) return true;
         if (await recoverRecordedDuelVictory(mvu, current)) return true;
         const recorded = findRecordedLocalSettlement(activeMessages(), current);
-        if (!recorded) return false;
+        if (!recorded) {
+          if (snapshot.recovery !== 'settlement') return false;
+          if (snapshot.requestSchema === REQUEST_SCHEMA_V2) {
+            if (!await recoverPendingV2Settlement(mvu, current, snapshot)) {
+              throw new Error('V2 reload settlement 缺少可验证的冻结请求或精确 assistant');
+            }
+            transactions.markSettlementSucceeded();
+            lastError = '';
+            return true;
+          }
+          transactions.markSettlementSucceeded();
+          await persistCommitSettled(transactions.read());
+          lastError = '';
+          return true;
+        }
         const before = persistedStateBefore(mvu, recorded.assistantMessageId) ?? current;
         await persistLocalSettlement(before, recorded.action, recorded.assistantMessageId, recorded.assistantText);
         const reconciled = transactions.read();
@@ -732,6 +1795,15 @@ export function createHostBridge(): GardenBridge | null {
         if (attemptForceReady) throw error;
         return false;
       }
+    }).then(async (settled) => {
+      if (!settled) return false;
+      try {
+        await persistCommitSettled(transactions.read());
+        return true;
+      } catch (error) {
+        transactions.markSettlementFailed(error);
+        throw error;
+      }
     });
   };
 
@@ -747,7 +1819,272 @@ export function createHostBridge(): GardenBridge | null {
     if (snapshot.phase !== 'settled') {
       throw new Error(snapshot.lastError || '回复已收到，但本地游戏状态尚未完成结算');
     }
+    await persistCommitSettled(snapshot);
     return snapshot;
+  };
+
+  const readAllSwipesMessage = (messageId: number): Record<string, unknown> | null => {
+    const rows = g.getChatMessages?.(messageId, { include_swipes: true, hide_state: 'all' }) ?? [];
+    const row = rows.find((item) => Number(item.message_id) === messageId) ?? rows[0];
+    return row ? structuredClone(row) : null;
+  };
+
+  const regenerationStorageKey = () => (
+    `gal.regeneration.v1:${currentChatId()}:${String(g.SillyTavern?.getContext?.().characterId ?? '')}`
+  );
+
+  const createRegenerationPorts = (): RegenerationHostPortsV1 => {
+    let replayBaselineState: GardenState = {};
+    let replayContext: {
+      request: GalGenerationRequestV2;
+      attemptId: string;
+      commitKey: string;
+      assistantMessageId: number;
+      assistantSwipeId: number;
+      candidateText: string;
+    } | null = null;
+
+    return {
+      async readHostContext() {
+        const messages = activeMessages();
+        return {
+          chatId: currentChatId(),
+          ownerCharacterId: String(g.SillyTavern?.getContext?.().characterId ?? ''),
+          messages,
+          messageTotal: messages.length,
+        };
+      },
+      async readAssistantView(messageId) {
+        const resolvedId = messageId >= 0
+          ? messageId
+          : Number(activeMessages().filter((message) => messageRole(message) === 'assistant').at(-1)?.message_id);
+        return Number.isInteger(resolvedId) ? readAllSwipesMessage(resolvedId) : null;
+      },
+      async readActiveView(messageId) {
+        const view = readAllSwipesMessage(messageId);
+        if (!view) return {};
+        const swipeId = Number(view.swipe_id);
+        const swipes = Array.isArray(view.swipes) ? view.swipes : [];
+        const infos = Array.isArray(view.swipes_info) ? view.swipes_info : [];
+        return {
+          message_id: view.message_id,
+          swipe_id: swipeId,
+          message: swipes[swipeId] ?? view.message,
+          extra: isRecord(infos[swipeId]) ? infos[swipeId].extra : view.extra,
+        };
+      },
+      async readBaseline(target) {
+        const floorId = target.originalRequest.stateMessageIdBeforeGeneration;
+        return readFrozenBaselineV1({
+          stateMessageIdBeforeGeneration: floorId,
+          stateSwipeIdBeforeGeneration: target.originalRequest.stateSwipeIdBeforeGeneration,
+          message: floorId === null ? null : readAllSwipesMessage(floorId),
+        });
+      },
+      async readDrift({ target, sourceAttemptId }) {
+        const view = readAllSwipesMessage(target.assistantMessageId);
+        const data = Array.isArray(view?.swipes_data) && isRecord(view.swipes_data[target.sourceSwipeId])
+          ? view.swipes_data[target.sourceSwipeId] as Record<string, unknown>
+          : null;
+        if (!data) return { kind: 'receipt-mismatch', code: 'swipe-mismatch' };
+        return decideRegenerationDriftV1({
+          receipt: readRegenerationReceiptFromDataV1(data),
+          identity: {
+            requestId: target.requestId,
+            attemptId: sourceAttemptId,
+            assistantMessageId: target.assistantMessageId,
+            assistantSwipeId: target.sourceSwipeId,
+          },
+          currentActiveDataFingerprint: fingerprintMvuData(data),
+        });
+      },
+      async readOperation(target, candidateText) {
+        const player = activeMessages().find((message) => Number(message.message_id) === target.playerMessageId);
+        const extra = isRecord(player?.extra) ? player.extra : {};
+        const system = isRecord(extra.gensokyoSystemOperation) ? extra.gensokyoSystemOperation : null;
+        if (system?.version === 'system-operation.v1' && system.type === 'anomaly_resolution') {
+          return { kind: 'anomaly-resolution', operationId: String(system.operationId ?? ''), candidateText };
+        }
+        if (system?.version === 'system-operation.v1' && system.type === 'duel_victory_dialogue') {
+          return {
+            kind: 'duel-victory',
+            settlementId: String(system.settlementId ?? ''),
+            operationId: String(system.operationId ?? ''),
+            candidateText,
+          };
+        }
+        const action = parseGardenAction(String(player?.message ?? player?.mes ?? ''));
+        return action ? { kind: 'normal-interaction', action, candidateText } : null;
+      },
+      async buildVisitTurns({ target, attemptId, commitKey, candidateText }) {
+        replayContext = {
+          request: target.originalRequest,
+          attemptId,
+          commitKey,
+          assistantMessageId: target.assistantMessageId,
+          assistantSwipeId: target.candidateSwipeId,
+          candidateText,
+        };
+        return [];
+      },
+      async generateCandidate({ generationId, request }) {
+        if (!g.generate) throw new Error('Helper generate() 未暴露');
+        const built = buildGalGenerateConfig(request, { generationId });
+        if (!built.ok) return { ok: false, code: 'empty' };
+        const value = await g.generate(built.built.config);
+        if (typeof value !== 'string') return { ok: false, code: 'tool-call' };
+        return value.trim() ? { ok: true, text: value } : { ok: false, code: 'empty' };
+      },
+      async writeSwipe(plan) {
+        if (!g.setChatMessages) return { ok: false, code: 'write-failed' };
+        try {
+          await g.setChatMessages([{
+            message_id: plan.messageId,
+            swipe_id: plan.swipe_id,
+            swipes: structuredClone(plan.swipes),
+            swipes_data: structuredClone(plan.swipes_data),
+            swipes_info: structuredClone(plan.swipes_info),
+          }], { refresh: 'affected' });
+          return { ok: true };
+        } catch {
+          return { ok: false, code: 'write-failed' };
+        }
+      },
+      stopCandidate(generationId) {
+        return Boolean(g.stopGenerationById?.(generationId));
+      },
+      async readActiveData(messageId) {
+        const view = readAllSwipesMessage(messageId);
+        const swipeId = Number(view?.swipe_id);
+        if (!view || !Array.isArray(view.swipes_data) || !isRecord(view.swipes_data[swipeId])) {
+          throw new Error('active swipe MvuData 不可读');
+        }
+        return structuredClone(view.swipes_data[swipeId] as Record<string, unknown>);
+      },
+      async commitReceipt() {
+        // Receipt is already embedded in candidateData and committed atomically
+        // with the swipe arrays. This hook deliberately performs no second write.
+        return { ok: true };
+      },
+      replay: {
+        async applyModelOutput(baseData, text) {
+          const mvu = await requireMvu();
+          if (!mvu.parseMessage) throw new Error('Mvu.parseMessage(message, old_data) 未暴露');
+          return structuredClone(await mvu.parseMessage(text, structuredClone(baseData ?? EMPTY_MVU_DATA)));
+        },
+        restoreLocalEventOwnership(baseData, parsedData) {
+          const next = structuredClone(parsedData);
+          const before = isRecord(baseData?.stat_data) ? baseData.stat_data as GardenState : {};
+          const parsed = isRecord(next.stat_data) ? next.stat_data as GardenState : {};
+          replayBaselineState = structuredClone(before);
+          next.stat_data = restoreLocalEventOwnership(before, parsed);
+          return next;
+        },
+        applyLocalSettlement(data, operation) {
+          const next = structuredClone(data);
+          let state = isRecord(next.stat_data) ? next.stat_data as GardenState : {};
+          if (operation.kind === 'anomaly-resolution') {
+            state = resolveAnomaly(state, replayContext?.assistantMessageId ?? null);
+            state.events ??= {};
+            const operationId = String(operation.operationId ?? '');
+            state.events.settled_ids = Array.from(new Set([...(state.events.settled_ids ?? []), operationId])).slice(-256);
+          } else if (operation.kind === 'duel-victory') {
+            state = completeDuelVictoryDialogue(state, String(operation.settlementId ?? ''));
+          } else if (isRecord(operation.action)) {
+            const action = operation.action as unknown as GardenActionMarker;
+            const result = deterministicSettlementResult(action, state);
+            const text = `${String(operation.candidateText ?? '')}\n<GensokyoEventResult>${JSON.stringify({
+              version: 'event-result.v1', event_id: action.event_id, result,
+            })}</GensokyoEventResult>`;
+            state = applyLocalSettlement(state, action, replayContext?.assistantMessageId ?? -1, text);
+          }
+          next.stat_data = state;
+          return next;
+        },
+        applyPresenceUpdate(data, text) {
+          const next = structuredClone(data);
+          next.stat_data = applyPresenceUpdate(
+            isRecord(next.stat_data) ? next.stat_data as GardenState : {},
+            text,
+          );
+          return next;
+        },
+        reconcileM2Runtime(data) {
+          const next = structuredClone(data);
+          const current = isRecord(next.stat_data) ? next.stat_data as GardenState : {};
+          next.stat_data = reconcileM2Runtime(replayBaselineState, current, currentChatId());
+          return next;
+        },
+        applyVisitTurns(data) {
+          if (!replayContext) return { ok: false, code: 'visit-conflict', detail: 'replay context 缺失' };
+          const next = structuredClone(data);
+          const state = isRecord(next.stat_data) ? next.stat_data as GardenState : {};
+          const result = applyVisitTurnsCommit({
+            finalState: state,
+            request: replayContext.request,
+            attempt: {
+              attemptId: replayContext.attemptId,
+              commitKey: replayContext.commitKey,
+              assistantMessageId: replayContext.assistantMessageId,
+              assistantSwipeId: replayContext.assistantSwipeId,
+            },
+            clock: {
+              day: state.environment?.day ?? null,
+              time_period: state.environment?.time_period ?? null,
+              period_serial: periodSerialFromState(state),
+            },
+            acceptedOutput: replayContext.candidateText,
+            characterNames: characterNamesOf(state),
+          });
+          if (!result.ok) {
+            return {
+              ok: false,
+              code: result.code === 'not-found' ? 'visit-missing' : 'visit-conflict',
+              detail: result.code,
+            };
+          }
+          next.stat_data = result.state;
+          const turns: ReplayVisitTurnCommitV1[] = result.turns.map((turn) => ({
+            turnId: turn.turn_id,
+            summary: turn.summary,
+            assistantMessageId: turn.assistant_message_id ?? replayContext!.assistantMessageId,
+            assistantSwipeId: turn.assistant_swipe_id ?? replayContext!.assistantSwipeId,
+            attemptId: turn.latest_attempt_id ?? replayContext!.attemptId,
+            commitKey: turn.latest_commit_key ?? replayContext!.commitKey,
+            characterId: turn.character_id,
+            gameDay: typeof turn.day === 'number' ? turn.day : null,
+          }));
+          return { ok: true, state: next, turns };
+        },
+        finalizeLifecycle(data) {
+          if (!replayContext) throw new Error('replay lifecycle context 缺失');
+          const next = structuredClone(data);
+          next[COMMIT_LIFECYCLE_KEY] = buildCommitLifecycle({
+            requestId: replayContext.request.requestId,
+            attemptId: replayContext.attemptId,
+            commitKey: replayContext.commitKey,
+          }, 'settled');
+          return next;
+        },
+      },
+      async persist(state) {
+        hostWindow().sessionStorage?.setItem(regenerationStorageKey(), JSON.stringify(state));
+      },
+      async load() {
+        const raw = hostWindow().sessionStorage?.getItem(regenerationStorageKey());
+        if (!raw) return null;
+        try {
+          const state = JSON.parse(raw) as RegenerationCoordinatorStateV1;
+          const owner = String(g.SillyTavern?.getContext?.().characterId ?? '');
+          if (state.version !== 1 || (state.target && (state.target.chatId !== currentChatId() || state.target.ownerCharacterId !== owner))) {
+            return null;
+          }
+          return state;
+        } catch {
+          return null;
+        }
+      },
+    };
   };
 
   return {
@@ -926,7 +2263,7 @@ export function createHostBridge(): GardenBridge | null {
       // or when the macro range failed to expand past the greeting.
       return normalizeMessages(readRawMessages({ include_swipes: false, hide_state: 'all' }));
     },
-    async sendUserMessage(text, kind = 'interaction', userVisibleText) {
+    async sendUserMessage(text, kind = 'interaction', userVisibleText, requestContext) {
       if (transactionOperationInFlight) throw new Error('上一条消息仍在生成或结算中，请稍候');
       transactionOperationInFlight = true;
       const value = text.trim();
@@ -940,18 +2277,59 @@ export function createHostBridge(): GardenBridge | null {
         pendingSettlement = action ? { before: structuredClone(before), action } : null;
         pendingVariableEpoch = variableUpdateEpoch;
         assistantObservedAt = 0;
+        // 第二批 V2：在统一位置构造冻结请求（B2-T07 builder）并合并 V2 metadata。
+        // 本轮规则在统一 V2 builder 中冻结为单条 system inject；真实楼层不进入历史。
+        // R2 道具语义：身份边界/结算以持久 before 为基础；本轮只读 promptState
+        // （含正式道具授权）由 sceneItemPreview 通过 queueSceneItemUse 纯函数派生，
+        // 生成成功后 app 才执行 queue_scene_item M2 正式持久化与消费。
+        const injectState = requestContext?.sceneItemPreview
+          ? (() => {
+            const preview = requestContext.sceneItemPreview;
+            const promptState = queueSceneItemUse(
+              before,
+              preview.itemId,
+              preview.useId,
+              preview.sceneId,
+              preview.targetCharacterId,
+            );
+            return promptState;
+          })()
+          : before;
+        const v2 = buildGalGenerationRequestV2({
+          playerInput: value,
+          state: injectState,
+          snapshot: captureRequestSnapshot(requestContext?.sceneId ?? null),
+          characterContext: {
+            mainTargetCharacterId: requestContext?.mainTargetCharacterId ?? null,
+            actionTargetCharacterId: requestContext?.actionTargetCharacterId,
+            eventParticipants: requestContext?.eventParticipants,
+            sessionParticipants: requestContext?.sessionParticipants,
+            requireMainTarget: requestContext?.requireMainTarget ?? false,
+          },
+          characterNames: characterNamesOf(injectState),
+          explicitCharacterIds: requestContext?.explicitCharacterIds,
+        });
+        // 外援强制裁定 1：V2 构造失败必须在创建玩家楼层前抛出带 reason 的错误；
+        // 禁止把 request 置空后继续 transactions.submit()（不建楼层、不触发 generate）。
+        if (!v2.ok) {
+          throw new Error(`V2 请求构造失败（${v2.reason}）：不创建玩家楼层，可安全重试`);
+        }
+        const requestMetadata = buildRequestMetadataV2(v2.request);
+        pendingRequest = v2.request;
         const snapshot = await transactions.submit({
           kind,
           message: value,
+          request: v2.request,
           extra: {
             gensokyoUserVisibleText: userVisibleText?.trim() || null,
+            ...requestMetadata,
           },
         });
         if (!snapshot.assistantResponded) {
           throw new Error(snapshot.lastError || '没有收到 assistant 回复，可以安全重试');
         }
         assistantObservedAt = Date.now();
-        await waitForVariableStage();
+        await waitForVariableStage(snapshot.assistantMessageId);
         return await requirePendingSettlement();
       } catch (error) {
         lastError = error instanceof Error ? error.message : String(error);
@@ -981,9 +2359,30 @@ export function createHostBridge(): GardenBridge | null {
         pendingSystemOperation = { type: 'anomaly_resolution', operationId };
         pendingVariableEpoch = variableUpdateEpoch;
         assistantObservedAt = 0;
+        // R3：异变收束也是模型生成入口——构造全新 V2 request + V2 metadata，
+        // 与 gensokyoSystemOperation metadata 合并（不互相覆盖）。
+        // relevant 角色用结构化 event/session/presence；允许最终为空（无角色合法 V2）。
+        const v2 = buildGalGenerationRequestV2({
+          playerInput: value,
+          state: before,
+          snapshot: captureRequestSnapshot(null),
+          characterContext: {
+            mainTargetCharacterId: null,
+            actionTargetCharacterId: null,
+            eventParticipants: undefined,
+            sessionParticipants: undefined,
+            requireMainTarget: false,
+          },
+          characterNames: characterNamesOf(before),
+        });
+        if (!v2.ok) {
+          throw new Error(`异变收束 V2 请求构造失败（${v2.reason}）：不创建玩家楼层，可安全重试`);
+        }
+        pendingRequest = v2.request;
         const snapshot = await transactions.submit({
           kind: 'settlement',
           message: value,
+          request: v2.request,
           transactionId: operationId,
           extra: {
             gensokyoSystemOperation: {
@@ -991,13 +2390,14 @@ export function createHostBridge(): GardenBridge | null {
               operationId,
               type: 'anomaly_resolution',
             },
+            ...buildRequestMetadataV2(v2.request),
           },
         });
         if (!snapshot.assistantResponded) {
           throw new Error(snapshot.lastError || '没有收到 assistant 回复，可以安全重试');
         }
         assistantObservedAt = Date.now();
-        await waitForVariableStage();
+        await waitForVariableStage(snapshot.assistantMessageId);
         return await requirePendingSettlement();
       } catch (error) {
         lastError = error instanceof Error ? error.message : String(error);
@@ -1039,9 +2439,31 @@ export function createHostBridge(): GardenBridge | null {
         pendingSystemOperation = { type: 'duel_victory_dialogue', operationId, settlementId };
         pendingVariableEpoch = variableUpdateEpoch;
         assistantObservedAt = 0;
+        // R3：决斗胜利是模型生成入口——以锁定后 reread 状态构造全新 V2 request；
+        // mainTarget = pending.target_character_id（requireMainTarget:true）。
+        const duelTargetId = rereadPending.target_character_id;
+        const v2 = buildGalGenerationRequestV2({
+          playerInput: value,
+          state: reread,
+          snapshot: captureRequestSnapshot(null),
+          characterContext: {
+            mainTargetCharacterId: duelTargetId ?? null,
+            actionTargetCharacterId: duelTargetId ?? null,
+            eventParticipants: undefined,
+            sessionParticipants: undefined,
+            requireMainTarget: true,
+          },
+          characterNames: characterNamesOf(reread),
+          explicitCharacterIds: duelTargetId ? [duelTargetId] : [],
+        });
+        if (!v2.ok) {
+          throw new Error(`决斗胜利 V2 请求构造失败（${v2.reason}）：不创建玩家楼层，可安全重试`);
+        }
+        pendingRequest = v2.request;
         const snapshot = await transactions.submit({
           kind: 'battle',
           message: value,
+          request: v2.request,
           transactionId: operationId,
           extra: {
             gensokyoSystemOperation: {
@@ -1050,13 +2472,14 @@ export function createHostBridge(): GardenBridge | null {
               type: 'duel_victory_dialogue',
               settlementId,
             },
+            ...buildRequestMetadataV2(v2.request),
           },
         });
         if (!snapshot.assistantResponded) {
           throw new Error(snapshot.lastError || '没有收到 assistant 回复，可以安全重试');
         }
         assistantObservedAt = Date.now();
-        await waitForVariableStage();
+        await waitForVariableStage(snapshot.assistantMessageId);
         return await requirePendingSettlement();
       } catch (error) {
         lastError = error instanceof Error ? error.message : String(error);
@@ -1088,21 +2511,46 @@ export function createHostBridge(): GardenBridge | null {
       transactionOperationInFlight = true;
       try {
         const current = transactions.read();
-        if ((pendingSettlement || pendingOwnershipBefore) && current.assistantResponded) {
-          assistantObservedAt ||= Date.now();
-          await waitForVariableStage();
+        // Phase 2 增量 D：assistant 落楼失败后的显式重试——只落已生成文本，不再调模型（计划 §2.6）。
+        if (pendingHelperResult && !current.assistantResponded) {
+          const attempt = buildAttemptFromSnapshot(current);
+          if (!attempt) throw new Error('缺少 attempt 标识，无法落回已生成结果');
+          await writeHelperAssistantMessage(attempt, pendingHelperResult);
+          pendingHelperResult = null;
+          assistantObservedAt = Date.now();
+          const after = transactions.read();
+          await waitForVariableStage(after.assistantMessageId);
           return await requirePendingSettlement();
         }
-        const snapshot = await transactions.retry();
+        if ((pendingSettlement || pendingOwnershipBefore) && current.assistantResponded) {
+          assistantObservedAt ||= Date.now();
+          await waitForVariableStage(current.assistantMessageId);
+          return await requirePendingSettlement();
+        }
+        // Phase 3：V2 停止后的默认恢复 = 从头重试（新 attempt，计划 §3.2），
+        // 按 request schema 分流（外援裁定 8：禁止用全局 generationTransport 推断 V2）；
+        // V1 native-trigger 保持“继续(/continue)”语义。
+        // F02：V2 必须持有完整冻结 request 才允许 retryFromScratch；缺失时 fail closed，
+        // 绝不用非空断言把 null 传入（禁止重建或降级）。
+        const isV2Retry = pendingRequest?.schema === REQUEST_SCHEMA_V2
+          || current.requestSchema === REQUEST_SCHEMA_V2;
+        if (isV2Retry && pendingRequest?.schema !== REQUEST_SCHEMA_V2) {
+          throw new Error('冻结的 V2 请求缺失，禁止重建或降级；请先 reload 恢复或手动处理');
+        }
+        const snapshot = isV2Retry
+          ? await transactions.retryFromScratch(pendingRequest!)
+          : await transactions.retry();
         if (!snapshot.assistantResponded) {
           throw new Error(snapshot.lastError || '重试后仍没有收到 assistant 回复');
         }
         assistantObservedAt = Date.now();
         if (!pendingSettlement && !pendingOwnershipBefore) {
           transactions.markSettlementSucceeded();
-          return transactions.read();
+          const settled = transactions.read();
+          await persistCommitSettled(settled);
+          return settled;
         }
-        await waitForVariableStage();
+        await waitForVariableStage(snapshot.assistantMessageId);
         return await requirePendingSettlement();
       } finally {
         transactionOperationInFlight = false;
@@ -1371,6 +2819,8 @@ export function createHostBridge(): GardenBridge | null {
         pendingSystemOperation = null;
         pendingVariableEpoch = variableUpdateEpoch;
         assistantObservedAt = 0;
+        // F02：local end 是显式终局，必须同时清内存冻结请求。
+        pendingRequest = null;
         transactions.resetAfterLocalEnd();
         lastError = '';
       }
@@ -1380,8 +2830,46 @@ export function createHostBridge(): GardenBridge | null {
       await g.triggerSlash?.('/continue await=true');
     },
     async stopGeneration() {
+      if (regenerationCoordinator && regenerationPhase === 'generating') {
+        return regenerationCoordinator.stop();
+      }
+      // Phase 3：按 ID 停止（计划 §3.1）。helper-generate 的生成以 should_silence:true
+      // 运行（不绑 ST 停止按钮），宿主 stopGeneration 不会影响它——必须按 generationId abort。
+      const current = transactions.read();
+      if (generationTransport === 'helper-generate' && current.generationId) {
+        // 实机事实（1.18 + Helper 4.8.18）：stopGenerationById 只暴露在宿主 TavernHelper，
+        // 游戏 iframe 注入面不含——双源获取（按 ID 停止语义不变，计划 §3.1）。
+        const stopById = g.stopGenerationById
+          ?? (hostWindow().TavernHelper as { stopGenerationById?: (id: string) => boolean } | undefined)?.stopGenerationById;
+        let stopped = Boolean(stopById?.(current.generationId));
+        // 竞态：submit 在 triggerGeneration 前就把 phase 置为 generating，此时 generate() 可能
+        // 尚未注册到 Helper 的生成表（CG.set 在 IG 开头异步发生）。stop 返回 false 且事务仍在
+        // generating → 短重试关闭注册窗口（最多 600ms），避免「点了停止却没停」。
+        if (!stopped && (current.phase === 'generating')) {
+          for (let attempt = 0; attempt < 6 && !stopped; attempt += 1) {
+            await new Promise((resolve) => globalThis.setTimeout(resolve, 100));
+            stopped = Boolean(stopById?.(current.generationId));
+          }
+        }
+        if (stopped) {
+          // true = 已请求 abort（Helper 将 reject generate() Promise 并发 GENERATION_STOPPED(id)）。
+          transactions.markStopped('user-stop');
+          return true;
+        }
+        // false = 无此生成（已结束/从未注册/控制器已清理）：不得直接标记 stopped。
+        // 若事务已离开 generating（结束路径），对账为可重试 failed；仍在 generating 则不误标。
+        if (current.phase !== 'generating' && current.phase !== 'stopping') {
+          transactions.markStopReconciled();
+          return true;
+        }
+        return false;
+      }
       const stopped = Boolean(g.SillyTavern?.stopGeneration?.());
-      if (stopped) transactions.markStopped();
+      if (stopped) {
+        transactions.markStopped('user-stop');
+        // native 无按 ID 的 abort 对账流程（触发即已中断）：即时收敛到可重试 failed。
+        transactions.markStopReconciled();
+      }
       return stopped;
     },
     async regenerateLatest() {
@@ -1391,14 +2879,44 @@ export function createHostBridge(): GardenBridge | null {
       transactionOperationInFlight = true;
       regenerationPhase = 'generating';
       try {
+        if (regenerationTransport === 'helper-generate-swipe') {
+          regenerationCoordinator = new GalRegenerationCoordinatorV1(createRegenerationPorts());
+          const result = await regenerationCoordinator.run();
+          if (!result.ok) {
+            throw new Error(`重生成事务失败（${result.code}）${result.detail ? `：${result.detail}` : ''}`);
+          }
+          return;
+        }
         const mvu = await requireMvu();
         if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持安全重新生成');
-        const latestAssistant = activeMessages()
-          .filter((message) => messageRole(message) === 'assistant')
-          .at(-1);
-        const targetMessageId = Number(latestAssistant?.message_id);
-        if (!Number.isInteger(targetMessageId) || targetMessageId < 0) {
-          throw new Error('没有找到可重新生成的 assistant 楼层');
+        const messages = activeMessages();
+        const target = resolveLatestAssistantForRegeneration(messages);
+        if (!target.ok) {
+          throw new Error('只有聊天最后一层是 assistant 时才能重新生成；当前存在更晚的玩家或系统楼层');
+        }
+        const targetMessageId = target.messageId;
+        const latestAssistant = messages.at(-1)!;
+        // Phase 5 §5.2：定位原请求（native-regenerate 路径只记录与保护，不改变 /regenerate 行为）。
+        // 解析目标 assistant 的 attempt metadata → 配对玩家楼层 requestId → chat identity 校验。
+        const attemptMeta = parseAttemptMetadata(latestAssistant?.extra);
+        if (attemptMeta.ok) {
+          const originalRequestId = String(attemptMeta.value.requestId ?? '');
+          const playerMatch = resolvePlayerMessageByMetadata(messages, originalRequestId);
+          const chatIdentityOk = currentChatId().trim() === String(attemptMeta.value.chatId ?? '')
+            && String(g.SillyTavern?.getContext?.().characterId ?? '') === String(attemptMeta.value.ownerCharacterId ?? '');
+          if (!playerMatch.ok || !chatIdentityOk) {
+            throw new Error('重新生成目标的 request/chat identity 无法确认，已拒绝修改历史楼层');
+          }
+          console.debug('[gal:regenerate]', {
+            targetMessageId,
+            requestId: originalRequestId,
+            attemptId: String(attemptMeta.value.attemptId ?? ''),
+            playerFloor: playerMatch.ok ? playerMatch.messageId : null,
+            chatIdentityOk,
+          });
+        } else {
+          // legacy 兼容：无 attempt metadata 的旧楼层（Probe A/B 期间或外部生成）——仍允许重新生成，仅记录。
+          console.debug('[gal:regenerate] legacy assistant 无 attempt metadata', { targetMessageId });
         }
         const protectedBefore = latestPersistedState(mvu);
         const baselineEpoch = variableUpdateEpoch;
@@ -1427,6 +2945,7 @@ export function createHostBridge(): GardenBridge | null {
         );
         await mvu.replaceMvuData(data, options);
       } finally {
+        regenerationCoordinator = null;
         hostGenerationActive = false;
         regenerationPhase = 'idle';
         transactionOperationInFlight = false;
@@ -1439,19 +2958,71 @@ export function createHostBridge(): GardenBridge | null {
       globalThis.dispatchEvent(new CustomEvent('gensokyo-garden:show-native-chat'));
       return true;
     },
-    async diagnostics() {
-      let mvuReady = false;
-      try { await requireMvu(); mvuReady = true; } catch { mvuReady = false; }
-      return {
-        mode: 'host',
-        tavernVersion: g.getTavernVersion?.() ?? 'unknown',
-        helperVersion: g.getTavernHelperVersion?.() ?? 'unknown',
-        mvuReady,
-        bridgeVersion: '0.4.3-host-generate-r26',
-        databaseAvailable: Boolean(databaseApi()),
-        databaseVersion: databaseApi() ? 'SP·数据库 VII / AutoCardUpdaterAPI' : '未加载',
-        lastError: lastError || undefined,
-      };
+    async diagnostics() { return collectRuntimeDiagnostics(); },
+    async buildDiagnosticSnapshot() {
+      let state: GardenState | null = null;
+      try {
+        if (g.Mvu?.getMvuData) state = latestPersistedState(g.Mvu);
+      } catch { /* 缺失或损坏状态只导出零值，不改变游戏错误态。 */ }
+      return buildDiagnosticSnapshot({
+        state,
+        transaction: transactions.read(),
+        pendingRequest,
+        diagnostics: await collectRuntimeDiagnostics(),
+        memoryPort: { profile: memoryPort.profile, capability: memoryPort.capability },
+        appVersion: String(initialState.meta.schema_version ?? 'unknown'),
+      });
+    },
+    async listSaveSlots() {
+      return listStoredSaveSlots(saveWorldbookAdapter());
+    },
+    async saveToSlot(slotId: SaveSlotId, label: string) {
+      return runSaveOperation(async () => {
+        const mvu = await requireMvu();
+        const payload = captureSavePayload({
+          currentChatId,
+          listMessages: () => readRawMessages({ include_swipes: false, hide_state: 'all' }),
+          readMvuData: () => snapshotMvu(mvu),
+          now: () => new Date().toISOString(),
+          appSchemaVersion: (data) => String((data.stat_data as GardenState | undefined)?.meta?.schema_version ?? initialState.meta.schema_version ?? 'unknown'),
+        }, slotId, label);
+        await writeSaveSlot(saveWorldbookAdapter(), payload);
+        const summary = (await listStoredSaveSlots(saveWorldbookAdapter())).find((item) => item.slotId === slotId);
+        if (!summary?.occupied || !summary.valid) throw new Error('存档写后槽位不可读');
+        return summary;
+      });
+    },
+    async loadFromSlot(slotId: SaveSlotId) {
+      return runSaveOperation(async () => {
+        const target = await readSaveSlot(saveWorldbookAdapter(), slotId);
+        if (!currentChatId() || !String(g.SillyTavern?.getContext?.().characterId ?? '')) throw new Error('当前角色卡／聊天身份不可用');
+        const mvu = await requireMvu();
+        const result = await restoreSavePayload({
+          currentChatId,
+          listMessages: () => readRawMessages({ include_swipes: false, hide_state: 'all' }),
+          readMvuData: () => snapshotMvu(mvu),
+          deleteMessages: (ids) => g.deleteChatMessages!(ids, { refresh: 'none' }),
+          createMessages: (messages) => g.createChatMessages!(
+            messages.map((message) => ({ ...message })),
+            { insert_before: 'end', refresh: 'none' },
+          ),
+          replaceChatMvu: (data) => mvu.replaceMvuData(structuredClone(data), { type: 'chat' }),
+          clearTransientState: () => {
+            pendingRequest = null;
+            pendingHelperResult = null;
+            pendingStreamText = '';
+            pendingSettlement = null;
+            pendingOwnershipBefore = null;
+            pendingSystemOperation = null;
+            regenerationCoordinator = null;
+            regenerationPhase = 'idle';
+            hostWindow().sessionStorage?.removeItem(regenerationStorageKey());
+            transactions.resetForChatChange();
+          },
+          reloadCurrentChat: () => (g.reloadCurrentChat ?? g.SillyTavern!.reloadCurrentChat!)(),
+        }, target);
+        return { restoredMessageCount: result.restoredMessageCount };
+      });
     },
     async subscribe(refresh) {
       const stops: Array<() => void> = [];
@@ -1470,7 +3041,32 @@ export function createHostBridge(): GardenBridge | null {
         refresh();
       });
       subscribe(g.tavern_events?.MESSAGE_SWIPED);
-      subscribe(g.tavern_events?.CHAT_CHANGED);
+      subscribe(g.tavern_events?.CHAT_CHANGED, () => {
+        const token = ++chatRestoreToken;
+        const expectedChatId = currentChatId();
+        // 先让旧事务按 chatId 冻结；待其 Promise/finally 退出后再清空内存态，
+        // 避免重置成 idle 导致旧 submit 继续等待一个不可能出现的 assistant。
+        transactions.read();
+        const restoreWhenIdle = () => {
+          if (token !== chatRestoreToken || currentChatId() !== expectedChatId) return;
+          if (transactionOperationInFlight || hostGenerationActive || regenerationPhase !== 'idle') {
+            globalThis.setTimeout(restoreWhenIdle, 100);
+            return;
+          }
+          pendingRequest = null;
+          pendingHelperResult = null;
+          pendingStreamText = '';
+          pendingSettlement = null;
+          pendingOwnershipBefore = null;
+          pendingSystemOperation = null;
+          pendingVariableEpoch = variableUpdateEpoch;
+          assistantObservedAt = 0;
+          transactions.resetForChatChange();
+          restoreFromChat();
+          refresh();
+        };
+        restoreWhenIdle();
+      });
       if (g.tavern_events?.GENERATION_STARTED && g.eventOn) {
         stops.push(g.eventOn(g.tavern_events.GENERATION_STARTED, (_type, _options, dryRun) => {
           // Luker prompt previews emit STARTED with dryRun=true but do not emit ENDED.
@@ -1528,6 +3124,10 @@ export function createHostBridge(): GardenBridge | null {
         subscribe(mvu.events.VARIABLE_INITIALIZED);
         if (mvu.events.VARIABLE_UPDATE_ENDED && g.eventOn) {
           stops.push(g.eventOn(mvu.events.VARIABLE_UPDATE_ENDED, () => {
+            // Helper 事件不带楼层参数：无法区分目标/其他楼层，按 epoch 聚合（Probe B 实测）。
+            if (pendingSettlement || pendingOwnershipBefore || pendingSystemOperation) {
+              console.debug('[gal:mvu] VARIABLE_UPDATE_ENDED（无楼层参数，按 epoch 聚合；目标楼层复核在 waitForVariableStage）');
+            }
             variableUpdateEpoch += 1;
             void settlePendingAfterReply().finally(refresh);
           }).stop);
@@ -1576,6 +3176,17 @@ export function createPreviewBridge(): GardenBridge {
   };
   let previewOpeningDraft: OpeningDraft | undefined;
   let previewOpeningStory = '';
+  const previewRuntimeDiagnostics = (): RuntimeDiagnostics => ({
+    mode: 'preview',
+    tavernVersion: 'offline',
+    helperVersion: 'offline',
+    mvuReady: false,
+    bridgeVersion: '0.4.3-host-generate-r23',
+    generationTransport: 'native-trigger',
+    regenerationTransport: 'native-regenerate',
+    databaseAvailable: false,
+    databaseVersion: '未加载',
+  });
   return {
     async readState() { return structuredClone(previewState); },
     async getOpeningContext() { return { chatId: 'offline-preview-chat', personaName: '预览玩家', personaDescription: '来自外界的年轻旅人。' }; },
@@ -1672,9 +3283,7 @@ export function createPreviewBridge(): GardenBridge {
                 { kind: 'speech', speaker_id: 'marisa', reaction_id: 'happy', pose_id: 'default', text: '很好，这下不只是猜想了。两点灵感，足够决定怎么清理旧地基。' },
               ]
             : null;
-      const scene = {
-        version: 'scene.v1',
-        beats: tutorialBeats ?? (isEnding
+      const previewBeats = tutorialBeats ?? (isEnding
           ? [
             { kind: 'speech', speaker_id: 'reimu', reaction_id: 'neutral', pose_id: 'default', text: '那就先到这里吧。别忘了庭园还有一堆麻烦等着你。' },
             { kind: 'narration', speaker_id: null, reaction_id: 'neutral', pose_id: 'default', text: '短暂的交谈告一段落，庭园重新安静下来。' },
@@ -1701,14 +3310,20 @@ export function createPreviewBridge(): GardenBridge {
                 pose_id: 'default',
                 text: `${previewSpeakerId === 'marisa' ? '魔理沙' : '灵梦'}看了你一眼，没有立刻离开。`,
               },
-            ]),
-        suggested_replies: isEnding ? [] : [
-          { id: 'ask-more', label: '继续询问', intent: '我顺着她刚才的话继续问下去。' },
-          { id: 'change-topic', label: '换个话题', intent: '我稍微换了一个轻松些的话题。' },
-        ],
-      };
+            ]);
+      const escapeProtocolText = (value: string) => value
+        .replace(/&/gu, '&amp;')
+        .replace(/</gu, '&lt;')
+        .replace(/>/gu, '&gt;')
+        .replace(/"/gu, '&quot;');
       const assistantMessageId = messages.length;
-      const assistantText = `<GensokyoScene>${JSON.stringify(scene)}</GensokyoScene>`;
+      const assistantText = [
+        '【庭园正文开始】',
+        ...previewBeats.map((beat) => beat.kind === 'speech'
+          ? `<dialogue char="${escapeProtocolText(beat.speaker_id ?? previewSpeakerId)}" visual_mode="normal" reaction="${escapeProtocolText(beat.reaction_id)}" pose="default" act="none">${escapeProtocolText(beat.text)}</dialogue>`
+          : `<narration>${escapeProtocolText(beat.text)}</narration>`),
+        '【庭园正文结束】',
+      ].join('\n');
       messages.push({
         id: assistantMessageId,
         role: 'assistant',
@@ -1837,9 +3452,26 @@ export function createPreviewBridge(): GardenBridge {
     async regenerateLatest() { throw new Error('离线预览不支持重新生成'); },
     async swipeLatest() { throw new Error('离线预览不支持 Swipe'); },
     async showNativeChat() { return false; },
-    async diagnostics(): Promise<RuntimeDiagnostics> {
-      return { mode: 'preview', tavernVersion: 'offline', helperVersion: 'offline', mvuReady: false, bridgeVersion: '0.4.3-host-generate-r23', databaseAvailable: false, databaseVersion: '未加载' };
+    async diagnostics(): Promise<RuntimeDiagnostics> { return previewRuntimeDiagnostics(); },
+    async buildDiagnosticSnapshot() {
+      return buildDiagnosticSnapshot({
+        state: structuredClone(previewState),
+        transaction: structuredClone(transaction),
+        pendingRequest: null,
+        diagnostics: previewRuntimeDiagnostics(),
+        memoryPort: { profile: memoryPort.profile, capability: memoryPort.capability },
+        appVersion: String(previewState.meta?.schema_version ?? 'unknown'),
+      });
     },
+    async listSaveSlots() {
+      return Array.from({ length: 8 }, (_, index) => ({
+        slotId: `manual-${String(index + 1).padStart(2, '0')}` as SaveSlotId,
+        occupied: false,
+        valid: true,
+      }));
+    },
+    async saveToSlot() { throw new Error('离线预览不支持持久化存档'); },
+    async loadFromSlot() { throw new Error('离线预览不支持读取存档'); },
     async subscribe() { return () => undefined; },
   };
 }

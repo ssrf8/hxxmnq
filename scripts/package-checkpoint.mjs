@@ -3,16 +3,35 @@ import { access, copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const VERSION = '0.2.0';
+const releaseKindArg = process.argv.find(argument => argument.startsWith('--release-kind='));
+const RELEASE_KIND = releaseKindArg ? releaseKindArg.slice('--release-kind='.length) : 'production';
+if (!['production', 'test'].includes(RELEASE_KIND)) throw new Error('--release-kind 只允许 production 或 test');
+const IS_TEST_ENTRY = RELEASE_KIND === 'test';
+// 正式检查点必须显式提供版本；测试入口是固定卡（卡名不绑定 UI 版本，见 plan 3.3/5.4）。
 const checkpointArg = process.argv.find(argument => argument.startsWith('--checkpoint='));
-if (!checkpointArg) throw new Error('缺少必需参数：--checkpoint=0.2.0-rN');
-const CHECKPOINT = checkpointArg.slice('--checkpoint='.length).trim();
-if (!/^0\.2\.0-r[1-9][0-9]*$/u.test(CHECKPOINT)) {
-  throw new Error(`非法检查点：${CHECKPOINT}`);
+if (!IS_TEST_ENTRY && !checkpointArg) throw new Error('缺少必需参数：--checkpoint=0.2.0-rN');
+const CHECKPOINT = IS_TEST_ENTRY ? '0.2.0-ui-test-entry' : checkpointArg.slice('--checkpoint='.length).trim();
+const CHECKPOINT_RE = IS_TEST_ENTRY
+  ? /^0\.2\.0-ui-test-entry$/u
+  : /^0\.2\.0-r[1-9][0-9]*$/u;
+if (!CHECKPOINT_RE.test(CHECKPOINT)) {
+  throw new Error(`非法检查点：${CHECKPOINT}（${RELEASE_KIND} 通道格式）`);
 }
-const CHECKPOINT_SUFFIX = CHECKPOINT.split('-').at(-1);
-const OUTPUT_DIR = path.resolve('dist', `checkpoint-${CHECKPOINT}`);
-const OUTPUT_FILE = path.join(OUTPUT_DIR, `幻想乡物语-测试检查点-${CHECKPOINT}.json`);
-const WORLDBOOK_NAME = `幻想乡物语·移动庭园 ${CHECKPOINT}`;
+const CHECKPOINT_SUFFIX = CHECKPOINT.slice(VERSION.length + 1); // 正式 'r96'；测试入口 'ui-test-entry'
+const RUNTIME_ROOT = IS_TEST_ENTRY ? 'dist/runtime/test' : 'dist/runtime';
+// 可选防御参数：--runtime-root 若提供必须与通道推导一致（plan 5.4 目标接口）。
+const runtimeRootArg = process.argv.find(argument => argument.startsWith('--runtime-root='));
+if (runtimeRootArg && runtimeRootArg.slice('--runtime-root='.length) !== RUNTIME_ROOT) {
+  throw new Error(`--runtime-root 与 ${RELEASE_KIND} 通道推导不一致：${runtimeRootArg.slice('--runtime-root='.length)} != ${RUNTIME_ROOT}`);
+}
+const OUTPUT_DIR = path.resolve('dist', IS_TEST_ENTRY ? 'checkpoint-ui-test-entry' : `checkpoint-${CHECKPOINT}`);
+const OUTPUT_FILE = path.join(OUTPUT_DIR, IS_TEST_ENTRY ? '幻想乡物语 [UI测试版].json' : `幻想乡物语-测试检查点-${CHECKPOINT}.json`);
+const WORLDBOOK_NAME = IS_TEST_ENTRY
+  ? '幻想乡物语·移动庭园 [UI测试版]'
+  : `幻想乡物语·移动庭园 ${CHECKPOINT}`;
+const CARD_NAME = IS_TEST_ENTRY
+  ? '幻想乡物语 [UI测试版]'
+  : `幻想乡物语·移动庭园（测试检查点 ${CHECKPOINT}）`;
 const DRY_RUN = process.argv.includes('--dry-run');
 const REPLACE_EXISTING = process.argv.includes('--replace');
 const EXPECT_REMOTE_R2 = process.argv.includes('--expect-remote-r2');
@@ -29,7 +48,8 @@ const manifest = await json('project/manifest.json');
 if (profile.version !== VERSION || manifest.version !== VERSION) {
   throw new Error(`版本不一致：profile=${profile.version}, manifest=${manifest.version}, packer=${VERSION}`);
 }
-if (!manifest.planned_checkpoint_sequence?.includes(CHECKPOINT)) {
+// 测试检查点不登记在正式发布清单（plan 10.4：测试打包不修改 project/manifest.json 的正式发布状态）。
+if (RELEASE_KIND !== 'test' && !manifest.planned_checkpoint_sequence?.includes(CHECKPOINT)) {
   throw new Error(`检查点未登记在 planned_checkpoint_sequence：${CHECKPOINT}`);
 }
 let archivedOutput = '';
@@ -71,23 +91,36 @@ const [
   json('src/schema/initial-state.json'),
   source('src/runtime/01-mvu-loader.js'),
   source('src/schema/02-mvu-schema.js'),
-  source(UI_DELIVERY === 'remote' ? 'dist/runtime/ui-loader.js' : 'dist/runtime/ui-mount.js'),
+  source(UI_DELIVERY === 'remote' ? `${RUNTIME_ROOT}/ui-loader.js` : `${RUNTIME_ROOT}/ui-mount.js`),
   json('src/lorebook/character-routing.json'),
   json('src/lorebook/item-routing.json'),
 ]);
 
 if (UI_DELIVERY === 'remote') {
-  if (!uiMount.includes('ui-manifest.json') || !uiMount.includes('https://')) {
-    throw new Error('拒绝打包：dist/runtime/ui-loader.js 不是合法远程 loader（缺少 ui-manifest.json 引用）。请先运行 npm run build:ui:remote -- --ui-delivery=remote --ui-version=<rN>。');
+  const expectedUiManifest = IS_TEST_ENTRY
+    ? 'gensokyo-moving-garden/test/ui/ui-manifest.json'
+    : 'gensokyo-moving-garden/live/ui/ui-manifest.json';
+  const forbiddenUiManifest = IS_TEST_ENTRY
+    ? 'gensokyo-moving-garden/live/ui/ui-manifest.json'
+    : 'gensokyo-moving-garden/test/ui/ui-manifest.json';
+  if (!uiMount.includes(expectedUiManifest) || !uiMount.includes('https://')) {
+    throw new Error(`拒绝打包：${RUNTIME_ROOT}/ui-loader.js 不是合法 ${RELEASE_KIND} 通道 loader（缺少 ${expectedUiManifest} 引用）。请先运行对应通道的 remote 构建。`);
   }
-  const remoteMountPath = `dist/runtime/ui-mount-${CHECKPOINT_SUFFIX}.js`;
-  if (!(await exists(remoteMountPath))) {
-    throw new Error(`拒绝打包：缺少 remote 构建产物 ${remoteMountPath}。请先运行 npm run build:ui:remote -- --ui-delivery=remote --ui-version=${CHECKPOINT_SUFFIX}。`);
+  if (uiMount.includes(forbiddenUiManifest)) {
+    throw new Error(`拒绝打包：${RUNTIME_ROOT}/ui-loader.js 引用了跨通道 manifest（${forbiddenUiManifest}），测试入口只允许嵌入测试 loader。`);
   }
-  const currentMount = await source('dist/runtime/ui-mount.js');
-  const versionedMount = await source(remoteMountPath);
-  if (versionedMount !== currentMount) {
-    throw new Error(`拒绝打包：${remoteMountPath} 与当前 dist/runtime/ui-mount.js 不一致。不得复用已发布版本号，请升级检查点并重新 remote 构建。`);
+  // 正式检查点要求版本化副本与当前构建一致（防串线）；固定测试入口不绑定 UI 版本，
+  // 日常 UI 更新只换 R2 上的 manifest 指针，入口卡本身不动（plan 1.1.8 / 5.4）。
+  if (!IS_TEST_ENTRY) {
+    const remoteMountPath = `${RUNTIME_ROOT}/ui-mount-${CHECKPOINT_SUFFIX}.js`;
+    if (!(await exists(remoteMountPath))) {
+      throw new Error(`拒绝打包：缺少 remote 构建产物 ${remoteMountPath}。请先运行对应通道的 remote 构建（--ui-channel=production --ui-version=${CHECKPOINT_SUFFIX}）。`);
+    }
+    const currentMount = await source(`${RUNTIME_ROOT}/ui-mount.js`);
+    const versionedMount = await source(remoteMountPath);
+    if (versionedMount !== currentMount) {
+      throw new Error(`拒绝打包：${remoteMountPath} 与当前 ${RUNTIME_ROOT}/ui-mount.js 不一致。不得复用已发布版本号，请升级检查点并重新 remote 构建。`);
+    }
   }
 } else if (EXPECT_REMOTE_R2 && !uiMount.includes('"mode":"remote-r2-live"')) {
   throw new Error('拒绝打包：当前 dist/runtime/ui-mount.js 不是 remote-r2-live 构建。请先运行 npm run build:ui:remote，再重新 dry-run。');
@@ -233,17 +266,21 @@ const script = (name, id, content) => ({
 
 const firstMes = `<移动庭园_测试检查点 version="${VERSION}">\n祖父失踪后的第七天，一个没有寄件地址的旧木匣被送到门前。请在自动出现的“移动庭园”界面确认身份并接过庭守钥；界面会在本楼层本地写入开局资料并直接进入庭园，不发送玩家消息，也不调用 LLM。第一次真实行动才会生成正文。若界面未出现，请先使用原生聊天查看诊断。\n</移动庭园_测试检查点>`;
 const data = {
-  name: `幻想乡物语·移动庭园（测试检查点 ${CHECKPOINT}）`,
+  name: CARD_NAME,
   description: identity,
   personality: '群像叙事与庭园建设系统卡。固定角色保持独立行动逻辑；玩家人称、表达方式与尺度由玩家预设及实际输入决定。',
   scenario: '玩家收到祖父留下的遗信与沉睡的“庭守钥”，在本地开场界面确认资料并接受继承后穿过结界抵达荒废庭园，随后修复设施，并在锚点、建设与选择中迎接来访者和小型异变。',
   first_mes: firstMes,
   mes_example: '',
-  creator_notes: `本文件是本地运行测试检查点 ${CHECKPOINT}，不是正式发布版。\n开场为确定性的本地流程：玩家确认资料后，在首个 assistant 楼层幂等写入并复读开场状态；不创建 user 消息、不触发 /trigger、不调用 LLM。第一次真实行动才会首次调用 LLM。\n开场资料格式：\n${openingTemplate}`,
+  creator_notes: RELEASE_KIND === 'test'
+    ? `本文件是 UI 测试版检查点 ${CHECKPOINT}（${CHECKPOINT_SUFFIX}），仅供测试通道验收，禁止当作正式版导入。\nUI 由 R2 测试通道远程交付（/test/ui/），公共资产仍共享 /live/manifest.json。\n开场为确定性的本地流程：玩家确认资料后，在首个 assistant 楼层幂等写入并复读开场状态；不创建 user 消息、不触发 /trigger、不调用 LLM。第一次真实行动才会首次调用 LLM。\n开场资料格式：\n${openingTemplate}`
+    : `本文件是本地运行测试检查点 ${CHECKPOINT}，不是正式发布版。\n开场为确定性的本地流程：玩家确认资料后，在首个 assistant 楼层幂等写入并复读开场状态；不创建 user 消息、不触发 /trigger、不调用 LLM。第一次真实行动才会首次调用 LLM。\n开场资料格式：\n${openingTemplate}`,
   system_prompt: `${identity}\n\n${movingGarden}`,
-  post_history_instructions: '严格遵守角色卡身份、玩家权边界、信息可知性、GAL scene.v1 与 MVU 更新协议。互动允许跨越多轮真实聊天；只有自然离场或玩家明确结束时才结算当前互动。',
+  post_history_instructions: '严格遵守角色卡身份、玩家权边界、信息可知性、庭园正文与 MVU 更新协议。互动允许跨越多轮真实聊天；只有自然离场或玩家明确结束时才结算当前互动。',
   alternate_greetings: [],
-  tags: ['幻想乡', '群像', '建设', 'MVU', '测试检查点'],
+  tags: RELEASE_KIND === 'test'
+    ? ['幻想乡', '群像', '建设', 'MVU', 'UI测试版', '测试检查点']
+    : ['幻想乡', '群像', '建设', 'MVU', '测试检查点'],
   creator: 'AlbusKen / Codex 协作制作',
   character_version: CHECKPOINT,
   extensions: {
@@ -277,8 +314,13 @@ if (EXPECT_REMOTE_R2 && serializedBytes > 10 * 1024 * 1024) {
 }
 const report = {
   mode: DRY_RUN ? 'dry-run' : 'write',
+  release_kind: RELEASE_KIND,
   version: VERSION,
   checkpoint: CHECKPOINT,
+  ui_manifest: RELEASE_KIND === 'test'
+    ? 'gensokyo-moving-garden/test/ui/ui-manifest.json'
+    : 'gensokyo-moving-garden/live/ui/ui-manifest.json',
+  runtime_root: RUNTIME_ROOT,
   output: OUTPUT_FILE,
   bytes: serializedBytes,
   sha256: createHash('sha256').update(serialized).digest('hex'),

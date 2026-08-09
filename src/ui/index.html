@@ -75,6 +75,10 @@
         <button type="button" id="gg-open-launcher" class="gg-icon-button" aria-haspopup="dialog" aria-controls="gg-launcher-dialog">幻想乡案内</button>
       </header>
 
+      <div id="gg-debug-banner" class="gg-debug-banner" role="status" aria-live="polite" hidden>
+        调试模式：下方显示的「真实消息楼层」是 SILVER TAIL 的底层聊天记录，仅供排障查看，不要直接编辑。
+      </div>
+
       <section id="gg-view-garden" class="gg-view gg-view-garden" aria-labelledby="gg-garden-name">
         <section id="gg-pending-tasks" class="gg-pending-tasks" aria-labelledby="gg-pending-tasks-title" hidden>
           <div>
@@ -241,9 +245,25 @@
             <input id="gg-hide-ui-hints" type="checkbox" checked>
             <span><strong>隐藏状态栏与地图提示</strong><small>隐藏底部状态栏文字与「点击角色或区域」提示</small></span>
           </label>
-          <p class="gg-note">该偏好只保存在本机，不写入庭园状态。</p>
+          <label class="gg-sound-toggle" for="gg-debug-floors">
+            <input id="gg-debug-floors" type="checkbox">
+            <span><strong>显示真实消息楼层（调试）</strong><small>仅显示底层真实楼层，不开放原生输入框，不改变消息数据</small></span>
+          </label>
+          <p class="gg-note">该偏好只保存在本机（本会话），不写入庭园状态。</p>
+        </fieldset>
+        <fieldset id="gg-save-panel" class="gg-save-panel" aria-busy="false">
+          <legend>存档与读档</legend>
+          <p class="gg-note">保存当前聊天楼层与完整 MVU。读档会替换当前未保存进度，不会自动生成新剧情。</p>
+          <div id="gg-save-slots" class="gg-save-slots" aria-label="手动存档槽位"></div>
+          <p id="gg-save-status" class="gg-note" role="status" aria-live="polite"></p>
         </fieldset>
         <dl id="gg-diagnostics" class="gg-diagnostics"></dl>
+        <fieldset class="gg-sound-settings gg-diagnostic-export">
+          <legend>问题诊断</legend>
+          <p class="gg-note">仅下载到本机，不包含剧情文本；分享前仍建议人工检查。</p>
+          <button id="gg-export-diagnostics" type="button">导出脱敏诊断</button>
+          <p id="gg-diagnostic-export-status" class="gg-note" role="status" aria-live="polite"></p>
+        </fieldset>
         <div class="gg-actions">
           <button type="button" id="gg-starter-gift">新人礼包</button>
           <button type="button" id="gg-show-native">显示原生聊天</button>

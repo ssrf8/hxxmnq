@@ -19,7 +19,7 @@
 | `interaction.current_session` | null 或单一会话 | 额外变量模型；受控温室会话由 bridge 独占 | 模型、剧情页 | 同时仅一个；受控会话不允许模型替换父对象绕过所有权 |
 | `interaction.current_session.effective_rounds` | integer/0 | bridge | 温室多轮会话门槛 | 仅完整且有效的新 assistant 回复递增；停止、失败、Swipe、重放与同消息 ID 不计数 |
 | `interaction.settled_ids` | 最多 64 个交互结算 ID | 额外变量模型；受控温室会话由 bridge 独占 | 模型、GAL 幂等检查 | 只追加已复读成功的会话结算；重复 ID 禁止再次结算 |
-| `interaction.conversation_log` | 最多 24 条短摘要，每条 ≤120 字 | 额外变量模型 | 模型（最近互动回顾投影） | FIFO 追加不覆盖；所有角色共用一个数组，条目前缀 `角色ID: ` 区分归属；只记与在场角色相关的本轮行动与反应；结束对话不清空；投影取尾 6 条并按在场角色过滤 |
+| `interaction.conversation_log` | 最多 24 条短摘要，每条 ≤120 字 | **无（B2-T11 退役：不再由任何变量规则写入）** | **无（不再投影到模型；仅作 legacy migration source）** | 只保留旧存档迁移能力：FIFO 保留尾 24 条、不清空、字符串兜底；新剧情记忆由 `visit_memory` + synthetic history 承担 |
 | `interaction.starter_gift_claimed` | boolean，默认 false | 本地桥接（设置区新人礼包） | 设置页、本地结算 | 每个聊天档案只可领取一次；领取后置 true，随 stat_data 持久化；不参与模型投影 |
 | `events.active_event` | null 或正式事件 | 模型 | 模型、剧情页 | 同时仅一个；结算后转入近期结果/关键标记 |
 | `events.waiting_events` | 最多 3 个事件 | 模型 | 调度器、模型 | 满载时拒绝低优先事件；到期不可静默删除 |
@@ -83,7 +83,7 @@
 >
 > 同层兼容不声称、不新增，标记 DBR-C8-UNVERIFIED。数据库本批完全不接。
 > chat metadata / localStorage / sessionStorage 不得保存正式记忆。
-> 旧 conversation_log 与 current_relationship_facts 本批仍由旧协议写入并保留。
+> conversation_log 已退役（B2-T11）：仅作旧存档迁移来源；current_relationship_facts 本批仍由旧协议写入并保留。
 
 ## 集中容量常量（值冻结）
 
@@ -134,24 +134,40 @@
 | `ended_time_period` | string\|null | reconciliation | 关闭时填 |
 | `ended_period_serial` | number\|null | reconciliation | 关闭时填 |
 | `end_reason` | `null\|scheduled-departure\|presence-receipt\|event-leave\|reconcile` | reconciliation | 关闭时填 |
-| `turns` | VisitTurn[]，active 上限 16 | 本批仅 upsert helper + 测试 | 关闭后随 visit 进入 closed_visits |
+| `turns` | VisitTurn[]，active 上限 16 | bridge settlement（T10 `applyVisitTurnsToFinalState` 纯构造器 + upsert helper） | 关闭后随 visit 进入 closed_visits |
 
 ## VisitTurn
 
 | 字段 | 类型/默认值 | 写入者 | 说明 |
 |---|---|---|---|
-| `turn_id` | string = `request_id + ':' + character_id` | 本批仅 helper | 逻辑身份；重试/重生成按此覆盖 |
-| `request_id` | string | 后续提交器 | 本批迁移不产生 turn |
-| `character_id` | string | 后续提交器 | 与 visit 一致 |
-| `scene_id` | string \| null | 后续提交器 | 无则 null |
-| `assistant_message_id` | number \| null | 后续提交器 | 无则 null |
-| `assistant_swipe_id` | number \| null | 后续提交器 | 无则 null |
-| `latest_attempt_id` | string \| null | 后续提交器 | 审计最新提交 |
-| `latest_commit_key` | string \| null | 后续提交器 | 审计最新提交 |
+| `turn_id` | string = `request_id + ':' + character_id` | bridge settlement（T10 纯构造器） | 逻辑身份；重试/重生成按此覆盖 |
+| `request_id` | string | bridge settlement | 本批迁移不产生 turn |
+| `character_id` | string | bridge settlement | 与 visit 一致 |
+| `scene_id` | string \| null | bridge settlement | 无则 null |
+| `assistant_message_id` | number \| null | bridge settlement（exact messageId） | 无则 null |
+| `assistant_swipe_id` | number \| null | bridge settlement / regeneration replay | 普通发送与重生成均写精确 active/candidate swipe ID；仅 legacy 可为 null |
+| `latest_attempt_id` | string \| null | bridge settlement | 审计最新提交 |
+| `latest_commit_key` | string \| null | bridge settlement | 审计最新提交 |
 | `day` | number\|string\|null | Bridge 盖章 | 不用现实时间 |
 | `time_period` | string\|null | Bridge 盖章 | 同上 |
 | `period_serial` | number\|null | Bridge 盖章 | 同上 |
 | `summary` | string，≤160 字符 | 本批无生产写入者 | 清洗后摘要 |
+
+## RegenerationCommitReceiptV1（MvuData 内嵌）
+
+持久键：`gal_regeneration_receipt_v1`。该键随目标 swipe 的 `swipes_data[candidate]` 一次性提交；fingerprint 计算时排除自身，避免自引用。
+
+| 字段 | 类型 | 写入者 | 说明 |
+|---|---|---|---|
+| `schema` | `gal-regeneration-commit-receipt.v1` | send finalizer / regeneration replay | 固定版本 |
+| `requestId` / `attemptId` / `commitKey` | string | 同上 | 精确事务身份 |
+| `assistantMessageId` / `assistantSwipeId` | number | 同上 | 精确目标楼层与 swipe |
+| `baselineDataFingerprint` | string | replay/finalizer | 冻结基线 hash，不存正文 |
+| `modelAppliedDataFingerprint` | string | replay/finalizer | MVU parser 输出 hash |
+| `finalizedDataFingerprint` | string | replay/finalizer | 本地结算、presence、VisitTurn、lifecycle 后 hash；用于拒绝后置漂移 |
+| `settlementKeys` | string[] | replay/finalizer | 排序去重；首版正常发送为 `[]` |
+
+旧 V2 swipe 若没有此 receipt，策略为 fail closed（`legacy-replay-mismatch`），不静默回滚后置购买、卡片操作或未知状态。
 
 ## LegacyMemory
 
@@ -214,10 +230,10 @@
 | active/closed visit 生命周期 | presence reconciliation（reconcileCharacterVisits） |
 | 迁入的 legacy story | deterministic migration（migrateGardenState 内） |
 | 迁入的旧关系事实 | deterministic migration |
-| 新 VisitTurn | 本批没有生产写入者，仅纯 upsert helper + 测试 |
+| 新 VisitTurn | bridge settlement（T10 纯构造器 + 冻结 visit map 精确 upsert） |
 | 新关系候选 | 本批不存在 |
 
-旧字段（conversation_log、current_relationship_facts）在本批仍维持原写入者；禁止为“统一”提前修改 target-actions、prompt-context 或变量规则。
+conversation_log（B2-T11 已退役）不再由任何变量规则写入、不再投影；current_relationship_facts 本批仍维持原写入者；禁止为“统一”提前修改 relationship 变量规则。
 
 ## 裁剪规则（冻结）
 

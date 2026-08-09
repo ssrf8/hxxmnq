@@ -521,8 +521,7 @@ export function upsertVisitTurn(state: GardenState, characterId: string, turn: V
  * 按 relationship_memory_id upsert 到该角色 relationship_memories。
  * 无角色记忆时先 ensure。返回新 state；纯函数。
  */
-export function upsertRelationshipMemory(state: GardenState, characterId: string, memory: RelationshipMemory): GardenState {
-  const withRoot = ensureCharacterMemory(state, characterId);
+export function upsertRelationshipMemory(state: GardenState, characterId: string, memory: RelationshipMemory): GardenState {  const withRoot = ensureCharacterMemory(state, characterId);
   const visitMemory = withRoot.interaction!.visit_memory!;
   const characterMemory = visitMemory.by_character[characterId];
   const index = characterMemory.relationship_memories.findIndex(
@@ -538,6 +537,75 @@ export function upsertRelationshipMemory(state: GardenState, characterId: string
   const nextByCharacter = { ...visitMemory.by_character, [characterId]: nextCharacterMemory };
   const nextVisitMemory = { ...visitMemory, by_character: nextByCharacter };
   return { ...withRoot, interaction: { ...withRoot.interaction!, visit_memory: nextVisitMemory } };
+}
+
+// ===== 第二批：按冻结 visit ID 精确 upsert（B2-T04）=====
+//
+// 合同：runbook §3.7 提交目标必须使用请求时冻结的 visitIdsByCharacter[characterId]
+//   - 为 null：不写 VisitTurn（调用方不调用本函数）；
+//   - 与当前 active visit 一致：写 active；
+//   - 生成结算期间角色离场、该 visit 已进入 closed_visits：写对应 closed visit；
+//   - visit 在 active/closed 均找不到：失败并保留 settlement pending，不得写进新 visit；
+//   - 同一个 visit ID 出现多处：视为数据冲突并停止，不猜目标；
+//   - 同 turn_id retry/recovery：upsert 覆盖审计字段，不追加重复记录。
+
+export type VisitTurnByVisitIdResult =
+  | { ok: true; state: GardenState }
+  | { ok: false; code: 'not-found' | 'conflict'; state: GardenState };
+
+/**
+ * 按 `characterId + visitId` 精确定位 visit（active 或 closed 恰好一处），按 turn_id upsert。
+ * 纯函数：不写宿主、不读现实时间；写后执行第一批 16/4/48 容量归一化；保留 unknown fields。
+ * 失败（not-found/conflict）返回原 state 引用（未变），由调用方保留 settlement pending。
+ */
+export function upsertVisitTurnByVisitId(
+  state: GardenState,
+  characterId: string,
+  visitId: string,
+  turn: VisitTurn,
+): VisitTurnByVisitIdResult {
+  const withRoot = ensureVisitMemoryRoot(state);
+  const memory = withRoot.interaction?.visit_memory?.by_character[characterId];
+  if (!memory) return { ok: false, code: 'not-found', state };
+
+  let activeMatches = 0;
+  let closedMatches = 0;
+  if (memory.active_visit?.visit_id === visitId) activeMatches = 1;
+  for (const visit of memory.closed_visits ?? []) {
+    if (visit.visit_id === visitId) closedMatches += 1;
+  }
+  const total = activeMatches + closedMatches;
+  if (total === 0) return { ok: false, code: 'not-found', state };
+  if (total > 1) return { ok: false, code: 'conflict', state };
+
+  const upsertTurns = (visit: VisitRecord): VisitRecord => {
+    const index = visit.turns.findIndex((existing) => existing.turn_id === turn.turn_id);
+    const turns = index >= 0
+      ? visit.turns.map((existing, i) => (i === index ? turn : existing))
+      : [...visit.turns, turn];
+    return { ...visit, turns };
+  };
+
+  let nextMemory: CharacterMemory;
+  if (activeMatches === 1) {
+    nextMemory = normalizeCharacterMemoryToCapacity({
+      ...memory,
+      active_visit: upsertTurns(memory.active_visit!),
+    });
+  } else {
+    nextMemory = normalizeCharacterMemoryToCapacity({
+      ...memory,
+      closed_visits: memory.closed_visits.map((visit) => (
+        visit.visit_id === visitId ? upsertTurns(visit) : visit
+      )),
+    });
+  }
+  const nextByCharacter = { ...withRoot.interaction!.visit_memory!.by_character, [characterId]: nextMemory };
+  const nextVisitMemory = { ...withRoot.interaction!.visit_memory!, by_character: nextByCharacter };
+  return {
+    ok: true,
+    state: { ...withRoot, interaction: { ...withRoot.interaction!, visit_memory: nextVisitMemory } },
+  };
 }
 
 // ===== 便捷读取 =====
@@ -1020,4 +1088,103 @@ export function reconcileCharacterVisitsFromState(
     interaction: { ...withRoot.interaction!, visit_memory: result.memory },
     uid_counters: { ...withRoot.uid_counters, character_visit: result.counters.character_visit },
   };
+}
+
+// ===== 第二批：相关角色与 visit 快照（B2-T03）=====
+//
+// 合同：project/gal-character-memory-batch-2-send-and-synthetic-history-runbook.md §3.4
+//   - 输入必须是结构化 ID 集合，不接收整段玩家文本、不扫描自然语言猜角色；
+//   - 优先级冻结：主目标 → 动作 target → 事件 participants → session participants → 在场补足；
+//   - 只接受已登记角色 ID；去重保持稳定顺序；最多 4 人；主目标缺失是请求错误；
+//   - visit map 请求时冻结，生成期间不得因到达/离开改写；
+//   - 不创建 visit（visit 创建仍由第一批 presence lifecycle 独占）；不读真实聊天。
+
+/** 已登记角色白名单（contract.md 固定八人；与 character-routing.json 一致）。 */
+export const REGISTERED_CHARACTER_IDS: readonly string[] = [
+  'reimu', 'marisa', 'cirno', 'alice', 'mystia', 'suika', 'nitori', 'sakuya',
+];
+
+export interface RelevantCharacterInput {
+  /** 优先级 1：当前 GAL 主目标角色。自由对话/角色互动必须存在。 */
+  mainTargetCharacterId?: string | null;
+  /** 优先级 2：当前动作显式 targetCharacterId。 */
+  actionTargetCharacterId?: string | null;
+  /** 优先级 3：事件配置的显式 participants（由配置/当前状态提供，不从模型输出猜）。 */
+  eventParticipants?: readonly string[];
+  /** 优先级 4：interaction.current_session.participant_character_ids。 */
+  sessionParticipants?: readonly string[];
+  /** 优先级 5：当前在场集合，作为缺省补足。 */
+  presentCharacterIds?: readonly string[];
+  /** 是否要求主目标（自由对话 true；事件/设施/道具行动可 false）。缺失返回 missing-main-target。 */
+  requireMainTarget?: boolean;
+  /** 已登记角色白名单；缺省 REGISTERED_CHARACTER_IDS。 */
+  registeredCharacterIds?: readonly string[];
+}
+
+export type RelevantCharacterResult =
+  | { ok: true; characterIds: string[] }
+  | { ok: false; reason: 'missing-main-target' };
+
+/**
+ * 按 runbook §3.4 稳定优先级解析相关角色（纯函数，无副作用、不读宿主、不创建 visit）。
+ * 优先级 1–4（主目标/动作 target/事件 participants/session participants）有任一命中时，
+ * 不在场集合不再参与（总计划 §5.2：在场仅作“无明确目标时”的缺省补足）。
+ * 返回去重后的有序角色 ID 列表，最多 4 个。
+ */
+export function resolveRelevantCharacterIds(input: RelevantCharacterInput): RelevantCharacterResult {
+  const registered = new Set(input.registeredCharacterIds ?? REGISTERED_CHARACTER_IDS);
+  const main = input.mainTargetCharacterId?.trim() ?? '';
+  if (input.requireMainTarget && !main) return { ok: false, reason: 'missing-main-target' };
+
+  const candidates: string[] = [];
+  const push = (id: string | null | undefined) => {
+    const value = id?.trim() ?? '';
+    if (value && registered.has(value)) candidates.push(value);
+  };
+  const pushMany = (ids: readonly string[] | undefined) => {
+    for (const id of ids ?? []) push(id);
+  };
+
+  push(main);
+  push(input.actionTargetCharacterId);
+  pushMany(input.eventParticipants);
+  pushMany(input.sessionParticipants);
+
+  // 缺省补足：仅当优先级 1–4 都未命中时，才从在场集合选择（总计划 §5.2）
+  if (candidates.length === 0) {
+    pushMany(input.presentCharacterIds);
+  }
+
+  const unique: string[] = [];
+  const seen = new Set<string>();
+  for (const id of candidates) {
+    if (seen.has(id)) continue;
+    seen.add(id);
+    unique.push(id);
+    if (unique.length >= 4) break;
+  }
+  // R0 裁定：无登记角色是合法 V2（独处设施剧情/无角色过渡）。
+  // requireMainTarget:true 仍拒绝缺失主目标；false 时返回成功空数组，不伪造角色。
+  if (unique.length === 0) {
+    if (input.requireMainTarget) return { ok: false, reason: 'missing-main-target' };
+    return { ok: true, characterIds: [] };
+  }
+  return { ok: true, characterIds: unique };
+}
+
+/**
+ * 请求时冻结每个相关角色的 active visit ID（无入场则 null）。
+ * 纯函数：只读 state；不创建/关闭 visit；visit map 冻结后不因生成期间到达/离开改写。
+ * 调用方（V2 构造）在玩家楼层创建前调用一次并持久化。
+ */
+export function freezeVisitIds(
+  state: GardenState,
+  characterIds: readonly string[],
+): Record<string, string | null> {
+  const frozen: Record<string, string | null> = {};
+  for (const characterId of characterIds) {
+    const memory = getCharacterMemory(state, characterId);
+    frozen[characterId] = memory?.active_visit?.visit_id ?? null;
+  }
+  return frozen;
 }

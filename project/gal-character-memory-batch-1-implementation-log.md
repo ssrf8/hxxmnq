@@ -753,3 +753,35 @@ visitor scheduler / event settlement / opportunity card / current_relationship_f
 ### 修复验收结论
 
 首轮验收列出的 3 个 P1 与 2 个 P2 已全部建立对应修复或自动防回归断言；代码逻辑门通过。运行时项目继续保持“待验”，没有用静态测试冒充实机证据。
+
+---
+
+## 24. 第一批最终封账（2026-08-09）
+
+### 封账对象
+
+- 功能提交：`48f088f feat: add character visit memory foundation`；
+- 合并提交：`de1b568 merge: character visit memory foundation`；
+- 远端状态：`main` 与 `origin/main` 均指向 `de1b568`；
+- 封账测试：`tests/character-memory.test.mjs` 25/25 PASS，`npm test` 342/342 PASS，`npm run check:ui` PASS；
+- 验收性质：只验代码逻辑、类型检查与确定性测试，未执行 runtime probe、时机演示或实机楼层验收。
+
+### 最终裁定
+
+第一批“数据基础”已实施完成并封账。以下合同自此冻结：
+
+1. `character-visit-memory.v1` 的字段名、每角色 48 条剧情记忆与 12 条关系记忆容量；
+2. absent/present 入场生命周期与确定性 visit ID；
+3. `conversation_log`、`current_relationship_facts` 的非破坏迁移与旧源保留；
+4. 角色级坏数据隔离、容量裁剪、迁移幂等和既有 ID 防碰撞；
+5. 第一批不包含发送、合成历史、VisitTurn 生产提交、重生成、数据库、打包或发布。
+
+后续实施不得把第二批改动伪装成第一批补完，也不得为了省事改写已封账测试。发现第一批缺陷时，必须新增明确的修复编号、原因、最小差异与回归证据。
+
+### 下一批入口
+
+第二批“发送与合成历史”只从以下文档进入：
+
+- `project/gal-character-memory-batch-2-send-and-synthetic-history-runbook.md`
+
+第一批实施日志不再接收第二批过程记录。

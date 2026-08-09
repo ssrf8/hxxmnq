@@ -1,7 +1,7 @@
 import { build } from 'esbuild';
 import { createHash } from 'node:crypto';
 import { access, copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, extname } from 'node:path';
+import { dirname, extname, isAbsolute, relative, resolve as resolvePath } from 'node:path';
 import { PNG } from 'pngjs';
 
 const stableJson = (value) => `${JSON.stringify(value, null, 2)}\n`;
@@ -11,11 +11,41 @@ const buildArgs = Object.fromEntries(process.argv.slice(2).map((arg) => {
   const [key, ...rest] = arg.replace(/^--/, '').split('=');
   return [key, rest.length ? rest.join('=') : true];
 }));
+// B4-O01 裁定：memory profile 是显式构建输入，缺失/非法值一律构建失败；
+// 所有 package script 必须显式传 --memory-profile。
+const MEMORY_PROFILES = ['standalone-mvu', 'database-assisted'];
+const memoryProfile = buildArgs['memory-profile'];
+if (!MEMORY_PROFILES.includes(memoryProfile)) {
+  throw new Error('--memory-profile=standalone-mvu|database-assisted 只允许这两个合法值（缺失/空值/第三种值均失败）');
+}
 const uiDelivery = buildArgs['ui-delivery'] ?? 'embedded';
 if (!['embedded', 'remote'].includes(uiDelivery)) throw new Error('--ui-delivery 只允许 embedded 或 remote');
-const uiVersion = buildArgs['ui-version'];
-if (uiDelivery === 'remote' && (typeof uiVersion !== 'string' || !/^r\d+$/.test(uiVersion))) {
-  throw new Error('--ui-delivery=remote 必须显式提供 --ui-version=rN（例如 r95）');
+// 通道固定映射：正式版 /live/ui/（r<N>），测试版 /test/ui/（test-r<N>-g<12hex>）。
+// 不允许通过命令行传任意前缀，脚本只能从这张固定通道表选择。
+const UI_CHANNELS = {
+  production: {
+    uiPrefix: 'gensokyo-moving-garden/live/ui',
+    versionPattern: /^r[1-9]\d*$/,
+    outputDir: 'dist/runtime',
+  },
+  test: {
+    uiPrefix: 'gensokyo-moving-garden/test/ui',
+    versionPattern: /^test-r[1-9]\d*$/,
+    outputDir: 'dist/runtime/test',
+  },
+};
+const uiChannel = buildArgs['ui-channel'] ?? 'production';
+if (!Object.hasOwn(UI_CHANNELS, uiChannel)) throw new Error('--ui-channel 只允许 production 或 test');
+const channelConfig = UI_CHANNELS[uiChannel];
+let uiVersion = buildArgs['ui-version'];
+if (uiDelivery === 'remote') {
+  if (buildArgs['ui-channel'] === undefined) {
+    throw new Error('远程 UI 构建必须显式传入 --ui-channel=production|test');
+  }
+  if (typeof uiVersion !== 'string' || !channelConfig.versionPattern.test(uiVersion)) {
+    const sample = uiChannel === 'test' ? 'test-r9' : 'r95';
+    throw new Error(`--ui-delivery=remote 必须显式提供符合 ${uiChannel} 通道格式的 --ui-version（例如 ${sample}）`);
+  }
 }
 const assetMode = buildArgs['asset-mode'] ?? 'embedded';
 let remoteAssetConfig = null;
@@ -335,15 +365,49 @@ const validateFacilityPngGroup = async ({ id, sources, damageOverlay, damageRepl
 };
 await Promise.all(mapFacilityAssets.map(validateFacilityPngGroup));
 
+// B4-O01 受控 resolve plugin：唯一 selection import `@card/memory-adapter`
+// 只被 src/ui/memory-adapter-selection.ts 引用；plugin 把它映射到
+// src/ui/memory-adapters/<profile>.ts。命中必须恰好一次，且解析路径必须在
+// memory-adapters 目录内；未命中/重复命中/越界均构建失败。
+const MEMORY_ADAPTER_ROOT = resolvePath('src/ui/memory-adapters');
+const createMemoryAdapterPlugin = (profile) => {
+  let resolveHits = 0;
+  return {
+    name: 'memory-adapter-profile',
+    setup(build) {
+      build.onResolve({ filter: /^@card\/memory-adapter$/ }, (args) => {
+        resolveHits += 1;
+        if (resolveHits > 1) {
+          return { errors: [{ text: `memory-adapter selection import 重复命中（${resolveHits} 次），必须恰好一次` }] };
+        }
+        const target = resolvePath(MEMORY_ADAPTER_ROOT, `${profile}.ts`);
+        const rel = relative(MEMORY_ADAPTER_ROOT, target);
+        if (rel.startsWith('..') || isAbsolute(rel)) {
+          return { errors: [{ text: `memory-adapter 解析越界：${target}` }] };
+        }
+        return { path: target };
+      });
+      build.onEnd(() => {
+        if (resolveHits !== 1) {
+          throw new Error(`memory-adapter selection import 未命中（命中 ${resolveHits} 次），必须恰好一次`);
+        }
+      });
+    },
+  };
+};
+
+const appProfileOutDir = `dist/ui/profiles/${memoryProfile}`;
 await mkdir('dist/ui', { recursive: true });
+await mkdir(appProfileOutDir, { recursive: true });
 await build({
   entryPoints: ['src/ui/app.ts'],
   bundle: true,
   format: 'iife',
   target: ['es2022'],
-  outfile: 'dist/ui/app.js',
+  outfile: `${appProfileOutDir}/app.js`,
   sourcemap: true,
   legalComments: 'none',
+  plugins: [createMemoryAdapterPlugin(memoryProfile)],
 });
 await build({
   entryPoints: ['src/ui/cirno-walk-demo.ts'],
@@ -473,8 +537,8 @@ const previewHtml = (await readFile('src/ui/index.html', 'utf8')).replace(
   previewDataAttributes,
 );
 await Promise.all([
-  writeFile('dist/ui/index.html', previewHtml, 'utf8'),
-  copyFile('src/ui/styles.css', 'dist/ui/styles.css'),
+  writeFile(`${appProfileOutDir}/index.html`, previewHtml, 'utf8'),
+  copyFile('src/ui/styles.css', `${appProfileOutDir}/styles.css`),
   copyFile('src/ui/cirno-walk-demo.html', 'dist/ui/cirno-walk-demo.html'),
   copyFile('src/ui/cirno-sprite-calibration.html', 'dist/ui/cirno-sprite-calibration.html'),
   copyFile('src/ui/cirno-height-calibration.html', 'dist/ui/cirno-height-calibration.html'),
@@ -595,9 +659,9 @@ const [
   battleBulletsLocalBytes,
   hostShellSource,
 ] = await Promise.all([
-  readFile('dist/ui/index.html', 'utf8'),
-  readFile('dist/ui/styles.css', 'utf8'),
-  readFile('dist/ui/app.js', 'utf8'),
+  readFile(`${appProfileOutDir}/index.html`, 'utf8'),
+  readFile(`${appProfileOutDir}/styles.css`, 'utf8'),
+  readFile(`${appProfileOutDir}/app.js`, 'utf8'),
   readFile(`src/assets/${gardenBaseAsset.source}`),
   readFile(`src/assets/${gardenNoWalkMaskAsset.source}`),
   readFile(`src/assets/${dungeonButtonSource}`),
@@ -809,37 +873,95 @@ const embedded = {
   battleBulletsLocalDataUrl,
   battleSfxDataUrls,
 };
-const enhancedMountBundle = [
+// B4-O01 §5.3.2：raw host shell 的数据库桥接块必须按 memory profile guarded 保留/删除。
+// 哨兵必须各恰好出现一次；缺失/重复/嵌套异常立即失败；standalone 移除整个块后
+// 不得残留 AutoCardUpdaterAPI 符号；禁止只把 getter 改成返回 undefined。
+const HOST_DB_BRIDGE_START = '// [B4-DATABASE-BRIDGE-START]';
+const HOST_DB_BRIDGE_END = '// [B4-DATABASE-BRIDGE-END]';
+const applyMemoryProfileToHostShell = (source, profile) => {
+  const starts = source.split(HOST_DB_BRIDGE_START).length - 1;
+  const ends = source.split(HOST_DB_BRIDGE_END).length - 1;
+  if (starts !== 1 || ends !== 1) {
+    throw new Error(`host shell 数据库桥接哨兵必须各恰好出现一次（start=${starts} end=${ends}）`);
+  }
+  const startIdx = source.indexOf(HOST_DB_BRIDGE_START);
+  const endIdx = source.indexOf(HOST_DB_BRIDGE_END);
+  if (startIdx === -1 || endIdx === -1 || endIdx <= startIdx) {
+    throw new Error('host shell 数据库桥接哨兵嵌套异常');
+  }
+  if (profile === 'database-assisted') return source;
+  // standalone：移除整个块（含哨兵行），而不是把 getter 置 undefined。
+  const blockStart = source.lastIndexOf('\n', startIdx) + 1;
+  const blockEndLine = source.indexOf('\n', endIdx);
+  const blockEnd = blockEndLine === -1 ? source.length : blockEndLine + 1;
+  const stripped = source.slice(0, blockStart) + source.slice(blockEnd);
+  if (stripped.includes('AutoCardUpdaterAPI')) {
+    throw new Error('standalone host shell 移除数据库桥后仍残留 AutoCardUpdaterAPI');
+  }
+  return stripped;
+};
+const buildMountBundle = (versionToken) => [
   '// generated by scripts/build-ui.mjs — local trusted binder only',
   `const embedded = ${JSON.stringify(embedded)};`,
   // 构建时注入唯一 host 版本：ST 页面里残留的旧实例（version 相同）会短路新代码，
   // 必须保证每次构建产物 version 不同，旧实例才会走 destroy→重建路径。
-  hostShellSource.replace(
+  applyMemoryProfileToHostShell(hostShellSource, memoryProfile).replace(
     /0\.4\.3-host-generate-r\d+/,
     `0.4.3-host-generate-${uiDelivery === 'remote'
-      ? uiVersion
+      ? versionToken
       : createHash('sha256').update(JSON.stringify(embedded)).digest('hex').slice(0, 14)}`,
   ),
 ].join('\n');
-await mkdir('dist/runtime', { recursive: true });
-await writeFile('dist/runtime/ui-mount.js', enhancedMountBundle, 'utf8');
+const enhancedMountBundle = buildMountBundle(uiVersion);
+const runtimeOutputDir = `${channelConfig.outputDir}/profiles/${memoryProfile}`;
+await mkdir(runtimeOutputDir, { recursive: true });
+await writeFile(`${runtimeOutputDir}/ui-mount.js`, enhancedMountBundle, 'utf8');
+const mountBytes = Buffer.byteLength(enhancedMountBundle, 'utf8');
+const mountSha256 = createHash('sha256').update(enhancedMountBundle).digest('hex');
+const report = {
+  ui_delivery: uiDelivery,
+  ui_channel: uiChannel,
+  ui_version: uiDelivery === 'remote' ? uiVersion : null,
+  memory_profile: memoryProfile,
+  memory_adapter: memoryProfile === 'standalone-mvu' ? 'standalone-mvu/no-op' : 'database-assisted/host-auto-card-updater',
+  ui_manifest_url: null,
+  asset_manifest_url: remoteAssetConfig ? `${remoteAssetConfig.baseUrl}/${remoteAssetConfig.manifestPath}` : null,
+  output: `${runtimeOutputDir}/ui-mount.js`,
+  versioned_output: null,
+  loader_output: null,
+  bytes: mountBytes,
+  sha256: mountSha256,
+};
 // UI 交付形态：embedded（默认，现状整包内嵌）或 remote（额外产出发布副本 + 卡内 loader）。
 // remote 模式由 scripts/publish-ui.mjs 上传 ui-mount-<version>.js 与 ui-manifest.json，
 // 打包链（package-checkpoint.mjs --ui-delivery=remote）将 ui-loader.js 作为卡内脚本。
+// 通道隔离：production 输出 dist/runtime/，test 输出 dist/runtime/test/；
+// memory profile 隔离：两个 profile 永远分目录，JS/loader/manifest/report 互不覆盖（B4-O01 §5.4）。
 if (uiDelivery === 'remote') {
   if (!remoteAssetConfig) throw new Error('--ui-delivery=remote 要求 --asset-mode=remote-r2-live 与 --asset-base-url');
-  const versionedMountPath = `dist/runtime/ui-mount-${uiVersion}.js`;
+  const versionedMountPath = `${runtimeOutputDir}/ui-mount-${uiVersion}.js`;
   if (await exists(versionedMountPath)) {
     const existingMount = await readFile(versionedMountPath, 'utf8');
     if (existingMount !== enhancedMountBundle) {
-      throw new Error(`拒绝覆盖不可变 UI 产物：${versionedMountPath} 已存在且内容不同，请使用新的 --ui-version=rN`);
+      throw new Error(`拒绝覆盖不可变 UI 产物：${versionedMountPath} 已存在且内容不同，请使用新的 --ui-version=${uiVersion}`);
     }
   } else {
     await writeFile(versionedMountPath, enhancedMountBundle, 'utf8');
   }
-  const manifestUrl = `${remoteAssetConfig.baseUrl}/gensokyo-moving-garden/live/ui/ui-manifest.json`;
+  // B4-O01 §5.4.1：profile-specific manifest 固定坐标，不覆盖现有 live/test manifest。
+  const uiManifestPath = `${channelConfig.uiPrefix}/profiles/${memoryProfile}/ui-manifest.json`;
+  const manifestUrl = `${remoteAssetConfig.baseUrl}/${uiManifestPath}`;
   const loaderTemplate = await readFile('src/runtime/ui-loader.js', 'utf8');
-  const loader = loaderTemplate.replace(/__UI_MANIFEST_URL__/g, manifestUrl);
-  await writeFile('dist/runtime/ui-loader.js', loader, 'utf8');
-  console.log(`[build-ui] remote 交付产物：ui-mount-${uiVersion}.js（${(enhancedMountBundle.length / 1024 / 1024).toFixed(2)} MB）、ui-loader.js（${(loader.length / 1024).toFixed(1)} KB，指向 ${manifestUrl}）`);
+  const loader = loaderTemplate
+    .replace(/__UI_MANIFEST_URL__/g, manifestUrl)
+    .replace(/__UI_CHANNEL__/g, uiChannel);
+  await writeFile(`${runtimeOutputDir}/ui-loader.js`, loader, 'utf8');
+  Object.assign(report, {
+    ui_manifest_url: manifestUrl,
+    versioned_output: versionedMountPath,
+    loader_output: `${runtimeOutputDir}/ui-loader.js`,
+  });
+  console.log(`[build-ui] ${uiChannel}/${memoryProfile} remote 交付产物：ui-mount-${uiVersion}.js（${(mountBytes / 1024 / 1024).toFixed(2)} MB）、ui-loader.js（${(loader.length / 1024).toFixed(1)} KB，指向 ${manifestUrl}）`);
 }
+await writeFile(`${runtimeOutputDir}/ui-build-report.json`, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+console.log(JSON.stringify(report, null, 2));

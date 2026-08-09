@@ -1,3 +1,5 @@
+import type { DiagnosticSnapshotV1 } from './diagnostic-export';
+
 export type TimePeriod = '清晨' | '白昼' | '黄昏' | '夜晚';
 
 export interface CharacterView {
@@ -492,6 +494,10 @@ export interface RuntimeDiagnostics {
   helperVersion: string;
   mvuReady: boolean;
   bridgeVersion: string;
+  generationTransport: 'native-trigger' | 'helper-generate';
+  // Phase 5：重新生成路径（Probe C 未 PASS → native-regenerate 保留；helper-generate-swipe 未启用）。
+  regenerationTransport: 'native-regenerate' | 'helper-generate-swipe';
+  regenerationBlockedReason?: string;
   databaseAvailable: boolean;
   databaseVersion: string;
   lastError?: string;
@@ -593,9 +599,36 @@ export type MessageTransactionPhase =
   | 'idle'
   | 'submitting_user'
   | 'generating'
+  | 'stopping'
   | 'settling'
   | 'settled'
   | 'failed';
+
+/**
+ * 发送请求的调用方结构化上下文（第二批 V2）：sceneId 兼容旧路径；
+ * mainTargetCharacterId / actionTargetCharacterId / eventParticipants / sessionParticipants
+ * 由各入口显式传入（runbook §3.4 优先级），不在各入口各写一套优先级；
+ * explicitCharacterIds 供冻结的请求期 system inject 构造角色绿灯上下文；
+ * relevantCharacterIds / visitIdsByCharacter 由请求时冻结纯函数产出。
+ */
+export interface GalRequestContext {
+  sceneId?: string | null;
+  mainTargetCharacterId?: string | null;
+  actionTargetCharacterId?: string | null;
+  eventParticipants?: readonly string[];
+  sessionParticipants?: readonly string[];
+  requireMainTarget?: boolean;
+  explicitCharacterIds?: readonly string[];
+  relevantCharacterIds?: string[];
+  visitIdsByCharacter?: Record<string, string | null>;
+  /** R2 冻结：本轮场景道具的结构化预览（bridge 用最新持久态构造只读 promptState）。 */
+  sceneItemPreview?: {
+    itemId: string;
+    useId: string;
+    sceneId: string;
+    targetCharacterId: string | null;
+  };
+}
 
 export interface MessageTransactionSnapshot {
   transactionId: string;
@@ -608,6 +641,24 @@ export interface MessageTransactionSnapshot {
   assistantMessageId?: number;
   startedAt?: number;
   lastError?: string;
+  // Phase 2 增量 A：request/attempt 标识与初始 chat identity（trace/恢复用；旧路径不填）。
+  requestId?: string;
+  attemptId?: string;
+  generationId?: string;
+  commitKey?: string;
+  ownerCharacterId?: string;
+  chatEpoch?: number;
+  mvuEpochBefore?: number;
+  // 第二批 V2：当前事务使用的请求 schema（'gal-generation-request.v1' | 'gal-generation-request.v2'）。
+  // 恢复读取同时支持 V1/V2；V1 历史 metadata 只做兼容读取，不能被解释成 V2 合成历史请求。
+  requestSchema?: string;
+  // Phase 3：停止合同。stopReason 区分 abort 来源（user-stop / chat-switch / iframe-unload），
+  // 日志与 UI 不得混称；attemptSeq 用于从头重试时生成下一个 attempt 标识。
+  stopReason?: string;
+  attemptSeq?: number;
+  // Phase 4：重载恢复标记（'incomplete' | 'confirmed' | 'conflict'）。恢复态由真实聊天重建，
+  // incomplete/conflict 禁止自动重发（app 隐藏重试入口）；confirmed 恢复 settled 与 GAL 投影。
+  recovery?: string;
 }
 
 export interface OpportunityCardBridgeResult {
@@ -633,6 +684,18 @@ export interface DuelCardBridgeSettlementResult {
   alreadySettled: boolean;
 }
 
+export type SaveSlotId = `manual-${'01' | '02' | '03' | '04' | '05' | '06' | '07' | '08'}`;
+
+export interface SaveSlotSummary {
+  slotId: SaveSlotId;
+  occupied: boolean;
+  label?: string;
+  capturedAt?: string;
+  messageCount?: number;
+  gameTimeLabel?: string;
+  valid: boolean;
+}
+
 export interface GardenBridge {
   readState(): Promise<GardenState>;
   getOpeningContext(): Promise<OpeningContext>;
@@ -643,7 +706,7 @@ export interface GardenBridge {
   enterGarden(expectedChatId: string): Promise<{ initializedFromDefaults: boolean }>;
   repairOpening(expectedChatId: string): Promise<{ messageCreated: boolean }>;
   listMessages(): Promise<ChatMessageView[]>;
-  sendUserMessage(text: string, kind?: MessageTransactionKind, userVisibleText?: string): Promise<MessageTransactionSnapshot>;
+  sendUserMessage(text: string, kind?: MessageTransactionKind, userVisibleText?: string, requestContext?: GalRequestContext): Promise<MessageTransactionSnapshot>;
   sendAnomalyResolution(text: string): Promise<MessageTransactionSnapshot>;
   sendDuelVictoryRequest(requestText: string, message: string): Promise<MessageTransactionSnapshot>;
   getTransactionState(): Promise<MessageTransactionSnapshot>;
@@ -673,6 +736,10 @@ export interface GardenBridge {
   swipeLatest(direction?: 'left' | 'right'): Promise<void>;
   showNativeChat(): Promise<boolean>;
   diagnostics(): Promise<RuntimeDiagnostics>;
+  buildDiagnosticSnapshot(): Promise<DiagnosticSnapshotV1>;
+  listSaveSlots(): Promise<SaveSlotSummary[]>;
+  saveToSlot(slotId: SaveSlotId, label: string): Promise<SaveSlotSummary>;
+  loadFromSlot(slotId: SaveSlotId): Promise<{ restoredMessageCount: number }>;
   subscribe(refresh: () => void): Promise<() => void>;
 }
 

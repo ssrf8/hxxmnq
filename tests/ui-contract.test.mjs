@@ -20,6 +20,62 @@ const importTypescript = async (path) => {
   return import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
 };
 
+test('MVU 存读 UI 与 bridge 只暴露八槽合同，宿主壳补齐精确 Helper 能力', async () => {
+  const document = await read('../src/ui/index.html');
+  const app = await read('../src/ui/app.ts');
+  const bridge = await read('../src/ui/bridge.ts');
+  const types = await read('../src/ui/types.ts');
+  const shell = await read('../src/runtime/ui-host-shell.js');
+  assert.match(document, /id="gg-save-panel"[^>]*aria-busy="false"/);
+  assert.match(document, /id="gg-save-status"[^>]*role="status"[^>]*aria-live="polite"/);
+  assert.match(types, /listSaveSlots\(\): Promise<SaveSlotSummary\[\]>/);
+  assert.match(types, /saveToSlot\(slotId: SaveSlotId, label: string\)/);
+  assert.match(types, /loadFromSlot\(slotId: SaveSlotId\)/);
+  assert.match(app, /confirmInApp\(\{ title: '读取存档'/);
+  assert.match(app, /promptInApp\(\{ title: slot\.occupied \? '覆盖存档' : '保存进度'/);
+  assert.doesNotMatch(app, /\b(?:alert|confirm|prompt)\s*\(/);
+  for (const capability of ['deleteChatMessages', 'getOrCreateChatWorldbook', 'getWorldbook', 'updateWorldbookWith']) {
+    assert.match(shell, new RegExp(`'${capability}'`));
+  }
+  assert.match(bridge, /replaceMvuData\(structuredClone\(data\), \{ type: 'chat' \}\)/);
+});
+
+test('脱敏诊断 bridge：host/preview 共用构造器且不扩张为消息、数据库或网络读取', async () => {
+  const bridge = await read('../src/ui/bridge.ts');
+  const types = await read('../src/ui/types.ts');
+  assert.match(types, /buildDiagnosticSnapshot\(\): Promise<DiagnosticSnapshotV1>/);
+  assert.match(types, /import type \{ DiagnosticSnapshotV1 \} from '\.\/diagnostic-export'/);
+  assert.match(bridge, /import \{ buildDiagnosticSnapshot \} from '\.\/diagnostic-export'/);
+  const methods = [...bridge.matchAll(/async buildDiagnosticSnapshot\(\) \{([\s\S]*?)\n\s{4}\},/g)];
+  assert.equal(methods.length, 2, 'host 与 preview 必须各实现一次诊断快照入口');
+  for (const [, body] of methods) {
+    assert.match(body, /return buildDiagnosticSnapshot\(\{/);
+    assert.doesNotMatch(body, /getChatMessages|activeMessages|fetch\(|XMLHttpRequest|sendBeacon/);
+    assert.doesNotMatch(body, /memoryPort\.(?:recall|archive)|replaceMvuData|createChatMessages|triggerSlash/);
+  }
+});
+
+test('脱敏诊断设置入口只做主动本地下载并回收临时 URL', async () => {
+  const document = await read('../src/ui/index.html');
+  const app = await read('../src/ui/app.ts');
+  assert.match(document, /id="gg-export-diagnostics"[^>]*type="button"/);
+  assert.match(document, /id="gg-diagnostic-export-status"[^>]*role="status"[^>]*aria-live="polite"/);
+  assert.match(document, /仅下载到本机，不包含剧情文本；分享前仍建议人工检查/);
+  assert.match(app, /diagnosticExportButton\.addEventListener\('click', \(\) => void downloadDiagnosticSnapshot\(\)\)/);
+  const handler = app.match(/async function downloadDiagnosticSnapshot\(\): Promise<void> \{([\s\S]*?)\n\}/)?.[1];
+  assert.ok(handler, '必须存在独立诊断下载处理器');
+  assert.match(handler, /if \(diagnosticExportButton\.disabled\) return/);
+  assert.match(handler, /await bridge\.buildDiagnosticSnapshot\(\)/);
+  assert.match(handler, /serializeDiagnosticSnapshot\(snapshot\)/);
+  assert.match(handler, /new Blob\(\[json\], \{ type: 'application\/json;charset=utf-8' \}\)/);
+  assert.match(handler, /URL\.createObjectURL\(blob\)/);
+  assert.match(handler, /URL\.revokeObjectURL\(objectUrl\)/);
+  assert.match(handler, /finally \{/);
+  assert.doesNotMatch(handler, /error\.message|String\(error\)|error\.stack/);
+  assert.doesNotMatch(handler, /fetch\(|XMLHttpRequest|sendBeacon|localStorage|sessionStorage/);
+  assert.doesNotMatch(handler, /writeState|replaceMvuData|createChatMessages|triggerSlash/);
+});
+
 test('角色菜单可发起符卡对战，开战前说明规则，并在失败后返回庭院', async () => {
   const document = await read('../src/ui/index.html');
   const app = await read('../src/ui/app.ts');
@@ -1329,13 +1385,37 @@ test('宿主只在本卡游戏模式受控隐藏原生输入区，并在跨角�
   assert.match(host, /clearHostArtifacts\(\)/);
   assert.match(host, /#\$\{shellId\}, #\$\{returnFrameId\}, #\$\{styleId\}/);
   assert.match(host, /ensureReturnFrame/);
-  assert.match(host, /'generate'/);
+  // R2：generate 必须在每次调用时解析当前 TavernHelper.generate，不能在 UI 挂载时快照绑定。
+  assert.match(host, /resolveCurrentGenerate/);
+  assert.match(host, /child\.generate = \(\.\.\.args\) => callCurrentGenerate\(\.\.\.args\)/);
+  // Phase 6 §6.2：独立 floors-hidden class + applyMode 派生（!nativeMode && !debugFloorsVisible）
+  assert.match(host, /const floorsHiddenClass = 'gg-gensokyo-floors-hidden'/);
+  assert.match(host, /body\.\$\{activeClass\} #chat\.\$\{floorsHiddenClass\} > \.mes/);
+  assert.match(host, /classList\.toggle\(floorsHiddenClass, !state\.nativeMode && !state\.debugFloorsVisible\)/);
+  assert.match(host, /gensokyo-garden:toggle-debug-floors/);
+  assert.match(host, /galDebugFloorsVisible/);
 });
 
-test('GAL scene.v1 最多六段、白名单反应并对非法格式安全降级', async () => {
+test('Phase 6：调试楼层开关只改 class/会话存储，不写消息数据，并带提示条', async () => {
+  const app = await read('../src/ui/app.ts');
+  const html = await read('../src/ui/index.html');
+  const host = await read('../src/runtime/ui-host-shell.js');
+  assert.match(html, /id="gg-debug-floors"/);
+  assert.match(html, /id="gg-debug-banner"/);
+  assert.match(app, /byId<HTMLInputElement>\('gg-debug-floors'\)/);
+  assert.match(app, /gensokyo-garden:toggle-debug-floors/);
+  // 会话存储键与宿主同源；不写 MVU/聊天/角色卡
+  assert.match(app, /galDebugFloorsVisible/);
+  assert.doesNotMatch(app, /debugFloorsVisible.*setChatMessages|debugFloorsVisible.*createChatMessages/);
+  // 宿主原子应用
+  assert.match(host, /function toggleDebugFloors/);
+});
+
+test('GAL 旧格式只保留本地兼容解析，新模型协议只要求庭园正文', async () => {
   const parser = await read('../src/ui/gal-scene.ts');
   const controller = await read('../src/ui/app.ts');
   const protocol = await read('../src/lorebook/gal-presentation-protocol.md');
+  const packager = await read('../scripts/package-checkpoint.mjs');
   assert.match(parser, /<GensokyoScene/);
   assert.match(parser, /\.slice\(0, 6\)/);
   assert.match(parser, /ALLOWED_REACTIONS/);
@@ -1347,9 +1427,11 @@ test('GAL scene.v1 最多六段、白名单反应并对非法格式安全降级'
   assert.match(controller, /dataset\.visualMode = beat\.visualMode/);
   assert.match(await read('../src/ui/index.html'), /data-visual-mode="normal"/);
   assert.doesNotMatch(controller, /innerHTML\s*=/);
-  assert.match(protocol, /suggested_replies/);
-  assert.match(protocol, /1–6/);
+  assert.doesNotMatch(protocol, /GensokyoScene|scene\.v1|suggested_replies/);
+  assert.match(protocol, /不再输出第二份表现数据/);
+  assert.match(protocol, /不要输出第二份 GAL 表现 JSON/);
   assert.match(protocol, /visual_mode/);
+  assert.doesNotMatch(packager, /GAL scene\.v1|GensokyoScene/);
 });
 
 test('GAL visual_mode 兼容旧回复并按三种素材语义归一化姿势', async () => {
@@ -1602,7 +1684,7 @@ test('交互结算 ID 有完整 schema、初始状态和字段台账链', async 
   assert.match(ledger, /interaction\.settled_ids/);
 });
 
-test('conversation_log 跨对话记忆：schema 容纳、迁移保留、结束对话不清空、prompt 注入回顾', async () => {
+test('conversation_log 退役（B2-T11）：schema 仍容纳、迁移保留、结束对话不清空、prompt 不再注入回顾', async () => {
   const initial = JSON.parse(await read('../src/schema/initial-state.json'));
   const schema = await read('../src/schema/02-mvu-schema.js');
   const ledger = await read('../src/schema/field-ledger.md');
@@ -1620,7 +1702,7 @@ test('conversation_log 跨对话记忆：schema 容纳、迁移保留、结束�
   const ended = endConversationLocal({ ...migrated, scene_item_context: { entries: [{ item_id: 'reimu_coin_bait', quantity_used: 1, prompt_description: 'x' }], status: 'active' } });
   assert.equal(ended.interaction.current_session, null);
   assert.deepEqual(ended.interaction.conversation_log, ['reimu: 聊了妖花核心', 'marisa: 研究过旧蓝图']);
-  // prompt 注入：在场角色相关日志出现在【最近互动回顾】
+  // B2-T11 退役：conversation_log 仅作为 legacy migration source；prompt 不再注入回顾，协议不再要求追加
   const { buildPromptContext } = await importTypescript('../src/ui/prompt-context.ts');
   const ctx = buildPromptContext({
     environment: { day: 1, time_period: '清晨', weather: '晴' },
@@ -1628,19 +1710,17 @@ test('conversation_log 跨对话记忆：schema 容纳、迁移保留、结束�
     presence_snapshot: { present_character_ids: ['reimu'], character_views: {}, visitor_meta: {} },
     interaction: { conversation_log: ['reimu: 在中央庭院聊了妖花核心', 'marisa: 研究过旧蓝图'] },
   });
-  assert.match(ctx, /【最近互动回顾/);
-  assert.match(ctx, /reimu: 在中央庭院聊了妖花核心/);
-  assert.doesNotMatch(ctx, /marisa: 研究过旧蓝图/u, '不在场角色日志不注入');
-  // R82：协议明确 /- 数组追加写法 + 剧情连续性约束；迁移兜底字符串→数组
+  assert.doesNotMatch(ctx, /【最近互动回顾/);
+  assert.doesNotMatch(ctx, /reimu: 在中央庭院聊了妖花核心/);
+  // R82→T11：协议不再要求 /- 数组追加；格式文档标记退役
   const contractSource = await read('../src/ui/target-actions.ts');
-  assert.match(contractSource, /conversation_log\/-/, '协议要求 /- 数组末尾追加');
-  assert.match(contractSource, /不要用不带 \/- 的 path/, '协议明确禁止不带 /- 的数组 path');
+  assert.doesNotMatch(contractSource, /conversation_log\/-/, '协议不再要求模型追加 conversation_log');
   assert.match(contractSource, /剧情连续性/, '协议含剧情连续性约束');
   assert.match(contractSource, /不代表剧情分支切换或记忆重置/, '协议明确道具授权≠记忆重置');
   assert.match(contractSource, /不得装作什么都没发生/, '协议禁止失忆式反应');
   const formatDoc = await read('../src/lorebook/variable-output-format.md');
-  assert.match(formatDoc, /conversation_log\/-/, '输出格式文档含 /- 追加示例');
-  assert.match(formatDoc, /不要.*用不带索引的数组 path/, '输出格式文档禁止不带索引 add');
+  assert.match(formatDoc, /conversation_log.*已退役/, '输出格式文档标记 conversation_log 退役');
+  assert.match(formatDoc, /旧存档迁移来源/, '格式文档注明仅作迁移来源');
   const stringy = migrations.migrateGardenState({ interaction: { conversation_log: 'reimu: 被 MagVarUpdate 误替换成字符串' } });
   assert.deepEqual(stringy.interaction.conversation_log, ['reimu: 被 MagVarUpdate 误替换成字符串'], '字符串兜底转单元素数组');
   const emptyStr = migrations.migrateGardenState({ interaction: { conversation_log: '   ' } });
@@ -1763,6 +1843,7 @@ test('庭园行动追加正文协议，维修固定结算且不开放续聊', as
   assert.match(actions, /正文确实进入明确成人亲密行为时/);
   assert.match(actions, /必须为 sexual/);
   assert.match(actions, /不得停留在 nude/);
+  assert.doesNotMatch(actions, /GensokyoScene/);
   assert.match(bridge, /eventById\.get\(action\.event_id\)/);
   assert.deepEqual(settlement.settlementChoices({}, {
     version: 'garden-action.v1', action_id: 'repair', event_id: 'main_house_repair',
@@ -2408,8 +2489,8 @@ test('返回原生聊天后重新打开游戏会主动校正事务状态', async
   assert.match(bridge, /settlementProjection\(current, action, assistantMessageId\)/);
   assert.match(bridge, /reconcileHostGenerationActivity\([\s\S]*?hostGenerationActive,[\s\S]*?snapshot,[\s\S]*?nativeSendStopButtonGenerating\(\)/);
   assert.match(bridge, /regenerationPhase/);
-  assert.match(bridge, /targetMessageId = Number\(latestAssistant\?\.message_id\)/);
-  assert.match(bridge, /transactions\.markStopped\(\)/);
+  assert.match(bridge, /const targetMessageId = target\.messageId/);
+  assert.match(bridge, /transactions\.markStopped\(/);
   assert.match(bridge, /当前回复仍在生成或同步状态，不能提前结束聊天/);
   assert.match(bridge, /gensokyoTransactionKind === 'settlement'/);
   assert.match(bridge, /includes\('【异变最终收束】'\)/);
@@ -2842,7 +2923,7 @@ test('R31 自由生长方案只由本地单回合结算登记，不提前选型�
   assert.match(bridge, /variableUpdateEpoch \+= 1/);
   assert.match(bridge, /isDuringExtraAnalysis/);
   assert.match(bridge, /ownershipBase = persistedStateBefore\(mvu, assistantMessageId\) \?\? before/);
-  assert.match(bridge, /restoreLocalEventOwnership\(ownershipBase, current\)/);
+  assert.match(bridge, /restoreLocalEventOwnership\(ownershipBase, base\)/);
   assert.match(bridge, /hasLocalPresenceTransition\(action\)/);
   assert.match(bridge, /eventById\.get\(action\.event_id\)/);
   assert.doesNotMatch(bridge, /subscribe\(g\.tavern_events\?\.MESSAGE_RECEIVED, true\)/);
@@ -3106,14 +3187,12 @@ test('L5 固定结算写盘前按 restore→settle→presence→reconcile→writ
   );
   assert.ok(persist.length > 0, '应能定位 persistLocalSettlement');
   const steps = [
-    /restoreLocalEventOwnership\(ownershipBase, current, true\)/,
+    /restoreLocalEventOwnership\(ownershipBase, base, true\)/,
     /const settledState = applyLocalSettlement\(/,
-    /hasLocalPresenceTransition\(action\)/,
-    /applyPresenceUpdate\(settledState, assistantText\)/,
-    /const reconciledState = reconcileM2Runtime\(safeCurrent, nextState, currentChatId\(\)\)/,
-    /data\.stat_data = reconciledState;/,
-    /await mvu\.replaceMvuData\(data, options\)/,
-    /settlementProjection\(reread, action, assistantMessageId, reconciledState\)/,
+    /const nextState = hasLocalPresenceTransition\(action\)[\s\S]*?\? settledState[\s\S]*?:\s*applyPresenceUpdate\(settledState, assistantText\)/,
+    /return reconcileM2Runtime\(safeCurrent, nextState, currentChatId\(\)\)/,
+    /const outcome = await finalizeAcceptedAssistant\(\{/,
+    /settlementProjection\(reread, action, assistantMessageId,/,
   ];
   let cursor = 0;
   for (const step of steps) {
@@ -3523,6 +3602,15 @@ test('优化门：每次只投影当前事件，打包器不再关键词注入�
   }, state);
   assert.match(message, /当前事件精确投影/);
   assert.doesNotMatch(message, /当前不在场：/);
+  assert.deepEqual(actions.actionEventParticipantIds({
+    id: 'organize_free_growth_proposal',
+    label: '整理方案',
+    description: '测试',
+    intent: '我与魔理沙整理方案。',
+    mode: 'gal',
+    target: { id: 'magic_greenhouse', label: '魔法温室', type: 'facility' },
+    eventId: 'greenhouse_free_growth_proposal',
+  }), ['marisa']);
   const packer = await read('../scripts/package-checkpoint.mjs');
   assert.doesNotMatch(packer, /greenhouseEvents/);
   assert.doesNotMatch(packer, /魔法温室纵切事件/);
@@ -3603,7 +3691,7 @@ test('本地结束解除失败事务与待办按钮，记录不伪造空 assista
 
 test('GAL 回复落盘后释放本地提交锁时，重新渲染道具选择器', async () => {
   const app = await read('../src/ui/app.ts');
-  const submitFinally = app.match(/async function submitGalMessage\([\s\S]*?\n  \} finally \{([\s\S]*?)\n  \}\n\}/);
+  const submitFinally = app.match(/async function submitGalMessage\([\s\S]*?\r?\n  \} finally \{([\s\S]*?)\r?\n  \}\r?\n\}/);
   assert.ok(submitFinally, '应能定位 GAL 提交收尾');
   assert.match(submitFinally[1], /submissionInFlight = false;[\s\S]*?if \(currentView === 'gal'\) renderSceneItemPicker\(\);/);
 });
@@ -3718,4 +3806,17 @@ test('远程 UI 发布：不可变对象条件写，manifest 乐观锁，切指�
   const manifestVerify = publisher.indexOf('await verifyPublicObject(`${publicOrigin}/${manifestKey}`');
   assert.ok(uiVerify >= 0 && manifestPut > uiVerify, '必须先读回校验 UI，再更新 manifest');
   assert.ok(manifestVerify > manifestPut, '更新 manifest 后必须再次公网读回校验');
+});
+
+test('Phase 5：native-regenerate 保留（Probe C 未 PASS），定位与传输常量存在', async () => {
+  const bridge = await read('../src/ui/bridge.ts');
+  const types = await read('../src/ui/types.ts');
+  // 5.1：regenerationTransport 显示 native-regenerate（helper-generate-swipe 未启用）
+  assert.match(types, /regenerationTransport: 'native-regenerate' \| 'helper-generate-swipe'/);
+  assert.match(bridge, /regenerationTransport: 'native-regenerate'/);
+  // 5.2：定位原请求（attempt metadata → 配对玩家楼层 → chat identity 校验；legacy 兼容记录）
+  assert.match(bridge, /\[gal:regenerate\]/);
+  assert.match(bridge, /resolvePlayerMessageByMetadata\(messages, originalRequestId\)/);
+  assert.match(bridge, /resolveLatestAssistantForRegeneration\(messages\)/);
+  assert.match(bridge, /legacy assistant 无 attempt metadata/);
 });

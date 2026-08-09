@@ -1,10 +1,14 @@
 # GAL 角色记忆重构：第一批「数据基础」实施手册
 
 > 文档性质：交给实施 agent 的逐项执行手册
-> 当前状态：待实施
+> 当前状态：已实施、已完成代码逻辑验收、已封账（2026-08-09）
 > 对应总计划：project/gal-character-visit-memory-and-synthetic-history-plan.md
 > 本批范围：每角色 MVU 数据模型、48 条剧情梗概容量、12 条关系记忆、旧数据迁移、入场生命周期
 > 明确排除：提示投影切换、generate/injects、发送事务改造、暂停/重试改造、重生成、数据库归档、UI 打包、R2、实机探针
+
+> 封账基线：功能提交 `48f088f`，合并提交 `de1b568`（`main` / `origin/main`）。定向测试 25/25、全量测试 342/342、`npm run check:ui` PASS。上述结论仅代表代码逻辑和静态检查，不代表实机运行时验收。
+
+> 封账规则：本手册自此只作第一批验收依据，不再向其中追加第二批需求。后续发送、合成历史和 VisitTurn 提交统一进入 `project/gal-character-memory-batch-2-send-and-synthetic-history-runbook.md`。若第一批地基发现缺陷，必须另写带编号的修复记录，不得悄悄改写已验收语义、容量或版本号。
 
 ---
 

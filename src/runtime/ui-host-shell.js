@@ -19,7 +19,10 @@
   const guardKey = '__GENSOKYO_GARDEN_GUARD_024__';
   const activeClass = 'gg-gensokyo-game-active';
   const chatActiveClass = 'gg-gensokyo-chat-active';
-  const version = '0.4.3-host-generate-r27';
+  // Phase 6 §6.2：独立 floors-hidden class——GAL 激活时隐藏真实楼层；调试模式移除它显示楼层。
+  // 与 chatActiveClass 分开，避免「调试要显示楼层」与「GAL 激活隐藏楼层」互相打架。
+  const floorsHiddenClass = 'gg-gensokyo-floors-hidden';
+  const version = '0.4.4-late-bound-generate-r2';
 
   function currentCharacterId() {
     try {
@@ -128,18 +131,23 @@
     observer: null,
     eventStops: [],
     nativeMode: false,
+    // Phase 6 §6.3：调试楼层开关只存 sessionStorage（新会话自动关；不写 MVU/聊天/角色卡）。
+    debugFloorsVisible: false,
     remountQueued: false,
     destroyed: false,
   };
+  try {
+    state.debugFloorsVisible = doc.defaultView?.sessionStorage?.getItem('galDebugFloorsVisible') === '1';
+  } catch { /* sessionStorage 不可用时保持关闭 */ }
 
   function installHostStyle() {
     doc.getElementById(styleId)?.remove();
     const style = doc.createElement('style');
     style.id = styleId;
     style.textContent = `
-      #chat.${chatActiveClass} > .mes,
-      #chat.${chatActiveClass} > #show_more_messages { display: none !important; }
       body.${activeClass} #send_form { display: none !important; }
+      body.${activeClass} #chat.${floorsHiddenClass} > .mes,
+      body.${activeClass} #chat.${floorsHiddenClass} > #show_more_messages { display: none !important; }
       #${shellId} {
         box-sizing: border-box;
         display: block;
@@ -194,22 +202,71 @@
     doc.head.append(style);
   }
 
+  // R2 数据库共存：generate 必须按调用时刻解析。
+  // SP·数据库等宿主扩展可能在游戏 iframe 挂载后才包装 TavernHelper.generate；
+  // 若像其他稳定 helper 一样提前 bind，会永久绕过后来安装的 wrapper。
+  function resolveCurrentGenerate(sourceWindow = source, hostWindow = host) {
+    const helpers = [];
+    try { helpers.push(sourceWindow.TavernHelper); } catch { /* optional source helper unavailable */ }
+    try { helpers.push(hostWindow.TavernHelper); } catch { /* optional host helper unavailable */ }
+    for (const helper of helpers) {
+      if (typeof helper?.generate === 'function') {
+        return { fn: helper.generate, receiver: helper };
+      }
+    }
+    try {
+      if (typeof sourceWindow.generate === 'function') {
+        return { fn: sourceWindow.generate, receiver: sourceWindow };
+      }
+    } catch { /* injected helper getter unavailable */ }
+    try {
+      if (typeof hostWindow.generate === 'function') {
+        return { fn: hostWindow.generate, receiver: hostWindow };
+      }
+    } catch { /* parent helper unavailable */ }
+    return null;
+  }
+
+  function callCurrentGenerate(...args) {
+    const current = resolveCurrentGenerate();
+    if (!current) throw new Error('Helper generate() 未暴露');
+    return Reflect.apply(current.fn, current.receiver, args);
+  }
+
   function exposeBridgeGlobals(child) {
     for (const name of [
       'waitGlobalInitialized',
       'getChatMessages',
       'getLastMessageId',
       'createChatMessages',
+      'deleteChatMessages',
+      'reloadCurrentChat',
+      'getOrCreateChatWorldbook',
+      'getWorldbook',
+      'updateWorldbookWith',
       'triggerSlash',
       'getTavernVersion',
       'getTavernHelperVersion',
       'eventOn',
-      'generate',
       'getCurrentPersonaName',
       'getPersona',
     ]) {
       if (typeof source[name] === 'function') child[name] = source[name].bind(source);
     }
+    // Helper 4.8.18 的稳定门面通常位于 TavernHelper；部分脚本环境也会把
+    // 同名函数平铺到 iframe global。优先保留平铺值，缺失时才从门面补齐。
+    for (const name of [
+      'deleteChatMessages',
+      'getOrCreateChatWorldbook',
+      'getWorldbook',
+      'updateWorldbookWith',
+    ]) {
+      if (typeof child[name] === 'function') continue;
+      const helper = source.TavernHelper ?? host.TavernHelper;
+      if (typeof helper?.[name] === 'function') child[name] = helper[name].bind(helper);
+    }
+    // 无论挂载时 generate 是否已经存在，都暴露 late-bound 转发；实际能力在调用时裁定。
+    child.generate = (...args) => callCurrentGenerate(...args);
     for (const name of ['tavern_events', 'SillyTavern']) {
       Object.defineProperty(child, name, {
         configurable: true,
@@ -220,10 +277,12 @@
       configurable: true,
       get: () => source.Mvu ?? host.Mvu,
     });
+    // [B4-DATABASE-BRIDGE-START] 唯一允许出现 AutoCardUpdaterAPI 暴露的块；由 build-ui.mjs 按 memory profile guarded 保留/删除
     Object.defineProperty(child, 'AutoCardUpdaterAPI', {
       configurable: true,
       get: () => host.AutoCardUpdaterAPI,
     });
+    // [B4-DATABASE-BRIDGE-END]
   }
 
   function createGameFrame(shell) {
@@ -308,6 +367,11 @@
     exposeBridgeGlobals(child);
     child.addEventListener('gensokyo-garden:show-native-chat', showNativeChat);
     child.addEventListener('gensokyo-garden:reload', rebuildFrame);
+    // Phase 6：调试楼层开关（detail: { visible: boolean }）
+    child.addEventListener('gensokyo-garden:toggle-debug-floors', (event) => {
+      const visible = Boolean(event?.detail?.visible);
+      toggleDebugFloors(visible);
+    });
     const script = childDoc.createElement('script');
     script.textContent = embedded.appJs;
     childDoc.body.append(script);
@@ -481,8 +545,21 @@ document.getElementById('gg-return').addEventListener('click', function () {
     }
     doc.body.classList.toggle(activeClass, !state.nativeMode);
     state.chat.classList.toggle(chatActiveClass, !state.nativeMode);
+    // Phase 6 §6.1 派生规则：floorsHidden = !nativeMode && !debugFloorsVisible；
+    // native 模式移除（恢复宿主）；调试模式移除（显示楼层）。
+    state.chat.classList.toggle(floorsHiddenClass, !state.nativeMode && !state.debugFloorsVisible);
     state.shell.hidden = state.nativeMode;
     ensureReturnFrame().hidden = !state.nativeMode;
+  }
+
+  // Phase 6 §6.2/§6.3：调试楼层开关（app 内 checkbox → 事件 → 宿主原子应用）。
+  // 只改 class，不操作消息数据字段；sessionStorage 持久（新会话自动关）。
+  function toggleDebugFloors(visible) {
+    state.debugFloorsVisible = Boolean(visible);
+    try {
+      doc.defaultView?.sessionStorage?.setItem('galDebugFloorsVisible', state.debugFloorsVisible ? '1' : '0');
+    } catch { /* ignore */ }
+    applyMode();
   }
 
   function showNativeChat() {

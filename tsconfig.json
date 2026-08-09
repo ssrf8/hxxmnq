@@ -8,7 +8,11 @@
     "noEmit": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "useDefineForClassFields": true
+    "useDefineForClassFields": true,
+    "baseUrl": ".",
+    "paths": {
+      "@card/memory-adapter": ["src/ui/memory-adapters/standalone-mvu.ts"]
+    }
   },
   "include": ["src/ui/**/*.ts", "src/battle/**/*.ts"]
 }
