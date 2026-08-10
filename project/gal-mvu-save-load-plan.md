@@ -1,6 +1,6 @@
 # GAL 第六批：MVU 全量存档与聊天重建规划
 
-> 实施状态（2026-08-09）：S00～S06 代码逻辑与静态验收已完成，证据见 `project/gal-mvu-save-load-implementation-log.md`；全量 696/696 PASS。S07 真实宿主最终操作核对仍未执行，不得标记 runtime PASS。
+> 实施状态（2026-08-11）：代码逻辑与静态验收已完成；真实宿主最终操作核对仍须单独执行，不得仅凭离线测试标记 runtime PASS。
 
 > 日期：2026-08-09
 > 状态：**STATIC COMPLETE — 已施工并通过静态验收；真实宿主待验**
@@ -383,7 +383,7 @@ getOrCreateChatWorldbook('current')
 | `tests/save-schema.test.mjs` | schema、中文分块、checksum、损坏档测试 |
 | `tests/save-worldbook-store.test.mjs` | fake worldbook、槽覆盖、非项目条目保护 |
 | `tests/save-restore.test.mjs` | fake 消息／MVU、顺序、门禁和回滚矩阵 |
-| `project/gal-mvu-save-load-implementation-log.md` | 逐任务证据和裁定 |
+| `tests/` 中存读相关用例 | 当前静态回归证据 |
 
 ### 11.2 修改
 

@@ -11,6 +11,17 @@ const CHAR = process.argv.find((a) => a.startsWith('--char='))?.split('=')[1] ??
 
 // 每角色配置
 const CONFIGS = {
+  sanae: {
+    srcDir: 'src/assets/characters/sanae/video-frames-20260809-174504',
+    frames: 35, grid: 960, x: 320, y: 960,
+    // 横向三视图：front=左、right=中、back=右；left 由 right 镜像补齐。
+    dirs: [
+      { name: 'front', rect: [0, 0, 320, 960] },
+      { name: 'right', rect: [320, 0, 320, 960] },
+      { name: 'back', rect: [640, 0, 320, 960] },
+      { name: 'left', rect: [320, 0, 320, 960], mirrorOf: 'right' },
+    ],
+  },
   patchouli: {
     srcDir: 'src/assets/characters/patchouli/video-frames-20260809-185841',
     frames: 26, grid: 640, x: 320, y: 320,
@@ -110,8 +121,8 @@ function main() {
     const src = sources[n].png;
     const entry = { source: sources[n].name };
     for (const d of CFG.dirs) {
-      const sx0 = d.sx ? X : 0, sy0 = d.sy ? Y : 0;
-      const w = d.sx ? GRID - X : X, h = d.sy ? GRID - Y : Y;
+      const [sx0, sy0, w, h] = d.rect
+        ?? [d.sx ? X : 0, d.sy ? Y : 0, d.sx ? GRID - X : X, d.sy ? GRID - Y : Y];
       let frame = crop(src, sx0, sy0, w, h);
       if (d.mirrorOf) frame = mirrorH(frame);
       const bb = bbox(frame);

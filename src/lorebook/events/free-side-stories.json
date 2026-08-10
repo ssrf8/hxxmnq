@@ -14,7 +14,7 @@
       "priority": 10,
       "one_time": false,
       "max_effective_rounds": 0,
-      "projection_keys": ["environment.time_period", "facilities.magic_greenhouse", "presence_snapshot", "characters.marisa.current_relationship_facts"],
+      "projection_keys": ["environment.time_period", "facilities.magic_greenhouse", "presence_snapshot"],
       "narrative_outline": ["在夜晚观察温室的可控野性与残留魔力"],
       "required_beats": [],
       "forbidden_deviations": ["不得解锁方案", "不得扣除资源", "不得推进主线"],

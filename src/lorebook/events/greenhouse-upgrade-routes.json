@@ -14,7 +14,7 @@
       "priority": 70,
       "one_time": true,
       "max_effective_rounds": 1,
-      "projection_keys": ["battle.current", "facilities.magic_greenhouse", "characters.marisa.current_relationship_facts", "presence_snapshot"],
+      "projection_keys": ["battle.current", "facilities.magic_greenhouse", "presence_snapshot"],
       "narrative_outline": ["复盘异常生长", "魔理沙提出保留可控野性的方案", "玩家确认风险边界", "登记方案但不施工"],
       "required_beats": ["魔理沙交付可执行方案", "明确方案尚未选型或施工"],
       "forbidden_deviations": ["不得直接施工", "不得提前选择当前形态", "不得免费增加资源", "不得开启未登记异变"],
@@ -31,7 +31,7 @@
           }
         ]
       },
-      "settlement_effects": ["append 自由生长型温室 to facilities.magic_greenhouse.unlocked_forms exactly once", "record a marisa cooperation fact", "do not modify current_form, resources, time, or active effects"]
+      "settlement_effects": ["append 自由生长型温室 to facilities.magic_greenhouse.unlocked_forms exactly once", "preserve the accepted-floor story in the character VisitTurn only", "do not modify current_form, resources, time, active effects, or relationship facts"]
     },
     {
       "config_id": "alice_greenhouse_maintenance_proposal",
@@ -45,7 +45,7 @@
       "priority": 69,
       "one_time": true,
       "max_effective_rounds": 1,
-      "projection_keys": ["facilities.magic_greenhouse", "characters.alice.current_relationship_facts", "presence_snapshot"],
+      "projection_keys": ["facilities.magic_greenhouse", "presence_snapshot"],
       "narrative_outline": ["爱丽丝抵达并检查连接与磨损", "人偶分工测量", "说明自由生长的维护风险", "交付隔离、灌溉和维护方案"],
       "required_beats": ["不贬低魔理沙", "爱丽丝交付可执行维护方案", "明确尚未施工或选型"],
       "forbidden_deviations": ["不得替玩家永久选型", "不得扣除资源", "不得推进时间", "不得让爱丽丝成为万能保姆"],
@@ -57,7 +57,7 @@
           {"character_id": "alice", "area_id": "greenhouse_plot", "action": "进行人偶维护评估", "facing": "front"}
         ]
       },
-      "settlement_effects": ["append 人偶维护型温室 to facilities.magic_greenhouse.unlocked_forms exactly once", "record an alice maintenance-boundary fact", "do not modify current_form, resources, time, or active effects"]
+      "settlement_effects": ["append 人偶维护型温室 to facilities.magic_greenhouse.unlocked_forms exactly once", "preserve the accepted-floor story in the character VisitTurn only", "do not modify current_form, resources, time, active effects, or relationship facts"]
     },
     {
       "config_id": "nitori_greenhouse_automation_proposal",
@@ -71,7 +71,7 @@
       "priority": 68,
       "one_time": true,
       "max_effective_rounds": 1,
-      "projection_keys": ["facilities.magic_greenhouse", "characters.nitori.current_relationship_facts", "presence_snapshot"],
+      "projection_keys": ["facilities.magic_greenhouse", "presence_snapshot"],
       "narrative_outline": ["荷取现场测量", "列出水路、结界与仪表问题", "说明投入和安全限制", "小规模试运行并交付方案"],
       "required_beats": ["明确工程验收条件", "不承诺零故障", "荷取交付可执行自动化方案", "明确尚未施工或选型"],
       "forbidden_deviations": ["不得让远程页面取得高权限 API", "不得凭空获得材料", "不得扣除资源", "不得推进时间", "不得直接施工"],
@@ -83,7 +83,7 @@
           {"character_id": "nitori", "area_id": "greenhouse_plot", "action": "进行温室工程测量", "facing": "front"}
         ]
       },
-      "settlement_effects": ["append 河童自动化型温室 to facilities.magic_greenhouse.unlocked_forms exactly once", "record a nitori engineering-acceptance fact", "do not modify current_form, resources, time, or active effects"]
+      "settlement_effects": ["append 河童自动化型温室 to facilities.magic_greenhouse.unlocked_forms exactly once", "preserve the accepted-floor story in the character VisitTurn only", "do not modify current_form, resources, time, active effects, or relationship facts"]
     },
     {
       "config_id": "select_greenhouse_form",

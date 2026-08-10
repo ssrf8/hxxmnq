@@ -3,9 +3,11 @@
 import type { RelationshipMemory, TimePeriod, VisitTurn } from './types';
 import {
   deterministicStringHash,
-  RELATIONSHIP_SUMMARY_CHARS,
   TURN_SUMMARY_CHARS,
 } from './character-memory';
+
+// Deprecated database-only schema retained outside the v0.3.0 MVU state model.
+const RELATIONSHIP_SUMMARY_CHARS = 160;
 
 export const MEMORY_ARCHIVE_SCHEMA_VERSION = 'gal-memory-archive.v1';
 export const MEMORY_ARCHIVE_SCHEMA_REVISION = 'gal-memory-archive-v1' as const;

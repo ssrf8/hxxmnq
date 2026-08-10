@@ -69,10 +69,6 @@ const PROJECTION_KEYS = new Set([
   'facilities.magic_greenhouse',
   'interaction.current_session',
   'battle.current',
-  'characters.marisa.current_relationship_facts',
-  'characters.alice.current_relationship_facts',
-  'characters.nitori.current_relationship_facts',
-  'characters.sakuya.current_relationship_facts',
   'key_items.sakuya_watch',
   'events.waiting_events',
 ]);

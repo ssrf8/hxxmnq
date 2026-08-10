@@ -57,7 +57,7 @@
 |---|---|
 | `src/ui/styles.css` | token 层、符卡框、气泡、开场 R3-R5、HUD、全屏、主题按钮、副本夜空；内嵌 base64 主视觉与 SVG 占位素材 |
 | `src/ui/index.html` | 开场重排（三输入 + 场景层 + sr-only 契约句）；新增单例「幻想乡案内」dialog 与大尺寸玩法卡结构 |
-| `project/large-entry-panel-plan.md` | 大型案内面板的信息架构、响应式尺寸、交互边界、施工顺序与验收标准 |
+| `src/ui/index.html`、`app.ts`、`styles.css` | 大型案内面板的当前结构、交互与响应式实现 |
 | `src/ui/app.ts` | 统一案内入口转场、动态状态摘要、关闭与焦点返回；原业务入口函数保持唯一 |
 | `src/ui/styles.css` | 新增 `.gg-launcher-*` 大面板、大卡与三档响应式样式；三张入口插画在面板内改用平滑采样 |
 | `tests/ui-contract.test.mjs` | 固化案内入口唯一性、三卡顺序、平滑渲染、桌面三列与窄屏单列契约 |

@@ -1,9 +1,9 @@
 {
-  "id": "gensokyo-moving-garden-0.2.0",
-  "version": "0.2.0",
-  "status": "released",
+  "id": "gensokyo-moving-garden-0.3.0",
+  "version": "0.3.0",
+  "status": "development",
   "released_checkpoint": "0.2.0-r89",
-  "next_checkpoint": "0.2.0-r96",
+  "next_checkpoint": "0.3.0-r1",
   "planned_checkpoint_sequence": [
     "0.2.0-r19",
     "0.2.0-r20",
@@ -82,7 +82,8 @@
     "0.2.0-r93",
     "0.2.0-r94",
     "0.2.0-r95",
-    "0.2.0-r96"
+    "0.2.0-r96",
+    "0.3.0-r1"
   ],
   "source_root": "../src",
   "test_root": "../tests",
@@ -98,6 +99,26 @@
     "packaged": false,
     "r2_updated": false,
     "published": false
+  },
+  "working_tree_update": {
+    "date": "2026-08-11",
+    "scope": "youmu-patchouli-sanae-character-integration",
+    "typecheck": "pass",
+    "tests": "npm test (734/734)",
+    "diff_check": "pass",
+    "package_checkpoint_dry": "pass (0.3.0-r1, no formal package written)",
+    "standalone_ui_build": {
+      "bytes": 2188133,
+      "sha256": "1d781a8969b8fb74e57f66645ee98a665d4891db00f374679d4ba5a37aa37b2d"
+    },
+    "r2_live": {
+      "generation": 5,
+      "files": 251,
+      "bytes": 354034458,
+      "manifest_sha256": "d1f6d1c4751045a83e52e6e0f7c35f44cd58f927f68e8920d808c24b9ef791de",
+      "uploaded_and_verified": true
+    },
+    "packaged": false
   },
   "components": {
     "card": "../src/card",
@@ -115,15 +136,15 @@
     "m3_package_runtime_acceptance": "released"
   },
   "m0_sources": {
+    "project_overview": "./README.md",
+    "stable_contract": "./contract.md",
     "agent_handoff": "./agent-handoff.md",
     "api_provenance": "./api-provenance.md",
-    "gal_memory_plan": "./gal-character-visit-memory-and-synthetic-history-plan.md",
+    "presence_sync_contract": "./presence-sync-contract.md",
+    "presence_acceptance": "./2026-08-10-presence-extra-model-acceptance-results.md",
+    "extra_model_variable_analysis": "./extra-model-variable-analysis.md",
     "gal_database_coexistence": "./gal-character-memory-batch-4-database-coexistence-replan.md",
     "gal_save_load": "./gal-mvu-save-load-plan.md",
-    "gal_prompt_injection": "./gal-prompt-floor-injection-plan.md",
-    "gal_prompt_v3_runtime_acceptance": "./gal-prompt-v3-runtime-browser-acceptance.md",
-    "docs_reference_audit": "./docs-reference-next-implementation-audit.md",
-    "runtime_report_r15": "./runtime-report-0.2.0-r15.md",
     "initial_state": "../src/schema/initial-state.json",
     "mvu_loader": "../src/runtime/01-mvu-loader.js",
     "mvu_schema": "../src/schema/02-mvu-schema.js",
@@ -132,20 +153,6 @@
     "projection": "../src/lorebook/model-projection.md",
     "routing": "../src/lorebook/routing-plan.json",
     "opening_contract": "../src/card/opening-contract.md",
-    "gal_interaction_plan": "./gal-interaction-plan.md",
-    "runtime_report_r16": "./runtime-report-0.2.0-r16.md",
-    "runtime_report_r17": "./runtime-report-0.2.0-r17.md",
-    "runtime_report_r18": "./runtime-report-0.2.0-r18.md",
-    "runtime_report_r20": "./runtime-report-0.2.0-r20.md",
-    "runtime_report_r23": "./runtime-report-0.2.0-r23.md",
-    "r19_r20_greenhouse_plan": "./r19-r20-greenhouse-completion-plan.md",
-    "runtime_report_r28": "./runtime-report-0.2.0-r28.md",
-    "runtime_report_r57": "./runtime-report-0.2.0-r57.md",
-    "runtime_report_r58": "./runtime-report-0.2.0-r58.md",
-    "presence_sync_contract": "./presence-sync-contract.md",
-    "next_update_plan": "./r29-r37-m1-expansion-plan.md",
-    "m2_expansion_plan": "./r38-r45-m2-expansion-plan.md",
-    "runtime_architecture_optimization": "./runtime-architecture-optimization-plan.md",
     "asset_delivery_and_r2_plan": "./asset-delivery-and-r2-plan.md",
     "r2_deployment_readiness": "./r2-deployment-readiness.md",
     "r2_packaging_runbook": "./r2-packaging-runbook.md",

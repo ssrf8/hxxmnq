@@ -283,6 +283,93 @@
       "sexual_pose_sources": {},
       "fallback": "sexual -> nude same reaction -> nude.neutral -> normal same reaction -> normal.neutral",
       "note": "Every runtime PNG is a byte-identical copy of the owner-provided 1152x1920 RGBA source; no crop, resize, alpha edit, quantization, or re-encoding."
+    },
+    "youmu": {
+      "status": "owner-provided-original-png-runtime-pending-sillytavern",
+      "runtime_embed": "direct-original-files",
+      "canvas": [1152, 1920],
+      "source_archive_root": "旧素材/素材处理/CG/妖梦/",
+      "content_families": {
+        "normal": "owner-labeled-sfw",
+        "nude": "owner-labeled-nsfw-full-nudity"
+      },
+      "sources": {
+        "normal": {
+          "neutral": "characters/youmu/gal/normal/youmu-normal-neutral-v1.png",
+          "smile": "characters/youmu/gal/normal/youmu-normal-smile-v1.png",
+          "shy": "characters/youmu/gal/normal/youmu-normal-shy-v1.png",
+          "sad": "characters/youmu/gal/normal/youmu-normal-sad-v1.png",
+          "angry": "characters/youmu/gal/normal/youmu-normal-angry-v1.png"
+        },
+        "nude": {
+          "neutral": "characters/youmu/gal/nude/youmu-nude-neutral-v1.png",
+          "smile": "characters/youmu/gal/nude/youmu-nude-smile-v1.png",
+          "shy": "characters/youmu/gal/nude/youmu-nude-shy-v1.png",
+          "sad": "characters/youmu/gal/nude/youmu-nude-sad-v1.png",
+          "angry": "characters/youmu/gal/nude/youmu-nude-angry-v1.png"
+        }
+      },
+      "sexual_pose_sources": {},
+      "fallback": "sexual -> nude same reaction -> nude.neutral -> normal same reaction -> normal.neutral",
+      "note": "Every runtime PNG is a byte-identical copy of the owner-provided 1152x1920 RGBA source. Sexual pose sources intentionally remain empty and are discovered from future verified R2 live-manifest entries."
+    },
+    "patchouli": {
+      "status": "owner-provided-original-png-runtime-pending-sillytavern",
+      "runtime_embed": "direct-original-files",
+      "canvas": [1152, 1920],
+      "source_archive_root": "旧素材/素材处理/CG/帕秋莉/",
+      "content_families": {
+        "normal": "owner-labeled-sfw",
+        "nude": "owner-labeled-nsfw-full-nudity"
+      },
+      "sources": {
+        "normal": {
+          "neutral": "characters/patchouli/gal/normal/patchouli-normal-neutral-v1.png",
+          "smile": "characters/patchouli/gal/normal/patchouli-normal-smile-v1.png",
+          "shy": "characters/patchouli/gal/normal/patchouli-normal-shy-v1.png",
+          "sad": "characters/patchouli/gal/normal/patchouli-normal-sad-v1.png",
+          "angry": "characters/patchouli/gal/normal/patchouli-normal-angry-v1.png"
+        },
+        "nude": {
+          "neutral": "characters/patchouli/gal/nude/patchouli-nude-neutral-v1.png",
+          "smile": "characters/patchouli/gal/nude/patchouli-nude-smile-v1.png",
+          "shy": "characters/patchouli/gal/nude/patchouli-nude-shy-v1.png",
+          "sad": "characters/patchouli/gal/nude/patchouli-nude-sad-v1.png",
+          "angry": "characters/patchouli/gal/nude/patchouli-nude-angry-v1.png"
+        }
+      },
+      "sexual_pose_sources": {},
+      "fallback": "sexual -> nude same reaction -> nude.neutral -> normal same reaction -> normal.neutral",
+      "note": "Every runtime PNG is a byte-identical copy of the owner-provided 1152x1920 RGBA source. Sexual pose sources intentionally remain empty and are discovered from future verified R2 live-manifest entries."
+    },
+    "sanae": {
+      "status": "owner-provided-original-png-runtime-pending-sillytavern",
+      "runtime_embed": "direct-original-files",
+      "canvas": [1152, 1920],
+      "source_archive_root": "旧素材/素材处理/CG/早苗/",
+      "content_families": {
+        "normal": "owner-labeled-sfw",
+        "nude": "owner-labeled-nsfw-full-nudity"
+      },
+      "sources": {
+        "normal": {
+          "neutral": "characters/sanae/gal/normal/sanae-normal-neutral-v1.png",
+          "smile": "characters/sanae/gal/normal/sanae-normal-smile-v1.png",
+          "shy": "characters/sanae/gal/normal/sanae-normal-shy-v1.png",
+          "sad": "characters/sanae/gal/normal/sanae-normal-sad-v1.png",
+          "angry": "characters/sanae/gal/normal/sanae-normal-angry-v1.png"
+        },
+        "nude": {
+          "neutral": "characters/sanae/gal/nude/sanae-nude-neutral-v1.png",
+          "smile": "characters/sanae/gal/nude/sanae-nude-smile-v1.png",
+          "shy": "characters/sanae/gal/nude/sanae-nude-shy-v1.png",
+          "sad": "characters/sanae/gal/nude/sanae-nude-sad-v1.png",
+          "angry": "characters/sanae/gal/nude/sanae-nude-angry-v1.png"
+        }
+      },
+      "sexual_pose_sources": {},
+      "fallback": "sexual -> nude same reaction -> nude.neutral -> normal same reaction -> normal.neutral",
+      "note": "Every runtime PNG is a byte-identical copy of the owner-provided 1152x1920 RGBA source. Sexual pose sources intentionally remain empty and are discovered from future verified R2 live-manifest entries."
     }
   },
   "characters": {
@@ -442,6 +529,57 @@
       "animation_sequence_frame_duration_ms": 100,
       "animation_ready": ["walk-4-frame", "apron-sway"],
       "animation_pending": ["blink"]
+    },
+    "youmu": {
+      "status": "owner-provided-animation-runtime-integrated",
+      "map_usage": true,
+      "source_alpha": "characters/youmu/youmu-turnaround-v1.webp",
+      "views": ["front", "back", "left", "right"],
+      "expression": "closed-mouth composed expression",
+      "movement_mode": "walking-with-sword",
+      "animation_status": "runtime-integrated-pending-sillytavern",
+      "animation_source_alpha": "characters/youmu/youmu-animation-sequence-v1.webp",
+      "animation_sequence_source_alpha": "characters/youmu/youmu-animation-sequence-v1.webp",
+      "animation_sequence_manifest": "characters/youmu/sequence-runtime-v1/manifest.json",
+      "animation_sequence_status": "owner-provided-runtime-integrated",
+      "animation_sequence_frame_count": 28,
+      "animation_sequence_frame_duration_ms": 100,
+      "animation_ready": ["walk-variable-sequence", "sword-and-phantom-sway"],
+      "animation_pending": ["real-host-motion-acceptance"]
+    },
+    "patchouli": {
+      "status": "owner-provided-animation-runtime-integrated",
+      "map_usage": true,
+      "source_alpha": "characters/patchouli/patchouli-turnaround-v1.webp",
+      "views": ["front", "back", "left", "right"],
+      "expression": "closed-mouth reserved expression",
+      "movement_mode": "measured-walk",
+      "animation_status": "runtime-integrated-pending-sillytavern",
+      "animation_source_alpha": "characters/patchouli/patchouli-animation-sequence-v1.webp",
+      "animation_sequence_source_alpha": "characters/patchouli/patchouli-animation-sequence-v1.webp",
+      "animation_sequence_manifest": "characters/patchouli/sequence-runtime-v1/manifest.json",
+      "animation_sequence_status": "owner-provided-runtime-integrated",
+      "animation_sequence_frame_count": 26,
+      "animation_sequence_frame_duration_ms": 110,
+      "animation_ready": ["walk-variable-sequence", "hair-and-ribbon-sway"],
+      "animation_pending": ["real-host-motion-acceptance"]
+    },
+    "sanae": {
+      "status": "owner-provided-animation-runtime-integrated",
+      "map_usage": true,
+      "source_alpha": "characters/sanae/sanae-turnaround-v1.webp",
+      "views": ["front", "back", "left", "right"],
+      "expression": "closed-mouth slight smile",
+      "movement_mode": "walking-with-sleeve-sway",
+      "animation_status": "runtime-integrated-pending-sillytavern",
+      "animation_source_alpha": "characters/sanae/sanae-animation-sequence-v1.webp",
+      "animation_sequence_source_alpha": "characters/sanae/sanae-animation-sequence-v1.webp",
+      "animation_sequence_manifest": "characters/sanae/sequence-runtime-v1/manifest.json",
+      "animation_sequence_status": "owner-provided-runtime-integrated",
+      "animation_sequence_frame_count": 35,
+      "animation_sequence_frame_duration_ms": 90,
+      "animation_ready": ["walk-variable-sequence", "hair-and-sleeve-sway"],
+      "animation_pending": ["real-host-motion-acceptance"]
     }
   },
   "player": {

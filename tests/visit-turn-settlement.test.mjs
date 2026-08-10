@@ -52,15 +52,15 @@ const baseState = async () => {
       related_relationships: [],
     },
     closed_visits: [],
-    relationship_memories: [],
     legacy_memory: null,
     memory_epoch: 0,
   };
   return state;
 };
 
-const makeInput = (overrides = {}) => ({
-  finalState: undefined, // 由测试注入
+const makeInput = (overrides = {}) => {
+  const value = {
+  finalState: undefined,
   request: {
     requestId: 'gal-req-100',
     sceneId: 'scene:garden',
@@ -75,14 +75,21 @@ const makeInput = (overrides = {}) => ({
     assistantSwipeId: null,
   },
   clock: { day: 7, time_period: '午后', period_serial: 4 },
-  acceptedOutput: [
-    '【庭园正文开始】',
-    '<dialogue char="reimu">欢迎。</dialogue>',
-    '【庭园正文结束】',
-  ].join('\n'),
-  characterNames: { reimu: '博丽灵梦', marisa: '雾雨魔理沙' },
   ...overrides,
-});
+  };
+  if (value.finalState && !overrides.skipSummaryTask) {
+    value.finalState = structuredClone(value.finalState);
+    value.finalState.interaction ??= {};
+    value.finalState.interaction.visit_summary_task = {
+      schema: 'visit-summary-task.v1', request_id: value.request.requestId,
+      slots: value.request.relevantCharacterIds
+        .filter((id) => value.request.visitIdsByCharacter[id] != null)
+        .map((character_id) => ({ character_id, summary: `${character_id}在本轮与玩家交流并作出明确回应。` })),
+    };
+  }
+  delete value.skipSummaryTask;
+  return value;
+};
 
 // ---- 精确写入冻结 visit ----
 test('T10：V2 冻结 visit map 精确写入（reimu 写 active visit；marisa null 跳过）', async () => {
@@ -99,7 +106,7 @@ test('T10：V2 冻结 visit map 精确写入（reimu 写 active visit；marisa n
   assert.equal(turn.turn_id, 'gal-req-100:reimu');
   assert.equal(turn.character_id, 'reimu');
   assert.equal(turn.day, 7);
-  assert.match(turn.summary, /博丽灵梦/);
+  assert.match(turn.summary, /reimu在本轮/);
   assert.deepEqual(Object.keys(turn).sort(), ['character_id', 'day', 'summary', 'time_period', 'turn_id'].sort());
   // marisa（null visit）不得产生任何 turn（初始空记录保持无 turn）
   const marisaTurns = result.state.interaction.visit_memory.by_character.marisa?.active_visit?.turns ?? [];
@@ -164,7 +171,7 @@ test('T10：visit 已进 closed_visits 仍精确写入该 visit，不写新 visi
 test('T10：冻结 visit 找不到 → ok:false（调用方保持 settlement pending）', async () => {
   const vtc = await importTypescript('../src/ui/visit-turn-commit.ts');
   const state = await baseState();
-  const result = vtc.applyVisitTurnsToFinalState(makeInput({
+  const commitInput = makeInput({
     finalState: state,
     request: {
       requestId: 'gal-req-100',
@@ -173,24 +180,25 @@ test('T10：冻结 visit 找不到 → ok:false（调用方保持 settlement pen
       visitIdsByCharacter: { reimu: 'character_visit_999999' },
       visibleUserText: '我来拜访。',
     },
-  }));
+  });
+  const result = vtc.applyVisitTurnsToFinalState(commitInput);
   assert.equal(result.ok, false);
   if (result.ok) return;
   assert.equal(result.code, 'not-found');
-  assert.equal(result.state, state, '失败不得修改 state');
+  assert.equal(result.state, commitInput.finalState, '失败不得修改传入的已暂存 state');
 });
 
-// ---- malformed output：失败（不写邻近楼层）----
-test('T10：无正文标签（malformed-output）→ ok:false，不写任何 turn', async () => {
+// ---- 模型没填任务：失败（不以正文兜底）----
+test('T10：任务缺失 → ok:false，不从正文构造 turn', async () => {
   const vtc = await importTypescript('../src/ui/visit-turn-commit.ts');
   const state = await baseState();
   const result = vtc.applyVisitTurnsToFinalState(makeInput({
     finalState: state,
-    acceptedOutput: '（只有系统提示，无正文标签）',
+    skipSummaryTask: true,
   }));
   assert.equal(result.ok, false);
   if (result.ok) return;
-  assert.equal(result.code, 'malformed-output');
+  assert.equal(result.code, 'missing-task');
   const turns = result.state.interaction.visit_memory.by_character.reimu.active_visit?.turns ?? [];
   assert.equal(turns.length, 0);
 });

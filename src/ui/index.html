@@ -216,6 +216,11 @@
         <div id="gg-inventory-content"></div>
       </section>
 
+      <section id="gg-view-visitors" class="gg-view gg-settings gg-visitors" aria-labelledby="gg-visitors-title" hidden>
+        <header class="gg-scene-toolbar gg-visitors-toolbar"><button type="button" id="gg-visitors-back">返回庭院</button><div><p class="gg-eyebrow">一盏茶的来往</p><h2 id="gg-visitors-title">来客茶席</h2></div></header>
+        <div id="gg-visitors-content"></div>
+      </section>
+
       <section id="gg-view-opportunities" class="gg-view gg-settings gg-opportunities" aria-label="教程与开放庭园机会" hidden>
         <header class="gg-scene-toolbar"><button type="button" id="gg-opportunities-back">返回庭院</button><p class="gg-eyebrow">教程进度 · 开放庭园</p></header>
         <div id="gg-opportunities-content"></div>
@@ -294,20 +299,21 @@
             <section class="gg-test-group" aria-labelledby="gg-runtime-tests-title">
               <header><span aria-hidden="true">实</span><div><h4 id="gg-runtime-tests-title">额外模型与 Visit 实机链路</h4><p>先开启监听，再逐项执行；也可以自动顺序运行。A06 仍需要验收端提供非法变量输出 fixture。</p></div></header>
               <div class="gg-runtime-test-actions">
+                <button type="button" id="gg-runtime-presence-flow">Presence 全流程验收（含二阶段）</button>
                 <button type="button" id="gg-runtime-run-all">自动顺序运行</button>
                 <button type="button" id="gg-runtime-stop" disabled>完成当前项后停止</button>
               </div>
               <p id="gg-runtime-test-status" class="gg-runtime-test-status gg-note" role="status" aria-live="polite">等待开始。</p>
               <div class="gg-test-grid">
                 <button type="button" data-runtime-case="a01"><strong>A01 空补丁</strong><small>普通问候；额外模型应输出 []，bridge 仍写 VisitTurn</small></button>
-                <button type="button" data-runtime-case="a02"><strong>A02 合法语义更新</strong><small>确认关系事实并检查 message-scope 落盘</small></button>
+                <button type="button" data-runtime-case="a02"><strong>A02 关系剧情归档</strong><small>确认边界剧情只进入 VisitTurn，不产生独立关系字段</small></button>
                 <button type="button" data-runtime-case="a03"><strong>A03 独占字段攻击</strong><small>诱导资源、事件与伪造事务身份写入</small></button>
                 <button type="button" data-runtime-case="a04"><strong>A04 固定事件</strong><small>准备并真实执行灵梦结界检查</small></button>
                 <button type="button" data-runtime-case="a05"><strong>A05 时间单调</strong><small>诱导倒退和非法“下午”时段</small></button>
                 <button type="button" data-runtime-case="a06"><strong>A06 非法输出 fixture</strong><small>发送 marker；监听 Agent 同步切换非法变量输出</small></button>
                 <button type="button" data-runtime-case="a07_multi"><strong>A07 双角色 Visit</strong><small>灵梦、魔理沙同轮各冻结并写自己的父级 visit</small></button>
                 <button type="button" data-runtime-case="a07_leave"><strong>A07 生成期间离场</strong><small>冻结两人 visit 后，生成中自动送别魔理沙</small></button>
-                <button type="button" data-runtime-case="a08"><strong>A08 下一轮召回</strong><small>读取上一轮 VisitTurn 与关系记忆的 syntheticHistory</small></button>
+                <button type="button" data-runtime-case="a08"><strong>A08 下一轮召回</strong><small>读取上一轮 VisitTurn 的 syntheticHistory</small></button>
                 <button type="button" data-runtime-case="a09"><strong>A09 邀请制隔离</strong><small>三人在庭园，仅邀请灵梦进入月见温泉</small></button>
                 <button type="button" data-runtime-case="a10"><strong>A10 十轮压力</strong><small>连续十轮正常生成；每轮必须可继续发送</small></button>
                 <button type="button" data-runtime-case="a11"><strong>A11 Profile 边界</strong><small>记录当前 profile；另一 profile 需另载候选卡复跑</small></button>
@@ -354,6 +360,9 @@
                 <button type="button" data-test-jump="presence_mystia">米斯蒂娅</button>
                 <button type="button" data-test-jump="presence_suika">萃香</button>
                 <button type="button" data-test-jump="presence_sakuya">咲夜</button>
+                <button type="button" data-test-jump="presence_youmu">妖梦</button>
+                <button type="button" data-test-jump="presence_patchouli">帕秋莉</button>
+                <button type="button" data-test-jump="presence_sanae">早苗</button>
                 <button type="button" class="gg-test-wide" data-test-jump="presence_all">全员入场 · 拥挤测试</button>
                 <button type="button" class="gg-test-wide gg-test-danger" data-test-jump="presence_clear">清空全部在场角色</button>
               </div>
@@ -390,6 +399,10 @@
         <button type="button" id="gg-open-inventory" class="gg-launcher-card gg-launcher-card-inventory" aria-label="打开背包">
           <span class="gg-launcher-art"><img id="gg-inventory-button-image" alt="" aria-hidden="true"></span>
           <span class="gg-launcher-copy"><strong>背包</strong><small>整理持有物并使用受控道具</small></span>
+        </button>
+        <button type="button" id="gg-open-visitors" class="gg-launcher-card gg-launcher-card-visitors" aria-label="打开来客茶席">
+          <span class="gg-launcher-art"><span class="gg-launcher-teacup" aria-hidden="true">☕</span></span>
+          <span class="gg-launcher-copy"><strong>来客茶席</strong><small>查看所有角色、发送邀请、请客人离开并阅读来访通知</small></span>
         </button>
       </div>
 
@@ -432,12 +445,12 @@
       </div>
     </header>
     <div class="gg-battle-body">
-      <canvas id="gg-battle-canvas" aria-label="符卡游戏区域，方向键或 WASD 移动，按住 Z 射击，Shift 专注，X Bomb，Esc 暂停；触控拖动时自动射击，双指专注，双击 Bomb"></canvas>
+      <canvas id="gg-battle-canvas" aria-label="符卡游戏区域，方向键或 WASD 移动，按住 Z 射击，Shift 专注，X Bomb，Esc 暂停；触控按住自动射击并相对拖动，双指专注，双击 Bomb，擦弹判定始终开启"></canvas>
       <div class="gg-battle-touch" role="group" aria-label="触控战斗操作">
         <button type="button" id="gg-battle-focus" class="gg-battle-touch-btn gg-battle-focus" aria-pressed="false" aria-label="按住专注，低速并显示判定点">专注</button>
         <button type="button" id="gg-battle-bomb" class="gg-battle-touch-btn gg-battle-bomb" aria-label="使用 Bomb">Bomb <span id="gg-battle-bomb-count">3</span></button>
       </div>
-      <p id="gg-battle-status" class="gg-note" role="status">方向键/WASD 移动，按住 Z 射击，Shift 专注，X Bomb，Esc 暂停；手机拖动会自动射击，第二根手指按住＝专注，快速双击＝Bomb。</p>
+      <p id="gg-battle-status" class="gg-note" role="status">方向键/WASD 移动，按住 Z 射击，Shift 专注，X Bomb，Esc 暂停；手机按住即自动射击，拖动按相对位移控制，第二根手指按住＝专注，快速双击＝Bomb，擦弹判定始终开启。</p>
       <div class="gg-actions gg-battle-actions">
         <button type="button" id="gg-battle-narrative">改用剧情解决</button>
         <button type="button" id="gg-battle-retry" hidden>重试写入与结算</button>

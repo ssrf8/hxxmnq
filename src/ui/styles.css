@@ -3123,6 +3123,126 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
   color: #d0b98f;
   font-size: .78rem;
 }
+/* ---- 来客茶席：统一邀请、送客与通知 ---- */
+#gg-visitors-content {
+  display: grid;
+  gap: 1rem;
+  width: min(1080px, 100%);
+  margin: 0 auto;
+  padding: clamp(.8rem, 2vw, 1.4rem);
+}
+.gg-visitors-toolbar > div { min-width: 0; }
+.gg-visitors-toolbar h2 { margin: .1rem 0 0; font-size: clamp(1.1rem, 2.6vw, 1.55rem); }
+.gg-visitors-summary,
+.gg-visitors-character-section,
+.gg-visitors-notices {
+  border: 1px solid rgba(132, 88, 61, .42);
+  border-radius: 5px;
+  background: linear-gradient(150deg, rgba(250, 237, 202, .97), rgba(221, 191, 145, .95));
+  color: #452b24;
+  box-shadow: 0 8px 20px rgba(45, 29, 23, .18);
+}
+.gg-visitors-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .9rem 1rem;
+}
+.gg-visitors-summary h3,
+.gg-visitors-character-section h3,
+.gg-visitors-notices h3 { margin: 0; color: #563028; }
+.gg-visitors-summary p,
+.gg-visitors-character-section > p { margin: .28rem 0 0; color: #735044; }
+.gg-visitors-summary-cup { color: #6b4936; font-size: 2rem; filter: drop-shadow(0 3px 2px rgba(68, 35, 26, .18)); }
+.gg-visitors-character-section,
+.gg-visitors-notices { padding: clamp(.8rem, 1.8vw, 1.1rem); }
+.gg-visitor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: .75rem;
+  margin-top: .85rem;
+}
+.gg-visitor-card {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: .65rem;
+  min-width: 0;
+  min-height: 178px;
+  padding: .8rem;
+  border: 1px solid rgba(107, 72, 53, .38);
+  border-left: 5px solid #9a7657;
+  border-radius: 4px;
+  background: rgba(255, 250, 230, .72);
+}
+.gg-visitor-card[data-status="present"] { border-left-color: #4d8b75; background: rgba(225, 244, 224, .78); }
+.gg-visitor-card[data-status="known"] { border-left-color: #bd7a47; }
+.gg-visitor-card[data-status="unknown"] { filter: saturate(.55); opacity: .78; }
+.gg-visitor-card header,
+.gg-visitors-notices > header { display: flex; align-items: center; justify-content: space-between; gap: .6rem; }
+.gg-visitor-card h4 { margin: 0; color: #512d26; font-size: 1rem; }
+.gg-visitor-card p { margin: 0; color: #6d5046; font-size: .78rem; line-height: 1.55; overflow-wrap: anywhere; }
+.gg-visitor-status,
+.gg-visitors-notices > header span {
+  flex: 0 0 auto;
+  padding: .22rem .42rem;
+  border: 1px solid rgba(94, 64, 47, .28);
+  border-radius: 999px;
+  background: rgba(255, 250, 231, .7);
+  color: #68473a;
+  font-size: .68rem;
+  font-weight: 700;
+}
+.gg-visitor-card button,
+.gg-visitors-notices button {
+  min-height: 44px;
+  border: 1px solid #876447;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #82523d, #60382d);
+  color: #fff4dc;
+  font-weight: 700;
+  touch-action: manipulation;
+}
+.gg-visitor-card button:hover:not(:disabled),
+.gg-visitors-notices button:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
+.gg-visitor-card button:focus-visible,
+.gg-visitors-notices button:focus-visible { outline: 3px solid var(--gg-focus); outline-offset: 2px; }
+.gg-visitor-card button:disabled { cursor: not-allowed; opacity: .58; }
+.gg-visitor-card .gg-visitor-invite { border-color: #447b6b; background: linear-gradient(180deg, #4f8977, #356657); }
+.gg-visitor-card .gg-visitor-dismiss { border-color: #a45e60; background: linear-gradient(180deg, #9a5355, #74393e); }
+.gg-visitors-notices ul { display: grid; gap: .45rem; margin: .8rem 0; padding-left: 1.25rem; }
+.gg-visitors-notices li { color: #64443a; line-height: 1.5; overflow-wrap: anywhere; }
+.gg-visitors-empty { margin: .75rem 0 0; color: #76564b; }
+.gg-visitor-feedback {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .72rem .85rem;
+  border: 1px solid rgba(105, 75, 53, .4);
+  border-left-width: 5px;
+  border-radius: 4px;
+  background: rgba(255, 247, 222, .95);
+  color: #50352d;
+}
+.gg-visitor-feedback-marker { flex: 0 0 auto; color: #67533f; font-weight: 800; }
+.gg-visitor-feedback > div { min-width: 0; }
+.gg-visitor-feedback strong { display: block; color: #563028; }
+.gg-visitor-feedback p { margin: .2rem 0 0; color: #6f4b40; overflow-wrap: anywhere; }
+.gg-visitor-feedback[data-tone="accepted"] { border-left-color: #4f8c6e; background: rgba(225, 245, 218, .96); }
+.gg-visitor-feedback[data-tone="accepted"] .gg-visitor-feedback-marker { color: #38745a; }
+.gg-visitor-feedback[data-tone="declined"],
+.gg-visitor-feedback[data-tone="error"] { border-left-color: #a85757; background: rgba(249, 222, 213, .96); }
+.gg-visitor-feedback[data-tone="declined"] .gg-visitor-feedback-marker,
+.gg-visitor-feedback[data-tone="error"] .gg-visitor-feedback-marker { color: #8e4043; }
+
+@media (max-width: 520px) {
+  #gg-visitors-content { padding: .65rem; }
+  .gg-visitors-toolbar { align-items: flex-start; }
+  .gg-visitor-grid { grid-template-columns: 1fr; }
+  .gg-visitor-card { min-height: 0; }
+  .gg-visitor-feedback { align-items: flex-start; }
+}
+
 .gg-opportunity-invite-feedback {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -4160,7 +4280,7 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(.75rem, 1.6vw, 1.2rem);
   min-height: 0;
   padding: clamp(.85rem, 2vw, 1.35rem);
@@ -4169,7 +4289,8 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
 }
 .gg-launcher-dialog #gg-open-dungeon,
 .gg-launcher-dialog #gg-open-shop,
-.gg-launcher-dialog #gg-open-inventory {
+.gg-launcher-dialog #gg-open-inventory,
+.gg-launcher-dialog #gg-open-visitors {
   position: relative;
   top: auto;
   display: grid;
@@ -4192,6 +4313,7 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
 .gg-launcher-dialog #gg-open-dungeon { --gg-launcher-accent: #b78ad2; --gg-launcher-tint: rgba(91, 49, 119, .5); }
 .gg-launcher-dialog #gg-open-shop { --gg-launcher-accent: #d47d78; --gg-launcher-tint: rgba(119, 47, 52, .46); }
 .gg-launcher-dialog #gg-open-inventory { --gg-launcher-accent: #d4a94f; --gg-launcher-tint: rgba(116, 78, 26, .46); }
+.gg-launcher-dialog #gg-open-visitors { --gg-launcher-accent: #83b9ad; --gg-launcher-tint: rgba(42, 99, 89, .46); }
 .gg-launcher-dialog .gg-launcher-card::before { content: none; }
 .gg-launcher-dialog .gg-launcher-card:hover:not(:disabled) {
   transform: translateY(-3px);
@@ -4216,6 +4338,21 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
   filter: drop-shadow(0 8px 10px rgba(0, 0, 0, .42));
   transition: transform var(--gg-dur-1) ease, filter var(--gg-dur-1) ease;
 }
+.gg-launcher-teacup {
+  display: grid;
+  width: clamp(92px, 10vw, 132px);
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid rgba(216, 242, 228, .42);
+  border-radius: 50%;
+  background: radial-gradient(circle at 45% 38%, rgba(244, 255, 245, .24), rgba(34, 82, 76, .48) 68%, rgba(12, 29, 30, .72));
+  color: #fff4d6;
+  font-size: clamp(3.2rem, 5vw, 4.8rem);
+  line-height: 1;
+  filter: drop-shadow(0 8px 10px rgba(0, 0, 0, .42));
+  transition: transform var(--gg-dur-1) ease, filter var(--gg-dur-1) ease;
+}
+.gg-launcher-dialog #gg-open-visitors:hover:not(:disabled) .gg-launcher-teacup { transform: translateY(-3px) rotate(-2deg); filter: brightness(1.08) drop-shadow(0 10px 13px rgba(0, 0, 0, .48)); }
 .gg-launcher-dialog .gg-launcher-card:hover:not(:disabled) img { transform: scale(1.012); filter: brightness(1.04) drop-shadow(0 10px 13px rgba(0, 0, 0, .48)); }
 .gg-launcher-copy { display: grid; gap: .24rem; padding: .65rem .7rem .55rem; border-top: 1px solid color-mix(in srgb, var(--gg-launcher-accent) 46%, transparent); }
 .gg-launcher-copy strong { color: #fff0d2; font: 700 clamp(1.05rem, 2vw, 1.35rem)/1.2 var(--gg-font-serif); letter-spacing: .06em; }
@@ -4252,7 +4389,8 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
 .gg-launcher-dialog[open] .gg-launcher-card:nth-child(1) { animation-delay: 25ms; }
 .gg-launcher-dialog[open] .gg-launcher-card:nth-child(2) { animation-delay: 50ms; }
 .gg-launcher-dialog[open] .gg-launcher-card:nth-child(3) { animation-delay: 75ms; }
-.gg-launcher-dialog[open] .gg-launcher-secondary { animation-delay: 100ms; }
+.gg-launcher-dialog[open] .gg-launcher-card:nth-child(4) { animation-delay: 100ms; }
+.gg-launcher-dialog[open] .gg-launcher-secondary { animation-delay: 125ms; }
 @keyframes gg-launcher-rise-in {
   from { opacity: 0; transform: translateY(14px); }
   to { opacity: 1; transform: none; }
@@ -4330,10 +4468,11 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
 }
 
 @media (max-width: 899px) {
-  .gg-launcher-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .gg-launcher-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .gg-launcher-dialog #gg-open-dungeon,
   .gg-launcher-dialog #gg-open-shop,
-  .gg-launcher-dialog #gg-open-inventory { min-height: 190px; }
+  .gg-launcher-dialog #gg-open-inventory,
+  .gg-launcher-dialog #gg-open-visitors { min-height: 190px; }
   .gg-launcher-dialog #gg-open-dungeon img,
   .gg-launcher-dialog #gg-open-shop img,
   .gg-launcher-dialog #gg-open-inventory img { height: clamp(132px, 24vw, 190px); }
@@ -4355,6 +4494,12 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
     min-height: 136px;
     padding: .5rem;
   }
+  .gg-launcher-dialog #gg-open-visitors {
+    grid-template-columns: minmax(116px, .9fr) minmax(0, 1fr);
+    grid-template-rows: 1fr;
+    min-height: 136px;
+    padding: .5rem;
+  }
   .gg-launcher-art { min-height: 112px; }
   .gg-launcher-dialog #gg-open-dungeon img,
   .gg-launcher-dialog #gg-open-shop img,
@@ -4368,7 +4513,8 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
 @media (max-width: 360px) {
   .gg-launcher-dialog #gg-open-dungeon,
   .gg-launcher-dialog #gg-open-shop,
-  .gg-launcher-dialog #gg-open-inventory { grid-template-columns: 1fr; min-height: 0; }
+  .gg-launcher-dialog #gg-open-inventory,
+  .gg-launcher-dialog #gg-open-visitors { grid-template-columns: 1fr; min-height: 0; }
   .gg-launcher-dialog #gg-open-dungeon img,
   .gg-launcher-dialog #gg-open-shop img,
   .gg-launcher-dialog #gg-open-inventory img { height: 132px; }

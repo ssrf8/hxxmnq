@@ -156,6 +156,7 @@ export class BattleSimulation {
   private lostLifeThisRun = false;
   private bombEdgeLatched = false;
   private waveStartedAt = 0;
+  private pointerAnchor: { x: number; y: number } | null = null;
 
   constructor(config: BattleConfig, hooks: SimulationHooks) {
     if (!config.phases.length) throw new Error('战斗配置缺少阶段');
@@ -395,8 +396,18 @@ export class BattleSimulation {
     let dx = input.moveX;
     let dy = input.moveY;
     if (input.pointerActive) {
-      const tx = input.pointerX - this.player.x;
-      const ty = input.pointerY - this.player.y;
+      if (input.pointerRelative && !this.pointerAnchor) {
+        this.pointerAnchor = { x: this.player.x, y: this.player.y };
+      }
+      if (!input.pointerRelative) this.pointerAnchor = null;
+      const targetX = input.pointerRelative
+        ? (this.pointerAnchor?.x ?? this.player.x) + input.pointerX
+        : input.pointerX;
+      const targetY = input.pointerRelative
+        ? (this.pointerAnchor?.y ?? this.player.y) + input.pointerY
+        : input.pointerY;
+      const tx = targetX - this.player.x;
+      const ty = targetY - this.player.y;
       const dist = Math.hypot(tx, ty);
       if (dist > 1.5) {
         dx = tx / dist;
@@ -410,6 +421,7 @@ export class BattleSimulation {
       this.player.x += (tx / Math.max(dist, 1)) * step;
       this.player.y += (ty / Math.max(dist, 1)) * step;
     } else {
+      this.pointerAnchor = null;
       const length = Math.hypot(dx, dy) || 1;
       this.player.x += (dx / length) * speed * dt;
       this.player.y += (dy / length) * speed * dt;

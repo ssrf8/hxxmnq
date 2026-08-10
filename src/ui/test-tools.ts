@@ -26,6 +26,9 @@ export type TestJumpId =
   | 'presence_mystia'
   | 'presence_suika'
   | 'presence_sakuya'
+  | 'presence_youmu'
+  | 'presence_patchouli'
+  | 'presence_sanae'
   | 'presence_all'
   | 'presence_clear';
 
@@ -42,6 +45,7 @@ const tutorialJumpIds = new Set<TestJumpId>([
 const presenceJumpIds = new Set<TestJumpId>([
   'presence_reimu', 'presence_marisa', 'presence_alice', 'presence_nitori',
   'presence_cirno', 'presence_mystia', 'presence_suika', 'presence_sakuya',
+  'presence_youmu', 'presence_patchouli', 'presence_sanae',
   'presence_all', 'presence_clear',
 ]);
 
@@ -54,10 +58,14 @@ const m2JumpIds = new Set<TestJumpId>([
   'm2_items_recovery_ready',
 ]);
 
-const allKnownCharacters = ['reimu', 'marisa', 'alice', 'nitori', 'cirno', 'mystia', 'suika', 'sakuya'];
+const allKnownCharacters = [
+  'reimu', 'marisa', 'alice', 'nitori', 'cirno', 'mystia', 'suika', 'sakuya',
+  'youmu', 'patchouli', 'sanae',
+];
 const characterNames: Record<string, string> = {
   reimu: '博丽灵梦', marisa: '雾雨魔理沙', alice: '爱丽丝·玛格特洛依德', nitori: '河城荷取',
   cirno: '琪露诺', mystia: '米斯蒂娅·萝蕾拉', suika: '伊吹萃香', sakuya: '十六夜咲夜',
+  youmu: '魂魄妖梦', patchouli: '帕秋莉·诺蕾姬', sanae: '东风谷早苗',
 };
 const m2Forms: Record<string, string[]> = {
   fairy_garden: ['四季花境', '妖精游乐庭', '冰露迷宫'],

@@ -55,7 +55,7 @@ const playerFloor = () => ({
     ownerCharacterId: 'reimu',
     promptRevision: 'gal-prompt.v1',
     historyRevision: 'gal-synthetic-history.v1',
-    memoryRevision: 'character-visit-memory.v1',
+    memoryRevision: 'character-visit-memory.v2',
     sceneId: 'scene:shrine',
     stateMessageIdBeforeGeneration: 99,
     stateSwipeIdBeforeGeneration: 0,
@@ -110,7 +110,7 @@ const makeReplayPorts = (overrides = {}) => ({
     if (overrides.settlementError) throw new Error('settlement 抛错');
     return { ...structuredClone(state) };
   },
-  applyPresenceUpdate(state, text) {
+  applyPresenceAnalysis(state, text) {
     return { ...structuredClone(state), presence: [text.slice(0, 5)] };
   },
   reconcileM2Runtime(state) {

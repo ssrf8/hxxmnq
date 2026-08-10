@@ -21,12 +21,12 @@ export const gardenNarrativeContract = [
   '【庭园正文协议】',
   '最终回复的第一个可见字符必须是【庭园正文开始】，玩家可见剧情结束后立即写【庭园正文结束】；不得输出前言、重复边界或 Markdown 代码围栏。',
   '正文内只允许 <narration>旁白、环境或动作</narration> 与 <dialogue char="已登记角色ID" visual_mode="normal|nude|sexual" reaction="已登记表情" pose="已登记姿势" act="vaginal|anal|none">角色台词</dialogue>；dialogue 的五个属性必须全部存在，多人或多次发言必须拆成多个 dialogue。没有更合适的登记值时使用 reaction="neutral" pose="default" act="none"。',
-  '正文结束后只能输出本轮明确要求的 GensokyoPresence 等剧情协议标签；它们不会进入庭园 GAL。剧情模型不得输出 UpdateVariable，变量更新由独立变量阶段负责。',
+  '每个 narration 只写一个连续语义段，通常 1–3 句且不超过约 180 个汉字；视角、地点、动作焦点或说话者变化时另开标签。严禁把整篇回复或多个空行段落包进同一个 narration。',
+  '正文结束后不要输出 GensokyoPresence、JSON 或 UpdateVariable；在场与变量变化由独立变量阶段分析正文。',
   '不要在正文开始前输出解释、思维链、列表或代码块。',
   '正文内严禁出现任何自我纠错说明、思考痕迹或自指文本（例如“注意：”“修正：”“应该改为”“不能放在这里”等）。发现格式错误时直接重写该行并静默输出，不得在正文中保留纠错过程。',
   'visual_mode 只描述立绘状态：normal 正常穿着；nude 完全裸露但尚未进入明确亲密行为；sexual 正文已进入明确亲密行为（如插入、口交等）。裸露、脱衣、洗浴、拥抱或亲吻本身不能升级为 sexual；正文确实进入明确亲密行为时，dialogue 的 visual_mode 必须为 sexual，并给出已登记 pose_id 与 act_id（如 rear/vaginal），不得停留在 nude。',
   '剧情连续性：本轮【本轮道具授权】只决定本轮能否使用道具，不代表剧情分支切换或记忆重置；前文已发生的事实（包括战斗、对话、亲密行为）依然有效。玩家动作若与前文状态冲突，角色应带着前文记忆做出合理反应（困惑、质问、警惕、害羞等），不得装作什么都没发生、把玩家当陌生人或回到初见状态。输出正文前必须核对上轮正文结尾，保持角色状态连续。',
-  '称呼玩家时使用酒馆当前用户名（开场已注入酒馆原生宏的名字）或玩家在开场确认的姓名；姓名与称谓只用于称呼玩家，不得据此替玩家决定人称、台词、心理、关系承诺或关键选择。',
 ].join('\n');
 
 export function presenceNarrativeContext(state?: GardenState, narrativeCharacterIds?: readonly string[]) {
@@ -48,7 +48,7 @@ export function presenceNarrativeContext(state?: GardenState, narrativeCharacter
       presentLines.length ? `允许参与本活动：\n${presentLines.join('\n')}` : '允许参与本活动：无。',
       '庭园中其他角色不在本活动现场，不得出场、说话、行动或被临时追加为参与者；这不会把他们从庭园地图删除。',
       '正文只能让上述活动参与者出现在现场、说话或行动。',
-      '活动参与者范围不等于全局在场快照；不得因为进入、结束或退出本活动而输出 GensokyoPresence，也不得借此删除庭园中的其他角色。真正离开庭园必须由本地“送别离开庭园”或其他正式 presence 事务处理。',
+      '活动参与者范围不等于全局在场快照；不得借活动范围删除庭园中的其他角色。真正离开庭园必须在正文中明确发生，并由变量阶段分析或本地正式事务处理。',
     ].join('\n');
   }
   return [
@@ -56,7 +56,7 @@ export function presenceNarrativeContext(state?: GardenState, narrativeCharacter
     presentLines.length ? `当前在场：\n${presentLines.join('\n')}` : '当前在场：无。',
     '未列入当前在场快照的登记角色一律视为不在场；不要枚举或主动召回他们。',
     '正文只能让当前在场角色出现在现场、说话或行动；不在场角色不得被当作就在身边。',
-    '若正文中有角色明确抵达、离场或更换区域，必须在正文结束后额外输出一次严格 JSON 的 <GensokyoPresence>{"version":"presence.v1","present_character_ids":[仍在场角色ID],"character_views":{"角色ID":{"area_id":"区域ID","action":"当前动作","facing":"front|left|right"}}}</GensokyoPresence>。没有出入场或位置变化时不要输出该标签。该标签不是正文、不是选项，也不写 UpdateVariable。',
+    '只需在正文中自然、明确地写出角色是否更换区域或离开庭园；不要输出 GensokyoPresence、JSON 或变量补丁。在场语义由独立变量阶段分析正文。',
   ].join('\n');
 }
 

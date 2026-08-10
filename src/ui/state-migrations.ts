@@ -1,7 +1,6 @@
 import type { GardenState } from './types';
 import {
   migrateConversationLogToLegacyMemory,
-  migrateRelationshipFactsToMemory,
   repairCharacterVisitsAgainstPresence,
 } from './character-memory';
 import { deriveKnownCharacters } from './visitor-rules';
@@ -31,6 +30,23 @@ function defaultFacilityRuntime() {
 /** Idempotent, non-destructive defaults for saves created before M2. */
 export function migrateGardenState(before: GardenState): GardenState {
   let state = structuredClone(before);
+  state.meta = {
+    ...(state.meta ?? {}),
+    schema_version: '0.3.0',
+    bridge_version: '0.3.0',
+    database_adapter_version: '0.3.0',
+  };
+  state.characters ??= {};
+  for (const [id, name] of Object.entries({
+    youmu: '魂魄妖梦',
+    patchouli: '帕秋莉·诺蕾姬',
+    sanae: '东风谷早苗',
+  })) {
+    state.characters[id] ??= { id, name, fixed: true };
+  }
+  for (const character of Object.values(state.characters ?? {})) {
+    delete (character as Record<string, unknown>).current_relationship_facts;
+  }
   state.resources ??= {};
   if (!Number.isInteger(state.resources.coins) || (state.resources.coins ?? 0) < 0) state.resources.coins = 0;
   state.resources.coins = Math.min(99999, state.resources.coins ?? 0);
@@ -137,6 +153,7 @@ export function migrateGardenState(before: GardenState): GardenState {
   if (watch.obtained && watch.last_used_day !== (state.environment?.day ?? 1)) watch.state = 'ready';
   state.interaction ??= {};
   state.interaction.current_session ??= null;
+  state.interaction.presence_analysis_task ??= null;
   state.interaction.settled_ids = Array.from(new Set(state.interaction.settled_ids ?? [])).slice(-64);
   state.interaction.starter_gift_claimed = state.interaction.starter_gift_claimed === true;
   // 兜底：模型偶发用 op:add 写不带 /- 的数组 path 时，MagVarUpdate/mvu_zod 可能把
@@ -151,14 +168,13 @@ export function migrateGardenState(before: GardenState): GardenState {
   // GAL 角色记忆：把旧 conversation_log 确定性增量迁移进 visit_memory legacy 结构。
   // 旧 conversation_log 本批仍保留（旧协议继续写）；新结构由 character-memory 纯迁移维护。
   state = migrateConversationLogToLegacyMemory(state);
-  // GAL 角色记忆：把每角色 current_relationship_facts 确定性迁移进 relationship_memories。
-  // 旧 current_relationship_facts 本批仍保留（现有事件/变量链继续使用）。
-  state = migrateRelationshipFactsToMemory(state);
+  // v0.3.0 不迁移独立关系记忆；schema 会直接丢弃旧关系字段。
   state.events ??= {};
   state.events.settled_ids = Array.from(new Set(state.events.settled_ids ?? [])).slice(-256);
   state.events.waiting_events = Array.isArray(state.events.waiting_events) ? state.events.waiting_events.slice(0, 3) : [];
   state.events.completed_key_events ??= {};
   state.uid_counters ??= {};
+  delete state.uid_counters.relationship_fact;
   if (!Number.isInteger(state.uid_counters.interaction) || (state.uid_counters.interaction ?? 0) < 1) {
     state.uid_counters.interaction = 1;
   }

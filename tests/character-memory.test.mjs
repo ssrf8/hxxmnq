@@ -1,4 +1,4 @@
-// GAL 角色入场记忆（character-visit-memory.v1）行为测试。
+// GAL 角色入场记忆（character-visit-memory.v2）行为测试。
 // 覆盖第一批数据地基：schema 结构、确定性迁移、容量裁剪、未知字段保留、
 // presence→visit 生命周期协调器、全部生产写点接线与防双调用。
 // 纯 Node 测试（esbuild bundle 导入 TS）；不做实机探针。
@@ -24,24 +24,25 @@ const importTypescript = async (path) => {
 
 // ===== fixtures =====
 
-const FIXED_CHARACTERS = ['reimu', 'marisa', 'cirno', 'alice', 'mystia', 'suika', 'nitori', 'sakuya'];
+const FIXED_CHARACTERS = [
+  'reimu', 'marisa', 'cirno', 'alice', 'mystia', 'suika', 'nitori', 'sakuya',
+  'youmu', 'patchouli', 'sanae',
+];
 
 const emptyCharacterMemory = (characterId) => ({
   character_id: characterId,
   active_visit: null,
   closed_visits: [],
   legacy_memories: [],
-  relationship_memories: [],
 });
 
 const visitMemoryFixture = (over = {}) => ({
-  version: 'character-visit-memory.v1',
+  version: 'character-visit-memory.v2',
   by_character: Object.fromEntries(FIXED_CHARACTERS.map((id) => [id, emptyCharacterMemory(id)])),
   legacy_unassigned: [],
   migration: {
     revision: '',
     conversation_log_fingerprint: null,
-    relationship_facts_fingerprint: null,
     migrated_at_serial: null,
   },
   ...over,
@@ -91,28 +92,28 @@ const baseState = (over = {}) => ({
 
 test('schema：visit_memory 位于 interaction、结构上限与业务上限分离', async () => {
   const schema = await read('../src/schema/02-mvu-schema.js');
-  // 结构上限：Zod list 上限（每个 closed ≤16、closed ≤4、legacy ≤16、unassigned ≤24、relationship ≤12）
+  // 结构上限：Zod list 上限（每个 closed ≤16、closed ≤4、legacy ≤16、unassigned ≤24）
   assert.match(schema, /turns: list\(visitTurnSchema, 16\)/);
   assert.match(schema, /closed_visits: list\(visitRecordSchema, 4\)/);
   assert.match(schema, /legacy_memories: list\(legacyMemorySchema, 16\)/);
-  assert.match(schema, /relationship_memories: list\(relationshipMemorySchema, 12\)/);
+  assert.doesNotMatch(schema, /relationshipMemorySchema|current_relationship_facts:\s*list/);
+  assert.match(schema, /current_relationship_facts:\s*_retiredRelationshipFacts/);
   assert.match(schema, /legacy_unassigned: list\(legacyMemorySchema, 24\)/);
   assert.match(schema, /visit_memory: visitMemoryStateSchema/);
   assert.match(schema, /character_visit: integer\(1, 1, 999999\)/);
-  assert.match(schema, /characterMemorySchema[\s\S]*?\.catch\(\{[\s\S]*?relationship_memories: \[\],[\s\S]*?\}\);/);
   const nullableDaySource = schema.match(/const nullableDay[\s\S]*?const nullableSerial/)?.[0] ?? '';
   assert.match(nullableDaySource, /z\.number\(\)\.int\(\)/);
   assert.match(nullableDaySource, /z\.string\(\)/);
   assert.doesNotMatch(nullableDaySource, /integer\(/);
-  // 业务上限 48 必须由 normalizer 执行而非 Zod 单个 list（字段台账注释）
+  // 业务上限 60 必须由 normalizer 执行而非 Zod 单个 list（字段台账注释）
   const ledger = await read('../src/schema/field-ledger.md');
-  assert.match(ledger, /STORY_SUMMARIES_PER_CHARACTER\s*\|\s*48/);
-  assert.match(ledger, /RELATIONSHIP_MEMORIES_PER_CHARACTER\s*\|\s*12/);
+  assert.match(ledger, /STORY_SUMMARIES_PER_CHARACTER\s*\|\s*60/);
+  assert.doesNotMatch(ledger, /RELATIONSHIP_MEMORIES_PER_CHARACTER/);
 });
 
-test('initial-state：8 个固定角色独立空结构、counter≥1、旧字段保留', async () => {
+test('initial-state：11 个固定角色独立空结构、counter≥1、独立关系字段不存在', async () => {
   const initial = JSON.parse(await read('../src/schema/initial-state.json'));
-  assert.equal(initial.interaction.visit_memory.version, 'character-visit-memory.v1');
+  assert.equal(initial.interaction.visit_memory.version, 'character-visit-memory.v2');
   const byCharacter = initial.interaction.visit_memory.by_character;
   assert.deepEqual(Object.keys(byCharacter).sort(), [...FIXED_CHARACTERS].sort());
   for (const id of FIXED_CHARACTERS) {
@@ -120,12 +121,12 @@ test('initial-state：8 个固定角色独立空结构、counter≥1、旧字段
     assert.equal(byCharacter[id].active_visit, null);
     assert.deepEqual(byCharacter[id].closed_visits, []);
     assert.deepEqual(byCharacter[id].legacy_memories, []);
-    assert.deepEqual(byCharacter[id].relationship_memories, []);
+    assert.equal('relationship_memories' in byCharacter[id], false);
   }
   assert.equal(initial.uid_counters.character_visit, 1);
-  // 旧字段原样保留
   assert.ok('conversation_log' in initial.interaction);
-  assert.ok(FIXED_CHARACTERS.every((id) => 'current_relationship_facts' in initial.characters[id]));
+  assert.ok(FIXED_CHARACTERS.every((id) => !('current_relationship_facts' in initial.characters[id])));
+  assert.equal('relationship_fact' in initial.uid_counters, false);
 });
 
 // ===== B1-T10：normalize 与未知字段保留 =====
@@ -153,14 +154,13 @@ test('normalize：VisitTurn 裁掉多余字段，其他层未知字段保留，m
         },
         closed_visits: [],
         legacy_memories: [],
-        relationship_memories: [],
       },
       marisa: { ...emptyCharacterMemory('marisa'), unknownChar: 'keep' },
     },
     customRoot: 'keep-root',
   });
   const normalized = cm.normalizeVisitMemoryState(input);
-  assert.equal(normalized.version, 'character-visit-memory.v1');
+  assert.equal(normalized.version, 'character-visit-memory.v2');
   assert.equal(normalized.customRoot, 'keep-root');
   assert.equal(normalized.by_character.reimu.unknownTop, 'keep-me');
   assert.equal(normalized.by_character.marisa.unknownChar, 'keep');
@@ -171,12 +171,12 @@ test('normalize：VisitTurn 裁掉多余字段，其他层未知字段保留，m
   const malformed = visitMemoryFixture({
     by_character: {
       reimu: 'not-an-object',
-      marisa: { ...emptyCharacterMemory('marisa'), relationship_memories: [{ relationship_memory_id: 'ok', character_id: 'marisa', request_id: '', visit_id: null, day: null, time_period: null, period_serial: null, kind: 'milestone', relationship_label: null, event_kind: null, summary: 'x', significance: 2, active: true, latest_attempt_id: null, latest_commit_key: null }] },
+      marisa: { ...emptyCharacterMemory('marisa'), relationship_memories: [{ relationship_memory_id: 'retired' }] },
     },
   });
   const safe = cm.normalizeVisitMemoryState(malformed);
   assert.deepEqual(safe.by_character.reimu, emptyCharacterMemory('reimu'));
-  assert.equal(safe.by_character.marisa.relationship_memories.length, 1);
+  assert.equal('relationship_memories' in safe.by_character.marisa, false);
   // 无稳定 ID 的 malformed 项被拒绝而非编造随机 ID
   const rejected = cm.normalizeVisitMemoryState(visitMemoryFixture({
     by_character: { reimu: { ...emptyCharacterMemory('reimu'), active_visit: { visit_id: '', turns: [{ turn_id: '', summary: 'x' }] } } },
@@ -202,18 +202,9 @@ test('migration：malformed 单角色先归一化，不崩溃也不清空其他�
   assert.equal(migrated.interaction.visit_memory.by_character.marisa.unknownChar, 'keep');
 });
 
-test('normalize：关系摘要上限 160，VisitTurn 摘要上限 100', async () => {
+test('normalize：VisitTurn 摘要上限 100', async () => {
   const cm = await importTypescript('../src/ui/character-memory.ts');
   const long = 'x'.repeat(300);
-  const rel = cm.normalizeRelationshipMemory({
-    relationship_memory_id: 'legacy_relation:reimu:f',
-    character_id: 'reimu',
-    summary: long,
-    kind: 'milestone',
-    significance: 2,
-    active: true,
-  });
-  assert.equal(rel.summary.length, 160);
   const turn = cm.normalizeVisitTurn({ turn_id: 'a', character_id: 'reimu', summary: long });
   assert.equal(turn.summary.length, 100);
 });
@@ -282,9 +273,8 @@ test('migration：稳定 ID 去重覆盖 hash 碰撞路径（同 stable ID 不�
     active_visit: makeVisit('v1', [makeTurn('dup', { summary: 'OLD' }), makeTurn('dup', { summary: 'UPDATED' }), makeTurn('x')]),
     closed_visits: [],
     legacy_memories: [],
-    relationship_memories: [],
   };
-  const trimmed = cm.trimStoryMemoriesTo48(memory);
+  const trimmed = cm.trimStoryMemoriesTo60(memory);
   assert.equal(trimmed.active_visit.turns.length, 2);
   assert.equal(trimmed.active_visit.turns.find((t) => t.turn_id === 't:dup').summary, 'UPDATED');
 });
@@ -297,82 +287,22 @@ test('migration：字符串 conversation_log 兜底 + 无 interaction 旧状态�
   }));
   assert.equal(str.interaction.visit_memory.by_character.reimu.legacy_memories.length, 1);
   const bare = migrateConversationLogToLegacyMemory({});
-  assert.equal(bare.interaction.visit_memory.version, 'character-visit-memory.v1');
+  assert.equal(bare.interaction.visit_memory.version, 'character-visit-memory.v2');
   assert.deepEqual(bare.interaction.visit_memory.by_character, {});
 });
 
-// ===== B1-T10：relationship 迁移 =====
+// ===== v2：容量 60 边界与固定角色独立 =====
 
-test('migration：relationship 白名单、内容级一致性、12 条容量、旧字段保留', async () => {
-  const { migrateRelationshipFactsToMemory } = await importTypescript('../src/ui/character-memory.ts');
-  const base = baseState({
-    characters: {
-      alice: {
-        id: 'alice',
-        current_relationship_facts: [
-          { id: 'alice_maintenance_boundary', subjects: ['player', 'alice'], fact: '你尊重爱丽丝提出的维护边界与人偶分工。', established_at: 'day-3', active: true, last_confirmed_at: 'day-3' },
-          { id: 'alice_kind_gesture', subjects: ['player', 'alice'], fact: '魔理沙替爱丽丝整理了一下围裙。', active: true, last_confirmed_at: 'day-4' },
-        ],
-      },
-      marisa: { id: 'marisa', current_relationship_facts: [{ id: 'marisa_free_growth_plan', fact: '约定一起照顾温室。', active: true }] },
-    },
-  });
-  const result = migrateRelationshipFactsToMemory(base);
-  const aliceMemories = result.interaction.visit_memory.by_character.alice.relationship_memories;
-  assert.equal(aliceMemories.length, 2);
-  const boundary = aliceMemories.find((m) => m.relationship_memory_id === 'legacy_relation:alice:alice_maintenance_boundary');
-  assert.equal(boundary.kind, 'boundary');
-  assert.equal(boundary.character_id, 'alice');
-  assert.equal(boundary.request_id, '');
-  assert.equal(boundary.visit_id, null);
-  assert.equal(boundary.relationship_label, null); // 无受控可证明表达
-  assert.equal(boundary.event_kind, null);
-  assert.equal(boundary.summary, '你尊重爱丽丝提出的维护边界与人偶分工。');
-  assert.equal(boundary.active, true);
-  const gesture = aliceMemories.find((m) => m.relationship_memory_id.endsWith(':alice_kind_gesture'));
-  assert.equal(gesture.kind, 'milestone');
-  assert.equal(result.interaction.visit_memory.by_character.marisa.relationship_memories[0].kind, 'milestone');
-  // 旧字段保留
-  assert.equal(result.characters.alice.current_relationship_facts.length, 2);
-  assert.deepEqual(result.characters.alice.current_relationship_facts[0].subjects, ['player', 'alice']);
-  assert.equal(result.interaction.visit_memory.migration.revision, 'relationship-facts.v1');
-
-  // 内容级一致性：active/fact 变化即使 ID 见过也必须更新
-  const changed = migrateRelationshipFactsToMemory(baseState({
-    characters: {
-      alice: { id: 'alice', current_relationship_facts: [{ id: 'alice_maintenance_boundary', fact: '边界已解除。', active: false, last_confirmed_at: 'day-9' }] },
-    },
-  }));
-  const updated = changed.interaction.visit_memory.by_character.alice.relationship_memories.find((m) => m.relationship_memory_id === 'legacy_relation:alice:alice_maintenance_boundary');
-  assert.equal(updated.active, false);
-  assert.equal(updated.summary, '边界已解除。');
-
-  // 幂等
-  const again = migrateRelationshipFactsToMemory(result);
-  assert.deepEqual(again.interaction.visit_memory.by_character.alice.relationship_memories, result.interaction.visit_memory.by_character.alice.relationship_memories);
-
-  // 12 条容量
-  const many = migrateRelationshipFactsToMemory(baseState({
-    characters: {
-      alice: { id: 'alice', current_relationship_facts: Array.from({ length: 15 }, (_, i) => ({ id: `fact_${i}`, fact: `事实 ${i}`, active: true })) },
-    },
-  }));
-  assert.equal(many.interaction.visit_memory.by_character.alice.relationship_memories.length, 12);
-});
-
-// ===== B1-T10：容量 48/12 边界与固定角色独立 =====
-
-test('容量：48 是每角色而非全局；reimu 写满不挤 marisa；closed ≤4；合计 ≤48', async () => {
+test('容量：60 是每角色而非全局；reimu 写满不挤 marisa；closed ≤4；合计 ≤60', async () => {
   const cm = await importTypescript('../src/ui/character-memory.ts');
   const turn = (n) => makeTurn(n);
   const visit = (id, turns) => makeVisit(id, turns);
-  // reimu：4 closed × 16 + active 16 = 80 → 48（active 优先，最新 closed 填充）
+  // reimu：4 closed × 16 + active 16 = 80 → 60（active 优先，最新 closed 填充）
   const reimu = {
     character_id: 'reimu',
     active_visit: visit('v-active', Array.from({ length: 16 }, (_, i) => turn(`a${i}`))),
     closed_visits: [0, 1, 2, 3].map((k) => visit(`v-c${k}`, Array.from({ length: 16 }, (_, i) => turn(`c${k}-${i}`)))),
     legacy_memories: [],
-    relationship_memories: [],
   };
   // marisa 独立额度：写满但绝不与 reimu 共享
   const marisa = {
@@ -380,34 +310,17 @@ test('容量：48 是每角色而非全局；reimu 写满不挤 marisa；closed 
     active_visit: visit('v-m-active', Array.from({ length: 16 }, (_, i) => turn(`m${i}`))),
     closed_visits: [0, 1, 2, 3].map((k) => visit(`v-m-c${k}`, Array.from({ length: 16 }, (_, i) => turn(`mc${k}-${i}`)))),
     legacy_memories: [],
-    relationship_memories: [],
   };
-  const trimmedReimu = cm.trimStoryMemoriesTo48(reimu);
-  const trimmedMarisa = cm.trimStoryMemoriesTo48(marisa);
+  const trimmedReimu = cm.trimStoryMemoriesTo60(reimu);
+  const trimmedMarisa = cm.trimStoryMemoriesTo60(marisa);
   const count = (m) => (m.active_visit?.turns.length ?? 0) + m.closed_visits.reduce((n, v) => n + v.turns.length, 0);
-  assert.equal(count(trimmedReimu), 48);
-  assert.equal(count(trimmedMarisa), 48); // 每角色独立，reimu 满额不挤 marisa
+  assert.equal(count(trimmedReimu), 60);
+  assert.equal(count(trimmedMarisa), 60); // 每角色独立，reimu 满额不挤 marisa
   assert.equal(trimmedReimu.closed_visits.length, 4);
   assert.ok(trimmedReimu.closed_visits[0].turns.length === 0); // 最旧 closed 清空但保留 visit 边界
   assert.equal(trimmedReimu.closed_visits[0].visit_id, 'v-c0');
   assert.equal(trimmedReimu.active_visit.turns.length, 16);
 
-  // 12 条 relationship：多条 active state 只留 serial 最大，其余标 inactive 不删除
-  const rel = (id, kind, over = {}) => ({ relationship_memory_id: id, character_id: 'reimu', request_id: '', visit_id: null, day: null, time_period: null, period_serial: over.serial ?? null, kind, relationship_label: null, event_kind: null, summary: id, significance: over.sig ?? 2, active: over.active ?? true, latest_attempt_id: null, latest_commit_key: null });
-  const relMemory = {
-    ...reimu,
-    relationship_memories: [
-      rel('st-a', 'relationship_state', { serial: 5 }),
-      rel('st-b', 'relationship_state', { serial: 9 }),
-      rel('st-c', 'relationship_state', { serial: 5 }),
-      ...Array.from({ length: 10 }, (_, i) => rel(`m${i}`, 'milestone')),
-    ],
-  };
-  const trimmedRel = cm.trimRelationshipMemoriesTo12(relMemory);
-  assert.equal(trimmedRel.relationship_memories.length, 12);
-  const activeStates = trimmedRel.relationship_memories.filter((m) => m.kind === 'relationship_state' && m.active);
-  assert.deepEqual(activeStates.map((m) => m.relationship_memory_id), ['st-b']);
-  assert.equal(trimmedRel.relationship_memories.filter((m) => m.kind === 'relationship_state' && !m.active).length, 2);
 });
 
 // ===== B1-T10：counter 与确定性 =====
@@ -573,7 +486,7 @@ test('counter：旧档计数器落后时跳过全部既有 visit ID', async () =
   assert.equal(repaired.uid_counters.character_visit, 3);
 });
 
-test('upsert：写入入口自身维持 16/48 剧情容量与 12 条关系容量', async () => {
+test('upsert：写入入口自身维持单次 16、每角色总计 60 的剧情容量', async () => {
   const cm = await importTypescript('../src/ui/character-memory.ts');
   let state = baseState({
     interaction: {
@@ -582,23 +495,6 @@ test('upsert：写入入口自身维持 16/48 剧情容量与 12 条关系容量
           reimu: {
             ...emptyCharacterMemory('reimu'),
             active_visit: makeVisit('character_visit_000001', Array.from({ length: 16 }, (_, i) => makeTurn(i))),
-            relationship_memories: Array.from({ length: 12 }, (_, i) => ({
-              relationship_memory_id: `rel-${i}`,
-              character_id: 'reimu',
-              request_id: `req-${i}`,
-              visit_id: null,
-              day: null,
-              time_period: null,
-              period_serial: i,
-              kind: 'milestone',
-              relationship_label: null,
-              event_kind: null,
-              summary: `rel-${i}`,
-              significance: 1,
-              active: true,
-              latest_attempt_id: null,
-              latest_commit_key: null,
-            })),
           },
         },
       }),
@@ -609,30 +505,7 @@ test('upsert：写入入口自身维持 16/48 剧情容量与 12 条关系容量
   assert.equal(state.interaction.visit_memory.by_character.reimu.active_visit.turns.length, 16);
   assert.equal(state.interaction.visit_memory.by_character.reimu.active_visit.turns.at(-1).turn_id, 't:16');
 
-  state = cm.upsertRelationshipMemory(state, 'reimu', {
-    relationship_memory_id: 'state-lover',
-    character_id: 'reimu',
-    request_id: 'req-state',
-    visit_id: 'character_visit_000001',
-    day: 2,
-    time_period: '白昼',
-    period_serial: 5,
-    kind: 'relationship_state',
-    relationship_label: 'lover',
-    event_kind: null,
-    summary: '双方明确确认恋人关系',
-    significance: 3,
-    active: true,
-    latest_attempt_id: null,
-    latest_commit_key: null,
-  });
-  const relationships = state.interaction.visit_memory.by_character.reimu.relationship_memories;
-  assert.equal(relationships.length, 12);
-  assert.deepEqual(
-    relationships.filter((memory) => memory.kind === 'relationship_state' && memory.active)
-      .map((memory) => memory.relationship_memory_id),
-    ['state-lover'],
-  );
+  assert.equal('relationship_memories' in state.interaction.visit_memory.by_character.reimu, false);
 });
 
 test('lifecycle：clockFromState 只用正式时钟（environment + periodSerialFromState）', async () => {
@@ -799,7 +672,7 @@ test('接线：nested caller 不双增 counter（applyPresenceUpdate → reconci
 
 // ===== B1-T11：容量收尾 =====
 
-test('lifecycle 容量：closed visit ≤4、total story turns ≤48（经协调器）', async () => {
+test('lifecycle 容量：closed visit ≤4、total story turns ≤60（经协调器）', async () => {
   const cm = await importTypescript('../src/ui/character-memory.ts');
   const clock = { day: 2, time_period: '白昼', period_serial: 5 };
   const mkVisitWithTurns = (id, turns) => makeVisit(id, turns);
@@ -824,8 +697,7 @@ test('lifecycle 容量：closed visit ≤4、total story turns ≤48（经协调
   // 关闭后 5 个 closed（4 旧 + 新）→ 容量裁剪保留 4
   assert.equal(closed.memory.by_character.reimu.closed_visits.length, 4);
   const totalTurns = closed.memory.by_character.reimu.closed_visits.reduce((n, v) => n + v.turns.length, 0);
-  assert.ok(totalTurns <= 48);
-  // 再开新 visit 后 active 16 + closed 32 = 48
+  assert.ok(totalTurns <= 60);
   const reopened = cm.reconcileCharacterVisits({
     beforePresence: { present_character_ids: [] },
     afterPresence: { present_character_ids: ['reimu'] },
@@ -836,10 +708,52 @@ test('lifecycle 容量：closed visit ≤4、total story turns ≤48（经协调
   });
   const active = reopened.memory.by_character.reimu.active_visit.turns.length;
   const closedTotal = reopened.memory.by_character.reimu.closed_visits.reduce((n, v) => n + v.turns.length, 0);
-  assert.ok(active + closedTotal <= 48);
+  assert.ok(active + closedTotal <= 60);
 });
 
 // 辅助（避免重复 import）
+test('v0.3.0 breaking migration drops every retired relationship field without carrying it forward', async () => {
+  const migrations = await importTypescript('../src/ui/state-migrations.ts');
+  const state = baseState({
+    meta: { schema_version: '0.2.0', bridge_version: '0.2.0', database_adapter_version: '0.2.0' },
+    characters: {
+      reimu: {
+        id: 'reimu',
+        current_relationship_facts: [{ id: 'relationship_fact_000001', fact: 'retired', active: true }],
+      },
+    },
+    uid_counters: { character_visit: 1, relationship_fact: 9 },
+    interaction: {
+      conversation_log: [],
+      visit_memory: visitMemoryFixture({
+        version: 'character-visit-memory.v1',
+        by_character: {
+          reimu: {
+            ...emptyCharacterMemory('reimu'),
+            relationship_memories: [{ relationship_memory_id: 'relationship_fact_000001', summary: 'retired' }],
+          },
+        },
+        migration: {
+          revision: '',
+          conversation_log_fingerprint: null,
+          relationship_facts_fingerprint: 'retired',
+          migrated_at_serial: null,
+        },
+      }),
+    },
+  });
+
+  const migrated = migrations.migrateGardenState(state);
+  assert.equal(migrated.meta.schema_version, '0.3.0');
+  assert.equal(migrated.meta.bridge_version, '0.3.0');
+  assert.equal(migrated.meta.database_adapter_version, '0.3.0');
+  assert.equal(migrated.interaction.visit_memory.version, 'character-visit-memory.v2');
+  assert.equal('current_relationship_facts' in migrated.characters.reimu, false);
+  assert.equal('relationship_fact' in migrated.uid_counters, false);
+  assert.equal('relationship_memories' in migrated.interaction.visit_memory.by_character.reimu, false);
+  assert.equal('relationship_facts_fingerprint' in migrated.interaction.visit_memory.migration, false);
+});
+
 async function importTypescripts() {
   return importTypescript('../src/ui/character-memory.ts');
 }

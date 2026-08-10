@@ -17,7 +17,7 @@ export function buildDuelVictoryMessage(state: GardenState, requestText: string)
       `玩家锁定的要求：${value}`,
       `${profile.display_name}必须承认本次对战结果并答应这个要求，不再进行成功率、说服、反悔或第二次胜负判定。`,
       '只演绎对手听到要求后的自然反应、确认与必要追问；不要替玩家追加要求，不要开始另一场战斗。',
-      '这是独立的对战后场景，对手无需原本就在庭院；本轮出现不代表其抵达庭院，也不得输出 GensokyoPresence。',
+      '这是独立的对战后场景，对手无需原本就在庭院；本轮出现不代表其抵达庭院，也不得据此改变庭园在场状态。',
       '本剧情只产生叙事承诺与自然关系事实，不得增加金币、物资、卡片、标签、设施、事件或角色在场状态。',
       '不要输出或改写 inventory.card_runtime、battle、resources、facilities、events、presence_snapshot。',
     ].join('\n'),

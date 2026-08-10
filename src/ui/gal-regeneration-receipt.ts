@@ -1,9 +1,9 @@
 // 第三批 B3-T05 —— receipt、fingerprint 与漂移检测。
 //
-// 合同：project/gal-character-memory-batch-3-regeneration-runbook.md §4.4、T05
+// 当前合同：project/contract.md（重生成 receipt 与漂移检测）。
 //   - 项目稳定序列化 + FNV-1a 哈希（stableStringify + computeContextFingerprint），key 顺序无关；
 //   - fingerprint 覆盖完整 MvuData（stat/display/delta/schema/initialized_lorebooks/unknown 全纳入——
-//     裁定：UI-only 非正式字段也纳入，宁可保守拒绝，不静默丢状态；runbook §4.4"不得静默丢弃后置状态"）；
+//     裁定：UI-only 非正式字段也纳入，宁可保守拒绝，不静默丢失后置状态）；
 //   - drift decision：receipt 与当前 active data fingerprint 相等 → clean；
 //     无 receipt → needs-legacy-replay；不相等 → post-settlement-drift；身份错配 → receipt-mismatch；
 //   - 不自动合并差异；

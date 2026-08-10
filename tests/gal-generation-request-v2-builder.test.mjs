@@ -30,25 +30,23 @@ const baseState = (overrides = {}) => ({
   },
   interaction: {
     visit_memory: {
-      version: 'character-visit-memory.v1',
+      version: 'character-visit-memory.v2',
       by_character: {
         reimu: {
           character_id: 'reimu',
           active_visit: { visit_id: 'character_visit_000001', character_id: 'reimu', source: 'model-presence', arrival_uid: null, started_day: 1, started_time_period: '清晨', started_period_serial: 1, ended_day: null, ended_time_period: null, ended_period_serial: null, end_reason: null, turns: [{ turn_id: 'req-0:reimu', request_id: 'req-0', character_id: 'reimu', scene_id: null, assistant_message_id: 10, assistant_swipe_id: null, latest_attempt_id: null, latest_commit_key: null, day: 1, time_period: '清晨', period_serial: 1, summary: '旧回合' }] },
           closed_visits: [],
           legacy_memories: [],
-          relationship_memories: [],
         },
         marisa: {
           character_id: 'marisa',
           active_visit: null,
           closed_visits: [],
           legacy_memories: [],
-          relationship_memories: [],
         },
       },
       legacy_unassigned: [],
-      migration: { revision: 'character-visit-memory.v1', conversation_log_fingerprint: null, relationship_facts_fingerprint: null, migrated_at_serial: null },
+      migration: { revision: 'character-visit-memory.v2', conversation_log_fingerprint: null, migrated_at_serial: null },
     },
   },
   ...overrides,
@@ -81,15 +79,21 @@ test('buildGalGenerationRequestV2 产出冻结请求：schema/revision/角色/vi
   assert.equal(result.ok, true);
   if (!result.ok) return;
   assert.equal(result.request.schema, 'gal-generation-request.v2');
-  assert.equal(result.request.promptRevision, 'gal-prompt.v5');
+  assert.equal(result.request.promptRevision, 'gal-prompt.v6');
   assert.equal(result.request.historyRevision, 'gal-synthetic-history.v1');
-  assert.equal(result.request.memoryRevision, 'character-visit-memory.v1');
+  assert.equal(result.request.memoryRevision, 'character-visit-memory.v2');
   assert.deepEqual(result.relevantCharacterIds, ['reimu']);
   assert.deepEqual(result.visitIdsByCharacter, { reimu: 'character_visit_000001' });
   assert.equal(result.request.syntheticHistory.length, 1);
   assert.equal(result.request.syntheticHistory[0].role, 'system');
   assert.match(result.request.modelUserInput, /^灵梦，结界怎么样了？\n\n【庭园正文协议】/u);
   assert.match(result.request.modelUserInput, /【庭园在场快照：本轮唯一事实】[\s\S]*【场景事实】/u);
+  const taskMatch = result.request.modelUserInput.match(/<GensokyoVariableAnalysisTask>([\s\S]*?)<\/GensokyoVariableAnalysisTask>/u);
+  assert.ok(taskMatch);
+  const taskProjection = JSON.parse(taskMatch[1]);
+  assert.equal(taskProjection.schema, 'gensokyo-variable-analysis-task.v1');
+  assert.deepEqual(taskProjection.interaction.visit_summary_task.slots.map((slot) => slot.character_id), ['reimu']);
+  assert.deepEqual(taskProjection.interaction.presence_analysis_task.slots.map((slot) => slot.character_id), ['reimu']);
   assert.equal(result.request.promptInjects.length, 1);
   assert.equal(result.request.promptInjects[0].role, 'system');
   assert.equal(result.request.promptInjects[0].position, 'none');
@@ -228,12 +232,12 @@ test('无记忆时合成历史仍是固定边界消息（非空 system），请�
     presence_snapshot: { present_character_ids: ['reimu'], visitor_meta: {}, character_views: {} },
     interaction: {
       visit_memory: {
-        version: 'character-visit-memory.v1',
+        version: 'character-visit-memory.v2',
         by_character: {
-          reimu: { character_id: 'reimu', active_visit: null, closed_visits: [], legacy_memories: [], relationship_memories: [] },
+          reimu: { character_id: 'reimu', active_visit: null, closed_visits: [], legacy_memories: [] },
         },
         legacy_unassigned: [],
-        migration: { revision: 'character-visit-memory.v1', conversation_log_fingerprint: null, relationship_facts_fingerprint: null, migrated_at_serial: null },
+        migration: { revision: 'character-visit-memory.v2', conversation_log_fingerprint: null, migrated_at_serial: null },
       },
     },
   };

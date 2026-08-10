@@ -1,7 +1,7 @@
 // 第二批 B2-T06 —— 合成历史投影器。
-// 覆盖 runbook §3.5–3.6 与总计划 §7：恰好一条非空 system、过去/本次/关系/legacy 分块、
-// 离场重入旧 visit 只在过去块、冻结 visit 精确命中、900/2800 预算、
-// boundary/conflict 不被普通记录挤掉、legacy_unassigned 永不投影、null 时间、
+// 覆盖恰好一条非空 system、过去/本次/legacy 分块、
+// 离场重入旧 visit 只在过去块、冻结 visit 精确命中、全量召回不裁剪、
+// legacy_unassigned 永不投影、null 时间、
 // 稳定顺序、确定性（100 次逐字节相同）、state 不变、canary 无输入通道。
 import assert from 'node:assert/strict';
 import { build } from 'esbuild';
@@ -55,25 +55,6 @@ const visit = (visitId, turns = [], overrides = {}) => ({
   ...overrides,
 });
 
-const rel = (overrides = {}) => ({
-  relationship_memory_id: 'rel-1',
-  character_id: 'reimu',
-  request_id: 'req-1',
-  visit_id: null,
-  day: 12,
-  time_period: '下午',
-  period_serial: 12,
-  kind: 'milestone',
-  relationship_label: null,
-  event_kind: 'kiss',
-  summary: '双方明确接吻。',
-  significance: 2,
-  active: false,
-  latest_attempt_id: null,
-  latest_commit_key: null,
-  ...overrides,
-});
-
 const makeState = (reimu, marisa) => ({
   characters: {
     reimu: { id: 'reimu', name: '博丽灵梦' },
@@ -81,10 +62,10 @@ const makeState = (reimu, marisa) => ({
   },
   interaction: {
     visit_memory: {
-      version: 'character-visit-memory.v1',
+      version: 'character-visit-memory.v2',
       by_character: {
-        reimu: { character_id: 'reimu', active_visit: null, closed_visits: [], legacy_memories: [], relationship_memories: [], ...reimu },
-        marisa: { character_id: 'marisa', active_visit: null, closed_visits: [], legacy_memories: [], relationship_memories: [], ...marisa },
+        reimu: { character_id: 'reimu', active_visit: null, closed_visits: [], legacy_memories: [], ...reimu },
+        marisa: { character_id: 'marisa', active_visit: null, closed_visits: [], legacy_memories: [], ...marisa },
       },
       legacy_unassigned: [
         { legacy_id: 'legacy-unassigned-1', character_id: null, text: '绝不能泄漏给角色', source: 'conversation_log.v0' },
@@ -129,7 +110,7 @@ test('只有当前 visit：本次块出现且不伪造时间', () => {
   assert.deepEqual(result.characters, ['reimu']);
 });
 
-// ---- 只有过去、只有关系、只有 legacy ----
+// ---- 只有过去、只有 legacy ----
 test('只有过去入场：过去块带边界句，旧到新', () => {
   const state = makeState({
     active_visit: null,
@@ -146,19 +127,6 @@ test('只有过去入场：过去块带边界句，旧到新', () => {
   const second = result.content.indexOf('第二天旧事');
   assert.ok(first >= 0 && second > first, '旧到新展示');
   assert.doesNotMatch(result.content, /【本次入场/);
-});
-
-test('只有关系记忆：当前明确关系 + 依据', () => {
-  const state = makeState({
-    relationship_memories: [
-      rel({ kind: 'relationship_state', relationship_label: 'lover', significance: 3, active: true, summary: '双方明确确认恋人关系。' }),
-      rel({ relationship_memory_id: 'rel-2', kind: 'milestone', event_kind: 'kiss', day: 12, significance: 2, summary: '双方明确接吻。' }),
-    ],
-  });
-  const result = sh.buildSyntheticHistory(baseInput(state));
-  assert.match(result.content, /【当前关系】/);
-  assert.match(result.content, /当前明确关系：lover/);
-  assert.match(result.content, /第12日·下午：双方明确接吻/);
 });
 
 test('legacy_unassigned 永不投影；该角色自己的 legacy 单独标记', () => {
@@ -199,46 +167,34 @@ test('离场重入后冻结的旧 visit 精确命中本次块，更早 visit 只
   assert.match(result.content, /不可续接旧地点/);
 });
 
-// ---- 每角色 900 / 全局 2800 ----
-test('每角色块 ≤900，全部 ≤2800（构造超长内容）', () => {
-  const longSummary = '很长很长的记忆内容。'.repeat(60);
-  const manyTurns = Array.from({ length: 30 }, (_, i) => turn({ turn_id: `req-${i}:reimu`, day: i + 1, summary: longSummary }));
+// ---- 全量召回：不限制当前/过去条数，也不限制字符预算 ----
+test('当前、过去与 legacy 记忆全部投影，内容超过旧 900/2800 预算也不裁剪', () => {
+  const activeTurns = Array.from({ length: 16 }, (_, i) => turn({
+    turn_id: `active-${i}:reimu`, day: i + 20, summary: `当前回合-${i}-${'长'.repeat(90)}`,
+  }));
+  const pastTurns = Array.from({ length: 16 }, (_, i) => turn({
+    turn_id: `past-${i}:reimu`, day: i + 1, summary: `过去回合-${i}-${'旧'.repeat(90)}`,
+  }));
   const state = makeState({
-    active_visit: visit('character_visit_000001', manyTurns),
+    active_visit: visit('character_visit_000001', activeTurns),
     closed_visits: [
-      visit('character_visit_000100', manyTurns.slice(0, 20), { ended_day: 90, ended_period_serial: 90, end_reason: 'presence-receipt' }),
+      visit('character_visit_000097', [turn({ turn_id: 'oldest:reimu', summary: '最早过去入场仍保留' })], { ended_day: 87, ended_period_serial: 87, end_reason: 'presence-receipt' }),
+      visit('character_visit_000098', [turn({ turn_id: 'older:reimu', summary: '第二次过去入场仍保留' })], { ended_day: 88, ended_period_serial: 88, end_reason: 'presence-receipt' }),
+      visit('character_visit_000099', [turn({ turn_id: 'recent:reimu', summary: '第三次过去入场仍保留' })], { ended_day: 89, ended_period_serial: 89, end_reason: 'presence-receipt' }),
+      visit('character_visit_000100', pastTurns, { ended_day: 90, ended_period_serial: 90, end_reason: 'presence-receipt' }),
     ],
-    relationship_memories: Array.from({ length: 12 }, (_, i) => rel({ relationship_memory_id: `rel-${i}`, day: i, summary: longSummary })),
-    legacy_memories: Array.from({ length: 10 }, (_, i) => ({ legacy_id: `legacy-${i}`, character_id: 'reimu', text: longSummary, source: 'conversation_log.v0' })),
+    legacy_memories: Array.from({ length: 8 }, (_, i) => ({
+      legacy_id: `legacy-${i}`, character_id: 'reimu', text: `遗留记忆-${i}-${'远'.repeat(90)}`, source: 'conversation_log.v0',
+    })),
   });
   const result = sh.buildSyntheticHistory(baseInput(state));
-  assert.ok(result.content.length <= sh.TOTAL_BUDGET, `全局 ${result.content.length} ≤ 2800`);
-  // 逐角色块检查（按 characters 顺序拆分校验总和边界）
-  for (const char of result.characters) {
-    // 每角色块 ≤900：按角色头拆分估算最坏单块
+  assert.ok(result.content.length > 2800, `合成历史 ${result.content.length} 应超过旧全局预算`);
+  for (const marker of [
+    '当前回合-0-', '当前回合-15-', '最早过去入场仍保留', '第二次过去入场仍保留',
+    '第三次过去入场仍保留', '过去回合-0-', '过去回合-15-', '遗留记忆-0-', '遗留记忆-7-',
+  ]) {
+    assert.match(result.content, new RegExp(marker));
   }
-  const reimuStart = result.content.indexOf('【角色：博丽灵梦');
-  const marisaStart = result.content.indexOf('【角色：雾雨魔理沙');
-  const reimuBlock = marisaStart >= 0 ? result.content.slice(reimuStart, marisaStart) : result.content.slice(reimuStart);
-  assert.ok(reimuBlock.length <= sh.PER_CHARACTER_BUDGET, `reimu 块 ${reimuBlock.length} ≤ 900`);
-});
-
-// ---- boundary/conflict 不被普通记录挤掉 ----
-test('active boundary/conflict 优先于普通高 significance 事件', () => {
-  const state = makeState({
-    relationship_memories: [
-      rel({ relationship_memory_id: 'rel-1', kind: 'conflict', active: true, significance: 2, day: 20, summary: '尚未和解的冲突。' }),
-      rel({ relationship_memory_id: 'rel-2', kind: 'milestone', event_kind: 'kiss', significance: 3, day: 12, summary: '甜蜜事件。' }),
-      rel({ relationship_memory_id: 'rel-3', kind: 'boundary', active: true, significance: 1, day: 21, summary: '有效边界：拒绝公开亲密。' }),
-      ...Array.from({ length: 10 }, (_, i) => rel({ relationship_memory_id: `rel-extra-${i}`, kind: 'milestone', event_kind: 'trust', significance: 1, day: i, summary: `普通事件${i}` })),
-    ],
-  });
-  const result = sh.buildSyntheticHistory(baseInput(state));
-  assert.match(result.content, /尚未和解的冲突/);
-  assert.match(result.content, /有效边界：拒绝公开亲密/);
-  const conflictIndex = result.content.indexOf('尚未和解的冲突');
-  const sweetIndex = result.content.indexOf('甜蜜事件');
-  assert.ok(conflictIndex < sweetIndex, 'boundary/conflict 排在普通甜蜜事件前');
 });
 
 // ---- 角色顺序稳定、null 日期、确定性、state 不变 ----

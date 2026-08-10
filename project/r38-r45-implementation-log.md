@@ -18,10 +18,7 @@
 - HEAD：`9381503`
 - 工作区：dirty；已有多项用户/前序代理修改与未跟踪文件，全部保留。
 - 本轮目标：制定 M2 详细施工规格，不实施功能。
-- 实际修改文件：
-  - `project/r38-r45-detailed-execution-plan.md`
-  - `project/r38-r45-implementation-log.md`
-  - `project/r38-r45-executor-brief.md`
+- 实际修改文件：本实施日志及当时的两份规划文件；规划文件完成后已清理，当前合同以 `project/contract.md` 为准。
 - 字段链变更：无；仅规划。
 - 数据迁移：无。
 - 已执行命令：
@@ -30,7 +27,7 @@
 - 未执行：构建、dry-run、正式打包、真实宿主导入。
 - 当前闸门：R37 离线门禁已通过；真实 R33–R37 与 O4 验收仍待完成，M2 不得提前开工。
 - 风险：工作区已有改动较多；后续执行者必须逐文件阅读 diff，不得 reset/覆盖。
-- 下一步唯一入口：完成并记录 `project/r37-acceptance-checklist.md`，通过后再开始 R38。
+- 当时的下一步入口为 R37 实机验收；旧清单已随完成阶段文档清理。
 
 ---
 
@@ -40,7 +37,7 @@
 - HEAD：`14e9aac`
 - `git status --short` 摘要：工作区仅见未跟踪临时文件 `_bad.cjs`、`_gal_parts1.txt`、`_git_push_*`、`tavernweave-skills/`；无已修改跟踪文件。
 - 前置闸门证据：
-  - `project/r37-acceptance-checklist.md` 仍为“等待真实新聊天验收”，分项全部未勾选。
+  - 当时 R37 仍等待真实新聊天验收。
   - 用户本轮明确授权：开始执行计划，一路完成 M2 全部更新，并写入实施日志。
   - 因此本代理在维护源推进 R38–R45 候选实现；**不**把 R37/M1 标为 accepted，**不**把离线门禁写成实机验收，**不**在无单独授权时正式打包。
 - 本轮唯一目标：R38 开放庭园与背包底座（schema/迁移/时间序号/背包壳/来访调度底座/毕业派生）。
@@ -134,7 +131,7 @@
 - 用户授权：增加多个验收快进按钮并正式打包。
 - 新增快进：开放庭园、异变卡、异变第 7 日收束、三设施全建成、来访与活动、道具与设施修复；连同旧入口共 9 个按钮。
 - 安全边界：每个入口只写受控测试快照、不发送消息、不调用 LLM；宿主写入后按对应检查点复读校验。
-- 验收清单：`project/r45-owner-acceptance-checklist.md`。
+- 验收清单已归档清理；当前行为以源码测试和 `project/contract.md` 为准。
 - 门禁：`npm run build:ui`、`npm run check:ui` 通过；`npm test` 60/60 通过。
 - 打包：dry-run 通过后执行 `npm run package:checkpoint`；拒绝覆盖策略生效，R45 目录此前不存在。
 - 正式候选：`dist/checkpoint-0.2.0-r45/幻想乡物语-测试检查点-0.2.0-r45.json`。

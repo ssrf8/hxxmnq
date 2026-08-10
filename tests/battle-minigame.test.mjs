@@ -633,7 +633,7 @@ test('战斗 dialog 文案包含原作式操作提示', async () => {
   assert.match(html, /按住 Z 射击/);
   assert.match(html, /X Bomb/);
   assert.match(html, /Esc 暂停/);
-  assert.match(html, /手机拖动会自动射击/);
+  assert.match(html, /手机按住即自动射击，拖动按相对位移控制/);
   assert.match(html, /id="gg-battle-dialog"/);
   assert.match(html, /id="gg-dungeon-dialog"/);
   assert.match(html, /id="gg-battle-focus"/);
@@ -1525,7 +1525,7 @@ test('灵梦 cut-in 按当前战损档位绘制对应完整图片', async () => 
   assert.equal(portraitDraws, 1);
 });
 
-test('R49-C 触控手势：拖动自动射击、双指按住专注、双击 Bomb、鼠标不误触', async () => {
+test('R49-C 触控手势：按住自动射击、相对拖动、双指专注、双击 Bomb、鼠标不误触', async () => {
   const { createBattleInput } = await importTypescript('../src/battle/battle-input.ts');
   const listeners = new Map();
   const canvas = {
@@ -1554,23 +1554,27 @@ test('R49-C 触控手势：拖动自动射击、双指按住专注、双击 Bomb
   // Two held touch pointers = focus; the 2nd finger must not steer.
   fire('pointerdown', { pointerId: 1, pointerType: 'touch', clientX: 100, clientY: 100, button: 0 });
   assert.equal(input.state.focused, false);
-  assert.equal(input.state.firing, false, 'touch-down alone remains a tap and must not fire');
-  assert.equal(input.state.pointerX, 100);
+  assert.equal(input.state.firing, true, 'holding the primary touch should auto-fire immediately');
+  assert.equal(input.state.pointerRelative, true);
+  assert.equal(input.state.pointerX, 0, 'touch-down establishes a zero-displacement anchor');
+  assert.equal(input.state.pointerY, 0);
   fire('pointerdown', { pointerId: 2, pointerType: 'touch', clientX: 300, clientY: 300, button: 0 });
   assert.equal(input.state.focused, true);
-  assert.equal(input.state.pointerX, 100, 'second finger must not move the aim point');
+  assert.equal(input.state.pointerX, 0, 'second finger must not move the relative target');
   fire('pointermove', { pointerId: 2, pointerType: 'touch', clientX: 320, clientY: 320 });
-  assert.equal(input.state.pointerX, 100);
-  assert.equal(input.state.firing, false, 'modifier finger must not trigger firing');
+  assert.equal(input.state.pointerX, 0);
+  assert.equal(input.state.firing, true, 'modifier finger must not interrupt primary-touch firing');
   fire('pointerup', { pointerId: 2, pointerType: 'touch', clientX: 300, clientY: 300 });
   assert.equal(input.state.focused, false);
   assert.equal(input.state.pointerActive, true, 'primary drag survives the modifier finger lifting');
   fire('pointermove', { pointerId: 1, pointerType: 'touch', clientX: 120, clientY: 130 });
-  assert.equal(input.state.firing, true, 'primary touch drag should automatically fire');
-  assert.equal(input.state.pointerX, 120);
+  assert.equal(input.state.firing, true, 'primary touch drag keeps auto-fire active');
+  assert.equal(input.state.pointerX, 20);
+  assert.equal(input.state.pointerY, 30);
   fire('pointerup', { pointerId: 1, pointerType: 'touch', clientX: 120, clientY: 130 });
   assert.equal(input.state.pointerActive, false);
-  assert.equal(input.state.firing, false, 'lifting the primary touch should stop drag firing');
+  assert.equal(input.state.pointerRelative, false);
+  assert.equal(input.state.firing, false, 'lifting the primary touch should stop touch firing');
 
   // The pair of ups above counts as tap #1+#2 only if both were quick and still;
   // finger 2 moved (320,320->300,300 < threshold from down at 300,300? it moved 20px+ then back)
@@ -1594,6 +1598,29 @@ test('R49-C 触控手势：拖动自动射击、双指按住专注、双击 Bomb
 
   input.detach();
   for (const [, list] of listeners) assert.equal(list.length, 0);
+});
+
+test('R49-C 相对触控以按下时的自机位置为锚点，不瞬移到屏幕点击处', async () => {
+  const { BattleSimulation } = await importTypescript('../src/battle/battle-simulation.ts');
+  const sim = new BattleSimulation(baseConfig, { onFinish() {} });
+  sim.start();
+  const start = sim.snapshot().player;
+  const held = {
+    moveX: 0, moveY: 0, focused: false, firing: true,
+    bombPressed: false, pausePressed: false,
+    pointerActive: true, pointerRelative: true, pointerX: 0, pointerY: 0,
+  };
+
+  sim.step(held, false);
+  const anchored = sim.snapshot().player;
+  assert.equal(anchored.x, start.x);
+  assert.equal(anchored.y, start.y);
+
+  sim.step({ ...held, pointerX: 30, pointerY: -20 }, false);
+  const moved = sim.snapshot().player;
+  assert.ok(moved.x > start.x, 'positive finger delta should move right from the player anchor');
+  assert.ok(moved.y < start.y, 'negative finger delta should move up from the player anchor');
+  assert.ok(Math.hypot(moved.x - start.x, moved.y - start.y) < 30, 'one frame remains speed-limited, not teleported');
 });
 
 test('R49-D 妖精波段：boss 缺席免伤、弹幕停火、波段结束宣言重置', async () => {

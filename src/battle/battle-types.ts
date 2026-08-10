@@ -360,6 +360,8 @@ export interface BattleInputState {
   bombPressed: boolean;
   pausePressed: boolean;
   pointerActive: boolean;
+  /** Touch uses an arena-scaled displacement from the press anchor; mouse remains absolute. */
+  pointerRelative: boolean;
   pointerX: number;
   pointerY: number;
 }
@@ -465,6 +467,7 @@ export function createEmptyInput(): BattleInputState {
     bombPressed: false,
     pausePressed: false,
     pointerActive: false,
+    pointerRelative: false,
     pointerX: 0,
     pointerY: 0,
   };

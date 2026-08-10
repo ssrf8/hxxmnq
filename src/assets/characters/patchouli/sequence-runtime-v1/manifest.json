@@ -1,0 +1,2345 @@
+{
+  "version": 1,
+  "character": "patchouli",
+  "status": "owner-provided-animation-runtime-integrated",
+  "layout": "variable-sequence-v1",
+  "source_directory": "src/assets/characters/patchouli/sequence-v1",
+  "source_policy": "owner-provided-split-frames-preserved; runtime atlases use nearest-neighbor normalization",
+  "movement_mode": "measured-walk",
+  "cell": [
+    209,
+    209
+  ],
+  "row_order": [
+    "front",
+    "back",
+    "left",
+    "right"
+  ],
+  "frame_count": 26,
+  "frame_duration_ms": 110,
+  "loop_start": 0,
+  "loop_end": 25,
+  "target_anchor": [
+    104,
+    179
+  ],
+  "target_visible_height": 150,
+  "scale": 0.5102040816326531,
+  "source_anchor_by_direction": {
+    "front": [
+      160,
+      319
+    ],
+    "back": [
+      160,
+      297
+    ],
+    "left": [
+      160,
+      317
+    ],
+    "right": [
+      160,
+      317
+    ]
+  },
+  "idle_png": "src/assets/characters/patchouli/patchouli-turnaround-v1.png",
+  "idle_png_sha256": "1f757f3842afe5a06130747abedec3e827a117d5e2c4baf4511550091198c52d",
+  "idle_webp": "src/assets/characters/patchouli/patchouli-turnaround-v1.webp",
+  "idle_webp_sha256": "5b7d5af285bd1102613e22c89838cda3a778241f8819045b744b5cac627205a8",
+  "sequence_png": "src/assets/characters/patchouli/patchouli-animation-sequence-v1.png",
+  "sequence_png_sha256": "da15bda2228fb9ac8c598c3d3b54c6d666470ad2348c4857961d4dfc18d681db",
+  "sequence_webp": "src/assets/characters/patchouli/patchouli-animation-sequence-v1.webp",
+  "sequence_webp_sha256": "8fdcb298b37bc919c911273243eccda79e2b083b63c549ac8242b8fc25a1dcc5",
+  "frames": [
+    {
+      "direction": "front",
+      "index": 1,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/001.png",
+      "source_sha256": "c6ead37ce5f3c3b31af97f1f96289a6c20d3cdc8d4755b7c2313b562dc3667b2",
+      "source_bbox": {
+        "minX": 92,
+        "minY": 24,
+        "maxX": 276,
+        "maxY": 313,
+        "width": 185,
+        "height": 290
+      },
+      "runtime_bbox": {
+        "minX": 70,
+        "minY": 29,
+        "maxX": 163,
+        "maxY": 176,
+        "width": 94,
+        "height": 148
+      }
+    },
+    {
+      "direction": "front",
+      "index": 2,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/002.png",
+      "source_sha256": "5a6bbfc016321d947d70ec550634138fc59d64dd754c56b3f9e1be08edf96aaf",
+      "source_bbox": {
+        "minX": 94,
+        "minY": 23,
+        "maxX": 275,
+        "maxY": 311,
+        "width": 182,
+        "height": 289
+      },
+      "runtime_bbox": {
+        "minX": 71,
+        "minY": 28,
+        "maxX": 162,
+        "maxY": 175,
+        "width": 92,
+        "height": 148
+      }
+    },
+    {
+      "direction": "front",
+      "index": 3,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/003.png",
+      "source_sha256": "83155585249b1a9df8fad863ef78fc3f9fae0656bd34f69bdd0cca449ce88da1",
+      "source_bbox": {
+        "minX": 94,
+        "minY": 22,
+        "maxX": 275,
+        "maxY": 311,
+        "width": 182,
+        "height": 290
+      },
+      "runtime_bbox": {
+        "minX": 71,
+        "minY": 28,
+        "maxX": 162,
+        "maxY": 175,
+        "width": 92,
+        "height": 148
+      }
+    },
+    {
+      "direction": "front",
+      "index": 4,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/004.png",
+      "source_sha256": "b46558dd04df50417bc7477b5f9e01818ea8fa279d30e696328e287a18b11bea",
+      "source_bbox": {
+        "minX": 95,
+        "minY": 22,
+        "maxX": 275,
+        "maxY": 311,
+        "width": 181,
+        "height": 290
+      },
+      "runtime_bbox": {
+        "minX": 71,
+        "minY": 28,
+        "maxX": 162,
+        "maxY": 175,
+        "width": 92,
+        "height": 148
+      }
+    },
+    {
+      "direction": "front",
+      "index": 5,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/005.png",
+      "source_sha256": "8530747ef56fec3ba02ee6895fcb53885ba74a28ced28b39cccde9b3d9e27b4e",
+      "source_bbox": {
+        "minX": 95,
+        "minY": 22,
+        "maxX": 275,
+        "maxY": 310,
+        "width": 181,
+        "height": 289
+      },
+      "runtime_bbox": {
+        "minX": 71,
+        "minY": 28,
+        "maxX": 162,
+        "maxY": 174,
+        "width": 92,
+        "height": 147
+      }
+    },
+    {
+      "direction": "front",
+      "index": 6,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/006.png",
+      "source_sha256": "08bd9c3f491a29118720a289ac0de28db9d633d7b71a1e0d718f24a2c0f20f7a",
+      "source_bbox": {
+        "minX": 95,
+        "minY": 22,
+        "maxX": 276,
+        "maxY": 310,
+        "width": 182,
+        "height": 289
+      },
+      "runtime_bbox": {
+        "minX": 71,
+        "minY": 28,
+        "maxX": 163,
+        "maxY": 174,
+        "width": 93,
+        "height": 147
+      }
+    },
+    {
+      "direction": "front",
+      "index": 7,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/007.png",
+      "source_sha256": "77dd182272657a7020c73a01e7137a9c5d7570e9ea69f3c1f022e176c569d4b7",
+      "source_bbox": {
+        "minX": 95,
+        "minY": 23,
+        "maxX": 276,
+        "maxY": 311,
+        "width": 182,
+        "height": 289
+      },
+      "runtime_bbox": {
+        "minX": 71,
+        "minY": 28,
+        "maxX": 163,
+        "maxY": 175,
+        "width": 93,
+        "height": 148
+      }
+    },
+    {
+      "direction": "front",
+      "index": 8,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/008.png",
+      "source_sha256": "cf075778650c658f60e991927f25405386e4d58615fe20bf220909f1d82aad85",
+      "source_bbox": {
+        "minX": 95,
+        "minY": 23,
+        "maxX": 277,
+        "maxY": 312,
+        "width": 183,
+        "height": 290
+      },
+      "runtime_bbox": {
+        "minX": 71,
+        "minY": 28,
+        "maxX": 163,
+        "maxY": 175,
+        "width": 93,
+        "height": 148
+      }
+    },
+    {
+      "direction": "front",
+      "index": 9,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/009.png",
+      "source_sha256": "5f5b00d31642ffbf3db70efa490cbaadff2253efcaef55cd27f430a6183e5c3c",
+      "source_bbox": {
+        "minX": 95,
+        "minY": 25,
+        "maxX": 278,
+        "maxY": 314,
+        "width": 184,
+        "height": 290
+      },
+      "runtime_bbox": {
+        "minX": 71,
+        "minY": 29,
+        "maxX": 164,
+        "maxY": 176,
+        "width": 94,
+        "height": 148
+      }
+    },
+    {
+      "direction": "front",
+      "index": 10,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/010.png",
+      "source_sha256": "37aeffb8dd4f34d026a11afc9fdfbb92db95214bdd9710d088c13f64b1f78cf3",
+      "source_bbox": {
+        "minX": 95,
+        "minY": 26,
+        "maxX": 279,
+        "maxY": 316,
+        "width": 185,
+        "height": 291
+      },
+      "runtime_bbox": {
+        "minX": 71,
+        "minY": 30,
+        "maxX": 164,
+        "maxY": 177,
+        "width": 94,
+        "height": 148
+      }
+    },
+    {
+      "direction": "front",
+      "index": 11,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/011.png",
+      "source_sha256": "9253f8c0e51b863d556714e8357acfea6bd985f3537ca7aad0795e12e5f0b96d",
+      "source_bbox": {
+        "minX": 95,
+        "minY": 27,
+        "maxX": 279,
+        "maxY": 316,
+        "width": 185,
+        "height": 290
+      },
+      "runtime_bbox": {
+        "minX": 71,
+        "minY": 30,
+        "maxX": 164,
+        "maxY": 177,
+        "width": 94,
+        "height": 148
+      }
+    },
+    {
+      "direction": "front",
+      "index": 12,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/012.png",
+      "source_sha256": "a0edf08ffedc88d2309c481dd5f568846209cd28e7cf069a982fdeb015be8dce",
+      "source_bbox": {
+        "minX": 95,
+        "minY": 27,
+        "maxX": 278,
+        "maxY": 316,
+        "width": 184,
+        "height": 290
+      },
+      "runtime_bbox": {
+        "minX": 71,
+        "minY": 30,
+        "maxX": 164,
+        "maxY": 177,
+        "width": 94,
+        "height": 148
+      }
+    },
+    {
+      "direction": "front",
+      "index": 13,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/013.png",
+      "source_sha256": "832c2166afdde60070950dacb9b5fe16ceae9bccbbf59abb6efe74bbd641cb80",
+      "source_bbox": {
+        "minX": 95,
+        "minY": 26,
+        "maxX": 277,
+        "maxY": 315,
+        "width": 183,
+        "height": 290
+      },
+      "runtime_bbox": {
+        "minX": 71,
+        "minY": 30,
+        "maxX": 163,
+        "maxY": 177,
+        "width": 93,
+        "height": 148
+      }
+    },
+    {
+      "direction": "front",
+      "index": 14,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/014.png",
+      "source_sha256": "202ddf4b3a64097db016deb45d7b0337bd409283681cb9fcfbeb89d586021aed",
+      "source_bbox": {
+        "minX": 95,
+        "minY": 25,
+        "maxX": 274,
+        "maxY": 313,
+        "width": 180,
+        "height": 289
+      },
+      "runtime_bbox": {
+        "minX": 71,
+        "minY": 29,
+        "maxX": 162,
+        "maxY": 176,
+        "width": 92,
+        "height": 148
+      }
+    },
+    {
+      "direction": "front",
+      "index": 15,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/015.png",
+      "source_sha256": "d22369d9300d46c05fb21f47d193252ec97696687d459c0236df2695a5118ef4",
+      "source_bbox": {
+        "minX": 94,
+        "minY": 23,
+        "maxX": 274,
+        "maxY": 312,
+        "width": 181,
+        "height": 290
+      },
+      "runtime_bbox": {
+        "minX": 71,
+        "minY": 28,
+        "maxX": 162,
+        "maxY": 175,
+        "width": 92,
+        "height": 148
+      }
+    },
+    {
+      "direction": "front",
+      "index": 16,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/016.png",
+      "source_sha256": "c17e13796515f4b38921bfa858b08aea75cd495a5c395742c9d77f7b792df815",
+      "source_bbox": {
+        "minX": 94,
+        "minY": 23,
+        "maxX": 274,
+        "maxY": 312,
+        "width": 181,
+        "height": 290
+      },
+      "runtime_bbox": {
+        "minX": 71,
+        "minY": 28,
+        "maxX": 162,
+        "maxY": 175,
+        "width": 92,
+        "height": 148
+      }
+    },
+    {
+      "direction": "front",
+      "index": 17,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/017.png",
+      "source_sha256": "503d6e2a2a767f334e91fa3a09de234d9601d2de683ab01d15d7ba889c187ddc",
+      "source_bbox": {
+        "minX": 93,
+        "minY": 22,
+        "maxX": 274,
+        "maxY": 311,
+        "width": 182,
+        "height": 290
+      },
+      "runtime_bbox": {
+        "minX": 70,
+        "minY": 28,
+        "maxX": 162,
+        "maxY": 175,
+        "width": 93,
+        "height": 148
+      }
+    },
+    {
+      "direction": "front",
+      "index": 18,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/018.png",
+      "source_sha256": "8ee247325c8ed661c134488c97190e9f436b9e408a3e9b104765c8033adc2837",
+      "source_bbox": {
+        "minX": 91,
+        "minY": 22,
+        "maxX": 274,
+        "maxY": 309,
+        "width": 184,
+        "height": 288
+      },
+      "runtime_bbox": {
+        "minX": 69,
+        "minY": 28,
+        "maxX": 162,
+        "maxY": 174,
+        "width": 94,
+        "height": 147
+      }
+    },
+    {
+      "direction": "front",
+      "index": 19,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/019.png",
+      "source_sha256": "b8742ec231205c0b728a0a59f81af7f048dacfc173738d8c78e82f4153bc23df",
+      "source_bbox": {
+        "minX": 90,
+        "minY": 22,
+        "maxX": 275,
+        "maxY": 310,
+        "width": 186,
+        "height": 289
+      },
+      "runtime_bbox": {
+        "minX": 69,
+        "minY": 28,
+        "maxX": 162,
+        "maxY": 174,
+        "width": 94,
+        "height": 147
+      }
+    },
+    {
+      "direction": "front",
+      "index": 20,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/020.png",
+      "source_sha256": "6b6c8cabfe03201cc1f4369a616f7d6d812a6bc038ca97878f9557cadaed4045",
+      "source_bbox": {
+        "minX": 89,
+        "minY": 22,
+        "maxX": 276,
+        "maxY": 310,
+        "width": 188,
+        "height": 289
+      },
+      "runtime_bbox": {
+        "minX": 68,
+        "minY": 28,
+        "maxX": 163,
+        "maxY": 174,
+        "width": 96,
+        "height": 147
+      }
+    },
+    {
+      "direction": "front",
+      "index": 21,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/021.png",
+      "source_sha256": "83a3bb35a5a83e22491bed472e04b753d782597519e26aad8a7f7406f0766d62",
+      "source_bbox": {
+        "minX": 89,
+        "minY": 23,
+        "maxX": 276,
+        "maxY": 311,
+        "width": 188,
+        "height": 289
+      },
+      "runtime_bbox": {
+        "minX": 68,
+        "minY": 28,
+        "maxX": 163,
+        "maxY": 175,
+        "width": 96,
+        "height": 148
+      }
+    },
+    {
+      "direction": "front",
+      "index": 22,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/022.png",
+      "source_sha256": "e4a04829f5448436dac4d95e30ae4cd9f707b42d3c73625691f90a611eaadc7c",
+      "source_bbox": {
+        "minX": 87,
+        "minY": 25,
+        "maxX": 278,
+        "maxY": 315,
+        "width": 192,
+        "height": 291
+      },
+      "runtime_bbox": {
+        "minX": 67,
+        "minY": 29,
+        "maxX": 163,
+        "maxY": 177,
+        "width": 97,
+        "height": 149
+      }
+    },
+    {
+      "direction": "front",
+      "index": 23,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/023.png",
+      "source_sha256": "efa9cef8560b99a5421ae3d10598c310a145911400ba926840a564eaaaf4c455",
+      "source_bbox": {
+        "minX": 87,
+        "minY": 25,
+        "maxX": 278,
+        "maxY": 315,
+        "width": 192,
+        "height": 291
+      },
+      "runtime_bbox": {
+        "minX": 67,
+        "minY": 29,
+        "maxX": 164,
+        "maxY": 177,
+        "width": 98,
+        "height": 149
+      }
+    },
+    {
+      "direction": "front",
+      "index": 24,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/024.png",
+      "source_sha256": "ec81dac79c009068510564dd2733603d40bcae0d6c9f0d11357e8094c032b902",
+      "source_bbox": {
+        "minX": 86,
+        "minY": 26,
+        "maxX": 278,
+        "maxY": 316,
+        "width": 193,
+        "height": 291
+      },
+      "runtime_bbox": {
+        "minX": 67,
+        "minY": 30,
+        "maxX": 164,
+        "maxY": 177,
+        "width": 98,
+        "height": 148
+      }
+    },
+    {
+      "direction": "front",
+      "index": 25,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/025.png",
+      "source_sha256": "a48fb82b95469b14abcfea08d11a28ecbb3f2cbd54d9d2312dc3c4b9bd636f7f",
+      "source_bbox": {
+        "minX": 86,
+        "minY": 26,
+        "maxX": 279,
+        "maxY": 315,
+        "width": 194,
+        "height": 290
+      },
+      "runtime_bbox": {
+        "minX": 66,
+        "minY": 30,
+        "maxX": 164,
+        "maxY": 177,
+        "width": 99,
+        "height": 148
+      }
+    },
+    {
+      "direction": "front",
+      "index": 26,
+      "source": "src/assets/characters/patchouli/sequence-v1/front/026.png",
+      "source_sha256": "d8f1e94f15a7b53e7c0bac36de03b1509178c1bdf3a22b885dc0174600c93362",
+      "source_bbox": {
+        "minX": 89,
+        "minY": 26,
+        "maxX": 277,
+        "maxY": 319,
+        "width": 189,
+        "height": 294
+      },
+      "runtime_bbox": {
+        "minX": 68,
+        "minY": 30,
+        "maxX": 163,
+        "maxY": 179,
+        "width": 96,
+        "height": 150
+      }
+    },
+    {
+      "direction": "back",
+      "index": 1,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/001.png",
+      "source_sha256": "d230c1efe632f9706bf31354d331fd071d8d369edaa56cf06272230ff6b08b47",
+      "source_bbox": {
+        "minX": 103,
+        "minY": 20,
+        "maxX": 269,
+        "maxY": 297,
+        "width": 167,
+        "height": 278
+      },
+      "runtime_bbox": {
+        "minX": 75,
+        "minY": 38,
+        "maxX": 159,
+        "maxY": 179,
+        "width": 85,
+        "height": 142
+      }
+    },
+    {
+      "direction": "back",
+      "index": 2,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/002.png",
+      "source_sha256": "31ce692e970cc4c480f23ec02f3263eb71d1f9daecbeede9f8df5a773763c28a",
+      "source_bbox": {
+        "minX": 102,
+        "minY": 18,
+        "maxX": 266,
+        "maxY": 292,
+        "width": 165,
+        "height": 275
+      },
+      "runtime_bbox": {
+        "minX": 75,
+        "minY": 37,
+        "maxX": 158,
+        "maxY": 176,
+        "width": 84,
+        "height": 140
+      }
+    },
+    {
+      "direction": "back",
+      "index": 3,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/003.png",
+      "source_sha256": "7cd503a9ce852c45404aaff4590314cc304bfdf18e05270d6d9362bf797e6da4",
+      "source_bbox": {
+        "minX": 101,
+        "minY": 17,
+        "maxX": 265,
+        "maxY": 292,
+        "width": 165,
+        "height": 276
+      },
+      "runtime_bbox": {
+        "minX": 74,
+        "minY": 36,
+        "maxX": 157,
+        "maxY": 176,
+        "width": 84,
+        "height": 141
+      }
+    },
+    {
+      "direction": "back",
+      "index": 4,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/004.png",
+      "source_sha256": "16d9af600dca82de2a2ccf9a89eca31ff34ebf4834095bb1b9d696fe22ce6089",
+      "source_bbox": {
+        "minX": 100,
+        "minY": 16,
+        "maxX": 265,
+        "maxY": 293,
+        "width": 166,
+        "height": 278
+      },
+      "runtime_bbox": {
+        "minX": 74,
+        "minY": 36,
+        "maxX": 157,
+        "maxY": 176,
+        "width": 84,
+        "height": 141
+      }
+    },
+    {
+      "direction": "back",
+      "index": 5,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/005.png",
+      "source_sha256": "d4ce6fba5ae4121c05f9096a4818bbf2de1b64f288550bf1c9da636e3f03cd05",
+      "source_bbox": {
+        "minX": 99,
+        "minY": 16,
+        "maxX": 264,
+        "maxY": 292,
+        "width": 166,
+        "height": 277
+      },
+      "runtime_bbox": {
+        "minX": 73,
+        "minY": 36,
+        "maxX": 157,
+        "maxY": 176,
+        "width": 85,
+        "height": 141
+      }
+    },
+    {
+      "direction": "back",
+      "index": 6,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/006.png",
+      "source_sha256": "04b6b2162cbb84c2c0cb20d127f2e6d63a569cd8bb0da4d8ec1d16ba45062276",
+      "source_bbox": {
+        "minX": 97,
+        "minY": 16,
+        "maxX": 262,
+        "maxY": 293,
+        "width": 166,
+        "height": 278
+      },
+      "runtime_bbox": {
+        "minX": 72,
+        "minY": 36,
+        "maxX": 156,
+        "maxY": 177,
+        "width": 85,
+        "height": 142
+      }
+    },
+    {
+      "direction": "back",
+      "index": 7,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/007.png",
+      "source_sha256": "42e992b9cfbe253bdb3129f5310814e22411c609e55c9e1de9bf03c1217b72b7",
+      "source_bbox": {
+        "minX": 97,
+        "minY": 17,
+        "maxX": 261,
+        "maxY": 294,
+        "width": 165,
+        "height": 278
+      },
+      "runtime_bbox": {
+        "minX": 72,
+        "minY": 36,
+        "maxX": 155,
+        "maxY": 177,
+        "width": 84,
+        "height": 142
+      }
+    },
+    {
+      "direction": "back",
+      "index": 8,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/008.png",
+      "source_sha256": "25f8a8f37c230862205f7364adcb140c491ac2afb60980b99a9722c0de7645ad",
+      "source_bbox": {
+        "minX": 96,
+        "minY": 17,
+        "maxX": 261,
+        "maxY": 295,
+        "width": 166,
+        "height": 279
+      },
+      "runtime_bbox": {
+        "minX": 72,
+        "minY": 36,
+        "maxX": 155,
+        "maxY": 178,
+        "width": 84,
+        "height": 143
+      }
+    },
+    {
+      "direction": "back",
+      "index": 9,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/009.png",
+      "source_sha256": "2e2f0d66cf7dfdbe7c4ac9b796802b70d193d3f0d9bf9ea7f4d600d01a3f7396",
+      "source_bbox": {
+        "minX": 95,
+        "minY": 18,
+        "maxX": 261,
+        "maxY": 295,
+        "width": 167,
+        "height": 278
+      },
+      "runtime_bbox": {
+        "minX": 71,
+        "minY": 37,
+        "maxX": 155,
+        "maxY": 178,
+        "width": 85,
+        "height": 142
+      }
+    },
+    {
+      "direction": "back",
+      "index": 10,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/010.png",
+      "source_sha256": "3fece433c997fa6e93d91e18bbad8c888a99ad54a019e29415296c6b52807955",
+      "source_bbox": {
+        "minX": 94,
+        "minY": 20,
+        "maxX": 260,
+        "maxY": 296,
+        "width": 167,
+        "height": 277
+      },
+      "runtime_bbox": {
+        "minX": 71,
+        "minY": 38,
+        "maxX": 155,
+        "maxY": 178,
+        "width": 85,
+        "height": 141
+      }
+    },
+    {
+      "direction": "back",
+      "index": 11,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/011.png",
+      "source_sha256": "37d026fe03ddb3d1931d3585928b9e153b9686b34d57a6137695bb8ee096292a",
+      "source_bbox": {
+        "minX": 94,
+        "minY": 21,
+        "maxX": 261,
+        "maxY": 296,
+        "width": 168,
+        "height": 276
+      },
+      "runtime_bbox": {
+        "minX": 71,
+        "minY": 38,
+        "maxX": 155,
+        "maxY": 178,
+        "width": 85,
+        "height": 141
+      }
+    },
+    {
+      "direction": "back",
+      "index": 12,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/012.png",
+      "source_sha256": "0b37632ce140553201b3d0de2065610644c7df9b7f5b34d70f968bad583a4c1b",
+      "source_bbox": {
+        "minX": 94,
+        "minY": 22,
+        "maxX": 262,
+        "maxY": 297,
+        "width": 169,
+        "height": 276
+      },
+      "runtime_bbox": {
+        "minX": 71,
+        "minY": 39,
+        "maxX": 155,
+        "maxY": 179,
+        "width": 85,
+        "height": 141
+      }
+    },
+    {
+      "direction": "back",
+      "index": 13,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/013.png",
+      "source_sha256": "2c93d140ef015f12e1fab5f3d28b3ae163a4838d10619ed1107bbaa2f63f4907",
+      "source_bbox": {
+        "minX": 95,
+        "minY": 22,
+        "maxX": 261,
+        "maxY": 296,
+        "width": 167,
+        "height": 275
+      },
+      "runtime_bbox": {
+        "minX": 71,
+        "minY": 39,
+        "maxX": 155,
+        "maxY": 178,
+        "width": 85,
+        "height": 140
+      }
+    },
+    {
+      "direction": "back",
+      "index": 14,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/014.png",
+      "source_sha256": "436c8c9658374b533752ad767900a21386415a50b97c6ab21699a0c3bf36f48a",
+      "source_bbox": {
+        "minX": 97,
+        "minY": 20,
+        "maxX": 262,
+        "maxY": 294,
+        "width": 166,
+        "height": 275
+      },
+      "runtime_bbox": {
+        "minX": 72,
+        "minY": 38,
+        "maxX": 156,
+        "maxY": 177,
+        "width": 85,
+        "height": 140
+      }
+    },
+    {
+      "direction": "back",
+      "index": 15,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/015.png",
+      "source_sha256": "81c5c4c1f2e50a19dbbaeca03619a2b460abc57de0047fc32dabc39be182276e",
+      "source_bbox": {
+        "minX": 98,
+        "minY": 19,
+        "maxX": 264,
+        "maxY": 292,
+        "width": 167,
+        "height": 274
+      },
+      "runtime_bbox": {
+        "minX": 73,
+        "minY": 37,
+        "maxX": 157,
+        "maxY": 176,
+        "width": 85,
+        "height": 140
+      }
+    },
+    {
+      "direction": "back",
+      "index": 16,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/016.png",
+      "source_sha256": "9b43758c4c1073ebe131bfa587d9dcec14d11509bbd9d6c23867f34000518ab3",
+      "source_bbox": {
+        "minX": 98,
+        "minY": 19,
+        "maxX": 264,
+        "maxY": 291,
+        "width": 167,
+        "height": 273
+      },
+      "runtime_bbox": {
+        "minX": 73,
+        "minY": 37,
+        "maxX": 157,
+        "maxY": 176,
+        "width": 85,
+        "height": 140
+      }
+    },
+    {
+      "direction": "back",
+      "index": 17,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/017.png",
+      "source_sha256": "868669c2ff1b2d3ad3cdb6703588aec5e6fa7a11060c60dba7fe5812262d8d0f",
+      "source_bbox": {
+        "minX": 100,
+        "minY": 17,
+        "maxX": 265,
+        "maxY": 292,
+        "width": 166,
+        "height": 276
+      },
+      "runtime_bbox": {
+        "minX": 74,
+        "minY": 36,
+        "maxX": 157,
+        "maxY": 176,
+        "width": 84,
+        "height": 141
+      }
+    },
+    {
+      "direction": "back",
+      "index": 18,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/018.png",
+      "source_sha256": "6f5db3a5a733116d28a3a556277be550ddb85bfe7019555d9ab7d9f2c9426f2e",
+      "source_bbox": {
+        "minX": 101,
+        "minY": 16,
+        "maxX": 266,
+        "maxY": 292,
+        "width": 166,
+        "height": 277
+      },
+      "runtime_bbox": {
+        "minX": 74,
+        "minY": 36,
+        "maxX": 158,
+        "maxY": 176,
+        "width": 85,
+        "height": 141
+      }
+    },
+    {
+      "direction": "back",
+      "index": 19,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/019.png",
+      "source_sha256": "a9950d7c0b5a867011b3953e10d29735e609e218fe5f2b19a16e970155c5e347",
+      "source_bbox": {
+        "minX": 101,
+        "minY": 16,
+        "maxX": 267,
+        "maxY": 292,
+        "width": 167,
+        "height": 277
+      },
+      "runtime_bbox": {
+        "minX": 74,
+        "minY": 36,
+        "maxX": 158,
+        "maxY": 176,
+        "width": 85,
+        "height": 141
+      }
+    },
+    {
+      "direction": "back",
+      "index": 20,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/020.png",
+      "source_sha256": "a274edb6fe482f1791c17d59510a2348a3e8bdec5ffd8f0b0d3d6082ed9c2cdc",
+      "source_bbox": {
+        "minX": 101,
+        "minY": 16,
+        "maxX": 267,
+        "maxY": 293,
+        "width": 167,
+        "height": 278
+      },
+      "runtime_bbox": {
+        "minX": 74,
+        "minY": 36,
+        "maxX": 158,
+        "maxY": 177,
+        "width": 85,
+        "height": 142
+      }
+    },
+    {
+      "direction": "back",
+      "index": 21,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/021.png",
+      "source_sha256": "d1096e590627e2671ad5443d2e4900214e10667c173c2083406a38d0906c282d",
+      "source_bbox": {
+        "minX": 102,
+        "minY": 17,
+        "maxX": 268,
+        "maxY": 293,
+        "width": 167,
+        "height": 277
+      },
+      "runtime_bbox": {
+        "minX": 75,
+        "minY": 36,
+        "maxX": 159,
+        "maxY": 177,
+        "width": 85,
+        "height": 142
+      }
+    },
+    {
+      "direction": "back",
+      "index": 22,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/022.png",
+      "source_sha256": "ceb1da93f28b337da354e07e901261d9bfc5da4029f8b588b520a73f9ce8c567",
+      "source_bbox": {
+        "minX": 103,
+        "minY": 19,
+        "maxX": 270,
+        "maxY": 294,
+        "width": 168,
+        "height": 276
+      },
+      "runtime_bbox": {
+        "minX": 75,
+        "minY": 37,
+        "maxX": 160,
+        "maxY": 177,
+        "width": 86,
+        "height": 141
+      }
+    },
+    {
+      "direction": "back",
+      "index": 23,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/023.png",
+      "source_sha256": "9a728591a8e0e2ed22f9d949fe704de3b41e0eddae91de84909bc25a657990e9",
+      "source_bbox": {
+        "minX": 103,
+        "minY": 19,
+        "maxX": 271,
+        "maxY": 295,
+        "width": 169,
+        "height": 277
+      },
+      "runtime_bbox": {
+        "minX": 75,
+        "minY": 37,
+        "maxX": 160,
+        "maxY": 178,
+        "width": 86,
+        "height": 142
+      }
+    },
+    {
+      "direction": "back",
+      "index": 24,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/024.png",
+      "source_sha256": "0d0fb94fc816286ea7f848633a7c31faa9016695b5237161f3c531acea4d05c1",
+      "source_bbox": {
+        "minX": 103,
+        "minY": 20,
+        "maxX": 271,
+        "maxY": 295,
+        "width": 169,
+        "height": 276
+      },
+      "runtime_bbox": {
+        "minX": 75,
+        "minY": 38,
+        "maxX": 160,
+        "maxY": 178,
+        "width": 86,
+        "height": 141
+      }
+    },
+    {
+      "direction": "back",
+      "index": 25,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/025.png",
+      "source_sha256": "3769ade7f0fad45d5f9b4098f8b95589c0469f1b8390731b2dc27d6219ce53fc",
+      "source_bbox": {
+        "minX": 102,
+        "minY": 21,
+        "maxX": 271,
+        "maxY": 296,
+        "width": 170,
+        "height": 276
+      },
+      "runtime_bbox": {
+        "minX": 75,
+        "minY": 38,
+        "maxX": 160,
+        "maxY": 178,
+        "width": 86,
+        "height": 141
+      }
+    },
+    {
+      "direction": "back",
+      "index": 26,
+      "source": "src/assets/characters/patchouli/sequence-v1/back/026.png",
+      "source_sha256": "60575a1ca193cec04b08263297e8fd665d247cd74efd03553389e89bf1c48a8a",
+      "source_bbox": {
+        "minX": 102,
+        "minY": 21,
+        "maxX": 269,
+        "maxY": 297,
+        "width": 168,
+        "height": 277
+      },
+      "runtime_bbox": {
+        "minX": 75,
+        "minY": 38,
+        "maxX": 159,
+        "maxY": 179,
+        "width": 85,
+        "height": 142
+      }
+    },
+    {
+      "direction": "left",
+      "index": 1,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/001.png",
+      "source_sha256": "6488563a1b281dcce32acf895ea8cf452fc96f743fc313fd61349f2863e63ab8",
+      "source_bbox": {
+        "minX": 102,
+        "minY": 30,
+        "maxX": 262,
+        "maxY": 313,
+        "width": 161,
+        "height": 284
+      },
+      "runtime_bbox": {
+        "minX": 75,
+        "minY": 33,
+        "maxX": 156,
+        "maxY": 177,
+        "width": 82,
+        "height": 145
+      }
+    },
+    {
+      "direction": "left",
+      "index": 2,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/002.png",
+      "source_sha256": "798a06f6165959d86cabb6b8cc613db711646120ce91d0a32d4110632f09d868",
+      "source_bbox": {
+        "minX": 105,
+        "minY": 28,
+        "maxX": 258,
+        "maxY": 312,
+        "width": 154,
+        "height": 285
+      },
+      "runtime_bbox": {
+        "minX": 76,
+        "minY": 32,
+        "maxX": 154,
+        "maxY": 176,
+        "width": 79,
+        "height": 145
+      }
+    },
+    {
+      "direction": "left",
+      "index": 3,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/003.png",
+      "source_sha256": "6046f60f97f438e786ab7395f1256bd7a80b47082404a42db3e3a40c2ea8b9d6",
+      "source_bbox": {
+        "minX": 107,
+        "minY": 27,
+        "maxX": 256,
+        "maxY": 311,
+        "width": 150,
+        "height": 285
+      },
+      "runtime_bbox": {
+        "minX": 77,
+        "minY": 31,
+        "maxX": 153,
+        "maxY": 176,
+        "width": 77,
+        "height": 146
+      }
+    },
+    {
+      "direction": "left",
+      "index": 4,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/004.png",
+      "source_sha256": "34d35dc7b6765b4e2051917a728318efcadf023b457e2cf1504291dfcc9195e9",
+      "source_bbox": {
+        "minX": 107,
+        "minY": 26,
+        "maxX": 255,
+        "maxY": 311,
+        "width": 149,
+        "height": 286
+      },
+      "runtime_bbox": {
+        "minX": 77,
+        "minY": 31,
+        "maxX": 152,
+        "maxY": 176,
+        "width": 76,
+        "height": 146
+      }
+    },
+    {
+      "direction": "left",
+      "index": 5,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/005.png",
+      "source_sha256": "23a9f09bb04b0bb8d725c755f713c38626944bcee0cff935e22750a3cefffdd2",
+      "source_bbox": {
+        "minX": 108,
+        "minY": 25,
+        "maxX": 255,
+        "maxY": 311,
+        "width": 148,
+        "height": 287
+      },
+      "runtime_bbox": {
+        "minX": 78,
+        "minY": 30,
+        "maxX": 152,
+        "maxY": 176,
+        "width": 75,
+        "height": 147
+      }
+    },
+    {
+      "direction": "left",
+      "index": 6,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/006.png",
+      "source_sha256": "c0a2d3e248bf958a200aa859ed449ec1e69036596fc2aa9226cf20b3059c1696",
+      "source_bbox": {
+        "minX": 109,
+        "minY": 25,
+        "maxX": 255,
+        "maxY": 311,
+        "width": 147,
+        "height": 287
+      },
+      "runtime_bbox": {
+        "minX": 78,
+        "minY": 30,
+        "maxX": 152,
+        "maxY": 176,
+        "width": 75,
+        "height": 147
+      }
+    },
+    {
+      "direction": "left",
+      "index": 7,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/007.png",
+      "source_sha256": "5164f752386832b1bd03d7a74442127e5daa3b1710de4ad7d860a0126110e21c",
+      "source_bbox": {
+        "minX": 108,
+        "minY": 25,
+        "maxX": 255,
+        "maxY": 311,
+        "width": 148,
+        "height": 287
+      },
+      "runtime_bbox": {
+        "minX": 78,
+        "minY": 30,
+        "maxX": 152,
+        "maxY": 176,
+        "width": 75,
+        "height": 147
+      }
+    },
+    {
+      "direction": "left",
+      "index": 8,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/008.png",
+      "source_sha256": "1545643dba6e89300ae8f9b9e54f3fec06b36e500e6fa55202b828f825e7d2df",
+      "source_bbox": {
+        "minX": 108,
+        "minY": 25,
+        "maxX": 255,
+        "maxY": 312,
+        "width": 148,
+        "height": 288
+      },
+      "runtime_bbox": {
+        "minX": 78,
+        "minY": 30,
+        "maxX": 152,
+        "maxY": 176,
+        "width": 75,
+        "height": 147
+      }
+    },
+    {
+      "direction": "left",
+      "index": 9,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/009.png",
+      "source_sha256": "945793a8726afbf2da53b6fb8b90badead597414fe209ab995536ec7448b4a18",
+      "source_bbox": {
+        "minX": 107,
+        "minY": 26,
+        "maxX": 256,
+        "maxY": 312,
+        "width": 150,
+        "height": 287
+      },
+      "runtime_bbox": {
+        "minX": 77,
+        "minY": 31,
+        "maxX": 153,
+        "maxY": 176,
+        "width": 77,
+        "height": 146
+      }
+    },
+    {
+      "direction": "left",
+      "index": 10,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/010.png",
+      "source_sha256": "80ca1a06c4d5bf4532b65f5f13368f3d80337c6b68250853eb155a7a0a21742b",
+      "source_bbox": {
+        "minX": 106,
+        "minY": 28,
+        "maxX": 257,
+        "maxY": 312,
+        "width": 152,
+        "height": 285
+      },
+      "runtime_bbox": {
+        "minX": 77,
+        "minY": 32,
+        "maxX": 153,
+        "maxY": 176,
+        "width": 77,
+        "height": 145
+      }
+    },
+    {
+      "direction": "left",
+      "index": 11,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/011.png",
+      "source_sha256": "064b6656819268432d47ad06d95fa59b7185485687861db668af4a67b281b97a",
+      "source_bbox": {
+        "minX": 105,
+        "minY": 29,
+        "maxX": 257,
+        "maxY": 312,
+        "width": 153,
+        "height": 284
+      },
+      "runtime_bbox": {
+        "minX": 77,
+        "minY": 32,
+        "maxX": 153,
+        "maxY": 176,
+        "width": 77,
+        "height": 145
+      }
+    },
+    {
+      "direction": "left",
+      "index": 12,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/012.png",
+      "source_sha256": "ec9b024889d200f90e81ec32d48b5427e68d87385c7fd6ecdef6118f6d976a57",
+      "source_bbox": {
+        "minX": 106,
+        "minY": 30,
+        "maxX": 258,
+        "maxY": 312,
+        "width": 153,
+        "height": 283
+      },
+      "runtime_bbox": {
+        "minX": 77,
+        "minY": 33,
+        "maxX": 154,
+        "maxY": 176,
+        "width": 78,
+        "height": 144
+      }
+    },
+    {
+      "direction": "left",
+      "index": 13,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/013.png",
+      "source_sha256": "d2df1b3e3f8872d6cdf3b8d78c396c8d386bf42d8811e1eb5bbf5f36305d39fc",
+      "source_bbox": {
+        "minX": 105,
+        "minY": 30,
+        "maxX": 257,
+        "maxY": 311,
+        "width": 153,
+        "height": 282
+      },
+      "runtime_bbox": {
+        "minX": 76,
+        "minY": 33,
+        "maxX": 153,
+        "maxY": 176,
+        "width": 78,
+        "height": 144
+      }
+    },
+    {
+      "direction": "left",
+      "index": 14,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/014.png",
+      "source_sha256": "acddf4d6b53778adb7f23d1aa30ad61d0028be701bedac9b52014de4ad7dd2e3",
+      "source_bbox": {
+        "minX": 107,
+        "minY": 30,
+        "maxX": 257,
+        "maxY": 310,
+        "width": 151,
+        "height": 281
+      },
+      "runtime_bbox": {
+        "minX": 77,
+        "minY": 33,
+        "maxX": 153,
+        "maxY": 175,
+        "width": 77,
+        "height": 143
+      }
+    },
+    {
+      "direction": "left",
+      "index": 15,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/015.png",
+      "source_sha256": "3baf169fec6fd6c3c1ba20e797665a04927c332f8c688e36feb7d5258d11627c",
+      "source_bbox": {
+        "minX": 107,
+        "minY": 28,
+        "maxX": 256,
+        "maxY": 311,
+        "width": 150,
+        "height": 284
+      },
+      "runtime_bbox": {
+        "minX": 77,
+        "minY": 32,
+        "maxX": 153,
+        "maxY": 176,
+        "width": 77,
+        "height": 145
+      }
+    },
+    {
+      "direction": "left",
+      "index": 16,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/016.png",
+      "source_sha256": "cd022a9215ec9189ad1165d1c9cb8ad8b6af043f5e08c7c9ef5953b1377fda42",
+      "source_bbox": {
+        "minX": 108,
+        "minY": 28,
+        "maxX": 257,
+        "maxY": 311,
+        "width": 150,
+        "height": 284
+      },
+      "runtime_bbox": {
+        "minX": 78,
+        "minY": 32,
+        "maxX": 153,
+        "maxY": 176,
+        "width": 76,
+        "height": 145
+      }
+    },
+    {
+      "direction": "left",
+      "index": 17,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/017.png",
+      "source_sha256": "16a960f7870e7fd9ff1ddeeaafe35f18e77ca3e96248bbf505a79bfc0defc56e",
+      "source_bbox": {
+        "minX": 108,
+        "minY": 26,
+        "maxX": 256,
+        "maxY": 310,
+        "width": 149,
+        "height": 285
+      },
+      "runtime_bbox": {
+        "minX": 78,
+        "minY": 31,
+        "maxX": 153,
+        "maxY": 175,
+        "width": 76,
+        "height": 145
+      }
+    },
+    {
+      "direction": "left",
+      "index": 18,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/018.png",
+      "source_sha256": "f85c59f7629f3b0b9c6bd4d88a737836800240132f75ee8e17a97a01022abef6",
+      "source_bbox": {
+        "minX": 108,
+        "minY": 25,
+        "maxX": 255,
+        "maxY": 310,
+        "width": 148,
+        "height": 286
+      },
+      "runtime_bbox": {
+        "minX": 78,
+        "minY": 30,
+        "maxX": 152,
+        "maxY": 175,
+        "width": 75,
+        "height": 146
+      }
+    },
+    {
+      "direction": "left",
+      "index": 19,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/019.png",
+      "source_sha256": "25ca02513f2da6556df3615d2df8ea265793c2921d74034d59c07d043a9a7614",
+      "source_bbox": {
+        "minX": 107,
+        "minY": 25,
+        "maxX": 255,
+        "maxY": 310,
+        "width": 149,
+        "height": 286
+      },
+      "runtime_bbox": {
+        "minX": 77,
+        "minY": 30,
+        "maxX": 152,
+        "maxY": 175,
+        "width": 76,
+        "height": 146
+      }
+    },
+    {
+      "direction": "left",
+      "index": 20,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/020.png",
+      "source_sha256": "b6e937fccf8fc4de8863c78dd2a3a86daa24c3a1097d67ec30d577f35628e914",
+      "source_bbox": {
+        "minX": 108,
+        "minY": 25,
+        "maxX": 256,
+        "maxY": 310,
+        "width": 149,
+        "height": 286
+      },
+      "runtime_bbox": {
+        "minX": 78,
+        "minY": 30,
+        "maxX": 153,
+        "maxY": 175,
+        "width": 76,
+        "height": 146
+      }
+    },
+    {
+      "direction": "left",
+      "index": 21,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/021.png",
+      "source_sha256": "6330f3ee9ddf5286445f672a7548ad8346f0fa83ae0533530550c3bb51c90fc0",
+      "source_bbox": {
+        "minX": 108,
+        "minY": 26,
+        "maxX": 256,
+        "maxY": 309,
+        "width": 149,
+        "height": 284
+      },
+      "runtime_bbox": {
+        "minX": 78,
+        "minY": 31,
+        "maxX": 153,
+        "maxY": 175,
+        "width": 76,
+        "height": 145
+      }
+    },
+    {
+      "direction": "left",
+      "index": 22,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/022.png",
+      "source_sha256": "e0799d04303e260c536ed0a4980b737db8b58be27d759745b77c5c54ccc5bee7",
+      "source_bbox": {
+        "minX": 104,
+        "minY": 27,
+        "maxX": 259,
+        "maxY": 309,
+        "width": 156,
+        "height": 283
+      },
+      "runtime_bbox": {
+        "minX": 76,
+        "minY": 31,
+        "maxX": 154,
+        "maxY": 175,
+        "width": 79,
+        "height": 145
+      }
+    },
+    {
+      "direction": "left",
+      "index": 23,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/023.png",
+      "source_sha256": "abd62908d4bd2a1828ca88b8e84f0b87ae38ac1fc13fb445fe7992345d2d041b",
+      "source_bbox": {
+        "minX": 103,
+        "minY": 28,
+        "maxX": 261,
+        "maxY": 311,
+        "width": 159,
+        "height": 284
+      },
+      "runtime_bbox": {
+        "minX": 75,
+        "minY": 32,
+        "maxX": 155,
+        "maxY": 176,
+        "width": 81,
+        "height": 145
+      }
+    },
+    {
+      "direction": "left",
+      "index": 24,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/024.png",
+      "source_sha256": "2d5de6ccabe91abe644a9c8f183308dc927e16cda77dcc726682d5d0fb212bc1",
+      "source_bbox": {
+        "minX": 101,
+        "minY": 29,
+        "maxX": 262,
+        "maxY": 312,
+        "width": 162,
+        "height": 284
+      },
+      "runtime_bbox": {
+        "minX": 74,
+        "minY": 32,
+        "maxX": 156,
+        "maxY": 176,
+        "width": 83,
+        "height": 145
+      }
+    },
+    {
+      "direction": "left",
+      "index": 25,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/025.png",
+      "source_sha256": "0b94d5e9c62864b4ace7bfffc92bf7c9d2861c7d34e75e37a169636728dccdf7",
+      "source_bbox": {
+        "minX": 100,
+        "minY": 29,
+        "maxX": 263,
+        "maxY": 314,
+        "width": 164,
+        "height": 286
+      },
+      "runtime_bbox": {
+        "minX": 74,
+        "minY": 32,
+        "maxX": 156,
+        "maxY": 176,
+        "width": 83,
+        "height": 145
+      }
+    },
+    {
+      "direction": "left",
+      "index": 26,
+      "source": "src/assets/characters/patchouli/sequence-v1/left/026.png",
+      "source_sha256": "147dd2e55ea9c4152f54e6fbec85d168b73c2b9db6bde28870a7ada2ed64a4e4",
+      "source_bbox": {
+        "minX": 101,
+        "minY": 30,
+        "maxX": 262,
+        "maxY": 317,
+        "width": 162,
+        "height": 288
+      },
+      "runtime_bbox": {
+        "minX": 74,
+        "minY": 33,
+        "maxX": 156,
+        "maxY": 179,
+        "width": 83,
+        "height": 147
+      }
+    },
+    {
+      "direction": "right",
+      "index": 1,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/001.png",
+      "source_sha256": "15a75fab0195fe7954a4ea3cdc82772cab0f638e4334aad27236dffe41b905c8",
+      "source_bbox": {
+        "minX": 58,
+        "minY": 30,
+        "maxX": 218,
+        "maxY": 313,
+        "width": 161,
+        "height": 284
+      },
+      "runtime_bbox": {
+        "minX": 52,
+        "minY": 33,
+        "maxX": 133,
+        "maxY": 177,
+        "width": 82,
+        "height": 145
+      }
+    },
+    {
+      "direction": "right",
+      "index": 2,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/002.png",
+      "source_sha256": "ec25d992a6c73d18e27c7bd3e825f96690382dbc662b660642c58e7c1ccc84ad",
+      "source_bbox": {
+        "minX": 62,
+        "minY": 28,
+        "maxX": 215,
+        "maxY": 312,
+        "width": 154,
+        "height": 285
+      },
+      "runtime_bbox": {
+        "minX": 54,
+        "minY": 32,
+        "maxX": 132,
+        "maxY": 176,
+        "width": 79,
+        "height": 145
+      }
+    },
+    {
+      "direction": "right",
+      "index": 3,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/003.png",
+      "source_sha256": "178c02c70c2150067e421122615ce225fe6431ba3129b181fdb5a2ab79f2c805",
+      "source_bbox": {
+        "minX": 63,
+        "minY": 27,
+        "maxX": 212,
+        "maxY": 311,
+        "width": 150,
+        "height": 285
+      },
+      "runtime_bbox": {
+        "minX": 55,
+        "minY": 31,
+        "maxX": 130,
+        "maxY": 176,
+        "width": 76,
+        "height": 146
+      }
+    },
+    {
+      "direction": "right",
+      "index": 4,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/004.png",
+      "source_sha256": "7e6d5b32d4cca544af9417dcc47fab8bd9d6f2047504989bb304de8a69d38992",
+      "source_bbox": {
+        "minX": 64,
+        "minY": 26,
+        "maxX": 212,
+        "maxY": 311,
+        "width": 149,
+        "height": 286
+      },
+      "runtime_bbox": {
+        "minX": 55,
+        "minY": 31,
+        "maxX": 130,
+        "maxY": 176,
+        "width": 76,
+        "height": 146
+      }
+    },
+    {
+      "direction": "right",
+      "index": 5,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/005.png",
+      "source_sha256": "c5afb1d5affd7f6213ac5eac9aeaa1fd1ceedbf15c585c0bb669c05df1360695",
+      "source_bbox": {
+        "minX": 64,
+        "minY": 25,
+        "maxX": 211,
+        "maxY": 311,
+        "width": 148,
+        "height": 287
+      },
+      "runtime_bbox": {
+        "minX": 55,
+        "minY": 30,
+        "maxX": 130,
+        "maxY": 176,
+        "width": 76,
+        "height": 147
+      }
+    },
+    {
+      "direction": "right",
+      "index": 6,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/006.png",
+      "source_sha256": "a2c49c7e54d76c29afbe5d7430fe311b14766486909ad3ffbca72da6c49e5be0",
+      "source_bbox": {
+        "minX": 65,
+        "minY": 25,
+        "maxX": 211,
+        "maxY": 311,
+        "width": 147,
+        "height": 287
+      },
+      "runtime_bbox": {
+        "minX": 56,
+        "minY": 30,
+        "maxX": 130,
+        "maxY": 176,
+        "width": 75,
+        "height": 147
+      }
+    },
+    {
+      "direction": "right",
+      "index": 7,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/007.png",
+      "source_sha256": "113190dbc04f54b1f34873da5242c8e24c7c27b7664300bdaa5dbd342367f1e9",
+      "source_bbox": {
+        "minX": 64,
+        "minY": 25,
+        "maxX": 211,
+        "maxY": 311,
+        "width": 148,
+        "height": 287
+      },
+      "runtime_bbox": {
+        "minX": 55,
+        "minY": 30,
+        "maxX": 130,
+        "maxY": 176,
+        "width": 76,
+        "height": 147
+      }
+    },
+    {
+      "direction": "right",
+      "index": 8,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/008.png",
+      "source_sha256": "e8f9e5ef4782811b95d7780e84fdd27b9d7e767673305d3e73014191b976e853",
+      "source_bbox": {
+        "minX": 64,
+        "minY": 25,
+        "maxX": 211,
+        "maxY": 312,
+        "width": 148,
+        "height": 288
+      },
+      "runtime_bbox": {
+        "minX": 55,
+        "minY": 30,
+        "maxX": 130,
+        "maxY": 176,
+        "width": 76,
+        "height": 147
+      }
+    },
+    {
+      "direction": "right",
+      "index": 9,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/009.png",
+      "source_sha256": "fcadef1ede2de7200ae2d84485d2949e25914d3164e702e4a46b1ba884d03de5",
+      "source_bbox": {
+        "minX": 63,
+        "minY": 26,
+        "maxX": 212,
+        "maxY": 312,
+        "width": 150,
+        "height": 287
+      },
+      "runtime_bbox": {
+        "minX": 55,
+        "minY": 31,
+        "maxX": 130,
+        "maxY": 176,
+        "width": 76,
+        "height": 146
+      }
+    },
+    {
+      "direction": "right",
+      "index": 10,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/010.png",
+      "source_sha256": "913b90af7ed608891b8254e5ee34040e0b2a3685c2a52433fced8e96723f9888",
+      "source_bbox": {
+        "minX": 62,
+        "minY": 28,
+        "maxX": 213,
+        "maxY": 312,
+        "width": 152,
+        "height": 285
+      },
+      "runtime_bbox": {
+        "minX": 54,
+        "minY": 32,
+        "maxX": 131,
+        "maxY": 176,
+        "width": 78,
+        "height": 145
+      }
+    },
+    {
+      "direction": "right",
+      "index": 11,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/011.png",
+      "source_sha256": "f18a00f02ea3767d6455a925dc47d165470a3d87d653b3d2c27954d66c8341cb",
+      "source_bbox": {
+        "minX": 62,
+        "minY": 29,
+        "maxX": 214,
+        "maxY": 312,
+        "width": 153,
+        "height": 284
+      },
+      "runtime_bbox": {
+        "minX": 54,
+        "minY": 32,
+        "maxX": 131,
+        "maxY": 176,
+        "width": 78,
+        "height": 145
+      }
+    },
+    {
+      "direction": "right",
+      "index": 12,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/012.png",
+      "source_sha256": "a271bfa286088dd2f590b83323b93313f0be66abcdd88722c7a277e59123a391",
+      "source_bbox": {
+        "minX": 62,
+        "minY": 30,
+        "maxX": 214,
+        "maxY": 312,
+        "width": 153,
+        "height": 283
+      },
+      "runtime_bbox": {
+        "minX": 54,
+        "minY": 33,
+        "maxX": 131,
+        "maxY": 176,
+        "width": 78,
+        "height": 144
+      }
+    },
+    {
+      "direction": "right",
+      "index": 13,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/013.png",
+      "source_sha256": "4c2433dfee6d81ee206e6af9961f0b0081bfaf2faac2ea539ed66f813c08510f",
+      "source_bbox": {
+        "minX": 62,
+        "minY": 30,
+        "maxX": 214,
+        "maxY": 311,
+        "width": 153,
+        "height": 282
+      },
+      "runtime_bbox": {
+        "minX": 54,
+        "minY": 33,
+        "maxX": 131,
+        "maxY": 176,
+        "width": 78,
+        "height": 144
+      }
+    },
+    {
+      "direction": "right",
+      "index": 14,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/014.png",
+      "source_sha256": "f284f593c1c5a3911b326757d9833036c1fa63bf031caeff60a1815d582b429b",
+      "source_bbox": {
+        "minX": 63,
+        "minY": 30,
+        "maxX": 213,
+        "maxY": 310,
+        "width": 151,
+        "height": 281
+      },
+      "runtime_bbox": {
+        "minX": 55,
+        "minY": 33,
+        "maxX": 131,
+        "maxY": 175,
+        "width": 77,
+        "height": 143
+      }
+    },
+    {
+      "direction": "right",
+      "index": 15,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/015.png",
+      "source_sha256": "77104f579028370cf10a262c1e72e9093e81e17ee3ea61f99a3d01860f1a3bcf",
+      "source_bbox": {
+        "minX": 63,
+        "minY": 28,
+        "maxX": 212,
+        "maxY": 311,
+        "width": 150,
+        "height": 284
+      },
+      "runtime_bbox": {
+        "minX": 55,
+        "minY": 32,
+        "maxX": 130,
+        "maxY": 176,
+        "width": 76,
+        "height": 145
+      }
+    },
+    {
+      "direction": "right",
+      "index": 16,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/016.png",
+      "source_sha256": "6edcb71f3f8f78a00bdf14ffc5d3beeca576c9ee4abf6a364c9459f04796ce6e",
+      "source_bbox": {
+        "minX": 63,
+        "minY": 28,
+        "maxX": 212,
+        "maxY": 311,
+        "width": 150,
+        "height": 284
+      },
+      "runtime_bbox": {
+        "minX": 55,
+        "minY": 32,
+        "maxX": 130,
+        "maxY": 176,
+        "width": 76,
+        "height": 145
+      }
+    },
+    {
+      "direction": "right",
+      "index": 17,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/017.png",
+      "source_sha256": "1183eed1e9f60e5531de4e58fdb7a2277219d3627e0286fcd1c07fe49c9eb6d6",
+      "source_bbox": {
+        "minX": 64,
+        "minY": 26,
+        "maxX": 212,
+        "maxY": 310,
+        "width": 149,
+        "height": 285
+      },
+      "runtime_bbox": {
+        "minX": 55,
+        "minY": 31,
+        "maxX": 130,
+        "maxY": 175,
+        "width": 76,
+        "height": 145
+      }
+    },
+    {
+      "direction": "right",
+      "index": 18,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/018.png",
+      "source_sha256": "0f866d8f01e75f31da5e5422db235ad375275ecd07a85d96e89cc5a6149821d7",
+      "source_bbox": {
+        "minX": 64,
+        "minY": 25,
+        "maxX": 211,
+        "maxY": 310,
+        "width": 148,
+        "height": 286
+      },
+      "runtime_bbox": {
+        "minX": 55,
+        "minY": 30,
+        "maxX": 130,
+        "maxY": 175,
+        "width": 76,
+        "height": 146
+      }
+    },
+    {
+      "direction": "right",
+      "index": 19,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/019.png",
+      "source_sha256": "c2311d18e4dbe610d840bda676100067cd1abb55e15fdb9fdbd4be6d41bb278c",
+      "source_bbox": {
+        "minX": 64,
+        "minY": 25,
+        "maxX": 212,
+        "maxY": 310,
+        "width": 149,
+        "height": 286
+      },
+      "runtime_bbox": {
+        "minX": 55,
+        "minY": 30,
+        "maxX": 130,
+        "maxY": 175,
+        "width": 76,
+        "height": 146
+      }
+    },
+    {
+      "direction": "right",
+      "index": 20,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/020.png",
+      "source_sha256": "5323632174547778cba487c58086cc1ae90aeabfcb7df3a355150afda6f7d4b5",
+      "source_bbox": {
+        "minX": 64,
+        "minY": 25,
+        "maxX": 212,
+        "maxY": 310,
+        "width": 149,
+        "height": 286
+      },
+      "runtime_bbox": {
+        "minX": 55,
+        "minY": 30,
+        "maxX": 130,
+        "maxY": 175,
+        "width": 76,
+        "height": 146
+      }
+    },
+    {
+      "direction": "right",
+      "index": 21,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/021.png",
+      "source_sha256": "e9a8aa78fdd92108ef4fc38dca3d0b3e2cbe19804606ddd5893b498e39d2859c",
+      "source_bbox": {
+        "minX": 64,
+        "minY": 26,
+        "maxX": 212,
+        "maxY": 309,
+        "width": 149,
+        "height": 284
+      },
+      "runtime_bbox": {
+        "minX": 55,
+        "minY": 31,
+        "maxX": 130,
+        "maxY": 175,
+        "width": 76,
+        "height": 145
+      }
+    },
+    {
+      "direction": "right",
+      "index": 22,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/022.png",
+      "source_sha256": "b310575221dd0bedbf476ec5c13dd126195d7e76998566624409cb17769ff154",
+      "source_bbox": {
+        "minX": 61,
+        "minY": 27,
+        "maxX": 216,
+        "maxY": 309,
+        "width": 156,
+        "height": 283
+      },
+      "runtime_bbox": {
+        "minX": 54,
+        "minY": 31,
+        "maxX": 132,
+        "maxY": 175,
+        "width": 79,
+        "height": 145
+      }
+    },
+    {
+      "direction": "right",
+      "index": 23,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/023.png",
+      "source_sha256": "ce9c7fffd3ea9db3c57f183c4631c04a6c51a3d2857d9dadd475724a21507cbb",
+      "source_bbox": {
+        "minX": 59,
+        "minY": 28,
+        "maxX": 217,
+        "maxY": 311,
+        "width": 159,
+        "height": 284
+      },
+      "runtime_bbox": {
+        "minX": 53,
+        "minY": 32,
+        "maxX": 133,
+        "maxY": 176,
+        "width": 81,
+        "height": 145
+      }
+    },
+    {
+      "direction": "right",
+      "index": 24,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/024.png",
+      "source_sha256": "dc752fac1b8ec1e1cd75fa298194e488ae53b70b7e3e851dcbdb3325a4a445ae",
+      "source_bbox": {
+        "minX": 57,
+        "minY": 29,
+        "maxX": 218,
+        "maxY": 312,
+        "width": 162,
+        "height": 284
+      },
+      "runtime_bbox": {
+        "minX": 52,
+        "minY": 32,
+        "maxX": 133,
+        "maxY": 176,
+        "width": 82,
+        "height": 145
+      }
+    },
+    {
+      "direction": "right",
+      "index": 25,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/025.png",
+      "source_sha256": "1b72af86f86028884b38c9e4e3c0b62a6570daea5561685fdacba3b5f2102a09",
+      "source_bbox": {
+        "minX": 56,
+        "minY": 29,
+        "maxX": 219,
+        "maxY": 314,
+        "width": 164,
+        "height": 286
+      },
+      "runtime_bbox": {
+        "minX": 51,
+        "minY": 32,
+        "maxX": 134,
+        "maxY": 176,
+        "width": 84,
+        "height": 145
+      }
+    },
+    {
+      "direction": "right",
+      "index": 26,
+      "source": "src/assets/characters/patchouli/sequence-v1/right/026.png",
+      "source_sha256": "1f6263f582099432b29141e73d022f02d7dd35adbd13f05248c4b906c0c33d4f",
+      "source_bbox": {
+        "minX": 57,
+        "minY": 30,
+        "maxX": 218,
+        "maxY": 317,
+        "width": 162,
+        "height": 288
+      },
+      "runtime_bbox": {
+        "minX": 52,
+        "minY": 33,
+        "maxX": 133,
+        "maxY": 177,
+        "width": 82,
+        "height": 145
+      }
+    }
+  ]
+}

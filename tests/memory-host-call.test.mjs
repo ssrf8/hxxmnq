@@ -229,7 +229,6 @@ test('B4-T06: database-assisted fallback 历史与 standalone 字节相同（空
             active_visit: { visit_id: 'visit-1', character_id: 'cirno', turns: [{ turn_id: 'turn-1', summary: '本地最新回合', period_serial: 1 }] },
             closed_visits: [],
             legacy_memories: [],
-            relationship_memories: [],
           },
         },
         legacy_unassigned: [],

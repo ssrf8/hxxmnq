@@ -14,7 +14,7 @@ test('R2 release registry contains only existing active runtime assets', async (
   const expectedGalPortraits = Object.values(manifest.gal_portraits)
     .reduce((count, portrait) => count + Object.values(portrait.sources)
       .reduce((modeCount, reactions) => modeCount + Object.keys(reactions).length, 0), 0);
-  assert.equal(assets.length, 103 + 1 + expectedGalPortraits);
+  assert.equal(assets.length, 109 + 1 + expectedGalPortraits);
   assert.equal(new Set(assets.map((asset) => asset.logical_id)).size, assets.length);
   assert.equal(new Set(assets.map((asset) => asset.source)).size, assets.length);
 
@@ -43,7 +43,7 @@ test('R2 release registry carries the single-bucket scheduling contract', () => 
   const expectedGalPortraits = Object.values(manifest.gal_portraits)
     .reduce((count, portrait) => count + Object.values(portrait.sources)
       .reduce((modeCount, reactions) => modeCount + Object.keys(reactions).length, 0), 0);
-  assert.equal(assets.filter((asset) => asset.category !== 'gal').length, 103);
+  assert.equal(assets.filter((asset) => asset.category !== 'gal').length, 109);
   assert.equal(assets.filter((asset) => asset.category === 'gal').length, 1 + expectedGalPortraits);
   assert.equal(assets.filter((asset) => asset.priority_class === 'entry-critical').length, 5);
   assert.equal(assets.every((asset) => asset.required === (asset.entry_gate !== 'none')), true);

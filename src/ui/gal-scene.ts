@@ -117,6 +117,50 @@ function attribute(value: string, name: string) {
   return match?.[1] ?? '';
 }
 
+const PROTOCOL_NARRATION_CHARS = 240;
+
+/**
+ * A model may wrap several visual paragraphs in one narration tag.  Keep all
+ * readable story text, but turn paragraph/sentence boundaries into separate GAL
+ * beats so one oversized tag cannot become one oversized page.
+ */
+function splitProtocolNarration(value: string) {
+  const paragraphs = String(value ?? '')
+    .replace(/<[^>]+>/gu, '')
+    .replace(/\r\n?/gu, '\n')
+    .split(/\n\s*\n+/u)
+    .map((item) => item.replace(/\s*\n\s*/gu, ' ').trim())
+    .filter(Boolean);
+  const chunks: string[] = [];
+  for (const paragraph of paragraphs) {
+    const sentences = paragraph
+      .split(/(?<=[。！？!?…])\s*/u)
+      .map((item) => item.trim())
+      .filter(Boolean);
+    const pieces = sentences.length ? sentences : [paragraph];
+    let bucket = '';
+    for (const piece of pieces) {
+      let remainder = piece;
+      while (remainder) {
+        const available = PROTOCOL_NARRATION_CHARS - bucket.length;
+        if (remainder.length <= available) {
+          bucket += remainder;
+          remainder = '';
+          continue;
+        }
+        if (available > 0) {
+          bucket += remainder.slice(0, available);
+          remainder = remainder.slice(available);
+        }
+        if (bucket) chunks.push(bucket);
+        bucket = '';
+      }
+    }
+    if (bucket) chunks.push(bucket);
+  }
+  return chunks;
+}
+
 function gardenProtocolBeats(value: string, knownCharacters: Set<string>) {
   const section = gardenBodySection(value);
   if (!section.present || section.malformed) return { ...section, beats: [] as GalBeat[] };
@@ -125,18 +169,23 @@ function gardenProtocolBeats(value: string, knownCharacters: Set<string>) {
   for (const match of section.body.matchAll(pattern)) {
     const tag = match[1].toLowerCase();
     const attributes = match[2] ?? '';
-    const text = compactText(String(match[3] ?? '').replace(/<[^>]+>/gu, ''), 1800);
-    if (!text) continue;
-    const beat = normalizeBeat({
-      kind: tag === 'dialogue' ? 'speech' : 'narration',
-      speaker_id: tag === 'dialogue' ? attribute(attributes, 'char') : null,
-      visual_mode: tag === 'dialogue' ? attribute(attributes, 'visual_mode') || 'normal' : 'normal',
-      reaction_id: attribute(attributes, 'reaction') || 'neutral',
-      pose_id: attribute(attributes, 'pose') || 'default',
-      act_id: attribute(attributes, 'act') || 'none',
-      text,
-    }, knownCharacters);
-    if (beat) beats.push(beat);
+    const rawText = String(match[3] ?? '');
+    const texts = tag === 'narration'
+      ? splitProtocolNarration(rawText)
+      : [compactText(rawText.replace(/<[^>]+>/gu, ''), 1800)];
+    for (const text of texts) {
+      if (!text) continue;
+      const beat = normalizeBeat({
+        kind: tag === 'dialogue' ? 'speech' : 'narration',
+        speaker_id: tag === 'dialogue' ? attribute(attributes, 'char') : null,
+        visual_mode: tag === 'dialogue' ? attribute(attributes, 'visual_mode') || 'normal' : 'normal',
+        reaction_id: attribute(attributes, 'reaction') || 'neutral',
+        pose_id: attribute(attributes, 'pose') || 'default',
+        act_id: attribute(attributes, 'act') || 'none',
+        text,
+      }, knownCharacters);
+      if (beat) beats.push(beat);
+    }
   }
   // 段落不设条数上限：从【庭园正文开始】解析到【庭园正文结束】，全部段落进入 GAL 播放，
   // 直到正文结束为止（不再截断前 24 条）。

@@ -17,16 +17,25 @@ const characters = {
   mystia: ['米斯蒂娅'],
   suika: ['萃香'],
   sakuya: ['咲夜'],
+  youmu: ['妖梦'],
+  patchouli: ['帕秋莉'],
+  sanae: ['早苗'],
 };
 const reactions = { 正常: 'neutral', 开心: 'smile', 害羞: 'shy', 哭泣: 'sad', 生气: 'angry' };
 const modes = { sfw: 'normal', nsfw: 'nude' };
+const sourceFileOverrides = {
+  'youmu:shy:sfw': "害羞 sfw'.png",
+  'patchouli:smile:sfw': '开心sfw.png',
+};
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 const records = [];
 for (const [characterId, sourceSegments] of Object.entries(characters)) {
   for (const [sourceReaction, reactionId] of Object.entries(reactions)) {
     for (const [sourceVariant, mode] of Object.entries(modes)) {
-      const source = resolve(SOURCE_ROOT, ...sourceSegments, `${sourceReaction} ${sourceVariant}.png`);
+      const sourceName = sourceFileOverrides[`${characterId}:${reactionId}:${sourceVariant}`]
+        ?? `${sourceReaction} ${sourceVariant}.png`;
+      const source = resolve(SOURCE_ROOT, ...sourceSegments, sourceName);
       const target = resolve(OUTPUT_ROOT, characterId, 'gal', mode, `${characterId}-${mode}-${reactionId}-v1.png`);
       const sourceBytes = await readFile(source).catch(() => null);
       if (!sourceBytes) throw new Error(`缺少所有者源图：${relative(ROOT, source)}`);

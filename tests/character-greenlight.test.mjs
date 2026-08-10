@@ -86,9 +86,9 @@ test('角色世界书只使用唯一绿灯主键并禁止递归诱发', async ()
   const routing = JSON.parse(await read('../src/lorebook/character-routing.json'));
   const packer = await read('../scripts/package-checkpoint.mjs');
   assert.equal(routing.version, 'character-greenlight.v1');
-  assert.equal(routing.profiles.length, 8);
-  assert.equal(new Set(routing.profiles.map((profile) => profile.id)).size, 8);
-  assert.equal(new Set(routing.profiles.map((profile) => profile.greenlight)).size, 8);
+  assert.equal(routing.profiles.length, 11);
+  assert.equal(new Set(routing.profiles.map((profile) => profile.id)).size, 11);
+  assert.equal(new Set(routing.profiles.map((profile) => profile.greenlight)).size, 11);
   assert.ok(routing.profiles.every((profile) => /^GSK_CHAR_[A-Z0-9_]+_ACTIVE$/u.test(profile.greenlight)));
   assert.doesNotMatch(packer, /reimu:\s*\['博丽灵梦'/u);
   assert.match(packer, /\[profile\.greenlight\]/);

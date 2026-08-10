@@ -55,6 +55,7 @@ import { parseAnomalyClueReceipt } from './anomaly-rules';
 import { consumableCount, listInventoryCatalog } from './inventory-rules';
 import { rollFacilityRisk } from './facility-rules';
 import { periodSerialFromState } from './time-rules';
+import { REGISTERED_CHARACTER_IDS } from './character-memory';
 import { OpeningController } from './opening';
 import { AssetPreloader, collectPreloadAssets, type PreloadAsset } from './asset-preloader';
 import { resolveRemoteRelease } from './asset-remote-resolver';
@@ -113,6 +114,7 @@ const saveSlots = byId<HTMLElement>('gg-save-slots');
 const saveStatus = byId<HTMLElement>('gg-save-status');
 const runtimeTestStatus = byId<HTMLElement>('gg-runtime-test-status');
 const runtimeRunAll = byId<HTMLButtonElement>('gg-runtime-run-all');
+const runtimePresenceFlow = byId<HTMLButtonElement>('gg-runtime-presence-flow');
 const runtimeStop = byId<HTMLButtonElement>('gg-runtime-stop');
 // Phase 6 §6.3：与宿主 shell 同源（sessionStorage 'galDebugFloorsVisible'）；
 // 新会话自动关；不写 MVU/聊天/角色卡。
@@ -858,7 +860,7 @@ function setView(view: SceneMode) {
   currentView = view;
   // 供 CSS 按当前视图切换外壳形态（庭园视图去边框、地图撑满）。
   byId('gg-app').dataset.activeView = view;
-  for (const name of ['garden', 'gal', 'facility', 'settings', 'shop', 'inventory', 'opportunities'] as SceneMode[]) {
+  for (const name of ['garden', 'gal', 'facility', 'settings', 'shop', 'inventory', 'visitors', 'opportunities'] as SceneMode[]) {
     const node = document.getElementById(`gg-view-${name}`);
     if (node) node.hidden = name !== view;
   }
@@ -1708,13 +1710,6 @@ function renderTargetMenu(target: InteractionTarget, anchor: { x: number; y: num
       button.addEventListener('click', () => void chooseTargetAction(item));
       fragment.append(button);
     }
-    if (target.type === 'character') {
-      const dismiss = createBubbleButton('送别离开庭园', 'leave', {
-        title: '结束当前交互并让该角色真正离开庭园',
-      });
-      dismiss.addEventListener('click', () => void dismissCharacterFromGarden(target));
-      fragment.append(dismiss);
-    }
   }
   targetActionList.replaceChildren(fragment);
   // 桌面端：把气泡摆在锚点上方的半环上（-160° 到 -20°），标题与状态牌留在锚点下方。
@@ -1740,19 +1735,18 @@ function renderTargetMenu(target: InteractionTarget, anchor: { x: number; y: num
   renderTutorialGuide();
 }
 
-async function dismissCharacterFromGarden(target: InteractionTarget) {
-  if (target.type !== 'character') return;
+async function dismissCharacterFromGarden(characterId: string) {
+  const label = characterName(characterId);
   const confirmed = await confirmInApp({
-    title: `送别${target.label}`,
+    title: `送别${label}`,
     message: '这会让角色真正离开庭园并关闭本次 visit；“结束聊天”仍只结束当前对话。',
     confirmLabel: '确认送别',
   });
   if (!confirmed) return;
   try {
-    await bridge.applyM2Command({ type: 'dismiss_character', characterId: target.id });
+    await bridge.applyM2Command({ type: 'dismiss_character', characterId });
     await refresh();
-    hideTargetMenu();
-    setStatus(`${target.label}已离开庭园。`);
+    setStatus(`${label}已离开庭园。`, false, 'success');
   } catch (error) {
     setStatus(`送别失败：${error instanceof Error ? error.message : String(error)}`, true);
   }
@@ -2055,6 +2049,7 @@ async function performRefresh() {
     }
     if (currentView === 'shop') renderShop();
     if (currentView === 'inventory') renderInventory();
+    if (currentView === 'visitors') renderVisitors();
     if (currentView === 'opportunities') renderOpportunities();
     renderStarterGiftButton();
     const pendingVictory = state.inventory?.card_runtime?.duel?.pending_victory_dialogue;
@@ -2569,7 +2564,10 @@ async function runTestJump(jump: import('./test-tools').TestJumpId): Promise<boo
       presence_mystia: '角色测试：米斯蒂娅已加入中央庭院。',
       presence_suika: '角色测试：萃香已加入中央庭院。',
       presence_sakuya: '角色测试：咲夜已加入中央庭院。',
-      presence_all: '角色测试：八名角色已全部加入中央庭院。',
+      presence_youmu: '角色测试：妖梦已加入中央庭院。',
+      presence_patchouli: '角色测试：帕秋莉已加入中央庭院。',
+      presence_sanae: '角色测试：早苗已加入中央庭院。',
+      presence_all: '角色测试：十一名角色已全部加入中央庭院。',
       presence_clear: '角色测试：当前在场角色已全部清空。',
     };
     setStatus(messages[jump]);
@@ -2589,7 +2587,7 @@ document.querySelectorAll<HTMLButtonElement>('[data-test-jump]').forEach((button
 type RuntimeAcceptanceCaseId =
   | 'a01' | 'a02' | 'a03' | 'a04' | 'a05' | 'a06'
   | 'a07_multi' | 'a07_leave' | 'a08' | 'a09' | 'a10' | 'a11'
-  | 'dismiss' | 'end_chat';
+  | 'dismiss' | 'end_chat' | 'presence_flow';
 
 const runtimeAcceptanceOrder: RuntimeAcceptanceCaseId[] = [
   'a01', 'a02', 'a03', 'a04', 'a05', 'a06',
@@ -2639,10 +2637,14 @@ async function sendAcceptancePrompt(
   return marker;
 }
 
-async function waitForGenerating(timeoutMs = 30000) {
+async function waitForGenerating(previousTransactionId: string, timeoutMs = 30000) {
   const started = Date.now();
   while (Date.now() - started < timeoutMs) {
     const transaction = await bridge.getTransactionState();
+    if (!transaction.transactionId || transaction.transactionId === previousTransactionId) {
+      await new Promise<void>((resolve) => globalThis.setTimeout(resolve, 100));
+      continue;
+    }
     if (transaction.phase === 'generating') return transaction;
     if (['settling', 'settled', 'failed'].includes(transaction.phase)) {
       throw new Error(`未能在生成阶段执行离场，事务已进入 ${transaction.phase}`);
@@ -2693,12 +2695,13 @@ async function runRuntimeAcceptanceCase(caseId: RuntimeAcceptanceCaseId) {
       activeTarget = null;
       setView('gal');
       const marker = acceptanceMarker(caseId);
+      const previousTransaction = await bridge.getTransactionState();
       const pending = submitGalMessage(`${marker}\n灵梦与魔理沙各自说一句对庭园晨风的判断，不推进时间。`, 'interaction', {
         restoreInputOnFailure: false,
         sessionParticipants: ['reimu', 'marisa'],
         explicitCharacterIds: ['reimu', 'marisa'],
       });
-      await waitForGenerating();
+      await waitForGenerating(previousTransaction.transactionId);
       await bridge.applyM2Command({ type: 'dismiss_character', characterId: 'marisa' });
       if (!await pending) throw new Error('生成期间离场轮没有完成结算');
       await refresh();
@@ -2746,6 +2749,42 @@ async function runRuntimeAcceptanceCase(caseId: RuntimeAcceptanceCaseId) {
       await refresh();
       if (!(state.presence_snapshot?.present_character_ids ?? []).includes('reimu')) throw new Error('结束聊天错误地让角色离场');
       break;
+    case 'presence_flow':
+      await prepareAcceptanceCharacters(['reimu']);
+      await sendAcceptancePrompt(
+        caseId,
+        '请让灵梦明确从中央庭院走到温室地块，并在温室地块停下。不要让她离开庭园，不推进时间，也不改变其他正式状态。',
+        { targetCharacterId: 'reimu' },
+      );
+      await refresh();
+      {
+        const transaction = await bridge.getTransactionState();
+        if (transaction.phase !== 'settled') {
+          throw new Error(`Presence 数据已生成，但事务最终为 ${transaction.phase}`);
+        }
+        if (!transaction.requestId || !transaction.attemptId || !transaction.commitKey) {
+          throw new Error('Presence 二阶段缺少 request / attempt / commit 身份');
+        }
+        if (state.interaction?.visit_summary_task != null
+          || state.interaction?.presence_analysis_task != null) {
+          throw new Error('Presence 二阶段结束后仍残留一次性分析任务');
+        }
+        const visits = state.interaction?.visit_memory?.by_character?.reimu;
+        const visitRecords = [visits?.active_visit, ...(visits?.closed_visits ?? [])]
+          .filter((visit): visit is NonNullable<typeof visit> => Boolean(visit));
+        const expectedTurnId = `${transaction.requestId}:reimu`;
+        const matchingTurns = visitRecords
+          .flatMap((visit) => visit.turns ?? [])
+          .filter((turn) => turn.turn_id === expectedTurnId && turn.character_id === 'reimu');
+        if (matchingTurns.length !== 1 || !matchingTurns[0].summary?.trim()) {
+          throw new Error('Presence 二阶段未找到唯一且完整的 VisitTurn');
+        }
+      }
+      if (state.presence_snapshot?.character_views?.reimu?.area_id !== 'greenhouse_plot') {
+        throw new Error('Presence 全流程未把灵梦移动到 greenhouse_plot');
+      }
+      setRuntimeTestStatus('PRESENCE_FLOW PASS：移动、VisitTurn、任务清理与 V2 二阶段 settled 均已复读。');
+      return;
   }
   setRuntimeTestStatus(`${caseId.toUpperCase()} 操作链已完成；请以监听、目标楼层复读和 frozen request 判定 PASS。`);
 }
@@ -2755,6 +2794,7 @@ async function withRuntimeAcceptanceLock(task: () => Promise<void>) {
   runtimeAcceptanceRunning = true;
   runtimeAcceptanceStopRequested = false;
   runtimeRunAll.disabled = true;
+  runtimePresenceFlow.disabled = true;
   runtimeStop.disabled = false;
   document.querySelectorAll<HTMLButtonElement>('[data-runtime-case]').forEach((button) => { button.disabled = true; });
   try {
@@ -2764,6 +2804,7 @@ async function withRuntimeAcceptanceLock(task: () => Promise<void>) {
   } finally {
     runtimeAcceptanceRunning = false;
     runtimeRunAll.disabled = false;
+    runtimePresenceFlow.disabled = false;
     runtimeStop.disabled = true;
     document.querySelectorAll<HTMLButtonElement>('[data-runtime-case]').forEach((button) => { button.disabled = false; });
   }
@@ -2784,6 +2825,9 @@ runtimeRunAll.addEventListener('click', () => void withRuntimeAcceptanceLock(asy
   }
   setRuntimeTestStatus('自动链路已走完；最终结论仍以监听记录和 message-scope 三次复读为准。');
 }));
+runtimePresenceFlow.addEventListener('click', () => void withRuntimeAcceptanceLock(() => (
+  runRuntimeAcceptanceCase('presence_flow')
+)));
 runtimeStop.addEventListener('click', () => {
   runtimeAcceptanceStopRequested = true;
   runtimeStop.disabled = true;
@@ -3124,8 +3168,8 @@ function startDungeonBattle(title: string, config: BattleConfig, kind: 'dungeon'
   byId<HTMLButtonElement>('gg-battle-narrative').hidden = true;
   setBattleStatus(
     kind === 'practice'
-      ? '【练习】方向键/WASD 移动，按住 Z 射击，Shift 专注，X Bomb，Esc 暂停；手机拖动自动射击，双指专注，双击 Bomb；结束不写入 MVU。'
-      : '方向键/WASD 移动，按住 Z 射击，Shift 专注，X Bomb，Esc 暂停；手机拖动自动射击，双指专注，双击 Bomb；本局结算完全在本地进行。',
+      ? '【练习】方向键/WASD 移动，按住 Z 射击，Shift 专注，X Bomb，Esc 暂停；手机按住自动射击、相对拖动，双指专注，双击 Bomb，擦弹始终有效；结束不写入 MVU。'
+      : '方向键/WASD 移动，按住 Z 射击，Shift 专注，X Bomb，Esc 暂停；手机按住自动射击、相对拖动，双指专注，双击 Bomb，擦弹始终有效；本局结算完全在本地进行。',
   );
   battle = new BattleEngine(
     battleCanvas,
@@ -3316,7 +3360,7 @@ function startBattle() {
   battleDialog.showModal();
   byId('gg-battle-title').textContent = '温室妖花核心';
   byId<HTMLButtonElement>('gg-battle-narrative').hidden = false;
-  setBattleStatus('方向键/WASD 移动，按住 Z 射击，Shift 专注，X Bomb，Esc 暂停；手机拖动自动射击，双指专注，双击 Bomb；结算后会先写入可信 MVU 字段。');
+  setBattleStatus('方向键/WASD 移动，按住 Z 射击，Shift 专注，X Bomb，Esc 暂停；手机按住自动射击、相对拖动，双指专注，双击 Bomb，擦弹始终有效；结算后会先写入可信 MVU 字段。');
   byId<HTMLButtonElement>('gg-battle-retry').hidden = true;
   battle = new BattleEngine(
     battleCanvas,
@@ -3346,6 +3390,136 @@ function renderShop() {
 function renderInventory() {
   renderInventoryView(byId('gg-inventory-content'), state, (itemId) => void useShopItem(itemId));
 }
+
+function renderVisitors() {
+  const root = byId('gg-visitors-content');
+  root.replaceChildren();
+  const panel = openGardenOpportunityPanel(state);
+  const knownCharacters = new Set(panel.known_characters ?? []);
+  const presentCharacters = new Set(state.presence_snapshot?.present_character_ids ?? []);
+
+  const summary = document.createElement('section');
+  summary.className = 'gg-visitors-summary';
+  const summaryCopy = document.createElement('div');
+  const summaryTitle = document.createElement('h3');
+  summaryTitle.textContent = '庭园来客簿';
+  const summaryDetail = document.createElement('p');
+  summaryDetail.textContent = `当前 ${presentCharacters.size} 人在庭园 · 已认识 ${knownCharacters.size} 人`;
+  summaryCopy.append(summaryTitle, summaryDetail);
+  const cup = document.createElement('span');
+  cup.className = 'gg-visitors-summary-cup';
+  cup.setAttribute('aria-hidden', 'true');
+  cup.textContent = '☕';
+  summary.append(summaryCopy, cup);
+  root.append(summary);
+
+  if (inviteFeedback) {
+    const feedback = document.createElement('div');
+    feedback.className = 'gg-visitor-feedback';
+    feedback.dataset.tone = inviteFeedback.tone;
+    feedback.setAttribute('role', 'status');
+    feedback.setAttribute('aria-live', 'polite');
+    const marker = document.createElement('span');
+    marker.className = 'gg-visitor-feedback-marker';
+    marker.textContent = inviteFeedback.tone === 'accepted'
+      ? '成功'
+      : inviteFeedback.tone === 'rescheduled'
+        ? '改约'
+        : inviteFeedback.tone === 'declined'
+          ? '未成'
+          : '受阻';
+    const feedbackCopy = document.createElement('div');
+    const feedbackTitle = document.createElement('strong');
+    feedbackTitle.textContent = inviteFeedback.title;
+    const feedbackMessage = document.createElement('p');
+    feedbackMessage.textContent = inviteFeedback.message;
+    feedbackCopy.append(feedbackTitle, feedbackMessage);
+    feedback.append(marker, feedbackCopy);
+    root.append(feedback);
+  }
+
+  const characterSection = document.createElement('section');
+  characterSection.className = 'gg-visitors-character-section';
+  characterSection.setAttribute('aria-labelledby', 'gg-visitors-character-title');
+  const characterTitle = document.createElement('h3');
+  characterTitle.id = 'gg-visitors-character-title';
+  characterTitle.textContent = '所有角色';
+  const characterHint = document.createElement('p');
+  characterHint.textContent = '已认识且不在场的角色可以邀请；正在庭园中的角色可以从这里送别。';
+  const characterGrid = document.createElement('div');
+  characterGrid.className = 'gg-visitor-grid';
+  for (const characterId of REGISTERED_CHARACTER_IDS) {
+    const present = presentCharacters.has(characterId);
+    const known = knownCharacters.has(characterId);
+    const card = document.createElement('article');
+    card.className = 'gg-visitor-card';
+    card.dataset.status = present ? 'present' : known ? 'known' : 'unknown';
+    const cardHeader = document.createElement('header');
+    const name = document.createElement('h4');
+    name.textContent = characterName(characterId);
+    const status = document.createElement('span');
+    status.className = 'gg-visitor-status';
+    status.textContent = present ? '在庭园' : known ? '可邀请' : '尚未认识';
+    cardHeader.append(name, status);
+    const detail = document.createElement('p');
+    detail.textContent = present
+      ? state.presence_snapshot?.character_views?.[characterId]?.action ?? '正在庭园中活动。'
+      : known
+        ? '当前不在庭园，可以送出一封来访邀请。'
+        : '先在剧情中认识对方，邀请功能才会开放。';
+    const action = document.createElement('button');
+    action.type = 'button';
+    if (present) {
+      action.className = 'gg-visitor-dismiss';
+      action.textContent = '请离庭园';
+      action.addEventListener('click', () => void dismissCharacterFromGarden(characterId));
+    } else if (known) {
+      action.className = 'gg-visitor-invite';
+      action.textContent = '发送邀请';
+      action.addEventListener('click', () => void runInvite(characterId));
+    } else {
+      action.textContent = '尚未认识';
+      action.disabled = true;
+    }
+    card.append(cardHeader, detail, action);
+    characterGrid.append(card);
+  }
+  characterSection.append(characterTitle, characterHint, characterGrid);
+  root.append(characterSection);
+
+  const noticeSection = document.createElement('section');
+  noticeSection.className = 'gg-visitors-notices';
+  noticeSection.setAttribute('aria-labelledby', 'gg-visitors-notices-title');
+  const noticeHeader = document.createElement('header');
+  const noticeTitle = document.createElement('h3');
+  noticeTitle.id = 'gg-visitors-notices-title';
+  noticeTitle.textContent = '来访通知';
+  const notices = panel.notices ?? [];
+  const noticeCount = document.createElement('span');
+  noticeCount.textContent = `${notices.length} 条未读`;
+  noticeHeader.append(noticeTitle, noticeCount);
+  noticeSection.append(noticeHeader);
+  if (notices.length) {
+    const noticeList = document.createElement('ul');
+    for (const text of notices) {
+      const item = document.createElement('li');
+      item.textContent = text;
+      noticeList.append(item);
+    }
+    const clear = document.createElement('button');
+    clear.type = 'button';
+    clear.textContent = '全部标为已读';
+    clear.addEventListener('click', () => void bridge.applyM2Command({ type: 'consume_visit_notices' }).then(() => refresh()));
+    noticeSection.append(noticeList, clear);
+  } else {
+    const empty = document.createElement('p');
+    empty.className = 'gg-visitors-empty';
+    empty.textContent = '目前没有新的来访通知。';
+    noticeSection.append(empty);
+  }
+  root.append(noticeSection);
+}
+
 function renderOpportunities() {
   const root = byId('gg-opportunities-content');
   const expandedDrawers = new Set(
@@ -3578,91 +3752,6 @@ function renderOpportunities() {
     facilitySection.append(list);
     root.append(facilitySection);
   }
-  if (panel.known_characters) {
-    const inviteSection = document.createElement('details');
-    inviteSection.className = 'gg-opportunity-section gg-opportunity-invites';
-    inviteSection.dataset.opportunityDrawer = 'invites';
-    inviteSection.open = expandedDrawers.has('invites');
-    inviteSection.setAttribute('aria-labelledby', 'gg-opportunity-invites-title');
-    const inviteHeader = document.createElement('summary');
-    inviteHeader.className = 'gg-opportunity-section-header';
-    const inviteCopy = document.createElement('div');
-    const eyebrow = document.createElement('p');
-    eyebrow.className = 'gg-eyebrow';
-    eyebrow.textContent = '访客调度';
-    const inviteTitle = document.createElement('h3');
-    inviteTitle.id = 'gg-opportunity-invites-title';
-    inviteTitle.textContent = '邀请角色';
-    const inviteDescription = document.createElement('p');
-    inviteDescription.textContent = '邀请已认识的角色来访；是否接受仍由时段、职责与人数上限决定。';
-    inviteCopy.append(eyebrow, inviteTitle, inviteDescription);
-    inviteHeader.append(inviteCopy);
-    inviteSection.append(inviteHeader);
-    if (inviteFeedback) {
-      const feedback = document.createElement('div');
-      feedback.className = 'gg-opportunity-invite-feedback';
-      feedback.dataset.tone = inviteFeedback.tone;
-      feedback.setAttribute('role', 'status');
-      feedback.setAttribute('aria-live', 'polite');
-      const marker = document.createElement('span');
-      marker.className = 'gg-opportunity-invite-feedback-marker';
-      marker.textContent = inviteFeedback.tone === 'accepted'
-        ? '成功'
-        : inviteFeedback.tone === 'rescheduled'
-          ? '改约'
-          : inviteFeedback.tone === 'declined'
-            ? '未成'
-            : '受阻';
-      const feedbackCopy = document.createElement('div');
-      const feedbackTitle = document.createElement('strong');
-      feedbackTitle.textContent = inviteFeedback.title;
-      const feedbackMessage = document.createElement('p');
-      feedbackMessage.textContent = inviteFeedback.message;
-      feedbackCopy.append(feedbackTitle, feedbackMessage);
-      feedback.append(marker, feedbackCopy);
-      inviteSection.append(feedback);
-    }
-    const known = document.createElement('p');
-    known.className = 'gg-opportunity-known';
-    known.textContent = panel.known_characters.length
-      ? `已认识 ${panel.known_characters.length} 名角色`
-      : '尚未认识可邀请角色';
-    inviteSection.append(known);
-    const invites = document.createElement('div');
-    invites.className = 'gg-opportunity-invite-grid';
-    for (const characterId of panel.known_characters) {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'gg-opportunity-invite';
-      const name = document.createElement('strong');
-      name.textContent = characterName(characterId);
-      const hint = document.createElement('small');
-      hint.textContent = '发送庭园邀请';
-      button.append(name, hint);
-      button.addEventListener('click', () => void runInvite(characterId));
-      invites.append(button);
-    }
-    inviteSection.append(invites);
-    root.append(inviteSection);
-  }
-  if (panel.notices?.length) {
-    const noticeSection = document.createElement('section');
-    noticeSection.className = 'gg-opportunity-section gg-opportunity-notices';
-    const noticeTitle = document.createElement('h3');
-    noticeTitle.textContent = '来访通知';
-    const notices = document.createElement('ul');
-    for (const text of panel.notices) {
-      const item = document.createElement('li');
-      item.textContent = text;
-      notices.append(item);
-    }
-    const clear = document.createElement('button');
-    clear.type = 'button';
-    clear.textContent = '标记通知为已读';
-    clear.addEventListener('click', () => void bridge.applyM2Command({ type: 'consume_visit_notices' }).then(() => refresh()));
-    noticeSection.append(noticeTitle, notices, clear);
-    root.append(noticeSection);
-  }
   if (panel.anomaly) {
     const anomalySection = document.createElement('section');
     anomalySection.className = 'gg-opportunity-section gg-opportunity-anomaly';
@@ -3807,12 +3896,12 @@ async function runInvite(characterId: string) {
         : { tone: 'declined' as const, title: '本次邀请未成' };
     inviteFeedback = { ...presentation, message: result.message };
     await refresh();
-    renderOpportunities();
+    renderVisitors();
     setStatus(result.message, false, result.invitationOutcome === 'accept_now' ? 'success' : 'info');
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     inviteFeedback = { tone: 'error', title: `${characterName(characterId)}暂时无法邀请`, message };
-    renderOpportunities();
+    renderVisitors();
     setStatus(message, true);
   }
 }
@@ -4143,6 +4232,8 @@ byId('gg-open-shop').addEventListener('click', () => navigateFromLauncher(() => 
 byId('gg-shop-back').addEventListener('click', () => setView('garden'));
 byId('gg-open-inventory').addEventListener('click', () => navigateFromLauncher(() => { setView('inventory'); renderInventory(); }));
 byId('gg-inventory-back').addEventListener('click', () => setView('garden'));
+byId('gg-open-visitors').addEventListener('click', () => navigateFromLauncher(() => { setView('visitors'); renderVisitors(); }));
+byId('gg-visitors-back').addEventListener('click', () => setView('garden'));
 duelResultDialog.addEventListener('cancel', (event) => {
   event.preventDefault();
   byId<HTMLButtonElement>('gg-duel-result-confirm').click();

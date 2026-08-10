@@ -48,7 +48,7 @@ const UNKNOWN_CHARACTER = 'stranger_canary_0001';
 // ---- 脏输入构造：request/state/transaction/runtime 每处放不同 canary ----
 function makeDirtyInput() {
   const state = {
-    meta: { schema_version: '0.2.0' },
+    meta: { schema_version: '0.3.0' },
     player: { name: 'CANARY_PLAYER_NAME_f043' },
     garden: { name: 'CANARY_GARDEN_NAME_7aa1' },
     interaction: {
@@ -102,7 +102,7 @@ function makeDirtyInput() {
     ownerCharacterId: 'reimu',
     promptRevision: 'gal-prompt.v1',
     historyRevision: 'gal-synthetic-history.v1',
-    memoryRevision: 'character-visit-memory.v1',
+    memoryRevision: 'character-visit-memory.v2',
     sceneId: null,
     stateMessageIdBeforeGeneration: 40,
     stateSwipeIdBeforeGeneration: 0,
@@ -218,7 +218,10 @@ test('6 未知角色 ID 不出现，固定角色顺序稳定', async () => {
   const snap = await mod.buildDiagnosticSnapshot(input, { salt: FIXED_SALT, capturedAt: FIXED_TIME });
   const text = JSON.stringify(snap);
   assert.ok(!text.includes(UNKNOWN_CHARACTER));
-  const expectedOrder = ['reimu', 'marisa', 'cirno', 'alice', 'mystia', 'suika', 'nitori', 'sakuya'];
+  const expectedOrder = [
+    'reimu', 'marisa', 'cirno', 'alice', 'mystia', 'suika', 'nitori', 'sakuya',
+    'youmu', 'patchouli', 'sanae',
+  ];
   assert.deepEqual(snap.state.characterMemory.map((c) => c.characterId), expectedOrder);
   assert.deepEqual(snap.request.relevantCharacterIds, ['reimu', 'marisa']);
   // reimu 的 visit ID 经同一盐出代号；marisa 为 null 不输出
@@ -226,7 +229,7 @@ test('6 未知角色 ID 不出现，固定角色顺序稳定', async () => {
   assert.deepEqual(snap.request.visitRefs, [expectedVisitRef]);
 });
 
-test('7 active/closed/relationship 数量准确', async () => {
+test('7 active/closed VisitTurn 数量准确，退役关系字段不进入诊断', async () => {
   const input = makeDirtyInput();
   const snap = await mod.buildDiagnosticSnapshot(input, { salt: FIXED_SALT, capturedAt: FIXED_TIME });
   const reimu = snap.state.characterMemory.find((c) => c.characterId === 'reimu');
@@ -234,14 +237,14 @@ test('7 active/closed/relationship 数量准确', async () => {
   assert.equal(reimu.activeTurnCount, 2);
   assert.equal(reimu.closedVisitCount, 2);
   assert.equal(reimu.closedTurnCount, 1);
-  assert.equal(reimu.relationshipMemoryCount, 3);
-  assert.equal(reimu.activeRelationshipStateCount, 2);
+  assert.equal('relationshipMemoryCount' in reimu, false);
+  assert.equal('activeRelationshipStateCount' in reimu, false);
   const marisa = snap.state.characterMemory.find((c) => c.characterId === 'marisa');
   assert.equal(marisa.hasActiveVisit, false);
   assert.equal(marisa.activeTurnCount, 0);
   assert.equal(marisa.closedTurnCount, 0);
-  assert.equal(marisa.relationshipMemoryCount, 0);
-  assert.equal(marisa.activeRelationshipStateCount, 0);
+  assert.equal('relationshipMemoryCount' in marisa, false);
+  assert.equal('activeRelationshipStateCount' in marisa, false);
 });
 
 test('8 原始错误只变成受控 code', async () => {
@@ -287,7 +290,7 @@ test('10 空 state/request/transaction 仍产生合法 JSON', async () => {
   assert.equal(snap.request, null);
   assert.equal(snap.state.registeredCharacterCount, 0);
   assert.equal(snap.state.mvuUtf8Bytes, 0);
-  assert.equal(snap.state.characterMemory.length, 8);
+  assert.equal(snap.state.characterMemory.length, 11);
   const json = mod.serializeDiagnosticSnapshot(snap);
   assert.doesNotThrow(() => JSON.parse(json));
 });
@@ -337,8 +340,6 @@ test('13 超过 64 KiB 时明确失败', async () => {
         activeTurnCount: 16,
         closedVisitCount: 4,
         closedTurnCount: 64,
-        relationshipMemoryCount: 12,
-        activeRelationshipStateCount: 1,
       })),
     },
   };
@@ -416,6 +417,7 @@ test('18 调用方不能覆盖固定角色白名单', async () => {
   assert.ok(!JSON.stringify(snap).includes(privateId));
   assert.deepEqual(snap.state.characterMemory.map((item) => item.characterId), [
     'reimu', 'marisa', 'cirno', 'alice', 'mystia', 'suika', 'nitori', 'sakuya',
+    'youmu', 'patchouli', 'sanae',
   ]);
 });
 

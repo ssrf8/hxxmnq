@@ -306,8 +306,8 @@ const characterAssets = Object.entries(assetManifest.characters)
       sequence: character.animation_sequence_source_alpha,
     };
   });
-if (characterAssets.length !== 8) {
-  throw new Error(`庭园角色素材应为 8 组，实际为 ${characterAssets.length} 组`);
+if (characterAssets.length !== 11) {
+  throw new Error(`庭园角色素材应为 11 组，实际为 ${characterAssets.length} 组`);
 }
 
 const mapFacilityAssets = Object.entries(assetManifest.map_facility_assets ?? {})

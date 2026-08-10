@@ -115,6 +115,48 @@
       "invitation_policy": { "accept_weight": 35, "reschedule_weight": 40, "decline_weight": 25 },
       "arrival_reason_ids": ["time_trace", "precise_errand", "formal_invitation"],
       "base_weight": 10
+    },
+    {
+      "character_id": "youmu",
+      "display_name": "魂魄妖梦",
+      "eligibility": "always",
+      "time_weights": { "清晨": 4, "白昼": 4, "黄昏": 3, "夜晚": 1 },
+      "interest_tags": ["garden", "sword", "maintenance", "quiet"],
+      "arrival_area_preferences": ["central_courtyard", "main_house"],
+      "crowd_preference": "low",
+      "stay_period_range": [1, 2],
+      "cooldown_period_range": [2, 4],
+      "invitation_policy": { "accept_weight": 50, "reschedule_weight": 30, "decline_weight": 20 },
+      "arrival_reason_ids": ["garden_stroll"],
+      "base_weight": 18
+    },
+    {
+      "character_id": "patchouli",
+      "display_name": "帕秋莉·诺蕾姬",
+      "eligibility": "always",
+      "time_weights": { "清晨": 1, "白昼": 3, "黄昏": 3, "夜晚": 2 },
+      "interest_tags": ["books", "magic", "research", "quiet"],
+      "arrival_area_preferences": ["main_house", "central_courtyard"],
+      "crowd_preference": "low",
+      "stay_period_range": [1, 2],
+      "cooldown_period_range": [3, 5],
+      "invitation_policy": { "accept_weight": 35, "reschedule_weight": 45, "decline_weight": 20 },
+      "arrival_reason_ids": ["quiet_research_break"],
+      "base_weight": 12
+    },
+    {
+      "character_id": "sanae",
+      "display_name": "东风谷早苗",
+      "eligibility": "always",
+      "time_weights": { "清晨": 3, "白昼": 4, "黄昏": 3, "夜晚": 1 },
+      "interest_tags": ["faith", "miracle", "shrine", "community"],
+      "arrival_area_preferences": ["central_courtyard", "main_house"],
+      "crowd_preference": "medium",
+      "stay_period_range": [1, 3],
+      "cooldown_period_range": [2, 4],
+      "invitation_policy": { "accept_weight": 55, "reschedule_weight": 30, "decline_weight": 15 },
+      "arrival_reason_ids": ["faith_outreach"],
+      "base_weight": 20
     }
   ]
 }

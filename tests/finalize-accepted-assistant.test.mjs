@@ -78,6 +78,18 @@ const makeBaseState = () => {
   return raw;
 };
 
+const currentDataWithTask = (state, request, summary = '灵梦在本轮回应玩家，并确认了双方已经发生的交流结果。') => {
+  const next = structuredClone(state);
+  next.interaction ??= {};
+  next.interaction.visit_summary_task = {
+    schema: 'visit-summary-task.v1', request_id: request.requestId,
+    slots: request.relevantCharacterIds
+      .filter((id) => request.visitIdsByCharacter[id] != null)
+      .map((character_id) => ({ character_id, summary })),
+  };
+  return { stat_data: next };
+};
+
 const makeSnapshot = (request, messageId) => ({
   transactionId: 'tx-1',
   chatId: 'chat-1',
@@ -127,7 +139,7 @@ test('F03-1：普通 V2 对话无 MVU 变化仍写 VisitTurn（F-B 核心）', a
   const baseState = makeBaseState();
   const mvu = makeMvu();
   const options = { type: 'message', message_id: 50 };
-  const currentData = { stat_data: structuredClone(baseState) };
+  const currentData = currentDataWithTask(baseState, request);
   const snapshot = makeSnapshot(request, 50);
   const outcome = await b.finalizeAcceptedAssistant({
     mvu,
@@ -153,6 +165,45 @@ test('F03-1：普通 V2 对话无 MVU 变化仍写 VisitTurn（F-B 核心）', a
   assert.equal(written.gal_regeneration_receipt_v1.assistantSwipeId, 0);
 });
 
+test('V2 二阶段只验证已提交证据，不重复读取已清空的 summary task', async () => {
+  const request = makeV2Request();
+  const baseState = makeBaseState();
+  const mvu = makeMvu();
+  const options = { type: 'message', message_id: 501 };
+  const snapshot = makeSnapshot(request, 501);
+  await b.finalizeAcceptedAssistant({
+    mvu,
+    options,
+    currentData: currentDataWithTask(baseState, request),
+    before: baseState,
+    assistantText: '【庭园正文开始】灵梦回应了玩家。<dialogue char="reimu">好。</dialogue>【庭园正文结束】',
+    pendingRequest: request,
+    snapshot,
+    characterNames: { reimu: '博丽灵梦' },
+    readAssistantIdentity: makeIdentityReader(snapshot),
+    transformFinalState: (state) => state,
+  });
+  const written = mvu.__peek();
+  assert.equal(written.stat_data.interaction.visit_summary_task, null);
+  const identity = makeIdentityReader(snapshot)();
+  assert.doesNotThrow(() => b.verifyPersistedV2CommitEvidence(written, request, snapshot, identity));
+  assert.doesNotThrow(() => b.verifyPersistedV2CommitEvidence(written, request, snapshot, identity));
+
+  const missingTurn = structuredClone(written);
+  missingTurn.stat_data.interaction.visit_memory.by_character.reimu.active_visit.turns = [];
+  assert.throws(
+    () => b.verifyPersistedV2CommitEvidence(missingTurn, request, snapshot, identity),
+    /receipt 指纹不一致|VisitTurn 审计引用缺失/,
+  );
+
+  const wrongReceipt = structuredClone(written);
+  wrongReceipt.gal_regeneration_receipt_v1.commitKey = 'wrong';
+  assert.throws(
+    () => b.verifyPersistedV2CommitEvidence(wrongReceipt, request, snapshot, identity),
+    /receipt 身份不一致/,
+  );
+});
+
 test('F03-2：同 turn_id retry 以精简记录覆盖，不追加', async () => {
   const request = makeV2Request();
   const baseState = makeBaseState();
@@ -172,7 +223,7 @@ test('F03-2：同 turn_id retry 以精简记录覆盖，不追加', async () => 
   });
   const mvu = makeMvu();
   const options = { type: 'message', message_id: 51 };
-  const currentData = { stat_data: structuredClone(baseState) };
+  const currentData = currentDataWithTask(baseState, request, '灵梦在重试回复中重新确认了本轮交流的结果。');
   const snapshot = {
     ...makeSnapshot(request, 51),
     attemptId: `${request.requestId}:attempt-2`,
@@ -198,7 +249,7 @@ test('F03-3：固定事件结算也写 VisitTurn（事件 settlement + turn 同�
   const baseState = makeBaseState();
   const mvu = makeMvu();
   const options = { type: 'message', message_id: 52 };
-  const currentData = { stat_data: structuredClone(baseState) };
+  const currentData = currentDataWithTask(baseState, request);
   const snapshot = makeSnapshot(request, 52);
   const transformFinalState = (state) => ({
     ...state,
@@ -244,7 +295,7 @@ test('F03-4：告别时 active visit 已关闭 → 写 frozen closed visit', asy
   };
   const mvu = makeMvu();
   const options = { type: 'message', message_id: 53 };
-  const currentData = { stat_data: structuredClone(baseState) };
+  const currentData = currentDataWithTask(baseState, request);
   const snapshot = makeSnapshot(request, 53);
   await b.finalizeAcceptedAssistant({
     mvu, options, currentData, before: baseState,
@@ -259,25 +310,46 @@ test('F03-4：告别时 active visit 已关闭 → 写 frozen closed visit', asy
   assert.equal(visits.closed_visits[0].turns.length, 1, 'closed visit 写入 turn');
 });
 
-test('F03-5：VisitTurn 构造失败（frozen visit 不存在）→ 抛错不 settled、不写盘', async () => {
+test('F03-5：VisitTurn 缺 summary → 抛错不 settled，并回滚额外模型越权状态', async () => {
   const request = makeV2Request();
-  const brokenRequest = { ...request, visitIdsByCharacter: { reimu: 'character_visit_999999' } };
   const baseState = makeBaseState();
+  baseState.battle = { dungeon_unlocked: false, current: null, rewarded_ids: [] };
+  baseState.presence_snapshot = {
+    present_character_ids: ['reimu'],
+    character_views: {
+      reimu: { area_id: 'central_courtyard', action: '与玩家交谈', facing: 'front' },
+    },
+    visitor_meta: {},
+  };
   const mvu = makeMvu();
   const options = { type: 'message', message_id: 54 };
-  const currentData = { stat_data: structuredClone(baseState) };
-  const snapshot = makeSnapshot(brokenRequest, 54);
+  const currentData = currentDataWithTask(baseState, request, '');
+  currentData.stat_data.battle = { dungeon_unlocked: true, current: { id: 'forged' }, rewarded_ids: ['forged'] };
+  currentData.stat_data.presence_snapshot = {
+    present_character_ids: [],
+    character_views: { reimu: { area_id: 'greenhouse_plot' } },
+    visitor_meta: {},
+  };
+  const snapshot = makeSnapshot(request, 54);
   await assert.rejects(
     b.finalizeAcceptedAssistant({
       mvu, options, currentData, before: baseState,
-      assistantText: '【庭园正文开始】回复。<dialogue char="reimu">好。</dialogue>【庭园正文结束】', pendingRequest: brokenRequest, snapshot,
+      assistantText: '【庭园正文开始】回复。<dialogue char="reimu">好。</dialogue>【庭园正文结束】', pendingRequest: request, snapshot,
       characterNames: { reimu: '博丽灵梦' },
       readAssistantIdentity: makeIdentityReader(snapshot),
       transformFinalState: (state) => state,
     }),
     /VisitTurn 提交失败/,
   );
-  assert.equal(mvu.__peek(), null, '失败不得写盘');
+  const rolledBack = mvu.__peek();
+  assert.deepEqual(rolledBack.stat_data.battle, baseState.battle);
+  assert.deepEqual(rolledBack.stat_data.presence_snapshot, baseState.presence_snapshot);
+  assert.deepEqual(
+    rolledBack.stat_data.interaction.visit_memory,
+    baseState.interaction.visit_memory,
+  );
+  assert.equal(rolledBack.stat_data.interaction.visit_summary_task.slots[0].summary, '');
+  assert.equal(rolledBack[LC].status, 'pending');
 });
 
 test('F03-6：replace 成功但复读缺 turn → 抛错不 settled', async () => {
@@ -285,7 +357,7 @@ test('F03-6：replace 成功但复读缺 turn → 抛错不 settled', async () =
   const baseState = makeBaseState();
   const mvu = makeMvu();
   const options = { type: 'message', message_id: 55 };
-  const currentData = { stat_data: structuredClone(baseState) };
+  const currentData = currentDataWithTask(baseState, request);
   const snapshot = makeSnapshot(request, 55);
   const originalReplace = mvu.replaceMvuData.bind(mvu);
   mvu.replaceMvuData = async (data) => {
@@ -311,7 +383,7 @@ test('F03-7：lifecycle 复读仍 pending → 抛错不 settled', async () => {
   const baseState = makeBaseState();
   const mvu = makeMvu();
   const options = { type: 'message', message_id: 56 };
-  const currentData = { stat_data: structuredClone(baseState) };
+  const currentData = currentDataWithTask(baseState, request);
   const snapshot = makeSnapshot(request, 56);
   const originalReplace = mvu.replaceMvuData.bind(mvu);
   mvu.replaceMvuData = async (data) => {
@@ -337,7 +409,7 @@ test('F05：swipe 身份留在提交回执，不复制进 VisitTurn', async () =
   const baseState = makeBaseState();
   const mvu = makeMvu();
   const options = { type: 'message', message_id: 60 };
-  const currentData = { stat_data: structuredClone(baseState) };
+  const currentData = currentDataWithTask(baseState, request);
   const snapshot = makeSnapshot(request, 60);
   await b.finalizeAcceptedAssistant({
     mvu, options, currentData, before: baseState,
@@ -361,7 +433,7 @@ test('返修：合法空相关角色以零 expected turns settled，不要求历
   const outcome = await b.finalizeAcceptedAssistant({
     mvu,
     options: { type: 'message', message_id: 61 },
-    currentData: { stat_data: structuredClone(baseState) },
+    currentData: currentDataWithTask(baseState, request),
     before: baseState,
     assistantText: '【庭园正文开始】独处剧情正常结束。【庭园正文结束】',
     pendingRequest: request,
@@ -400,7 +472,7 @@ test('返修：其他角色的旧 turn 不能冒充本次 expected turn', async 
     b.finalizeAcceptedAssistant({
       mvu,
       options: { type: 'message', message_id: 62 },
-      currentData: { stat_data: structuredClone(baseState) },
+      currentData: currentDataWithTask(baseState, request),
       before: baseState,
       assistantText: '【庭园正文开始】<dialogue char="reimu">本次回复。</dialogue>【庭园正文结束】',
       pendingRequest: request,
@@ -422,7 +494,7 @@ test('返修：assistant identity 缺失时在写盘前 fail closed', async () =
     b.finalizeAcceptedAssistant({
       mvu,
       options: { type: 'message', message_id: 63 },
-      currentData: { stat_data: structuredClone(baseState) },
+      currentData: currentDataWithTask(baseState, request),
       before: baseState,
       assistantText: '【庭园正文开始】<dialogue char="reimu">回复。</dialogue>【庭园正文结束】',
       pendingRequest: request,
@@ -433,7 +505,7 @@ test('返修：assistant identity 缺失时在写盘前 fail closed', async () =
     }),
     /assistant identity\/message\/swipe\/commit 不匹配/,
   );
-  assert.equal(mvu.__peek(), null);
+  assert.equal(mvu.__peek()[LC].status, 'pending');
 });
 
 test('返修：写盘期间 swipe 改变时不得返回 settled', async () => {
@@ -449,7 +521,7 @@ test('返修：写盘期间 swipe 改变时不得返回 settled', async () => {
     b.finalizeAcceptedAssistant({
       mvu,
       options: { type: 'message', message_id: 64 },
-      currentData: { stat_data: structuredClone(baseState) },
+      currentData: currentDataWithTask(baseState, request),
       before: baseState,
       assistantText: '【庭园正文开始】<dialogue char="reimu">回复。</dialogue>【庭园正文结束】',
       pendingRequest: request,

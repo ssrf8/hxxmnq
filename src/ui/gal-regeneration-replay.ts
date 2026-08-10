@@ -1,8 +1,8 @@
 // 第三批 B3-T06 —— branch replay engine 的纯壳（依赖注入协调器）。
 //
-// 合同：project/gal-character-memory-batch-3-regeneration-runbook.md §4.2、§8.1、T06
+// 当前合同：project/contract.md（重生成重放顺序与本地所有权）。
 //   - 重算顺序固定：clone baseline → applyModelOutput → restoreLocalEventOwnership →
-//     applyLocalSettlement（原冻结操作，只一次）→ applyPresenceUpdate → reconcileM2Runtime →
+//     applyLocalSettlement（原冻结操作，只一次）→ applyPresenceAnalysis → reconcileM2Runtime →
 //     applyVisitTurns（同 requestId）→ finalizeLifecycle(settled) → receipt → 返回 candidate data；
 //   - 所有宿主/解析副作用走注入 ports；本模块不实现未经核验的 Mvu.parseMessage adapter；
 //   - old settled current state 不作为输入；任一步抛错 → 无部分输出（fail closed）；
@@ -49,7 +49,7 @@ export interface RegenerationReplayPortsV1 {
   /** 原冻结本地结算（普通互动/异变/决斗），只调用一次。 */
   applyLocalSettlement(state: Record<string, unknown>, operation: FrozenOperationV1): Record<string, unknown>;
   /** presence 重算（用新文本）。 */
-  applyPresenceUpdate(state: Record<string, unknown>, text: string): Record<string, unknown>;
+  applyPresenceAnalysis(state: Record<string, unknown>, text: string): Record<string, unknown>;
   /** m2 runtime reconcile。 */
   reconcileM2Runtime(state: Record<string, unknown>): Record<string, unknown>;
   /** VisitTurn upsert（同 requestId）；失败表示 frozen visit 缺失/冲突（fail closed）。 */
@@ -103,7 +103,7 @@ export type RegenerationReplayResultV1 =
  * 2. applyModelOutput（新文本 → 新 MvuData）；
  * 3. restoreLocalEventOwnership；
  * 4. operation 非 null 时 applyLocalSettlement 恰好一次；
- * 5. applyPresenceUpdate（新文本）；
+ * 5. applyPresenceAnalysis（消费额外模型任务）；
  * 6. reconcileM2Runtime；
  * 7. applyVisitTurns（同 requestId，失败 → visit-missing/visit-conflict）；
  * 8. finalizeLifecycle(settled)；
@@ -129,7 +129,7 @@ export async function replayRegenerationCandidateV1(input: RegenerationReplayInp
       : ports.applyLocalSettlement(owned, input.operation);
 
     // 5. presence
-    const presence = ports.applyPresenceUpdate(settled, input.candidateText);
+    const presence = ports.applyPresenceAnalysis(settled, input.candidateText);
 
     // 6. reconcile
     const reconciled = ports.reconcileM2Runtime(presence);

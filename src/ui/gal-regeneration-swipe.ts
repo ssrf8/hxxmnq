@@ -1,6 +1,6 @@
 // 第三批 B3-T07 —— swipe append plan 构造与精确验证器。
 //
-// 合同：project/gal-character-memory-batch-3-regeneration-runbook.md §7.1–7.4、T07
+// 当前合同：project/contract.md（swipe 追加与精确复读）。
 //   - §7.1 写前快照：message_id/swipe_id/四数组/长度/未知字段/整体稳定 fingerprint；
 //   - §7.2 候选 patch：旧数组逐元素保留、尾部追加、swipes_data[candidate]=候选 MvuData、
 //     swipes_info[candidate].extra=attempt metadata、swipe_id=candidate、不删不改旧项；

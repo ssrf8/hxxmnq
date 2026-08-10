@@ -81,7 +81,7 @@ const state = {
   presence_snapshot: { present_character_ids: ['reimu'] },
   interaction: {
     visit_memory: {
-      version: 'character-visit-memory.v1',
+      version: 'character-visit-memory.v2',
       by_character: {
         reimu: {
           character_id: 'reimu',
@@ -92,14 +92,6 @@ const state = {
             { ended_day: 1, ended_time_period: '夜晚', ended_period_serial: 1, end_reason: 'presence-receipt' },
           )],
           legacy_memories: [],
-          relationship_memories: [
-            relationship('rel-state', 'relationship_state', 'R2_RELATIONSHIP_STATE_CANARY', {
-              relationship_label: 'friend',
-              active: true,
-              significance: 3,
-            }),
-            relationship('rel-event', 'milestone', 'R2_RELATIONSHIP_EVENT_CANARY', { event_kind: 'trust' }),
-          ],
         },
         marisa: {
           character_id: 'marisa',
@@ -108,7 +100,6 @@ const state = {
             turn('request-other', 'R2_UNRELATED_CHARACTER_CANARY', { character_id: 'marisa' }),
           ], { character_id: 'marisa', ended_day: 1, ended_period_serial: 1 })],
           legacy_memories: [],
-          relationship_memories: [],
         },
       },
       legacy_unassigned: [],
@@ -166,8 +157,7 @@ test('R2-T01：两 profile 的 adapter 结果不参与卡内请求，request/his
     const history = standaloneRequest.request.syntheticHistory[0].content;
     assert.match(history, /R2_CURRENT_VISIT_CANARY/u);
     assert.match(history, /R2_CLOSED_VISIT_CANARY/u);
-    assert.match(history, /friend/u);
-    assert.match(history, /R2_RELATIONSHIP_EVENT_CANARY/u);
+    assert.doesNotMatch(history, /R2_RELATIONSHIP_STATE_CANARY|R2_RELATIONSHIP_EVENT_CANARY/u);
     assert.doesNotMatch(history, /R2_UNRELATED_CHARACTER_CANARY/u);
     assert.doesNotMatch(history, /R2_REAL_CHAT_FLOOR_CANARY/u);
 

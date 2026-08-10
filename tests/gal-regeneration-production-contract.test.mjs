@@ -16,7 +16,8 @@ test('T09：事务 transport 显式 opt-in，默认 native，且共用 V2 config
 });
 
 test('O02/O03：frozen clone 经 parseMessage，指定 swipe 五字段一次 setChatMessages', () => {
-  assert.match(source, /mvu\.parseMessage\(text, structuredClone\(baseData \?\? EMPTY_MVU_DATA\)\)/u);
+  assert.match(source, /stagedBase\.stat_data = stageVisitSummaryTask\(baselineState, replayContext\.request\)/u);
+  assert.match(source, /mvu\.parseMessage\(text, stagedBase\)/u);
   const writer = source.slice(source.indexOf('async writeSwipe(plan)'), source.indexOf('stopCandidate(generationId)'));
   for (const field of ['message_id:', 'swipe_id:', 'swipes:', 'swipes_data:', 'swipes_info:']) {
     assert.ok(writer.includes(field), `writer missing ${field}`);

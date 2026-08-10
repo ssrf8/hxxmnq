@@ -81,6 +81,13 @@ import {
   verifyCommittedVisitTurns,
   verifyVisitTurnAuditRefs,
 } from './visit-turn-commit';
+import { readVisitSummaryTask, stageVisitSummaryTask } from './visit-summary-task';
+import {
+  applyPresenceAnalysisTask,
+  clearPresenceAnalysisTask,
+  verifyPresenceAnalysisTask,
+} from './presence-analysis-task';
+import { stageVariableAnalysisTasks } from './variable-analysis-task-projection';
 import {
   GalRegenerationCoordinatorV1,
   type RegenerationCoordinatorStateV1,
@@ -104,10 +111,8 @@ import {
   type SaveWorldbookEntry,
 } from './save-worldbook-store';
 import {
-  applyPresenceUpdate,
   applyLocalSettlement,
   findRecordedLocalSettlement,
-  hasLocalPresenceTransition,
   isLocalSettlementActionMarker,
   localSettlementAction,
   parseGardenAction,
@@ -271,8 +276,6 @@ function applyVisitTurnsToFinalState(
       time_period: finalState.environment?.time_period ?? null,
       period_serial: periodSerialFromState(finalState),
     },
-    acceptedOutput: assistantText,
-    characterNames,
   });
   if (!result.ok) {
     throw new Error(
@@ -322,6 +325,8 @@ export interface FinalizeAcceptedAssistantInput {
   readAssistantIdentity?: () => AcceptedAssistantIdentity | null;
   /** 第 5 步：应用 ownership/local settlement → 最终 GardenState。 */
   transformFinalState: (state: GardenState) => GardenState;
+  /** 固定事件为 false：只消费并清除任务，presence 继续由本地登记迁移独占。 */
+  consumePresenceAnalysis?: boolean;
 }
 
 export type FinalizeAcceptedAssistantResult =
@@ -395,12 +400,50 @@ function verifyFinalizedAssistantData(
   }
 }
 
-export async function finalizeAcceptedAssistant(
+export function verifyPersistedV2CommitEvidence(
+  data: Record<string, unknown>,
+  request: GalGenerationRequestV2,
+  snapshot: MessageTransactionSnapshot,
+  identity: AcceptedAssistantIdentity,
+): void {
+  const lifecycle = isRecord(data[COMMIT_LIFECYCLE_KEY]) ? data[COMMIT_LIFECYCLE_KEY] : null;
+  if (lifecycle?.schema !== 'gal-generation-commit.v1'
+    || lifecycle.status !== 'settled'
+    || lifecycle.requestId !== snapshot.requestId
+    || lifecycle.attemptId !== snapshot.attemptId
+    || lifecycle.commitKey !== snapshot.commitKey) {
+    throw new Error('V2 已提交 lifecycle 身份或状态不一致');
+  }
+  const receipt = readRegenerationReceiptFromDataV1(data);
+  if (!receipt
+    || receipt.requestId !== snapshot.requestId
+    || receipt.attemptId !== snapshot.attemptId
+    || receipt.commitKey !== snapshot.commitKey
+    || receipt.assistantMessageId !== identity.messageId
+    || receipt.assistantSwipeId !== identity.swipeId) {
+    throw new Error('V2 已提交 receipt 身份不一致');
+  }
+  if (receipt.finalizedDataFingerprint !== fingerprintMvuData(data)) {
+    throw new Error('V2 已提交数据与 receipt 指纹不一致');
+  }
+  const state = isRecord(data.stat_data) ? data.stat_data as GardenState : {};
+  if (!verifyVisitTurnAuditRefs(state, request, {
+    attemptId: identity.attemptId,
+    commitKey: identity.commitKey,
+    assistantMessageId: identity.messageId,
+    assistantSwipeId: identity.swipeId,
+  })) {
+    throw new Error('V2 已提交 VisitTurn 审计引用缺失');
+  }
+}
+
+async function finalizeAcceptedAssistantUnchecked(
   input: FinalizeAcceptedAssistantInput,
 ): Promise<FinalizeAcceptedAssistantResult> {
   const {
     mvu, options, currentData, before, assistantText,
     pendingRequest, snapshot, characterNames, transformFinalState, readAssistantIdentity,
+    consumePresenceAnalysis = true,
   } = input;
   const identityBefore = pendingRequest?.schema === REQUEST_SCHEMA_V2
     ? requireAcceptedAssistantIdentity(readAssistantIdentity, snapshot, options)
@@ -409,6 +452,11 @@ export async function finalizeAcceptedAssistant(
   let finalState = transformFinalState(
     isRecord(data.stat_data) ? data.stat_data as GardenState : before,
   );
+  if (pendingRequest?.schema === REQUEST_SCHEMA_V2) {
+    finalState = consumePresenceAnalysis
+      ? applyPresenceAnalysisTask(before, finalState, pendingRequest)
+      : clearPresenceAnalysisTask(finalState);
+  }
   // 第 6 步：无条件对 V2 调用 applyVisitTurnsToFinalState（V1/无 request 恒等）。
   const committed = applyVisitTurnsToFinalState(
     finalState,
@@ -469,6 +517,79 @@ export async function finalizeAcceptedAssistant(
     identityBefore,
     readAssistantIdentity,
   );
+}
+
+const ROLLBACK_OWNED_ROOTS = [
+  'meta', 'resources', 'shop', 'inventory', 'key_items', 'battle', 'uid_counters',
+  'presence_snapshot', 'anomaly_cycle', 'visit_scheduler', 'facility_runtime',
+  'garden_projects', 'garden_activities', 'pending_tasks', 'scene_item_context', 'ui_flags',
+] as const;
+
+function errorText(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+/**
+ * Extra-model output is already present on the assistant floor before the atomic
+ * VisitTurn/lifecycle commit runs. If that commit fails, restore every locally
+ * owned root while preserving the filled task envelope so a manual extra-analysis
+ * retry can still complete the same frozen request.
+ */
+async function rollbackFailedAssistantFinalization(
+  input: FinalizeAcceptedAssistantInput,
+): Promise<void> {
+  const rollbackData = structuredClone(input.currentData) as Record<string, unknown>;
+  const modelState = isRecord(rollbackData.stat_data)
+    ? rollbackData.stat_data as GardenState
+    : input.before;
+  const rollbackState = restoreLocalEventOwnership(input.before, modelState);
+  rollbackData.stat_data = rollbackState;
+  if (input.snapshot.requestId && input.snapshot.attemptId && input.snapshot.commitKey) {
+    rollbackData[COMMIT_LIFECYCLE_KEY] = buildCommitLifecycle({
+      requestId: input.snapshot.requestId,
+      attemptId: input.snapshot.attemptId,
+      commitKey: input.snapshot.commitKey,
+    }, 'pending');
+  } else {
+    delete rollbackData[COMMIT_LIFECYCLE_KEY];
+  }
+  await input.mvu.replaceMvuData(rollbackData, input.options);
+  const reread = input.mvu.getMvuData(input.options);
+  if (!isRecord(reread) || !isRecord(reread.stat_data)) {
+    throw new Error('失败回滚后无法复读 assistant 消息变量');
+  }
+  const rereadState = reread.stat_data as GardenState;
+  for (const root of ROLLBACK_OWNED_ROOTS) {
+    if (JSON.stringify(rereadState[root]) !== JSON.stringify(rollbackState[root])) {
+      throw new Error(`失败回滚后本地独占根复读不一致：${root}`);
+    }
+  }
+  if (JSON.stringify(rereadState.events?.settled_ids ?? [])
+    !== JSON.stringify(rollbackState.events?.settled_ids ?? [])) {
+    throw new Error('失败回滚后 events.settled_ids 复读不一致');
+  }
+  if (JSON.stringify(rereadState.interaction?.visit_memory ?? null)
+    !== JSON.stringify(rollbackState.interaction?.visit_memory ?? null)) {
+    throw new Error('失败回滚后 interaction.visit_memory 复读不一致');
+  }
+}
+
+export async function finalizeAcceptedAssistant(
+  input: FinalizeAcceptedAssistantInput,
+): Promise<FinalizeAcceptedAssistantResult> {
+  try {
+    return await finalizeAcceptedAssistantUnchecked(input);
+  } catch (error) {
+    try {
+      await rollbackFailedAssistantFinalization(input);
+    } catch (rollbackError) {
+      throw new Error(
+        `${errorText(error)}；且 assistant 本地独占状态回滚失败：${errorText(rollbackError)}`,
+        { cause: error },
+      );
+    }
+    throw error;
+  }
 }
 
 /**
@@ -876,6 +997,33 @@ export function createHostBridge(): GardenBridge | null {
         if (!storedUserMessageMatchesRequestV2(pendingRequest, stored)) {
           throw new Error('真实玩家楼层与冻结请求不一致：已拒绝生成');
         }
+        const messageId = Number(current.userMessageId);
+        if (!Number.isInteger(messageId) || messageId < 0) {
+          throw new Error('缺少玩家楼层 ID，无法建立剧情梗概任务');
+        }
+        const mvu = await requireMvu();
+        if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持剧情梗概任务暂存');
+        const options = { type: 'message' as const, message_id: messageId };
+        const data = structuredClone(mvu.getMvuData(options)) as Record<string, unknown>;
+        // A newly created user floor may not inherit the last assistant floor's
+        // message-scope variables. Build both task envelopes from the frozen,
+        // authoritative pre-generation state instead of that potentially empty floor.
+        const authoritativeState = pendingOwnershipBefore
+          ? structuredClone(pendingOwnershipBefore)
+          : latestPersistedState(mvu);
+        data.stat_data = stageVariableAnalysisTasks(authoritativeState, pendingRequest);
+        await mvu.replaceMvuData(data, options);
+        const staged = migrateGardenState(mvu.getMvuData(options).stat_data ?? {});
+        const verified = readVisitSummaryTask(staged, pendingRequest);
+        // 空 summary 正是模型运行前的合法形态；只拒绝信封错误。
+        if (verified.ok || verified.code === 'missing-summary') {
+          // pass
+        } else {
+          throw new Error(`剧情梗概任务暂存复读失败（${verified.code}）`);
+        }
+        if (!verifyPresenceAnalysisTask(staged, authoritativeState, pendingRequest)) {
+          throw new Error('在场分析任务暂存复读失败（frozen-envelope-mismatch）');
+        }
       }
       // createChatMessages resolves after insertion, but Luker may still be
       // draining message/regex refresh callbacks. Keep the GAL busy overlay up
@@ -978,17 +1126,9 @@ export function createHostBridge(): GardenBridge | null {
       }
       const identityReader = readAcceptedAssistantIdentity(snapshot);
       const identityBefore = requireAcceptedAssistantIdentity(identityReader, snapshot, options);
-      const statData = isRecord(data.stat_data) ? data.stat_data as GardenState : {};
-      const assistantText = String(message?.message ?? message?.mes ?? '');
-      const expected = applyVisitTurnsToFinalState(
-        statData,
-        pendingRequest,
-        snapshot,
-        assistantText,
-        characterNamesOf(statData),
-        identityBefore.swipeId,
-      );
-      verifyFinalizedAssistantData(data, pendingRequest, snapshot, expected.turns);
+      // finalizeAcceptedAssistant 已消费并清空 visit_summary_task。第二阶段只能验证
+      // 已落盘的 lifecycle / receipt / VisitTurn，不能再次构造或消费一次性任务。
+      verifyPersistedV2CommitEvidence(data, pendingRequest, snapshot, identityBefore);
       const identityAfter = requireAcceptedAssistantIdentity(identityReader, snapshot, options);
       if (!sameAcceptedAssistantIdentity(identityBefore, identityAfter)) {
         throw new Error('assistant swipe 在 lifecycle 验证期间发生变化');
@@ -1389,17 +1529,27 @@ export function createHostBridge(): GardenBridge | null {
         assistantMessageId,
         settlementText,
       );
-      const nextState = hasLocalPresenceTransition(action)
-        ? settledState
-        : applyPresenceUpdate(settledState, assistantText);
+      const nextState = settledState;
       // 固定事件可能推进时段：写盘前基于结算前后状态运行一次统一调度，
       // 让到期离场/到期计划/活动生命周期在同一个写盘事务内完成。
       return reconcileM2Runtime(safeCurrent, nextState, currentChatId());
     };
-    // 固定剧情的模型职责只有叙事。收到本轮非空 assistant 后直接应用本地
-    // 白名单结算，不再要求 VisitTurn、swipe、attempt 或 lifecycle 审计通过。
-    data.stat_data = transformFinalState(isRecord(data.stat_data) ? data.stat_data as GardenState : before);
-    await mvu.replaceMvuData(data, options);
+    // 固定剧情的玩法结果仍由本地白名单决定；但剧情梗概与普通对话共用
+    // 同一额外变量模型任务和 VisitTurn/lifecycle 原子提交链。
+    const snapshot = transactions.read();
+    await finalizeAcceptedAssistant({
+      mvu: mvu as FinalizeAcceptedAssistantInput['mvu'],
+      options,
+      currentData: data,
+      before,
+      assistantText,
+      pendingRequest,
+      snapshot,
+      characterNames: characterNamesOf(before),
+      readAssistantIdentity: readAcceptedAssistantIdentity(snapshot),
+      transformFinalState,
+      consumePresenceAnalysis: false,
+    });
     // settlementProjection 继续负责事件事实（不得冒充 VisitTurn 验证器）。
     const reread = mvu.getMvuData(options).stat_data ?? {};
     if (!settlementProjection(reread, action, assistantMessageId, reread as GardenState)) {
@@ -1457,10 +1607,11 @@ export function createHostBridge(): GardenBridge | null {
     // 只有精确复读证明 VisitTurn 与 lifecycle 同时成立才 settled。
     // transformFinalState = ownership 恢复 + 系统操作转换（第 5 步）。
     const transformFinalState = (base: GardenState): GardenState => {
-      let next = reconcileM2Runtime(ownershipBase, applyPresenceUpdate(
+      let next = reconcileM2Runtime(
+        ownershipBase,
         restoreLocalEventOwnership(ownershipBase, base),
-        assistantText,
-      ), currentChatId());
+        currentChatId(),
+      );
       if (pendingSystemOperation?.type === 'anomaly_resolution') {
         const operationId = pendingSystemOperation.operationId;
         if (!next.events?.settled_ids?.includes(operationId)) {
@@ -1567,7 +1718,7 @@ export function createHostBridge(): GardenBridge | null {
       readAssistantIdentity: identityReader,
       transformFinalState: (base) => reconcileM2Runtime(
         before,
-        applyPresenceUpdate(restoreLocalEventOwnership(before, base), assistantText),
+        restoreLocalEventOwnership(before, base),
         currentChatId(),
       ),
     });
@@ -1777,9 +1928,8 @@ export function createHostBridge(): GardenBridge | null {
         if ((pendingSettlement || pendingOwnershipBefore || pendingSystemOperation) && snapshot.assistantResponded) {
           assistantObservedAt ||= Date.now();
           const mvu = await requireMvu();
-          // 本地托管剧情的事实由代码拥有；精确的非空 assistant 已落楼后，
-          // 固定事件、异变收束和决斗胜利都不再等待模型变量阶段。
-          if (!attemptForceReady && !pendingSettlement && !pendingSystemOperation && !variableStageReady(mvu)) return false;
+          // 玩法事实可以由本地代码拥有，但角色语义梗概仍来自额外变量阶段。
+          if (!attemptForceReady && !variableStageReady(mvu)) return false;
           if (pendingSettlement) await persistPendingSettlement(snapshot);
           else if (pendingOwnershipBefore) await preserveLocalOwnership(pendingOwnershipBefore, snapshot);
           lastError = '';
@@ -1961,13 +2111,27 @@ export function createHostBridge(): GardenBridge | null {
         };
         return [];
       },
-      async generateCandidate({ generationId, request }) {
+      async generateCandidate({ generationId, request, target }) {
         if (!g.generate) throw new Error('Helper generate() 未暴露');
         const built = buildGalGenerateConfig(request, { generationId });
         if (!built.ok) return { ok: false, code: 'empty' };
-        const value = await g.generate(built.built.config);
-        if (typeof value !== 'string') return { ok: false, code: 'tool-call' };
-        return value.trim() ? { ok: true, text: value } : { ok: false, code: 'empty' };
+        const mvu = await requireMvu();
+        if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持 Swipe 梗概任务暂存');
+        const options = { type: 'message' as const, message_id: target.assistantMessageId };
+        const originalData = structuredClone(mvu.getMvuData(options)) as Record<string, unknown>;
+        const stagedData = structuredClone(originalData);
+        stagedData.stat_data = stageVisitSummaryTask(
+          migrateGardenState(isRecord(stagedData.stat_data) ? stagedData.stat_data : {}),
+          request,
+        );
+        await mvu.replaceMvuData(stagedData, options);
+        try {
+          const value = await g.generate(built.built.config);
+          if (typeof value !== 'string') return { ok: false, code: 'tool-call' };
+          return value.trim() ? { ok: true, text: value } : { ok: false, code: 'empty' };
+        } finally {
+          await mvu.replaceMvuData(originalData, options);
+        }
       },
       async writeSwipe(plan) {
         if (!g.setChatMessages) return { ok: false, code: 'write-failed' };
@@ -2004,7 +2168,12 @@ export function createHostBridge(): GardenBridge | null {
         async applyModelOutput(baseData, text) {
           const mvu = await requireMvu();
           if (!mvu.parseMessage) throw new Error('Mvu.parseMessage(message, old_data) 未暴露');
-          return structuredClone(await mvu.parseMessage(text, structuredClone(baseData ?? EMPTY_MVU_DATA)));
+          const stagedBase = structuredClone(baseData ?? EMPTY_MVU_DATA);
+          if (replayContext) {
+            const baselineState = migrateGardenState(isRecord(stagedBase.stat_data) ? stagedBase.stat_data : {});
+            stagedBase.stat_data = stageVisitSummaryTask(baselineState, replayContext.request);
+          }
+          return structuredClone(await mvu.parseMessage(text, stagedBase));
         },
         restoreLocalEventOwnership(baseData, parsedData) {
           const next = structuredClone(parsedData);
@@ -2035,12 +2204,12 @@ export function createHostBridge(): GardenBridge | null {
           next.stat_data = state;
           return next;
         },
-        applyPresenceUpdate(data, text) {
+        applyPresenceAnalysis(data, _text) {
           const next = structuredClone(data);
-          next.stat_data = applyPresenceUpdate(
-            isRecord(next.stat_data) ? next.stat_data as GardenState : {},
-            text,
-          );
+          const current = isRecord(next.stat_data) ? next.stat_data as GardenState : {};
+          next.stat_data = replayContext
+            ? applyPresenceAnalysisTask(replayBaselineState, current, replayContext.request)
+            : current;
           return next;
         },
         reconcileM2Runtime(data) {
@@ -2067,8 +2236,6 @@ export function createHostBridge(): GardenBridge | null {
               time_period: state.environment?.time_period ?? null,
               period_serial: periodSerialFromState(state),
             },
-            acceptedOutput: replayContext.candidateText,
-            characterNames: characterNamesOf(state),
           });
           if (!result.ok) {
             return {
@@ -2366,8 +2533,8 @@ export function createHostBridge(): GardenBridge | null {
           throw new Error(snapshot.lastError || '没有收到 assistant 回复，可以安全重试');
         }
         assistantObservedAt = Date.now();
-        // 固定剧情只要求收到精确、非空的 assistant 回复；其结果由本地白名单结算。
-        if (!action) await waitForVariableStage(snapshot.assistantMessageId);
+        // 固定剧情的玩法结算虽由本地白名单锁定，语义梗概仍须等待额外变量阶段。
+        await waitForVariableStage(snapshot.assistantMessageId);
         return await requirePendingSettlement();
       } catch (error) {
         lastError = error instanceof Error ? error.message : String(error);
@@ -2435,7 +2602,8 @@ export function createHostBridge(): GardenBridge | null {
           throw new Error(snapshot.lastError || '没有收到 assistant 回复，可以安全重试');
         }
         assistantObservedAt = Date.now();
-        // 异变状态与奖励由 resolveAnomaly 本地结算；正文到达即可提交。
+        // 异变状态与奖励由本地结算；角色语义梗概仍须等待额外变量阶段。
+        await waitForVariableStage(snapshot.assistantMessageId);
         return await requirePendingSettlement();
       } catch (error) {
         lastError = error instanceof Error ? error.message : String(error);
@@ -2517,7 +2685,8 @@ export function createHostBridge(): GardenBridge | null {
           throw new Error(snapshot.lastError || '没有收到 assistant 回复，可以安全重试');
         }
         assistantObservedAt = Date.now();
-        // 胜负与奖励已由本地战斗结果锁定；正文到达即可提交。
+        // 胜负与奖励已锁定；角色语义梗概仍须等待额外变量阶段。
+        await waitForVariableStage(snapshot.assistantMessageId);
         return await requirePendingSettlement();
       } catch (error) {
         lastError = error instanceof Error ? error.message : String(error);
@@ -2980,11 +3149,9 @@ export function createHostBridge(): GardenBridge | null {
         const options = { type: 'message', message_id: targetMessageId };
         const data = structuredClone(mvu.getMvuData(options)) as Record<string, unknown>;
         const current = isRecord(data.stat_data) ? data.stat_data as GardenState : {};
-        const raw = activeMessages().find((message) => Number(message.message_id) === targetMessageId);
-        const assistantText = String(raw?.message ?? raw?.mes ?? '');
         data.stat_data = reconcileM2Runtime(
           protectedBefore,
-          applyPresenceUpdate(restoreLocalEventOwnership(protectedBefore, current), assistantText),
+          restoreLocalEventOwnership(protectedBefore, current),
           currentChatId(),
         );
         await mvu.replaceMvuData(data, options);
@@ -3194,7 +3361,7 @@ export function createHostBridge(): GardenBridge | null {
 }
 
 const previewState: GardenState = {
-  meta: { initialized: false, opening_committed: false, schema_version: '0.2.0' },
+  meta: { initialized: false, opening_committed: false, schema_version: '0.3.0' },
   environment: { day: 1, time_period: '清晨', season: '春', weather: '晴' },
   player: { name: '', pronouns: '中性称谓', appearance: '', current_area_id: 'central_courtyard' },
   garden: { name: '无名庭园', construction_stage: '荒废' },

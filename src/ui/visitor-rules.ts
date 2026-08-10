@@ -124,6 +124,7 @@ export function buildVisitorMetaForArrival(
 
 export function isCharacterKnown(state: GardenState, characterId: string): boolean {
   if (state.visit_scheduler?.known_characters?.includes(characterId)) return true;
+  if (profileById.get(characterId)?.eligibility === 'always') return true;
   const completed = state.events?.completed_key_events ?? {};
   switch (characterId) {
     case 'reimu':
@@ -213,6 +214,9 @@ function noticeText(characterId: string, reasonId: string, kind: 'arrival' | 'de
     time_trace: `${name}为时间痕迹而来。`,
     precise_errand: `${name}带着明确事务到访。`,
     formal_invitation: `${name}应邀请到来。`,
+    garden_stroll: `${name}随兴来到庭园走走。`,
+    quiet_research_break: `${name}在研究间隙来到庭园。`,
+    faith_outreach: `${name}循着庭园的气息前来拜访。`,
     invitation: `${name}应邀到来。`,
     opportunity_encounter: `一场意外的机遇把${name}带到了庭院。`,
   };

@@ -1,5 +1,5 @@
 // GAL 角色入场记忆领域库（第一批：数据基础）
-// 固定模型标识：gensokyo-character-memory / character-visit-memory.v1
+// 固定模型标识：gensokyo-character-memory / character-visit-memory.v2
 // storage.root: stat_data.interaction.visit_memory（normal multi-floor MVU）
 // 本文件为纯领域模块：不读取 window/document、不调用 Mvu、不调用数据库、
 // 不修改传入对象、不生成现实时间、不读取真实消息楼层。
@@ -14,34 +14,25 @@ import type {
   CharacterVisitMigrationMetadata,
   GardenState,
   LegacyMemory,
-  RelationshipEventKind,
-  RelationshipLabel,
-  RelationshipMemory,
-  RelationshipMemoryKind,
   VisitRecord,
   VisitTurn,
 } from './types';
 import { periodSerialFromState } from './time-rules';
 
-export const STORY_SUMMARIES_PER_CHARACTER = 48;
+export const STORY_SUMMARIES_PER_CHARACTER = 60;
 export const ACTIVE_TURNS_PER_CHARACTER = 16;
 export const CLOSED_VISITS_PER_CHARACTER = 4;
 export const TURNS_PER_CLOSED_VISIT = 16;
 export const LEGACY_MEMORIES_PER_CHARACTER = 16;
 export const LEGACY_UNASSIGNED_LIMIT = 24;
-export const RELATIONSHIP_MEMORIES_PER_CHARACTER = 12;
 export const TURN_SUMMARY_CHARS = 100;
-export const RELATIONSHIP_SUMMARY_CHARS = 160;
 
 // 固定迁移元数据标识
-export const CHARACTER_MEMORY_VERSION = 'character-visit-memory.v1' as const;
+export const CHARACTER_MEMORY_VERSION = 'character-visit-memory.v2' as const;
 export const CHARACTER_MEMORY_MODEL_ID = 'gensokyo-character-memory' as const;
 
 // visit_id 前缀（左补零单调 counter）
 export const CHARACTER_VISIT_ID_PREFIX = 'character_visit_';
-
-// legacy 关系记忆 ID 前缀（稳定组合，非随机）
-export const LEGACY_RELATIONSHIP_ID_PREFIX = 'legacy_relation:';
 
 // legacy story ID 前缀（角色 + 规范化文本 hash）
 export const LEGACY_STORY_ID_PREFIX = 'legacy_story:';
@@ -62,9 +53,6 @@ function isOneOf<T extends string>(value: unknown, allowed: readonly T[]): value
 
 const SOURCES: readonly CharacterMemorySource[] = ['scheduler', 'event', 'model-presence', 'bootstrap', 'reconcile'];
 const END_REASONS: readonly CharacterVisitEndReason[] = ['scheduled-departure', 'presence-receipt', 'event-leave', 'reconcile'];
-const RELATIONSHIP_KINDS: readonly RelationshipMemoryKind[] = ['relationship_state', 'milestone', 'boundary', 'conflict', 'reconciliation'];
-const RELATIONSHIP_LABELS: readonly RelationshipLabel[] = ['stranger', 'acquaintance', 'friend', 'close_friend', 'lover', 'estranged'];
-const EVENT_KINDS: readonly RelationshipEventKind[] = ['trust', 'affection', 'confession', 'kiss', 'adult_intimacy', 'promise', 'breakup'];
 
 /**
  * 小型确定性字符串 hash（FNV-1a 32-bit → 8 位 hex）。
@@ -105,7 +93,6 @@ export function createEmptyCharacterMemory(characterId: string): CharacterMemory
     active_visit: null,
     closed_visits: [],
     legacy_memories: [],
-    relationship_memories: [],
   };
 }
 
@@ -206,41 +193,6 @@ export function normalizeVisitRecord(value: unknown): VisitRecord | null {
   };
 }
 
-export function normalizeRelationshipMemory(value: unknown): RelationshipMemory | null {
-  if (!isRecord(value)) return null;
-  const relationshipMemoryId = typeof value.relationship_memory_id === 'string' && value.relationship_memory_id.trim()
-    ? value.relationship_memory_id.slice(0, 128)
-    : null;
-  if (!relationshipMemoryId) return null;
-  const characterId = typeof value.character_id === 'string' ? value.character_id.slice(0, 48) : '';
-  const kind = isOneOf(value.kind, RELATIONSHIP_KINDS) ? value.kind : 'milestone';
-  const relationshipLabel = isOneOf(value.relationship_label, RELATIONSHIP_LABELS) ? value.relationship_label : null;
-  const eventKind = isOneOf(value.event_kind, EVENT_KINDS) ? value.event_kind : null;
-  const significance = value.significance === 1 || value.significance === 2 || value.significance === 3
-    ? value.significance
-    : 2;
-  const active = typeof value.active === 'boolean' ? value.active : true;
-  const summary = typeof value.summary === 'string' ? value.summary.slice(0, RELATIONSHIP_SUMMARY_CHARS) : '';
-  return {
-    ...value,
-    relationship_memory_id: relationshipMemoryId,
-    character_id: characterId,
-    request_id: normalizeNullableText(value.request_id, 96) ?? '',
-    visit_id: normalizeNullableText(value.visit_id, 64),
-    day: normalizeDay(value.day),
-    time_period: normalizeNullableText(value.time_period, 24),
-    period_serial: normalizeNullableInt(value.period_serial),
-    kind,
-    relationship_label: relationshipLabel,
-    event_kind: eventKind,
-    summary,
-    significance,
-    active,
-    latest_attempt_id: normalizeNullableText(value.latest_attempt_id, 96),
-    latest_commit_key: normalizeNullableText(value.latest_commit_key, 96),
-  };
-}
-
 export function normalizeCharacterMemory(characterId: string, value: unknown): CharacterMemory {
   const record = isRecord(value) ? value : {};
   const activeVisit = normalizeVisitRecord(record.active_visit);
@@ -250,39 +202,23 @@ export function normalizeCharacterMemory(characterId: string, value: unknown): C
   const legacyMemories = Array.isArray(record.legacy_memories)
     ? record.legacy_memories.map(normalizeLegacyMemory).filter((legacy): legacy is LegacyMemory => legacy !== null)
     : [];
-  const relationshipMemories = Array.isArray(record.relationship_memories)
-    ? record.relationship_memories
-      .map(normalizeRelationshipMemory)
-      .filter((memory): memory is RelationshipMemory => memory !== null)
-    : [];
+  const { relationship_memories: _retiredRelationshipMemories, ...retainedRecord } = record;
   return {
-    ...record,
+    ...retainedRecord,
     character_id: characterId,
     active_visit: activeVisit,
     closed_visits: closedVisits,
     legacy_memories: legacyMemories,
-    relationship_memories: relationshipMemories,
   };
 }
 
 export function normalizeMigrationMetadata(value: unknown): CharacterVisitMigrationMetadata {
   const record = isRecord(value) ? value : {};
-  const rawFingerprint = record.relationship_facts_fingerprint;
-  const relationshipFactsFingerprint = rawFingerprint === null || rawFingerprint === undefined
-    ? null
-    : isRecord(rawFingerprint)
-      ? Object.fromEntries(
-          Object.entries(rawFingerprint).map(([characterId, fingerprint]) => [
-            characterId,
-            typeof fingerprint === 'string' ? fingerprint.slice(0, 96) : '',
-          ]),
-        )
-      : null;
+  const { relationship_facts_fingerprint: _retiredRelationshipFingerprint, ...retainedRecord } = record;
   return {
-    ...record,
+    ...retainedRecord,
     revision: typeof record.revision === 'string' ? record.revision.slice(0, 64) : '',
     conversation_log_fingerprint: normalizeNullableText(record.conversation_log_fingerprint, 96),
-    relationship_facts_fingerprint: relationshipFactsFingerprint,
     migrated_at_serial: normalizeNullableInt(record.migrated_at_serial),
   };
 }
@@ -312,7 +248,7 @@ export function normalizeVisitMemoryState(value: unknown): CharacterVisitMemoryS
   };
 }
 
-// ===== 剧情 48 条裁剪（每角色独立）=====
+// ===== 剧情梗概 60 条裁剪（每角色独立）=====
 
 function dedupeTurnsByTurnId(turns: VisitTurn[]): VisitTurn[] {
   const seen = new Map<string, VisitTurn>();
@@ -326,10 +262,10 @@ function dedupeTurnsByTurnId(turns: VisitTurn[]): VisitTurn[] {
 
 /**
  * 剧情梗概裁剪：active turns ≤16、closed visits ≤4、每 closed ≤16、
- * 全角色 turn 合计 ≤48。顺序：active 优先；从最新 closed visit 向更旧填充。
+ * 每角色 turn 合计 ≤60。顺序：active 优先；从最新 closed visit 向更旧填充。
  * 允许 closed visit 留空，但保留 visit 边界记录。
  */
-export function trimStoryMemoriesTo48(memory: CharacterMemory): CharacterMemory {
+export function trimStoryMemoriesTo60(memory: CharacterMemory): CharacterMemory {
   const active = memory.active_visit
     ? { ...memory.active_visit, turns: dedupeTurnsByTurnId(memory.active_visit.turns).slice(-ACTIVE_TURNS_PER_CHARACTER) }
     : null;
@@ -356,84 +292,9 @@ export function trimStoryMemoriesTo48(memory: CharacterMemory): CharacterMemory 
   return { ...memory, active_visit: active, closed_visits: closed };
 }
 
-// ===== 关系 12 条裁剪（每角色独立）=====
-
-function dedupeRelationshipMemories(list: RelationshipMemory[]): RelationshipMemory[] {
-  const seen = new Map<string, RelationshipMemory>();
-  for (const memory of list) {
-    if (!memory.relationship_memory_id) continue;
-    seen.set(memory.relationship_memory_id, memory);
-  }
-  return Array.from(seen.values());
-}
-
-function relationshipPriority(memory: RelationshipMemory): number {
-  if (memory.kind === 'relationship_state' && memory.active) return 4;
-  if ((memory.kind === 'boundary' || memory.kind === 'conflict') && memory.active) return 3;
-  if (memory.significance === 3) return 2;
-  return 1;
-}
-
-/**
- * 关系记忆裁剪：≤12 条。
- * 1. 唯一 active relationship_state（多条时选 period_serial 最大、同值选数组最后，其余标 inactive 不删除）；
- * 2. 保留优先级：active state > active boundary/conflict > significance 3 > 其他；
- *    同组内 significance 高、更新较新（period_serial）优先；
- * 3. 最终按原数组稳定顺序输出。
- */
-export function trimRelationshipMemoriesTo12(memory: CharacterMemory): CharacterMemory {
-  let list = dedupeRelationshipMemories(memory.relationship_memories);
-
-  // 归一：多条 active relationship_state → 只保留一条 active，其余标 inactive。
-  const activeStateIndexes = list
-    .map((item, index) => (item.kind === 'relationship_state' && item.active ? index : -1))
-    .filter((index) => index >= 0);
-  if (activeStateIndexes.length > 1) {
-    let bestIndex = activeStateIndexes[0];
-    let bestSerial: number | null = list[bestIndex].period_serial;
-    for (const index of activeStateIndexes.slice(1)) {
-      const serial = list[index].period_serial;
-      if (serial === null && bestSerial !== null) continue;
-      if (bestSerial === null || serial! > bestSerial) {
-        bestIndex = index;
-        bestSerial = serial;
-      } else if (serial === bestSerial && index > bestIndex) {
-        bestIndex = index;
-      }
-    }
-    list = list.map((item, index) => {
-      if (item.kind === 'relationship_state' && item.active && index !== bestIndex) {
-        return { ...item, active: false };
-      }
-      return item;
-    });
-  }
-
-  const scored = list.map((item, index) => {
-    const serial = item.period_serial;
-    return {
-      item,
-      index,
-      priority: relationshipPriority(item),
-      significance: item.significance,
-      serial: serial === null ? -1 : serial,
-    };
-  });
-  scored.sort((a, b) => (
-    b.priority - a.priority
-    || b.significance - a.significance
-    || b.serial - a.serial
-    || a.index - b.index
-  ));
-  const kept = scored.slice(0, RELATIONSHIP_MEMORIES_PER_CHARACTER);
-  kept.sort((a, b) => a.index - b.index);
-  return { ...memory, relationship_memories: kept.map((entry) => entry.item) };
-}
-
-/** 对整份 CharacterMemory 执行全部结构裁剪（剧情 48 + 关系 12）。 */
+/** 对整份 CharacterMemory 执行有效记忆裁剪；独立关系记忆已退役，仅裁剪 60 条剧情梗概。 */
 export function normalizeCharacterMemoryToCapacity(memory: CharacterMemory): CharacterMemory {
-  const withStory = trimStoryMemoriesTo48(memory);
-  return trimRelationshipMemoriesTo12(withStory);
+  return trimStoryMemoriesTo60(memory);
 }
 
 // ===== ID helper =====
@@ -507,28 +368,6 @@ export function upsertVisitTurn(state: GardenState, characterId: string, turn: V
   const nextByCharacter = { ...state.interaction!.visit_memory!.by_character, [characterId]: nextCharacterMemory };
   const nextVisitMemory = { ...state.interaction!.visit_memory!, by_character: nextByCharacter };
   return { ...state, interaction: { ...state.interaction!, visit_memory: nextVisitMemory } };
-}
-
-/**
- * 按 relationship_memory_id upsert 到该角色 relationship_memories。
- * 无角色记忆时先 ensure。返回新 state；纯函数。
- */
-export function upsertRelationshipMemory(state: GardenState, characterId: string, memory: RelationshipMemory): GardenState {  const withRoot = ensureCharacterMemory(state, characterId);
-  const visitMemory = withRoot.interaction!.visit_memory!;
-  const characterMemory = visitMemory.by_character[characterId];
-  const index = characterMemory.relationship_memories.findIndex(
-    (existing) => existing.relationship_memory_id === memory.relationship_memory_id,
-  );
-  const relationshipMemories = index >= 0
-    ? characterMemory.relationship_memories.map((existing, i) => (i === index ? memory : existing))
-    : [...characterMemory.relationship_memories, memory];
-  const nextCharacterMemory = normalizeCharacterMemoryToCapacity({
-    ...characterMemory,
-    relationship_memories: relationshipMemories,
-  });
-  const nextByCharacter = { ...visitMemory.by_character, [characterId]: nextCharacterMemory };
-  const nextVisitMemory = { ...visitMemory, by_character: nextByCharacter };
-  return { ...withRoot, interaction: { ...withRoot.interaction!, visit_memory: nextVisitMemory } };
 }
 
 // ===== 第二批：按冻结 visit ID 精确 upsert（B2-T04）=====
@@ -702,127 +541,6 @@ export function migrateConversationLogToLegacyMemory(state: GardenState): Garden
       ...visitMemory.migration,
       revision: 'conversation-log.v1',
       conversation_log_fingerprint: deterministicStringHash(entries.map(normalizeConversationLogText).join('\u0000')),
-      migrated_at_serial: visitMemory.migration.migrated_at_serial,
-    },
-  };
-  return { ...withRoot, interaction: { ...withRoot.interaction!, visit_memory: nextVisitMemory } };
-}
-
-// ===== current_relationship_facts → relationship memories 确定性迁移（B1-T07）=====
-
-// 受控 kind 白名单：精确 fact.id → kind。只收"明确边界/冲突/和解"的既有事实 ID，
-// 不做模糊关键词推断；不在白名单的 fact 一律 milestone。
-// relationship_state 不做模糊推断：需要严格结构或精确白名单表达，本批旧事实无此表达 → 不产生。
-const LEGACY_FACT_KIND_WHITELIST: Readonly<Record<string, RelationshipMemoryKind>> = {
-  alice_maintenance_boundary: 'boundary',
-};
-
-function legacyFactContentKey(fact: Record<string, unknown>): string {
-  return JSON.stringify({
-    id: fact.id ?? null,
-    fact: fact.fact ?? null,
-    active: fact.active ?? null,
-    last_confirmed_at: fact.last_confirmed_at ?? null,
-    established_at: fact.established_at ?? null,
-  });
-}
-
-/**
- * 把每角色 current_relationship_facts 确定性迁移进 relationship_memories。
- * - character_id 来自 characters 外层 key，不信 fact.subjects 猜归属；
- * - relationship_memory_id = legacy_relation:<characterId>:<fact.id>；
- * - request_id 空字符串表示 legacy；visit_id null；day/time/serial 无可靠结构化值时 null；
- * - summary = fact.fact ≤160；significance 默认 2；active 继承旧 fact.active；
- * - kind：白名单精确 ID → boundary；其余 milestone；不产生 relationship_state（本批旧数据无严格结构表达）；
- * - relationship_label / event_kind：无受控可证明表达 → null（不因"亲密/喜欢"猜 lover/adult_intimacy/confession）；
- * - 内容级一致性：旧 fact 的 active/fact/last_confirmed_at/established_at 变化后，即使 ID 见过也必须更新；
- * - 重复迁移不重复；每角色 ≤12 条按固定优先级裁剪；
- * - 旧 current_relationship_facts 保留（不删不改不设只读）；失败路径不改源。
- * 返回新 state；纯函数。
- */
-export function migrateRelationshipFactsToMemory(state: GardenState): GardenState {
-  const withRoot = ensureVisitMemoryRoot(state);
-  const visitMemory = withRoot.interaction!.visit_memory!;
-  const byCharacter = new Map(
-    Object.entries(visitMemory.by_character).map(([characterId, memory]) => [characterId, structuredClone(memory)]),
-  );
-  const fingerprints: Record<string, string> = {};
-
-  for (const [characterId, character] of Object.entries(withRoot.characters ?? {})) {
-    const rawFacts = Array.isArray(character?.current_relationship_facts)
-      ? character.current_relationship_facts
-      : [];
-    const facts = rawFacts.filter(isRecord);
-    fingerprints[characterId] = deterministicStringHash(
-      facts.map(legacyFactContentKey).join('\u0000'),
-    );
-    if (facts.length === 0) continue;
-
-    let memory = byCharacter.get(characterId) ?? createEmptyCharacterMemory(characterId);
-    for (const fact of facts) {
-      if (typeof fact.id !== 'string' || !fact.id.trim()) continue;
-      const relationshipMemoryId = `${LEGACY_RELATIONSHIP_ID_PREFIX}${characterId}:${fact.id}`;
-      const kind = LEGACY_FACT_KIND_WHITELIST[fact.id] ?? 'milestone';
-      const active = typeof fact.active === 'boolean' ? fact.active : true;
-      const summary = typeof fact.fact === 'string' ? fact.fact.slice(0, RELATIONSHIP_SUMMARY_CHARS) : '';
-      const candidate: RelationshipMemory = {
-        relationship_memory_id: relationshipMemoryId,
-        character_id: characterId,
-        request_id: '',
-        visit_id: null,
-        day: null,
-        time_period: null,
-        period_serial: null,
-        kind,
-        relationship_label: null,
-        event_kind: null,
-        summary,
-        significance: 2,
-        active,
-        latest_attempt_id: null,
-        latest_commit_key: null,
-        // passthrough：保留旧事实的结构化时间字段，供内容级一致性比较。
-        ...(typeof fact.last_confirmed_at === 'string' && fact.last_confirmed_at
-          ? { last_confirmed_at: fact.last_confirmed_at.slice(0, 40) }
-          : {}),
-        ...(typeof fact.established_at === 'string' && fact.established_at
-          ? { established_at: fact.established_at.slice(0, 40) }
-          : {}),
-      };
-      const index = memory.relationship_memories.findIndex(
-        (item) => item.relationship_memory_id === relationshipMemoryId,
-      );
-      if (index >= 0) {
-        const existing = memory.relationship_memories[index];
-        const changed = existing.active !== candidate.active
-          || existing.summary !== candidate.summary
-          || existing.kind !== candidate.kind
-          || existing.last_confirmed_at !== candidate.last_confirmed_at
-          || existing.established_at !== candidate.established_at;
-        if (changed) {
-          memory.relationship_memories = memory.relationship_memories.map((item, i) => (
-            i === index ? candidate : item
-          ));
-        }
-      } else {
-        memory.relationship_memories = [...memory.relationship_memories, candidate];
-      }
-    }
-    memory = trimRelationshipMemoriesTo12(memory);
-    byCharacter.set(characterId, memory);
-  }
-
-  const nextByCharacter: Record<string, CharacterMemory> = {};
-  for (const [characterId, memory] of byCharacter) {
-    nextByCharacter[characterId] = memory;
-  }
-  const nextVisitMemory: CharacterVisitMemoryState = {
-    ...visitMemory,
-    by_character: nextByCharacter,
-    migration: {
-      ...visitMemory.migration,
-      revision: 'relationship-facts.v1',
-      relationship_facts_fingerprint: fingerprints,
       migrated_at_serial: visitMemory.migration.migrated_at_serial,
     },
   };
@@ -1084,16 +802,17 @@ export function reconcileCharacterVisitsFromState(
 
 // ===== 第二批：相关角色与 visit 快照（B2-T03）=====
 //
-// 合同：project/gal-character-memory-batch-2-send-and-synthetic-history-runbook.md §3.4
+// 当前合同：project/contract.md（GAL 请求、相关角色与冻结 visit）。
 //   - 输入必须是结构化 ID 集合，不接收整段玩家文本、不扫描自然语言猜角色；
 //   - 优先级冻结：主目标 → 动作 target → 事件 participants → session participants → 在场补足；
 //   - 只接受已登记角色 ID；去重保持稳定顺序；最多 4 人；主目标缺失是请求错误；
 //   - visit map 请求时冻结，生成期间不得因到达/离开改写；
 //   - 不创建 visit（visit 创建仍由第一批 presence lifecycle 独占）；不读真实聊天。
 
-/** 已登记角色白名单（contract.md 固定八人；与 character-routing.json 一致）。 */
+/** 已登记角色白名单（与 character-routing.json 一致）。 */
 export const REGISTERED_CHARACTER_IDS: readonly string[] = [
   'reimu', 'marisa', 'cirno', 'alice', 'mystia', 'suika', 'nitori', 'sakuya',
+  'youmu', 'patchouli', 'sanae',
 ];
 
 export interface RelevantCharacterInput {

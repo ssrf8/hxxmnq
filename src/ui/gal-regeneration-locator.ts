@@ -1,6 +1,6 @@
 // 第三批 B3-T03 —— 精确 target locator 与 attemptSeq 扫描。
 //
-// 合同：project/gal-character-memory-batch-3-regeneration-runbook.md §5.1–5.2、T03
+// 当前合同：project/contract.md（重生成目标与身份定位）。
 //   - 纯函数从消息视图中定位唯一重生成目标，不调用模型、不写宿主；
 //   - 最后一楼必须为 assistant；source swipe 从 all-swipes 视图恢复 source attempt；
 //   - 按 requestId 唯一反查玩家楼层并恢复完整 V2 冻结请求；

@@ -1,4 +1,4 @@
-// 幻想乡物语：stat_data schema v0.2.0
+// 幻想乡物语：stat_data schema v0.3.0
 // authority: mvu_zod immutable commit 50e3566f7b27325b1ee80cad0646e2184ac01cdf
 import { registerMvuSchema } from 'https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource@50e3566f7b27325b1ee80cad0646e2184ac01cdf/dist/util/mvu_zod.js';
 
@@ -20,22 +20,14 @@ const list = (schema, maximum) => z.array(schema)
 const dictionary = schema => z.object({}).catchall(schema).prefault({}).catch({});
 const nullableText = (maximum = 80) => z.union([text('', maximum), z.null()]).prefault(null).catch(null);
 
-const relationshipFactSchema = z.object({
-  id: text('', 48),
-  subjects: list(text('', 48), 8),
-  fact: text('', 180),
-  source_event_id: nullableText(48),
-  established_at: text('', 40),
-  active: boolean(true),
-  last_confirmed_at: text('', 40),
-}).passthrough().prefault({});
-
 const characterSchema = z.object({
   id: text('', 48),
   name: text('无名角色', 60),
   fixed: boolean(false),
-  current_relationship_facts: list(relationshipFactSchema, 12),
-}).passthrough().prefault({});
+}).passthrough().transform(value => {
+  const { current_relationship_facts: _retiredRelationshipFacts, ...rest } = value;
+  return rest;
+}).prefault({});
 
 const areaSchema = z.object({
   id: text('', 48),
@@ -62,10 +54,10 @@ const characterViewSchema = z.object({
   facing: z.enum(['front', 'back', 'left', 'right']).prefault('front').catch('front'),
 }).passthrough().prefault({});
 
-// ===== GAL 角色入场记忆（character-visit-memory.v1）=====
+// ===== GAL 角色入场记忆（character-visit-memory.v2）=====
 // modelId: gensokyo-character-memory；storage.root: stat_data.interaction.visit_memory
-// 结构上限在此限定（turns 16 / closed 4 / relationship 12 / legacy 16 / unassigned 24）；
-// 每角色剧情总计 48 是跨数组业务不变量，由 character-memory normalizer 执行，不由 Zod 单个 list 证明。
+// 结构上限在此限定（turns 16 / closed 4 / legacy 16 / unassigned 24）；
+// 每角色剧情总计 60 是跨数组业务不变量，由 character-memory normalizer 执行，不由 Zod 单个 list 证明。
 // nullable 字段（day/period_serial/source 等）把 z.null() 放 union 最前，保证 null 语义与 TS 类型一致。
 
 // day 同时兼容正式数字时钟与旧档字符串日期。这里不能复用带 catch 的
@@ -114,55 +106,57 @@ const visitRecordSchema = z.object({
   turns: list(visitTurnSchema, 16),
 }).passthrough().prefault({});
 
-const relationshipMemorySchema = z.object({
-  relationship_memory_id: text('', 128),
-  character_id: text('', 48),
-  request_id: text('', 96),
-  visit_id: z.union([z.null(), text('', 64)]).prefault(null).catch(null),
-  day: nullableDay(),
-  time_period: z.union([z.null(), text('', 24)]).prefault(null).catch(null),
-  period_serial: nullableSerial(),
-  kind: z.enum(['relationship_state', 'milestone', 'boundary', 'conflict', 'reconciliation'])
-    .prefault('milestone').catch('milestone'),
-  relationship_label: z.union([
-    z.null(),
-    z.enum(['stranger', 'acquaintance', 'friend', 'close_friend', 'lover', 'estranged']),
-  ]).prefault(null).catch(null),
-  event_kind: z.union([
-    z.null(),
-    z.enum(['trust', 'affection', 'confession', 'kiss', 'adult_intimacy', 'promise', 'breakup']),
-  ]).prefault(null).catch(null),
-  summary: text('', 160),
-  significance: integer(2, 1, 3),
-  active: boolean(true),
-  latest_attempt_id: z.union([z.null(), text('', 96)]).prefault(null).catch(null),
-  latest_commit_key: z.union([z.null(), text('', 96)]).prefault(null).catch(null),
-}).passthrough().prefault({});
+const visitSummaryTaskSchema = z.object({
+  schema: z.literal('visit-summary-task.v1'),
+  request_id: text('', 160),
+  slots: list(z.object({
+    character_id: text('', 48),
+    summary: text('', 100),
+  }).passthrough().prefault({}), 4),
+}).passthrough();
+
+const presenceAnalysisTaskSchema = z.object({
+  schema: z.literal('presence-analysis-task.v1'),
+  request_id: text('', 160),
+  slots: list(z.object({
+    character_id: text('', 48),
+    baseline_area_id: z.union([z.null(), text('', 48)]).prefault(null).catch(null),
+    baseline_action: z.union([z.null(), text('', 80)]).prefault(null).catch(null),
+    baseline_facing: z.union([z.null(), z.enum(['front', 'back', 'left', 'right'])]).prefault(null).catch(null),
+    decision: z.enum(['pending', 'unchanged', 'move', 'leave', 'uncertain']).prefault('pending').catch('uncertain'),
+    area_id: z.union([z.null(), text('', 48)]).prefault(null).catch(null),
+    action: z.union([z.null(), text('', 80)]).prefault(null).catch(null),
+    facing: z.union([z.null(), z.enum(['front', 'back', 'left', 'right'])]).prefault(null).catch(null),
+  }).passthrough().prefault({}), 4),
+}).passthrough();
 
 const characterMemorySchema = z.object({
   character_id: text('', 48),
   active_visit: z.union([visitRecordSchema, z.null()]).prefault(null).catch(null),
   closed_visits: list(visitRecordSchema, 4),
   legacy_memories: list(legacyMemorySchema, 16),
-  relationship_memories: list(relationshipMemorySchema, 12),
-}).passthrough().prefault({}).catch({
+}).passthrough().transform(value => {
+  const { relationship_memories: _retiredRelationshipMemories, ...rest } = value;
+  return rest;
+}).prefault({}).catch({
   character_id: '',
   active_visit: null,
   closed_visits: [],
   legacy_memories: [],
-  relationship_memories: [],
 });
 
 const characterVisitMigrationSchema = z.object({
   revision: text('', 64),
   conversation_log_fingerprint: z.union([z.null(), text('', 96)]).prefault(null).catch(null),
-  relationship_facts_fingerprint: z.union([dictionary(text('', 96)), z.null()]).prefault(null).catch(null),
   migrated_at_serial: nullableSerial(),
-}).passthrough().prefault({});
+}).passthrough().transform(value => {
+  const { relationship_facts_fingerprint: _retiredRelationshipFingerprint, ...rest } = value;
+  return rest;
+}).prefault({});
 
 const visitMemoryStateSchema = z.object({
-  version: z.literal('character-visit-memory.v1')
-    .prefault('character-visit-memory.v1').catch('character-visit-memory.v1'),
+  version: z.literal('character-visit-memory.v2')
+    .prefault('character-visit-memory.v2').catch('character-visit-memory.v2'),
   by_character: dictionary(characterMemorySchema),
   legacy_unassigned: list(legacyMemorySchema, 24),
   migration: characterVisitMigrationSchema,
@@ -219,9 +213,9 @@ const battleResultSchema = z.object({
 
 const Schema = z.object({
   meta: z.object({
-    schema_version: z.literal('0.2.0').prefault('0.2.0').catch('0.2.0'),
-    bridge_version: text('0.2.0', 24),
-    database_adapter_version: text('0.2.0', 24),
+    schema_version: z.literal('0.3.0').prefault('0.3.0').catch('0.3.0'),
+    bridge_version: text('0.3.0', 24),
+    database_adapter_version: text('0.3.0', 24),
     initialized: boolean(false),
     opening_committed: boolean(false),
   }).passthrough().prefault({}),
@@ -278,6 +272,8 @@ const Schema = z.object({
     settled_ids: list(text('', 64), 64),
     conversation_log: list(text('', 120), 24),
     starter_gift_claimed: boolean(false),
+    visit_summary_task: z.union([visitSummaryTaskSchema, z.null()]).prefault(null).catch(null),
+    presence_analysis_task: z.union([presenceAnalysisTaskSchema, z.null()]).prefault(null).catch(null),
     visit_memory: visitMemoryStateSchema,
   }).passthrough().prefault({}),
   events: z.object({
@@ -501,10 +497,12 @@ const Schema = z.object({
     event: integer(1, 1, 999999),
     interaction: integer(1, 1, 999999),
     battle: integer(1, 1, 999999),
-    relationship_fact: integer(1, 1, 999999),
     character_visit: integer(1, 1, 999999),
-  }).passthrough().prefault({}),
+  }).passthrough().transform(value => {
+    const { relationship_fact: _retiredRelationshipCounter, ...rest } = value;
+    return rest;
+  }).prefault({}),
 }).passthrough().prefault({});
 
 registerMvuSchema(Schema);
-console.info('[幻想乡物语] MVU Schema v0.2.0 已注册（50e3566）');
+console.info('[幻想乡物语] MVU Schema v0.3.0 已注册（50e3566）');

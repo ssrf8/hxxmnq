@@ -40,6 +40,21 @@
       "id": "sakuya",
       "label": "十六夜咲夜",
       "greenlight": "GSK_CHAR_SAKUYA_ACTIVE"
+    },
+    {
+      "id": "youmu",
+      "label": "魂魄妖梦",
+      "greenlight": "GSK_CHAR_YOUMU_ACTIVE"
+    },
+    {
+      "id": "patchouli",
+      "label": "帕秋莉·诺蕾姬",
+      "greenlight": "GSK_CHAR_PATCHOULI_ACTIVE"
+    },
+    {
+      "id": "sanae",
+      "label": "东风谷早苗",
+      "greenlight": "GSK_CHAR_SANAE_ACTIVE"
     }
   ]
 }

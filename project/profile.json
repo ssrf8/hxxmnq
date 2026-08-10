@@ -1,7 +1,7 @@
 {
   "id": "gensokyo-moving-garden",
   "family": "sillytavern-hybrid-mvu-card",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "plan": "../幻想乡领地建设剧情卡-第一版总体计划.md",
   "manifest": "manifest.json",
   "contract": "contract.md",

@@ -31,3 +31,12 @@ node scripts/build-ui.mjs --asset-mode=remote-r2-live --asset-base-url=$assetOri
 正式 staging 必须来自干净工作树；脚本拒绝覆盖已有的 `generation-N` 本地目录。发布器目前只生成校验过的上传计划，不会自行访问 R2。获得明确上传授权后，按计划将 `files/` 的对象写到同名 `live/<source>`，逐项验证 MIME、长度、SHA-256 和缓存头，再最后上传 `manifest.json`（`no-store`）。
 
 历史 `releases/**` 只是过去的个人测试对象，不参与新构建、发布或回滚。若需回滚，把上一代已验证的同名素材重新上传，再最后上传对应清单。
+
+## 2026-08-11 generation 5
+
+- 作用域：`youmu`、`patchouli`、`sanae` 的地图待机/序列 WebP 与 GAL `normal/nude` PNG，共 36 项。
+- 基线 generation 4：215 files / 286,579,188 bytes。
+- 最终 generation 5：251 files / 354,034,458 bytes。
+- manifest SHA-256：`d1f6d1c4751045a83e52e6e0f7c35f44cd58f927f68e8920d808c24b9ef791de`。
+- `scripts/publish-character-assets-r2.mjs` 提供按角色前缀筛选的增量 staging、碰撞审计、断点续跑、媒体双通道读回与 manifest-last。默认 dry-run，真实写入必须显式 `--apply`。
+- 三名角色的 sexual 姿势图未上传、未写死占位 URL；待未来对象进入同一生产 manifest 后由运行时自动发现。

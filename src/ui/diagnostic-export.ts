@@ -63,8 +63,6 @@ export interface DiagnosticSnapshotV1 {
       activeTurnCount: number;
       closedVisitCount: number;
       closedTurnCount: number;
-      relationshipMemoryCount: number;
-      activeRelationshipStateCount: number;
     }>;
   };
 }
@@ -97,7 +95,7 @@ const REQUEST_SCHEMA_V1 = 'gal-generation-request.v1';
 const REQUEST_SCHEMA_V2 = 'gal-generation-request.v2';
 const SAFE_PROMPT_REVISIONS = new Set(['gal-prompt.v1', 'gal-prompt.v2', 'gal-prompt.v3']);
 const HISTORY_REVISION = 'gal-synthetic-history.v1';
-const MEMORY_REVISION = 'character-visit-memory.v1';
+const MEMORY_REVISION = 'character-visit-memory.v2';
 const SAFE_DATABASE_VERSIONS = new Set([
   'SP·数据库 VII（database-assisted）',
   '数据库增强版（能力未就绪）',
@@ -232,17 +230,6 @@ function countTurns(visit: unknown): number {
   return Array.isArray(turns) ? turns.length : 0;
 }
 
-function countActiveRelationshipStates(memories: unknown): number {
-  if (!Array.isArray(memories)) return 0;
-  let count = 0;
-  for (const item of memories) {
-    if (!item || typeof item !== 'object') continue;
-    const record = item as { kind?: unknown; active?: unknown };
-    if (record.kind === 'relationship_state' && record.active === true) count += 1;
-  }
-  return count;
-}
-
 interface AnyRequestView {
   schema: string; promptRevision: string; attemptSeq: number; contextFingerprint: string;
   historyRevision: string | null; memoryRevision: string | null; relevantCharacterIds: readonly string[];
@@ -297,13 +284,13 @@ function registeredCharacterCount(state: GardenState | null, whitelist: readonly
 
 interface CharacterMemoryView {
   characterId: string; hasActiveVisit: boolean; activeTurnCount: number; closedVisitCount: number;
-  closedTurnCount: number; relationshipMemoryCount: number; activeRelationshipStateCount: number;
+  closedTurnCount: number;
 }
 
 function characterMemoryView(characterId: string, state: GardenState | null): CharacterMemoryView {
   const memory = state?.interaction?.visit_memory?.by_character?.[characterId];
   if (!memory || typeof memory !== 'object') {
-    return { characterId, hasActiveVisit: false, activeTurnCount: 0, closedVisitCount: 0, closedTurnCount: 0, relationshipMemoryCount: 0, activeRelationshipStateCount: 0 };
+    return { characterId, hasActiveVisit: false, activeTurnCount: 0, closedVisitCount: 0, closedTurnCount: 0 };
   }
   const activeVisit = memory.active_visit ?? null;
   const closedVisits = Array.isArray(memory.closed_visits) ? memory.closed_visits : [];
@@ -312,8 +299,6 @@ function characterMemoryView(characterId: string, state: GardenState | null): Ch
   return {
     characterId, hasActiveVisit: Boolean(activeVisit), activeTurnCount: countTurns(activeVisit),
     closedVisitCount: closedVisits.length, closedTurnCount,
-    relationshipMemoryCount: Array.isArray(memory.relationship_memories) ? memory.relationship_memories.length : 0,
-    activeRelationshipStateCount: countActiveRelationshipStates(memory.relationship_memories),
   };
 }
 

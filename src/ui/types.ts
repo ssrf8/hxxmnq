@@ -193,12 +193,36 @@ export interface CardRuntimeState {
   };
 }
 
-// ===== GAL 角色入场记忆（character-visit-memory.v1）=====
-// 固定模型标识：gensokyo-character-memory / character-visit-memory.v1
+// ===== GAL 角色入场记忆（character-visit-memory.v2）=====
+// 固定模型标识：gensokyo-character-memory / character-visit-memory.v2
 // storage.root: stat_data.interaction.visit_memory（normal multi-floor MVU）
 // 本批只添加兼容类型，不改变现有关系事实语义、事件登记或生成请求。
 
-export type CharacterMemoryVersion = 'character-visit-memory.v1';
+export type CharacterMemoryVersion = 'character-visit-memory.v2';
+
+export interface VisitSummaryTask {
+  schema: 'visit-summary-task.v1';
+  request_id: string;
+  slots: Array<{
+    character_id: string;
+    summary: string;
+  }>;
+}
+
+export interface PresenceAnalysisTask {
+  schema: 'presence-analysis-task.v1';
+  request_id: string;
+  slots: Array<{
+    character_id: string;
+    baseline_area_id: string | null;
+    baseline_action: string | null;
+    baseline_facing: 'front' | 'back' | 'left' | 'right' | null;
+    decision: 'pending' | 'unchanged' | 'move' | 'leave' | 'uncertain';
+    area_id: string | null;
+    action: string | null;
+    facing: 'front' | 'back' | 'left' | 'right' | null;
+  }>;
+}
 
 export type CharacterMemorySource =
   | 'scheduler'
@@ -294,14 +318,12 @@ export interface CharacterMemory {
   active_visit: VisitRecord | null;
   closed_visits: VisitRecord[];
   legacy_memories: LegacyMemory[];
-  relationship_memories: RelationshipMemory[];
   [key: string]: unknown;
 }
 
 export interface CharacterVisitMigrationMetadata {
   revision: string;
   conversation_log_fingerprint: string | null;
-  relationship_facts_fingerprint: Record<string, string> | null;
   migrated_at_serial: number | null;
   [key: string]: unknown;
 }
@@ -315,7 +337,13 @@ export interface CharacterVisitMemoryState {
 }
 
 export interface GardenState {
-  meta?: { initialized?: boolean; opening_committed?: boolean; schema_version?: string };
+  meta?: {
+    initialized?: boolean;
+    opening_committed?: boolean;
+    schema_version?: string;
+    bridge_version?: string;
+    database_adapter_version?: string;
+  };
   environment?: { day?: number; time_period?: TimePeriod; season?: string; weather?: string; anomaly_weather?: string | null };
   player?: { name?: string; pronouns?: string; appearance?: string; current_area_id?: string };
   garden?: { name?: string; construction_stage?: string; primary_anchor_id?: string | null };
@@ -334,15 +362,6 @@ export interface GardenState {
     id?: string;
     name?: string;
     fixed?: boolean;
-    current_relationship_facts?: Array<{
-      id: string;
-      subjects: string[];
-      fact: string;
-      source_event_id: string | null;
-      established_at: string;
-      active: boolean;
-      last_confirmed_at: string;
-    }>;
   }>;
   presence_snapshot?: {
     present_character_ids?: string[];
@@ -368,6 +387,8 @@ export interface GardenState {
     conversation_log?: string[];
     starter_gift_claimed?: boolean;
     visit_memory?: CharacterVisitMemoryState;
+    visit_summary_task?: VisitSummaryTask | null;
+    presence_analysis_task?: PresenceAnalysisTask | null;
   };
   events?: {
     active_event?: {
@@ -467,7 +488,11 @@ export interface GardenState {
     last_visit_notice_serial?: number | null;
   };
   memory?: { long_term_notes?: string[] };
-  uid_counters?: { interaction?: number; character_visit?: number; [key: string]: number | undefined };
+  uid_counters?: {
+    interaction?: number;
+    character_visit?: number;
+    [key: string]: number | undefined;
+  };
   [key: string]: unknown;
 }
 
@@ -515,7 +540,7 @@ export interface OpeningCommitResult {
 }
 
 export type TargetType = 'character' | 'area' | 'facility';
-export type SceneMode = 'garden' | 'gal' | 'facility' | 'settings' | 'shop' | 'inventory' | 'opportunities';
+export type SceneMode = 'garden' | 'gal' | 'facility' | 'settings' | 'shop' | 'inventory' | 'visitors' | 'opportunities';
 export type GalBeatKind = 'narration' | 'speech' | 'action';
 export type GalVisualMode = 'normal' | 'nude' | 'sexual';
 export type GalSexualAct = 'vaginal' | 'anal' | 'none';

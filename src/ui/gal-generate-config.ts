@@ -1,6 +1,6 @@
 // 第三批 B3-T02 —— 统一 generate-config builder（send 与 regenerate 共用）。
 //
-// 合同：project/gal-character-memory-batch-3-regeneration-runbook.md §6.1–6.3
+// 当前合同：project/contract.md（send / regenerate 同构配置）。
 //   - 普通 send 与 regenerate 使用同一份 V2 冻结请求与同一套 generate 配置构造规则；
 //   - regenerate 只推进 attempt（generation_id 变化），不改变 request 冻结字段；
 //   - builder 是纯函数：不读取 activeMessages/MVU/global，不写楼层，不调用 generate；

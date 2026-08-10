@@ -125,21 +125,19 @@ test('freezeVisitIds 输出每个相关角色 active visit ID 或 null', () => {
   const state = {
     interaction: {
       visit_memory: {
-        version: 'character-visit-memory.v1',
+        version: 'character-visit-memory.v2',
         by_character: {
           reimu: {
             character_id: 'reimu',
             active_visit: { visit_id: 'character_visit_000001' },
             closed_visits: [],
             legacy_memories: [],
-            relationship_memories: [],
           },
           marisa: {
             character_id: 'marisa',
             active_visit: null,
             closed_visits: [],
             legacy_memories: [],
-            relationship_memories: [],
           },
         },
       },
@@ -160,14 +158,13 @@ test('freezeVisitIds 是纯读取：闭包/其他角色数据不受影响', () =
   const state = {
     interaction: {
       visit_memory: {
-        version: 'character-visit-memory.v1',
+        version: 'character-visit-memory.v2',
         by_character: {
           reimu: {
             character_id: 'reimu',
             active_visit: { visit_id: 'character_visit_000007' },
             closed_visits: [],
             legacy_memories: [],
-            relationship_memories: [],
           },
         },
       },

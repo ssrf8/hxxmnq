@@ -48,7 +48,10 @@ export interface GalRemoteManifestFile {
 }
 
 export const GAL_PORTRAIT_REACTION_IDS = ['neutral', 'smile', 'shy', 'sad', 'angry'] as const satisfies readonly GalReaction[];
-export const GAL_PORTRAIT_CHARACTER_IDS = ['reimu', 'marisa', 'cirno', 'alice', 'nitori', 'mystia', 'suika', 'sakuya'] as const;
+export const GAL_PORTRAIT_CHARACTER_IDS = [
+  'reimu', 'marisa', 'cirno', 'alice', 'nitori', 'mystia', 'suika', 'sakuya',
+  'youmu', 'patchouli', 'sanae',
+] as const;
 const GAL_PORTRAIT_READY_MODES = ['normal', 'nude'] as const;
 export const GAL_SEXUAL_POSE_ACTS = {
   missionary: ['vaginal', 'anal'], rear: ['vaginal', 'anal'], prone: ['vaginal', 'anal'],

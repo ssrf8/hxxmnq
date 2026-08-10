@@ -1,6 +1,6 @@
 // 第三批 B3-T04 —— 冻结 baseline reader 的纯解析部分。
 //
-// 合同：project/gal-character-memory-batch-3-regeneration-runbook.md §4.3、T04
+// 当前合同：project/contract.md（重生成冻结 baseline）。
 //   - 从调用方传入的 all-swipes message fixture 精确提取 frozen MvuData，不直接调宿主；
 //   - request floor ID 精确、frozen swipe ID 精确；返回完整 MvuData 深克隆；
 //   - 保留 stat/display/delta/schema/initialized_lorebooks/unknown；

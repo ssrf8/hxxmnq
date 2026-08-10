@@ -16,11 +16,13 @@ import {
   isSupportedGalPromptRevision,
   isValidGalPromptInjectsForRevision,
   LEGACY_GAL_PROMPT_REVISION,
+  MESSAGE_SCOPE_GAL_PROMPT_REVISION,
   PREVIOUS_GAL_PROMPT_REVISION,
   REQUEST_BODY_GAL_PROMPT_REVISION,
   SYSTEM_TAIL_GAL_PROMPT_REVISION,
   type GalPromptInjection,
 } from './gal-prompt-injection';
+import { formatVariableAnalysisTaskProjection } from './variable-analysis-task-projection';
 
 export const REQUEST_SCHEMA = 'gal-generation-request.v1';
 export const ATTEMPT_SCHEMA = 'gal-generation-attempt.v1';
@@ -631,10 +633,10 @@ export function analyzeChatRestore(
 // ---------------------------------------------------------------------------
 // V2 请求（第二批：发送与合成历史）
 //
-// 合同：project/gal-character-memory-batch-2-send-and-synthetic-history-runbook.md §3.2–3.3
+// 当前合同：project/contract.md（GAL V2 请求与冻结 synthetic history）。
 //   - schema: gal-generation-request.v2，extra key: galGenerationRequestV2；
-//   - historyRevision: gal-synthetic-history.v1，memoryRevision: character-visit-memory.v1；
-//   - 新建 V2 请求使用 gal-prompt.v5；旧 gal-prompt.v1–v4 metadata 保持可恢复；
+//   - historyRevision: gal-synthetic-history.v1，memoryRevision: character-visit-memory.v2；
+//   - 新建 V2 请求使用 gal-prompt.v6；旧 gal-prompt.v1–v5 metadata 保持可恢复；
 //   - syntheticHistory 只接受 role:'system'，parser 拒绝空 history；
 //   - V2 写新 key，不覆盖 V1 extra；V1 parser/metadata 兼容读取原样保留；
 //   - 完整 V2 请求持久化到玩家楼层 metadata，reload recovery 复用同一冻结请求。
@@ -643,7 +645,7 @@ export function analyzeChatRestore(
 export const REQUEST_SCHEMA_V2 = 'gal-generation-request.v2' as const;
 export const REQUEST_EXTRA_KEY_V2 = 'galGenerationRequestV2';
 export const HISTORY_REVISION = 'gal-synthetic-history.v1' as const;
-export const MEMORY_REVISION = 'character-visit-memory.v1' as const;
+export const MEMORY_REVISION = 'character-visit-memory.v2' as const;
 
 /** V1 或 V2 逻辑请求（恢复/事务层按需分派）。 */
 export type GalAnyRequest = GalGenerationRequest | GalGenerationRequestV2;
@@ -674,13 +676,13 @@ export interface GalGenerationRequestV2 {
   syntheticHistory: SyntheticHistoryMessage[];
   /** syntheticHistory 的稳定 hash（synthetic-history 模块产出，随冻结一起持久化）。 */
   syntheticHistoryHash: string;
-  /** v2–v5 的冻结注入；v4/v5 仅保留扫描胶囊。 */
+  /** v2–v6 的冻结注入；v4–v6 仅保留扫描胶囊。 */
   promptInjects?: GalPromptInjection[];
   promptInjectsHash?: string;
   contextFingerprint: string;
   /** 玩家看到的原文（trim 后）。 */
   visibleUserText: string;
-  /** 本轮传给模型的玩家输入；v5 必须逐字等于真实玩家楼层正文。 */
+  /** 本轮传给模型的玩家输入；v5/v6 必须逐字等于真实玩家楼层正文。 */
   modelUserInput: string;
   /** 该 request 已进行的模型调用次数（首调 1；retry 递增）。 */
   attemptSeq: number;
@@ -696,7 +698,7 @@ export interface GalGenerationRequestV2Input {
   };
   syntheticHistory: SyntheticHistoryMessage[];
   syntheticHistoryHash: string;
-  promptRevision?: typeof LEGACY_GAL_PROMPT_REVISION | typeof PREVIOUS_GAL_PROMPT_REVISION | typeof SYSTEM_TAIL_GAL_PROMPT_REVISION | typeof REQUEST_BODY_GAL_PROMPT_REVISION | typeof GAL_PROMPT_REVISION;
+  promptRevision?: typeof LEGACY_GAL_PROMPT_REVISION | typeof PREVIOUS_GAL_PROMPT_REVISION | typeof SYSTEM_TAIL_GAL_PROMPT_REVISION | typeof REQUEST_BODY_GAL_PROMPT_REVISION | typeof MESSAGE_SCOPE_GAL_PROMPT_REVISION | typeof GAL_PROMPT_REVISION;
   promptInjects?: GalPromptInjection[];
   promptInjectsHash?: string;
   contextFingerprint: string;
@@ -1018,12 +1020,14 @@ export type GalGenerationRequestV2BuildResult =
       reason: 'empty-input' | 'missing-chat-identity' | 'missing-main-target' | 'empty-history' | 'non-system-history' | 'duplicate-character' | 'visit-map-mismatch' | 'unknown-revision' | 'invalid-injection';
     };
 
-/** v5 的持久化楼层必须与冻结模型输入逐字一致；旧 revision 保持原恢复语义。 */
+/** 当前 revision 的持久化楼层必须与冻结模型输入逐字一致；旧 revision 保持原恢复语义。 */
 export function storedUserMessageMatchesRequestV2(
   request: GalGenerationRequestV2,
   storedMessage: unknown,
 ): boolean {
-  return request.promptRevision !== GAL_PROMPT_REVISION
+  const exactMessageRevision = request.promptRevision === GAL_PROMPT_REVISION
+    || request.promptRevision === MESSAGE_SCOPE_GAL_PROMPT_REVISION;
+  return !exactMessageRevision
     || (typeof storedMessage === 'string' && storedMessage === request.modelUserInput);
 }
 
@@ -1057,6 +1061,8 @@ export function buildGalGenerationRequestV2(input: GalGenerationRequestV2BuildIn
   if (!resolved.ok) return { ok: false, reason: resolved.reason };
 
   const visitIdsByCharacter = freezeVisitIds(input.state, resolved.characterIds);
+  const now = input.now ?? Date.now();
+  const requestId = input.requestId ?? createRequestId(now);
 
   const history = buildSyntheticHistory({
     state: input.state,
@@ -1072,8 +1078,25 @@ export function buildGalGenerationRequestV2(input: GalGenerationRequestV2BuildIn
     playerInput: value,
     state: input.state,
     narrativeCharacterIds,
+    variableAnalysisTaskProjection: formatVariableAnalysisTaskProjection(input.state, {
+      requestId,
+      relevantCharacterIds: resolved.characterIds,
+      visitIdsByCharacter,
+    }),
   });
   if (!modelUserInput) return { ok: false, reason: 'empty-input' };
+  // requestId 必须出现在额外模型任务信封里用于结算绑定，但它含随机后缀，
+  // 不能污染“同一逻辑上下文得到同一 fingerprint”的既有合同。
+  const fingerprintModelUserInput = buildGalStoredUserMessage({
+    playerInput: value,
+    state: input.state,
+    narrativeCharacterIds,
+    variableAnalysisTaskProjection: formatVariableAnalysisTaskProjection(input.state, {
+      requestId: '__FINGERPRINT_REQUEST__',
+      relevantCharacterIds: resolved.characterIds,
+      visitIdsByCharacter,
+    }),
+  });
   const promptInjects = buildGalCurrentTurnInjections({
     state: input.state,
     explicitCharacterIds: input.explicitCharacterIds,
@@ -1092,7 +1115,7 @@ export function buildGalGenerationRequestV2(input: GalGenerationRequestV2BuildIn
     ['stateSwipeIdBeforeGeneration', input.snapshot.stateSwipeIdBeforeGeneration],
     ['sceneId', input.snapshot.sceneId],
     ['visibleUserText', visibleUserText],
-    ['modelUserInputHash', computeContextFingerprint(modelUserInput)],
+    ['modelUserInputHash', computeContextFingerprint(fingerprintModelUserInput)],
     ['relevantCharacterIds', resolved.characterIds],
     ['visitIdsByCharacter', visitIdsByCharacter],
     ['syntheticHistoryHash', syntheticHistoryHash],
@@ -1116,9 +1139,9 @@ export function buildGalGenerationRequestV2(input: GalGenerationRequestV2BuildIn
     promptInjects,
     promptInjectsHash,
     contextFingerprint: fingerprint,
-    requestId: input.requestId,
+    requestId,
     attemptSeq: input.attemptSeq,
-    now: input.now,
+    now,
   });
   if (!result.ok) return { ok: false, reason: result.reason };
   return {

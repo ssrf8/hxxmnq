@@ -9,8 +9,9 @@
   - `<narration>旁白、环境或动作</narration>`
   - `<dialogue char="已登记角色ID" visual_mode="normal|nude|sexual" reaction="已登记表情" pose="已登记姿势" act="vaginal|anal|none">角色台词</dialogue>`
 - `dialogue` 的 `char`、`visual_mode`、`reaction`、`pose`、`act` 五个属性必须全部存在。没有更合适的登记值时使用 `reaction="neutral" pose="default" act="none"`，不得虚构角色、表情、姿势或行为 ID。
+- 每个 `<narration>` 只承载一个连续语义段，通常 1–3 句且不超过约 180 个汉字；视角、地点、动作焦点或说话者发生变化时结束当前标签并另开一个。不得把整篇回复或多个空行分隔的段落包进同一个 `<narration>`。
 - 多人或同一角色多次发言必须拆成多个连续 `dialogue`；旁白、环境和无引号动作使用 `narration`，不得塞入标签属性。
-- `GensokyoPresence` 等本轮明确要求的可选剧情协议只能写在 `【庭园正文结束】` 之后。剧情模型不得输出 `<UpdateVariable>`；变量模型由独立 `[mvu_update]` 条目规定。
+- 剧情模型不得输出 `<GensokyoPresence>` 或 `<UpdateVariable>`；角色移动与离场由独立变量阶段分析正文后提交。
 - 正文内不得出现格式解释、自我纠错、思维过程、状态面板、选项列表、第二份 GAL JSON、HTML、URL 或代码。
 
 正确格式示范：

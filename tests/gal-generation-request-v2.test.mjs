@@ -69,7 +69,7 @@ test('createGalGenerationRequestV2 冻结 schema/revision/相关角色/visit map
   assert.equal(r.requestId.startsWith('gal-req-'), true);
   assert.equal(r.promptRevision, 'gal-prompt.v1');
   assert.equal(r.historyRevision, 'gal-synthetic-history.v1');
-  assert.equal(r.memoryRevision, 'character-visit-memory.v1');
+  assert.equal(r.memoryRevision, 'character-visit-memory.v2');
   assert.deepEqual(r.relevantCharacterIds, ['reimu', 'marisa']);
   assert.deepEqual(r.visitIdsByCharacter, { reimu: 'character_visit_000001', marisa: null });
   assert.deepEqual(r.syntheticHistory, SYNTHETIC);

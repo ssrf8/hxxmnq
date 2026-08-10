@@ -20,7 +20,7 @@ type Listener = {
   options?: AddEventListenerOptions | boolean;
 };
 
-/** Touch gestures replacing the on-screen buttons: drag = fire, 2nd finger held = focus, double-tap = bomb. */
+/** Touch gestures: relative drag + held auto-fire, 2nd finger held = focus, double-tap = bomb. */
 const TAP_MAX_MS = 260;
 const TAP_MAX_MOVE_PX = 14;
 const DOUBLE_TAP_MS = 360;
@@ -38,7 +38,7 @@ export function createBattleInput(
   let pauseEdge = false;
   let attached = false;
   let touchFocus = false;
-  let touchDragFiring = false;
+  let touchFiring = false;
   let primaryPointerId: number | null = null;
   let lastTapAt = -Infinity;
   const touchDown = new Map<number, { x: number; y: number; at: number; moved: boolean }>();
@@ -48,9 +48,12 @@ export function createBattleInput(
   const clearGestures = () => {
     touchDown.clear();
     touchFocus = false;
-    touchDragFiring = false;
+    touchFiring = false;
     primaryPointerId = null;
     lastTapAt = -Infinity;
+    state.pointerRelative = false;
+    state.pointerX = 0;
+    state.pointerY = 0;
   };
 
   const add = (
@@ -69,7 +72,7 @@ export function createBattleInput(
     state.moveX = dx;
     state.moveY = dy;
     state.focused = externalFocus || touchFocus || keys.has('ShiftLeft') || keys.has('ShiftRight');
-    state.firing = autoFire || touchDragFiring || keys.has('KeyZ');
+    state.firing = autoFire || touchFiring || keys.has('KeyZ');
   };
 
   const onKeyDown = (event: KeyboardEvent) => {
@@ -113,6 +116,19 @@ export function createBattleInput(
     state.pointerY = ((event.clientY - rect.top) / height) * logicalHeight;
   };
 
+  const touchDisplacementToArena = (
+    event: PointerEvent,
+    origin: { x: number; y: number },
+  ) => {
+    const rect = canvas.getBoundingClientRect();
+    const width = Math.max(1, rect.width);
+    const height = Math.max(1, rect.height);
+    const logicalWidth = options?.logicalWidth ?? canvas.width;
+    const logicalHeight = options?.logicalHeight ?? canvas.height;
+    state.pointerX = ((event.clientX - origin.x) / width) * logicalWidth;
+    state.pointerY = ((event.clientY - origin.y) / height) * logicalHeight;
+  };
+
   const onPointerDown = (event: PointerEvent) => {
     if (event.button != null && event.button !== 0) return;
     canvas.focus();
@@ -128,8 +144,17 @@ export function createBattleInput(
     if (primaryPointerId == null || !isTouch) {
       primaryPointerId = event.pointerId;
       state.pointerActive = true;
-      if (isTouch) touchDragFiring = false;
-      pointToArena(event);
+      state.pointerRelative = isTouch;
+      if (isTouch) {
+        // Press establishes a zero-displacement anchor: the player never jumps
+        // to the finger. Holding the primary touch is the mobile fire control.
+        state.pointerX = 0;
+        state.pointerY = 0;
+        touchFiring = true;
+        syncMovement();
+      } else {
+        pointToArena(event);
+      }
     }
     try {
       canvas.setPointerCapture(event.pointerId);
@@ -149,11 +174,8 @@ export function createBattleInput(
       return;
     }
     if (event.pointerId !== primaryPointerId && event.pointerType !== 'mouse') return;
-    if (event.pointerType !== 'mouse' && info?.moved && !touchDragFiring) {
-      touchDragFiring = true;
-      syncMovement();
-    }
-    pointToArena(event);
+    if (event.pointerType !== 'mouse' && info) touchDisplacementToArena(event, info);
+    else pointToArena(event);
     event.preventDefault();
   };
 
@@ -179,8 +201,9 @@ export function createBattleInput(
     if (event.pointerId === primaryPointerId || primaryPointerId == null || !isTouch) {
       primaryPointerId = null;
       state.pointerActive = false;
-      if (isTouch && touchDragFiring) {
-        touchDragFiring = false;
+      state.pointerRelative = false;
+      if (isTouch && touchFiring) {
+        touchFiring = false;
         syncMovement();
       }
     }

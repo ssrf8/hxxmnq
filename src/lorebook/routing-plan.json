@@ -1,5 +1,5 @@
 {
-  "version": "0.2.0",
+  "version": "0.3.0",
   "entries": [
     {
       "id": "core_narrative_contract",
@@ -16,7 +16,7 @@
       "target": "variable-model",
       "source": "variable-output-format.md",
       "budget": "high-priority",
-      "contract": "每轮只输出一个 UpdateVariable/JSONPatch；无合法变化时输出空数组；不得写 interaction.visit_memory。"
+      "contract": "每轮只输出一个 UpdateVariable/JSONPatch；不得写 interaction.visit_memory 或 presence_snapshot；若 D0 有 visit_summary_task 或 presence_analysis_task，则只逐槽 replace 已开放叶字段，不能改任务信封。"
     },
     {
       "id": "current_state_projection",
@@ -33,7 +33,7 @@
       "target": "variable-model",
       "source": "variable-update-rules.md",
       "budget": "high-priority",
-      "contract": "只写获授权的开放语义字段；interaction.visit_memory 与全部确定性状态由 bridge 独占。"
+      "contract": "只写获授权的开放语义字段；独立关系事实已退役；每角色剧情语义由额外变量模型写入 bridge 冻结的临时槽位，bridge 绑定为最多 60 条 VisitTurn；interaction.visit_memory 与全部确定性状态仍由 bridge 独占。"
     },
     {
       "id": "gal_presentation_protocol",

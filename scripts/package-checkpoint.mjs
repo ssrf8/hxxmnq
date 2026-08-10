@@ -2,18 +2,18 @@
 import { access, copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
-const VERSION = '0.2.0';
+const VERSION = '0.3.0';
 const releaseKindArg = process.argv.find(argument => argument.startsWith('--release-kind='));
 const RELEASE_KIND = releaseKindArg ? releaseKindArg.slice('--release-kind='.length) : 'production';
 if (!['production', 'test'].includes(RELEASE_KIND)) throw new Error('--release-kind 只允许 production 或 test');
 const IS_TEST_ENTRY = RELEASE_KIND === 'test';
 // 正式检查点必须显式提供版本；测试入口是固定卡（卡名不绑定 UI 版本，见 plan 3.3/5.4）。
 const checkpointArg = process.argv.find(argument => argument.startsWith('--checkpoint='));
-if (!IS_TEST_ENTRY && !checkpointArg) throw new Error('缺少必需参数：--checkpoint=0.2.0-rN');
-const CHECKPOINT = IS_TEST_ENTRY ? '0.2.0-ui-test-entry' : checkpointArg.slice('--checkpoint='.length).trim();
+if (!IS_TEST_ENTRY && !checkpointArg) throw new Error('缺少必需参数：--checkpoint=0.3.0-rN');
+const CHECKPOINT = IS_TEST_ENTRY ? '0.3.0-ui-test-entry' : checkpointArg.slice('--checkpoint='.length).trim();
 const CHECKPOINT_RE = IS_TEST_ENTRY
-  ? /^0\.2\.0-ui-test-entry$/u
-  : /^0\.2\.0-r[1-9][0-9]*$/u;
+  ? /^0\.3\.0-ui-test-entry$/u
+  : /^0\.3\.0-r[1-9][0-9]*$/u;
 if (!CHECKPOINT_RE.test(CHECKPOINT)) {
   throw new Error(`非法检查点：${CHECKPOINT}（${RELEASE_KIND} 通道格式）`);
 }
@@ -231,6 +231,15 @@ const routedEntry = (...args) => {
   return result;
 };
 
+const initvarEntry = entry(
+  6,
+  '[initvar] 移动庭园初始状态',
+  `<initvar>\n${JSON.stringify(initialState, null, 2)}\n</initvar>`,
+);
+// MagVarUpdate 会直接枚举世界书并按 comment 读取 [initvar]，不依赖条目启用状态；
+// 关闭它可以避免进入常规世界书扫描候选，同时仍保留新聊天初始化来源。
+initvarEntry.enabled = false;
+
 const loreEntries = [
   entry(0, '[mvu_plot][core] 角色卡身份与玩家权边界', identity, [], true),
   entry(1, '[mvu_plot][core] 会移动的结界领地', movingGarden, [], true),
@@ -240,7 +249,7 @@ const loreEntries = [
   entry(8, '[mvu_update] 变量输出格式', variableOutputFormat, [], true, 'after_char'),
   entry(7, '[mvu_plot][interaction] GAL 表现与会话协议', galPresentation, [], true, 'after_char'),
   routedEntry(4, '[mvu_plot][opening] 移动庭园首次行动引导', openingGuidance, ['GSK_OPENING_GUIDANCE_ACTIVE'], false),
-  entry(6, '[initvar] 移动庭园初始状态', `<initvar>\n${JSON.stringify(initialState, null, 2)}\n</initvar>`),
+  initvarEntry,
   ...characterProfiles.map((profile, index) => {
     return routedEntry(
       10 + index,

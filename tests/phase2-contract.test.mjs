@@ -73,7 +73,7 @@ test('MVU timeout 语义：90 秒上限 + 只恢复结算不再生成文本', ()
   assert.match(bridge, /只恢复结算，不再生成文本/);
 });
 
-test('本地托管剧情收到精确非空回复后直接结算，只有自由对话等待 MVU', () => {
+test('所有 V2 剧情均等待额外变量阶段提供角色梗概', () => {
   const sendStart = bridge.indexOf('async sendUserMessage(text');
   const sendEnd = bridge.indexOf('async sendAnomalyResolution(text)', sendStart);
   const sendMethod = bridge.slice(sendStart, sendEnd);
@@ -87,12 +87,12 @@ test('本地托管剧情收到精确非空回复后直接结算，只有自由�
   const anomalyRecovery = bridge.slice(anomalyRecoveryStart, anomalyRecoveryEnd);
   const duelRecoveryEnd = bridge.indexOf('const recoverCompletedCurrentTransaction', anomalyRecoveryEnd);
   const duelRecovery = bridge.slice(anomalyRecoveryEnd, duelRecoveryEnd);
-  assert.match(sendMethod, /if \(!action\) await waitForVariableStage\(snapshot\.assistantMessageId\);/);
-  assert.doesNotMatch(anomalyMethod, /waitForVariableStage/);
-  assert.doesNotMatch(duelMethod, /waitForVariableStage/);
+  assert.match(sendMethod, /await waitForVariableStage\(snapshot\.assistantMessageId\);/);
+  assert.match(anomalyMethod, /await waitForVariableStage\(snapshot\.assistantMessageId\);/);
+  assert.match(duelMethod, /await waitForVariableStage\(snapshot\.assistantMessageId\);/);
   assert.doesNotMatch(anomalyRecovery, /isDuringExtraAnalysis/);
   assert.doesNotMatch(duelRecovery, /isDuringExtraAnalysis/);
-  assert.match(bridge, /if \(!attemptForceReady && !pendingSettlement && !pendingSystemOperation && !variableStageReady\(mvu\)\) return false;/);
+  assert.match(bridge, /if \(!attemptForceReady && !variableStageReady\(mvu\)\) return false;/);
   assert.match(
     bridge,
     /recoverRecordedAnomalyResolution\(mvu, current\)[\s\S]*?recoverRecordedDuelVictory\(mvu, current\)[\s\S]*?if \(mvu\.isDuringExtraAnalysis\?\.\(\) && !recorded\) return false;/,

@@ -74,7 +74,7 @@
       "priority": 64,
       "one_time": true,
       "max_effective_rounds": 1,
-      "projection_keys": ["environment", "key_items.sakuya_watch", "characters.sakuya.current_relationship_facts", "presence_snapshot", "events.waiting_events"],
+      "projection_keys": ["environment", "key_items.sakuya_watch", "presence_snapshot", "events.waiting_events"],
       "narrative_outline": ["咲夜追踪到不属于自己的时间停顿痕迹", "她核对地点与残留节奏", "双方完成一次克制接触"],
       "required_beats": ["只确认咲夜注意到异常", "不强制咲夜常驻庭园"],
       "forbidden_deviations": ["不得把咲夜写成怀表赠送者的既定事实", "不得强制常驻", "不得让其他强者同步得知"],

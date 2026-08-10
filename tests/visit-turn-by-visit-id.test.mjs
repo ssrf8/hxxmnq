@@ -49,13 +49,13 @@ const makeVisit = (visitId, turns = []) => ({
 const makeState = (reimu, marisa) => ({
   interaction: {
     visit_memory: {
-      version: 'character-visit-memory.v1',
+      version: 'character-visit-memory.v2',
       by_character: {
-        reimu: { character_id: 'reimu', active_visit: null, closed_visits: [], legacy_memories: [], relationship_memories: [], ...reimu },
-        marisa: { character_id: 'marisa', active_visit: null, closed_visits: [], legacy_memories: [], relationship_memories: [], ...marisa },
+        reimu: { character_id: 'reimu', active_visit: null, closed_visits: [], legacy_memories: [], ...reimu },
+        marisa: { character_id: 'marisa', active_visit: null, closed_visits: [], legacy_memories: [], ...marisa },
       },
       legacy_unassigned: [],
-      migration: { revision: 'character-visit-memory.v1', conversation_log_fingerprint: null, relationship_facts_fingerprint: null, migrated_at_serial: null },
+      migration: { revision: 'character-visit-memory.v2', conversation_log_fingerprint: null, migrated_at_serial: null },
     },
   },
 });

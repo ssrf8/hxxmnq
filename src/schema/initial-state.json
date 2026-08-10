@@ -1,8 +1,8 @@
 {
   "meta": {
-    "schema_version": "0.2.0",
-    "bridge_version": "0.2.0",
-    "database_adapter_version": "0.2.0",
+    "schema_version": "0.3.0",
+    "bridge_version": "0.3.0",
+    "database_adapter_version": "0.3.0",
     "initialized": false,
     "opening_committed": false
   },
@@ -117,50 +117,57 @@
     "reimu": {
       "id": "reimu",
       "name": "博丽灵梦",
-      "fixed": true,
-      "current_relationship_facts": []
+      "fixed": true
     },
     "marisa": {
       "id": "marisa",
       "name": "雾雨魔理沙",
-      "fixed": true,
-      "current_relationship_facts": []
+      "fixed": true
     },
     "cirno": {
       "id": "cirno",
       "name": "琪露诺",
-      "fixed": true,
-      "current_relationship_facts": []
+      "fixed": true
     },
     "alice": {
       "id": "alice",
       "name": "爱丽丝·玛格特洛依德",
-      "fixed": true,
-      "current_relationship_facts": []
+      "fixed": true
     },
     "mystia": {
       "id": "mystia",
       "name": "米斯蒂娅·萝蕾拉",
-      "fixed": true,
-      "current_relationship_facts": []
+      "fixed": true
     },
     "suika": {
       "id": "suika",
       "name": "伊吹萃香",
-      "fixed": true,
-      "current_relationship_facts": []
+      "fixed": true
     },
     "nitori": {
       "id": "nitori",
       "name": "河城荷取",
-      "fixed": true,
-      "current_relationship_facts": []
+      "fixed": true
     },
     "sakuya": {
       "id": "sakuya",
       "name": "十六夜咲夜",
-      "fixed": true,
-      "current_relationship_facts": []
+      "fixed": true
+    },
+    "youmu": {
+      "id": "youmu",
+      "name": "魂魄妖梦",
+      "fixed": true
+    },
+    "patchouli": {
+      "id": "patchouli",
+      "name": "帕秋莉·诺蕾姬",
+      "fixed": true
+    },
+    "sanae": {
+      "id": "sanae",
+      "name": "东风谷早苗",
+      "fixed": true
     }
   },
   "presence_snapshot": {
@@ -178,71 +185,82 @@
     "settled_ids": [],
     "conversation_log": [],
     "starter_gift_claimed": false,
+    "visit_summary_task": null,
+    "presence_analysis_task": null,
     "visit_memory": {
-      "version": "character-visit-memory.v1",
+      "version": "character-visit-memory.v2",
       "by_character": {
         "reimu": {
           "character_id": "reimu",
           "active_visit": null,
           "closed_visits": [],
-          "legacy_memories": [],
-          "relationship_memories": []
+          "legacy_memories": []
         },
         "marisa": {
           "character_id": "marisa",
           "active_visit": null,
           "closed_visits": [],
-          "legacy_memories": [],
-          "relationship_memories": []
+          "legacy_memories": []
         },
         "cirno": {
           "character_id": "cirno",
           "active_visit": null,
           "closed_visits": [],
-          "legacy_memories": [],
-          "relationship_memories": []
+          "legacy_memories": []
         },
         "alice": {
           "character_id": "alice",
           "active_visit": null,
           "closed_visits": [],
-          "legacy_memories": [],
-          "relationship_memories": []
+          "legacy_memories": []
         },
         "mystia": {
           "character_id": "mystia",
           "active_visit": null,
           "closed_visits": [],
-          "legacy_memories": [],
-          "relationship_memories": []
+          "legacy_memories": []
         },
         "suika": {
           "character_id": "suika",
           "active_visit": null,
           "closed_visits": [],
-          "legacy_memories": [],
-          "relationship_memories": []
+          "legacy_memories": []
         },
         "nitori": {
           "character_id": "nitori",
           "active_visit": null,
           "closed_visits": [],
-          "legacy_memories": [],
-          "relationship_memories": []
+          "legacy_memories": []
         },
         "sakuya": {
           "character_id": "sakuya",
           "active_visit": null,
           "closed_visits": [],
-          "legacy_memories": [],
-          "relationship_memories": []
+          "legacy_memories": []
+        },
+        "youmu": {
+          "character_id": "youmu",
+          "active_visit": null,
+          "closed_visits": [],
+          "legacy_memories": []
+        },
+        "patchouli": {
+          "character_id": "patchouli",
+          "active_visit": null,
+          "closed_visits": [],
+          "legacy_memories": []
+        },
+        "sanae": {
+          "character_id": "sanae",
+          "active_visit": null,
+          "closed_visits": [],
+          "legacy_memories": []
         }
       },
       "legacy_unassigned": [],
       "migration": {
         "revision": "",
         "conversation_log_fingerprint": null,
-        "relationship_facts_fingerprint": null,
         "migrated_at_serial": null
       }
     }
@@ -315,7 +333,7 @@
   },
   "visit_scheduler": {
     "version": "visit.v1",
-    "known_characters": [],
+    "known_characters": ["youmu", "patchouli", "sanae"],
     "plans": [],
     "cooldown_until": {},
     "invitation_cooldowns": {},
@@ -396,7 +414,6 @@
     "event": 1,
     "interaction": 1,
     "battle": 1,
-    "relationship_fact": 1,
     "character_visit": 1
   }
 }

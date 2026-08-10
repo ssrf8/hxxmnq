@@ -55,6 +55,13 @@ test('两名角色同轮各写自己的冻结父级 visit', async () => {
   let restored = settlement.restoreLocalEventOwnership(local, staleModel);
   assert.equal(restored.interaction.visit_memory.by_character.reimu.active_visit.visit_id, reimuVisit);
   assert.equal(restored.interaction.visit_memory.by_character.marisa.active_visit.visit_id, marisaVisit);
+  restored.interaction.visit_summary_task = {
+    schema: 'visit-summary-task.v1', request_id: 'multi-turn',
+    slots: [
+      { character_id: 'reimu', summary: '灵梦与玩家在庭园里打了招呼。' },
+      { character_id: 'marisa', summary: '魔理沙与玩家在庭园里打了招呼。' },
+    ],
+  };
 
   const result = commits.applyVisitTurnsToFinalState({
     finalState: restored,
@@ -65,7 +72,6 @@ test('两名角色同轮各写自己的冻结父级 visit', async () => {
     },
     attempt: { attemptId: 'a1', commitKey: 'c1', assistantMessageId: 2, assistantSwipeId: 0 },
     clock: { day: 1, time_period: '清晨', period_serial: 0 },
-    acceptedOutput: '【庭园正文开始】<dialogue char="reimu">早。</dialogue><dialogue char="marisa">早啊。</dialogue>【庭园正文结束】',
   });
   assert.equal(result.ok, true);
   assert.equal(result.state.interaction.visit_memory.by_character.reimu.active_visit.turns.at(-1).turn_id, 'multi-turn:reimu');
@@ -86,6 +92,10 @@ test('角色生成期间离场，仍写入冻结的旧 visit', async () => {
   const restored = settlement.restoreLocalEventOwnership(departed, staleModel);
   assert.equal(restored.interaction.visit_memory.by_character.reimu.active_visit, null);
   assert.equal(restored.interaction.visit_memory.by_character.reimu.closed_visits.at(-1).visit_id, reimuVisit);
+  restored.interaction.visit_summary_task = {
+    schema: 'visit-summary-task.v1', request_id: 'leave-turn',
+    slots: [{ character_id: 'reimu', summary: '灵梦向玩家告别后离开了庭园。' }],
+  };
 
   const result = commits.applyVisitTurnsToFinalState({
     finalState: restored,
@@ -95,7 +105,6 @@ test('角色生成期间离场，仍写入冻结的旧 visit', async () => {
     },
     attempt: { attemptId: 'a2', commitKey: 'c2', assistantMessageId: 4, assistantSwipeId: 0 },
     clock: { day: 1, time_period: '清晨', period_serial: 0 },
-    acceptedOutput: '【庭园正文开始】<dialogue char="reimu">那我先走了。</dialogue>【庭园正文结束】',
   });
   assert.equal(result.ok, true);
   assert.equal(result.state.interaction.visit_memory.by_character.reimu.closed_visits.at(-1).turns.at(-1).turn_id, 'leave-turn:reimu');

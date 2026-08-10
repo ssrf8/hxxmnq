@@ -1,10 +1,10 @@
-# MVU 字段台账 v0.2.0
+# MVU 字段台账 v0.3.0
 
 `stat_data` 是唯一正式状态源。下表中的“模型”指正文与变量更新模型，“桥接”指本地同层应用 bridge，“数据库”只允许读取已结算摘要的副本。
 
 | 路径 | 类型/默认值 | 写入者 | 读取者/渲染者 | 清理与迁移 |
 |---|---|---|---|---|
-| `meta.schema_version` | 字面量 `0.2.0` | 迁移器 | schema、诊断页 | 只由幂等迁移修改；失败保留旧快照 |
+| `meta.schema_version` | 字面量 `0.3.0` | schema | schema、诊断页 | 破坏性新版本；不迁移 v0.2.0 的独立关系字段 |
 | `meta.initialized` | boolean/false | 确定性开场 bridge | 模型、开场页 | 首个 assistant 楼层写入并复读成功后置 true，不回退 |
 | `meta.opening_committed` | boolean/false | 确定性开场 bridge | 开场页 | 防重复提交；失败时保持 false；不同资料禁止静默覆盖 |
 | `environment` | 日期、时段、季节、天气 | 模型 | 模型、庭园页 | 时段按固定环推进；季节日限制 1–30 |
@@ -13,10 +13,11 @@
 | `resources` | 物资 0–20、灵感 0–10、金币 0–99999 | 本地副本奖励、商店事务 | 模型、资源显示、商店 | 旧存档缺失金币时迁移补 0；不得从正文猜余额 |
 | `areas.{id}` | 固定/动态区域记录 | bridge/迁移器负责创建和登记推进；模型仅可更新既有非托管开放语义 | 模型、地图 | 固定 ID 不改名；删除前解除设施引用 |
 | `facilities.{id}` | 设施状态与形态 | 本地设施/事件结算；模型仅可更新既有非托管开放语义 | 模型、地图、事件 | 主设施每区一个；形态列表去重由桥接校验 |
-| `characters.{id}` | 角色稳定档案 | bridge/迁移器负责创建；模型可写既有角色的关系事实 | 模型、地图、数据库归档 | 固定八人永久保留；模型不得创建 UID 或新角色 |
-| `characters.{id}.current_relationship_facts` | 最多 12 条事实对象 | 模型；受控方案事件的本地结算器 | 相关场景模型 | 冲突事实先失效/归档再新增；不存好感数值 |
-| `presence_snapshot` | 本轮在场和动作快照 | bridge（校验剧情模型的 `presence.v1` 回执；固定事件按登记的 `presence_transition` 本地迁移） | 地图、模型 | 每轮整体覆盖，不交给额外变量模型；玩家不得进入角色视图 |
+| `characters.{id}` | 角色稳定档案 | bridge/迁移器负责创建 | 模型、地图、数据库归档 | 固定八人永久保留；模型不得创建 UID、新角色或退役的关系字段 |
+| `presence_snapshot` | 本轮在场和动作快照 | bridge（消费额外模型的冻结语义任务；固定事件按登记的 `presence_transition` 本地迁移） | 地图、模型 | 额外模型不直写快照；越权、未知区域、基线漂移或不确定判断均保持原值；玩家不得进入角色视图 |
 | `interaction.current_session` | null 或单一会话 | bridge 创建/关闭/结算；额外变量模型只可更新既有普通会话的 `focus`/`summary` | 模型、剧情页 | 同时仅一个；模型不得替换父对象绕过所有权 |
+| `interaction.visit_summary_task` | null 或 `visit-summary-task.v1` 请求期暂存任务 | bridge 创建/绑定/清除；额外变量模型只写既有 `slots.*.summary` | VisitTurn commit | request、槽位角色、顺序与数量归 bridge；成功提交后同次写盘清为 null；不作为长期记忆投影 |
+| `interaction.presence_analysis_task` | null 或 `presence-analysis-task.v1` 请求期暂存任务 | bridge 创建/绑定/清除；额外变量模型只写既有槽位的判断叶字段 | presence commit | 仅覆盖请求开始时已在场的相关角色；本地变化优先；消费后同次清为 null；到访仍由本地调度、邀请或固定事件负责 |
 | `interaction.current_session.effective_rounds` | integer/0 | bridge | 温室多轮会话门槛 | 仅完整且有效的新 assistant 回复递增；停止、失败、Swipe、重放与同消息 ID 不计数 |
 | `interaction.settled_ids` | 最多 64 个交互结算 ID | bridge | 模型、GAL 幂等检查 | 只追加已复读成功的会话结算；重复 ID 禁止再次结算 |
 | `interaction.conversation_log` | 最多 24 条短摘要，每条 ≤120 字 | **无（B2-T11 退役：不再由任何变量规则写入）** | **无（不再投影到模型；仅作 legacy migration source）** | 只保留旧存档迁移能力：FIFO 保留尾 24 条、不清空、字符串兜底；新剧情记忆由 `visit_memory` + synthetic history 承担 |
@@ -59,7 +60,6 @@
 
 ## 关键对象约束
 
-- 关系事实：`id`、`subjects[]`、`fact`、`source_event_id`、`established_at`、`active`、`last_confirmed_at`。
 - 交互会话：`uid`、`type`、`status`、`area_id`、参与者、关联设施/事件、开始时间、焦点、最后有效消息、有效轮数、600 字摘要、结算状态。
 - 正式事件：稳定 `config_id` 与实例 `uid` 分离；保存状态、优先级、参与者、关联设施、期限和摘要。
 - 战斗结果：只接受预登记 `config_id`；`settlement_id` 是一次性结算键。
@@ -67,44 +67,42 @@
 
 ## 未知字段策略
 
-所有正式对象使用 passthrough，迁移时保留未知字段，避免旧聊天被静默裁剪。只有展示快照和有明确上限的列表会在 schema 阶段限长；语义去重与跨引用清理由桥接校验负责。
+正式对象通常使用 passthrough；但 v0.3.0 明确删除的 `current_relationship_facts`、`relationship_memories`、`relationship_facts_fingerprint` 与 `uid_counters.relationship_fact` 会在 schema 阶段丢弃，不提供旧档迁移。其他未知字段仍保留。
 
 ---
 
-# GAL 角色记忆模型（第一批 v1）
+# GAL 角色记忆模型 v2
 
-> 固定模型标识（冻结，不得更名/换容量/改语义）：
+> 当前模型标识：
 >
 >     modelId: gensokyo-character-memory
->     modelVersion: character-visit-memory.v1
+>     modelVersion: character-visit-memory.v2
 >     storage.root: stat_data.interaction.visit_memory
 >     storage.scope: message
 >     storage.strategy: multi-floor
 >
 > 同层兼容不声称、不新增，标记 DBR-C8-UNVERIFIED。数据库本批完全不接。
 > chat metadata / localStorage / sessionStorage 不得保存正式记忆。
-> conversation_log 已退役（B2-T11）：仅作旧存档迁移来源；current_relationship_facts 本批仍由旧协议写入并保留。
+> v0.3.0 只维护每角色剧情梗概；独立关系事实与关系记忆已删除且不迁移。
 
-## 集中容量常量（值冻结）
+## 集中容量常量
 
 | 常量 | 值 | 说明 |
 |---|---|---|
-| STORY_SUMMARIES_PER_CHARACTER | 48 | 每角色剧情梗概总计（active+closed 全部 turn） |
+| STORY_SUMMARIES_PER_CHARACTER | 60 | 每角色剧情梗概总计（active+closed 全部 turn）；关系变化也记录在这里 |
 | ACTIVE_TURNS_PER_CHARACTER | 16 | active_visit 单次最多 turn |
 | CLOSED_VISITS_PER_CHARACTER | 4 | 每角色保留最近 closed visit 数 |
 | TURNS_PER_CLOSED_VISIT | 16 | 每个 closed visit 结构上限 turn 数 |
-| LEGACY_MEMORIES_PER_CHARACTER | 16 | 每角色 legacy story 条数（不计入 48） |
+| LEGACY_MEMORIES_PER_CHARACTER | 16 | 每角色 legacy story 条数（不计入 60） |
 | LEGACY_UNASSIGNED_LIMIT | 24 | legacy_unassigned 条数 |
-| RELATIONSHIP_MEMORIES_PER_CHARACTER | 12 | 每角色关系记忆条数 |
-| TURN_SUMMARY_CHARS | 100 | turn summary 字符上限；新摘要目标为 80–100 字 |
-| RELATIONSHIP_SUMMARY_CHARS | 160 | relationship summary 字符上限 |
+| TURN_SUMMARY_CHARS | 100 | turn summary 字符上限；允许简短但必须语义完整 |
 
 ## 根结构：interaction.visit_memory
 
 | 路径 | 类型/默认值 | 写入者 | 读取者/渲染者 | 清理与迁移 |
 |---|---|---|---|---|
-| `interaction.visit_memory.version` | 字面量 `character-visit-memory.v1` | 迁移器/schema | schema、投影器 | 只由幂等迁移维护；不随版本发布随意改 |
-| `interaction.visit_memory.by_character` | Record<CharacterId, CharacterMemory>，动态字典 | migration/bootstrap、presence reconciliation、upsert helper（本批无生产 turn 写入者） | 投影器、迁移器 | 每角色独立；固定角色初始空结构；动态角色懒创建；角色总计 48 与 12 均为每角色额度 |
+| `interaction.visit_memory.version` | 字面量 `character-visit-memory.v2` | schema | schema、投影器 | v2 为 60 条单轨剧情记忆 |
+| `interaction.visit_memory.by_character` | Record<CharacterId, CharacterMemory>，动态字典 | bootstrap、presence reconciliation、VisitTurn commit | 投影器 | 每角色独立；固定角色初始空结构；动态角色懒创建；每角色剧情梗概总计 60 |
 | `interaction.visit_memory.legacy_unassigned` | LegacyMemory[]，上限 24 | deterministic migration（conversation_log） | 只读（本批不投影） | 未知角色/无前缀/空正文进入；稳定 legacy_id 去重；FIFO 裁剪 |
 | `interaction.visit_memory.migration` | migration 元数据对象 | deterministic migration | 迁移器 | 见下方 migration 元数据 |
 | `uid_counters.character_visit` | integer，初始 ≥1 | Bridge/domain helper（nextCharacterVisitId） | visit_id 分配 | 单调递增、左补零；禁止数组下标当 ID |
@@ -117,7 +115,6 @@
 | `active_visit` | VisitRecord \| null | presence reconciliation | 初始/关闭后为 null |
 | `closed_visits` | VisitRecord[]，上限 4 | presence reconciliation | 关闭时压入；裁剪保留最近 |
 | `legacy_memories` | LegacyMemory[]，上限 16 | deterministic migration | 迁入的旧 conversation_log 条目 |
-| `relationship_memories` | RelationshipMemory[]，上限 12 | deterministic migration（本批）；后续 Bridge 提交器 | 每角色独立 |
 
 ## VisitRecord
 
@@ -134,7 +131,7 @@
 | `ended_time_period` | string\|null | reconciliation | 关闭时填 |
 | `ended_period_serial` | number\|null | reconciliation | 关闭时填 |
 | `end_reason` | `null\|scheduled-departure\|presence-receipt\|event-leave\|reconcile` | reconciliation | 关闭时填 |
-| `turns` | VisitTurn[]，active 上限 16 | bridge settlement（T10 `applyVisitTurnsToFinalState` 纯构造器 + upsert helper） | 关闭后随 visit 进入 closed_visits |
+| `turns` | VisitTurn[]，active 上限 16 | 额外变量模型填写语义梗概；bridge settlement 校验冻结任务并精确 upsert | 关闭后随 visit 进入 closed_visits |
 
 ## VisitTurn
 
@@ -144,7 +141,7 @@
 | `character_id` | string | bridge settlement | 与 visit 一致 |
 | `day` | number\|string\|null | Bridge 盖章 | 不用现实时间 |
 | `time_period` | string\|null | Bridge 盖章 | 同上 |
-| `summary` | string，80–100 字符 | bridge settlement | 玩家行动、角色回应和现场经过的清洗摘要；短内容补事实边界，不凭空补剧情 |
+| `summary` | 非空 string，≤100 字符 | 额外变量模型填写、bridge 校验 | 角色对应的玩家行动、回应、结果及明确关系变化；不从正文机械截取、不推测未来 |
 
 VisitTurn 不再复制 request、attempt、commit、assistant message、swipe、scene 或 period serial。精确事务身份只保留在提交生命周期与 `RegenerationCommitReceiptV1` 中，不进入长期召回记录。
 
@@ -173,40 +170,18 @@ VisitTurn 不再复制 request、attempt、commit、assistant message、swipe、
 | `text` | string | migration | 规范化文本 |
 | `source` | 字面量 `conversation_log.v0` | migration | 固定标记 |
 
-## RelationshipMemory
-
-| 字段 | 类型/默认值 | 写入者 | 说明 |
-|---|---|---|---|
-| `relationship_memory_id` | string | migration（复用旧 fact.id 稳定组合）/ 后续 Bridge | `legacy_relation:<characterId>:<fact.id>` |
-| `character_id` | string | migration/Bridge | 来自 characters 外层 key，不猜 subjects |
-| `request_id` | string，默认 '' | migration | 空字符串表示 legacy |
-| `visit_id` | string \| null | migration/Bridge | legacy 为 null |
-| `day` | number\|string\|null | migration | 仅旧字段有结构化可靠值时填，否则 null |
-| `time_period` | string\|null | 同上 | 不猜日期 |
-| `period_serial` | number\|null | 同上 | 同上 |
-| `kind` | `relationship_state\|milestone\|boundary\|conflict\|reconciliation` | migration/Bridge | 明确边界→boundary；明确冲突→conflict；明确和解→reconciliation；其他→milestone；relationship_state 仅严格结构/白名单 |
-| `relationship_label` | `stranger\|acquaintance\|friend\|close_friend\|lover\|estranged\|null` | migration/Bridge | 只有明确写出且命中受控映射才填；kiss/sex 不自动判 lover |
-| `event_kind` | `trust\|affection\|confession\|kiss\|adult_intimacy\|promise\|breakup\|null` | migration/Bridge | 只接受受控映射可证明的；不猜词 |
-| `summary` | string，≤160 字符 | migration/Bridge | 中性梗概 |
-| `significance` | 1\|2\|3，默认 2 | migration/Bridge | 本批不做自然语言重要性评分 |
-| `active` | boolean | migration（继承旧 fact.active） | 旧 active 保留；多 active state 归一后标 inactive 不删除 |
-| `latest_attempt_id` | string \| null | 后续 | legacy 为 null |
-| `latest_commit_key` | string \| null | 后续 | legacy 为 null |
-
 ## migration 元数据（interaction.visit_memory.migration）
 
 | 字段 | 说明 |
 |---|---|
 | `revision` | 当前迁移 revision（非 boolean 开关；revision 不是“永远跳过导入”） |
 | `conversation_log_fingerprint` | conversation_log 规范化源 fingerprint（仅判断输入是否变化/诊断，不代替记录级 upsert） |
-| `relationship_facts_fingerprint` | 每角色 current_relationship_facts 规范化源 fingerprint（同上） |
 | `migrated_at_serial` | 迁移运行时的游戏 period serial（诊断用，非 ID 来源） |
 
 规则：
 - 迁移可重复；旧源新增项可增量导入，不重复追加；
 - fingerprint 只用于判断输入变化或记录诊断，不能代替记录级 upsert；
-- 旧关系事实的 active/fact/last_confirmed_at 变化后，即使 ID 见过也必须更新对应关系记忆；
-- 迁移失败时保留原 conversation_log / current_relationship_facts。
+- v0.3.0 不迁移任何独立关系字段。
 
 ## 入场边界（冻结语义）
 
@@ -225,26 +200,16 @@ VisitTurn 不再复制 request、attempt、commit、assistant message、swipe、
 | visit ID/counter | Bridge/domain helper（nextCharacterVisitId） |
 | active/closed visit 生命周期 | presence reconciliation（reconcileCharacterVisits） |
 | 迁入的 legacy story | deterministic migration（migrateGardenState 内） |
-| 迁入的旧关系事实 | deterministic migration |
-| 新 VisitTurn | bridge settlement（T10 纯构造器 + 冻结 visit map 精确 upsert） |
-| 新关系候选 | 本批不存在 |
+| 新 VisitTurn | 额外变量模型写 request-scoped 梗概候选；bridge 校验冻结角色槽位并按 visit map 精确 upsert |
 
-conversation_log（B2-T11 已退役）不再由任何变量规则写入、不再投影；current_relationship_facts 本批仍维持原写入者；禁止为“统一”提前修改 relationship 变量规则。
+conversation_log（B2-T11 已退役）不再由任何变量规则写入、不再投影；关系变化与普通剧情统一写入 VisitTurn。
 
 ## 裁剪规则（冻结）
 
-剧情 48 条（每角色）：
+剧情梗概 60 条（每角色；内部记录类型为 VisitTurn）：
 1. active_visit turns 保留最近 16；
 2. closed_visits 保留最近 4 个 visit；
 3. 每个 closed visit turns 保留最近 16；
-4. active + closed 全部 turn 若超 48：保留 active 最近 turn，从最新 closed visit 向更旧填充剩余额度，删更旧 turn；
+4. active + closed 全部 turn 若超 60：保留 active 最近 turn，从最新 closed visit 向更旧填充剩余额度，删更旧 turn；
 5. 删除 turn 后 closed visit 可留空，但不得删除 visit 边界记录；
 6. 同 turn_id 去重保留后出现/更新版本；无 turn_id 的 malformed 项不得编造随机 ID。
-
-关系 12 条（每角色）固定优先级：
-1. 唯一 active relationship_state；
-2. 当前仍有效的 boundary/conflict；
-3. significance 3；
-4. 更新/发生时间较新；
-5. 原数组稳定顺序 tie-breaker。
-多条 active relationship_state：选 period_serial 最大者；serial 同值选数组最后者；其余标 inactive 不删除，再执行 12 条裁剪。

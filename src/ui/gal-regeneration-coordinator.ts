@@ -1,6 +1,6 @@
 // 第三批 B3-T08 —— 可控 host 的 coordinator 骨架（fake ports）。
 //
-// 合同：project/gal-character-memory-batch-3-regeneration-runbook.md §5.3–5.4、T08
+// 当前合同：project/contract.md（重生成状态机与失败闭合）。
 //   - 状态机：idle → locating → generating_candidate → candidate_ready → rebuilding_state →
 //     committing_swipe → verifying → settled；任一步失败 → failed_recoverable；
 //     生成阶段停止 → stopping → failed_recoverable；身份/基线/数组冲突 → conflict_manual；
@@ -106,6 +106,7 @@ export interface RegenerationHostPortsV1 {
     attemptId: string;
     generationId: string;
     request: GalGenerationRequestV2;
+    target: GalRegenerationTargetV1;
   }): Promise<{ ok: true; text: string } | { ok: false; code: 'stopped' | 'empty' | 'tool-call' }>;
   writeSwipe(plan: SwipeAppendPlanV1): Promise<{ ok: true } | { ok: false; code: 'write-failed' }>;
   stopCandidate(generationId: string): Promise<boolean> | boolean;
@@ -269,7 +270,12 @@ export class GalRegenerationCoordinatorV1 {
     await this.ports.persist(state);
     let gen: Awaited<ReturnType<RegenerationHostPortsV1['generateCandidate']>>;
     try {
-      gen = await this.ports.generateCandidate({ attemptId, generationId: attempt.generationId, request: target.originalRequest });
+      gen = await this.ports.generateCandidate({
+        attemptId,
+        generationId: attempt.generationId,
+        request: target.originalRequest,
+        target,
+      });
     } catch (error) {
       return this.failRecoverable(state, 'candidate-verification-failed', `候选生成 reject：${error instanceof Error ? error.message : String(error)}`);
     }

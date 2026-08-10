@@ -35,7 +35,7 @@ const v2Request = () => ({
   ownerCharacterId: 'reimu',
   promptRevision: 'gal-prompt.v1',
   historyRevision: 'gal-synthetic-history.v1',
-  memoryRevision: 'character-visit-memory.v1',
+  memoryRevision: 'character-visit-memory.v2',
   sceneId: 'scene:shrine',
   stateMessageIdBeforeGeneration: 99,
   stateSwipeIdBeforeGeneration: 0,
@@ -73,7 +73,7 @@ const attemptIdentity = () => ({
 const makePorts = (opts = {}) => {
   const calls = [];
   const {
-    failOn = null, // 抛错时机（如 'applyPresenceUpdate'）
+    failOn = null, // 抛错时机（如 'applyPresenceAnalysis'）
     visitResult = { ok: true, state: undefined },
     applyModelOutput: amo = (base, text) => ({ ...structuredClone(base ?? {}), stat_data: { day: 2, player: { money: 150 } } }),
   } = opts;
@@ -94,9 +94,9 @@ const makePorts = (opts = {}) => {
         if (failOn === 'applyLocalSettlement') throw new Error('settlement fail');
         return { ...structuredClone(state), stat_data: { ...state.stat_data, settled: operation.kind } };
       },
-      applyPresenceUpdate(state, text) {
-        calls.push('applyPresenceUpdate');
-        if (failOn === 'applyPresenceUpdate') throw new Error('presence fail');
+      applyPresenceAnalysis(state, text) {
+        calls.push('applyPresenceAnalysis');
+        if (failOn === 'applyPresenceAnalysis') throw new Error('presence fail');
         return { ...structuredClone(state), presence: [text.slice(0, 5)] };
       },
       reconcileM2Runtime(state) {
@@ -150,7 +150,7 @@ test('ports 按 §8.1 固定顺序调用（含 operation 结算在 presence 之�
     'applyModelOutput:新候选回复',
     'restoreLocalEventOwnership',
     'applyLocalSettlement:anomaly-resolution',
-    'applyPresenceUpdate',
+    'applyPresenceAnalysis',
     'reconcileM2Runtime',
     'applyVisitTurns',
     'finalizeLifecycle',
@@ -159,7 +159,7 @@ test('ports 按 §8.1 固定顺序调用（含 operation 结算在 presence 之�
 
 // ---- 任一步抛错无部分输出 ----
 test('任一步抛错 → port-failed，无部分输出', async () => {
-  for (const failOn of ['restoreLocalEventOwnership', 'applyLocalSettlement', 'applyPresenceUpdate', 'reconcileM2Runtime', 'applyVisitTurns', 'finalizeLifecycle']) {
+  for (const failOn of ['restoreLocalEventOwnership', 'applyLocalSettlement', 'applyPresenceAnalysis', 'reconcileM2Runtime', 'applyVisitTurns', 'finalizeLifecycle']) {
     const { result } = run({}, { failOn });
     const r = await result;
     assert.equal(r.ok, false, failOn);

@@ -1,6 +1,6 @@
 // 第三批 B3-T01 —— 重生成同构：纯类型、错误码与不变量。
 //
-// 合同：project/gal-character-memory-batch-3-regeneration-runbook.md
+// 当前合同：project/contract.md（重生成同构与提交身份）。
 //   - §5.1 GalRegenerationTargetV1（target 身份与 frozen request）；
 //   - §4.4 RegenerationCommitReceiptV1（commit 收据与漂移检测输入）；
 //   - §7.2 SwipeAppendPlanV1（指定 assistant 楼层 swipe 追加 plan）与身份/数组结构校验；

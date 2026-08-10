@@ -5,9 +5,9 @@
 - `presence_snapshot` 是地图小人、模型现场叙事与后续互动的唯一事实来源。
 - 每一次由庭院 UI 发起的 LLM 请求都必须注入在场角色 ID、姓名、区域、动作、朝向及完整不在场名单。
 - 正文只允许把快照中的在场角色写成现场人物；不在场角色可以被提及，但不得在当前场景发言、行动或被地图渲染。
-- 角色抵达、离场或换区时，assistant 必须在正文之后输出一次 `GensokyoPresence` 回执；回执不是正文、不是 `UpdateVariable`，也不显示在 GAL 正文中。
-- 本地只接受已登记角色、`front/back/left/right` 朝向和受控字段；有效回执原子更新 `presence_snapshot` 并清除离场视图。
-- 没有现场变化时不得输出回执；叙事变化而没有回执时不做自然语言猜测，记录为模型协议违例。
+- 主模型不再输出 `GensokyoPresence`。bridge 在请求前冻结 `interaction.presence_analysis_task`，额外变量模型只填写既有槽位的 `decision / area_id / action / facing`。
+- Presence 任务只覆盖本轮开始时已在场的冻结角色；`move` 只接受已登记区域，`leave` 清除角色视图，`unchanged / uncertain` 保留基线。邀请、召回和事件到场仍由 bridge 的确定性路径处理。
+- `presence_snapshot` 只由 bridge 校验任务后原子更新；正文、主模型标签和变量模型直接补丁都不是合法写入来源。
 
 ## R29：金币副本与事件责任
 
@@ -41,7 +41,7 @@
 - 玩家只在符卡战中显示，不出现在庭园地图。
 - 庭园角色巡游是 iframe 内存中的 UI 临时状态；正式区域仍只读取 `presence_snapshot.character_views[*].area_id`。局部偏移、路径目标和同区分槽不得写入 `stat_data` 或反向覆盖在场快照。
 - 庭园角色的脚底与完整候选路线必须通过 `maps.garden_no_walk_mask` 的不可行走 alpha 判定；同区分槽必须同时参与绘制与导航。蒙版加载失败时允许 `failed-open` 并保留诊断，不得误把整张地图封锁。
-- 灵梦、魔理沙、琪露诺、爱丽丝、米斯蒂娅、萃香、荷取、咲夜为首发固定角色名单；后续新增角色必须完成登记接入（素材统一评审或登记占位、世界书条目、来访档案、初遇事件登记、GAL/在场白名单注册）后才算加入，模型不得引入或演出未登记角色。（2026-07-27 所有者授权修订）
+- 灵梦、魔理沙、琪露诺、爱丽丝、米斯蒂娅、萃香、荷取、咲夜为首发名单；妖梦、帕秋莉、早苗已于 2026-08-11 完成动画、GAL、世界书、来访档案、状态迁移与白名单登记，现为正式角色。三人使用无剧情前置的带权随机来访。后续新增角色仍须完成对应登记接入后才算加入，模型不得引入或演出未登记角色。
 - 角色交互允许跨越多轮消息，并以显式结束完成结算。
 - 玩家正常游玩时只看见一个常驻游戏壳；该壳不绑定真实消息 0 楼，后台真实消息只做视觉隐藏。
 - GAL 剧情必须镜像真实 SillyTavern user/assistant 楼层；自定义输入和建议回应走正常消息事务，普通“结束聊天”只执行本地会话清理，不创建新楼层。
@@ -52,17 +52,17 @@
 - 体位图片使用冻结的 `character_id + pose_id + act_id + candidate_no` 语义和固定 `.png` live source；缺图由 manifest 缺项与 `nude`／`normal` fallback 表达，不得上传伪占位。sexual CG 必须以所有者提供的原始 PNG 字节发布，不得压缩、转 WebP、缩放、改 Alpha、量化或重编码，维护源与 R2 对象 SHA-256 必须一致。首个公开包完成动态 manifest resolver 后，在既有白名单内补图、替换同名候选或增加 `01–99` 候选只能更新 R2 媒体并最后更新 `live/manifest.json`，不得要求重新打包角色卡；新增语义或修改选择算法仍须重新构建与验收。
 - 变量更新只使用目标 MVU 支持的 JSONPatch `add`、`replace`、`remove`。
 - 正式运行采用 MagVarUpdate 额外模型解析：`[mvu_plot]` 只进入剧情阶段，`[mvu_update]` 只进入变量阶段；D0 的完整 `{{format_message_variable::stat_data}}` 最新快照只进入变量阶段，剧情阶段由 UI 请求注入脱敏投影。
-- 新建 GAL 请求使用 `gal-prompt.v5`：庭园 UI 在创建 assistant 前，先把清理后的玩家原文、正文协议、在场快照、场景事实和本轮道具授权一次性写入 `is_hidden:false` 的真实 SillyTavern user 楼层；三类生成入口都必须在触发模型前复读该楼层，并确认正文与冻结 `modelUserInput` 逐字一致。`generate.user_input` 只能复用这份冻结正文，不得在生成期或最终 prompt 事件中重新拼接上下文。角色、道具及开场路由键仍只进入 `position:none / should_scan:true` 的不可见扫描胶囊。酒馆原生 Chat Completion 不改写玩家消息，GAL 格式只由常驻 `[mvu_plot]` 世界书的完整定义和正确示范约束；扫描胶囊不承担格式。冻结 synthetic history 只进入 `overrides.chat_history.prompts`，固定 `with_depth_entries:false`，不得发送 SillyTavern 原生旧聊天历史。旧 `gal-prompt.v1/v2/v3/v4` metadata 均按原语义恢复，不得静默升级。
+- 新建 GAL 请求使用 `gal-prompt.v6`：庭园 UI 在创建 assistant 前，先把清理后的玩家原文、正文协议、在场快照、场景事实、本轮道具授权和 bridge 冻结的额外变量任务投影一次性写入 `is_hidden:false` 的真实 SillyTavern user 楼层；三类生成入口都必须在触发模型前复读该楼层，并确认正文与冻结 `modelUserInput` 逐字一致。`generate.user_input` 只能复用这份冻结正文，不得在生成期或最终 prompt 事件中重新拼接上下文。角色、道具及开场路由键仍只进入 `position:none / should_scan:true` 的不可见扫描胶囊。酒馆原生 Chat Completion 不改写玩家消息，GAL 格式只由常驻 `[mvu_plot]` 世界书的完整定义和正确示范约束；扫描胶囊不承担格式。冻结 synthetic history 只进入 `overrides.chat_history.prompts`，固定 `with_depth_entries:false`，不得发送 SillyTavern 原生旧聊天历史。旧 `gal-prompt.v1/v2/v3/v4/v5` metadata 均按原语义恢复，不得静默升级。
 - 变量阶段每轮必须返回一个且仅一个 `<UpdateVariable><JSONPatch>...</JSONPatch></UpdateVariable>`；没有合法变化时返回空数组，不得遗忘或省略变量块。
 - `[mvu_update]` 的变量规则、输出格式和 D0 完整状态只供额外变量模型使用；看见完整 `stat_data` 不等于拥有全部写权。`interaction.visit_memory` 整棵根由 bridge settlement 独占，变量模型即使从正文中读到看似完整的 turn/request/attempt/message/swipe 也必须忽略，若本轮没有其他获授权变化则输出空补丁。
-- 新 VisitTurn 只持久化 `turn_id`、`character_id`、`day`、`time_period`、`summary`；摘要由已接受的庭园正文确定性生成并限制为 80–100 字。request、attempt、commit、assistant message、swipe、scene 与 period serial 只属于事务生命周期/提交回执，不进入长期召回。
-- assistant 楼层的模型协议只使用庭园剧情正文及可选 `GensokyoPresence` 在场回执；`narration` 与 `dialogue` 同时承担 GAL 文字和立绘提示，不得再生成第二份 GAL 表现数据。两者都不是额外模型的变量块。
-- 额外模型只写具体关系事实、覆盖式互动摘要/焦点、长期记忆和不承担下游前置的开放语义字段。
-- 本地 bridge 独占开场继承确认、资源、商店、战斗、在场回执、UID/计数器、会话创建/关闭/幂等结算、主事件推进、设施/区域解锁、路线选择和真实消息楼层字段。
+- 新 VisitTurn 只持久化 `turn_id`、`character_id`、`day`、`time_period`、`summary`；额外变量模型按 bridge 冻结的角色槽位填写不超过 100 字的语义摘要，bridge 校验信封并绑定到 frozen visit，禁止正文机械抽取兜底。request、attempt、commit、assistant message、swipe、scene 与 period serial 只属于事务生命周期/提交回执，不进入长期召回。
+- assistant 楼层的主模型协议只使用庭园剧情正文；`narration` 与 `dialogue` 同时承担 GAL 文字和立绘提示，不得再生成第二份 GAL 表现数据或 Presence 回执。
+- 额外模型只写覆盖式互动摘要/焦点、长期记忆、不承担下游前置的开放语义字段，以及 bridge 冻结的 VisitTurn／Presence 任务叶字段。关系变化写入每角色剧情梗概，不恢复退役关系事实数组。
+- 本地 bridge 独占开场继承确认、资源、商店、战斗、Presence 任务信封与正式快照、UID/计数器、会话创建/关闭/幂等结算、主事件推进、设施/区域解锁、路线选择和真实消息楼层字段。
 - 温室首次选型与后续换型必须由事件登记表的 `action_results` 和 `local_settlement` 决定；三方案齐备后首次消耗 4 物资，后续换型消耗 3 物资，均只推进一个时段。`current_form` 是唯一当前路线事实源，每次真实楼层结算 ID 写入 bridge 独占的 `events.settled_ids`。
 - 特殊商品只能来自本地目录：异变触发卡由代码直接创建玩家填写、持续 28 标准时段的唯一自定义异变，隐藏源头按事务种子确定并由 bridge 锁定，使用卡片本身不调用 LLM。咲夜怀表每日最多一次、只暂停五分钟且不得回滚任何正式状态。两者的库存、冷却、时间痕迹、察觉者和使用幂等均由 bridge 独占。
 - 模型或额外变量阶段写入的日期/时段不得早于请求前正式状态；固定事件的时间推进由本地结算器从请求前状态计算，模型不能重复推进。
-- `GensokyoPresence` 与登记事件的抵达迁移只接受已登记区域；未知区域不得让新角色入场，也不得覆盖既有角色的合法位置。
+- Presence 任务的 `move` 与登记事件的抵达迁移只接受已登记区域；未知区域不得让新角色入场，也不得覆盖既有角色的合法位置。
 - 本地结算必须等待额外变量分析及 MVU 更新结束，再基于同一 assistant 楼层的最新状态恢复本地所有权并合并确定性结果，禁止用生成前快照覆盖额外模型的合法更新。
 - M2 的 `anomaly_cycle`、`visit_scheduler`、`facility_runtime`、`garden_projects`、`garden_activities`、`pending_tasks`、`scene_item_context`、背包、资源、商店、关键物品和 UI 幂等字段均由 bridge 独占；任何普通 MVU 输出都必须恢复这些字段。
 - 三座后续设施的施工与第二方案取得不调用 LLM；装修、恢复和设施行动只在代码先锁定合法结果后调用 LLM，完整回复成功才提交预留成本或场景消耗。

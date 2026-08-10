@@ -534,21 +534,6 @@ function settleFreeGrowthProposal(state: GardenState, action: GardenActionMarker
     action.action_id,
   );
   facility.unlocked_forms = Array.from(new Set([...(facility.unlocked_forms ?? []), '自由生长型温室']));
-  const marisa = state.characters?.marisa;
-  if (marisa) {
-    marisa.current_relationship_facts ??= [];
-    if (!marisa.current_relationship_facts.some((fact) => fact.id === 'marisa_free_growth_plan')) {
-      marisa.current_relationship_facts.push({
-        id: 'marisa_free_growth_plan',
-        subjects: ['player', 'marisa'],
-        fact: '你与魔理沙共同确认了自由生长型温室的风险边界与可控方案。',
-        source_event_id: 'greenhouse_free_growth_proposal',
-        established_at: `day-${state.environment?.day ?? 1}`,
-        active: true,
-        last_confirmed_at: `day-${state.environment?.day ?? 1}`,
-      });
-    }
-  }
   state.events!.active_event = null;
 }
 
@@ -568,21 +553,6 @@ function settleAliceMaintenanceProposal(state: GardenState, action: GardenAction
     action.action_id,
   );
   facility.unlocked_forms = Array.from(new Set([...(facility.unlocked_forms ?? []), '人偶维护型温室']));
-  const alice = state.characters?.alice;
-  if (alice) {
-    alice.current_relationship_facts ??= [];
-    if (!alice.current_relationship_facts.some((fact) => fact.id === 'alice_maintenance_boundary')) {
-      alice.current_relationship_facts.push({
-        id: 'alice_maintenance_boundary',
-        subjects: ['player', 'alice'],
-        fact: '你尊重爱丽丝提出的维护边界与人偶分工，并共同确认了温室的隔离步骤。',
-        source_event_id: 'alice_greenhouse_maintenance_proposal',
-        established_at: `day-${state.environment?.day ?? 1}`,
-        active: true,
-        last_confirmed_at: `day-${state.environment?.day ?? 1}`,
-      });
-    }
-  }
   state.events!.active_event = null;
 }
 
@@ -602,21 +572,6 @@ function settleNitoriAutomationProposal(state: GardenState, action: GardenAction
     action.action_id,
   );
   facility.unlocked_forms = Array.from(new Set([...(facility.unlocked_forms ?? []), '河童自动化型温室']));
-  const nitori = state.characters?.nitori;
-  if (nitori) {
-    nitori.current_relationship_facts ??= [];
-    if (!nitori.current_relationship_facts.some((fact) => fact.id === 'nitori_engineering_acceptance')) {
-      nitori.current_relationship_facts.push({
-        id: 'nitori_engineering_acceptance',
-        subjects: ['player', 'nitori'],
-        fact: '你接受荷取提出的工程验收条件，没有把她当作免费修理工。',
-        source_event_id: 'nitori_greenhouse_automation_proposal',
-        established_at: `day-${state.environment?.day ?? 1}`,
-        active: true,
-        last_confirmed_at: `day-${state.environment?.day ?? 1}`,
-      });
-    }
-  }
   state.events!.active_event = null;
 }
 
@@ -919,6 +874,7 @@ export function restoreLocalEventOwnership(before: GardenState, after: GardenSta
   next.shop = structuredClone(before.shop ?? { unlocked: false, purchase_settled_ids: [] });
   next.inventory = structuredClone(before.inventory ?? { consumables: {} });
   next.key_items = structuredClone(before.key_items ?? {});
+  next.battle = structuredClone(before.battle ?? {});
   next.uid_counters = structuredClone(before.uid_counters ?? {});
   next.presence_snapshot = structuredClone(before.presence_snapshot ?? {
     present_character_ids: [],
@@ -980,12 +936,6 @@ export function restoreLocalEventOwnership(before: GardenState, after: GardenSta
     current.unlocked_forms = structuredClone(prior.unlocked_forms ?? []);
     current.active_effects = structuredClone(prior.active_effects ?? []);
   }
-  if (before.characters?.marisa && next.characters?.marisa) {
-    next.characters.marisa.current_relationship_facts = structuredClone(
-      before.characters.marisa.current_relationship_facts ?? [],
-    );
-  }
-
   const beforeConversation = before.interaction?.current_session?.event_id === 'greenhouse_multiturn_conversation';
   const afterConversation = next.interaction?.current_session?.event_id === 'greenhouse_multiturn_conversation';
   if (beforeConversation || afterConversation) {

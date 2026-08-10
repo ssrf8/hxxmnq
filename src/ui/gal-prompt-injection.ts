@@ -8,7 +8,8 @@ import {
 } from './target-actions';
 import type { GardenState } from './types';
 
-export const GAL_PROMPT_REVISION = 'gal-prompt.v5' as const;
+export const GAL_PROMPT_REVISION = 'gal-prompt.v6' as const;
+export const MESSAGE_SCOPE_GAL_PROMPT_REVISION = 'gal-prompt.v5' as const;
 export const REQUEST_BODY_GAL_PROMPT_REVISION = 'gal-prompt.v4' as const;
 export const SYSTEM_TAIL_GAL_PROMPT_REVISION = 'gal-prompt.v3' as const;
 export const PREVIOUS_GAL_PROMPT_REVISION = 'gal-prompt.v2' as const;
@@ -47,7 +48,10 @@ export type GalPromptInjection =
 
 /** 只清理项目保留绿灯；不会把玩家伪造的协议标题当成真实系统注入。 */
 export function sanitizeGalPlayerInput(text: string): string {
-  return stripCharacterGreenlights(stripItemGreenlights(String(text ?? ''))).trim();
+  const withoutReservedTaskProjection = String(text ?? '')
+    .replace(/<GensokyoVariableAnalysisTask>[\s\S]*?<\/GensokyoVariableAnalysisTask>/giu, '')
+    .replace(/<\/?GensokyoVariableAnalysisTask>/giu, '');
+  return stripCharacterGreenlights(stripItemGreenlights(withoutReservedTaskProjection)).trim();
 }
 
 function openingGuidanceActive(state: GardenState): boolean {
@@ -75,11 +79,14 @@ export function buildGalStoredUserMessage(input: {
   playerInput: string;
   state: GardenState;
   narrativeCharacterIds?: readonly string[];
+  variableAnalysisTaskProjection?: string;
 }): string {
   const playerInput = sanitizeGalPlayerInput(input.playerInput);
   if (!playerInput) return '';
   const context = buildGalCurrentTurnContext(input.state, input.narrativeCharacterIds);
-  return `${playerInput}\n\n${context}`;
+  return [playerInput, context, input.variableAnalysisTaskProjection ?? '']
+    .filter((part) => part.trim().length > 0)
+    .join('\n\n');
 }
 
 /** v4 维护 API：内容形状与 v5 的真实楼层正文相同，保留给旧测试/调用方。 */
@@ -154,16 +161,20 @@ export function isSupportedGalPromptRevision(revision: unknown): revision is
   | typeof PREVIOUS_GAL_PROMPT_REVISION
   | typeof SYSTEM_TAIL_GAL_PROMPT_REVISION
   | typeof REQUEST_BODY_GAL_PROMPT_REVISION
+  | typeof MESSAGE_SCOPE_GAL_PROMPT_REVISION
   | typeof GAL_PROMPT_REVISION {
   return revision === LEGACY_GAL_PROMPT_REVISION
     || revision === PREVIOUS_GAL_PROMPT_REVISION
     || revision === SYSTEM_TAIL_GAL_PROMPT_REVISION
     || revision === REQUEST_BODY_GAL_PROMPT_REVISION
+    || revision === MESSAGE_SCOPE_GAL_PROMPT_REVISION
     || revision === GAL_PROMPT_REVISION;
 }
 
 export function isValidGalPromptInjectsForRevision(revision: unknown, value: unknown): value is GalPromptInjection[] {
-  if (revision === GAL_PROMPT_REVISION || revision === REQUEST_BODY_GAL_PROMPT_REVISION) {
+  if (revision === GAL_PROMPT_REVISION
+    || revision === MESSAGE_SCOPE_GAL_PROMPT_REVISION
+    || revision === REQUEST_BODY_GAL_PROMPT_REVISION) {
     return isValidGalPromptInjectionSet(value);
   }
   if (revision === SYSTEM_TAIL_GAL_PROMPT_REVISION) return isValidSystemTailGalPromptInjectionSet(value);
