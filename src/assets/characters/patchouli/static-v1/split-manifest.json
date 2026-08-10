@@ -1,0 +1,64 @@
+{
+  "front": {
+    "size": [
+      627,
+      627
+    ],
+    "bbox": [
+      185,
+      47,
+      533,
+      607
+    ],
+    "opaquePx": 139470,
+    "mirrorOf": null
+  },
+  "back": {
+    "size": [
+      627,
+      627
+    ],
+    "bbox": [
+      198,
+      34,
+      511,
+      568
+    ],
+    "opaquePx": 120891,
+    "mirrorOf": null
+  },
+  "left": {
+    "size": [
+      627,
+      627
+    ],
+    "bbox": [
+      151,
+      57,
+      427,
+      607
+    ],
+    "opaquePx": 107154,
+    "mirrorOf": null
+  },
+  "right": {
+    "size": [
+      627,
+      627
+    ],
+    "bbox": [
+      199,
+      57,
+      475,
+      607
+    ],
+    "opaquePx": 107154,
+    "mirrorOf": "left"
+  },
+  "stitchedIdentical": false,
+  "source": "F:\\agent airp\\卡\\幻想乡物语\\src\\assets\\characters\\patchouli\\ChatGPT Image 2026年8月6日 12_01_17..png",
+  "split": {
+    "x": 627,
+    "y": 627
+  }
+}

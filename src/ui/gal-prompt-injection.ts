@@ -58,11 +58,11 @@ function openingGuidanceActive(state: GardenState): boolean {
     && (state.presence_snapshot?.present_character_ids ?? []).length === 0;
 }
 
-export function buildGalCurrentTurnContext(state: GardenState): string {
+export function buildGalCurrentTurnContext(state: GardenState, narrativeCharacterIds?: readonly string[]): string {
   return [
     gardenNarrativeContract,
-    presenceNarrativeContext(state),
-    buildPromptContext(state, { kind: 'ordinary' }),
+    presenceNarrativeContext(state, narrativeCharacterIds),
+    buildPromptContext(state, { kind: 'ordinary', narrativeCharacterIds }),
     sceneItemAuthorizationContext(state),
   ].filter((part) => part.trim().length > 0).join('\n\n');
 }
@@ -74,10 +74,11 @@ export function buildGalCurrentTurnContext(state: GardenState): string {
 export function buildGalStoredUserMessage(input: {
   playerInput: string;
   state: GardenState;
+  narrativeCharacterIds?: readonly string[];
 }): string {
   const playerInput = sanitizeGalPlayerInput(input.playerInput);
   if (!playerInput) return '';
-  const context = buildGalCurrentTurnContext(input.state);
+  const context = buildGalCurrentTurnContext(input.state, input.narrativeCharacterIds);
   return `${playerInput}\n\n${context}`;
 }
 
@@ -88,10 +89,11 @@ export const buildGalModelUserInput = buildGalStoredUserMessage;
 export function buildGalCurrentTurnInjections(input: {
   state: GardenState;
   explicitCharacterIds?: readonly string[];
+  narrativeCharacterIds?: readonly string[];
 }): [GalPromptRouteScanInjection] {
   const routeTokens = [
     ...(openingGuidanceActive(input.state) ? [OPENING_GUIDANCE_GREENLIGHT] : []),
-    ...characterGreenlightTokens(input.state, input.explicitCharacterIds),
+    ...characterGreenlightTokens(input.state, input.explicitCharacterIds, input.narrativeCharacterIds),
     ...itemGreenlightTokens(input.state),
   ];
 

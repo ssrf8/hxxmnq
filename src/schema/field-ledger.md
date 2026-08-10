@@ -215,6 +215,7 @@ VisitTurn 不再复制 request、attempt、commit、assistant message、swipe、
 - present → present：不变（area/view 变化不离场）；
 - absent → absent：不变；
 - 关闭 GAL（endConversationLocal）：不离场，active_visit 不变；
+- 送别离开庭园（dismissCharacter）：本地从 presence 删除角色、关闭 active_visit、取消该角色旧排期并设置短冷却；不调用模型；
 - 同事务 leave 再 arrive：两个不同 visit_id（先关后开）。
 
 ## 写入权（第一批）

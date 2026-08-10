@@ -13,6 +13,8 @@ repro-st1.17.0.js
 .playwright-mcp/
 .sandbox/
 verify*.log
+console-full-*.log
+console-*.log
 _gal_watch.cjs
 runtime-bundle-capture.js
 garden-map-current.png

@@ -1,7 +1,7 @@
 // publish-ui.mjs — 把远程 UI 包与 ui-manifest.json 指针发布到 R2（S3 兼容 API，SigV4 直传）。
 // 用法：
-//   node scripts/publish-ui.mjs --version=r<N> --file=dist/runtime/ui-mount-r<N>.js --dry-run
-//   node scripts/publish-ui.mjs --version=r<N> --file=dist/runtime/ui-mount-r<N>.js
+//   node scripts/publish-ui.mjs --channel=production --memory-profile=standalone-mvu --version=r<N> --file=dist/runtime/profiles/standalone-mvu/ui-mount-r<N>.js --dry-run
+//   node scripts/publish-ui.mjs --channel=production --memory-profile=standalone-mvu --version=r<N> --file=dist/runtime/profiles/standalone-mvu/ui-mount-r<N>.js
 // 凭据从项目根 .env（已 gitignore）读取：R2_S3_ENDPOINT / R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY / R2_BUCKET / R2_ASSET_ORIGIN。
 // 纪律：ui-mount-<version>.js 不可变（已存在则拒绝覆盖）；manifest 最后上传（no-store 指针）。
 import { createHash, createHmac } from 'node:crypto';
@@ -69,6 +69,13 @@ if (typeof channelName !== 'string' || !Object.hasOwn(CHANNELS, channelName)) {
 }
 if (args.prefix !== undefined) throw new Error('不支持 --prefix 参数；发布前缀只能由 --channel 固定决定');
 const channel = CHANNELS[channelName];
+// B4-O01 §5.4：memory profile 隔离，发布对象落在 <channel>/profiles/<profile>/ 下；profile-specific manifest 固定坐标。
+const memoryProfileArg = args['memory-profile'];
+const MEMORY_PROFILE = memoryProfileArg ?? 'standalone-mvu';
+if (!['standalone-mvu', 'database-assisted'].includes(MEMORY_PROFILE)) {
+  throw new Error('--memory-profile 只允许 standalone-mvu 或 database-assisted');
+}
+const uiPrefix = `${channel.prefix}/profiles/${MEMORY_PROFILE}`;
 
 // ---- 参数校验 ----
 const version = args.version;
@@ -85,9 +92,9 @@ const bytes = await readFile(filePath);
 const sha256 = createHash('sha256').update(bytes).digest('hex');
 if (sha256 !== env.UI_MOUNT_EXPECTED_SHA256 && env.UI_MOUNT_EXPECTED_SHA256) throw new Error('sha256 与 UI_MOUNT_EXPECTED_SHA256 不一致，拒绝上传');
 
-const uiKey = `${channel.prefix}/ui-mount-${version}.js`;
-const manifestKey = `${channel.prefix}/ui-manifest.json`;
-const uiUrl = `${publicOrigin}/${channel.prefix}/ui-mount-${version}.js`;
+const uiKey = `${uiPrefix}/ui-mount-${version}.js`;
+const manifestKey = `${uiPrefix}/ui-manifest.json`;
+const uiUrl = `${publicOrigin}/${uiPrefix}/ui-mount-${version}.js`;
 // 通道边界停止线：计划中任何写目标跨通道立即失败（固定映射下正常不会触发，防御性保留）。
 const assertChannelBoundary = (key) => {
   const foreign = channelName === 'test'

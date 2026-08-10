@@ -219,8 +219,8 @@ test('UI 发布：test 通道 dry-run 只生成 /test/ui/ 写目标，production
     '--dry-run',
   ], { cwd: root });
   const testText = `${testOut.stdout}\n${testOut.stderr}`;
-  assert.match(testText, /gensokyo-moving-garden\/test\/ui\/ui-mount-test-r1\.js/);
-  assert.match(testText, /gensokyo-moving-garden\/test\/ui\/ui-manifest\.json/);
+  assert.match(testText, /gensokyo-moving-garden\/test\/ui\/profiles\/standalone-mvu\/ui-mount-test-r1\.js/);
+  assert.match(testText, /gensokyo-moving-garden\/test\/ui\/profiles\/standalone-mvu\/ui-manifest\.json/);
   assert.match(testText, /bucket\s+=\s+/);
   assert.match(testText, /dry-run 结束/);
   assert.doesNotMatch(testText, /gensokyo-moving-garden\/live\/ui\//, '测试 dry-run 不得出现正式前缀写目标');
@@ -233,8 +233,8 @@ test('UI 发布：test 通道 dry-run 只生成 /test/ui/ 写目标，production
     '--dry-run',
   ], { cwd: root });
   const prodText = `${prodOut.stdout}\n${prodOut.stderr}`;
-  assert.match(prodText, /gensokyo-moving-garden\/live\/ui\/ui-mount-r95\.js/);
-  assert.match(prodText, /gensokyo-moving-garden\/live\/ui\/ui-manifest\.json/);
+  assert.match(prodText, /gensokyo-moving-garden\/live\/ui\/profiles\/standalone-mvu\/ui-mount-r95\.js/);
+  assert.match(prodText, /gensokyo-moving-garden\/live\/ui\/profiles\/standalone-mvu\/ui-manifest\.json/);
   assert.doesNotMatch(prodText, /gensokyo-moving-garden\/test\/ui\//, '正式 dry-run 不得出现测试前缀写目标');
 });
 
@@ -263,13 +263,13 @@ test('UI 测试入口打包：package-checkpoint.mjs 支持 --release-kind=test 
   const packer = await read('../scripts/package-checkpoint.mjs');
   assert.match(packer, /--release-kind 只允许 production 或 test/, '必须支持 --release-kind');
   assert.match(packer, /IS_TEST_ENTRY = RELEASE_KIND === 'test'/, '必须定义测试入口判定');
-  assert.match(packer, /IS_TEST_ENTRY \? 'dist\/runtime\/test' : 'dist\/runtime'/, '测试模式运行时目录固定为 dist/runtime/test');
+  assert.match(packer, /IS_TEST_ENTRY\s*\?\s*`dist\/runtime\/test\/profiles\/\$\{MEMORY_PROFILE\}`/, '测试模式运行时目录固定为 dist/runtime/test/profiles/<profile>');
   assert.match(packer, /checkpoint-ui-test-entry/, '测试入口输出目录必须固定为 checkpoint-ui-test-entry');
   assert.match(packer, /'幻想乡物语 \[UI测试版\]'/, '测试入口卡名必须固定且不含 UI 版本号');
   assert.match(packer, /RELEASE_KIND !== 'test' && !manifest\.planned_checkpoint_sequence/, '测试打包不得要求登记正式发布清单');
   assert.match(packer, /forbiddenUiManifest/, '必须拒绝跨通道 loader');
   assert.match(packer, /!IS_TEST_ENTRY/, '测试入口不得要求版本化副本比对（不绑定 UI 版本）');
-  assert.match(packer, /ui_manifest: RELEASE_KIND === 'test'[\s\S]*?gensokyo-moving-garden\/test\/ui\/ui-manifest\.json/, '构建报告必须记录测试 UI manifest 路径');
+  assert.match(packer, /ui_manifest: RELEASE_KIND === 'test'[\s\S]*?gensokyo-moving-garden\/test\/ui\/profiles\/\$\{MEMORY_PROFILE\}\/ui-manifest\.json/, '构建报告必须记录测试 UI manifest 路径');
   assert.doesNotMatch(packer, /writeFile\([^)]*project\/manifest\.json/, '打包脚本不得写入正式发布清单');
 });
 
@@ -280,13 +280,13 @@ test('UI 测试入口打包：dry-run 计划只指向测试通道且输出目录
   const { fileURLToPath } = await import('node:url');
   const root = fileURLToPath(new URL('..', import.meta.url));
   const { stdout } = await execFileAsync(process.execPath, [
-    'scripts/package-checkpoint.mjs', '--release-kind=test', '--ui-channel=test', '--runtime-root=dist/runtime/test', '--dry-run', '--expect-remote-r2', '--ui-delivery=remote',
+    'scripts/package-checkpoint.mjs', '--release-kind=test', '--ui-channel=test', '--runtime-root=dist/runtime/test/profiles/standalone-mvu', '--dry-run', '--expect-remote-r2', '--ui-delivery=remote',
   ], { cwd: root });
   const plan = JSON.parse(stdout);
   assert.equal(plan.mode, 'dry-run');
   assert.equal(plan.release_kind, 'test');
-  assert.equal(plan.ui_manifest, 'gensokyo-moving-garden/test/ui/ui-manifest.json');
-  assert.equal(plan.runtime_root, 'dist/runtime/test');
+  assert.equal(plan.ui_manifest, 'gensokyo-moving-garden/test/ui/profiles/standalone-mvu/ui-manifest.json');
+  assert.equal(plan.runtime_root, 'dist/runtime/test/profiles/standalone-mvu');
   assert.match(plan.output, /checkpoint-ui-test-entry/);
   assert.match(plan.output, /幻想乡物语 \[UI测试版\]\.json/);
   assert.doesNotMatch(plan.output, /release\//, '测试入口输出不得进入正式 release 目录');
@@ -308,7 +308,7 @@ test('UI 测试入口打包：真实产物卡名固定、只含测试 loader、�
 
   if (!(await access(entryFile).then(() => true, () => false))) {
     const result = spawnSync(process.execPath, [
-      'scripts/package-checkpoint.mjs', '--release-kind=test', '--runtime-root=dist/runtime/test', '--expect-remote-r2', '--ui-delivery=embedded',
+      'scripts/package-checkpoint.mjs', '--release-kind=test', '--runtime-root=dist/runtime/test/profiles/standalone-mvu', '--expect-remote-r2', '--ui-delivery=embedded',
     ], { cwd: root, encoding: 'utf8' });
     assert.equal(result.status, 0, `真实打包应成功：${result.stderr}`);
   }

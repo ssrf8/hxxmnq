@@ -727,6 +727,38 @@ test('接线：endConversationLocal 不切 visit（禁区）', async () => {
   assert.equal(ended.interaction.visit_memory.by_character.reimu.active_visit.visit_id, 'character_visit_000001');
 });
 
+test('显式送别会移出 presence、关闭旧 visit、取消旧排期并阻止立即回流', async () => {
+  const memory = await importTypescript('../src/ui/character-memory.ts');
+  const visitors = await importTypescript('../src/ui/visitor-rules.ts');
+  let state = baseState({
+    presence_snapshot: {
+      present_character_ids: ['reimu'],
+      character_views: { reimu: { area_id: 'central_courtyard', action: '交谈' } },
+      visitor_meta: { reimu: { arrival_uid: 'arrival:reimu', planned_departure_serial: 99 } },
+    },
+    visit_scheduler: {
+      version: 'visit.v1', known_characters: ['reimu'],
+      plans: [{ plan_id: 'plan:reimu', character_id: 'reimu', source: 'random', due_serial: 8, status: 'scheduled' }],
+      cooldown_until: {}, invitation_cooldowns: {}, last_processed_serial: null, pending_notices: [],
+    },
+  });
+  state = memory.reconcileCharacterVisitsFromState(
+    baseState({ visit_scheduler: state.visit_scheduler }),
+    state,
+    'event',
+  );
+  const oldVisitId = state.interaction.visit_memory.by_character.reimu.active_visit.visit_id;
+  const dismissed = visitors.dismissCharacter(state, 'reimu');
+  assert.deepEqual(dismissed.presence_snapshot.present_character_ids, []);
+  assert.equal(dismissed.presence_snapshot.character_views.reimu, undefined);
+  assert.equal(dismissed.presence_snapshot.visitor_meta.reimu, undefined);
+  assert.equal(dismissed.interaction.visit_memory.by_character.reimu.active_visit, null);
+  assert.equal(dismissed.interaction.visit_memory.by_character.reimu.closed_visits.at(-1).visit_id, oldVisitId);
+  assert.equal(dismissed.interaction.visit_memory.by_character.reimu.closed_visits.at(-1).end_reason, 'event-leave');
+  assert.equal(dismissed.visit_scheduler.plans[0].status, 'cancelled');
+  assert.ok(dismissed.visit_scheduler.cooldown_until.reimu >= 2);
+});
+
 test('接线：migration bootstrap 与 absent stale active repair close', async () => {
   const migrations = await importTypescript('../src/ui/state-migrations.ts');
   // 在场无 active → bootstrap

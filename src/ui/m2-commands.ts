@@ -22,7 +22,7 @@ import {
   startDueBanquet,
   startMoonSpringSession,
 } from './activity-rules';
-import { consumeVisitNotices, inviteCharacter } from './visitor-rules';
+import { consumeVisitNotices, dismissCharacter, inviteCharacter } from './visitor-rules';
 import { reconcileM2Runtime } from './m2-runtime';
 import { claimPendingTask, releasePendingTask, removePendingTask } from './task-rules';
 
@@ -129,6 +129,11 @@ export function applyM2Command(
       state = reconcileM2Runtime(before, state, chatId);
       state = endConversationLocal(state);
       result.message = '聊天已直接结束';
+      break;
+    case 'dismiss_character':
+      state = endConversationLocal(state);
+      state = dismissCharacter(state, command.characterId);
+      result.message = '角色已离开庭园';
       break;
     case 'claim_pending_task':
       state = claimPendingTask(state, command.taskId);

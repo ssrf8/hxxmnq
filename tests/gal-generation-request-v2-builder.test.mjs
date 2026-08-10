@@ -274,6 +274,33 @@ test('非 requireMainTarget 时由在场补足', () => {
   assert.deepEqual(result.visitIdsByCharacter, { reimu: 'character_visit_000001', marisa: null, cirno: null });
 });
 
+test('邀请制 sessionParticipants 同时收口相关角色、真实楼层场景事实与角色绿灯', () => {
+  const state = baseState({
+    characters: {
+      reimu: { id: 'reimu', name: '博丽灵梦' },
+      marisa: { id: 'marisa', name: '雾雨魔理沙' },
+      cirno: { id: 'cirno', name: '琪露诺' },
+    },
+  });
+  const result = g.buildGalGenerationRequestV2(baseInput({
+    state,
+    playerInput: '开始仅邀请活动。',
+    characterContext: { sessionParticipants: ['reimu'], requireMainTarget: false },
+    explicitCharacterIds: ['reimu'],
+  }));
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.deepEqual(result.relevantCharacterIds, ['reimu']);
+  assert.deepEqual(result.visitIdsByCharacter, { reimu: 'character_visit_000001' });
+  assert.match(result.request.modelUserInput, /【当前活动参与者：本轮唯一叙事范围】/);
+  assert.match(result.request.modelUserInput, /允许参与本活动：[\s\S]*reimu/);
+  assert.match(result.request.modelUserInput, /其他角色不在本活动现场，不得出场、说话、行动/);
+  assert.doesNotMatch(result.request.modelUserInput, /marisa（|cirno（/);
+  assert.match(result.request.modelUserInput, /当前活动参与者：reimu/);
+  assert.match(result.request.promptInjects[0].content, /GSK_CHAR_REIMU_ACTIVE/);
+  assert.doesNotMatch(result.request.promptInjects[0].content, /GSK_CHAR_MARISA_ACTIVE|GSK_CHAR_CIRNO_ACTIVE/);
+});
+
 // ---- R0：无登记角色是合法 V2（独处设施/无角色过渡）----
 test('R0：无登记角色仍构造合法 V2（空角色 + 空 visit map + 非空 system 历史边界）', () => {
   const result = g.buildGalGenerationRequestV2(baseInput({

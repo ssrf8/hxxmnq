@@ -18,6 +18,8 @@ export interface PromptContextOptions {
   selectedCharacterId?: string | null;
   actionIntent?: string;
   includeSceneItems?: boolean;
+  /** 当前私密活动的叙事参与者；未提供时仍使用完整在场快照。 */
+  narrativeCharacterIds?: readonly string[];
 }
 
 /**
@@ -27,6 +29,9 @@ export interface PromptContextOptions {
 export function buildPromptContext(state: GardenState, options: PromptContextOptions = {}): string {
   const kind = options.kind ?? 'ordinary';
   const sections: string[] = [];
+  const sceneCharacterIds = options.narrativeCharacterIds === undefined
+    ? (state.presence_snapshot?.present_character_ids ?? [])
+    : Array.from(new Set(options.narrativeCharacterIds));
 
   sections.push([
     '【场景事实】',
@@ -34,7 +39,7 @@ export function buildPromptContext(state: GardenState, options: PromptContextOpt
     `天气：${state.environment?.weather ?? '晴'}`,
     `玩家区域：${state.player?.current_area_id ?? 'central_courtyard'}`,
     // 玩家姓名不再每轮投影：开场时已注入酒馆原生宏（{{user}} 展开名），模型从系统层读到。
-    `在场角色：${(state.presence_snapshot?.present_character_ids ?? []).join('、') || '无'}`,
+    `${options.narrativeCharacterIds === undefined ? '在场角色' : '当前活动参与者'}：${sceneCharacterIds.join('、') || '无'}`,
     `绝对时段序号：${periodSerialFromState(state)}`,
   ].join('\n'));
 

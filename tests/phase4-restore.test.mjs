@@ -213,7 +213,7 @@ test('restoreFromChat confirmed：settled + recovery 标记 + assistant 标识',
   assert.equal(s.generationId, 'gal-gen-r1');
 });
 
-test('restoreFromChat settlement-pending：保留 assistant，只允许恢复结算', () => {
+test('restoreFromChat settlement-pending：保留 assistant 并开放下一轮发送', () => {
   const { host } = makeHost();
   const coordinator = new MessageTransactionCoordinator(host);
   const request = makeRequest();
@@ -230,10 +230,10 @@ test('restoreFromChat settlement-pending：保留 assistant，只允许恢复结
   });
   assert.equal(changed, true);
   const snapshot = coordinator.read();
-  assert.equal(snapshot.phase, 'failed');
+  assert.equal(snapshot.phase, 'settled');
   assert.equal(snapshot.recovery, 'settlement');
   assert.equal(snapshot.assistantResponded, true);
-  assert.match(snapshot.lastError ?? '', /只恢复结算/);
+  assert.match(snapshot.lastError ?? '', /可以继续发送/);
 });
 
 test('resetForChatChange 清除旧会话恢复锁', () => {

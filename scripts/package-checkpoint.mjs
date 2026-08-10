@@ -18,7 +18,15 @@ if (!CHECKPOINT_RE.test(CHECKPOINT)) {
   throw new Error(`非法检查点：${CHECKPOINT}（${RELEASE_KIND} 通道格式）`);
 }
 const CHECKPOINT_SUFFIX = CHECKPOINT.slice(VERSION.length + 1); // 正式 'r96'；测试入口 'ui-test-entry'
-const RUNTIME_ROOT = IS_TEST_ENTRY ? 'dist/runtime/test' : 'dist/runtime';
+// B4-O01 §5.4：memory profile 隔离，JS/loader/manifest 按 profile 分目录；打包只消费当前 profile 的产物。
+const memoryProfileArg = process.argv.find(argument => argument.startsWith('--memory-profile='));
+const MEMORY_PROFILE = memoryProfileArg ? memoryProfileArg.slice('--memory-profile='.length) : 'standalone-mvu';
+if (!['standalone-mvu', 'database-assisted'].includes(MEMORY_PROFILE)) {
+  throw new Error('--memory-profile 只允许 standalone-mvu 或 database-assisted');
+}
+const RUNTIME_ROOT = IS_TEST_ENTRY
+  ? `dist/runtime/test/profiles/${MEMORY_PROFILE}`
+  : `dist/runtime/profiles/${MEMORY_PROFILE}`;
 // 可选防御参数：--runtime-root 若提供必须与通道推导一致（plan 5.4 目标接口）。
 const runtimeRootArg = process.argv.find(argument => argument.startsWith('--runtime-root='));
 if (runtimeRootArg && runtimeRootArg.slice('--runtime-root='.length) !== RUNTIME_ROOT) {
@@ -98,11 +106,11 @@ const [
 
 if (UI_DELIVERY === 'remote') {
   const expectedUiManifest = IS_TEST_ENTRY
-    ? 'gensokyo-moving-garden/test/ui/ui-manifest.json'
-    : 'gensokyo-moving-garden/live/ui/ui-manifest.json';
+    ? `gensokyo-moving-garden/test/ui/profiles/${MEMORY_PROFILE}/ui-manifest.json`
+    : `gensokyo-moving-garden/live/ui/profiles/${MEMORY_PROFILE}/ui-manifest.json`;
   const forbiddenUiManifest = IS_TEST_ENTRY
-    ? 'gensokyo-moving-garden/live/ui/ui-manifest.json'
-    : 'gensokyo-moving-garden/test/ui/ui-manifest.json';
+    ? `gensokyo-moving-garden/live/ui/profiles/${MEMORY_PROFILE}/ui-manifest.json`
+    : `gensokyo-moving-garden/test/ui/profiles/${MEMORY_PROFILE}/ui-manifest.json`;
   if (!uiMount.includes(expectedUiManifest) || !uiMount.includes('https://')) {
     throw new Error(`拒绝打包：${RUNTIME_ROOT}/ui-loader.js 不是合法 ${RELEASE_KIND} 通道 loader（缺少 ${expectedUiManifest} 引用）。请先运行对应通道的 remote 构建。`);
   }
@@ -123,7 +131,7 @@ if (UI_DELIVERY === 'remote') {
     }
   }
 } else if (EXPECT_REMOTE_R2 && !uiMount.includes('"mode":"remote-r2-live"')) {
-  throw new Error('拒绝打包：当前 dist/runtime/ui-mount.js 不是 remote-r2-live 构建。请先运行 npm run build:ui:remote，再重新 dry-run。');
+  throw new Error(`拒绝打包：当前 ${RUNTIME_ROOT}/ui-mount.js 不是 remote-r2-live 构建。请先运行 npm run build:ui:remote，再重新 dry-run。`);
 }
 
 if (characterRouting.version !== 'character-greenlight.v1' || !Array.isArray(characterRouting.profiles)) {
@@ -319,8 +327,8 @@ const report = {
   version: VERSION,
   checkpoint: CHECKPOINT,
   ui_manifest: RELEASE_KIND === 'test'
-    ? 'gensokyo-moving-garden/test/ui/ui-manifest.json'
-    : 'gensokyo-moving-garden/live/ui/ui-manifest.json',
+    ? `gensokyo-moving-garden/test/ui/profiles/${MEMORY_PROFILE}/ui-manifest.json`
+    : `gensokyo-moving-garden/live/ui/profiles/${MEMORY_PROFILE}/ui-manifest.json`,
   runtime_root: RUNTIME_ROOT,
   output: OUTPUT_FILE,
   bytes: serializedBytes,

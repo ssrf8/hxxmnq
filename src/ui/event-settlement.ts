@@ -951,6 +951,12 @@ export function restoreLocalEventOwnership(before: GardenState, after: GardenSta
   next.scene_item_context = structuredClone(before.scene_item_context ?? null);
   next.ui_flags = structuredClone(before.ui_flags ?? {});
   next.events.settled_ids = structuredClone(before.events?.settled_ids ?? []);
+  next.interaction ??= {};
+  if (before.interaction?.visit_memory) {
+    next.interaction.visit_memory = structuredClone(before.interaction.visit_memory);
+  } else {
+    delete next.interaction.visit_memory;
+  }
 
   const beforeActive = before.events?.active_event;
   const afterActive = next.events.active_event;

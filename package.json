@@ -17,11 +17,11 @@
     "check:assets:r2": "node scripts/build-runtime-assets.mjs --generation=1 --dry-run",
     "plan:assets:r2": "node scripts/publish-r2-assets.mjs --dry-run",
     "check:ui": "tsc --noEmit",
-    "package:checkpoint:dry": "node scripts/package-checkpoint.mjs --checkpoint=0.2.0-r95 --dry-run --expect-remote-r2 --ui-delivery=remote",
-    "package:checkpoint": "node scripts/package-checkpoint.mjs --checkpoint=0.2.0-r95 --expect-remote-r2 --ui-delivery=remote",
+    "package:checkpoint:dry": "node scripts/package-checkpoint.mjs --checkpoint=0.2.0-r96 --dry-run --expect-remote-r2 --ui-delivery=remote",
+    "package:checkpoint": "node scripts/package-checkpoint.mjs --checkpoint=0.2.0-r96 --expect-remote-r2 --ui-delivery=remote",
     "preview": "node scripts/preview-server.mjs",
     "test": "node --test tests/*.test.mjs",
-    "package:checkpoint:png": "node scripts/embed-card-png.mjs --checkpoint=0.2.0-r95 --image=D:/浏览器下载/MiaoMiao_Harem_AnimaBase_single_00504_.png --compress"
+    "package:checkpoint:png": "node scripts/embed-card-png.mjs --checkpoint=0.2.0-r96 --image=D:/浏览器下载/MiaoMiao_Harem_AnimaBase_single_00504_.png --compress"
   },
   "devDependencies": {
     "esbuild": "0.25.6",

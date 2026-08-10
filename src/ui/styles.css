@@ -680,13 +680,17 @@ button:disabled { opacity: .5; cursor: not-allowed; }
   .gg-save-slots { grid-template-columns: 1fr; }
 }
 .gg-test-tools {
-  display: none;
+  display: block;
   margin-top: 1.25rem;
   padding: clamp(.8rem, 2vw, 1.2rem);
   border: 1px solid rgba(214, 181, 119, .42);
   border-radius: 16px;
   background: linear-gradient(145deg, rgba(45, 40, 37, .92), rgba(27, 31, 33, .94));
 }
+.gg-runtime-test-actions { display: flex; flex-wrap: wrap; gap: .55rem; margin: .75rem 0; }
+.gg-runtime-test-actions button { min-height: 42px; }
+.gg-runtime-test-status { min-height: 1.5em; margin: .5rem 0 .85rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.gg-runtime-test-status[data-error="true"] { color: #f1a9ad; }
 .gg-test-tools > .gg-eyebrow { margin: 0; }
 .gg-test-tools > h3 { margin: .2rem 0 .35rem; }
 .gg-test-tools > .gg-note { margin: 0 0 1rem; }

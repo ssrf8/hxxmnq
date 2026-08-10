@@ -316,8 +316,14 @@ export class MessageTransactionCoordinator {
   }
 
   markSettlementFailed(error: unknown) {
+    const detail = error instanceof Error ? error.message : String(error);
+    if (this.snapshot.assistantResponded) {
+      this.snapshot.phase = 'settled';
+      this.snapshot.lastError = `回复已保存，但 MVU 更新失败：${detail}；可以继续发送`;
+      return;
+    }
     this.snapshot.phase = 'failed';
-    this.snapshot.lastError = `本地结算失败：${error instanceof Error ? error.message : String(error)}`;
+    this.snapshot.lastError = `本地结算失败：${detail}`;
   }
 
   markSettlementSucceeded() {
@@ -380,7 +386,7 @@ export class MessageTransactionCoordinator {
     if (result.kind === 'settlement-pending') {
       this.snapshot = {
         ...base,
-        phase: 'failed',
+        phase: 'settled',
         userMessageCreated: true,
         assistantResponded: true,
         userMessageId: result.userMessageId,
@@ -393,7 +399,7 @@ export class MessageTransactionCoordinator {
         ownerCharacterId: result.request.ownerCharacterId,
         chatId: result.request.chatId,
         recovery: 'settlement',
-        lastError: '回复已经保存，但变量或本地结算尚未确认完成；只恢复结算，不重新调用模型',
+        lastError: '上一轮回复已经保存，但 MVU 归档未完成；当前聊天可以继续发送',
       };
       return true;
     }

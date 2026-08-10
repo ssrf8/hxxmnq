@@ -2400,7 +2400,7 @@ test('流式 assistant 正文可被观察，但必须等 GENERATION_ENDED 才进
   assert.equal(completed.assistantMessageId, 2);
 });
 
-test('本地结束会废弃失败事务，下一次角色互动可以重新提交', async () => {
+test('回复存在时本地结算失败只提示，下一次角色互动仍可提交', async () => {
   const { MessageTransactionCoordinator } = await importTypescript('../src/ui/message-transaction.ts');
   const messages = [];
   const coordinator = new MessageTransactionCoordinator({
@@ -2417,9 +2417,8 @@ test('本地结束会废弃失败事务，下一次角色互动可以重新提�
   const first = await coordinator.submit({ kind: 'interaction', message: '聊天' });
   assert.equal(first.phase, 'settling');
   coordinator.markSettlementFailed(new Error('模拟本地结算失败'));
-  assert.equal(coordinator.read().phase, 'failed');
-  coordinator.resetAfterLocalEnd();
-  assert.equal(coordinator.read().phase, 'idle');
+  assert.equal(coordinator.read().phase, 'settled');
+  assert.match(coordinator.read().lastError, /可以继续发送/);
   const second = await coordinator.submit({ kind: 'interaction', message: '摸摸头' });
   assert.equal(second.assistantResponded, true);
 });
@@ -2743,6 +2742,21 @@ test('测试控制面板覆盖教程断点与八名角色在场编排', async ()
   assert.match(styles, /\.gg-test-character-grid/);
 });
 
+test('管理员测试控制台可见，并提供额外模型、离场、邀请制与自动串行入口', async () => {
+  const html = await read('../src/ui/index.html');
+  const css = await read('../src/ui/styles.css');
+  const app = await read('../src/ui/app.ts');
+  assert.match(css, /\.gg-test-tools\s*\{[\s\S]*?display:\s*block/);
+  for (const id of ['a01', 'a02', 'a03', 'a04', 'a05', 'a06', 'a07_multi', 'a07_leave', 'a08', 'a09', 'a10', 'a11', 'dismiss', 'end_chat']) {
+    assert.match(html, new RegExp(`data-runtime-case="${id}"`));
+  }
+  assert.match(html, /id="gg-runtime-run-all"/);
+  assert.match(app, /runtimeAcceptanceOrder/);
+  assert.match(app, /type: 'dismiss_character'/);
+  assert.match(app, /sessionParticipants: \['reimu'\]/);
+  assert.match(app, /waitForGenerating/);
+});
+
 test('助手楼层已经出现时会清除漏掉结束事件留下的宿主忙碌标志', async () => {
   const { reconcileHostGenerationActivity } = await importTypescript('../src/ui/async-coordination.ts');
   assert.equal(reconcileHostGenerationActivity(true, { assistantResponded: false }), true);
@@ -2980,7 +2994,7 @@ test('R31 自由生长方案只由本地单回合结算登记，不提前选型�
   const bridge = await read('../src/ui/bridge.ts');
   assert.match(bridge, /settlePendingAfterReply/);
   assert.match(bridge, /findRecordedLocalSettlement/);
-  assert.match(bridge, /setInterval/);
+  assert.doesNotMatch(bridge, /setInterval\(\(\) => \{[\s\S]*?settlePendingAfterReply/);
   assert.match(bridge, /subscribe\(g\.tavern_events\?\.MESSAGE_RECEIVED,\s*\(messageId\)\s*=>\s*\{[\s\S]*?transactions\.markAssistantMessageReceived\(messageId\)/);
   assert.match(bridge, /variableUpdateEpoch \+= 1/);
   assert.match(bridge, /isDuringExtraAnalysis/);

@@ -757,6 +757,7 @@ export type M2Command =
   | { type: 'start_due_banquet'; activityId: string }
   | { type: 'end_banquet' }
   | { type: 'end_conversation_local' }
+  | { type: 'dismiss_character'; characterId: string }
   | { type: 'claim_pending_task'; taskId: string }
   | { type: 'release_pending_task'; taskId: string }
   | { type: 'queue_scene_item'; itemId: string; useId: string; sceneId: string; targetCharacterId?: string }

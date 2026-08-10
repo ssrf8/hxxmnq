@@ -289,8 +289,32 @@
         <section class="gg-test-tools" aria-labelledby="gg-test-tools-title">
           <p class="gg-eyebrow">验收辅助</p>
           <h3 id="gg-test-tools-title">测试控制面板</h3>
-          <p class="gg-note">以下操作直接写入当前 assistant 楼层的 MVU 测试快照，不创建聊天消息、不调用 LLM。请勿用于正式游玩存档。</p>
+          <p class="gg-note">这是管理员验收入口。快进按钮只写测试快照；实机链路按钮会创建真实消息并调用剧情模型与额外变量模型。只在专用测试聊天中使用。</p>
           <div class="gg-test-dashboard">
+            <section class="gg-test-group" aria-labelledby="gg-runtime-tests-title">
+              <header><span aria-hidden="true">实</span><div><h4 id="gg-runtime-tests-title">额外模型与 Visit 实机链路</h4><p>先开启监听，再逐项执行；也可以自动顺序运行。A06 仍需要验收端提供非法变量输出 fixture。</p></div></header>
+              <div class="gg-runtime-test-actions">
+                <button type="button" id="gg-runtime-run-all">自动顺序运行</button>
+                <button type="button" id="gg-runtime-stop" disabled>完成当前项后停止</button>
+              </div>
+              <p id="gg-runtime-test-status" class="gg-runtime-test-status gg-note" role="status" aria-live="polite">等待开始。</p>
+              <div class="gg-test-grid">
+                <button type="button" data-runtime-case="a01"><strong>A01 空补丁</strong><small>普通问候；额外模型应输出 []，bridge 仍写 VisitTurn</small></button>
+                <button type="button" data-runtime-case="a02"><strong>A02 合法语义更新</strong><small>确认关系事实并检查 message-scope 落盘</small></button>
+                <button type="button" data-runtime-case="a03"><strong>A03 独占字段攻击</strong><small>诱导资源、事件与伪造事务身份写入</small></button>
+                <button type="button" data-runtime-case="a04"><strong>A04 固定事件</strong><small>准备并真实执行灵梦结界检查</small></button>
+                <button type="button" data-runtime-case="a05"><strong>A05 时间单调</strong><small>诱导倒退和非法“下午”时段</small></button>
+                <button type="button" data-runtime-case="a06"><strong>A06 非法输出 fixture</strong><small>发送 marker；监听 Agent 同步切换非法变量输出</small></button>
+                <button type="button" data-runtime-case="a07_multi"><strong>A07 双角色 Visit</strong><small>灵梦、魔理沙同轮各冻结并写自己的父级 visit</small></button>
+                <button type="button" data-runtime-case="a07_leave"><strong>A07 生成期间离场</strong><small>冻结两人 visit 后，生成中自动送别魔理沙</small></button>
+                <button type="button" data-runtime-case="a08"><strong>A08 下一轮召回</strong><small>读取上一轮 VisitTurn 与关系记忆的 syntheticHistory</small></button>
+                <button type="button" data-runtime-case="a09"><strong>A09 邀请制隔离</strong><small>三人在庭园，仅邀请灵梦进入月见温泉</small></button>
+                <button type="button" data-runtime-case="a10"><strong>A10 十轮压力</strong><small>连续十轮正常生成；每轮必须可继续发送</small></button>
+                <button type="button" data-runtime-case="a11"><strong>A11 Profile 边界</strong><small>记录当前 profile；另一 profile 需另载候选卡复跑</small></button>
+                <button type="button" data-runtime-case="dismiss"><strong>修复项：真正离场</strong><small>本地送别灵梦，验证地图、presence、visit 与后续候选</small></button>
+                <button type="button" data-runtime-case="end_chat"><strong>对照项：只结束聊天</strong><small>验证角色仍在庭园，避免把两个语义混为一谈</small></button>
+              </div>
+            </section>
             <section class="gg-test-group" aria-labelledby="gg-test-tutorial-title">
               <header><span aria-hidden="true">Ⅰ</span><div><h4 id="gg-test-tutorial-title">教程断点</h4><p>把教程置于目标行动之前，用来验证按钮、剧情入口与进度导航。</p></div></header>
               <div class="gg-test-grid">

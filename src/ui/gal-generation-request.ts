@@ -1065,11 +1065,19 @@ export function buildGalGenerationRequestV2(input: GalGenerationRequestV2BuildIn
     characterNames: input.characterNames,
   });
 
-  const modelUserInput = buildGalStoredUserMessage({ playerInput: value, state: input.state });
+  const narrativeCharacterIds = input.characterContext.sessionParticipants === undefined
+    ? undefined
+    : resolved.characterIds;
+  const modelUserInput = buildGalStoredUserMessage({
+    playerInput: value,
+    state: input.state,
+    narrativeCharacterIds,
+  });
   if (!modelUserInput) return { ok: false, reason: 'empty-input' };
   const promptInjects = buildGalCurrentTurnInjections({
     state: input.state,
     explicitCharacterIds: input.explicitCharacterIds,
+    narrativeCharacterIds,
   });
   const promptInjectsHash = computeContextFingerprint(
     galPromptInjectsFingerprintInput(CURRENT_PROMPT_REVISION, promptInjects),

@@ -1821,6 +1821,10 @@ export function createHostBridge(): GardenBridge | null {
       } catch (error) {
         lastError = error instanceof Error ? error.message : String(error);
         if ((pendingSettlement || pendingOwnershipBefore || pendingSystemOperation) && snapshot.assistantResponded) {
+          pendingSettlement = null;
+          pendingOwnershipBefore = null;
+          pendingSystemOperation = null;
+          assistantObservedAt = 0;
           transactions.markSettlementFailed(error);
         }
         if (attemptForceReady) throw error;
@@ -3170,12 +3174,6 @@ export function createHostBridge(): GardenBridge | null {
           stops.push(() => observer.disconnect());
         }
       } catch { /* parent document is optional in isolated preview frames */ }
-      const replayTimer = globalThis.setInterval(() => {
-        void settlePendingAfterReply().then((settled) => {
-          if (settled) refresh();
-        });
-      }, 500);
-      stops.push(() => globalThis.clearInterval(replayTimer));
       try {
         const mvu = await requireMvu();
         subscribe(mvu.events.VARIABLE_INITIALIZED);

@@ -1,0 +1,91 @@
+{
+  "character": "youmu",
+  "source": "src/assets/characters/youmu/ChatGPT Image 2026年8月6日 11_56_14..png",
+  "split": {
+    "x": 649,
+    "y": 612
+  },
+  "dirs": {
+    "front": {
+      "sourceQuad": [
+        0,
+        0,
+        649,
+        612
+      ],
+      "size": [
+        649,
+        612
+      ],
+      "bbox": [
+        112,
+        31,
+        569,
+        583
+      ],
+      "mirrorOf": null
+    },
+    "back": {
+      "sourceQuad": [
+        0,
+        612,
+        649,
+        642
+      ],
+      "size": [
+        649,
+        642
+      ],
+      "bbox": [
+        103,
+        15,
+        503,
+        565
+      ],
+      "mirrorOf": null
+    },
+    "left": {
+      "sourceQuad": [
+        649,
+        612,
+        605,
+        642
+      ],
+      "size": [
+        605,
+        642
+      ],
+      "bbox": [
+        50,
+        34,
+        378,
+        562
+      ],
+      "mirrorOf": null
+    },
+    "right": {
+      "sourceQuad": [
+        649,
+        0,
+        605,
+        612
+      ],
+      "size": [
+        605,
+        612
+      ],
+      "bbox": [
+        120,
+        32,
+        480,
+        583
+      ],
+      "mirrorOf": null
+    }
+  },
+  "turnaround": "youmu-turnaround-v1.png",
+  "turnaroundGrid": [
+    649,
+    649
+  ]
+}

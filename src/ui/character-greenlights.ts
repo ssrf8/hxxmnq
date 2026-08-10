@@ -34,9 +34,10 @@ function activeStateCharacterIds(state?: GardenState): string[] {
 export function resolveCharacterGreenlightIds(
   state?: GardenState,
   explicitCharacterIds: readonly string[] = [],
+  narrativeCharacterIds?: readonly string[],
 ): string[] {
   return Array.from(new Set([
-    ...activeStateCharacterIds(state),
+    ...(narrativeCharacterIds === undefined ? activeStateCharacterIds(state) : narrativeCharacterIds),
     ...explicitCharacterIds,
   ].filter((id) => routeById.has(id))));
 }
@@ -48,8 +49,9 @@ export function stripCharacterGreenlights(message: string): string {
 export function characterGreenlightTokens(
   state?: GardenState,
   explicitCharacterIds: readonly string[] = [],
+  narrativeCharacterIds?: readonly string[],
 ): string[] {
-  return resolveCharacterGreenlightIds(state, explicitCharacterIds)
+  return resolveCharacterGreenlightIds(state, explicitCharacterIds, narrativeCharacterIds)
     .map((id) => routeById.get(id)!.greenlight);
 }
 

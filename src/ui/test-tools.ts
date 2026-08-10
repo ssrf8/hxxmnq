@@ -1,4 +1,5 @@
 import type { GardenState } from './types';
+import { reconcileCharacterVisitsFromState } from './character-memory';
 
 export type TestJumpId =
   | 'tutorial_boundary_ready'
@@ -211,7 +212,7 @@ function applyPresenceTestAction(before: GardenState, jump: TestJumpId): GardenS
   state.visit_scheduler.known_characters ??= [];
   if (jump === 'presence_clear') {
     state.presence_snapshot = { present_character_ids: [], character_views: {}, visitor_meta: {} };
-    return state;
+    return reconcileCharacterVisitsFromState(before, state, 'event');
   }
   const ids = jump === 'presence_all' ? allKnownCharacters : [jump.replace('presence_', '')];
   for (const id of ids) {
@@ -224,7 +225,7 @@ function applyPresenceTestAction(before: GardenState, jump: TestJumpId): GardenS
     state.presence_snapshot.visitor_meta[id] = { source: 'event', arrived_period_serial: 0, planned_departure_serial: 9999 };
     if (!state.visit_scheduler.known_characters.includes(id)) state.visit_scheduler.known_characters.push(id);
   }
-  return state;
+  return reconcileCharacterVisitsFromState(before, state, 'event');
 }
 
 function prepareM2AcceptanceState(state: GardenState, jump: TestJumpId) {

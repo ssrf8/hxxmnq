@@ -29,15 +29,28 @@ export const gardenNarrativeContract = [
   '称呼玩家时使用酒馆当前用户名（开场已注入酒馆原生宏的名字）或玩家在开场确认的姓名；姓名与称谓只用于称呼玩家，不得据此替玩家决定人称、台词、心理、关系承诺或关键选择。',
 ].join('\n');
 
-export function presenceNarrativeContext(state?: GardenState) {
+export function presenceNarrativeContext(state?: GardenState, narrativeCharacterIds?: readonly string[]) {
   if (!state) return '';
-  const present = new Set(state.presence_snapshot?.present_character_ids ?? []);
+  const physicalPresent = new Set(state.presence_snapshot?.present_character_ids ?? []);
+  const scoped = narrativeCharacterIds !== undefined;
+  const present = scoped
+    ? new Set(narrativeCharacterIds.filter((id) => physicalPresent.has(id)))
+    : physicalPresent;
   const views = state.presence_snapshot?.character_views ?? {};
   const names = state.characters ?? {};
   const presentLines = [...present].map((id) => {
     const view = views[id] ?? {};
     return `- ${id}（${names[id]?.name ?? id}）：${view.area_id ?? '区域未记录'}；${view.action ?? '行动未记录'}；朝向 ${view.facing ?? '未记录'}`;
   });
+  if (scoped) {
+    return [
+      '【当前活动参与者：本轮唯一叙事范围】',
+      presentLines.length ? `允许参与本活动：\n${presentLines.join('\n')}` : '允许参与本活动：无。',
+      '庭园中其他角色不在本活动现场，不得出场、说话、行动或被临时追加为参与者；这不会把他们从庭园地图删除。',
+      '正文只能让上述活动参与者出现在现场、说话或行动。',
+      '活动参与者范围不等于全局在场快照；不得因为进入、结束或退出本活动而输出 GensokyoPresence，也不得借此删除庭园中的其他角色。真正离开庭园必须由本地“送别离开庭园”或其他正式 presence 事务处理。',
+    ].join('\n');
+  }
   return [
     '【庭园在场快照：本轮唯一事实】',
     presentLines.length ? `当前在场：\n${presentLines.join('\n')}` : '当前在场：无。',
@@ -685,4 +698,3 @@ const FIXED_PRESENTATION_ACTION_IDS = new Set([
 export function isFixedPresentationAction(actionId: string) {
   return FIXED_PRESENTATION_ACTION_IDS.has(actionId);
 }
-

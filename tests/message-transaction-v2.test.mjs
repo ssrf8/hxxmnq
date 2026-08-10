@@ -256,17 +256,19 @@ test('中途切聊天：生成前切换 → reconcile 冻结旧事务（phase=fa
   assert.match(snapshot.lastError ?? '', /聊天已经切换/);
 });
 
-test('settlement 失败后只重跑 settlement：retry 不再调用 triggerGeneration', async () => {
+test('assistant 已保存后 settlement 失败只提示，不阻断下一次发送', async () => {
   const { host, calls } = makeFlexibleHost();
   const coordinator = new MessageTransactionCoordinator(host);
   const request = makeRequest();
   const first = await coordinator.submit({ kind: 'interaction', message: 'A', request, extra: g.buildRequestMetadata(request) });
   assert.equal(first.assistantResponded, true);
   coordinator.markSettlementFailed(new Error('settlement 失败'));
-  const retried = await coordinator.retry();
-  assert.equal(retried.phase, 'settling');
-  assert.equal(calls.trigger, 1); // 未再调模型
-  assert.equal(retried.assistantMessageId, 2);
+  const warned = coordinator.read();
+  assert.equal(warned.phase, 'settled');
+  assert.match(warned.lastError ?? '', /可以继续发送/);
+  const next = await coordinator.submit({ kind: 'interaction', message: 'B' });
+  assert.equal(next.assistantResponded, true);
+  assert.equal(calls.trigger, 2);
 });
 
 test('stop 后 retry 走 continueGeneration（不重头调模型）', async () => {

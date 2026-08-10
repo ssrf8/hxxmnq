@@ -33,6 +33,35 @@ export function listVisitProfiles(): VisitProfile[] {
   return profiles.map((profile) => ({ ...profile }));
 }
 
+/** 玩家显式送别：立即移出庭园，关闭本次 visit，并阻止旧排期马上把角色重新拉回。 */
+export function dismissCharacter(before: GardenState, characterId: string): GardenState {
+  if (!profileById.has(characterId)) throw new Error('角色未完成本地登记');
+  if (!(before.presence_snapshot?.present_character_ids ?? []).includes(characterId)) {
+    throw new Error('该角色当前不在庭园中');
+  }
+  const state = structuredClone(before);
+  state.presence_snapshot ??= { present_character_ids: [], character_views: {}, visitor_meta: {} };
+  state.presence_snapshot.present_character_ids = (state.presence_snapshot.present_character_ids ?? [])
+    .filter((id) => id !== characterId);
+  delete state.presence_snapshot.character_views?.[characterId];
+  delete state.presence_snapshot.visitor_meta?.[characterId];
+  state.visit_scheduler ??= {
+    version: 'visit.v1', known_characters: [], plans: [], cooldown_until: {},
+    invitation_cooldowns: {}, last_processed_serial: null, pending_notices: [],
+  };
+  state.visit_scheduler.plans = (state.visit_scheduler.plans ?? []).map((plan) => (
+    plan.character_id === characterId && ['scheduled', 'deferred'].includes(plan.status)
+      ? { ...plan, status: 'cancelled' as const }
+      : plan
+  ));
+  state.visit_scheduler.cooldown_until ??= {};
+  state.visit_scheduler.cooldown_until[characterId] = Math.max(
+    state.visit_scheduler.cooldown_until[characterId] ?? 0,
+    periodSerialFromState(state) + 2,
+  );
+  return reconcileCharacterVisitsFromState(before, state, 'event');
+}
+
 export function getVisitProfile(characterId: string) {
   return profileById.get(characterId);
 }
