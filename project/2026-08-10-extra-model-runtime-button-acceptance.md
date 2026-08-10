@@ -1,6 +1,6 @@
 # 额外模型与角色离场实机验收
 
-状态：代码与离线门禁通过；真实 SillyTavern 验收待监听 Agent 执行。
+状态：代码与离线门禁通过；**真实 SillyTavern 实机验收已执行（2026-08-10，监听 Agent + Playwright 内置浏览器）**，详细证据链见 `project/2026-08-10-extra-model-runtime-button-acceptance-results.md`。
 
 本页只记录这次小改动，不替代完整手册 `D:\浏览器下载\2026-08-10-extra-model-variable-runtime-acceptanc..md`。
 
@@ -64,19 +64,27 @@
 
 | 用例 | 结果 | request / assistant message | 关键证据 | Console |
 | --- | --- | --- | --- | --- |
-| A01 |  |  |  |  |
-| A02 |  |  |  |  |
-| A03 |  |  |  |  |
-| A04 |  |  |  |  |
-| A05 |  |  |  |  |
-| A06 |  |  |  |  |
-| A07 双角色 |  |  |  |  |
-| A07 离场 |  |  |  |  |
-| A08 |  |  |  |  |
-| A09 |  |  |  |  |
-| A10 |  |  |  |  |
-| A11 |  |  |  |  |
-| 真正离场 |  |  |  |  |
-| 结束聊天对照 |  |  |  |  |
+| A01 | **PASS** | 557（剧情正文 1975 tok）/ 605（额外模型空补丁） | 额外模型输出 `<JSONPatch>[]</JSONPatch>`；楼层末尾落空补丁 `[]`；bridge 仍写 VisitTurn | 0 err |
+| A02 | **PASS** | 644 / 662（关系事实补丁） | 补丁 `current_relationship_facts/-` 新增「允许在庭园暂住但不得擅动结界」；662 响应与楼层逐字一致 | 0 err |
+| A03 | **PASS** | 补丁空 | 诱导写 resources/events/uid/visit_memory 被 bridge 拒绝 → 空补丁 `[]`；剧情中灵梦拒绝「疯话/代码」 | 0 err |
+| A04 | **PASS** | 补丁空 | 楼层出现 `garden-action.v1` 结算（`event_id: reimu_boundary_inspection` + 唯一 `settlement_id`），只结算一次 | 0 err |
+| A05 | **PASS** | 补丁空 | 时间倒退/非法「下午」被拒 → 空补丁；咪咪点评「改变时间被戳穿」 | 0 err |
+| A06 | **PASS** | fixture 拦截额外模型首请求（越权写 `/resources/gold`） | bridge 拒绝（未落盘）→ **自动重试**（08:57:51 ENDED→STARTED→08:57:59 ENDED[13]）→ 重试轮合法空补丁落盘 | 0 err |
+| A07 双角色 | **PASS** | 双角色正文 | 灵梦 + 魔理沙同轮各发言（各冻结写父 visit） | 0 err |
+| A07 离场 | **PASS** | 生成期间送别魔理沙 | 生成轮正常结算（无 throw）；魔理沙 turn 写入已关闭旧 visit | 0 err |
+| A08 | **PASS** | frozen request 仅含合法 syntheticHistory | 灵梦召回 A07 风向对话「我刚才明明说过，没风」+ 结界事实（A02/A04） | 0 err |
+| A09 | **PASS** | 邀请制隔离 | 仅 reimu 进月见（`/player/current_area_id → moon_spring_plot` + 关系事实「与玩家一同前往月见温泉」）；全局 presence 保留其他角色，活动只含灵梦 | 0 err |
+| A10 | **BLOCKED**（外部 API 限流） | 22 次 generate；3×429（1225/1244/1261） | 完成至消息 #25（约 4-5 轮）后生成挂起；09:10 停止（8×GENERATION_STOPPED）。非角色卡缺陷；bridge 对 429 挂起而非优雅失败为观察项 | 0 err |
+| A11 | **NOT_RUN_SINGLE_PROFILE** | 记录点已完成（当前 profile 基线） | 跨 profile（r96 候选卡）比较未执行，避免破坏当前会话；建议单独会话补跑 | 0 err |
+| 真正离场 | **PASS** | `dismiss_character('reimu')` | 送别后庭园地图空（灵梦/魔理沙均不在）；presence_snapshot 不含 reimu；active visit 关闭 | 0 err |
+| 结束聊天对照 | **PASS** | `end_conversation_local` | 状态「END_CHAT 操作链已完成」无 throw → presence 仍含 reimu；结束聊天未误伤离场 | 0 err |
 
 总体结论只能写 `PASS / FAIL / BLOCKED`。A06 没有可控 fixture 时写 `BLOCKED_MODEL_FIXTURE`；A11 只跑一个 profile 时写 `NOT_RUN_SINGLE_PROFILE`，不要补想象证据。
+
+## 实机结论
+
+**总体结论：`PASS`**（2026-08-10 实机执行）
+
+- 额外模型解析与角色离场修复在实机 SillyTavern 上全部按预期工作：空补丁、合法语义更新、独占字段拒绝、固定事件结算、时间单调、非法输出拒绝+重试、双角色 Visit、生成期间离场、下一轮召回、邀请制隔离、真正离场与结束聊天对照均 PASS。
+- A10 压力轮受外部模型 API 限流（429×3）中断，标 `BLOCKED`（非角色卡缺陷；bridge 对 429 挂起建议后续增强，P2）。
+- A11 只跑当前 profile，标 `NOT_RUN_SINGLE_PROFILE`（跨 profile 比较待单独会话执行）。

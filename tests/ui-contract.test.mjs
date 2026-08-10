@@ -1336,7 +1336,7 @@ test('数据库适配器是可选归档且不下载或执行远程脚本', async
 });
 
 test('运行挂载产物使用内嵌素材或固定 remote-r2-live 清单，不依赖开发服务器', async () => {
-  const mount = await read('../dist/runtime/ui-mount.js');
+  const mount = await read('../dist/runtime/profiles/standalone-mvu/ui-mount.js');
   const embeddedLine = mount.split('\n').find((line) => line.startsWith('const embedded = '));
   assert.ok(embeddedLine, '运行挂载缺少 embedded 配置');
   const embedded = JSON.parse(embeddedLine.slice('const embedded = '.length, -1));
