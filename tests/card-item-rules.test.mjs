@@ -113,6 +113,22 @@ test('机遇卡通过本地商店目录购买并遵守开放条件与堆叠上�
   );
 });
 
+test('妖梦特训与帕秋莉红茶在商店开放后无需额外前置即可购买', async () => {
+  const shop = await importTypescript('../src/ui/shop-rules.ts');
+  const state = await baseState();
+  state.resources.coins = 100;
+  const visible = shop.listShopItems(state).map((item) => item.item_id);
+  assert.ok(visible.includes('patchouli_sleep_tea'));
+  assert.ok(visible.includes('youmu_sword_training'));
+
+  const withTea = shop.purchaseShopItem(state, 'patchouli_sleep_tea', 'purchase:patchouli-tea:1');
+  assert.equal(withTea.resources.coins, 78);
+  assert.equal(withTea.inventory.consumables.patchouli_sleep_tea, 1);
+  const withTraining = shop.purchaseShopItem(withTea, 'youmu_sword_training', 'purchase:youmu-training:1');
+  assert.equal(withTraining.resources.coins, 52);
+  assert.equal(withTraining.inventory.consumables.youmu_sword_training, 1);
+});
+
 test('角色对战按零枚极难、一至二枚标准、三枚以上援助锁定难度，取消不改变标签', async () => {
   const duel = await importTypescript('../src/ui/duel-card-rules.ts');
   const state = await baseState();

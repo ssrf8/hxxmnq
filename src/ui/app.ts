@@ -557,6 +557,12 @@ const battleBossSuikaSheetSource = document.documentElement.dataset.battleBossSu
   || `${assetBase}/battle/boss/suika-battle-sheet-v1.png`;
 const battleBossSakuyaSheetSource = document.documentElement.dataset.battleBossSakuyaSrc
   || `${assetBase}/battle/boss/sakuya-battle-sheet-v1.png`;
+const battleBossYoumuSheetSource = document.documentElement.dataset.battleBossYoumuSrc
+  || `${assetBase}/battle/boss/youmu-battle-sheet-v1.png`;
+const battleBossPatchouliSheetSource = document.documentElement.dataset.battleBossPatchouliSrc
+  || `${assetBase}/battle/boss/patchouli-battle-sheet-v1.png`;
+const battleBossSanaeSheetSource = document.documentElement.dataset.battleBossSanaeSrc
+  || `${assetBase}/battle/boss/sanae-battle-sheet-v1.png`;
 const battlePortraitReimuS0Source = document.documentElement.dataset.battlePortraitReimuS0Src
   || `${assetBase}/battle/portraits/portrait-reimu-s0-v1.png`;
 const battlePortraitReimuS1Source = document.documentElement.dataset.battlePortraitReimuS1Src
@@ -628,6 +634,9 @@ const battleAtlasSources = {
   boss_mystia: battleBossMystiaSheetSource,
   boss_suika: battleBossSuikaSheetSource,
   boss_sakuya: battleBossSakuyaSheetSource,
+  boss_youmu: battleBossYoumuSheetSource,
+  boss_patchouli: battleBossPatchouliSheetSource,
+  boss_sanae: battleBossSanaeSheetSource,
   portrait_reimu_s0: battlePortraitReimuS0Source,
   portrait_reimu_s1: battlePortraitReimuS1Source,
   portrait_reimu_s2: battlePortraitReimuS2Source,

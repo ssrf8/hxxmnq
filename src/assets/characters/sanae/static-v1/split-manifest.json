@@ -1,0 +1,91 @@
+{
+  "character": "sanae",
+  "source": "src/assets/characters/sanae/ChatGPT Image 2026年8月6日 23_51_23.png",
+  "split": {
+    "x": 418,
+    "y": 836
+  },
+  "dirs": {
+    "front": {
+      "sourceQuad": [
+        0,
+        0,
+        418,
+        1254
+      ],
+      "size": [
+        418,
+        1254
+      ],
+      "bbox": [
+        126,
+        380,
+        368,
+        846
+      ],
+      "mirrorOf": null
+    },
+    "back": {
+      "sourceQuad": [
+        836,
+        0,
+        418,
+        1254
+      ],
+      "size": [
+        418,
+        1254
+      ],
+      "bbox": [
+        65,
+        382,
+        296,
+        839
+      ],
+      "mirrorOf": null
+    },
+    "left": {
+      "sourceQuad": [
+        418,
+        0,
+        418,
+        1254
+      ],
+      "size": [
+        418,
+        1254
+      ],
+      "bbox": [
+        120,
+        386,
+        298,
+        846
+      ],
+      "mirrorOf": null
+    },
+    "right": {
+      "sourceQuad": [
+        418,
+        0,
+        418,
+        1254
+      ],
+      "size": [
+        418,
+        1254
+      ],
+      "bbox": [
+        119,
+        386,
+        297,
+        846
+      ],
+      "mirrorOf": "left"
+    }
+  },
+  "turnaround": "sanae-turnaround-v1.png",
+  "turnaroundGrid": [
+    1254,
+    1254
+  ]
+}

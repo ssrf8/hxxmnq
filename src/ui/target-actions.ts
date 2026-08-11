@@ -40,7 +40,7 @@ export function presenceNarrativeContext(state?: GardenState, narrativeCharacter
   const names = state.characters ?? {};
   const presentLines = [...present].map((id) => {
     const view = views[id] ?? {};
-    return `- ${id}（${names[id]?.name ?? id}）：${view.area_id ?? '区域未记录'}；${view.action ?? '行动未记录'}；朝向 ${view.facing ?? '未记录'}`;
+    return `- ${id}（${names[id]?.name ?? id}）：${view.area_id ?? '区域未记录'}；${view.action ?? '行动未记录'}`;
   });
   if (scoped) {
     return [

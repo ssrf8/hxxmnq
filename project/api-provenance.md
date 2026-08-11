@@ -8,7 +8,7 @@
 - `createChatMessages(messages,{insert_before:'end',refresh:'none'})` 来自目标 Helper 的 `@types/function/chat_message.d.ts`。项目用它创建 `role:'user' / is_hidden:false` 的真实楼层；楼层正文包含玩家原文、正文协议、在场快照、场景事实和道具授权。静态源码确认调用形状；真实宿主持久化与重载后保真仍待实机复读。
 - `InjectionPrompt` 精确字段来自同安装的 `src/function/inject.ts`：`position:'in_chat' | 'none'`、`depth:number`、`role:'system'|'assistant'|'user'`、`content:string`、`should_scan?:boolean`。`gal-prompt.v6` 只保留不可见路由胶囊 `{position:'none',depth:0,role:'system',should_scan:true}`，不携带格式或动态事实。
 - `overrides.chat_history.prompts` 与 `with_depth_entries` 来自目标版本 `generate.d.ts`；项目继续只传一条冻结 synthetic system history，并固定 `with_depth_entries:false`，不恢复 SillyTavern 原生旧聊天历史。
-- 新请求冻结为 `gal-prompt.v6`；`modelUserInput` 与写入并复读的真实玩家楼层正文逐字一致，并携带 bridge 冻结的额外变量任务投影，普通互动、异变收束和决斗胜利三类入口均在 `generate()` 前失败闭合校验。酒馆原生 Chat Completion 不再订阅 `CHAT_COMPLETION_PROMPT_READY` 改写最终 user 消息；`GENERATION_AFTER_COMMANDS` 只保留世界书扫描路由，不承担格式。正文格式由常驻 `[mvu_plot]` GAL 世界书完整定义并提供一份正确示范。旧 `gal-prompt.v1/v2/v3/v4/v5` metadata 继续按各自原配置恢复，不在恢复时升级。
+- 新请求冻结为 `gal-prompt.v7`；`modelUserInput` 与写入并复读的真实玩家楼层正文逐字一致，并携带 bridge 冻结的额外变量任务投影，普通互动、异变收束和决斗胜利三类入口均在 `generate()` 前失败闭合校验。设施现状与角色剧情梗概合并为唯一冻结 system history，经 `overrides.chat_history.prompts` 发送，不进入玩家原话。酒馆原生 Chat Completion 不再订阅 `CHAT_COMPLETION_PROMPT_READY` 改写最终 user 消息；`GENERATION_AFTER_COMMANDS` 只保留世界书扫描路由，不承担格式。正文格式由常驻 `[mvu_plot]` GAL 世界书完整定义并提供一份正确示范。旧 `gal-prompt.v1/v2/v3/v4/v5/v6` metadata 继续按各自原配置恢复，不在恢复时升级。
 - 依赖分类：Tavern Helper `generate`/`injects` 为 `host_required`；请求构造器、metadata 和 UI bridge 为随卡/远程 UI 交付的项目运行代码；本专项没有新增远程依赖或玩家安装项。
 - 源码证据：Helper `dataProcessor.ts` 在世界书扫描前注册自定义 inject；SillyTavern `checkWorldInfo()` 只把 `scan:true` 的 extension prompt 加入扫描缓冲。v5 不再依赖最终 prompt 事件修改 user 内容。静态置信度高；真实楼层保存、世界书最终可见性和模型格式服从率仍待实机观察。
 

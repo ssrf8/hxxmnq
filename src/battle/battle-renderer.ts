@@ -31,6 +31,9 @@ export const CHARACTER_BOSS_SHEETS: Readonly<Record<string, BattleSheetKey>> = {
   mystia: 'boss_mystia',
   suika: 'boss_suika',
   sakuya: 'boss_sakuya',
+  youmu: 'boss_youmu',
+  patchouli: 'boss_patchouli',
+  sanae: 'boss_sanae',
 };
 
 export function characterBossSheet(bossId: string | undefined): BattleSheetKey | undefined {

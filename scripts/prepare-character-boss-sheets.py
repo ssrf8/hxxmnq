@@ -27,8 +27,8 @@ SHEETS = {
     "image-5.png": "suika",
 }
 CHARACTER_ID_PATTERN = re.compile(r"^[a-z0-9_]+$")
-CANVAS_SIZE = (1254, 1254)
-CELL_SIZE = 627
+RUNTIME_CANVAS_SIZE = (1254, 1254)
+RUNTIME_CELL_SIZE = 627
 BLACK_FLOOR = 8
 ALPHA_GAIN = 3.5
 
@@ -71,9 +71,9 @@ def cell_metrics(alpha: np.ndarray) -> list[dict[str, object]]:
     cells = []
     labels = ["idle", "spell", "hit", "break"]
     for index, label in enumerate(labels):
-        x = (index % 2) * CELL_SIZE
-        y = (index // 2) * CELL_SIZE
-        cell = alpha[y : y + CELL_SIZE, x : x + CELL_SIZE]
+        x = (index % 2) * RUNTIME_CELL_SIZE
+        y = (index // 2) * RUNTIME_CELL_SIZE
+        cell = alpha[y : y + RUNTIME_CELL_SIZE, x : x + RUNTIME_CELL_SIZE]
         bbox = alpha_bbox(cell)
         cells.append(
             {
@@ -163,9 +163,12 @@ def main() -> None:
         if not source_path.is_file():
             raise FileNotFoundError(source_path)
         with Image.open(source_path) as source:
-            if source.size != CANVAS_SIZE:
-                raise ValueError(f"{source_path} must be {CANVAS_SIZE}, got {source.size}")
+            source_size = source.size
+            if source_size[0] != source_size[1] or source_size[0] % 2:
+                raise ValueError(f"{source_path} must be an even square 2x2 sheet, got {source_size}")
             prepared = remove_black_background(source)
+            if prepared.size != RUNTIME_CANVAS_SIZE:
+                prepared = prepared.resize(RUNTIME_CANVAS_SIZE, Image.Resampling.LANCZOS)
 
         archive_path = (
             args.archive_dir
@@ -196,7 +199,8 @@ def main() -> None:
                 "archive_sha256": sha256(archive_path),
                 "output_path": output_path.as_posix(),
                 "output_sha256": sha256(output_path),
-                "canvas": list(CANVAS_SIZE),
+                "source_canvas": list(source_size),
+                "runtime_canvas": list(RUNTIME_CANVAS_SIZE),
                 "layout": "2x2-idle-spell-hit-break",
                 "transparent_pixels": int(np.count_nonzero(alpha == 0)),
                 "partial_alpha_pixels": int(np.count_nonzero((alpha > 0) & (alpha < 255))),

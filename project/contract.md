@@ -3,7 +3,7 @@
 ## R28：在场角色快照同步
 
 - `presence_snapshot` 是地图小人、模型现场叙事与后续互动的唯一事实来源。
-- 每一次由庭院 UI 发起的 LLM 请求都必须注入在场角色 ID、姓名、区域、动作、朝向及完整不在场名单。
+- 每一次由庭院 UI 发起的 LLM 请求都必须注入在场角色 ID、姓名、区域、动作及完整不在场名单；朝向保留在状态与变量分析任务中，不进入普通剧情可见的在场快照。
 - 正文只允许把快照中的在场角色写成现场人物；不在场角色可以被提及，但不得在当前场景发言、行动或被地图渲染。
 - 主模型不再输出 `GensokyoPresence`。bridge 在请求前冻结 `interaction.presence_analysis_task`，额外变量模型只填写既有槽位的 `decision / area_id / action / facing`。
 - Presence 任务只覆盖本轮开始时已在场的冻结角色；`move` 只接受已登记区域，`leave` 清除角色视图，`unchanged / uncertain` 保留基线。邀请、召回和事件到场仍由 bridge 的确定性路径处理。
@@ -52,7 +52,7 @@
 - 体位图片使用冻结的 `character_id + pose_id + act_id + candidate_no` 语义和固定 `.png` live source；缺图由 manifest 缺项与 `nude`／`normal` fallback 表达，不得上传伪占位。sexual CG 必须以所有者提供的原始 PNG 字节发布，不得压缩、转 WebP、缩放、改 Alpha、量化或重编码，维护源与 R2 对象 SHA-256 必须一致。首个公开包完成动态 manifest resolver 后，在既有白名单内补图、替换同名候选或增加 `01–99` 候选只能更新 R2 媒体并最后更新 `live/manifest.json`，不得要求重新打包角色卡；新增语义或修改选择算法仍须重新构建与验收。
 - 变量更新只使用目标 MVU 支持的 JSONPatch `add`、`replace`、`remove`。
 - 正式运行采用 MagVarUpdate 额外模型解析：`[mvu_plot]` 只进入剧情阶段，`[mvu_update]` 只进入变量阶段；D0 的完整 `{{format_message_variable::stat_data}}` 最新快照只进入变量阶段，剧情阶段由 UI 请求注入脱敏投影。
-- 新建 GAL 请求使用 `gal-prompt.v6`：庭园 UI 在创建 assistant 前，先把清理后的玩家原文、正文协议、在场快照、场景事实、本轮道具授权和 bridge 冻结的额外变量任务投影一次性写入 `is_hidden:false` 的真实 SillyTavern user 楼层；三类生成入口都必须在触发模型前复读该楼层，并确认正文与冻结 `modelUserInput` 逐字一致。`generate.user_input` 只能复用这份冻结正文，不得在生成期或最终 prompt 事件中重新拼接上下文。角色、道具及开场路由键仍只进入 `position:none / should_scan:true` 的不可见扫描胶囊。酒馆原生 Chat Completion 不改写玩家消息，GAL 格式只由常驻 `[mvu_plot]` 世界书的完整定义和正确示范约束；扫描胶囊不承担格式。冻结 synthetic history 只进入 `overrides.chat_history.prompts`，固定 `with_depth_entries:false`，不得发送 SillyTavern 原生旧聊天历史。旧 `gal-prompt.v1/v2/v3/v4/v5` metadata 均按原语义恢复，不得静默升级。
+- 新建 GAL 请求使用 `gal-prompt.v7`：庭园 UI 在创建 assistant 前，先把清理后的玩家原文、正文协议、在场快照（区域与行动，不投影朝向）、场景事实、本轮道具授权和 bridge 冻结的额外变量任务投影一次性写入 `is_hidden:false` 的真实 SillyTavern user 楼层；三类生成入口都必须在触发模型前复读该楼层，并确认正文与冻结 `modelUserInput` 逐字一致。`generate.user_input` 只能复用这份冻结正文，不得在生成期或最终 prompt 事件中重新拼接上下文。角色、道具及开场路由键仍只进入 `position:none / should_scan:true` 的不可见扫描胶囊。酒馆原生 Chat Completion 不改写玩家消息，GAL 格式只由常驻 `[mvu_plot]` 世界书的完整定义和正确示范约束；扫描胶囊不承担格式。角色剧情梗概与从正式状态投影的紧凑 `【庭园设施现状】` 合并为唯一冻结 system history，只进入 `overrides.chat_history.prompts`，固定 `with_depth_entries:false`，不得发送 SillyTavern 原生旧聊天历史；已建成且正常运转的设施事实优先于开场与旧梗概。旧 `gal-prompt.v1/v2/v3/v4/v5/v6` metadata 均按原语义恢复，不得静默升级。
 - 变量阶段每轮必须返回一个且仅一个 `<UpdateVariable><JSONPatch>...</JSONPatch></UpdateVariable>`；没有合法变化时返回空数组，不得遗忘或省略变量块。
 - `[mvu_update]` 的变量规则、输出格式和 D0 完整状态只供额外变量模型使用；看见完整 `stat_data` 不等于拥有全部写权。`interaction.visit_memory` 整棵根由 bridge settlement 独占，变量模型即使从正文中读到看似完整的 turn/request/attempt/message/swipe 也必须忽略，若本轮没有其他获授权变化则输出空补丁。
 - 新 VisitTurn 只持久化 `turn_id`、`character_id`、`day`、`time_period`、`summary`；额外变量模型按 bridge 冻结的角色槽位填写不超过 100 字的语义摘要，bridge 校验信封并绑定到 frozen visit，禁止正文机械抽取兜底。request、attempt、commit、assistant message、swipe、scene 与 period serial 只属于事务生命周期/提交回执，不进入长期召回。

@@ -18,14 +18,24 @@
 ## 当前关键状态
 
 - 当前 schema：`v0.3.0`。
-- GAL 新请求协议：`gal-prompt.v6`。
-- 正式登记角色：11 名；妖梦、帕秋莉、早苗已接入无前置随机来访、地图动画与 GAL 反应图。其 sexual 姿势池保持空，等待未来 R2 manifest 自动发现。
-- Live 素材：生产 manifest 已更新至 generation 5（251 files）；三名新角色的 36 项素材已完成 manifest-last 发布与双通道读回校验。
+- GAL 新请求协议：`gal-prompt.v7`（设施现状随剧情梗概进入冻结 system 历史；在场快照不再投影朝向）。
+- 正式登记角色：11 名；妖梦、帕秋莉、早苗已接入无前置随机来访、独立静态四视图、四向地图动画与 GAL 反应图。妖梦、早苗的左右运行源已在构建期纠正；早苗右侧静态图由左侧精确镜像生成，三人的原始动画帧数保持不变。
+- 三名新角色的动静帧已按所有者参数独立校准，动画统一为 48ms/帧；本地校准台位于 `src/ui/new-character-sprite-calibration.html`。这些尺寸、定位和帧速属于 UI 代码，必须随新角色卡/UI 包重新打包后才会进入 SillyTavern。
+- 弹幕对战：妖梦、帕秋莉、早苗已接入独立四状态 Boss 图集与角色对战配置；原始 `1536×1536` 图片完整归档，运行副本统一为透明 `1254×1254` 四宫格。
+- Live 素材：生产 manifest 已更新至 generation 7（254 files / 355,238,436 bytes）；三张新 Boss WebP 已按 media-first / manifest-last 新增，并完成 S3 与生产域名双通道读回校验。manifest SHA-256 为 `6b6bd8afa66e36e5bce9ddd9b56fd86cdb174d6037c7fa44bc15e82fdeec80b2`。
+- 世界书：妖梦、帕秋莉、早苗的人设条目已扩充；新增“剑术特训”和“昏睡红茶·半梦半醒”两个无额外前置的商店消耗品。角色与道具继续使用不透明绿灯，世界书道具 UID 使用独立 `100+` 区段并在打包时检查重复。
 - 角色记忆：每角色最多 60 条 `VisitTurn` 剧情梗概；退役的关系事实数组不再使用。
 - Presence 已迁移到额外模型任务：bridge 暂存 `interaction.presence_analysis_task`，额外模型填写语义叶字段，bridge 校验并更新 `presence_snapshot`。
 - VisitTurn 摘要采用同一机制：bridge 暂存 `interaction.visit_summary_task`，额外模型逐角色填写 `summary`，bridge 绑定冻结 visit 后落盘。
 - 主模型不再输出 `<GensokyoPresence>`，变量模型也不得直接写 `presence_snapshot` 或 `interaction.visit_memory`。
 - Presence 全流程、非法变量输出拒绝、多角色、生成期间离场、压力测试与二阶段幂等结算已通过真实 SillyTavern 验收。记录见 `project/2026-08-10-presence-extra-model-acceptance-results.md`。
+
+## 当前验证与未完成项
+
+- `npm run check:ui`：通过。
+- `npm run build:ui:standalone`：通过，当前内嵌 UI 为 2,196,294 bytes，SHA-256 为 `8b35d93631cf0eb038a20acf1b91e99b998974e5188845e1faf3d5857f80c2f3`。
+- `npm test`：739 项中 734 通过、5 失败；失败清单及处理顺序以 `project/agent-handoff.md` 为准，不再沿用旧的 734/734 基线。
+- generation 7 已更新远端 Boss 媒体；48ms、动静帧定位、Boss 路由、三个人设与两个新道具仍需重新打包角色卡并在真实 SillyTavern 验收。
 
 ## 必读文档
 

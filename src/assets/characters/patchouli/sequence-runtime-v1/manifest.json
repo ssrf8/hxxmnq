@@ -5,6 +5,8 @@
   "layout": "variable-sequence-v1",
   "source_directory": "src/assets/characters/patchouli/sequence-v1",
   "source_policy": "owner-provided-split-frames-preserved; runtime atlases use nearest-neighbor normalization",
+  "idle_source_directory": "src/assets/characters/patchouli/static-v1",
+  "idle_source_policy": "owner-provided-static-turnaround; right view is mirrored only when declared by the split manifest",
   "movement_mode": "measured-walk",
   "cell": [
     209,
@@ -16,8 +18,14 @@
     "left",
     "right"
   ],
+  "direction_source_map": {
+    "front": "front",
+    "back": "back",
+    "left": "left",
+    "right": "right"
+  },
   "frame_count": 26,
-  "frame_duration_ms": 110,
+  "frame_duration_ms": 48,
   "loop_start": 0,
   "loop_end": 25,
   "target_anchor": [
@@ -44,14 +52,120 @@
       317
     ]
   },
+  "idle_scale": 0.2669039145907473,
+  "idle_source_anchor_by_direction": {
+    "front": [
+      314,
+      607
+    ],
+    "back": [
+      314,
+      569
+    ],
+    "left": [
+      314,
+      607
+    ],
+    "right": [
+      314,
+      569
+    ]
+  },
+  "idle_split_manifest": "src/assets/characters/patchouli/static-v1/split-manifest.json",
   "idle_png": "src/assets/characters/patchouli/patchouli-turnaround-v1.png",
-  "idle_png_sha256": "1f757f3842afe5a06130747abedec3e827a117d5e2c4baf4511550091198c52d",
+  "idle_png_sha256": "bbcfb2a1c9eb77a2143cc0d7efe17296d5f0eedcc9cd3db397129cd65450efca",
   "idle_webp": "src/assets/characters/patchouli/patchouli-turnaround-v1.webp",
-  "idle_webp_sha256": "5b7d5af285bd1102613e22c89838cda3a778241f8819045b744b5cac627205a8",
+  "idle_webp_sha256": "3aa8271d104e7d6c8d9259dd3fd01699f7528436e3a18a9a421912345d5e8316",
   "sequence_png": "src/assets/characters/patchouli/patchouli-animation-sequence-v1.png",
   "sequence_png_sha256": "da15bda2228fb9ac8c598c3d3b54c6d666470ad2348c4857961d4dfc18d681db",
   "sequence_webp": "src/assets/characters/patchouli/patchouli-animation-sequence-v1.webp",
   "sequence_webp_sha256": "8fdcb298b37bc919c911273243eccda79e2b083b63c549ac8242b8fc25a1dcc5",
+  "idle_frames": [
+    {
+      "direction": "front",
+      "source": "src/assets/characters/patchouli/static-v1/front/001.png",
+      "source_sha256": "e1e239c84d115ac1065357dd140a49b82e8da4c369260c114e0e81395e8a9773",
+      "source_bbox": {
+        "minX": 185,
+        "minY": 46,
+        "maxX": 534,
+        "maxY": 607,
+        "width": 350,
+        "height": 562
+      },
+      "runtime_bbox": {
+        "minX": 70,
+        "minY": 30,
+        "maxX": 162,
+        "maxY": 179,
+        "width": 93,
+        "height": 150
+      }
+    },
+    {
+      "direction": "back",
+      "source": "src/assets/characters/patchouli/static-v1/back/001.png",
+      "source_sha256": "a0f19829003703ba3726b1dab80f10053e09d560c9fdbd5c31d0b8c624e7bc13",
+      "source_bbox": {
+        "minX": 198,
+        "minY": 33,
+        "maxX": 511,
+        "maxY": 569,
+        "width": 314,
+        "height": 537
+      },
+      "runtime_bbox": {
+        "minX": 73,
+        "minY": 37,
+        "maxX": 156,
+        "maxY": 179,
+        "width": 84,
+        "height": 143
+      }
+    },
+    {
+      "direction": "left",
+      "source": "src/assets/characters/patchouli/static-v1/left/001.png",
+      "source_sha256": "26ec6f3e9be6240109d1ae694abc2cba663b2db7060127c542372c5b90aaab16",
+      "source_bbox": {
+        "minX": 150,
+        "minY": 57,
+        "maxX": 427,
+        "maxY": 607,
+        "width": 278,
+        "height": 551
+      },
+      "runtime_bbox": {
+        "minX": 61,
+        "minY": 33,
+        "maxX": 134,
+        "maxY": 179,
+        "width": 74,
+        "height": 147
+      }
+    },
+    {
+      "direction": "right",
+      "source": "src/assets/characters/patchouli/static-v1/right/001.png",
+      "source_sha256": "09f706b0456e74ed73d01b1372d2aefdedf4b12d9cba3ced03b6abe0f740698f",
+      "source_bbox": {
+        "minX": 121,
+        "minY": 36,
+        "maxX": 373,
+        "maxY": 569,
+        "width": 253,
+        "height": 534
+      },
+      "runtime_bbox": {
+        "minX": 53,
+        "minY": 37,
+        "maxX": 119,
+        "maxY": 179,
+        "width": 67,
+        "height": 143
+      }
+    }
+  ],
   "frames": [
     {
       "direction": "front",

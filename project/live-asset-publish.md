@@ -38,5 +38,21 @@ node scripts/build-ui.mjs --asset-mode=remote-r2-live --asset-base-url=$assetOri
 - 基线 generation 4：215 files / 286,579,188 bytes。
 - 最终 generation 5：251 files / 354,034,458 bytes。
 - manifest SHA-256：`d1f6d1c4751045a83e52e6e0f7c35f44cd58f927f68e8920d808c24b9ef791de`。
-- `scripts/publish-character-assets-r2.mjs` 提供按角色前缀筛选的增量 staging、碰撞审计、断点续跑、媒体双通道读回与 manifest-last。默认 dry-run，真实写入必须显式 `--apply`。
+- `scripts/publish-character-assets-r2.mjs` 提供按角色前缀筛选的增量 staging、碰撞审计、断点续跑、媒体双通道读回与 manifest-last。默认 dry-run，真实写入必须显式 `--apply`；更新已登记的同名运行素材还必须额外显式传入 `--replace`，并核对旧对象 SHA-256 后才允许覆盖。
 - 三名角色的 sexual 姿势图未上传、未写死占位 URL；待未来对象进入同一生产 manifest 后由运行时自动发现。
+
+## 2026-08-11 generation 6
+
+- 作用域：三名新角色校准后的同名运行 WebP；妖梦动画/静态、早苗动画/静态、帕秋莉静态，共 5 个替换对象。
+- 基线 generation 5 manifest SHA-256：`d1f6d1c4751045a83e52e6e0f7c35f44cd58f927f68e8920d808c24b9ef791de`。
+- 最终 generation 6：251 files / 354,058,350 bytes；manifest SHA-256：`d2cb6a317f449ff7bac92906393948b253d6b421825c78874941792860e1a57f`。
+- 发布使用 `--replace --apply`，每个对象覆盖前核对 generation 5 记录的长度与 SHA-256；5 个对象均完成 S3 与生产域名读回，最后切换 `live/manifest.json`。
+- generation 6 不包含 UI 代码。48ms 帧速和角色动静定位在内嵌 UI 中，必须由后续角色卡/UI 包交付。
+
+## 2026-08-11 generation 7
+
+- 作用域：妖梦、帕秋莉、早苗的角色对战 Boss 四状态 WebP，共 3 个新增对象；没有覆盖或删除既有对象。
+- 原始 `1536×1536` 黑底图完整归档；运行副本以确定性黑底透明化后缩放为既有 `1254×1254`、`2×2` 待机／施法／受击／击破合同。
+- 基线 generation 6 manifest SHA-256：`d2cb6a317f449ff7bac92906393948b253d6b421825c78874941792860e1a57f`。
+- 最终 generation 7：254 files / 355,238,436 bytes；manifest SHA-256：`6b6bd8afa66e36e5bce9ddd9b56fd86cdb174d6037c7fa44bc15e82fdeec80b2`。
+- 三个对象均完成 S3 与生产域名读回校验，最后切换 `live/manifest.json`；清单缓存为 `no-store`。

@@ -849,6 +849,9 @@ test('战斗 atlas 裁切表完整且 build 不嵌入 chroma 重复素材', asyn
   assert.match(host, /battleBossMystiaSrc/);
   assert.match(host, /battleBossSuikaSrc/);
   assert.match(host, /battleBossSakuyaSrc/);
+  assert.match(host, /battleBossYoumuSrc/);
+  assert.match(host, /battleBossPatchouliSrc/);
+  assert.match(host, /battleBossSanaeSrc/);
   assert.match(host, /battleEffectsSrc/);
   assert.match(host, /battleBulletsLocalSrc/);
   const app = await read('../src/ui/app.ts');
@@ -862,7 +865,9 @@ test('战斗 atlas 裁切表完整且 build 不嵌入 chroma 重复素材', asyn
   assert.ok(localBullets.length > 1_000);
   const replacementReport = JSON.parse(await read('../project/character-boss-sheet-replacement-report-2026-07-30.json'));
   const replacementById = new Map(replacementReport.assets.map((asset) => [asset.character_id, asset]));
-  for (const id of ['reimu', 'marisa', 'alice', 'nitori', 'cirno', 'mystia', 'suika', 'sakuya']) {
+  const newCharacterReport = JSON.parse(await read('../project/new-character-boss-sheet-preparation-report-2026-08-11.json'));
+  const newCharacterById = new Map(newCharacterReport.assets.map((asset) => [asset.character_id, asset]));
+  for (const id of ['reimu', 'marisa', 'alice', 'nitori', 'cirno', 'mystia', 'suika', 'sakuya', 'youmu', 'patchouli', 'sanae']) {
     const entry = manifest.battle_assets[`${id}_battle`];
     assert.equal(entry.runtime_embed, 'alpha-only', id);
     assert.equal(entry.layout, '2x2-phase1-phase2-hit-break', id);
@@ -894,6 +899,14 @@ test('战斗 atlas 裁切表完整且 build 不嵌入 chroma 重复素材', asyn
         createHash('sha256').update(pngBytes).digest('hex'),
         replacementById.get(id).output_sha256,
         `${id} replacement report must match runtime bytes`,
+      );
+    } else if (newCharacterById.has(id)) {
+      assert.match(entry.owner_source_archive, /battle-boss-owner-source-v3/);
+      assert.equal(entry.preparation_report, 'project/new-character-boss-sheet-preparation-report-2026-08-11.json');
+      assert.equal(
+        createHash('sha256').update(pngBytes).digest('hex'),
+        newCharacterById.get(id).output_sha256,
+        `${id} preparation report must match runtime bytes`,
       );
     }
   }
@@ -1262,7 +1275,7 @@ test('B3 表现层：boss 战损分级与四配置 presentation 字段', async (
   assert.equal(bossDamageLevel(cirno.phases.length - 1, cirno.phases.length), 2);
 });
 
-test('八名角色的对战视觉 ID 均解析到独立 Boss sheet', async () => {
+test('十一名角色的对战视觉 ID 均解析到独立 Boss sheet', async () => {
   const { characterBossPortrait, characterBossSheet } = await importTypescript('../src/battle/battle-renderer.ts');
   const configs = await importTypescript('../src/battle/duel-configs.ts');
   const expected = {
@@ -1274,6 +1287,9 @@ test('八名角色的对战视觉 ID 均解析到独立 Boss sheet', async () =>
     mystia: 'boss_mystia',
     suika: 'boss_suika',
     sakuya: 'boss_sakuya',
+    youmu: 'boss_youmu',
+    patchouli: 'boss_patchouli',
+    sanae: 'boss_sanae',
   };
   for (const [characterId, sheet] of Object.entries(expected)) {
     const config = configs.getDuelBattleConfig(characterId, 'standard');

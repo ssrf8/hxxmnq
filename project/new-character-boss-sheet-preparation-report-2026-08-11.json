@@ -1,0 +1,213 @@
+{
+  "version": "character-boss-sheet-preparation.v2",
+  "method": "deterministic black-background alpha derivation; black floor 8, alpha gain 3.5, RGB un-premultiplication, hidden RGB cleared",
+  "pose_order": [
+    "idle",
+    "spell",
+    "hit",
+    "break"
+  ],
+  "assets": [
+    {
+      "character_id": "youmu",
+      "source_attachment_name": "ChatGPT Image 2026年8月11日 11_29_01.png",
+      "source_sha256": "326c7180abbc3c3d9d55eefae756ee4469c14f0e8903ae881f26b05ea0d1626d",
+      "archive_path": "旧素材/素材处理/battle-boss-owner-source-v3/youmu-battle-sheet-owner-black-v1.png",
+      "archive_sha256": "326c7180abbc3c3d9d55eefae756ee4469c14f0e8903ae881f26b05ea0d1626d",
+      "output_path": "src/assets/battle/boss/youmu-battle-sheet-v1.png",
+      "output_sha256": "421422c5d7fa548c79372a5e566400e497ce50186f33fe45736257ca5cc46b65",
+      "source_canvas": [
+        1254,
+        1254
+      ],
+      "runtime_canvas": [
+        1254,
+        1254
+      ],
+      "layout": "2x2-idle-spell-hit-break",
+      "transparent_pixels": 892549,
+      "partial_alpha_pixels": 195767,
+      "opaque_pixels": 484200,
+      "cells": [
+        {
+          "pose": "idle",
+          "visible_bbox_in_cell": [
+            33,
+            39,
+            627,
+            591
+          ],
+          "visible_pixels": 146532,
+          "opaque_pixels": 107156
+        },
+        {
+          "pose": "spell",
+          "visible_bbox_in_cell": [
+            0,
+            39,
+            609,
+            604
+          ],
+          "visible_pixels": 221935,
+          "opaque_pixels": 154727
+        },
+        {
+          "pose": "hit",
+          "visible_bbox_in_cell": [
+            31,
+            19,
+            597,
+            585
+          ],
+          "visible_pixels": 148701,
+          "opaque_pixels": 102329
+        },
+        {
+          "pose": "break",
+          "visible_bbox_in_cell": [
+            9,
+            41,
+            603,
+            581
+          ],
+          "visible_pixels": 162799,
+          "opaque_pixels": 119988
+        }
+      ]
+    },
+    {
+      "character_id": "patchouli",
+      "source_attachment_name": "ChatGPT Image 2026年8月11日 11_29_03.png",
+      "source_sha256": "e227b5783a63839f9256606891da16dfce513f438308f2f53a3ff24efb82f6bf",
+      "archive_path": "旧素材/素材处理/battle-boss-owner-source-v3/patchouli-battle-sheet-owner-black-v1.png",
+      "archive_sha256": "e227b5783a63839f9256606891da16dfce513f438308f2f53a3ff24efb82f6bf",
+      "output_path": "src/assets/battle/boss/patchouli-battle-sheet-v1.png",
+      "output_sha256": "12fdc63a64c60aca2e35586ec3d77ccd77bae8efe4556717fabd3bf13e778396",
+      "source_canvas": [
+        1254,
+        1254
+      ],
+      "runtime_canvas": [
+        1254,
+        1254
+      ],
+      "layout": "2x2-idle-spell-hit-break",
+      "transparent_pixels": 734267,
+      "partial_alpha_pixels": 133809,
+      "opaque_pixels": 704440,
+      "cells": [
+        {
+          "pose": "idle",
+          "visible_bbox_in_cell": [
+            43,
+            57,
+            591,
+            586
+          ],
+          "visible_pixels": 179970,
+          "opaque_pixels": 146641
+        },
+        {
+          "pose": "spell",
+          "visible_bbox_in_cell": [
+            0,
+            31,
+            607,
+            611
+          ],
+          "visible_pixels": 281599,
+          "opaque_pixels": 239653
+        },
+        {
+          "pose": "hit",
+          "visible_bbox_in_cell": [
+            43,
+            7,
+            622,
+            563
+          ],
+          "visible_pixels": 195678,
+          "opaque_pixels": 158356
+        },
+        {
+          "pose": "break",
+          "visible_bbox_in_cell": [
+            4,
+            85,
+            608,
+            583
+          ],
+          "visible_pixels": 181002,
+          "opaque_pixels": 159790
+        }
+      ]
+    },
+    {
+      "character_id": "sanae",
+      "source_attachment_name": "ChatGPT Image 2026年8月11日 11_29_06.png",
+      "source_sha256": "30b7466aec1b989ce605cc8079727275fa9e1e9160ba403ca56864cb404106c7",
+      "archive_path": "旧素材/素材处理/battle-boss-owner-source-v3/sanae-battle-sheet-owner-black-v1.png",
+      "archive_sha256": "30b7466aec1b989ce605cc8079727275fa9e1e9160ba403ca56864cb404106c7",
+      "output_path": "src/assets/battle/boss/sanae-battle-sheet-v1.png",
+      "output_sha256": "d8b943ece71d34525e4be0a2a6ef1b2351cd5142feed5f30aaa2bef1ed5fc85b",
+      "source_canvas": [
+        1254,
+        1254
+      ],
+      "runtime_canvas": [
+        1254,
+        1254
+      ],
+      "layout": "2x2-idle-spell-hit-break",
+      "transparent_pixels": 743920,
+      "partial_alpha_pixels": 185838,
+      "opaque_pixels": 642758,
+      "cells": [
+        {
+          "pose": "idle",
+          "visible_bbox_in_cell": [
+            61,
+            50,
+            627,
+            591
+          ],
+          "visible_pixels": 161557,
+          "opaque_pixels": 131127
+        },
+        {
+          "pose": "spell",
+          "visible_bbox_in_cell": [
+            0,
+            22,
+            627,
+            610
+          ],
+          "visible_pixels": 276557,
+          "opaque_pixels": 217664
+        },
+        {
+          "pose": "hit",
+          "visible_bbox_in_cell": [
+            21,
+            12,
+            610,
+            555
+          ],
+          "visible_pixels": 219116,
+          "opaque_pixels": 161048
+        },
+        {
+          "pose": "break",
+          "visible_bbox_in_cell": [
+            30,
+            63,
+            604,
+            577
+          ],
+          "visible_pixels": 171366,
+          "opaque_pixels": 132919
+        }
+      ]
+    }
+  ]
+}

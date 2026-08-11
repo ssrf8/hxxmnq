@@ -37,6 +37,9 @@ export type BattleSheetKey =
   | 'boss_mystia'
   | 'boss_suika'
   | 'boss_sakuya'
+  | 'boss_youmu'
+  | 'boss_patchouli'
+  | 'boss_sanae'
   | 'portrait_reimu_s0'
   | 'portrait_reimu_s1'
   | 'portrait_reimu_s2'
@@ -80,6 +83,9 @@ export const BATTLE_SHEET_PATHS = {
   boss_mystia: 'battle/boss/mystia-battle-sheet-v1.png',
   boss_suika: 'battle/boss/suika-battle-sheet-v1.png',
   boss_sakuya: 'battle/boss/sakuya-battle-sheet-v1.png',
+  boss_youmu: 'battle/boss/youmu-battle-sheet-v1.png',
+  boss_patchouli: 'battle/boss/patchouli-battle-sheet-v1.png',
+  boss_sanae: 'battle/boss/sanae-battle-sheet-v1.png',
   portrait_reimu_s0: 'battle/portraits/portrait-reimu-s0-v1.png',
   portrait_reimu_s1: 'battle/portraits/portrait-reimu-s1-v1.png',
   portrait_reimu_s2: 'battle/portraits/portrait-reimu-s2-v1.png',
@@ -337,6 +343,9 @@ export interface BattleAtlasSources {
   boss_mystia?: string;
   boss_suika?: string;
   boss_sakuya?: string;
+  boss_youmu?: string;
+  boss_patchouli?: string;
+  boss_sanae?: string;
   portrait_reimu_s0?: string;
   portrait_reimu_s1?: string;
   portrait_reimu_s2?: string;
@@ -406,6 +415,9 @@ export async function loadBattleAtlas(sources: BattleAtlasSources = {}): Promise
     ['boss_mystia', sources.boss_mystia],
     ['boss_suika', sources.boss_suika],
     ['boss_sakuya', sources.boss_sakuya],
+    ['boss_youmu', sources.boss_youmu],
+    ['boss_patchouli', sources.boss_patchouli],
+    ['boss_sanae', sources.boss_sanae],
     ['portrait_reimu_s0', sources.portrait_reimu_s0],
     ['portrait_reimu_s1', sources.portrait_reimu_s1],
     ['portrait_reimu_s2', sources.portrait_reimu_s2],

@@ -102,22 +102,34 @@
   },
   "working_tree_update": {
     "date": "2026-08-11",
-    "scope": "youmu-patchouli-sanae-character-integration",
+    "scope": "youmu-patchouli-sanae-animation-static-lorebook-items-boss-r2",
     "typecheck": "pass",
-    "tests": "npm test (734/734)",
+    "tests": "npm test (734/739 pass; 5 known failures documented in agent-handoff.md)",
     "diff_check": "pass",
-    "package_checkpoint_dry": "pass (0.3.0-r1, no formal package written)",
+    "package_checkpoint_dry": "embedded dry-run pass (0.3.0-r1, 30 lorebook entries, no formal package written); remote UI dry-run pending loaders",
     "standalone_ui_build": {
-      "bytes": 2188133,
-      "sha256": "1d781a8969b8fb74e57f66645ee98a665d4891db00f374679d4ba5a37aa37b2d"
+      "bytes": 2196294,
+      "sha256": "8b35d93631cf0eb038a20acf1b91e99b998974e5188845e1faf3d5857f80c2f3"
     },
     "r2_live": {
-      "generation": 5,
-      "files": 251,
-      "bytes": 354034458,
-      "manifest_sha256": "d1f6d1c4751045a83e52e6e0f7c35f44cd58f927f68e8920d808c24b9ef791de",
+      "generation": 7,
+      "files": 254,
+      "bytes": 355238436,
+      "manifest_sha256": "6b6bd8afa66e36e5bce9ddd9b56fd86cdb174d6037c7fa44bc15e82fdeec80b2",
       "uploaded_and_verified": true
     },
+    "known_failures": [
+      "missing owner archive: 旧素材/素材处理/CG/妖梦/正常 sfw.png",
+      "two ui-channel publisher tests blocked by non-dotenv Cloudflare console export in .env",
+      "test-channel package dry-run missing dist/runtime/test/profiles/standalone-mvu/ui-loader.js",
+      "open-garden tutorial progress test returns empty next-step text"
+    ],
+    "pending_acceptance": [
+      "package current embedded UI and lorebook into a new checkpoint",
+      "validate three-character idle/motion alignment, direction and 48ms animation in real SillyTavern",
+      "validate three-character Boss four-state switching in real SillyTavern",
+      "validate new shop items, consumption, greenlight loading and scene cleanup in real SillyTavern"
+    ],
     "packaged": false
   },
   "components": {

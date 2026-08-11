@@ -107,14 +107,23 @@ test('道具绿灯只从场景道具登记派生，且只对已注册道具生�
       entries: [
         { item_id: 'alice_doll_pause', quantity_used: 1, use_ids: ['scene-item:test'] },
         { item_id: 'foreign_vibrator', quantity_used: 1, use_ids: ['scene-item:test2'] },
+        { item_id: 'patchouli_sleep_tea', quantity_used: 1, use_ids: ['scene-item:test3'] },
+        { item_id: 'youmu_sword_training', quantity_used: 1, use_ids: ['scene-item:test4'] },
       ],
     },
   };
-  assert.deepEqual(greenlights.resolveItemGreenlightIds(state), ['alice_doll_pause', 'foreign_vibrator']);
+  assert.deepEqual(greenlights.resolveItemGreenlightIds(state), [
+    'alice_doll_pause',
+    'foreign_vibrator',
+    'patchouli_sleep_tea',
+    'youmu_sword_training',
+  ]);
   const context = greenlights.itemGreenlightContext(state);
   assert.match(context, /【道具档案绿灯】/);
   assert.match(context, /GSK_ITEM_DOLL_PAUSE_ACTIVE/);
   assert.match(context, /GSK_ITEM_FOREIGN_VIBRATOR_ACTIVE/);
+  assert.match(context, /GSK_ITEM_PATCHOULI_SLEEP_TEA_ACTIVE/);
+  assert.match(context, /GSK_ITEM_YOUMU_SWORD_TRAINING_ACTIVE/);
   assert.doesNotMatch(context, /unknown_gizmo/);
   assert.deepEqual(
     greenlights.resolveItemGreenlightIds({ scene_item_context: { ...state.scene_item_context, status: 'closed' } }),
@@ -137,16 +146,17 @@ test('道具世界书条目使用唯一道具绿灯主键并禁止递归诱发',
   const routing = JSON.parse(await read('../src/lorebook/item-routing.json'));
   const packer = await read('../scripts/package-checkpoint.mjs');
   assert.equal(routing.version, 'item-greenlight.v1');
-  assert.equal(routing.profiles.length, 8);
-  assert.equal(new Set(routing.profiles.map((profile) => profile.id)).size, 8);
-  assert.equal(new Set(routing.profiles.map((profile) => profile.greenlight)).size, 8);
+  assert.equal(routing.profiles.length, 10);
+  assert.equal(new Set(routing.profiles.map((profile) => profile.id)).size, 10);
+  assert.equal(new Set(routing.profiles.map((profile) => profile.greenlight)).size, 10);
   assert.ok(routing.profiles.every((profile) => /^GSK_ITEM_[A-Z0-9_]+_ACTIVE$/u.test(profile.greenlight)));
   await Promise.all(routing.profiles.map(({ id }) => read(`../src/lorebook/items/${id}.xml`)));
   const xml = await read('../src/lorebook/items/alice_doll_pause.xml');
   assert.match(xml, /只对爱丽丝·玛格特洛依德本人生效/);
   assert.match(xml, /人偶化·暂停_alice_doll_pause/);
   assert.match(packer, /itemRouting\.profiles/);
-  assert.match(packer, /18 \+ index/);
+  assert.match(packer, /100 \+ index/);
+  assert.match(packer, /世界书条目 ID 重复/);
   assert.match(packer, /routedEntry/);
   assert.match(packer, /exclude_recursion = true/);
   assert.match(packer, /prevent_recursion = true/);

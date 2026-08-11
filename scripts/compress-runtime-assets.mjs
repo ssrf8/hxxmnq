@@ -14,7 +14,7 @@ const isGalAsset = (entry) => entry.category.startsWith('gal.')
   || entry.source.includes('/gal/')
   || entry.source.includes('gal-shrine-background');
 const isBattlePortrait = (entry) => entry.category.includes('_battle_portraits.');
-const isBossSheet = (entry) => /^battle\.(?:greenhouse_flower_core|reimu_battle|marisa_battle|cirno_battle|alice_battle|nitori_battle|mystia_battle|suika_battle|sakuya_battle)$/.test(entry.category);
+const isBossSheet = (entry) => /^battle\.(?:greenhouse_flower_core|reimu_battle|marisa_battle|cirno_battle|alice_battle|nitori_battle|mystia_battle|suika_battle|sakuya_battle|youmu_battle|patchouli_battle|sanae_battle)$/.test(entry.category);
 
 const run = (command, args, label, options = {}) => {
   const result = spawnSync(command, args, {

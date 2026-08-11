@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>新角色动画 / 静态图校准台</title>
+  <style>
+    :root{color-scheme:dark;font-family:Inter,"Microsoft YaHei",system-ui,sans-serif;background:#0d1c28;color:#edf8ff}*{box-sizing:border-box}body{margin:0;padding:20px}main{width:min(1240px,100%);margin:auto}h1{margin:0 0 6px;font-size:28px}p{margin:0 0 14px;color:#bad0dd}.toolbar,.panel,.output{background:#152f40;border:1px solid #31546a;border-radius:14px}.toolbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:14px;margin-bottom:14px}label{display:grid;gap:6px;color:#cce1ec;font-size:14px}select,input,button,textarea{font:inherit}select,input[type=number]{width:100%;padding:8px;border:1px solid #537487;border-radius:8px;background:#0c202d;color:#eefaff}canvas{display:block;width:100%;height:auto;border:2px solid #5eb6da;border-radius:14px;background:#dff3ed;touch-action:none}.panels{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}.panel{padding:15px}.panel h2{margin:0 0 10px;font-size:18px}.control{display:grid;grid-template-columns:64px 1fr 78px;gap:9px;align-items:center;margin:9px 0}.control input[type=range]{width:100%}.control output{font-variant-numeric:tabular-nums;text-align:right;color:#84ddff}.nudges{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px}.nudges button,.actions button{padding:8px;border:0;border-radius:8px;background:#65c8ee;color:#08212d;font-weight:700;cursor:pointer}.nudges button{background:#284d62;color:#dff6ff}.actions{display:flex;flex-wrap:wrap;gap:9px}.actions button.secondary{background:#d6e7ee}.output{margin-top:14px;padding:14px}.metrics{margin:0 0 10px;color:#9fe3ff;font-variant-numeric:tabular-nums}textarea{width:100%;min-height:112px;padding:10px;resize:vertical;border:1px solid #50758a;border-radius:8px;background:#091b26;color:#e8f8ff}.hint{font-size:13px;color:#9db4c1;margin-top:8px}@media(max-width:780px){body{padding:10px}.toolbar,.panels{grid-template-columns:1fr 1fr}.panels{grid-template-columns:1fr}.control{grid-template-columns:58px 1fr 70px}}@media(max-width:480px){.toolbar{grid-template-columns:1fr}}
+  </style>
+</head>
+<body><main>
+  <h1>妖梦 / 早苗 / 帕秋莉 · 动静帧校准台</h1>
+  <p>三栏共用相同角色原点：左侧动画、中间静态、右侧半透明叠加。蓝线是角色原点，红线是画布中心。</p>
+  <section class="toolbar">
+    <label>角色<select id="cal-character"><option value="youmu">魂魄妖梦</option><option value="sanae">东风谷早苗</option><option value="patchouli">帕秋莉·诺蕾姬</option></select></label>
+    <label>方向<select id="cal-facing"><option value="front">front / 正面</option><option value="back">back / 背面</option><option value="left">left / 左侧</option><option value="right">right / 右侧</option></select></label>
+    <label>动画帧<input id="cal-frame" type="range" min="1" max="28" step="1" value="1"><output id="cal-frame-value">1</output></label>
+    <label>播放速度<input id="cal-speed" type="range" min="40" max="300" step="5" value="100"><output id="cal-speed-value">100ms</output></label>
+    <label><span>自动播放</span><input id="cal-autoplay" type="checkbox" checked></label>
+    <label><span>显示中心/原点参考线</span><input id="cal-guides" type="checkbox" checked></label>
+  </section>
+  <canvas id="cal-canvas" width="1200" height="620" aria-label="三名角色动画静态与叠加校准画布"></canvas>
+  <section class="panels">
+    <article class="panel" data-target="motion"><h2>动画变换</h2>
+      <div class="control"><span>大小</span><input id="motion-scale" type="range" min="0.5" max="1.5" step="0.001"><output id="motion-scale-value"></output></div>
+      <div class="control"><span>X 定位</span><input id="motion-x" type="range" min="-1" max="0" step="0.001"><output id="motion-x-value"></output></div>
+      <div class="control"><span>Y 定位</span><input id="motion-y" type="range" min="-1.25" max="0.1" step="0.001"><output id="motion-y-value"></output></div>
+      <div class="nudges"><button data-nudge="motion,x,-0.002">← 细移</button><button data-nudge="motion,x,0.002">细移 →</button><button data-nudge="motion,y,-0.002">↑ 细移</button><button data-nudge="motion,y,0.002">细移 ↓</button></div>
+    </article>
+    <article class="panel" data-target="idle"><h2>静态变换</h2>
+      <div class="control"><span>大小</span><input id="idle-scale" type="range" min="0.5" max="1.5" step="0.001"><output id="idle-scale-value"></output></div>
+      <div class="control"><span>X 定位</span><input id="idle-x" type="range" min="-1" max="0" step="0.001"><output id="idle-x-value"></output></div>
+      <div class="control"><span>Y 定位</span><input id="idle-y" type="range" min="-1.25" max="0.1" step="0.001"><output id="idle-y-value"></output></div>
+      <div class="nudges"><button data-nudge="idle,x,-0.002">← 细移</button><button data-nudge="idle,x,0.002">细移 →</button><button data-nudge="idle,y,-0.002">↑ 细移</button><button data-nudge="idle,y,0.002">细移 ↓</button></div>
+    </article>
+  </section>
+  <section class="output">
+    <p id="cal-metrics" class="metrics"></p>
+    <textarea id="cal-result" readonly aria-label="当前角色四方向校准参数"></textarea>
+    <div class="actions"><button id="cal-copy" type="button">复制当前角色参数</button><button id="cal-reset-facing" class="secondary" type="button">重置当前方向</button><button id="cal-reset-character" class="secondary" type="button">重置当前角色</button></div>
+    <p class="hint">参数会自动保存在本浏览器中；刷新页面不会丢失。X/Y 是运行时相对于角色尺寸的比例，细移一步约等于当前画布 0.6px。</p>
+  </section>
+  <script src="new-character-sprite-calibration.js"></script>
+</main></body></html>

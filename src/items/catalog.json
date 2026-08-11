@@ -172,6 +172,34 @@
       "prompt_description": "用爱丽丝自己的丝线让她进入\"人偶状态\"：不能动、不能说话，但触感百分之百保留。她被摆成任何姿势、被任意摆弄，只能眨眼睛抗议，羞怒和湿润全写在那双闭不上的眼睛里。",
       "shop_price": 28,
       "shop_unlock": "magic_greenhouse_built"
+    },
+    {
+      "item_id": "patchouli_sleep_tea",
+      "title": "昏睡红茶·半梦半醒",
+      "blurb": "让帕秋莉在自愿饮用后进入短暂的半梦半醒状态。",
+      "item_type": "consumable",
+      "stack_limit": 99,
+      "use_mode": "scene_chat",
+      "scope_tags": ["character_chat", "patchouli"],
+      "unlock_conditions": ["shop_open"],
+      "consume_policy": "on_commit",
+      "prompt_description": "仿照红魔馆配方冲泡的红茶。仅在帕秋莉自愿饮用后令她短暂进入半梦半醒状态；对其他角色只是一杯普通红茶，场景结束后效果自然消退。",
+      "shop_price": 22,
+      "shop_unlock": "always_when_shop_open"
+    },
+    {
+      "item_id": "youmu_sword_training",
+      "title": "剑术特训",
+      "blurb": "请妖梦进行一次认真又容易让她慌乱的贴身剑术指导。",
+      "item_type": "consumable",
+      "stack_limit": 99,
+      "use_mode": "scene_chat",
+      "scope_tags": ["character_chat", "youmu"],
+      "unlock_conditions": ["shop_open"],
+      "consume_policy": "on_commit",
+      "prompt_description": "邀请妖梦进行一次剑术特训。仅在妖梦自愿同意指导时触发她在贴身纠正动作中逐渐慌乱的场景；对其他角色按普通教学或玩笑处理。",
+      "shop_price": 26,
+      "shop_unlock": "always_when_shop_open"
     }
   ]
 }

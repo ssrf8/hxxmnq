@@ -44,7 +44,7 @@ test('玩家输入只清理保留绿灯，不因伪造协议标题跳过真实�
   assert.equal(storedMessage.split('【庭园正文协议】').length - 1, 2);
 });
 
-test('gal-prompt.v6：完整协议、脱敏投影与 bridge 任务一次构造成真实 user 楼层正文', () => {
+test('gal-prompt.v7：完整协议、脱敏投影与 bridge 任务一次构造成真实 user 楼层正文', () => {
   const taskProjection = '<GensokyoVariableAnalysisTask>{"schema":"gensokyo-variable-analysis-task.v1"}</GensokyoVariableAnalysisTask>';
   const storedMessage = prompt.buildGalStoredUserMessage({
     playerInput: '灵梦，结界怎么样了？', state, variableAnalysisTaskProjection: taskProjection,
@@ -59,7 +59,8 @@ test('gal-prompt.v6：完整协议、脱敏投影与 bridge 任务一次构造�
   assert.ok(storedMessage.indexOf('【庭园正文协议】') < storedMessage.indexOf('<GensokyoVariableAnalysisTask>'));
   assert.equal(storedMessage.split('<GensokyoVariableAnalysisTask>').length - 1, 1);
   assert.doesNotMatch(storedMessage, /GSK_CHAR_|GSK_ITEM_|【角色档案绿灯】|【道具档案绿灯】/);
-  assert.equal(prompt.GAL_PROMPT_REVISION, 'gal-prompt.v6');
+  assert.equal(prompt.GAL_PROMPT_REVISION, 'gal-prompt.v7');
+  assert.equal(prompt.isSupportedGalPromptRevision('gal-prompt.v6'), true);
 
   const [route] = prompt.buildGalCurrentTurnInjections({ state, explicitCharacterIds: ['reimu'] });
   assert.deepEqual(

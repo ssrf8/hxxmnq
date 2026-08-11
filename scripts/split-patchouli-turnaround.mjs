@@ -17,14 +17,13 @@ const Y = parseInt(arg('y', '627'), 10);
 const OUT = path.join(ROOT, arg('out-dir', 'src/assets/characters/patchouli/static-v1'));
 
 // 源图象限真实内容(经所有者观察确认,静态图与序列帧源图布局不同):
-//   左上=front、左下=back、右上=left、右下=right(右下半残,不用)
-//   right 采用 left 的水平翻转作为替代(所有者批准镜像)
+//   左上=front、左下=back、右上=left、右下=right
 // outX/outY = 运行时 facingCell 布局(front=(0,0) back=(1,0) left=(0,1) right=(1,1))
 const DIRECTIONS = [
   { name: 'front', sx: 0, sy: 0, outX: 0, outY: 0 },
   { name: 'back',  sx: 0, sy: 1, outX: 1, outY: 0 },  // 左下
   { name: 'left',  sx: 1, sy: 0, outX: 0, outY: 1 },  // 右上
-  { name: 'right', sx: 1, sy: 0, outX: 1, outY: 1, mirrorOf: 'left' },  // = mirror(右上)
+  { name: 'right', sx: 1, sy: 1, outX: 1, outY: 1 },  // 右下
 ];
 
 // 水平翻转 PNG(透明保留)

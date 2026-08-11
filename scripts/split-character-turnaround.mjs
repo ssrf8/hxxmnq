@@ -1,7 +1,7 @@
-// 幻想乡物语:通用静态四视图(turnaround)切割。按十字线参数把 1254×1254
-// 静态合帧切成 front/back/left/right 独立方向图,并按运行时 facingCell 布局
+// 幻想乡物语:通用静态视图(turnaround)切割。把 1254×1254 静态合帧
+// 切成 front/back/left/right 独立方向图,并按运行时 facingCell 布局
 // 拼回整图(front=(0,0) back=(1,0) left=(0,1) right=(1,1))。
-// 用法: node scripts/split-character-turnaround.mjs --char=youmu [--x=649] [--y=612]
+// 用法: node scripts/split-character-turnaround.mjs --char=youmu
 import fs from 'node:fs';
 import path from 'node:path';
 import { PNG } from 'pngjs';
@@ -12,24 +12,38 @@ const CHAR = process.argv.find((a) => a.startsWith('--char='))?.split('=')[1] ??
 const CONFIGS = {
   patchouli: {
     src: 'src/assets/characters/patchouli/ChatGPT Image 2026年8月6日 12_01_17..png',
+    layout: 'grid',
     defaultX: 627, defaultY: 627,
-    // 左上=front、左下=back、右上=left、右下=right(右下残,弃用);right=mirror(left)
+    // 左上=front、左下=back、右上=left、右下=right。
     dirs: [
       { name: 'front', sx: 0, sy: 0, outX: 0, outY: 0 },
       { name: 'back',  sx: 0, sy: 1, outX: 1, outY: 0 },
       { name: 'left',  sx: 1, sy: 0, outX: 0, outY: 1 },
-      { name: 'right', sx: 1, sy: 0, outX: 1, outY: 1, mirrorOf: 'left' },
+      { name: 'right', sx: 1, sy: 1, outX: 1, outY: 1 },
     ],
   },
   youmu: {
     src: 'src/assets/characters/youmu/ChatGPT Image 2026年8月6日 11_56_14..png',
+    layout: 'grid',
     defaultX: 649, defaultY: 612,
-    // 经所有者对比确认:左上=front、左下=back、右下=left、右上=right
+    // 左上=front、左下=back、右上=left、右下=right。
     dirs: [
       { name: 'front', sx: 0, sy: 0, outX: 0, outY: 0 },
       { name: 'back',  sx: 0, sy: 1, outX: 1, outY: 0 },
-      { name: 'left',  sx: 1, sy: 1, outX: 0, outY: 1 },
-      { name: 'right', sx: 1, sy: 0, outX: 1, outY: 1 },
+      { name: 'left',  sx: 1, sy: 0, outX: 0, outY: 1 },
+      { name: 'right', sx: 1, sy: 1, outX: 1, outY: 1 },
+    ],
+  },
+  sanae: {
+    src: 'src/assets/characters/sanae/ChatGPT Image 2026年8月6日 23_51_23.png',
+    layout: 'horizontal-three',
+    defaultX: 418, defaultY: 836,
+    // 横向三视图依次为 front、left、back；right 由 left 逐像素镜像。
+    dirs: [
+      { name: 'front', column: 0, outX: 0, outY: 0 },
+      { name: 'back',  column: 2, outX: 1, outY: 0 },
+      { name: 'left',  column: 1, outX: 0, outY: 1 },
+      { name: 'right', column: 1, outX: 1, outY: 1, mirrorOf: 'left' },
     ],
   },
 };
@@ -86,6 +100,20 @@ function bbox(png) {
   return { opaque, box: opaque ? [minx, miny, maxx, maxy] : null };
 }
 
+function sourceRect(direction, width, height) {
+  if (CFG.layout === 'horizontal-three') {
+    const bounds = [0, X, Y, width];
+    const start = bounds[direction.column];
+    return { sx0: start, sy0: 0, w: bounds[direction.column + 1] - start, h: height };
+  }
+  return {
+    sx0: direction.sx ? X : 0,
+    sy0: direction.sy ? Y : 0,
+    w: direction.sx ? width - X : X,
+    h: direction.sy ? height - Y : Y,
+  };
+}
+
 function main() {
   if (!fs.existsSync(SRC)) throw new Error(`源图不存在: ${SRC}`);
   const src = PNG.sync.read(fs.readFileSync(SRC));
@@ -98,8 +126,7 @@ function main() {
   const frames = {};
   const report = { character: CHAR, source: CFG.src, split: { x: X, y: Y }, dirs: {} };
   for (const d of CFG.dirs) {
-    const sx0 = d.sx ? X : 0, sy0 = d.sy ? Y : 0;
-    const w = d.sx ? W - X : X, h = d.sy ? H - Y : Y;
+    const { sx0, sy0, w, h } = sourceRect(d, W, H);
     let f = crop(src, sx0, sy0, w, h);
     if (d.mirrorOf) f = mirrorH(f);
     frames[d.name] = f;

@@ -329,6 +329,9 @@
     if (embedded.battleBossMystiaDataUrl) childDoc.documentElement.dataset.battleBossMystiaSrc = embedded.battleBossMystiaDataUrl;
     if (embedded.battleBossSuikaDataUrl) childDoc.documentElement.dataset.battleBossSuikaSrc = embedded.battleBossSuikaDataUrl;
     if (embedded.battleBossSakuyaDataUrl) childDoc.documentElement.dataset.battleBossSakuyaSrc = embedded.battleBossSakuyaDataUrl;
+    if (embedded.battleBossYoumuDataUrl) childDoc.documentElement.dataset.battleBossYoumuSrc = embedded.battleBossYoumuDataUrl;
+    if (embedded.battleBossPatchouliDataUrl) childDoc.documentElement.dataset.battleBossPatchouliSrc = embedded.battleBossPatchouliDataUrl;
+    if (embedded.battleBossSanaeDataUrl) childDoc.documentElement.dataset.battleBossSanaeSrc = embedded.battleBossSanaeDataUrl;
     if (embedded.battlePortraitReimuS0DataUrl) childDoc.documentElement.dataset.battlePortraitReimuS0Src = embedded.battlePortraitReimuS0DataUrl;
     if (embedded.battlePortraitReimuS1DataUrl) childDoc.documentElement.dataset.battlePortraitReimuS1Src = embedded.battlePortraitReimuS1DataUrl;
     if (embedded.battlePortraitReimuS2DataUrl) childDoc.documentElement.dataset.battlePortraitReimuS2Src = embedded.battlePortraitReimuS2DataUrl;

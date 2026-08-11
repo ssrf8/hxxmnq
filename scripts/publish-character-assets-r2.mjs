@@ -23,6 +23,7 @@ const args = Object.fromEntries(process.argv.slice(2).map((arg) => {
   return [key, rest.length ? rest.join('=') : true];
 }));
 const apply = args.apply === true;
+const allowReplace = args.replace === true;
 const characterIds = String(args.characters ?? 'youmu,patchouli,sanae').split(',').map((id) => id.trim()).filter(Boolean);
 if (!characterIds.length || characterIds.some((id) => !/^[a-z][a-z0-9_-]*$/u.test(id))) throw new Error('characters 参数非法');
 
@@ -50,10 +51,14 @@ if (sha256(Buffer.from(stableJson(remoteWithoutHashForCheck))) !== remoteHash) t
 
 const localManifest = JSON.parse(await readFile(join(ASSET_ROOT, 'asset-manifest.json'), 'utf8'));
 const prefixes = characterIds.map((id) => `characters/${id}/`);
-const selected = collectRuntimeAssets(localManifest).filter((entry) => prefixes.some((prefix) => entry.source.startsWith(prefix)));
+const battleBossSources = new Set(characterIds.map((id) => `battle/boss/${id}-battle-sheet-v1.webp`));
+const selected = collectRuntimeAssets(localManifest).filter((entry) => (
+  prefixes.some((prefix) => entry.source.startsWith(prefix))
+  || battleBossSources.has(entry.source)
+));
 const remoteBySource = new Map(remote.files.map((entry) => [entry.source, entry]));
 const assetRootReal = await realpath(ASSET_ROOT);
-const additions = [];
+const changes = [];
 for (const entry of selected) {
   const sourcePath = resolve(ASSET_ROOT, ...entry.source.split('/'));
   const sourceReal = await realpath(sourcePath);
@@ -84,13 +89,19 @@ for (const entry of selected) {
   const existing = remoteBySource.get(entry.source);
   if (existing) {
     if (existing.bytes !== file.bytes || existing.sha256 !== file.sha256 || existing.mime !== file.mime || existing.key !== file.key) {
-      throw new Error(`生产同名对象与本地素材冲突：${entry.source}`);
+      if (!allowReplace) throw new Error(`生产同名对象与本地素材冲突：${entry.source}（确认更新同名运行素材时显式添加 --replace）`);
+      changes.push({
+        file,
+        sourcePath: sourceReal,
+        operation: 'replace',
+        previous: { bytes: existing.bytes, sha256: existing.sha256, mime: existing.mime, key: existing.key },
+      });
     }
     continue;
   }
-  additions.push({ file, sourcePath: sourceReal });
+  changes.push({ file, sourcePath: sourceReal, operation: 'add', previous: null });
 }
-if (!additions.length) throw new Error('没有尚未进入生产 manifest 的新增角色素材');
+if (!changes.length) throw new Error('所选角色素材与生产 manifest 已一致');
 
 const generation = remote.generation + 1;
 const scope = characterIds.join('-');
@@ -98,10 +109,10 @@ const outputRoot = join(ROOT, 'dist', 'r2-updates', `generation-${generation}-${
 const allowedOutputRoot = join(ROOT, 'dist', 'r2-updates');
 if (!outputRoot.startsWith(`${allowedOutputRoot}${sep}`)) throw new Error('staging 路径越界');
 await rm(outputRoot, { recursive: true, force: true });
-for (const addition of additions) {
-  const target = join(outputRoot, 'files', ...addition.file.source.split('/'));
+for (const change of changes) {
+  const target = join(outputRoot, 'files', ...change.file.source.split('/'));
   await mkdir(dirname(target), { recursive: true });
-  await copyFile(addition.sourcePath, target);
+  await copyFile(change.sourcePath, target);
 }
 
 const [{ stdout: commit }, { stdout: commitTime }, { stdout: status }] = await Promise.all([
@@ -109,7 +120,9 @@ const [{ stdout: commit }, { stdout: commitTime }, { stdout: status }] = await P
   execFile('git', ['show', '-s', '--format=%cI', 'HEAD'], { cwd: ROOT }),
   execFile('git', ['status', '--porcelain'], { cwd: ROOT }),
 ]);
-const files = [...remote.files, ...additions.map(({ file }) => file)].sort((left, right) => left.source.localeCompare(right.source, 'en'));
+const nextFilesBySource = new Map(remote.files.map((file) => [file.source, file]));
+for (const change of changes) nextFilesBySource.set(change.file.source, change.file);
+const files = [...nextFilesBySource.values()].sort((left, right) => left.source.localeCompare(right.source, 'en'));
 const { manifest_sha256: _remoteHash, ...remoteWithoutHash } = remote;
 const manifestWithoutHash = {
   ...remoteWithoutHash,
@@ -124,13 +137,22 @@ const manifestWithoutHash = {
 };
 const manifest = { ...manifestWithoutHash, manifest_sha256: sha256(Buffer.from(stableJson(manifestWithoutHash))) };
 const plan = {
-  schema_version: 'gensokyo-character-assets-r2-delta.v1',
+  schema_version: 'gensokyo-character-assets-r2-delta.v2',
   bucket: env.R2_BUCKET,
   generation,
   characters: characterIds,
   previous_manifest_sha256: remoteHash,
   next_manifest_sha256: manifest.manifest_sha256,
-  additions: additions.map(({ file }) => ({ source: file.source, key: file.key, mime: file.mime, bytes: file.bytes, sha256: file.sha256, cache_control: file.cache_control })),
+  changes: changes.map(({ file, operation, previous }) => ({
+    operation,
+    source: file.source,
+    key: file.key,
+    mime: file.mime,
+    bytes: file.bytes,
+    sha256: file.sha256,
+    cache_control: file.cache_control,
+    previous,
+  })),
   manifest_key: `${LIVE_PREFIX}manifest.json`,
   manifest_last: true,
 };
@@ -141,9 +163,12 @@ await writeFile(join(outputRoot, 'upload-plan.json'), stableJson(plan), 'utf8');
 console.log(JSON.stringify({
   mode: apply ? 'apply' : 'dry-run', output: outputRoot, generation,
   previous_manifest_sha256: remoteHash, next_manifest_sha256: manifest.manifest_sha256,
-  additions: additions.length, added_bytes: additions.reduce((sum, item) => sum + item.file.bytes, 0),
+  changes: changes.length,
+  additions: changes.filter((item) => item.operation === 'add').length,
+  replacements: changes.filter((item) => item.operation === 'replace').length,
+  changed_bytes: changes.reduce((sum, item) => sum + item.file.bytes, 0),
   final_files: manifest.totals.files, final_bytes: manifest.totals.bytes,
-  sources: additions.map(({ file }) => file.source),
+  sources: changes.map(({ file, operation }) => ({ source: file.source, operation })),
 }, null, 2));
 if (!apply) process.exit(0);
 
@@ -192,25 +217,31 @@ async function originGet(source) {
   return { status: response.status, mime: response.headers.get('content-type'), cache: response.headers.get('cache-control'), bytes: bytes.length, sha256: sha256(bytes) };
 }
 
-for (const addition of plan.additions) {
-  const existing = await r2Get(addition.key);
-  if (existing.status === 200 && existing.bytes.length === addition.bytes && existing.sha256 === addition.sha256) continue;
-  if (existing.status !== 404) throw new Error(`对象碰撞审计失败：${addition.source} HTTP ${existing.status}`);
-  const body = await readFile(join(outputRoot, 'files', ...addition.source.split('/')));
-  await r2Put(addition.key, body, addition.mime, addition.cache_control);
-  console.log(`PUT ${addition.source}`);
+for (const change of plan.changes) {
+  const existing = await r2Get(change.key);
+  if (existing.status === 200 && existing.bytes.length === change.bytes && existing.sha256 === change.sha256) continue;
+  if (change.operation === 'add') {
+    if (existing.status !== 404) throw new Error(`新增对象碰撞审计失败：${change.source} HTTP ${existing.status}`);
+  } else {
+    if (existing.status !== 200 || existing.bytes.length !== change.previous.bytes || existing.sha256 !== change.previous.sha256) {
+      throw new Error(`替换对象基线已变化：${change.source}`);
+    }
+  }
+  const body = await readFile(join(outputRoot, 'files', ...change.source.split('/')));
+  await r2Put(change.key, body, change.mime, change.cache_control);
+  console.log(`PUT ${change.operation} ${change.source}`);
 }
 
-for (const addition of plan.additions) {
-  const s3 = await r2Get(addition.key);
-  if (s3.status !== 200 || s3.mime !== addition.mime || s3.cache !== addition.cache_control || s3.bytes.length !== addition.bytes || s3.sha256 !== addition.sha256) {
-    throw new Error(`R2 读回校验失败：${addition.source}`);
+for (const change of plan.changes) {
+  const s3 = await r2Get(change.key);
+  if (s3.status !== 200 || s3.mime !== change.mime || s3.cache !== change.cache_control || s3.bytes.length !== change.bytes || s3.sha256 !== change.sha256) {
+    throw new Error(`R2 读回校验失败：${change.source}`);
   }
-  const publicRead = await originGet(addition.source);
-  if (publicRead.status !== 200 || publicRead.mime !== addition.mime || publicRead.bytes !== addition.bytes || publicRead.sha256 !== addition.sha256) {
-    throw new Error(`生产域名读回校验失败：${addition.source}`);
+  const publicRead = await originGet(change.source);
+  if (publicRead.status !== 200 || publicRead.mime !== change.mime || publicRead.bytes !== change.bytes || publicRead.sha256 !== change.sha256) {
+    throw new Error(`生产域名读回校验失败：${change.source}`);
   }
-  console.log(`VERIFY ${addition.source}`);
+  console.log(`VERIFY ${change.source}`);
 }
 
 const baselineAgain = await fetch(manifestUrl, { cache: 'no-store' }).then((response) => response.json());
@@ -227,4 +258,4 @@ if (finalResponse.status !== 200 || finalResponse.headers.get('cache-control') !
   || finalManifest.totals.files !== manifest.totals.files || finalManifest.totals.bytes !== manifest.totals.bytes) {
   throw new Error('manifest-last 最终生产校验失败');
 }
-console.log(JSON.stringify({ done: true, generation, uploaded_and_verified: plan.additions.length, manifest: { files: finalManifest.totals.files, bytes: finalManifest.totals.bytes, sha256: finalHash, cache_control: finalResponse.headers.get('cache-control') } }, null, 2));
+console.log(JSON.stringify({ done: true, generation, uploaded_and_verified: plan.changes.length, manifest: { files: finalManifest.totals.files, bytes: finalManifest.totals.bytes, sha256: finalHash, cache_control: finalResponse.headers.get('cache-control') } }, null, 2));

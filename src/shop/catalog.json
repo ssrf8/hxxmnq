@@ -14,6 +14,8 @@
     {"item_id":"cirno_ice_toy","item_type":"trigger_item","title":"冰之玩具","price":10,"blurb":"让她亲手雕冰玩具，再用她的作品玩她。","quantity":1,"unique":false,"enabled_checkpoint":"planned-next-unused","local_effect_id":"add_consumable","unlock":"facility_fairy_garden_built"},
     {"item_id":"marisa_dream_mushroom","item_type":"trigger_item","title":"梦境菇·同步","price":22,"blurb":"吃下后梦境与现实同步，耳边描述即成身体实感。","quantity":1,"unique":false,"enabled_checkpoint":"planned-next-unused","local_effect_id":"add_consumable","unlock":"magic_greenhouse_built"},
     {"item_id":"marisa_obedience_page","item_type":"trigger_item","title":"服从之页","price":26,"blurb":"翻开服从页念咒，魔法使被自己的书支配。","quantity":1,"unique":false,"enabled_checkpoint":"planned-next-unused","local_effect_id":"add_consumable","unlock":"magic_greenhouse_built"},
-    {"item_id":"alice_doll_pause","item_type":"trigger_item","title":"人偶化·暂停","price":28,"blurb":"丝线使人偶化：不能动不能说话，触感百分百保留。","quantity":1,"unique":false,"enabled_checkpoint":"planned-next-unused","local_effect_id":"add_consumable","unlock":"magic_greenhouse_built"}
+    {"item_id":"alice_doll_pause","item_type":"trigger_item","title":"人偶化·暂停","price":28,"blurb":"丝线使人偶化：不能动不能说话，触感百分百保留。","quantity":1,"unique":false,"enabled_checkpoint":"planned-next-unused","local_effect_id":"add_consumable","unlock":"magic_greenhouse_built"},
+    {"item_id":"patchouli_sleep_tea","item_type":"trigger_item","title":"昏睡红茶·半梦半醒","price":22,"blurb":"让帕秋莉在自愿饮用后进入短暂的半梦半醒状态。","quantity":1,"unique":false,"enabled_checkpoint":"planned-next-unused","local_effect_id":"add_consumable"},
+    {"item_id":"youmu_sword_training","item_type":"trigger_item","title":"剑术特训","price":26,"blurb":"请妖梦进行一次认真又容易让她慌乱的贴身剑术指导。","quantity":1,"unique":false,"enabled_checkpoint":"planned-next-unused","local_effect_id":"add_consumable"}
   ]
 }

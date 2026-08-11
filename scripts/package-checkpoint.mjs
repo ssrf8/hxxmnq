@@ -261,7 +261,7 @@ const loreEntries = [
   }),
   ...itemProfiles.map((profile, index) => {
     return routedEntry(
-      18 + index,
+      100 + index,
       `[mvu_plot][item] ${profile.label}`,
       itemContents[index],
       [profile.greenlight],
@@ -269,6 +269,11 @@ const loreEntries = [
     );
   }),
 ];
+const loreEntryIds = new Set();
+for (const loreEntry of loreEntries) {
+  if (loreEntryIds.has(loreEntry.id)) throw new Error(`世界书条目 ID 重复：${loreEntry.id}`);
+  loreEntryIds.add(loreEntry.id);
+}
 
 const script = (name, id, content) => ({
   type: 'script',

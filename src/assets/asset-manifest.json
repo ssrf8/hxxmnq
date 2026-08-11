@@ -543,7 +543,7 @@
       "animation_sequence_manifest": "characters/youmu/sequence-runtime-v1/manifest.json",
       "animation_sequence_status": "owner-provided-runtime-integrated",
       "animation_sequence_frame_count": 28,
-      "animation_sequence_frame_duration_ms": 100,
+      "animation_sequence_frame_duration_ms": 48,
       "animation_ready": ["walk-variable-sequence", "sword-and-phantom-sway"],
       "animation_pending": ["real-host-motion-acceptance"]
     },
@@ -560,7 +560,7 @@
       "animation_sequence_manifest": "characters/patchouli/sequence-runtime-v1/manifest.json",
       "animation_sequence_status": "owner-provided-runtime-integrated",
       "animation_sequence_frame_count": 26,
-      "animation_sequence_frame_duration_ms": 110,
+      "animation_sequence_frame_duration_ms": 48,
       "animation_ready": ["walk-variable-sequence", "hair-and-ribbon-sway"],
       "animation_pending": ["real-host-motion-acceptance"]
     },
@@ -577,7 +577,7 @@
       "animation_sequence_manifest": "characters/sanae/sequence-runtime-v1/manifest.json",
       "animation_sequence_status": "owner-provided-runtime-integrated",
       "animation_sequence_frame_count": 35,
-      "animation_sequence_frame_duration_ms": 90,
+      "animation_sequence_frame_duration_ms": 48,
       "animation_ready": ["walk-variable-sequence", "hair-and-sleeve-sway"],
       "animation_pending": ["real-host-motion-acceptance"]
     }
@@ -755,6 +755,30 @@
       "status": "owner-provided-integrated-pending-runtime-validation",
       "source_chroma": "battle/boss/sakuya-battle-sheet-v1-chroma.png",
       "source_alpha": "battle/boss/sakuya-battle-sheet-v1.webp",
+      "runtime_embed": "alpha-only",
+      "layout": "2x2-phase1-phase2-hit-break"
+    },
+    "youmu_battle": {
+      "status": "owner-provided-integrated-pending-runtime-validation",
+      "source_alpha": "battle/boss/youmu-battle-sheet-v1.webp",
+      "owner_source_archive": "旧素材/素材处理/battle-boss-owner-source-v3/youmu-battle-sheet-owner-black-v1.png",
+      "preparation_report": "project/new-character-boss-sheet-preparation-report-2026-08-11.json",
+      "runtime_embed": "alpha-only",
+      "layout": "2x2-phase1-phase2-hit-break"
+    },
+    "patchouli_battle": {
+      "status": "owner-provided-integrated-pending-runtime-validation",
+      "source_alpha": "battle/boss/patchouli-battle-sheet-v1.webp",
+      "owner_source_archive": "旧素材/素材处理/battle-boss-owner-source-v3/patchouli-battle-sheet-owner-black-v1.png",
+      "preparation_report": "project/new-character-boss-sheet-preparation-report-2026-08-11.json",
+      "runtime_embed": "alpha-only",
+      "layout": "2x2-phase1-phase2-hit-break"
+    },
+    "sanae_battle": {
+      "status": "owner-provided-integrated-pending-runtime-validation",
+      "source_alpha": "battle/boss/sanae-battle-sheet-v1.webp",
+      "owner_source_archive": "旧素材/素材处理/battle-boss-owner-source-v3/sanae-battle-sheet-owner-black-v1.png",
+      "preparation_report": "project/new-character-boss-sheet-preparation-report-2026-08-11.json",
       "runtime_embed": "alpha-only",
       "layout": "2x2-phase1-phase2-hit-break"
     },

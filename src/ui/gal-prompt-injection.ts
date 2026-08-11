@@ -8,7 +8,8 @@ import {
 } from './target-actions';
 import type { GardenState } from './types';
 
-export const GAL_PROMPT_REVISION = 'gal-prompt.v6' as const;
+export const GAL_PROMPT_REVISION = 'gal-prompt.v7' as const;
+export const PREVIOUS_USER_FLOOR_GAL_PROMPT_REVISION = 'gal-prompt.v6' as const;
 export const MESSAGE_SCOPE_GAL_PROMPT_REVISION = 'gal-prompt.v5' as const;
 export const REQUEST_BODY_GAL_PROMPT_REVISION = 'gal-prompt.v4' as const;
 export const SYSTEM_TAIL_GAL_PROMPT_REVISION = 'gal-prompt.v3' as const;
@@ -162,17 +163,20 @@ export function isSupportedGalPromptRevision(revision: unknown): revision is
   | typeof SYSTEM_TAIL_GAL_PROMPT_REVISION
   | typeof REQUEST_BODY_GAL_PROMPT_REVISION
   | typeof MESSAGE_SCOPE_GAL_PROMPT_REVISION
+  | typeof PREVIOUS_USER_FLOOR_GAL_PROMPT_REVISION
   | typeof GAL_PROMPT_REVISION {
   return revision === LEGACY_GAL_PROMPT_REVISION
     || revision === PREVIOUS_GAL_PROMPT_REVISION
     || revision === SYSTEM_TAIL_GAL_PROMPT_REVISION
     || revision === REQUEST_BODY_GAL_PROMPT_REVISION
     || revision === MESSAGE_SCOPE_GAL_PROMPT_REVISION
+    || revision === PREVIOUS_USER_FLOOR_GAL_PROMPT_REVISION
     || revision === GAL_PROMPT_REVISION;
 }
 
 export function isValidGalPromptInjectsForRevision(revision: unknown, value: unknown): value is GalPromptInjection[] {
   if (revision === GAL_PROMPT_REVISION
+    || revision === PREVIOUS_USER_FLOOR_GAL_PROMPT_REVISION
     || revision === MESSAGE_SCOPE_GAL_PROMPT_REVISION
     || revision === REQUEST_BODY_GAL_PROMPT_REVISION) {
     return isValidGalPromptInjectionSet(value);
@@ -184,7 +188,7 @@ export function isValidGalPromptInjectsForRevision(revision: unknown, value: unk
   return revision === LEGACY_GAL_PROMPT_REVISION && value === undefined;
 }
 
-/** v2 保持旧 content hash；v3–v5 覆盖全部注入公开字段与顺序。 */
+/** v2 保持旧 content hash；v3–v7 覆盖全部注入公开字段与顺序。 */
 export function galPromptInjectsFingerprintInput(
   revision: string,
   injects: readonly GalPromptInjection[],

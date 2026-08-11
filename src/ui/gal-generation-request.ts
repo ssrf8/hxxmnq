@@ -18,6 +18,7 @@ import {
   LEGACY_GAL_PROMPT_REVISION,
   MESSAGE_SCOPE_GAL_PROMPT_REVISION,
   PREVIOUS_GAL_PROMPT_REVISION,
+  PREVIOUS_USER_FLOOR_GAL_PROMPT_REVISION,
   REQUEST_BODY_GAL_PROMPT_REVISION,
   SYSTEM_TAIL_GAL_PROMPT_REVISION,
   type GalPromptInjection,
@@ -636,7 +637,7 @@ export function analyzeChatRestore(
 // 当前合同：project/contract.md（GAL V2 请求与冻结 synthetic history）。
 //   - schema: gal-generation-request.v2，extra key: galGenerationRequestV2；
 //   - historyRevision: gal-synthetic-history.v1，memoryRevision: character-visit-memory.v2；
-//   - 新建 V2 请求使用 gal-prompt.v6；旧 gal-prompt.v1–v5 metadata 保持可恢复；
+//   - 新建 V2 请求使用 gal-prompt.v7；旧 gal-prompt.v1–v6 metadata 保持可恢复；
 //   - syntheticHistory 只接受 role:'system'，parser 拒绝空 history；
 //   - V2 写新 key，不覆盖 V1 extra；V1 parser/metadata 兼容读取原样保留；
 //   - 完整 V2 请求持久化到玩家楼层 metadata，reload recovery 复用同一冻结请求。
@@ -676,13 +677,13 @@ export interface GalGenerationRequestV2 {
   syntheticHistory: SyntheticHistoryMessage[];
   /** syntheticHistory 的稳定 hash（synthetic-history 模块产出，随冻结一起持久化）。 */
   syntheticHistoryHash: string;
-  /** v2–v6 的冻结注入；v4–v6 仅保留扫描胶囊。 */
+  /** v2–v7 的冻结注入；v4–v7 仅保留扫描胶囊。 */
   promptInjects?: GalPromptInjection[];
   promptInjectsHash?: string;
   contextFingerprint: string;
   /** 玩家看到的原文（trim 后）。 */
   visibleUserText: string;
-  /** 本轮传给模型的玩家输入；v5/v6 必须逐字等于真实玩家楼层正文。 */
+  /** 本轮传给模型的玩家输入；v5–v7 必须逐字等于真实玩家楼层正文。 */
   modelUserInput: string;
   /** 该 request 已进行的模型调用次数（首调 1；retry 递增）。 */
   attemptSeq: number;
@@ -698,7 +699,7 @@ export interface GalGenerationRequestV2Input {
   };
   syntheticHistory: SyntheticHistoryMessage[];
   syntheticHistoryHash: string;
-  promptRevision?: typeof LEGACY_GAL_PROMPT_REVISION | typeof PREVIOUS_GAL_PROMPT_REVISION | typeof SYSTEM_TAIL_GAL_PROMPT_REVISION | typeof REQUEST_BODY_GAL_PROMPT_REVISION | typeof MESSAGE_SCOPE_GAL_PROMPT_REVISION | typeof GAL_PROMPT_REVISION;
+  promptRevision?: typeof LEGACY_GAL_PROMPT_REVISION | typeof PREVIOUS_GAL_PROMPT_REVISION | typeof SYSTEM_TAIL_GAL_PROMPT_REVISION | typeof REQUEST_BODY_GAL_PROMPT_REVISION | typeof MESSAGE_SCOPE_GAL_PROMPT_REVISION | typeof PREVIOUS_USER_FLOOR_GAL_PROMPT_REVISION | typeof GAL_PROMPT_REVISION;
   promptInjects?: GalPromptInjection[];
   promptInjectsHash?: string;
   contextFingerprint: string;
@@ -980,7 +981,7 @@ export function restoreGalGenerationRequestV2(extra: unknown): RestoreRequestV2R
 // ---------------------------------------------------------------------------
 
 import { freezeVisitIds, resolveRelevantCharacterIds } from './character-memory';
-import { buildSyntheticHistory } from './synthetic-history';
+import { buildGalSystemHistory } from './system-history-context';
 import type { GardenState } from './types';
 
 export interface GalGenerationRequestV2BuildInput {
@@ -1026,6 +1027,7 @@ export function storedUserMessageMatchesRequestV2(
   storedMessage: unknown,
 ): boolean {
   const exactMessageRevision = request.promptRevision === GAL_PROMPT_REVISION
+    || request.promptRevision === PREVIOUS_USER_FLOOR_GAL_PROMPT_REVISION
     || request.promptRevision === MESSAGE_SCOPE_GAL_PROMPT_REVISION;
   return !exactMessageRevision
     || (typeof storedMessage === 'string' && storedMessage === request.modelUserInput);
@@ -1064,7 +1066,7 @@ export function buildGalGenerationRequestV2(input: GalGenerationRequestV2BuildIn
   const now = input.now ?? Date.now();
   const requestId = input.requestId ?? createRequestId(now);
 
-  const history = buildSyntheticHistory({
+  const history = buildGalSystemHistory({
     state: input.state,
     relevantCharacterIds: resolved.characterIds,
     visitIdsByCharacter,

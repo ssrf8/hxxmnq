@@ -5,6 +5,8 @@
   "layout": "variable-sequence-v1",
   "source_directory": "src/assets/characters/sanae/sequence-v1",
   "source_policy": "owner-provided-split-frames-preserved; runtime atlases use nearest-neighbor normalization",
+  "idle_source_directory": "src/assets/characters/sanae/static-v1",
+  "idle_source_policy": "owner-provided-static-turnaround; right view is mirrored only when declared by the split manifest",
   "movement_mode": "walking-with-sleeve-sway",
   "cell": [
     209,
@@ -16,8 +18,14 @@
     "left",
     "right"
   ],
+  "direction_source_map": {
+    "front": "front",
+    "back": "back",
+    "left": "right",
+    "right": "left"
+  },
   "frame_count": 35,
-  "frame_duration_ms": 90,
+  "frame_duration_ms": 48,
   "loop_start": 0,
   "loop_end": 34,
   "target_anchor": [
@@ -44,14 +52,120 @@
       647
     ]
   },
+  "idle_scale": 0.32119914346895073,
+  "idle_source_anchor_by_direction": {
+    "front": [
+      209,
+      846
+    ],
+    "back": [
+      209,
+      839
+    ],
+    "left": [
+      209,
+      846
+    ],
+    "right": [
+      209,
+      846
+    ]
+  },
+  "idle_split_manifest": "src/assets/characters/sanae/static-v1/split-manifest.json",
   "idle_png": "src/assets/characters/sanae/sanae-turnaround-v1.png",
-  "idle_png_sha256": "aad5ed170a87bc43f89183093914f5d50f4da41dc9e43aa86165bad9cd00b77d",
+  "idle_png_sha256": "0aac781e7ec1ecad2f642b000b6330b7a6e0fcd4200e6d9543ee199cdb3374a3",
   "idle_webp": "src/assets/characters/sanae/sanae-turnaround-v1.webp",
-  "idle_webp_sha256": "cdffc7464a11ce4c28f2308c94571d5d78ecbe1d7ac42822af7540dce614051b",
+  "idle_webp_sha256": "9812b08c3ce1fe551f97ed6458b3570b75c4255862203f3a7cd7e9febfee836d",
   "sequence_png": "src/assets/characters/sanae/sanae-animation-sequence-v1.png",
-  "sequence_png_sha256": "c94feb0542b79f638ec99c8d9f49f52e6c8bbbb60bd5419570475cfcf08361d8",
+  "sequence_png_sha256": "75ee21dfe8ae024ab381a86eae35cca8d94789e37ea642bc9b75df40b4749bf7",
   "sequence_webp": "src/assets/characters/sanae/sanae-animation-sequence-v1.webp",
-  "sequence_webp_sha256": "af732d2cc1af70811182df8075ec4e8af6aa92b04bda6d1a59d2aa1d1dbf4cdc",
+  "sequence_webp_sha256": "cd425a67f33b39d6bc21dd439cbed62f1575d39c54ec611daf167bfa2d38ad7d",
+  "idle_frames": [
+    {
+      "direction": "front",
+      "source": "src/assets/characters/sanae/static-v1/front/001.png",
+      "source_sha256": "8386263389d08dc48d81e6d69d9f430b8c61ea192efe8d5c028b2b886cc7f5e7",
+      "source_bbox": {
+        "minX": 126,
+        "minY": 380,
+        "maxX": 368,
+        "maxY": 846,
+        "width": 243,
+        "height": 467
+      },
+      "runtime_bbox": {
+        "minX": 78,
+        "minY": 30,
+        "maxX": 154,
+        "maxY": 179,
+        "width": 77,
+        "height": 150
+      }
+    },
+    {
+      "direction": "back",
+      "source": "src/assets/characters/sanae/static-v1/back/001.png",
+      "source_sha256": "929ec07977efaed2410075e2d5168c0eeee288ac2214250758fd0093915d7196",
+      "source_bbox": {
+        "minX": 65,
+        "minY": 382,
+        "maxX": 296,
+        "maxY": 839,
+        "width": 232,
+        "height": 458
+      },
+      "runtime_bbox": {
+        "minX": 58,
+        "minY": 33,
+        "maxX": 132,
+        "maxY": 179,
+        "width": 75,
+        "height": 147
+      }
+    },
+    {
+      "direction": "left",
+      "source": "src/assets/characters/sanae/static-v1/left/001.png",
+      "source_sha256": "c56b536386f85f31001dc925e9040d62b75c533cba8fcc6514dbb6a07ac011e1",
+      "source_bbox": {
+        "minX": 120,
+        "minY": 385,
+        "maxX": 298,
+        "maxY": 846,
+        "width": 179,
+        "height": 462
+      },
+      "runtime_bbox": {
+        "minX": 76,
+        "minY": 31,
+        "maxX": 132,
+        "maxY": 179,
+        "width": 57,
+        "height": 149
+      }
+    },
+    {
+      "direction": "right",
+      "source": "src/assets/characters/sanae/static-v1/right/001.png",
+      "source_sha256": "9228c3b0f7f806969596c1856db4692a9472ce3e11a0afac3ae121f267f09042",
+      "source_bbox": {
+        "minX": 119,
+        "minY": 385,
+        "maxX": 297,
+        "maxY": 846,
+        "width": 179,
+        "height": 462
+      },
+      "runtime_bbox": {
+        "minX": 75,
+        "minY": 31,
+        "maxX": 132,
+        "maxY": 179,
+        "width": 58,
+        "height": 149
+      }
+    }
+  ],
   "frames": [
     {
       "direction": "front",
@@ -1596,776 +1710,6 @@
     {
       "direction": "left",
       "index": 1,
-      "source": "src/assets/characters/sanae/sequence-v1/left/001.png",
-      "source_sha256": "aae7f937c2e1bc45e00a7e0c5bb4140ab11c3ee39c59b3b8d71e20ec3d0e9f97",
-      "source_bbox": {
-        "minX": 82,
-        "minY": 302,
-        "maxX": 256,
-        "maxY": 647,
-        "width": 175,
-        "height": 346
-      },
-      "runtime_bbox": {
-        "minX": 72,
-        "minY": 38,
-        "maxX": 143,
-        "maxY": 179,
-        "width": 72,
-        "height": 142
-      }
-    },
-    {
-      "direction": "left",
-      "index": 2,
-      "source": "src/assets/characters/sanae/sequence-v1/left/002.png",
-      "source_sha256": "eb8df56ca53c2e67423c300ffb6626355c30cbdca65de1f22dcb6768ad2cc84b",
-      "source_bbox": {
-        "minX": 81,
-        "minY": 302,
-        "maxX": 253,
-        "maxY": 647,
-        "width": 173,
-        "height": 346
-      },
-      "runtime_bbox": {
-        "minX": 72,
-        "minY": 38,
-        "maxX": 142,
-        "maxY": 179,
-        "width": 71,
-        "height": 142
-      }
-    },
-    {
-      "direction": "left",
-      "index": 3,
-      "source": "src/assets/characters/sanae/sequence-v1/left/003.png",
-      "source_sha256": "e194e86cad36825206f7fe7cbf4765a9b9beb701385646659fccffac9e497b5f",
-      "source_bbox": {
-        "minX": 81,
-        "minY": 301,
-        "maxX": 250,
-        "maxY": 647,
-        "width": 170,
-        "height": 347
-      },
-      "runtime_bbox": {
-        "minX": 72,
-        "minY": 37,
-        "maxX": 140,
-        "maxY": 179,
-        "width": 69,
-        "height": 143
-      }
-    },
-    {
-      "direction": "left",
-      "index": 4,
-      "source": "src/assets/characters/sanae/sequence-v1/left/004.png",
-      "source_sha256": "596fd0cc44e51fd52d88bd16404c13dc3683e2d08cc0ce098a7f1ccf5d9ee675",
-      "source_bbox": {
-        "minX": 82,
-        "minY": 300,
-        "maxX": 244,
-        "maxY": 645,
-        "width": 163,
-        "height": 346
-      },
-      "runtime_bbox": {
-        "minX": 72,
-        "minY": 37,
-        "maxX": 138,
-        "maxY": 178,
-        "width": 67,
-        "height": 142
-      }
-    },
-    {
-      "direction": "left",
-      "index": 5,
-      "source": "src/assets/characters/sanae/sequence-v1/left/005.png",
-      "source_sha256": "0b1469a5519c4ba83693acd64256f5f039e913a4d036adbdf455717297635d9e",
-      "source_bbox": {
-        "minX": 84,
-        "minY": 299,
-        "maxX": 239,
-        "maxY": 642,
-        "width": 156,
-        "height": 344
-      },
-      "runtime_bbox": {
-        "minX": 73,
-        "minY": 36,
-        "maxX": 136,
-        "maxY": 177,
-        "width": 64,
-        "height": 142
-      }
-    },
-    {
-      "direction": "left",
-      "index": 6,
-      "source": "src/assets/characters/sanae/sequence-v1/left/006.png",
-      "source_sha256": "b51165fb4efb768c59327e0f04f2383a5a3c34fa3e2cd8d12f847a4703e374bf",
-      "source_bbox": {
-        "minX": 87,
-        "minY": 297,
-        "maxX": 233,
-        "maxY": 641,
-        "width": 147,
-        "height": 345
-      },
-      "runtime_bbox": {
-        "minX": 74,
-        "minY": 35,
-        "maxX": 134,
-        "maxY": 176,
-        "width": 61,
-        "height": 142
-      }
-    },
-    {
-      "direction": "left",
-      "index": 7,
-      "source": "src/assets/characters/sanae/sequence-v1/left/007.png",
-      "source_sha256": "76223ce4fa19f9a8c7dd44fabf6230f50a19f75e831f27b0f742da87216a41a8",
-      "source_bbox": {
-        "minX": 89,
-        "minY": 296,
-        "maxX": 235,
-        "maxY": 641,
-        "width": 147,
-        "height": 346
-      },
-      "runtime_bbox": {
-        "minX": 75,
-        "minY": 35,
-        "maxX": 135,
-        "maxY": 176,
-        "width": 61,
-        "height": 142
-      }
-    },
-    {
-      "direction": "left",
-      "index": 8,
-      "source": "src/assets/characters/sanae/sequence-v1/left/008.png",
-      "source_sha256": "5cec518c3090f12c252629e13a634afe73e27ba6f171293cc897d2cc54913251",
-      "source_bbox": {
-        "minX": 91,
-        "minY": 294,
-        "maxX": 237,
-        "maxY": 641,
-        "width": 147,
-        "height": 348
-      },
-      "runtime_bbox": {
-        "minX": 76,
-        "minY": 34,
-        "maxX": 135,
-        "maxY": 176,
-        "width": 60,
-        "height": 143
-      }
-    },
-    {
-      "direction": "left",
-      "index": 9,
-      "source": "src/assets/characters/sanae/sequence-v1/left/009.png",
-      "source_sha256": "d67d2edaab6d2da2812e16200bd216eae8002e13f81ebecc6988b2bea4d5878e",
-      "source_bbox": {
-        "minX": 93,
-        "minY": 293,
-        "maxX": 239,
-        "maxY": 641,
-        "width": 147,
-        "height": 349
-      },
-      "runtime_bbox": {
-        "minX": 77,
-        "minY": 34,
-        "maxX": 136,
-        "maxY": 176,
-        "width": 60,
-        "height": 143
-      }
-    },
-    {
-      "direction": "left",
-      "index": 10,
-      "source": "src/assets/characters/sanae/sequence-v1/left/010.png",
-      "source_sha256": "f797ad8af04a6aaf5b6c629e7e7f46198a33cc5eb8ed4c2a8c68f721434cba54",
-      "source_bbox": {
-        "minX": 96,
-        "minY": 293,
-        "maxX": 242,
-        "maxY": 641,
-        "width": 147,
-        "height": 349
-      },
-      "runtime_bbox": {
-        "minX": 78,
-        "minY": 34,
-        "maxX": 137,
-        "maxY": 176,
-        "width": 60,
-        "height": 143
-      }
-    },
-    {
-      "direction": "left",
-      "index": 11,
-      "source": "src/assets/characters/sanae/sequence-v1/left/011.png",
-      "source_sha256": "ff83c8f904369fe3380dff74450b88125ef1a35faf30d74d30a0c93a2f7dfa7a",
-      "source_bbox": {
-        "minX": 97,
-        "minY": 293,
-        "maxX": 244,
-        "maxY": 642,
-        "width": 148,
-        "height": 350
-      },
-      "runtime_bbox": {
-        "minX": 78,
-        "minY": 34,
-        "maxX": 138,
-        "maxY": 177,
-        "width": 61,
-        "height": 144
-      }
-    },
-    {
-      "direction": "left",
-      "index": 12,
-      "source": "src/assets/characters/sanae/sequence-v1/left/012.png",
-      "source_sha256": "7bcc7b41fa8276ef44b979e85be044f3b5c5623ea51d9c401050399c8e5971b1",
-      "source_bbox": {
-        "minX": 98,
-        "minY": 293,
-        "maxX": 245,
-        "maxY": 643,
-        "width": 148,
-        "height": 351
-      },
-      "runtime_bbox": {
-        "minX": 79,
-        "minY": 34,
-        "maxX": 139,
-        "maxY": 177,
-        "width": 61,
-        "height": 144
-      }
-    },
-    {
-      "direction": "left",
-      "index": 13,
-      "source": "src/assets/characters/sanae/sequence-v1/left/013.png",
-      "source_sha256": "17c9a523d8582d59c771ae28c50582ae7e3e8603b8252984a8e293f92955bdf2",
-      "source_bbox": {
-        "minX": 97,
-        "minY": 294,
-        "maxX": 245,
-        "maxY": 642,
-        "width": 149,
-        "height": 349
-      },
-      "runtime_bbox": {
-        "minX": 78,
-        "minY": 34,
-        "maxX": 139,
-        "maxY": 177,
-        "width": 62,
-        "height": 144
-      }
-    },
-    {
-      "direction": "left",
-      "index": 14,
-      "source": "src/assets/characters/sanae/sequence-v1/left/014.png",
-      "source_sha256": "d667749f78901a4c96371e3f33f46c0eef96ed450efec5b572cfc56b5823631a",
-      "source_bbox": {
-        "minX": 95,
-        "minY": 296,
-        "maxX": 245,
-        "maxY": 641,
-        "width": 151,
-        "height": 346
-      },
-      "runtime_bbox": {
-        "minX": 78,
-        "minY": 35,
-        "maxX": 138,
-        "maxY": 176,
-        "width": 61,
-        "height": 142
-      }
-    },
-    {
-      "direction": "left",
-      "index": 15,
-      "source": "src/assets/characters/sanae/sequence-v1/left/015.png",
-      "source_sha256": "28fee4b3ffa22a39ef10f01ea94ef6edab477a3cb2a7d6d048e49d7de1cb2222",
-      "source_bbox": {
-        "minX": 93,
-        "minY": 297,
-        "maxX": 245,
-        "maxY": 641,
-        "width": 153,
-        "height": 345
-      },
-      "runtime_bbox": {
-        "minX": 77,
-        "minY": 35,
-        "maxX": 139,
-        "maxY": 176,
-        "width": 63,
-        "height": 142
-      }
-    },
-    {
-      "direction": "left",
-      "index": 16,
-      "source": "src/assets/characters/sanae/sequence-v1/left/016.png",
-      "source_sha256": "e2e3c417d529bcf9b43ddd51b5da293fa982218a0fc4a54f11e0e1c6fb347722",
-      "source_bbox": {
-        "minX": 91,
-        "minY": 298,
-        "maxX": 254,
-        "maxY": 641,
-        "width": 164,
-        "height": 344
-      },
-      "runtime_bbox": {
-        "minX": 76,
-        "minY": 36,
-        "maxX": 142,
-        "maxY": 176,
-        "width": 67,
-        "height": 141
-      }
-    },
-    {
-      "direction": "left",
-      "index": 17,
-      "source": "src/assets/characters/sanae/sequence-v1/left/017.png",
-      "source_sha256": "2d8dfb9f92fa4341a408e2aca858ba08457e0a20ed24ae21005c82ec37572675",
-      "source_bbox": {
-        "minX": 90,
-        "minY": 299,
-        "maxX": 258,
-        "maxY": 641,
-        "width": 169,
-        "height": 343
-      },
-      "runtime_bbox": {
-        "minX": 76,
-        "minY": 36,
-        "maxX": 144,
-        "maxY": 176,
-        "width": 69,
-        "height": 141
-      }
-    },
-    {
-      "direction": "left",
-      "index": 18,
-      "source": "src/assets/characters/sanae/sequence-v1/left/018.png",
-      "source_sha256": "62fb4522d299678a65827b4b49e18656aaeabd13072852b8b25840449eefc375",
-      "source_bbox": {
-        "minX": 88,
-        "minY": 301,
-        "maxX": 259,
-        "maxY": 641,
-        "width": 172,
-        "height": 341
-      },
-      "runtime_bbox": {
-        "minX": 75,
-        "minY": 37,
-        "maxX": 144,
-        "maxY": 176,
-        "width": 70,
-        "height": 140
-      }
-    },
-    {
-      "direction": "left",
-      "index": 19,
-      "source": "src/assets/characters/sanae/sequence-v1/left/019.png",
-      "source_sha256": "7e9ccbe49378732fb69169f7e570abb645f9a112405caf19922b9d89b469e4c4",
-      "source_bbox": {
-        "minX": 86,
-        "minY": 301,
-        "maxX": 257,
-        "maxY": 641,
-        "width": 172,
-        "height": 341
-      },
-      "runtime_bbox": {
-        "minX": 74,
-        "minY": 37,
-        "maxX": 144,
-        "maxY": 176,
-        "width": 71,
-        "height": 140
-      }
-    },
-    {
-      "direction": "left",
-      "index": 20,
-      "source": "src/assets/characters/sanae/sequence-v1/left/020.png",
-      "source_sha256": "27142041085e4ed966d75c923574283f5a8affbff3dfb9389162478e90347a68",
-      "source_bbox": {
-        "minX": 84,
-        "minY": 301,
-        "maxX": 253,
-        "maxY": 642,
-        "width": 170,
-        "height": 342
-      },
-      "runtime_bbox": {
-        "minX": 73,
-        "minY": 37,
-        "maxX": 142,
-        "maxY": 177,
-        "width": 70,
-        "height": 141
-      }
-    },
-    {
-      "direction": "left",
-      "index": 21,
-      "source": "src/assets/characters/sanae/sequence-v1/left/021.png",
-      "source_sha256": "95cbb7b6e28c7cbfa8a180f648a1f4de770a1d9f966fb8edbf3f7fd85436f1f9",
-      "source_bbox": {
-        "minX": 83,
-        "minY": 301,
-        "maxX": 249,
-        "maxY": 643,
-        "width": 167,
-        "height": 343
-      },
-      "runtime_bbox": {
-        "minX": 73,
-        "minY": 37,
-        "maxX": 140,
-        "maxY": 177,
-        "width": 68,
-        "height": 141
-      }
-    },
-    {
-      "direction": "left",
-      "index": 22,
-      "source": "src/assets/characters/sanae/sequence-v1/left/022.png",
-      "source_sha256": "b0e3b28a814fe02267b309c0a6c378422f6bdd361358e01e50cd692f0bc5a107",
-      "source_bbox": {
-        "minX": 83,
-        "minY": 300,
-        "maxX": 240,
-        "maxY": 644,
-        "width": 158,
-        "height": 345
-      },
-      "runtime_bbox": {
-        "minX": 73,
-        "minY": 37,
-        "maxX": 136,
-        "maxY": 177,
-        "width": 64,
-        "height": 141
-      }
-    },
-    {
-      "direction": "left",
-      "index": 23,
-      "source": "src/assets/characters/sanae/sequence-v1/left/023.png",
-      "source_sha256": "475cea0af994a72b66a6c909a2b6695813929fba7d446060040ade77aad77571",
-      "source_bbox": {
-        "minX": 84,
-        "minY": 298,
-        "maxX": 235,
-        "maxY": 644,
-        "width": 152,
-        "height": 347
-      },
-      "runtime_bbox": {
-        "minX": 73,
-        "minY": 36,
-        "maxX": 134,
-        "maxY": 177,
-        "width": 62,
-        "height": 142
-      }
-    },
-    {
-      "direction": "left",
-      "index": 24,
-      "source": "src/assets/characters/sanae/sequence-v1/left/024.png",
-      "source_sha256": "4f1bbe1789c5e7684cb2ea022a0a5ed9c46bb351046b1f2ca0def0467ec64b46",
-      "source_bbox": {
-        "minX": 87,
-        "minY": 297,
-        "maxX": 228,
-        "maxY": 645,
-        "width": 142,
-        "height": 349
-      },
-      "runtime_bbox": {
-        "minX": 74,
-        "minY": 35,
-        "maxX": 132,
-        "maxY": 178,
-        "width": 59,
-        "height": 144
-      }
-    },
-    {
-      "direction": "left",
-      "index": 25,
-      "source": "src/assets/characters/sanae/sequence-v1/left/025.png",
-      "source_sha256": "cfb27cea0e035e8a7f6a23fea6cb2020f718374f2fbdae02ea49390eb30d8d58",
-      "source_bbox": {
-        "minX": 89,
-        "minY": 295,
-        "maxX": 229,
-        "maxY": 645,
-        "width": 141,
-        "height": 351
-      },
-      "runtime_bbox": {
-        "minX": 75,
-        "minY": 35,
-        "maxX": 132,
-        "maxY": 178,
-        "width": 58,
-        "height": 144
-      }
-    },
-    {
-      "direction": "left",
-      "index": 26,
-      "source": "src/assets/characters/sanae/sequence-v1/left/026.png",
-      "source_sha256": "6b1d1998717ee065a9933fd68e2b303e7ad957ae7927699f6f2f0f2b57ed62ff",
-      "source_bbox": {
-        "minX": 88,
-        "minY": 294,
-        "maxX": 233,
-        "maxY": 645,
-        "width": 146,
-        "height": 352
-      },
-      "runtime_bbox": {
-        "minX": 75,
-        "minY": 34,
-        "maxX": 134,
-        "maxY": 178,
-        "width": 60,
-        "height": 145
-      }
-    },
-    {
-      "direction": "left",
-      "index": 27,
-      "source": "src/assets/characters/sanae/sequence-v1/left/027.png",
-      "source_sha256": "1407528d3ead2befc37815f897d93b7495461a81a39adeaad19c142e564d9a06",
-      "source_bbox": {
-        "minX": 89,
-        "minY": 293,
-        "maxX": 236,
-        "maxY": 646,
-        "width": 148,
-        "height": 354
-      },
-      "runtime_bbox": {
-        "minX": 75,
-        "minY": 34,
-        "maxX": 135,
-        "maxY": 178,
-        "width": 61,
-        "height": 145
-      }
-    },
-    {
-      "direction": "left",
-      "index": 28,
-      "source": "src/assets/characters/sanae/sequence-v1/left/028.png",
-      "source_sha256": "5e3d8432aa14d518c89ab0e41a9c0b35ff5a55b15c26205ae02439c4ae0a535b",
-      "source_bbox": {
-        "minX": 91,
-        "minY": 293,
-        "maxX": 239,
-        "maxY": 646,
-        "width": 149,
-        "height": 354
-      },
-      "runtime_bbox": {
-        "minX": 76,
-        "minY": 34,
-        "maxX": 136,
-        "maxY": 178,
-        "width": 61,
-        "height": 145
-      }
-    },
-    {
-      "direction": "left",
-      "index": 29,
-      "source": "src/assets/characters/sanae/sequence-v1/left/029.png",
-      "source_sha256": "1288e37cf0d5f4903a0b25abe5f358ab70d1adebcad098b2fd63964c236a9a2d",
-      "source_bbox": {
-        "minX": 94,
-        "minY": 293,
-        "maxX": 241,
-        "maxY": 646,
-        "width": 148,
-        "height": 354
-      },
-      "runtime_bbox": {
-        "minX": 77,
-        "minY": 34,
-        "maxX": 137,
-        "maxY": 178,
-        "width": 61,
-        "height": 145
-      }
-    },
-    {
-      "direction": "left",
-      "index": 30,
-      "source": "src/assets/characters/sanae/sequence-v1/left/030.png",
-      "source_sha256": "277008e049efbb8e98bbf723389efdff4ab2100a43bda30cbf5ab5dbf2bd6b8b",
-      "source_bbox": {
-        "minX": 95,
-        "minY": 294,
-        "maxX": 242,
-        "maxY": 646,
-        "width": 148,
-        "height": 353
-      },
-      "runtime_bbox": {
-        "minX": 78,
-        "minY": 34,
-        "maxX": 137,
-        "maxY": 178,
-        "width": 60,
-        "height": 145
-      }
-    },
-    {
-      "direction": "left",
-      "index": 31,
-      "source": "src/assets/characters/sanae/sequence-v1/left/031.png",
-      "source_sha256": "6beffb453476d6d905c79473b082c826b185d4533f45eec3b476590020f66103",
-      "source_bbox": {
-        "minX": 93,
-        "minY": 294,
-        "maxX": 242,
-        "maxY": 646,
-        "width": 150,
-        "height": 353
-      },
-      "runtime_bbox": {
-        "minX": 77,
-        "minY": 34,
-        "maxX": 137,
-        "maxY": 178,
-        "width": 61,
-        "height": 145
-      }
-    },
-    {
-      "direction": "left",
-      "index": 32,
-      "source": "src/assets/characters/sanae/sequence-v1/left/032.png",
-      "source_sha256": "5785da94b5e3e8408dc2481a36ecc821c9af7d4ea9f0151928b3f0b520eba6c0",
-      "source_bbox": {
-        "minX": 90,
-        "minY": 296,
-        "maxX": 242,
-        "maxY": 647,
-        "width": 153,
-        "height": 352
-      },
-      "runtime_bbox": {
-        "minX": 76,
-        "minY": 35,
-        "maxX": 137,
-        "maxY": 179,
-        "width": 62,
-        "height": 145
-      }
-    },
-    {
-      "direction": "left",
-      "index": 33,
-      "source": "src/assets/characters/sanae/sequence-v1/left/033.png",
-      "source_sha256": "18c54962ed289283fe09e368a990ed10c1a2b0fc8c48790735db52bc94cbbadb",
-      "source_bbox": {
-        "minX": 88,
-        "minY": 297,
-        "maxX": 246,
-        "maxY": 647,
-        "width": 159,
-        "height": 351
-      },
-      "runtime_bbox": {
-        "minX": 75,
-        "minY": 35,
-        "maxX": 139,
-        "maxY": 179,
-        "width": 65,
-        "height": 145
-      }
-    },
-    {
-      "direction": "left",
-      "index": 34,
-      "source": "src/assets/characters/sanae/sequence-v1/left/034.png",
-      "source_sha256": "962b98aefa2d902a2f751367e73579aaea7939b396e951a8efe6ba2b7a1b55a6",
-      "source_bbox": {
-        "minX": 86,
-        "minY": 299,
-        "maxX": 255,
-        "maxY": 647,
-        "width": 170,
-        "height": 349
-      },
-      "runtime_bbox": {
-        "minX": 74,
-        "minY": 36,
-        "maxX": 143,
-        "maxY": 179,
-        "width": 70,
-        "height": 144
-      }
-    },
-    {
-      "direction": "left",
-      "index": 35,
-      "source": "src/assets/characters/sanae/sequence-v1/left/035.png",
-      "source_sha256": "fff9bc2f33b029b80a775e3cdcebd6c320703bbe522952c560f0fc3cdaae84ac",
-      "source_bbox": {
-        "minX": 84,
-        "minY": 300,
-        "maxX": 255,
-        "maxY": 647,
-        "width": 172,
-        "height": 348
-      },
-      "runtime_bbox": {
-        "minX": 73,
-        "minY": 37,
-        "maxX": 143,
-        "maxY": 179,
-        "width": 71,
-        "height": 143
-      }
-    },
-    {
-      "direction": "right",
-      "index": 1,
       "source": "src/assets/characters/sanae/sequence-v1/right/001.png",
       "source_sha256": "a63e868385edcbba9f0175f325c80984ad91764d3ffa9040e9c54f0529ca0cb4",
       "source_bbox": {
@@ -2386,7 +1730,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 2,
       "source": "src/assets/characters/sanae/sequence-v1/right/002.png",
       "source_sha256": "d87c23abe299249bb36b178e1e6dba0edee792fb8cf8f22e34ddf07b1edecae5",
@@ -2408,7 +1752,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 3,
       "source": "src/assets/characters/sanae/sequence-v1/right/003.png",
       "source_sha256": "bd97ca55c78b16e1206dfb6c6acb626b24828689e4dea8598f693df93457a2e0",
@@ -2430,7 +1774,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 4,
       "source": "src/assets/characters/sanae/sequence-v1/right/004.png",
       "source_sha256": "52ba6791aa69b58de31ccea058e6881e720217ef843ebfffc3cdddd2a6219e47",
@@ -2452,7 +1796,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 5,
       "source": "src/assets/characters/sanae/sequence-v1/right/005.png",
       "source_sha256": "13068d0d618715d6c2f034f94c768752023a3c24e94e54c607aca2f201894e03",
@@ -2474,7 +1818,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 6,
       "source": "src/assets/characters/sanae/sequence-v1/right/006.png",
       "source_sha256": "d964215606d71c8cda833dc6cf2155bf2407b60f9fbec776510dbf384724716e",
@@ -2496,7 +1840,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 7,
       "source": "src/assets/characters/sanae/sequence-v1/right/007.png",
       "source_sha256": "98e857580b90463297609e3f9f96b196c938dd1344812c3673e36a0c113dc226",
@@ -2518,7 +1862,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 8,
       "source": "src/assets/characters/sanae/sequence-v1/right/008.png",
       "source_sha256": "5f83bcfaecf36db9a7ef9d50eefb4b338fb6469fabeadc5dcaf691f9981ee886",
@@ -2540,7 +1884,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 9,
       "source": "src/assets/characters/sanae/sequence-v1/right/009.png",
       "source_sha256": "fb5bf6a88dc0957fbc5797ba241afeaa1c49368f70d3e701cc3482764bb688ff",
@@ -2562,7 +1906,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 10,
       "source": "src/assets/characters/sanae/sequence-v1/right/010.png",
       "source_sha256": "6af092adc0fa6da315fe8850fb5545e148ca144fbaedd38ff89d93785107733b",
@@ -2584,7 +1928,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 11,
       "source": "src/assets/characters/sanae/sequence-v1/right/011.png",
       "source_sha256": "56adb9502f35dda75b26584227c72b468487cd55d9e39b2189e2c752ccf4167b",
@@ -2606,7 +1950,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 12,
       "source": "src/assets/characters/sanae/sequence-v1/right/012.png",
       "source_sha256": "23728fe97b8503df02d5304d450872735504d81cf1bea2f520f9df56311cd26f",
@@ -2628,7 +1972,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 13,
       "source": "src/assets/characters/sanae/sequence-v1/right/013.png",
       "source_sha256": "57f975b1cc6efea39c319899a1440ec6161d62e05f9a03f7f0069f30c99c1700",
@@ -2650,7 +1994,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 14,
       "source": "src/assets/characters/sanae/sequence-v1/right/014.png",
       "source_sha256": "b1bcca505689ec95f8b6df256c0f4d0a318b07bdc8274c390a5a04d7ff6a430b",
@@ -2672,7 +2016,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 15,
       "source": "src/assets/characters/sanae/sequence-v1/right/015.png",
       "source_sha256": "ab329589148ff23cc86b968eccd74e61df14c3604cc04fa82bab8f466c319d5b",
@@ -2694,7 +2038,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 16,
       "source": "src/assets/characters/sanae/sequence-v1/right/016.png",
       "source_sha256": "110d3a2c5b35075cfc8d9bb55b9495a1ed0a1b521dff457e1864e29d3120a122",
@@ -2716,7 +2060,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 17,
       "source": "src/assets/characters/sanae/sequence-v1/right/017.png",
       "source_sha256": "3ecd0b12b4409a116b456b44083ec16df75089f0448ed3ddbd1a25cfe4212b99",
@@ -2738,7 +2082,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 18,
       "source": "src/assets/characters/sanae/sequence-v1/right/018.png",
       "source_sha256": "3f20dd5b6eda8b90d88d2631562ef2fcc5f0cc4a3e9dc6113b172b4d751cc77a",
@@ -2760,7 +2104,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 19,
       "source": "src/assets/characters/sanae/sequence-v1/right/019.png",
       "source_sha256": "50f3ef746efd296dfd14f29a16992425d2970da9db116a6c136872d6784be186",
@@ -2782,7 +2126,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 20,
       "source": "src/assets/characters/sanae/sequence-v1/right/020.png",
       "source_sha256": "4b672c119a4d475725148fec21a8167f4bcebc55ce99a50aac5d532365b62672",
@@ -2804,7 +2148,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 21,
       "source": "src/assets/characters/sanae/sequence-v1/right/021.png",
       "source_sha256": "5437c289f893ff1460002121484a5f6c838f5b6978d3796466c1791128686b8a",
@@ -2826,7 +2170,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 22,
       "source": "src/assets/characters/sanae/sequence-v1/right/022.png",
       "source_sha256": "d86e69153ec532a10db0713f981ee63b869c276cd0b278de8a3d3ab05bd3825c",
@@ -2848,7 +2192,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 23,
       "source": "src/assets/characters/sanae/sequence-v1/right/023.png",
       "source_sha256": "80f94a01ba493e929a4fc015e0b904961e590ee59fca042349c4dea8ed2b9630",
@@ -2870,7 +2214,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 24,
       "source": "src/assets/characters/sanae/sequence-v1/right/024.png",
       "source_sha256": "9978d9250a7f4f555e6905145c19f79546ce10a280fb0b06bd1886551aef3aa3",
@@ -2892,7 +2236,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 25,
       "source": "src/assets/characters/sanae/sequence-v1/right/025.png",
       "source_sha256": "d660d3b62ce58ddc0cb36c690612728d3242004570a5c0299287f84583fb3cf8",
@@ -2914,7 +2258,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 26,
       "source": "src/assets/characters/sanae/sequence-v1/right/026.png",
       "source_sha256": "4f93b1750736eb11c3ada94ec0a684c63bca332756ddf95061cdf62ccf5db6b8",
@@ -2936,7 +2280,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 27,
       "source": "src/assets/characters/sanae/sequence-v1/right/027.png",
       "source_sha256": "e96e5d648f5c87fbcd9d2afe3298155065d1331102a578d51b387a887731a1ec",
@@ -2958,7 +2302,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 28,
       "source": "src/assets/characters/sanae/sequence-v1/right/028.png",
       "source_sha256": "88193e1a8dcae1b50032303325d1d5e757175ac7286d853825a09a27335d2937",
@@ -2980,7 +2324,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 29,
       "source": "src/assets/characters/sanae/sequence-v1/right/029.png",
       "source_sha256": "7da4bf41a2f5e7e3b5db995d8a1c1b89a9f8926e222305fd274a73192d6ee279",
@@ -3002,7 +2346,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 30,
       "source": "src/assets/characters/sanae/sequence-v1/right/030.png",
       "source_sha256": "676022017b5e40b76f382c885f8ad4e4389a1e207c9c13f217da1d4b1ba57fe5",
@@ -3024,7 +2368,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 31,
       "source": "src/assets/characters/sanae/sequence-v1/right/031.png",
       "source_sha256": "223893448b03eaf418e270d2cf0bdc86a0916928991dccad652f66575e87302e",
@@ -3046,7 +2390,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 32,
       "source": "src/assets/characters/sanae/sequence-v1/right/032.png",
       "source_sha256": "eb4f5635445b1f70daafa10b0012ab5211e46c933f3ebc861bf31de75a5fd6f2",
@@ -3068,7 +2412,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 33,
       "source": "src/assets/characters/sanae/sequence-v1/right/033.png",
       "source_sha256": "cdff17f2ac2946d33f92818650f4e30d690ce1a1080fe0c9e447bd44cf5fa78c",
@@ -3090,7 +2434,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 34,
       "source": "src/assets/characters/sanae/sequence-v1/right/034.png",
       "source_sha256": "af729f7b2ae468376a7666380bac5b28b5a0637a938be363926dcd8854283798",
@@ -3112,7 +2456,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 35,
       "source": "src/assets/characters/sanae/sequence-v1/right/035.png",
       "source_sha256": "e15c8c01e30b21c1df59f56c964a13f829d5b60d5f8a12399d89742d7774074c",
@@ -3131,6 +2475,776 @@
         "maxY": 178,
         "width": 71,
         "height": 142
+      }
+    },
+    {
+      "direction": "right",
+      "index": 1,
+      "source": "src/assets/characters/sanae/sequence-v1/left/001.png",
+      "source_sha256": "aae7f937c2e1bc45e00a7e0c5bb4140ab11c3ee39c59b3b8d71e20ec3d0e9f97",
+      "source_bbox": {
+        "minX": 82,
+        "minY": 302,
+        "maxX": 256,
+        "maxY": 647,
+        "width": 175,
+        "height": 346
+      },
+      "runtime_bbox": {
+        "minX": 72,
+        "minY": 38,
+        "maxX": 143,
+        "maxY": 179,
+        "width": 72,
+        "height": 142
+      }
+    },
+    {
+      "direction": "right",
+      "index": 2,
+      "source": "src/assets/characters/sanae/sequence-v1/left/002.png",
+      "source_sha256": "eb8df56ca53c2e67423c300ffb6626355c30cbdca65de1f22dcb6768ad2cc84b",
+      "source_bbox": {
+        "minX": 81,
+        "minY": 302,
+        "maxX": 253,
+        "maxY": 647,
+        "width": 173,
+        "height": 346
+      },
+      "runtime_bbox": {
+        "minX": 72,
+        "minY": 38,
+        "maxX": 142,
+        "maxY": 179,
+        "width": 71,
+        "height": 142
+      }
+    },
+    {
+      "direction": "right",
+      "index": 3,
+      "source": "src/assets/characters/sanae/sequence-v1/left/003.png",
+      "source_sha256": "e194e86cad36825206f7fe7cbf4765a9b9beb701385646659fccffac9e497b5f",
+      "source_bbox": {
+        "minX": 81,
+        "minY": 301,
+        "maxX": 250,
+        "maxY": 647,
+        "width": 170,
+        "height": 347
+      },
+      "runtime_bbox": {
+        "minX": 72,
+        "minY": 37,
+        "maxX": 140,
+        "maxY": 179,
+        "width": 69,
+        "height": 143
+      }
+    },
+    {
+      "direction": "right",
+      "index": 4,
+      "source": "src/assets/characters/sanae/sequence-v1/left/004.png",
+      "source_sha256": "596fd0cc44e51fd52d88bd16404c13dc3683e2d08cc0ce098a7f1ccf5d9ee675",
+      "source_bbox": {
+        "minX": 82,
+        "minY": 300,
+        "maxX": 244,
+        "maxY": 645,
+        "width": 163,
+        "height": 346
+      },
+      "runtime_bbox": {
+        "minX": 72,
+        "minY": 37,
+        "maxX": 138,
+        "maxY": 178,
+        "width": 67,
+        "height": 142
+      }
+    },
+    {
+      "direction": "right",
+      "index": 5,
+      "source": "src/assets/characters/sanae/sequence-v1/left/005.png",
+      "source_sha256": "0b1469a5519c4ba83693acd64256f5f039e913a4d036adbdf455717297635d9e",
+      "source_bbox": {
+        "minX": 84,
+        "minY": 299,
+        "maxX": 239,
+        "maxY": 642,
+        "width": 156,
+        "height": 344
+      },
+      "runtime_bbox": {
+        "minX": 73,
+        "minY": 36,
+        "maxX": 136,
+        "maxY": 177,
+        "width": 64,
+        "height": 142
+      }
+    },
+    {
+      "direction": "right",
+      "index": 6,
+      "source": "src/assets/characters/sanae/sequence-v1/left/006.png",
+      "source_sha256": "b51165fb4efb768c59327e0f04f2383a5a3c34fa3e2cd8d12f847a4703e374bf",
+      "source_bbox": {
+        "minX": 87,
+        "minY": 297,
+        "maxX": 233,
+        "maxY": 641,
+        "width": 147,
+        "height": 345
+      },
+      "runtime_bbox": {
+        "minX": 74,
+        "minY": 35,
+        "maxX": 134,
+        "maxY": 176,
+        "width": 61,
+        "height": 142
+      }
+    },
+    {
+      "direction": "right",
+      "index": 7,
+      "source": "src/assets/characters/sanae/sequence-v1/left/007.png",
+      "source_sha256": "76223ce4fa19f9a8c7dd44fabf6230f50a19f75e831f27b0f742da87216a41a8",
+      "source_bbox": {
+        "minX": 89,
+        "minY": 296,
+        "maxX": 235,
+        "maxY": 641,
+        "width": 147,
+        "height": 346
+      },
+      "runtime_bbox": {
+        "minX": 75,
+        "minY": 35,
+        "maxX": 135,
+        "maxY": 176,
+        "width": 61,
+        "height": 142
+      }
+    },
+    {
+      "direction": "right",
+      "index": 8,
+      "source": "src/assets/characters/sanae/sequence-v1/left/008.png",
+      "source_sha256": "5cec518c3090f12c252629e13a634afe73e27ba6f171293cc897d2cc54913251",
+      "source_bbox": {
+        "minX": 91,
+        "minY": 294,
+        "maxX": 237,
+        "maxY": 641,
+        "width": 147,
+        "height": 348
+      },
+      "runtime_bbox": {
+        "minX": 76,
+        "minY": 34,
+        "maxX": 135,
+        "maxY": 176,
+        "width": 60,
+        "height": 143
+      }
+    },
+    {
+      "direction": "right",
+      "index": 9,
+      "source": "src/assets/characters/sanae/sequence-v1/left/009.png",
+      "source_sha256": "d67d2edaab6d2da2812e16200bd216eae8002e13f81ebecc6988b2bea4d5878e",
+      "source_bbox": {
+        "minX": 93,
+        "minY": 293,
+        "maxX": 239,
+        "maxY": 641,
+        "width": 147,
+        "height": 349
+      },
+      "runtime_bbox": {
+        "minX": 77,
+        "minY": 34,
+        "maxX": 136,
+        "maxY": 176,
+        "width": 60,
+        "height": 143
+      }
+    },
+    {
+      "direction": "right",
+      "index": 10,
+      "source": "src/assets/characters/sanae/sequence-v1/left/010.png",
+      "source_sha256": "f797ad8af04a6aaf5b6c629e7e7f46198a33cc5eb8ed4c2a8c68f721434cba54",
+      "source_bbox": {
+        "minX": 96,
+        "minY": 293,
+        "maxX": 242,
+        "maxY": 641,
+        "width": 147,
+        "height": 349
+      },
+      "runtime_bbox": {
+        "minX": 78,
+        "minY": 34,
+        "maxX": 137,
+        "maxY": 176,
+        "width": 60,
+        "height": 143
+      }
+    },
+    {
+      "direction": "right",
+      "index": 11,
+      "source": "src/assets/characters/sanae/sequence-v1/left/011.png",
+      "source_sha256": "ff83c8f904369fe3380dff74450b88125ef1a35faf30d74d30a0c93a2f7dfa7a",
+      "source_bbox": {
+        "minX": 97,
+        "minY": 293,
+        "maxX": 244,
+        "maxY": 642,
+        "width": 148,
+        "height": 350
+      },
+      "runtime_bbox": {
+        "minX": 78,
+        "minY": 34,
+        "maxX": 138,
+        "maxY": 177,
+        "width": 61,
+        "height": 144
+      }
+    },
+    {
+      "direction": "right",
+      "index": 12,
+      "source": "src/assets/characters/sanae/sequence-v1/left/012.png",
+      "source_sha256": "7bcc7b41fa8276ef44b979e85be044f3b5c5623ea51d9c401050399c8e5971b1",
+      "source_bbox": {
+        "minX": 98,
+        "minY": 293,
+        "maxX": 245,
+        "maxY": 643,
+        "width": 148,
+        "height": 351
+      },
+      "runtime_bbox": {
+        "minX": 79,
+        "minY": 34,
+        "maxX": 139,
+        "maxY": 177,
+        "width": 61,
+        "height": 144
+      }
+    },
+    {
+      "direction": "right",
+      "index": 13,
+      "source": "src/assets/characters/sanae/sequence-v1/left/013.png",
+      "source_sha256": "17c9a523d8582d59c771ae28c50582ae7e3e8603b8252984a8e293f92955bdf2",
+      "source_bbox": {
+        "minX": 97,
+        "minY": 294,
+        "maxX": 245,
+        "maxY": 642,
+        "width": 149,
+        "height": 349
+      },
+      "runtime_bbox": {
+        "minX": 78,
+        "minY": 34,
+        "maxX": 139,
+        "maxY": 177,
+        "width": 62,
+        "height": 144
+      }
+    },
+    {
+      "direction": "right",
+      "index": 14,
+      "source": "src/assets/characters/sanae/sequence-v1/left/014.png",
+      "source_sha256": "d667749f78901a4c96371e3f33f46c0eef96ed450efec5b572cfc56b5823631a",
+      "source_bbox": {
+        "minX": 95,
+        "minY": 296,
+        "maxX": 245,
+        "maxY": 641,
+        "width": 151,
+        "height": 346
+      },
+      "runtime_bbox": {
+        "minX": 78,
+        "minY": 35,
+        "maxX": 138,
+        "maxY": 176,
+        "width": 61,
+        "height": 142
+      }
+    },
+    {
+      "direction": "right",
+      "index": 15,
+      "source": "src/assets/characters/sanae/sequence-v1/left/015.png",
+      "source_sha256": "28fee4b3ffa22a39ef10f01ea94ef6edab477a3cb2a7d6d048e49d7de1cb2222",
+      "source_bbox": {
+        "minX": 93,
+        "minY": 297,
+        "maxX": 245,
+        "maxY": 641,
+        "width": 153,
+        "height": 345
+      },
+      "runtime_bbox": {
+        "minX": 77,
+        "minY": 35,
+        "maxX": 139,
+        "maxY": 176,
+        "width": 63,
+        "height": 142
+      }
+    },
+    {
+      "direction": "right",
+      "index": 16,
+      "source": "src/assets/characters/sanae/sequence-v1/left/016.png",
+      "source_sha256": "e2e3c417d529bcf9b43ddd51b5da293fa982218a0fc4a54f11e0e1c6fb347722",
+      "source_bbox": {
+        "minX": 91,
+        "minY": 298,
+        "maxX": 254,
+        "maxY": 641,
+        "width": 164,
+        "height": 344
+      },
+      "runtime_bbox": {
+        "minX": 76,
+        "minY": 36,
+        "maxX": 142,
+        "maxY": 176,
+        "width": 67,
+        "height": 141
+      }
+    },
+    {
+      "direction": "right",
+      "index": 17,
+      "source": "src/assets/characters/sanae/sequence-v1/left/017.png",
+      "source_sha256": "2d8dfb9f92fa4341a408e2aca858ba08457e0a20ed24ae21005c82ec37572675",
+      "source_bbox": {
+        "minX": 90,
+        "minY": 299,
+        "maxX": 258,
+        "maxY": 641,
+        "width": 169,
+        "height": 343
+      },
+      "runtime_bbox": {
+        "minX": 76,
+        "minY": 36,
+        "maxX": 144,
+        "maxY": 176,
+        "width": 69,
+        "height": 141
+      }
+    },
+    {
+      "direction": "right",
+      "index": 18,
+      "source": "src/assets/characters/sanae/sequence-v1/left/018.png",
+      "source_sha256": "62fb4522d299678a65827b4b49e18656aaeabd13072852b8b25840449eefc375",
+      "source_bbox": {
+        "minX": 88,
+        "minY": 301,
+        "maxX": 259,
+        "maxY": 641,
+        "width": 172,
+        "height": 341
+      },
+      "runtime_bbox": {
+        "minX": 75,
+        "minY": 37,
+        "maxX": 144,
+        "maxY": 176,
+        "width": 70,
+        "height": 140
+      }
+    },
+    {
+      "direction": "right",
+      "index": 19,
+      "source": "src/assets/characters/sanae/sequence-v1/left/019.png",
+      "source_sha256": "7e9ccbe49378732fb69169f7e570abb645f9a112405caf19922b9d89b469e4c4",
+      "source_bbox": {
+        "minX": 86,
+        "minY": 301,
+        "maxX": 257,
+        "maxY": 641,
+        "width": 172,
+        "height": 341
+      },
+      "runtime_bbox": {
+        "minX": 74,
+        "minY": 37,
+        "maxX": 144,
+        "maxY": 176,
+        "width": 71,
+        "height": 140
+      }
+    },
+    {
+      "direction": "right",
+      "index": 20,
+      "source": "src/assets/characters/sanae/sequence-v1/left/020.png",
+      "source_sha256": "27142041085e4ed966d75c923574283f5a8affbff3dfb9389162478e90347a68",
+      "source_bbox": {
+        "minX": 84,
+        "minY": 301,
+        "maxX": 253,
+        "maxY": 642,
+        "width": 170,
+        "height": 342
+      },
+      "runtime_bbox": {
+        "minX": 73,
+        "minY": 37,
+        "maxX": 142,
+        "maxY": 177,
+        "width": 70,
+        "height": 141
+      }
+    },
+    {
+      "direction": "right",
+      "index": 21,
+      "source": "src/assets/characters/sanae/sequence-v1/left/021.png",
+      "source_sha256": "95cbb7b6e28c7cbfa8a180f648a1f4de770a1d9f966fb8edbf3f7fd85436f1f9",
+      "source_bbox": {
+        "minX": 83,
+        "minY": 301,
+        "maxX": 249,
+        "maxY": 643,
+        "width": 167,
+        "height": 343
+      },
+      "runtime_bbox": {
+        "minX": 73,
+        "minY": 37,
+        "maxX": 140,
+        "maxY": 177,
+        "width": 68,
+        "height": 141
+      }
+    },
+    {
+      "direction": "right",
+      "index": 22,
+      "source": "src/assets/characters/sanae/sequence-v1/left/022.png",
+      "source_sha256": "b0e3b28a814fe02267b309c0a6c378422f6bdd361358e01e50cd692f0bc5a107",
+      "source_bbox": {
+        "minX": 83,
+        "minY": 300,
+        "maxX": 240,
+        "maxY": 644,
+        "width": 158,
+        "height": 345
+      },
+      "runtime_bbox": {
+        "minX": 73,
+        "minY": 37,
+        "maxX": 136,
+        "maxY": 177,
+        "width": 64,
+        "height": 141
+      }
+    },
+    {
+      "direction": "right",
+      "index": 23,
+      "source": "src/assets/characters/sanae/sequence-v1/left/023.png",
+      "source_sha256": "475cea0af994a72b66a6c909a2b6695813929fba7d446060040ade77aad77571",
+      "source_bbox": {
+        "minX": 84,
+        "minY": 298,
+        "maxX": 235,
+        "maxY": 644,
+        "width": 152,
+        "height": 347
+      },
+      "runtime_bbox": {
+        "minX": 73,
+        "minY": 36,
+        "maxX": 134,
+        "maxY": 177,
+        "width": 62,
+        "height": 142
+      }
+    },
+    {
+      "direction": "right",
+      "index": 24,
+      "source": "src/assets/characters/sanae/sequence-v1/left/024.png",
+      "source_sha256": "4f1bbe1789c5e7684cb2ea022a0a5ed9c46bb351046b1f2ca0def0467ec64b46",
+      "source_bbox": {
+        "minX": 87,
+        "minY": 297,
+        "maxX": 228,
+        "maxY": 645,
+        "width": 142,
+        "height": 349
+      },
+      "runtime_bbox": {
+        "minX": 74,
+        "minY": 35,
+        "maxX": 132,
+        "maxY": 178,
+        "width": 59,
+        "height": 144
+      }
+    },
+    {
+      "direction": "right",
+      "index": 25,
+      "source": "src/assets/characters/sanae/sequence-v1/left/025.png",
+      "source_sha256": "cfb27cea0e035e8a7f6a23fea6cb2020f718374f2fbdae02ea49390eb30d8d58",
+      "source_bbox": {
+        "minX": 89,
+        "minY": 295,
+        "maxX": 229,
+        "maxY": 645,
+        "width": 141,
+        "height": 351
+      },
+      "runtime_bbox": {
+        "minX": 75,
+        "minY": 35,
+        "maxX": 132,
+        "maxY": 178,
+        "width": 58,
+        "height": 144
+      }
+    },
+    {
+      "direction": "right",
+      "index": 26,
+      "source": "src/assets/characters/sanae/sequence-v1/left/026.png",
+      "source_sha256": "6b1d1998717ee065a9933fd68e2b303e7ad957ae7927699f6f2f0f2b57ed62ff",
+      "source_bbox": {
+        "minX": 88,
+        "minY": 294,
+        "maxX": 233,
+        "maxY": 645,
+        "width": 146,
+        "height": 352
+      },
+      "runtime_bbox": {
+        "minX": 75,
+        "minY": 34,
+        "maxX": 134,
+        "maxY": 178,
+        "width": 60,
+        "height": 145
+      }
+    },
+    {
+      "direction": "right",
+      "index": 27,
+      "source": "src/assets/characters/sanae/sequence-v1/left/027.png",
+      "source_sha256": "1407528d3ead2befc37815f897d93b7495461a81a39adeaad19c142e564d9a06",
+      "source_bbox": {
+        "minX": 89,
+        "minY": 293,
+        "maxX": 236,
+        "maxY": 646,
+        "width": 148,
+        "height": 354
+      },
+      "runtime_bbox": {
+        "minX": 75,
+        "minY": 34,
+        "maxX": 135,
+        "maxY": 178,
+        "width": 61,
+        "height": 145
+      }
+    },
+    {
+      "direction": "right",
+      "index": 28,
+      "source": "src/assets/characters/sanae/sequence-v1/left/028.png",
+      "source_sha256": "5e3d8432aa14d518c89ab0e41a9c0b35ff5a55b15c26205ae02439c4ae0a535b",
+      "source_bbox": {
+        "minX": 91,
+        "minY": 293,
+        "maxX": 239,
+        "maxY": 646,
+        "width": 149,
+        "height": 354
+      },
+      "runtime_bbox": {
+        "minX": 76,
+        "minY": 34,
+        "maxX": 136,
+        "maxY": 178,
+        "width": 61,
+        "height": 145
+      }
+    },
+    {
+      "direction": "right",
+      "index": 29,
+      "source": "src/assets/characters/sanae/sequence-v1/left/029.png",
+      "source_sha256": "1288e37cf0d5f4903a0b25abe5f358ab70d1adebcad098b2fd63964c236a9a2d",
+      "source_bbox": {
+        "minX": 94,
+        "minY": 293,
+        "maxX": 241,
+        "maxY": 646,
+        "width": 148,
+        "height": 354
+      },
+      "runtime_bbox": {
+        "minX": 77,
+        "minY": 34,
+        "maxX": 137,
+        "maxY": 178,
+        "width": 61,
+        "height": 145
+      }
+    },
+    {
+      "direction": "right",
+      "index": 30,
+      "source": "src/assets/characters/sanae/sequence-v1/left/030.png",
+      "source_sha256": "277008e049efbb8e98bbf723389efdff4ab2100a43bda30cbf5ab5dbf2bd6b8b",
+      "source_bbox": {
+        "minX": 95,
+        "minY": 294,
+        "maxX": 242,
+        "maxY": 646,
+        "width": 148,
+        "height": 353
+      },
+      "runtime_bbox": {
+        "minX": 78,
+        "minY": 34,
+        "maxX": 137,
+        "maxY": 178,
+        "width": 60,
+        "height": 145
+      }
+    },
+    {
+      "direction": "right",
+      "index": 31,
+      "source": "src/assets/characters/sanae/sequence-v1/left/031.png",
+      "source_sha256": "6beffb453476d6d905c79473b082c826b185d4533f45eec3b476590020f66103",
+      "source_bbox": {
+        "minX": 93,
+        "minY": 294,
+        "maxX": 242,
+        "maxY": 646,
+        "width": 150,
+        "height": 353
+      },
+      "runtime_bbox": {
+        "minX": 77,
+        "minY": 34,
+        "maxX": 137,
+        "maxY": 178,
+        "width": 61,
+        "height": 145
+      }
+    },
+    {
+      "direction": "right",
+      "index": 32,
+      "source": "src/assets/characters/sanae/sequence-v1/left/032.png",
+      "source_sha256": "5785da94b5e3e8408dc2481a36ecc821c9af7d4ea9f0151928b3f0b520eba6c0",
+      "source_bbox": {
+        "minX": 90,
+        "minY": 296,
+        "maxX": 242,
+        "maxY": 647,
+        "width": 153,
+        "height": 352
+      },
+      "runtime_bbox": {
+        "minX": 76,
+        "minY": 35,
+        "maxX": 137,
+        "maxY": 179,
+        "width": 62,
+        "height": 145
+      }
+    },
+    {
+      "direction": "right",
+      "index": 33,
+      "source": "src/assets/characters/sanae/sequence-v1/left/033.png",
+      "source_sha256": "18c54962ed289283fe09e368a990ed10c1a2b0fc8c48790735db52bc94cbbadb",
+      "source_bbox": {
+        "minX": 88,
+        "minY": 297,
+        "maxX": 246,
+        "maxY": 647,
+        "width": 159,
+        "height": 351
+      },
+      "runtime_bbox": {
+        "minX": 75,
+        "minY": 35,
+        "maxX": 139,
+        "maxY": 179,
+        "width": 65,
+        "height": 145
+      }
+    },
+    {
+      "direction": "right",
+      "index": 34,
+      "source": "src/assets/characters/sanae/sequence-v1/left/034.png",
+      "source_sha256": "962b98aefa2d902a2f751367e73579aaea7939b396e951a8efe6ba2b7a1b55a6",
+      "source_bbox": {
+        "minX": 86,
+        "minY": 299,
+        "maxX": 255,
+        "maxY": 647,
+        "width": 170,
+        "height": 349
+      },
+      "runtime_bbox": {
+        "minX": 74,
+        "minY": 36,
+        "maxX": 143,
+        "maxY": 179,
+        "width": 70,
+        "height": 144
+      }
+    },
+    {
+      "direction": "right",
+      "index": 35,
+      "source": "src/assets/characters/sanae/sequence-v1/left/035.png",
+      "source_sha256": "fff9bc2f33b029b80a775e3cdcebd6c320703bbe522952c560f0fc3cdaae84ac",
+      "source_bbox": {
+        "minX": 84,
+        "minY": 300,
+        "maxX": 255,
+        "maxY": 647,
+        "width": 172,
+        "height": 348
+      },
+      "runtime_bbox": {
+        "minX": 73,
+        "minY": 37,
+        "maxX": 143,
+        "maxY": 179,
+        "width": 71,
+        "height": 143
       }
     }
   ]

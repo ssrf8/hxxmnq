@@ -1,5 +1,11 @@
 # 弹幕小游戏交接文档
 
+> 2026-08-11 新角色 Boss 更新：妖梦、帕秋莉、早苗的 `1536×1536` 黑底四宫格已完整归档，
+> 透明运行副本统一为既有 `1254×1254` 待机／施法／受击／击破合同，并接入 atlas、宿主 dataset、
+> 对战档案与构建链。透明预览和逐格统计见 `project/new-character-boss-sheet-alpha-preview-2026-08-11.png`
+> 与 `project/new-character-boss-sheet-preparation-report-2026-08-11.json`。弹幕专项 39/39、TypeScript、
+> standalone 构建与差异格式检查通过。三张 WebP 已发布到 R2 generation 7；真实 SillyTavern 四状态切换仍待验收。
+
 > 2026-08-01 阵营识别更新：自机射击不再沿用与敌弹相近的辉光椭圆，现由
 > `drawPlayerTalisman` 绘制米白纸符、深色描边、红／青符印、金色顶签与双尾带；敌弹继续保持
 > 珠／米／鳞／星等弹体。P 点在既有红方块白像素 P 外增加独立四角拾取框。改动只在渲染层，

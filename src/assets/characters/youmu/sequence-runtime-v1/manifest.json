@@ -5,6 +5,8 @@
   "layout": "variable-sequence-v1",
   "source_directory": "src/assets/characters/youmu/sequence-v1",
   "source_policy": "owner-provided-split-frames-preserved; runtime atlases use nearest-neighbor normalization",
+  "idle_source_directory": "src/assets/characters/youmu/static-v1",
+  "idle_source_policy": "owner-provided-static-turnaround; right view is mirrored only when declared by the split manifest",
   "movement_mode": "walking-with-sword",
   "cell": [
     209,
@@ -16,8 +18,14 @@
     "left",
     "right"
   ],
+  "direction_source_map": {
+    "front": "front",
+    "back": "back",
+    "left": "right",
+    "right": "left"
+  },
   "frame_count": 28,
-  "frame_duration_ms": 100,
+  "frame_duration_ms": 48,
   "loop_start": 0,
   "loop_end": 27,
   "target_anchor": [
@@ -37,21 +45,127 @@
     ],
     "left": [
       240,
-      430
+      450
     ],
     "right": [
       240,
-      450
+      430
     ]
   },
+  "idle_scale": 0.27124773960216997,
+  "idle_source_anchor_by_direction": {
+    "front": [
+      325,
+      583
+    ],
+    "back": [
+      325,
+      565
+    ],
+    "left": [
+      303,
+      583
+    ],
+    "right": [
+      303,
+      562
+    ]
+  },
+  "idle_split_manifest": "src/assets/characters/youmu/static-v1/split-manifest.json",
   "idle_png": "src/assets/characters/youmu/youmu-turnaround-v1.png",
-  "idle_png_sha256": "f51bf355e2a132e935093fcc0ea38b13482c4fd0d60ca9f5b3720c6fe0f45f00",
+  "idle_png_sha256": "fb97c11716f924818262e7fc9e4bac92f001e1f23fc6c599bf2938c75c901f6d",
   "idle_webp": "src/assets/characters/youmu/youmu-turnaround-v1.webp",
-  "idle_webp_sha256": "4b7b26b33a72e972ad1b98ecd438ee130898a582742f7a3444819da7d1e8b25c",
+  "idle_webp_sha256": "7bb8d02f13443f7d8a9b9c30fe118c38ca30bf5c86392e4c550ea44ea0852b4a",
   "sequence_png": "src/assets/characters/youmu/youmu-animation-sequence-v1.png",
-  "sequence_png_sha256": "51da8f23eca3eeeecd20b90e3a1fd5c5ef0ae81721aff8fbace66475b660d114",
+  "sequence_png_sha256": "5f1bb867fe191bcf3a4eb9968a662f5c001cd564859891cb8b08ad60f8c56b3e",
   "sequence_webp": "src/assets/characters/youmu/youmu-animation-sequence-v1.webp",
-  "sequence_webp_sha256": "68b4302a6b32240f6da0c2b5081eecd9c8b312341c9b5c8975caaa34e55aab5c",
+  "sequence_webp_sha256": "7d0c8fea5f5268de759863fc876332308e4103c913fbbbffc8517f4f9f6b2d2d",
+  "idle_frames": [
+    {
+      "direction": "front",
+      "source": "src/assets/characters/youmu/static-v1/front/001.png",
+      "source_sha256": "c4607c7fc4fa0442c35f3aa39281f36a2970808913355830309f71c23adfcda4",
+      "source_bbox": {
+        "minX": 112,
+        "minY": 31,
+        "maxX": 569,
+        "maxY": 583,
+        "width": 458,
+        "height": 553
+      },
+      "runtime_bbox": {
+        "minX": 47,
+        "minY": 30,
+        "maxX": 170,
+        "maxY": 179,
+        "width": 124,
+        "height": 150
+      }
+    },
+    {
+      "direction": "back",
+      "source": "src/assets/characters/youmu/static-v1/back/001.png",
+      "source_sha256": "2472e46d526b7e7342b9b38e46aa8acdd72d9ec00ed497b5c83468763a69cce1",
+      "source_bbox": {
+        "minX": 103,
+        "minY": 15,
+        "maxX": 503,
+        "maxY": 565,
+        "width": 401,
+        "height": 551
+      },
+      "runtime_bbox": {
+        "minX": 44,
+        "minY": 30,
+        "maxX": 152,
+        "maxY": 179,
+        "width": 109,
+        "height": 150
+      }
+    },
+    {
+      "direction": "left",
+      "source": "src/assets/characters/youmu/static-v1/left/001.png",
+      "source_sha256": "2d0519ec10d676b40d6f85645edc3657f89eb77e4650df4a1cf1de95651294c5",
+      "source_bbox": {
+        "minX": 120,
+        "minY": 32,
+        "maxX": 480,
+        "maxY": 583,
+        "width": 361,
+        "height": 552
+      },
+      "runtime_bbox": {
+        "minX": 55,
+        "minY": 30,
+        "maxX": 152,
+        "maxY": 179,
+        "width": 98,
+        "height": 150
+      }
+    },
+    {
+      "direction": "right",
+      "source": "src/assets/characters/youmu/static-v1/right/001.png",
+      "source_sha256": "c443d16835efbf0079ad399c2315732066cf8f070cd929223804c711041419aa",
+      "source_bbox": {
+        "minX": 50,
+        "minY": 34,
+        "maxX": 378,
+        "maxY": 562,
+        "width": 329,
+        "height": 529
+      },
+      "runtime_bbox": {
+        "minX": 36,
+        "minY": 36,
+        "maxX": 124,
+        "maxY": 179,
+        "width": 89,
+        "height": 144
+      }
+    }
+  ],
   "frames": [
     {
       "direction": "front",
@@ -1288,622 +1402,6 @@
     {
       "direction": "left",
       "index": 1,
-      "source": "src/assets/characters/youmu/sequence-v1/left/001.png",
-      "source_sha256": "a728d6390a3f6591aa107707b33052169fe7bcbb979f515cc9af87a613506472",
-      "source_bbox": {
-        "minX": 53,
-        "minY": 19,
-        "maxX": 319,
-        "maxY": 422,
-        "width": 267,
-        "height": 404
-      },
-      "runtime_bbox": {
-        "minX": 43,
-        "minY": 45,
-        "maxX": 129,
-        "maxY": 175,
-        "width": 87,
-        "height": 131
-      }
-    },
-    {
-      "direction": "left",
-      "index": 2,
-      "source": "src/assets/characters/youmu/sequence-v1/left/002.png",
-      "source_sha256": "d9a4c4cf9c9e28c1520da92a8c72f24ecc3e3ef3f72e165f3f116a71ed480c34",
-      "source_bbox": {
-        "minX": 53,
-        "minY": 19,
-        "maxX": 319,
-        "maxY": 419,
-        "width": 267,
-        "height": 401
-      },
-      "runtime_bbox": {
-        "minX": 43,
-        "minY": 45,
-        "maxX": 129,
-        "maxY": 175,
-        "width": 87,
-        "height": 131
-      }
-    },
-    {
-      "direction": "left",
-      "index": 3,
-      "source": "src/assets/characters/youmu/sequence-v1/left/003.png",
-      "source_sha256": "380bc5eede25dd19bf83f23309867b6bdf738b1db6251685cce90efed26d990f",
-      "source_bbox": {
-        "minX": 53,
-        "minY": 18,
-        "maxX": 318,
-        "maxY": 422,
-        "width": 266,
-        "height": 405
-      },
-      "runtime_bbox": {
-        "minX": 43,
-        "minY": 45,
-        "maxX": 129,
-        "maxY": 175,
-        "width": 87,
-        "height": 131
-      }
-    },
-    {
-      "direction": "left",
-      "index": 4,
-      "source": "src/assets/characters/youmu/sequence-v1/left/004.png",
-      "source_sha256": "0499a4114d5fbd1159a5b84671fe2548aa4e4fb8a8d3ade47218a20368e07cb9",
-      "source_bbox": {
-        "minX": 53,
-        "minY": 16,
-        "maxX": 316,
-        "maxY": 421,
-        "width": 264,
-        "height": 406
-      },
-      "runtime_bbox": {
-        "minX": 43,
-        "minY": 45,
-        "maxX": 128,
-        "maxY": 176,
-        "width": 86,
-        "height": 132
-      }
-    },
-    {
-      "direction": "left",
-      "index": 5,
-      "source": "src/assets/characters/youmu/sequence-v1/left/005.png",
-      "source_sha256": "3ad7a46be257699f611ba53ebaf0deceb9fb38e4a601ed767345115e9279e204",
-      "source_bbox": {
-        "minX": 53,
-        "minY": 16,
-        "maxX": 314,
-        "maxY": 423,
-        "width": 262,
-        "height": 408
-      },
-      "runtime_bbox": {
-        "minX": 43,
-        "minY": 44,
-        "maxX": 128,
-        "maxY": 176,
-        "width": 86,
-        "height": 133
-      }
-    },
-    {
-      "direction": "left",
-      "index": 6,
-      "source": "src/assets/characters/youmu/sequence-v1/left/006.png",
-      "source_sha256": "9ada9884a28b03c904409f693d072f03dd701b0767b4390f9fe5fb75f084a453",
-      "source_bbox": {
-        "minX": 53,
-        "minY": 13,
-        "maxX": 311,
-        "maxY": 420,
-        "width": 259,
-        "height": 408
-      },
-      "runtime_bbox": {
-        "minX": 43,
-        "minY": 43,
-        "maxX": 127,
-        "maxY": 175,
-        "width": 85,
-        "height": 133
-      }
-    },
-    {
-      "direction": "left",
-      "index": 7,
-      "source": "src/assets/characters/youmu/sequence-v1/left/007.png",
-      "source_sha256": "9363bd3dd5af3695dc8f1fa6ada2eb5c5978dd306ac0c41558a5f86436caa0a8",
-      "source_bbox": {
-        "minX": 53,
-        "minY": 12,
-        "maxX": 309,
-        "maxY": 421,
-        "width": 257,
-        "height": 410
-      },
-      "runtime_bbox": {
-        "minX": 43,
-        "minY": 43,
-        "maxX": 126,
-        "maxY": 176,
-        "width": 84,
-        "height": 134
-      }
-    },
-    {
-      "direction": "left",
-      "index": 8,
-      "source": "src/assets/characters/youmu/sequence-v1/left/008.png",
-      "source_sha256": "5486f99193e3ec8e7999ad025f0b276cc21c154cb82c3bfffaa0753cd21b118f",
-      "source_bbox": {
-        "minX": 53,
-        "minY": 11,
-        "maxX": 308,
-        "maxY": 420,
-        "width": 256,
-        "height": 410
-      },
-      "runtime_bbox": {
-        "minX": 43,
-        "minY": 43,
-        "maxX": 126,
-        "maxY": 175,
-        "width": 84,
-        "height": 133
-      }
-    },
-    {
-      "direction": "left",
-      "index": 9,
-      "source": "src/assets/characters/youmu/sequence-v1/left/009.png",
-      "source_sha256": "0d7867f13c17254b5b3715336295c0f60653ab0c9d50ffc1684fecdc69f22eb1",
-      "source_bbox": {
-        "minX": 53,
-        "minY": 11,
-        "maxX": 309,
-        "maxY": 420,
-        "width": 257,
-        "height": 410
-      },
-      "runtime_bbox": {
-        "minX": 43,
-        "minY": 43,
-        "maxX": 126,
-        "maxY": 175,
-        "width": 84,
-        "height": 133
-      }
-    },
-    {
-      "direction": "left",
-      "index": 10,
-      "source": "src/assets/characters/youmu/sequence-v1/left/010.png",
-      "source_sha256": "ce7f811cb627cc6843d46a5a496f837a4974150e479cf3c369d5376020281434",
-      "source_bbox": {
-        "minX": 53,
-        "minY": 12,
-        "maxX": 313,
-        "maxY": 421,
-        "width": 261,
-        "height": 410
-      },
-      "runtime_bbox": {
-        "minX": 43,
-        "minY": 43,
-        "maxX": 127,
-        "maxY": 175,
-        "width": 85,
-        "height": 133
-      }
-    },
-    {
-      "direction": "left",
-      "index": 11,
-      "source": "src/assets/characters/youmu/sequence-v1/left/011.png",
-      "source_sha256": "182faab3cdb8dc3d6d063cc2ecee856998bbe460d58bba43cfdaf94ff48b805d",
-      "source_bbox": {
-        "minX": 55,
-        "minY": 13,
-        "maxX": 312,
-        "maxY": 420,
-        "width": 258,
-        "height": 408
-      },
-      "runtime_bbox": {
-        "minX": 44,
-        "minY": 43,
-        "maxX": 127,
-        "maxY": 175,
-        "width": 84,
-        "height": 133
-      }
-    },
-    {
-      "direction": "left",
-      "index": 12,
-      "source": "src/assets/characters/youmu/sequence-v1/left/012.png",
-      "source_sha256": "ff1d777bd722c364800137ad75b82e40f8349dc64fa57b14700663dcfd9ca1bd",
-      "source_bbox": {
-        "minX": 53,
-        "minY": 17,
-        "maxX": 323,
-        "maxY": 419,
-        "width": 271,
-        "height": 403
-      },
-      "runtime_bbox": {
-        "minX": 43,
-        "minY": 45,
-        "maxX": 131,
-        "maxY": 175,
-        "width": 89,
-        "height": 131
-      }
-    },
-    {
-      "direction": "left",
-      "index": 13,
-      "source": "src/assets/characters/youmu/sequence-v1/left/013.png",
-      "source_sha256": "16d4c3e9292ad1fceb83c16e675a962f78519632655da28a71c0222f6cda43e6",
-      "source_bbox": {
-        "minX": 54,
-        "minY": 18,
-        "maxX": 321,
-        "maxY": 419,
-        "width": 268,
-        "height": 402
-      },
-      "runtime_bbox": {
-        "minX": 44,
-        "minY": 45,
-        "maxX": 130,
-        "maxY": 175,
-        "width": 87,
-        "height": 131
-      }
-    },
-    {
-      "direction": "left",
-      "index": 14,
-      "source": "src/assets/characters/youmu/sequence-v1/left/014.png",
-      "source_sha256": "ca7d59bcf14a3525d2128623c8fa95ea17d0d1a89ca29b62a8d930b1620abda0",
-      "source_bbox": {
-        "minX": 53,
-        "minY": 20,
-        "maxX": 328,
-        "maxY": 420,
-        "width": 276,
-        "height": 401
-      },
-      "runtime_bbox": {
-        "minX": 43,
-        "minY": 46,
-        "maxX": 132,
-        "maxY": 175,
-        "width": 90,
-        "height": 130
-      }
-    },
-    {
-      "direction": "left",
-      "index": 15,
-      "source": "src/assets/characters/youmu/sequence-v1/left/015.png",
-      "source_sha256": "023351fc944cf1c1e248618430aa7f9e6ce2d89f787103c68eb4d1ca8e8c3c1f",
-      "source_bbox": {
-        "minX": 51,
-        "minY": 21,
-        "maxX": 319,
-        "maxY": 430,
-        "width": 269,
-        "height": 410
-      },
-      "runtime_bbox": {
-        "minX": 43,
-        "minY": 46,
-        "maxX": 129,
-        "maxY": 179,
-        "width": 87,
-        "height": 134
-      }
-    },
-    {
-      "direction": "left",
-      "index": 16,
-      "source": "src/assets/characters/youmu/sequence-v1/left/016.png",
-      "source_sha256": "7f1e45a16e36c0557809ae0a1b20fb39a0a5fd3be234d49c63d379b8a0463d26",
-      "source_bbox": {
-        "minX": 53,
-        "minY": 20,
-        "maxX": 319,
-        "maxY": 419,
-        "width": 267,
-        "height": 400
-      },
-      "runtime_bbox": {
-        "minX": 43,
-        "minY": 46,
-        "maxX": 129,
-        "maxY": 175,
-        "width": 87,
-        "height": 130
-      }
-    },
-    {
-      "direction": "left",
-      "index": 17,
-      "source": "src/assets/characters/youmu/sequence-v1/left/017.png",
-      "source_sha256": "97ae6a6677951482abcfcc6f247ce82d196bf764999176b5f483115ece9ff167",
-      "source_bbox": {
-        "minX": 51,
-        "minY": 19,
-        "maxX": 317,
-        "maxY": 420,
-        "width": 267,
-        "height": 402
-      },
-      "runtime_bbox": {
-        "minX": 43,
-        "minY": 45,
-        "maxX": 128,
-        "maxY": 175,
-        "width": 86,
-        "height": 131
-      }
-    },
-    {
-      "direction": "left",
-      "index": 18,
-      "source": "src/assets/characters/youmu/sequence-v1/left/018.png",
-      "source_sha256": "d186fa24b0f5546d7bf428801fb24ab9a3cece698c128606564d11ddc6f0fdb8",
-      "source_bbox": {
-        "minX": 54,
-        "minY": 19,
-        "maxX": 316,
-        "maxY": 420,
-        "width": 263,
-        "height": 402
-      },
-      "runtime_bbox": {
-        "minX": 44,
-        "minY": 45,
-        "maxX": 128,
-        "maxY": 175,
-        "width": 85,
-        "height": 131
-      }
-    },
-    {
-      "direction": "left",
-      "index": 19,
-      "source": "src/assets/characters/youmu/sequence-v1/left/019.png",
-      "source_sha256": "7c586b800ff81fa3263bbe8fc2cf55cd3f62c0940844a7ec711e56422bb8d68f",
-      "source_bbox": {
-        "minX": 51,
-        "minY": 17,
-        "maxX": 314,
-        "maxY": 419,
-        "width": 264,
-        "height": 403
-      },
-      "runtime_bbox": {
-        "minX": 43,
-        "minY": 45,
-        "maxX": 127,
-        "maxY": 175,
-        "width": 85,
-        "height": 131
-      }
-    },
-    {
-      "direction": "left",
-      "index": 20,
-      "source": "src/assets/characters/youmu/sequence-v1/left/020.png",
-      "source_sha256": "44a2f78026285bef8e876405e634f83eb26d0f626744c467cbbd0962d3bf1d9a",
-      "source_bbox": {
-        "minX": 53,
-        "minY": 16,
-        "maxX": 311,
-        "maxY": 419,
-        "width": 259,
-        "height": 404
-      },
-      "runtime_bbox": {
-        "minX": 43,
-        "minY": 44,
-        "maxX": 127,
-        "maxY": 175,
-        "width": 85,
-        "height": 132
-      }
-    },
-    {
-      "direction": "left",
-      "index": 21,
-      "source": "src/assets/characters/youmu/sequence-v1/left/021.png",
-      "source_sha256": "64bc40f4584431869247f431de35c8b3cc70ada59386cd5591b09e1ccaba1170",
-      "source_bbox": {
-        "minX": 53,
-        "minY": 13,
-        "maxX": 309,
-        "maxY": 419,
-        "width": 257,
-        "height": 407
-      },
-      "runtime_bbox": {
-        "minX": 43,
-        "minY": 43,
-        "maxX": 126,
-        "maxY": 175,
-        "width": 84,
-        "height": 133
-      }
-    },
-    {
-      "direction": "left",
-      "index": 22,
-      "source": "src/assets/characters/youmu/sequence-v1/left/022.png",
-      "source_sha256": "a88f1471b998ca822869f17883394de5d0bf72ab2548f1ba570aad1e7ba20ac7",
-      "source_bbox": {
-        "minX": 54,
-        "minY": 11,
-        "maxX": 307,
-        "maxY": 419,
-        "width": 254,
-        "height": 409
-      },
-      "runtime_bbox": {
-        "minX": 44,
-        "minY": 43,
-        "maxX": 126,
-        "maxY": 175,
-        "width": 83,
-        "height": 133
-      }
-    },
-    {
-      "direction": "left",
-      "index": 23,
-      "source": "src/assets/characters/youmu/sequence-v1/left/023.png",
-      "source_sha256": "e09e5e1df430309f3da261ef64b945877a6264b8a013a910e6bb2571e612a3ce",
-      "source_bbox": {
-        "minX": 54,
-        "minY": 11,
-        "maxX": 308,
-        "maxY": 419,
-        "width": 255,
-        "height": 409
-      },
-      "runtime_bbox": {
-        "minX": 44,
-        "minY": 43,
-        "maxX": 126,
-        "maxY": 175,
-        "width": 83,
-        "height": 133
-      }
-    },
-    {
-      "direction": "left",
-      "index": 24,
-      "source": "src/assets/characters/youmu/sequence-v1/left/024.png",
-      "source_sha256": "e0a5fe780acc012b8c2e82de54015e469fa882780562c1c470e71e91a6a21b9d",
-      "source_bbox": {
-        "minX": 55,
-        "minY": 12,
-        "maxX": 311,
-        "maxY": 419,
-        "width": 257,
-        "height": 408
-      },
-      "runtime_bbox": {
-        "minX": 44,
-        "minY": 43,
-        "maxX": 127,
-        "maxY": 175,
-        "width": 84,
-        "height": 133
-      }
-    },
-    {
-      "direction": "left",
-      "index": 25,
-      "source": "src/assets/characters/youmu/sequence-v1/left/025.png",
-      "source_sha256": "af1d4c5392fd6c3ab924cab2b4e845d8ac18888fc16b40d53df0660663c516e1",
-      "source_bbox": {
-        "minX": 54,
-        "minY": 12,
-        "maxX": 311,
-        "maxY": 419,
-        "width": 258,
-        "height": 408
-      },
-      "runtime_bbox": {
-        "minX": 44,
-        "minY": 43,
-        "maxX": 126,
-        "maxY": 175,
-        "width": 83,
-        "height": 133
-      }
-    },
-    {
-      "direction": "left",
-      "index": 26,
-      "source": "src/assets/characters/youmu/sequence-v1/left/026.png",
-      "source_sha256": "3a3f4ac3f522d2343c0334a9c463c8027852897b4e9b7dc7639820ae224dabb0",
-      "source_bbox": {
-        "minX": 55,
-        "minY": 16,
-        "maxX": 313,
-        "maxY": 418,
-        "width": 259,
-        "height": 403
-      },
-      "runtime_bbox": {
-        "minX": 44,
-        "minY": 44,
-        "maxX": 127,
-        "maxY": 175,
-        "width": 84,
-        "height": 132
-      }
-    },
-    {
-      "direction": "left",
-      "index": 27,
-      "source": "src/assets/characters/youmu/sequence-v1/left/027.png",
-      "source_sha256": "7124d7374c68b06ef4dc85bc8d62601dfdd9bef3206b4ac1861ebd8bb442fb02",
-      "source_bbox": {
-        "minX": 54,
-        "minY": 17,
-        "maxX": 317,
-        "maxY": 419,
-        "width": 264,
-        "height": 403
-      },
-      "runtime_bbox": {
-        "minX": 44,
-        "minY": 45,
-        "maxX": 128,
-        "maxY": 175,
-        "width": 85,
-        "height": 131
-      }
-    },
-    {
-      "direction": "left",
-      "index": 28,
-      "source": "src/assets/characters/youmu/sequence-v1/left/028.png",
-      "source_sha256": "0301f884636c80839821579593a5a570e7ed714bb1a1e7525f2473f47ffb0c53",
-      "source_bbox": {
-        "minX": 54,
-        "minY": 19,
-        "maxX": 320,
-        "maxY": 419,
-        "width": 267,
-        "height": 401
-      },
-      "runtime_bbox": {
-        "minX": 44,
-        "minY": 45,
-        "maxX": 130,
-        "maxY": 175,
-        "width": 87,
-        "height": 131
-      }
-    },
-    {
-      "direction": "right",
-      "index": 1,
       "source": "src/assets/characters/youmu/sequence-v1/right/001.png",
       "source_sha256": "b6e0a6ba76e8430ae44fc5b2d8fae6b40f80a1fc7b2ae16990ce4b5bbf458883",
       "source_bbox": {
@@ -1924,7 +1422,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 2,
       "source": "src/assets/characters/youmu/sequence-v1/right/002.png",
       "source_sha256": "35e8615d3b61fc1b6770c1922271a38b84c37fded1b91b366b4122ae89a40951",
@@ -1946,7 +1444,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 3,
       "source": "src/assets/characters/youmu/sequence-v1/right/003.png",
       "source_sha256": "30addd91ab6f595daeddda680a6ff02bc982a53540586a687ee6b33d7a729221",
@@ -1968,7 +1466,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 4,
       "source": "src/assets/characters/youmu/sequence-v1/right/004.png",
       "source_sha256": "52603688569df1b07819d08fdaff72a8b358488bf4303ea78066bd4c7e78b02f",
@@ -1990,7 +1488,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 5,
       "source": "src/assets/characters/youmu/sequence-v1/right/005.png",
       "source_sha256": "5f70d16be501df0f46677949ed8e6ddb21fe2cd6f3705452652e1df9dbd1f66e",
@@ -2012,7 +1510,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 6,
       "source": "src/assets/characters/youmu/sequence-v1/right/006.png",
       "source_sha256": "d518c5f8008399f40f3a9602df0616d930037428a81d1cfc1657b5e33e2688f3",
@@ -2034,7 +1532,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 7,
       "source": "src/assets/characters/youmu/sequence-v1/right/007.png",
       "source_sha256": "fd4039d1830093b651df046db38f9b6e543594bd5bcc1de8c7a29732cc086b0b",
@@ -2056,7 +1554,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 8,
       "source": "src/assets/characters/youmu/sequence-v1/right/008.png",
       "source_sha256": "f09626459152f8902446b5678b1214b32fa74db27e7cacf69ae065098bfc59f0",
@@ -2078,7 +1576,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 9,
       "source": "src/assets/characters/youmu/sequence-v1/right/009.png",
       "source_sha256": "1d395403e14b1c5cf52fb2a8eb6f6272a26e968ac9091b639c46039ad8ff6571",
@@ -2100,7 +1598,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 10,
       "source": "src/assets/characters/youmu/sequence-v1/right/010.png",
       "source_sha256": "c1ea672c4c2a3d06bf007bf9aa94e059a756755d9e3067d8786e1fd592a0c383",
@@ -2122,7 +1620,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 11,
       "source": "src/assets/characters/youmu/sequence-v1/right/011.png",
       "source_sha256": "8b73b9c479bb0fb5de5b7f21c3a3e3abcba0d14ea3a39cdbf0ca7dae8dd26700",
@@ -2144,7 +1642,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 12,
       "source": "src/assets/characters/youmu/sequence-v1/right/012.png",
       "source_sha256": "945d9100cff6b83d18c0ae17b0cb5992533757f4ceba78620c7c05d074793fa7",
@@ -2166,7 +1664,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 13,
       "source": "src/assets/characters/youmu/sequence-v1/right/013.png",
       "source_sha256": "f179f14a0d7835ec04bd9dbf52079ec20b8de0e68b2aca6944f1ad837c6be033",
@@ -2188,7 +1686,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 14,
       "source": "src/assets/characters/youmu/sequence-v1/right/014.png",
       "source_sha256": "e0cf46b4e70b00a184aa887c3c8eec2d7dadac422b40bcc932856136a36ea2a7",
@@ -2210,7 +1708,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 15,
       "source": "src/assets/characters/youmu/sequence-v1/right/015.png",
       "source_sha256": "bb7ae025bc48d10b109b32152cbe032ee6f357e6386f4e1be7053f4b76583bb9",
@@ -2232,7 +1730,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 16,
       "source": "src/assets/characters/youmu/sequence-v1/right/016.png",
       "source_sha256": "b8fee262f7ce1bbbae9d681d26d7ff36f524b6b0937379cb6021b2a6babee642",
@@ -2254,7 +1752,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 17,
       "source": "src/assets/characters/youmu/sequence-v1/right/017.png",
       "source_sha256": "8ec4410f8f1ae9b3ad1bd3115674d4b222ed3ff8dc79343b22dd4513ff5807cb",
@@ -2276,7 +1774,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 18,
       "source": "src/assets/characters/youmu/sequence-v1/right/018.png",
       "source_sha256": "f278058760bc9459e81b77fe2bd41501f69d1533cd452ce2ae1ef4974e384cec",
@@ -2298,7 +1796,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 19,
       "source": "src/assets/characters/youmu/sequence-v1/right/019.png",
       "source_sha256": "bc3a5b132f8ed248222c0b6b11bfb626e1ada1db1b99c4a9c03cb684d79439f3",
@@ -2320,7 +1818,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 20,
       "source": "src/assets/characters/youmu/sequence-v1/right/020.png",
       "source_sha256": "584aff5b8850fceba435e19c5218817e9474087eace44bdaee13941adf316308",
@@ -2342,7 +1840,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 21,
       "source": "src/assets/characters/youmu/sequence-v1/right/021.png",
       "source_sha256": "2cf958e9ad39a4d4168aed22e1c59db4e02e874f9cdba17aeb545a8056b80131",
@@ -2364,7 +1862,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 22,
       "source": "src/assets/characters/youmu/sequence-v1/right/022.png",
       "source_sha256": "f3a38ab88321e9fe16be0db603f3a65c930d74575baa389a88f2288981901147",
@@ -2386,7 +1884,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 23,
       "source": "src/assets/characters/youmu/sequence-v1/right/023.png",
       "source_sha256": "38aec0bd05a96fa097d799783ad7517eb84eb4bccb389df3353e5c81e16fb6c1",
@@ -2408,7 +1906,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 24,
       "source": "src/assets/characters/youmu/sequence-v1/right/024.png",
       "source_sha256": "4966fdd87778d94234c7dcaa156fed75ea4f70caa10f341c173da4dbb9f86fe7",
@@ -2430,7 +1928,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 25,
       "source": "src/assets/characters/youmu/sequence-v1/right/025.png",
       "source_sha256": "83b55b2d39b5a2b667cd1513498a2c9d6fb0a0d67c41e2f95831706aa361221c",
@@ -2452,7 +1950,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 26,
       "source": "src/assets/characters/youmu/sequence-v1/right/026.png",
       "source_sha256": "fd220fa5e5cc405e87f63f703d8829159656c72cf79ac3cc569c98db14987d3d",
@@ -2474,7 +1972,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 27,
       "source": "src/assets/characters/youmu/sequence-v1/right/027.png",
       "source_sha256": "9fce99458afd81a0ee18a6ff9a72236cf15243f341286e99fa013025de291583",
@@ -2496,7 +1994,7 @@
       }
     },
     {
-      "direction": "right",
+      "direction": "left",
       "index": 28,
       "source": "src/assets/characters/youmu/sequence-v1/right/028.png",
       "source_sha256": "68f4010ee05ee08df0ecc9de568195824e06510a9d816e7e82425339d1e82e12",
@@ -2515,6 +2013,622 @@
         "maxY": 178,
         "width": 96,
         "height": 137
+      }
+    },
+    {
+      "direction": "right",
+      "index": 1,
+      "source": "src/assets/characters/youmu/sequence-v1/left/001.png",
+      "source_sha256": "a728d6390a3f6591aa107707b33052169fe7bcbb979f515cc9af87a613506472",
+      "source_bbox": {
+        "minX": 53,
+        "minY": 19,
+        "maxX": 319,
+        "maxY": 422,
+        "width": 267,
+        "height": 404
+      },
+      "runtime_bbox": {
+        "minX": 43,
+        "minY": 45,
+        "maxX": 129,
+        "maxY": 175,
+        "width": 87,
+        "height": 131
+      }
+    },
+    {
+      "direction": "right",
+      "index": 2,
+      "source": "src/assets/characters/youmu/sequence-v1/left/002.png",
+      "source_sha256": "d9a4c4cf9c9e28c1520da92a8c72f24ecc3e3ef3f72e165f3f116a71ed480c34",
+      "source_bbox": {
+        "minX": 53,
+        "minY": 19,
+        "maxX": 319,
+        "maxY": 419,
+        "width": 267,
+        "height": 401
+      },
+      "runtime_bbox": {
+        "minX": 43,
+        "minY": 45,
+        "maxX": 129,
+        "maxY": 175,
+        "width": 87,
+        "height": 131
+      }
+    },
+    {
+      "direction": "right",
+      "index": 3,
+      "source": "src/assets/characters/youmu/sequence-v1/left/003.png",
+      "source_sha256": "380bc5eede25dd19bf83f23309867b6bdf738b1db6251685cce90efed26d990f",
+      "source_bbox": {
+        "minX": 53,
+        "minY": 18,
+        "maxX": 318,
+        "maxY": 422,
+        "width": 266,
+        "height": 405
+      },
+      "runtime_bbox": {
+        "minX": 43,
+        "minY": 45,
+        "maxX": 129,
+        "maxY": 175,
+        "width": 87,
+        "height": 131
+      }
+    },
+    {
+      "direction": "right",
+      "index": 4,
+      "source": "src/assets/characters/youmu/sequence-v1/left/004.png",
+      "source_sha256": "0499a4114d5fbd1159a5b84671fe2548aa4e4fb8a8d3ade47218a20368e07cb9",
+      "source_bbox": {
+        "minX": 53,
+        "minY": 16,
+        "maxX": 316,
+        "maxY": 421,
+        "width": 264,
+        "height": 406
+      },
+      "runtime_bbox": {
+        "minX": 43,
+        "minY": 45,
+        "maxX": 128,
+        "maxY": 176,
+        "width": 86,
+        "height": 132
+      }
+    },
+    {
+      "direction": "right",
+      "index": 5,
+      "source": "src/assets/characters/youmu/sequence-v1/left/005.png",
+      "source_sha256": "3ad7a46be257699f611ba53ebaf0deceb9fb38e4a601ed767345115e9279e204",
+      "source_bbox": {
+        "minX": 53,
+        "minY": 16,
+        "maxX": 314,
+        "maxY": 423,
+        "width": 262,
+        "height": 408
+      },
+      "runtime_bbox": {
+        "minX": 43,
+        "minY": 44,
+        "maxX": 128,
+        "maxY": 176,
+        "width": 86,
+        "height": 133
+      }
+    },
+    {
+      "direction": "right",
+      "index": 6,
+      "source": "src/assets/characters/youmu/sequence-v1/left/006.png",
+      "source_sha256": "9ada9884a28b03c904409f693d072f03dd701b0767b4390f9fe5fb75f084a453",
+      "source_bbox": {
+        "minX": 53,
+        "minY": 13,
+        "maxX": 311,
+        "maxY": 420,
+        "width": 259,
+        "height": 408
+      },
+      "runtime_bbox": {
+        "minX": 43,
+        "minY": 43,
+        "maxX": 127,
+        "maxY": 175,
+        "width": 85,
+        "height": 133
+      }
+    },
+    {
+      "direction": "right",
+      "index": 7,
+      "source": "src/assets/characters/youmu/sequence-v1/left/007.png",
+      "source_sha256": "9363bd3dd5af3695dc8f1fa6ada2eb5c5978dd306ac0c41558a5f86436caa0a8",
+      "source_bbox": {
+        "minX": 53,
+        "minY": 12,
+        "maxX": 309,
+        "maxY": 421,
+        "width": 257,
+        "height": 410
+      },
+      "runtime_bbox": {
+        "minX": 43,
+        "minY": 43,
+        "maxX": 126,
+        "maxY": 176,
+        "width": 84,
+        "height": 134
+      }
+    },
+    {
+      "direction": "right",
+      "index": 8,
+      "source": "src/assets/characters/youmu/sequence-v1/left/008.png",
+      "source_sha256": "5486f99193e3ec8e7999ad025f0b276cc21c154cb82c3bfffaa0753cd21b118f",
+      "source_bbox": {
+        "minX": 53,
+        "minY": 11,
+        "maxX": 308,
+        "maxY": 420,
+        "width": 256,
+        "height": 410
+      },
+      "runtime_bbox": {
+        "minX": 43,
+        "minY": 43,
+        "maxX": 126,
+        "maxY": 175,
+        "width": 84,
+        "height": 133
+      }
+    },
+    {
+      "direction": "right",
+      "index": 9,
+      "source": "src/assets/characters/youmu/sequence-v1/left/009.png",
+      "source_sha256": "0d7867f13c17254b5b3715336295c0f60653ab0c9d50ffc1684fecdc69f22eb1",
+      "source_bbox": {
+        "minX": 53,
+        "minY": 11,
+        "maxX": 309,
+        "maxY": 420,
+        "width": 257,
+        "height": 410
+      },
+      "runtime_bbox": {
+        "minX": 43,
+        "minY": 43,
+        "maxX": 126,
+        "maxY": 175,
+        "width": 84,
+        "height": 133
+      }
+    },
+    {
+      "direction": "right",
+      "index": 10,
+      "source": "src/assets/characters/youmu/sequence-v1/left/010.png",
+      "source_sha256": "ce7f811cb627cc6843d46a5a496f837a4974150e479cf3c369d5376020281434",
+      "source_bbox": {
+        "minX": 53,
+        "minY": 12,
+        "maxX": 313,
+        "maxY": 421,
+        "width": 261,
+        "height": 410
+      },
+      "runtime_bbox": {
+        "minX": 43,
+        "minY": 43,
+        "maxX": 127,
+        "maxY": 175,
+        "width": 85,
+        "height": 133
+      }
+    },
+    {
+      "direction": "right",
+      "index": 11,
+      "source": "src/assets/characters/youmu/sequence-v1/left/011.png",
+      "source_sha256": "182faab3cdb8dc3d6d063cc2ecee856998bbe460d58bba43cfdaf94ff48b805d",
+      "source_bbox": {
+        "minX": 55,
+        "minY": 13,
+        "maxX": 312,
+        "maxY": 420,
+        "width": 258,
+        "height": 408
+      },
+      "runtime_bbox": {
+        "minX": 44,
+        "minY": 43,
+        "maxX": 127,
+        "maxY": 175,
+        "width": 84,
+        "height": 133
+      }
+    },
+    {
+      "direction": "right",
+      "index": 12,
+      "source": "src/assets/characters/youmu/sequence-v1/left/012.png",
+      "source_sha256": "ff1d777bd722c364800137ad75b82e40f8349dc64fa57b14700663dcfd9ca1bd",
+      "source_bbox": {
+        "minX": 53,
+        "minY": 17,
+        "maxX": 323,
+        "maxY": 419,
+        "width": 271,
+        "height": 403
+      },
+      "runtime_bbox": {
+        "minX": 43,
+        "minY": 45,
+        "maxX": 131,
+        "maxY": 175,
+        "width": 89,
+        "height": 131
+      }
+    },
+    {
+      "direction": "right",
+      "index": 13,
+      "source": "src/assets/characters/youmu/sequence-v1/left/013.png",
+      "source_sha256": "16d4c3e9292ad1fceb83c16e675a962f78519632655da28a71c0222f6cda43e6",
+      "source_bbox": {
+        "minX": 54,
+        "minY": 18,
+        "maxX": 321,
+        "maxY": 419,
+        "width": 268,
+        "height": 402
+      },
+      "runtime_bbox": {
+        "minX": 44,
+        "minY": 45,
+        "maxX": 130,
+        "maxY": 175,
+        "width": 87,
+        "height": 131
+      }
+    },
+    {
+      "direction": "right",
+      "index": 14,
+      "source": "src/assets/characters/youmu/sequence-v1/left/014.png",
+      "source_sha256": "ca7d59bcf14a3525d2128623c8fa95ea17d0d1a89ca29b62a8d930b1620abda0",
+      "source_bbox": {
+        "minX": 53,
+        "minY": 20,
+        "maxX": 328,
+        "maxY": 420,
+        "width": 276,
+        "height": 401
+      },
+      "runtime_bbox": {
+        "minX": 43,
+        "minY": 46,
+        "maxX": 132,
+        "maxY": 175,
+        "width": 90,
+        "height": 130
+      }
+    },
+    {
+      "direction": "right",
+      "index": 15,
+      "source": "src/assets/characters/youmu/sequence-v1/left/015.png",
+      "source_sha256": "023351fc944cf1c1e248618430aa7f9e6ce2d89f787103c68eb4d1ca8e8c3c1f",
+      "source_bbox": {
+        "minX": 51,
+        "minY": 21,
+        "maxX": 319,
+        "maxY": 430,
+        "width": 269,
+        "height": 410
+      },
+      "runtime_bbox": {
+        "minX": 43,
+        "minY": 46,
+        "maxX": 129,
+        "maxY": 179,
+        "width": 87,
+        "height": 134
+      }
+    },
+    {
+      "direction": "right",
+      "index": 16,
+      "source": "src/assets/characters/youmu/sequence-v1/left/016.png",
+      "source_sha256": "7f1e45a16e36c0557809ae0a1b20fb39a0a5fd3be234d49c63d379b8a0463d26",
+      "source_bbox": {
+        "minX": 53,
+        "minY": 20,
+        "maxX": 319,
+        "maxY": 419,
+        "width": 267,
+        "height": 400
+      },
+      "runtime_bbox": {
+        "minX": 43,
+        "minY": 46,
+        "maxX": 129,
+        "maxY": 175,
+        "width": 87,
+        "height": 130
+      }
+    },
+    {
+      "direction": "right",
+      "index": 17,
+      "source": "src/assets/characters/youmu/sequence-v1/left/017.png",
+      "source_sha256": "97ae6a6677951482abcfcc6f247ce82d196bf764999176b5f483115ece9ff167",
+      "source_bbox": {
+        "minX": 51,
+        "minY": 19,
+        "maxX": 317,
+        "maxY": 420,
+        "width": 267,
+        "height": 402
+      },
+      "runtime_bbox": {
+        "minX": 43,
+        "minY": 45,
+        "maxX": 128,
+        "maxY": 175,
+        "width": 86,
+        "height": 131
+      }
+    },
+    {
+      "direction": "right",
+      "index": 18,
+      "source": "src/assets/characters/youmu/sequence-v1/left/018.png",
+      "source_sha256": "d186fa24b0f5546d7bf428801fb24ab9a3cece698c128606564d11ddc6f0fdb8",
+      "source_bbox": {
+        "minX": 54,
+        "minY": 19,
+        "maxX": 316,
+        "maxY": 420,
+        "width": 263,
+        "height": 402
+      },
+      "runtime_bbox": {
+        "minX": 44,
+        "minY": 45,
+        "maxX": 128,
+        "maxY": 175,
+        "width": 85,
+        "height": 131
+      }
+    },
+    {
+      "direction": "right",
+      "index": 19,
+      "source": "src/assets/characters/youmu/sequence-v1/left/019.png",
+      "source_sha256": "7c586b800ff81fa3263bbe8fc2cf55cd3f62c0940844a7ec711e56422bb8d68f",
+      "source_bbox": {
+        "minX": 51,
+        "minY": 17,
+        "maxX": 314,
+        "maxY": 419,
+        "width": 264,
+        "height": 403
+      },
+      "runtime_bbox": {
+        "minX": 43,
+        "minY": 45,
+        "maxX": 127,
+        "maxY": 175,
+        "width": 85,
+        "height": 131
+      }
+    },
+    {
+      "direction": "right",
+      "index": 20,
+      "source": "src/assets/characters/youmu/sequence-v1/left/020.png",
+      "source_sha256": "44a2f78026285bef8e876405e634f83eb26d0f626744c467cbbd0962d3bf1d9a",
+      "source_bbox": {
+        "minX": 53,
+        "minY": 16,
+        "maxX": 311,
+        "maxY": 419,
+        "width": 259,
+        "height": 404
+      },
+      "runtime_bbox": {
+        "minX": 43,
+        "minY": 44,
+        "maxX": 127,
+        "maxY": 175,
+        "width": 85,
+        "height": 132
+      }
+    },
+    {
+      "direction": "right",
+      "index": 21,
+      "source": "src/assets/characters/youmu/sequence-v1/left/021.png",
+      "source_sha256": "64bc40f4584431869247f431de35c8b3cc70ada59386cd5591b09e1ccaba1170",
+      "source_bbox": {
+        "minX": 53,
+        "minY": 13,
+        "maxX": 309,
+        "maxY": 419,
+        "width": 257,
+        "height": 407
+      },
+      "runtime_bbox": {
+        "minX": 43,
+        "minY": 43,
+        "maxX": 126,
+        "maxY": 175,
+        "width": 84,
+        "height": 133
+      }
+    },
+    {
+      "direction": "right",
+      "index": 22,
+      "source": "src/assets/characters/youmu/sequence-v1/left/022.png",
+      "source_sha256": "a88f1471b998ca822869f17883394de5d0bf72ab2548f1ba570aad1e7ba20ac7",
+      "source_bbox": {
+        "minX": 54,
+        "minY": 11,
+        "maxX": 307,
+        "maxY": 419,
+        "width": 254,
+        "height": 409
+      },
+      "runtime_bbox": {
+        "minX": 44,
+        "minY": 43,
+        "maxX": 126,
+        "maxY": 175,
+        "width": 83,
+        "height": 133
+      }
+    },
+    {
+      "direction": "right",
+      "index": 23,
+      "source": "src/assets/characters/youmu/sequence-v1/left/023.png",
+      "source_sha256": "e09e5e1df430309f3da261ef64b945877a6264b8a013a910e6bb2571e612a3ce",
+      "source_bbox": {
+        "minX": 54,
+        "minY": 11,
+        "maxX": 308,
+        "maxY": 419,
+        "width": 255,
+        "height": 409
+      },
+      "runtime_bbox": {
+        "minX": 44,
+        "minY": 43,
+        "maxX": 126,
+        "maxY": 175,
+        "width": 83,
+        "height": 133
+      }
+    },
+    {
+      "direction": "right",
+      "index": 24,
+      "source": "src/assets/characters/youmu/sequence-v1/left/024.png",
+      "source_sha256": "e0a5fe780acc012b8c2e82de54015e469fa882780562c1c470e71e91a6a21b9d",
+      "source_bbox": {
+        "minX": 55,
+        "minY": 12,
+        "maxX": 311,
+        "maxY": 419,
+        "width": 257,
+        "height": 408
+      },
+      "runtime_bbox": {
+        "minX": 44,
+        "minY": 43,
+        "maxX": 127,
+        "maxY": 175,
+        "width": 84,
+        "height": 133
+      }
+    },
+    {
+      "direction": "right",
+      "index": 25,
+      "source": "src/assets/characters/youmu/sequence-v1/left/025.png",
+      "source_sha256": "af1d4c5392fd6c3ab924cab2b4e845d8ac18888fc16b40d53df0660663c516e1",
+      "source_bbox": {
+        "minX": 54,
+        "minY": 12,
+        "maxX": 311,
+        "maxY": 419,
+        "width": 258,
+        "height": 408
+      },
+      "runtime_bbox": {
+        "minX": 44,
+        "minY": 43,
+        "maxX": 126,
+        "maxY": 175,
+        "width": 83,
+        "height": 133
+      }
+    },
+    {
+      "direction": "right",
+      "index": 26,
+      "source": "src/assets/characters/youmu/sequence-v1/left/026.png",
+      "source_sha256": "3a3f4ac3f522d2343c0334a9c463c8027852897b4e9b7dc7639820ae224dabb0",
+      "source_bbox": {
+        "minX": 55,
+        "minY": 16,
+        "maxX": 313,
+        "maxY": 418,
+        "width": 259,
+        "height": 403
+      },
+      "runtime_bbox": {
+        "minX": 44,
+        "minY": 44,
+        "maxX": 127,
+        "maxY": 175,
+        "width": 84,
+        "height": 132
+      }
+    },
+    {
+      "direction": "right",
+      "index": 27,
+      "source": "src/assets/characters/youmu/sequence-v1/left/027.png",
+      "source_sha256": "7124d7374c68b06ef4dc85bc8d62601dfdd9bef3206b4ac1861ebd8bb442fb02",
+      "source_bbox": {
+        "minX": 54,
+        "minY": 17,
+        "maxX": 317,
+        "maxY": 419,
+        "width": 264,
+        "height": 403
+      },
+      "runtime_bbox": {
+        "minX": 44,
+        "minY": 45,
+        "maxX": 128,
+        "maxY": 175,
+        "width": 85,
+        "height": 131
+      }
+    },
+    {
+      "direction": "right",
+      "index": 28,
+      "source": "src/assets/characters/youmu/sequence-v1/left/028.png",
+      "source_sha256": "0301f884636c80839821579593a5a570e7ed714bb1a1e7525f2473f47ffb0c53",
+      "source_bbox": {
+        "minX": 54,
+        "minY": 19,
+        "maxX": 320,
+        "maxY": 419,
+        "width": 267,
+        "height": 401
+      },
+      "runtime_bbox": {
+        "minX": 44,
+        "minY": 45,
+        "maxX": 130,
+        "maxY": 175,
+        "width": 87,
+        "height": 131
       }
     }
   ]

@@ -18,3 +18,15 @@ console-*.log
 _gal_watch.cjs
 runtime-bundle-capture.js
 garden-map-current.png
+
+# 临时调试/探测产物(不入库)
+.reasonix-topic-backup/
+tools/
+*.ps1
+shortpath.txt
+st-console.log
+st-console-full.log
+st-current.png
+st-garden-main.md
+st-iframe-snapshot.md
+st-snapshot.md

@@ -15,10 +15,31 @@ const APPLY = process.argv.includes('--apply');
 const REPLACE = process.argv.includes('--replace');
 
 const CHARACTERS = {
-  youmu: { frames: 28, frameDurationMs: 100, movementMode: 'walking-with-sword' },
-  patchouli: { frames: 26, frameDurationMs: 110, movementMode: 'measured-walk' },
-  sanae: { frames: 35, frameDurationMs: 90, movementMode: 'walking-with-sleeve-sway' },
+  youmu: {
+    frames: 28,
+    frameDurationMs: 48,
+    movementMode: 'walking-with-sword',
+    directionSourceMap: { left: 'right', right: 'left' },
+  },
+  patchouli: { frames: 26, frameDurationMs: 48, movementMode: 'measured-walk' },
+  sanae: {
+    frames: 35,
+    frameDurationMs: 48,
+    movementMode: 'walking-with-sleeve-sway',
+    directionSourceMap: { left: 'right', right: 'left' },
+  },
 };
+
+const requestedCharacters = process.argv.find((value) => value.startsWith('--chars='))
+  ?.slice('--chars='.length)
+  .split(',')
+  .filter(Boolean);
+const selectedCharacters = requestedCharacters?.length
+  ? Object.fromEntries(requestedCharacters.map((id) => {
+      if (!CHARACTERS[id]) throw new Error(`未知角色：${id}`);
+      return [id, CHARACTERS[id]];
+    }))
+  : CHARACTERS;
 
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
@@ -71,7 +92,8 @@ async function loadCharacter(id, definition) {
   const sequenceRoot = join(CHARACTER_ROOT, id, 'sequence-v1');
   const frames = [];
   for (const direction of DIRECTIONS) {
-    const directionRoot = join(sequenceRoot, direction);
+    const sourceDirection = definition.directionSourceMap?.[direction] ?? direction;
+    const directionRoot = join(sequenceRoot, sourceDirection);
     const names = (await readdir(directionRoot)).filter((name) => /^\d{3}\.png$/u.test(name)).sort();
     if (names.length !== definition.frames) {
       throw new Error(`${id}/${direction} 应有 ${definition.frames} 帧，实际 ${names.length}`);
@@ -83,7 +105,7 @@ async function loadCharacter(id, definition) {
       const bytes = await readFile(path);
       const png = PNG.sync.read(bytes);
       const bbox = alphaBBox(png);
-      frames.push({ direction, index, name, path, bytes, png, bbox });
+      frames.push({ direction, sourceDirection, index, name, path, bytes, png, bbox });
     }
   }
   const maximumHeight = Math.max(...frames.map((frame) => frame.bbox.height));
@@ -92,11 +114,42 @@ async function loadCharacter(id, definition) {
     const directional = frames.filter((frame) => frame.direction === direction);
     return [direction, [Math.round(directional[0].png.width / 2), Math.max(...directional.map((frame) => frame.bbox.maxY))]];
   }));
-  return { id, definition, frames, scale, sourceAnchorByDirection };
+
+  const idleFrames = [];
+  for (const direction of DIRECTIONS) {
+    const path = join(CHARACTER_ROOT, id, 'static-v1', direction, '001.png');
+    const bytes = await readFile(path);
+    const png = PNG.sync.read(bytes);
+    idleFrames.push({ direction, path, bytes, png, bbox: alphaBBox(png) });
+  }
+  const idleScale = TARGET_VISIBLE_HEIGHT / Math.max(...idleFrames.map((frame) => frame.bbox.height));
+  const idleSourceAnchorByDirection = Object.fromEntries(idleFrames.map((frame) => [
+    frame.direction,
+    [Math.round(frame.png.width / 2), frame.bbox.maxY],
+  ]));
+  return {
+    id,
+    definition,
+    frames,
+    scale,
+    sourceAnchorByDirection,
+    idleFrames,
+    idleScale,
+    idleSourceAnchorByDirection,
+  };
 }
 
 async function buildCharacter(record) {
-  const { id, definition, frames, scale, sourceAnchorByDirection } = record;
+  const {
+    id,
+    definition,
+    frames,
+    scale,
+    sourceAnchorByDirection,
+    idleFrames,
+    idleScale,
+    idleSourceAnchorByDirection,
+  } = record;
   const sequenceAtlas = new PNG({ width: CELL * definition.frames, height: CELL * DIRECTIONS.length });
   const idleAtlas = new PNG({ width: CELL * 2, height: CELL * 2 });
   sequenceAtlas.data.fill(0);
@@ -108,14 +161,25 @@ async function buildCharacter(record) {
     const rendered = renderFrame(frame.png, scale, sourceAnchorByDirection[frame.direction]);
     const renderedBBox = alphaBBox(rendered);
     blit(sequenceAtlas, rendered, frame.index * CELL, row * CELL);
-    if (frame.index === 0) {
-      const idleCell = { front: [0, 0], back: [1, 0], left: [0, 1], right: [1, 1] }[frame.direction];
-      blit(idleAtlas, rendered, idleCell[0] * CELL, idleCell[1] * CELL);
-    }
     frameRecords.push({
       direction: frame.direction,
       index: frame.index + 1,
-      source: `src/assets/characters/${id}/sequence-v1/${frame.direction}/${frame.name}`,
+      source: `src/assets/characters/${id}/sequence-v1/${frame.sourceDirection}/${frame.name}`,
+      source_sha256: sha256(frame.bytes),
+      source_bbox: frame.bbox,
+      runtime_bbox: renderedBBox,
+    });
+  }
+
+  const idleFrameRecords = [];
+  for (const frame of idleFrames) {
+    const rendered = renderFrame(frame.png, idleScale, idleSourceAnchorByDirection[frame.direction]);
+    const renderedBBox = alphaBBox(rendered);
+    const idleCell = { front: [0, 0], back: [1, 0], left: [0, 1], right: [1, 1] }[frame.direction];
+    blit(idleAtlas, rendered, idleCell[0] * CELL, idleCell[1] * CELL);
+    idleFrameRecords.push({
+      direction: frame.direction,
+      source: `src/assets/characters/${id}/static-v1/${frame.direction}/001.png`,
       source_sha256: sha256(frame.bytes),
       source_bbox: frame.bbox,
       runtime_bbox: renderedBBox,
@@ -133,9 +197,14 @@ async function buildCharacter(record) {
     layout: 'variable-sequence-v1',
     source_directory: `src/assets/characters/${id}/sequence-v1`,
     source_policy: 'owner-provided-split-frames-preserved; runtime atlases use nearest-neighbor normalization',
+    idle_source_directory: `src/assets/characters/${id}/static-v1`,
+    idle_source_policy: 'owner-provided-static-turnaround; right view is mirrored only when declared by the split manifest',
     movement_mode: definition.movementMode,
     cell: [CELL, CELL],
     row_order: DIRECTIONS,
+    direction_source_map: Object.fromEntries(
+      DIRECTIONS.map((direction) => [direction, definition.directionSourceMap?.[direction] ?? direction]),
+    ),
     frame_count: definition.frames,
     frame_duration_ms: definition.frameDurationMs,
     loop_start: 0,
@@ -144,6 +213,9 @@ async function buildCharacter(record) {
     target_visible_height: TARGET_VISIBLE_HEIGHT,
     scale,
     source_anchor_by_direction: sourceAnchorByDirection,
+    idle_scale: idleScale,
+    idle_source_anchor_by_direction: idleSourceAnchorByDirection,
+    idle_split_manifest: `src/assets/characters/${id}/static-v1/split-manifest.json`,
     idle_png: `src/assets/characters/${id}/${id}-turnaround-v1.png`,
     idle_png_sha256: sha256(idlePng),
     idle_webp: `src/assets/characters/${id}/${id}-turnaround-v1.webp`,
@@ -152,12 +224,13 @@ async function buildCharacter(record) {
     sequence_png_sha256: sha256(sequencePng),
     sequence_webp: `src/assets/characters/${id}/${id}-animation-sequence-v1.webp`,
     sequence_webp_sha256: sha256(sequenceWebp),
+    idle_frames: idleFrameRecords,
     frames: frameRecords,
   };
   return { id, idlePng, idleWebp, sequencePng, sequenceWebp, manifest };
 }
 
-const records = await Promise.all(Object.entries(CHARACTERS).map(([id, definition]) => loadCharacter(id, definition)));
+const records = await Promise.all(Object.entries(selectedCharacters).map(([id, definition]) => loadCharacter(id, definition)));
 const builds = [];
 for (const record of records) {
   const result = await buildCharacter(record);
@@ -210,4 +283,4 @@ for (const build of builds) {
   await rm(staging, { recursive: true, force: true });
 }
 
-console.log('apply: 三名新角色的静态图与动画序列运行资源已写入。');
+console.log(`apply: ${builds.length} 名角色的静态图与动画序列运行资源已写入。`);

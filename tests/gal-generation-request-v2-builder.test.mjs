@@ -23,10 +23,15 @@ const importTypescript = async (path) => {
 const g = await importTypescript('../src/ui/gal-generation-request.ts');
 
 const baseState = (overrides = {}) => ({
+  areas: {
+    main_house: { id: 'main_house', name: '旧主屋', state: '损坏' },
+  },
   presence_snapshot: {
     present_character_ids: ['reimu', 'marisa', 'cirno'],
     visitor_meta: {},
-    character_views: {},
+    character_views: {
+      reimu: { area_id: 'main_house', action: '检查结界', facing: 'left' },
+    },
   },
   interaction: {
     visit_memory: {
@@ -79,15 +84,20 @@ test('buildGalGenerationRequestV2 产出冻结请求：schema/revision/角色/vi
   assert.equal(result.ok, true);
   if (!result.ok) return;
   assert.equal(result.request.schema, 'gal-generation-request.v2');
-  assert.equal(result.request.promptRevision, 'gal-prompt.v6');
+  assert.equal(result.request.promptRevision, 'gal-prompt.v7');
   assert.equal(result.request.historyRevision, 'gal-synthetic-history.v1');
   assert.equal(result.request.memoryRevision, 'character-visit-memory.v2');
   assert.deepEqual(result.relevantCharacterIds, ['reimu']);
   assert.deepEqual(result.visitIdsByCharacter, { reimu: 'character_visit_000001' });
   assert.equal(result.request.syntheticHistory.length, 1);
   assert.equal(result.request.syntheticHistory[0].role, 'system');
+  assert.match(result.request.syntheticHistory[0].content, /【庭园设施现状：当前代码事实】/u);
+  assert.match(result.request.syntheticHistory[0].content, /旧主屋：尚未修复；当前损坏/u);
+  assert.doesNotMatch(result.request.modelUserInput, /【庭园设施现状：当前代码事实】/u);
   assert.match(result.request.modelUserInput, /^灵梦，结界怎么样了？\n\n【庭园正文协议】/u);
   assert.match(result.request.modelUserInput, /【庭园在场快照：本轮唯一事实】[\s\S]*【场景事实】/u);
+  const presenceSnapshot = result.request.modelUserInput.match(/【庭园在场快照：本轮唯一事实】([\s\S]*?)【场景事实】/u)?.[1] ?? '';
+  assert.doesNotMatch(presenceSnapshot, /朝向|facing|left/u);
   const taskMatch = result.request.modelUserInput.match(/<GensokyoVariableAnalysisTask>([\s\S]*?)<\/GensokyoVariableAnalysisTask>/u);
   assert.ok(taskMatch);
   const taskProjection = JSON.parse(taskMatch[1]);

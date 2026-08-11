@@ -66,6 +66,13 @@ const cirnoMotionFits = idleFits(
   [1, -.5, -.8469],
 );
 
+const youmuMotionFits = idleFits([1.001, -.531, -.793], [1.006, -.55, -.855], [.969, -.425, -.82], [.973, -.443, -.82]);
+const youmuIdleFits = idleFits([.929, -.478, -.79], [.948, -.506, -.802], [.901, -.367, -.758], [.887, -.381, -.758]);
+const sanaeMotionFits = idleFits([.932, -.517, -.774], [.941, -.443, -.811], [.918, -.439, -.793], [.932, -.49, -.786]);
+const sanaeIdleFits = idleFits([.943, -.524, -.796], [.925, -.427, -.802], [.915, -.436, -.783], [.901, -.473, -.765]);
+const patchouliMotionFits = idleFits([.95, -.513, -.805], [.959, -.55, -.82], [.959, -.5, -.82], [.955, -.466, -.811]);
+const patchouliIdleFits = idleFits([.934, -.506, -.82], [.943, -.534, -.821], [.939, -.408, -.82], [.962, -.427, -.82]);
+
 const definitions: Record<string, CharacterSpriteDefinition> = {
   reimu: {
     ...walkWander,
@@ -195,9 +202,11 @@ const definitions: Record<string, CharacterSpriteDefinition> = {
     idleFile: 'youmu-turnaround-v1.webp',
     motionFile: 'youmu-animation-sequence-v1.webp',
     sequenceFile: 'youmu-animation-sequence-v1.webp',
-    sequenceDefinition: { columns: 28, rows: 4, frameDurationMs: 100, loopStart: 0, loopEnd: 27 },
+    sequenceDefinition: { columns: 28, rows: 4, frameDurationMs: 48, loopStart: 0, loopEnd: 27 },
+    idleFrameTransforms: youmuIdleFits,
+    motionFrameTransforms: youmuMotionFits,
     movementStyle: 'walk',
-    frameDurationMs: 124,
+    frameDurationMs: 48,
     motionBob: 0.65,
     motionSway: 0.006,
     travelSpeed: 0.000018,
@@ -209,9 +218,11 @@ const definitions: Record<string, CharacterSpriteDefinition> = {
     idleFile: 'patchouli-turnaround-v1.webp',
     motionFile: 'patchouli-animation-sequence-v1.webp',
     sequenceFile: 'patchouli-animation-sequence-v1.webp',
-    sequenceDefinition: { columns: 26, rows: 4, frameDurationMs: 110, loopStart: 0, loopEnd: 25 },
+    sequenceDefinition: { columns: 26, rows: 4, frameDurationMs: 48, loopStart: 0, loopEnd: 25 },
+    idleFrameTransforms: patchouliIdleFits,
+    motionFrameTransforms: patchouliMotionFits,
     movementStyle: 'walk',
-    frameDurationMs: 132,
+    frameDurationMs: 48,
     motionBob: 0.45,
     motionSway: 0.004,
     travelSpeed: 0.000015,
@@ -223,9 +234,11 @@ const definitions: Record<string, CharacterSpriteDefinition> = {
     idleFile: 'sanae-turnaround-v1.webp',
     motionFile: 'sanae-animation-sequence-v1.webp',
     sequenceFile: 'sanae-animation-sequence-v1.webp',
-    sequenceDefinition: { columns: 35, rows: 4, frameDurationMs: 90, loopStart: 0, loopEnd: 34 },
+    sequenceDefinition: { columns: 35, rows: 4, frameDurationMs: 48, loopStart: 0, loopEnd: 34 },
+    idleFrameTransforms: sanaeIdleFits,
+    motionFrameTransforms: sanaeMotionFits,
     movementStyle: 'walk',
-    frameDurationMs: 118,
+    frameDurationMs: 48,
     motionBob: 0.7,
     motionSway: 0.008,
     travelSpeed: 0.000019,

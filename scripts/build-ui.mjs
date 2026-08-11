@@ -99,6 +99,9 @@ const battleBossSources = {
   mystia_battle: requiredAlphaSource(assetManifest.battle_assets?.mystia_battle, '米斯蒂娅 Boss 图集'),
   suika_battle: requiredAlphaSource(assetManifest.battle_assets?.suika_battle, '萃香 Boss 图集'),
   sakuya_battle: requiredAlphaSource(assetManifest.battle_assets?.sakuya_battle, '咲夜 Boss 图集'),
+  youmu_battle: requiredAlphaSource(assetManifest.battle_assets?.youmu_battle, '妖梦 Boss 图集'),
+  patchouli_battle: requiredAlphaSource(assetManifest.battle_assets?.patchouli_battle, '帕秋莉 Boss 图集'),
+  sanae_battle: requiredAlphaSource(assetManifest.battle_assets?.sanae_battle, '早苗 Boss 图集'),
 };
 const battleEffectsSource = requiredAlphaSource(assetManifest.battle_assets?.common_effects, '战斗特效图集');
 const mainHouseSource = requiredAlphaSource(assetManifest.world_assets?.main_house_states, '主屋状态图集');
@@ -436,6 +439,15 @@ await build({
   sourcemap: true,
   legalComments: 'none',
 });
+await build({
+  entryPoints: ['src/ui/new-character-sprite-calibration.ts'],
+  bundle: true,
+  format: 'iife',
+  target: ['es2022'],
+  outfile: 'dist/ui/new-character-sprite-calibration.js',
+  sourcemap: true,
+  legalComments: 'none',
+});
 const previewAssetBase = remoteAssetConfig
   ? `${remoteAssetConfig.baseUrl}/gensokyo-moving-garden/live`
   : '../assets';
@@ -485,6 +497,9 @@ const previewDataset = {
   battleBossMystiaSrc: previewAssetUrl(battleBossSources.mystia_battle),
   battleBossSuikaSrc: previewAssetUrl(battleBossSources.suika_battle),
   battleBossSakuyaSrc: previewAssetUrl(battleBossSources.sakuya_battle),
+  battleBossYoumuSrc: previewAssetUrl(battleBossSources.youmu_battle),
+  battleBossPatchouliSrc: previewAssetUrl(battleBossSources.patchouli_battle),
+  battleBossSanaeSrc: previewAssetUrl(battleBossSources.sanae_battle),
   battlePortraitReimuS0Src: previewAssetUrl(reimuPortraitSources.s0),
   battlePortraitReimuS1Src: previewAssetUrl(reimuPortraitSources.s1),
   battlePortraitReimuS2Src: previewAssetUrl(reimuPortraitSources.s2),
@@ -542,6 +557,7 @@ await Promise.all([
   copyFile('src/ui/cirno-walk-demo.html', 'dist/ui/cirno-walk-demo.html'),
   copyFile('src/ui/cirno-sprite-calibration.html', 'dist/ui/cirno-sprite-calibration.html'),
   copyFile('src/ui/cirno-height-calibration.html', 'dist/ui/cirno-height-calibration.html'),
+  copyFile('src/ui/new-character-sprite-calibration.html', 'dist/ui/new-character-sprite-calibration.html'),
 ]);
 await Promise.all([
   mkdir('dist/assets/maps', { recursive: true }),
@@ -627,6 +643,9 @@ const [
   battleBossMystiaBytes,
   battleBossSuikaBytes,
   battleBossSakuyaBytes,
+  battleBossYoumuBytes,
+  battleBossPatchouliBytes,
+  battleBossSanaeBytes,
   battlePortraitReimuS0Bytes,
   battlePortraitReimuS1Bytes,
   battlePortraitReimuS2Bytes,
@@ -681,6 +700,9 @@ const [
   readFile(`src/assets/${battleBossSources.mystia_battle}`),
   readFile(`src/assets/${battleBossSources.suika_battle}`),
   readFile(`src/assets/${battleBossSources.sakuya_battle}`),
+  readFile(`src/assets/${battleBossSources.youmu_battle}`),
+  readFile(`src/assets/${battleBossSources.patchouli_battle}`),
+  readFile(`src/assets/${battleBossSources.sanae_battle}`),
   readFile(`src/assets/${reimuPortraitSources.s0}`),
   readFile(`src/assets/${reimuPortraitSources.s1}`),
   readFile(`src/assets/${reimuPortraitSources.s2}`),
@@ -767,6 +789,9 @@ const battleBossNitoriDataUrl = imageDataUrl(battleBossNitoriBytes, battleBossSo
 const battleBossMystiaDataUrl = imageDataUrl(battleBossMystiaBytes, battleBossSources.mystia_battle);
 const battleBossSuikaDataUrl = imageDataUrl(battleBossSuikaBytes, battleBossSources.suika_battle);
 const battleBossSakuyaDataUrl = imageDataUrl(battleBossSakuyaBytes, battleBossSources.sakuya_battle);
+const battleBossYoumuDataUrl = imageDataUrl(battleBossYoumuBytes, battleBossSources.youmu_battle);
+const battleBossPatchouliDataUrl = imageDataUrl(battleBossPatchouliBytes, battleBossSources.patchouli_battle);
+const battleBossSanaeDataUrl = imageDataUrl(battleBossSanaeBytes, battleBossSources.sanae_battle);
 const battlePortraitReimuS0DataUrl = imageDataUrl(battlePortraitReimuS0Bytes, reimuPortraitSources.s0);
 const battlePortraitReimuS1DataUrl = imageDataUrl(battlePortraitReimuS1Bytes, reimuPortraitSources.s1);
 const battlePortraitReimuS2DataUrl = imageDataUrl(battlePortraitReimuS2Bytes, reimuPortraitSources.s2);
@@ -841,6 +866,9 @@ const embedded = {
   battleBossMystiaDataUrl,
   battleBossSuikaDataUrl,
   battleBossSakuyaDataUrl,
+  battleBossYoumuDataUrl,
+  battleBossPatchouliDataUrl,
+  battleBossSanaeDataUrl,
   battlePortraitReimuS0DataUrl,
   battlePortraitReimuS1DataUrl,
   battlePortraitReimuS2DataUrl,

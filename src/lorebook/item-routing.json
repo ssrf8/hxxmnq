@@ -40,6 +40,16 @@
       "id": "alice_doll_pause",
       "label": "人偶化·暂停",
       "greenlight": "GSK_ITEM_DOLL_PAUSE_ACTIVE"
+    },
+    {
+      "id": "patchouli_sleep_tea",
+      "label": "昏睡红茶·半梦半醒",
+      "greenlight": "GSK_ITEM_PATCHOULI_SLEEP_TEA_ACTIVE"
+    },
+    {
+      "id": "youmu_sword_training",
+      "label": "剑术特训",
+      "greenlight": "GSK_ITEM_YOUMU_SWORD_TRAINING_ACTIVE"
     }
   ]
 }

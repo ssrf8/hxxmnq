@@ -88,6 +88,39 @@
       "standard_config_id": "character_duel_standard_v1",
       "assisted_config_id": "character_duel_assisted_v1",
       "victory_reaction_tags": ["neutral", "serious"]
+    },
+    {
+      "character_id": "youmu",
+      "display_name": "魂魄妖梦",
+      "enabled": true,
+      "battle_visual_id": "youmu",
+      "fallback_visual_id": "boss_flower_core",
+      "hard_config_id": "character_duel_hard_v1",
+      "standard_config_id": "character_duel_standard_v1",
+      "assisted_config_id": "character_duel_assisted_v1",
+      "victory_reaction_tags": ["neutral", "serious"]
+    },
+    {
+      "character_id": "patchouli",
+      "display_name": "帕秋莉·诺蕾姬",
+      "enabled": true,
+      "battle_visual_id": "patchouli",
+      "fallback_visual_id": "boss_flower_core",
+      "hard_config_id": "character_duel_hard_v1",
+      "standard_config_id": "character_duel_standard_v1",
+      "assisted_config_id": "character_duel_assisted_v1",
+      "victory_reaction_tags": ["neutral", "serious"]
+    },
+    {
+      "character_id": "sanae",
+      "display_name": "东风谷早苗",
+      "enabled": true,
+      "battle_visual_id": "sanae",
+      "fallback_visual_id": "boss_flower_core",
+      "hard_config_id": "character_duel_hard_v1",
+      "standard_config_id": "character_duel_standard_v1",
+      "assisted_config_id": "character_duel_assisted_v1",
+      "victory_reaction_tags": ["smile", "surprised"]
     }
   ]
 }
