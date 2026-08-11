@@ -29,11 +29,15 @@
 - VisitTurn 摘要采用同一机制：bridge 暂存 `interaction.visit_summary_task`，额外模型逐角色填写 `summary`，bridge 绑定冻结 visit 后落盘。
 - 主模型不再输出 `<GensokyoPresence>`，变量模型也不得直接写 `presence_snapshot` 或 `interaction.visit_memory`。
 - Presence 全流程、非法变量输出拒绝、多角色、生成期间离场、压力测试与二阶段幂等结算已通过真实 SillyTavern 验收。记录见 `project/2026-08-10-presence-extra-model-acceptance-results.md`。
+- 普通角色“对话”已改为先进入 GAL 等待玩家首轮输入；未发送便结束不会创建楼层、调用 LLM 或写入 MVU。
+- “幻想乡案内”已增加只读回想画廊：读取当前聊天最近 1000 个真实楼层，支持起止楼层筛选、滑杆快速定位、逐 beat GAL 回放和范围内图片网格；不建立第二份剧情或图片数据库。
+- 怀表主动解除与符卡胜利要求放弃入口已通过真实 SillyTavern 验收，临时测试控制台按钮已移除；记录见 `project/2026-08-11-watch-duel-bugfix-acceptance.md`。
 
 ## 当前验证与未完成项
 
 - `npm run check:ui`：通过。
-- `npm run build:ui:standalone`：通过，当前内嵌 UI 为 2,196,294 bytes，SHA-256 为 `8b35d93631cf0eb038a20acf1b91e99b998974e5188845e1faf3d5857f80c2f3`。
+- `npm run build:ui:standalone`：通过，当前内嵌 UI 为 2,223,177 bytes，SHA-256 为 `c817ec4c348327a8f9e488a1523553516ce6603976112414116553174eb64f11`。
+- 首轮输入与回想画廊 UI 契约测试：140/140 通过；相关三组联合回归：178/178 通过。真实 SillyTavern 的新画廊交互仍需按专项文档末尾步骤验收。
 - `npm test`：739 项中 734 通过、5 失败；失败清单及处理顺序以 `project/agent-handoff.md` 为准，不再沿用旧的 734/734 基线。
 - generation 7 已更新远端 Boss 媒体；48ms、动静帧定位、Boss 路由、三个人设与两个新道具仍需重新打包角色卡并在真实 SillyTavern 验收。
 
@@ -49,6 +53,8 @@
 | 变量模型可写／禁写规则 | `src/lorebook/variable-update-rules.md` |
 | 世界书路由 | `src/lorebook/routing-plan.json` |
 | 宿主 API 来源 | `project/api-provenance.md` |
+| GAL 首轮输入与回想画廊 | `project/gal-first-input-and-history-gallery-plan.md` |
+| 已知 BUG 与修复优先级 | `project/bug-log.md` |
 
 按领域再读：
 
@@ -58,7 +64,8 @@
 - 地图导航：`project/garden-navigation-mask-contract.md`；
 - GAL 存读：`project/gal-mvu-save-load-plan.md`；
 - 双 profile：`project/gal-character-memory-batch-4-database-coexistence-replan.md`；
-- 素材与立绘：对应素材清单或专项文档，最终登记以 `src/assets/asset-manifest.json` 为准。
+- 素材与立绘：对应素材清单或专项文档，最终登记以 `src/assets/asset-manifest.json` 为准；
+- 已知 BUG 与统一根因（叙事通道授权缺失）：`project/bug-log.md`。
 
 历史计划和重复实施日志已清理。仍保留的长文档要么被源码／测试直接引用，要么承担尚在使用的操作合同。
 

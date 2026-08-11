@@ -59,6 +59,7 @@ import { applyTestJump, testJumpReached, type TestJumpId } from './test-tools';
 import { purchaseShopItem, claimStarterGift } from './shop-rules';
 import { useOpportunityCard as applyOpportunityCardUse } from './card-item-rules';
 import {
+  abandonDuelVictoryDialogue,
   beginDuelCard as beginLocalDuelCard,
   cancelDuelCard as cancelLocalDuelCard,
   completeDuelVictoryDialogue,
@@ -711,8 +712,17 @@ function nativeSendStopButtonGenerating(): boolean | null {
   }
 }
 
-function normalizeMessages(raw: Array<Record<string, unknown>>): ChatMessageView[] {
-  return raw.slice(-80).map((message) => {
+const DEFAULT_MESSAGE_READ_LIMIT = 80;
+const MAX_MESSAGE_READ_LIMIT = 1000;
+
+function messageReadLimit(limit = DEFAULT_MESSAGE_READ_LIMIT) {
+  return Number.isFinite(limit)
+    ? Math.max(1, Math.min(MAX_MESSAGE_READ_LIMIT, Math.trunc(limit)))
+    : DEFAULT_MESSAGE_READ_LIMIT;
+}
+
+function normalizeMessages(raw: Array<Record<string, unknown>>, limit = DEFAULT_MESSAGE_READ_LIMIT): ChatMessageView[] {
+  return raw.slice(-messageReadLimit(limit)).map((message) => {
     const swipes = Array.isArray(message.swipes) ? message.swipes.map((item) => String(item ?? '')) : [];
     const swipeId = typeof message.swipe_id === 'number' ? message.swipe_id : 0;
     const swipeText = swipes.length ? swipes[Math.min(Math.max(swipeId, 0), swipes.length - 1)] : '';
@@ -2458,11 +2468,11 @@ export function createHostBridge(): GardenBridge | null {
       transactions.markSettlementSucceeded();
       return { messageCreated: !exists };
     },
-    async listMessages() {
+    async listMessages(limit = DEFAULT_MESSAGE_READ_LIMIT) {
       // Use the same raw reader as transactions. include_swipes:true + unhidden previously
       // could leave the GAL projector stuck on floor 0 when later floors normalized empty
       // or when the macro range failed to expand past the greeting.
-      return normalizeMessages(readRawMessages({ include_swipes: false, hide_state: 'all' }));
+      return normalizeMessages(readRawMessages({ include_swipes: false, hide_state: 'all' }), limit);
     },
     async sendUserMessage(text, kind = 'interaction', userVisibleText, requestContext) {
       if (transactionOperationInFlight) throw new Error('上一条消息仍在生成或结算中，请稍候');
@@ -2698,6 +2708,28 @@ export function createHostBridge(): GardenBridge | null {
       } finally {
         transactionOperationInFlight = false;
       }
+    },
+    async abandonDuelVictoryRequest(settlementId: string) {
+      return runCardOperation(async () => {
+        const mvu = await requireMvu();
+        if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持放弃胜利要求');
+        const latest = latestPersistedMessage(mvu);
+        if (!latest) throw new Error('没有可承载胜利要求放弃操作的 assistant 楼层');
+        latest.data.stat_data = abandonDuelVictoryDialogue(migrateGardenState(latest.state), settlementId);
+        await mvu.replaceMvuData(latest.data, latest.options);
+        const reread = migrateGardenState(mvu.getMvuData(latest.options).stat_data ?? {});
+        if (reread.inventory?.card_runtime?.duel?.pending_victory_dialogue?.settlement_id === settlementId) {
+          throw new Error('胜利要求放弃后复读校验失败');
+        }
+        pendingRequest = null;
+        pendingHelperResult = null;
+        pendingSettlement = null;
+        pendingOwnershipBefore = null;
+        pendingSystemOperation = null;
+        assistantObservedAt = 0;
+        transactions.resetAfterLocalEnd();
+        lastError = '';
+      });
     },
     async getTransactionState() {
       const current = readTransaction();
@@ -3456,7 +3488,9 @@ export function createPreviewBridge(): GardenBridge {
       return { initializedFromDefaults: false };
     },
     async repairOpening() { throw new Error('离线预览不支持修复真实开场'); },
-    async listMessages() { return structuredClone(messages); },
+    async listMessages(limit = DEFAULT_MESSAGE_READ_LIMIT) {
+      return structuredClone(messages.slice(-messageReadLimit(limit)));
+    },
     async sendUserMessage(text, kind = 'interaction', userVisibleText) {
       const previewAction = localSettlementAction(text, previewState);
       const previewTargetMatch = text.match(/<GensokyoAction>\s*(\{[\s\S]*?\})\s*<\/GensokyoAction>/iu);
@@ -3573,6 +3607,9 @@ export function createPreviewBridge(): GardenBridge {
       const snapshot = await this.sendUserMessage(text, 'battle');
       Object.assign(previewState, completeDuelVictoryDialogue(previewState, pending.settlement_id));
       return snapshot;
+    },
+    async abandonDuelVictoryRequest(settlementId: string) {
+      Object.assign(previewState, abandonDuelVictoryDialogue(previewState, settlementId));
     },
     async getTransactionState() { return structuredClone(transaction); },
     async retryLastTransaction() { throw new Error('离线预览没有失败事务'); },

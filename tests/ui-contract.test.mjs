@@ -416,8 +416,8 @@ test('开放庭园页面从正式状态派生教程进度与下一步', async ()
   assert.match(controller, /action\.textContent = '发送邀请'[\s\S]*?runInvite\(characterId\)/);
   assert.match(controller, /type: 'consume_visit_notices'/);
   assert.match(controller, /byId\('gg-open-visitors'\)[\s\S]*?setView\('visitors'\)/);
-  const opportunityRenderer = controller.match(/function renderOpportunities\(\) \{[\s\S]*?\n\}\n\nasync function runFacilityBuild/)?.[0] ?? '';
-  const visitorRenderer = controller.match(/function renderVisitors\(\) \{[\s\S]*?\n\}\n\nfunction renderOpportunities/)?.[0] ?? '';
+  const opportunityRenderer = controller.match(/function renderOpportunities\(\) \{[\s\S]*?\r?\n\}\r?\n\r?\nasync function runFacilityBuild/)?.[0] ?? '';
+  const visitorRenderer = controller.match(/function renderVisitors\(\) \{[\s\S]*?\r?\n\}\r?\n\r?\nfunction renderOpportunities/)?.[0] ?? '';
   assert.doesNotMatch(opportunityRenderer, /gg-shop-(?:item|list)/);
   assert.doesNotMatch(opportunityRenderer, /邀请角色|来访通知|gg-opportunity-invite/);
   assert.match(visitorRenderer, /所有角色/);
@@ -1921,6 +1921,55 @@ test('GAL 加载清空旧正文，顶栏提供净化历史但不暴露 Swipe 入
   assert.match(app, /gg-scene-text'\)\.textContent = ''/);
 });
 
+test('普通对话等待玩家首轮输入，回想画廊只读投影真实消息与图片', async () => {
+  const gallery = await importTypescript('../src/ui/gal-gallery.ts');
+  const initial = JSON.parse(await read('../src/schema/initial-state.json'));
+  const messages = [
+    {
+      id: 10,
+      role: 'user',
+      name: '玩家',
+      text: '【庭园行动】\n早上好。\n<GensokyoAction>{"version":"garden-action.v1","target_type":"character","target_id":"reimu","action_id":"talk","event_id":null}</GensokyoAction>',
+      extra: { gensokyoUserVisibleText: '早上好。' },
+    },
+    { id: 11, role: 'assistant', name: '灵梦', text: '灵梦抬起眼看向你，轻轻应了一声早。' },
+  ];
+  const entries = gallery.buildGalGalleryEntries(messages, initial);
+  assert.equal(entries.length, 1);
+  assert.equal(entries[0].messageId, 11);
+  assert.equal(entries[0].userText, '早上好。');
+  assert.equal(entries[0].scene.beats[0].speakerId, 'reimu');
+  assert.deepEqual(gallery.filterGalGalleryEntries([
+    ...entries,
+    { ...entries[0], messageId: 25 },
+    { ...entries[0], messageId: 40 },
+  ], 30, 20).map((entry) => entry.messageId), [25]);
+
+  const document = await read('../src/ui/index.html');
+  const app = await read('../src/ui/app.ts');
+  const styles = await read('../src/ui/styles.css');
+  assert.match(document, /id="gg-open-gallery"[^>]*>回想画廊</);
+  assert.match(document, /id="gg-view-gallery"[\s\S]*?id="gg-gallery-dialogues"[\s\S]*?id="gg-gallery-images"/);
+  assert.match(document, /id="gg-gallery-range-start"[\s\S]*?id="gg-gallery-range-end"[\s\S]*?id="gg-gallery-floor-slider"[\s\S]*?id="gg-gallery-open-floor"/);
+  const galleryView = document.match(/id="gg-view-gallery"[\s\S]*?<\/section>\s*<section id="gg-view-facility"/)?.[0] ?? '';
+  assert.doesNotMatch(galleryView, /gg-gal-input|gg-scene-item|gg-send|gg-regenerate|gg-stop/);
+  assert.match(app, /action\.id === 'talk' && action\.target\.type === 'character'[\s\S]*?pendingTalkDraft = action[\s\S]*?renderTalkDraft\(\)/);
+  assert.match(app, /buildActionMessage\(\{ \.\.\.draft, intent: userText\.trim\(\) \}, state\)/);
+  assert.match(app, /if \(pendingTalkDraft\) \{[\s\S]*?尚未发送消息，已直接返回庭院/);
+  assert.match(app, /buildGalGalleryEntries\(messages, state\)/);
+  assert.match(app, /const GALLERY_MESSAGE_LIMIT = 1000/);
+  assert.match(app, /bridge\.listMessages\(GALLERY_MESSAGE_LIMIT\)/);
+  assert.match(app, /filterGalGalleryEntries\(galleryAllEntries, lower, upper\)/);
+  assert.match(app, /galleryFloorSlider\.addEventListener\('input', \(\) => locateGalleryFloor\(\)\)/);
+  assert.match(await read('../src/ui/types.ts'), /listMessages\(limit\?: number\)/);
+  assert.match(await read('../src/ui/bridge.ts'), /MAX_MESSAGE_READ_LIMIT = 1000[\s\S]*?async listMessages\(limit = DEFAULT_MESSAGE_READ_LIMIT\)/);
+  assert.match(app, /seenSources\.has\(source\)/);
+  assert.match(app, /currentView === 'gal' \|\| pendingTalkDraft \|\| activeTarget[\s\S]*?请先结束当前聊天，再打开回想画廊/);
+  assert.match(app, /读取回想失败/);
+  assert.match(styles, /\.gg-gallery-dialogues/);
+  assert.match(styles, /\.gg-gallery-player-dialog/);
+});
+
 test('温室研究交流单轮结算、回复后自动完成', async () => {
   const app = await read('../src/ui/app.ts');
   const actions = await read('../src/ui/target-actions.ts');
@@ -2729,9 +2778,9 @@ test('M2 验收快进可独立抵达开放庭园、异变、设施、来访和�
   const repair = tools.applyTestJump(initial, 'm2_items_recovery_ready');
   assert.equal(repair.facility_runtime.fairy_garden.status, 'damaged');
   assert.equal(repair.inventory.consumables.emergency_repair_kit, 3);
-
   const app = await read('../src/ui/app.ts');
   const html = await read('../src/ui/index.html');
+  assert.doesNotMatch(html, /BUG 修复回归|bug_watch_release_ready|bug_duel_victory_escape_ready/);
   for (const id of ['gg-test-m2-open', 'gg-test-m2-anomaly', 'gg-test-m2-anomaly-end', 'gg-test-m2-facilities', 'gg-test-m2-visitors', 'gg-test-m2-items']) {
     assert.match(html, new RegExp(`id="${id}"`));
   }
@@ -3593,7 +3642,7 @@ test('R36/R39 特殊商品、自定义异变卡与咲夜怀表完全由本地规
   const daily = prompt.buildPromptContext(activated.state, { kind: 'daily_investigation' });
   assert.match(daily, new RegExp(activated.state.anomaly_cycle.active.hidden_origin.name, 'u'));
 
-  // Legacy waiting events remain migratable and are not promoted into anomaly_cycle.
+  // Retired random anomaly-card events are removed instead of becoming orphaned waiting entries.
   const legacy = migration.migrateGardenState({
     ...equipped,
     events: {
@@ -3602,7 +3651,7 @@ test('R36/R39 特殊商品、自定义异变卡与咲夜怀表完全由本地规
     },
   });
   assert.equal(legacy.anomaly_cycle.active, null);
-  assert.equal(legacy.events.waiting_events[0].config_id, 'fairy_seed_shower');
+  assert.deepEqual(legacy.events.waiting_events, []);
 
   const firstWatch = special.useSakuyaWatch(activated.state, 'item:watch:test-1');
   assert.equal(firstWatch.state.key_items.sakuya_watch.state, 'daily_cooldown');
@@ -3643,7 +3692,9 @@ test('R36/R39 特殊商品、自定义异变卡与咲夜怀表完全由本地规
   battleState.battle ??= {};
   battleState.battle.current = { config_id: 'greenhouse_flower_core_tutorial_v1' };
   assert.throws(() => special.useSakuyaWatch(battleState, 'item:watch:battle'), /战斗进行中/);
-  assert.ok(registry.eventById.has('clockwork_temporal_ripple'));
+  assert.equal(registry.eventById.has('fairy_seed_shower'), false);
+  assert.equal(registry.eventById.has('wandering_magic_mist'), false);
+  assert.equal(registry.eventById.has('clockwork_temporal_ripple'), false);
   assert.ok(registry.eventById.has('sakuya_temporal_trace_investigation'));
   const courtyardActions = actions.targetActions({ type: 'area', id: 'central_courtyard', label: '中央庭院' }, secondWatch.state);
   assert.ok(courtyardActions.some((action) => action.id === 'investigate_sakuya_temporal_trace'));

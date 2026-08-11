@@ -466,24 +466,6 @@ function waitingEventActions(target: InteractionTarget, state: GardenState): Tar
   if (target.type !== 'area' || target.id !== 'central_courtyard') return [];
   const waiting = new Set((state.events?.waiting_events ?? []).map((event) => event.config_id));
   const result: TargetAction[] = [];
-  if (waiting.has('fairy_seed_shower')) result.push(action(
-    target, 'observe_fairy_seed_shower', '观察妖精种子雨',
-    '自由观察落入庭园的发光种子；不承担后续前置。',
-    '我留在中央庭院观察异变触发卡引来的妖精种子雨。这是一段自由插曲，不发放资源、不创建长期角色，也不解锁其他事件。',
-    'gal', { eventId: 'fairy_seed_shower' },
-  ));
-  if (waiting.has('wandering_magic_mist')) result.push(action(
-    target, 'observe_wandering_magic_mist', '观察游荡魔法雾',
-    '自由观察穿过庭园的残留魔法雾；不承担后续前置。',
-    '我留在中央庭院观察异变触发卡引来的游荡魔法雾。这是一段自由插曲，不发放资源、不创建未知法术，也不解锁其他事件。',
-    'gal', { eventId: 'wandering_magic_mist' },
-  ));
-  if (waiting.has('clockwork_temporal_ripple')) result.push(action(
-    target, 'investigate_clockwork_temporal_ripple', '调查发条时间涟漪',
-    '调查怀表痕迹与卡片异变的共振；只确认余波，不回滚状态。',
-    '我调查中央庭院里由怀表痕迹和异变卡共同形成的发条时间涟漪。请确认它只是五分钟停顿留下的余波，不撤销任何既有结算或时段。',
-    'gal', { eventId: 'clockwork_temporal_ripple', fixedPresentation: true },
-  ));
   if (waiting.has('sakuya_temporal_trace_investigation')) result.push(action(
     target, 'investigate_sakuya_temporal_trace', '回应咲夜的调查',
     '咲夜注意到了不属于自己的时间停顿痕迹；本次不强制她常驻。',
@@ -690,7 +672,6 @@ const FIXED_PRESENTATION_ACTION_IDS = new Set([
   'remodel_to_free_growth',
   'remodel_to_doll_maintenance',
   'remodel_to_kappa_automation',
-  'investigate_clockwork_temporal_ripple',
   'investigate_sakuya_temporal_trace',
 ]);
 

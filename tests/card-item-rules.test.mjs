@@ -242,6 +242,38 @@ test('对战胜利减一枚杂鱼标签且只创建待提交的胜利要求', as
   );
 });
 
+test('胜利要求可本地放弃且不回滚战斗结算，并立即解除后续对战阻塞', async () => {
+  const duel = await importTypescript('../src/ui/duel-card-rules.ts');
+  const state = await baseState();
+  state.inventory.card_runtime.duel.zako_tag_count = 3;
+  const started = duel.beginDuelCard(state, 'reimu', 'duel:abandon:1').state;
+  const settled = duel.settleDuelCard(
+    started,
+    battleResult('character_duel_assisted_v1', 'clean_win', 'duel-result:abandon:1'),
+  ).state;
+  const locked = duel.stageDuelVictoryRequest(
+    settled,
+    'duel-result:abandon:1',
+    '请陪我在庭院里喝一次茶。',
+  );
+  const tagCount = locked.inventory.card_runtime.duel.zako_tag_count;
+  const resultIds = [...locked.inventory.card_runtime.duel.settled_result_ids];
+
+  const abandoned = duel.abandonDuelVictoryDialogue(locked, 'duel-result:abandon:1');
+  assert.equal(abandoned.inventory.card_runtime.duel.pending_victory_dialogue, null);
+  assert.equal(abandoned.inventory.card_runtime.duel.zako_tag_count, tagCount);
+  assert.deepEqual(abandoned.inventory.card_runtime.duel.settled_result_ids, resultIds);
+  assert.equal(duel.characterDuelBlock(abandoned, 'reimu'), '');
+  assert.deepEqual(
+    duel.abandonDuelVictoryDialogue(abandoned, 'duel-result:abandon:1'),
+    abandoned,
+  );
+  assert.throws(
+    () => duel.abandonDuelVictoryDialogue(locked, 'duel-result:other'),
+    /放弃要求 ID 与当前胜利事务不一致/,
+  );
+});
+
 test('对战卡拒绝叙事替代、错配配置和非法数值且不修改输入状态', async () => {
   const duel = await importTypescript('../src/ui/duel-card-rules.ts');
   const state = await baseState();
@@ -383,6 +415,9 @@ test('阶段 C 界面提供机遇卡、角色对战结算、胜利要求及窄�
   const inventory = await read('../src/ui/inventory-view.ts');
   const styles = await read('../src/ui/styles.css');
   assert.match(document, /id="gg-duel-result-dialog"[\s\S]*?id="gg-duel-result-confirm"/);
+  assert.match(document, /id="gg-duel-victory-abandon"/);
+  assert.match(controller, /transaction\.userMessageCreated \|\| transaction\.assistantResponded/);
+  assert.doesNotMatch(controller, /catch \{\s*await bridge\.sendDuelVictoryRequest/u);
   assert.match(document, /id="gg-duel-victory-dialog"[\s\S]*?id="gg-duel-victory-request"[^>]*maxlength="240"/);
   assert.match(inventory, /opportunity_card: '缘'/);
   assert.doesNotMatch(inventory, /spell_duel_card/);

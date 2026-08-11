@@ -540,7 +540,7 @@ export interface OpeningCommitResult {
 }
 
 export type TargetType = 'character' | 'area' | 'facility';
-export type SceneMode = 'garden' | 'gal' | 'facility' | 'settings' | 'shop' | 'inventory' | 'visitors' | 'opportunities';
+export type SceneMode = 'garden' | 'gal' | 'gallery' | 'facility' | 'settings' | 'shop' | 'inventory' | 'visitors' | 'opportunities';
 export type GalBeatKind = 'narration' | 'speech' | 'action';
 export type GalVisualMode = 'normal' | 'nude' | 'sexual';
 export type GalSexualAct = 'vaginal' | 'anal' | 'none';
@@ -725,10 +725,11 @@ export interface GardenBridge {
   commitOpening(draft: OpeningDraft, message: string, expectedChatId: string): Promise<OpeningCommitResult>;
   enterGarden(expectedChatId: string): Promise<{ initializedFromDefaults: boolean }>;
   repairOpening(expectedChatId: string): Promise<{ messageCreated: boolean }>;
-  listMessages(): Promise<ChatMessageView[]>;
+  listMessages(limit?: number): Promise<ChatMessageView[]>;
   sendUserMessage(text: string, kind?: MessageTransactionKind, userVisibleText?: string, requestContext?: GalRequestContext): Promise<MessageTransactionSnapshot>;
   sendAnomalyResolution(text: string): Promise<MessageTransactionSnapshot>;
   sendDuelVictoryRequest(requestText: string, message: string): Promise<MessageTransactionSnapshot>;
+  abandonDuelVictoryRequest(settlementId: string): Promise<void>;
   getTransactionState(): Promise<MessageTransactionSnapshot>;
   retryLastTransaction(): Promise<MessageTransactionSnapshot>;
   stageBattleResult(result: BattleResult): Promise<{ messageId: number; alreadyStaged: boolean }>;

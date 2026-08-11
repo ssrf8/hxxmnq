@@ -112,6 +112,7 @@ export function inventoryDisplayRows(state: GardenState) {
     } else if (item.item_id === 'sakuya_watch') {
       const watch = state.key_items?.sakuya_watch;
       if (!watch?.obtained) continue;
+      const timeStopActive = watch.time_stop_active === true;
       const onCooldown = watch.state === 'daily_cooldown' || watch.last_used_day === (state.environment?.day ?? 1);
       rows.push({
         item_id: item.item_id,
@@ -119,7 +120,7 @@ export function inventoryDisplayRows(state: GardenState) {
         kind: 'key_item',
         quantity: 1,
         description: item.prompt_description,
-        usable: !onCooldown,
+        usable: timeStopActive || !onCooldown,
         disabledReason: onCooldown ? '今日已使用' : '',
       });
     }

@@ -36,7 +36,7 @@ test('R38 period serial 覆盖四时段、跨日与 12/24/28 边界', async () =
   assert.equal(time.periodsBetween(0, 28), 28);
 });
 
-test('R38 迁移幂等补齐 anomaly/visit/facility/scene 默认值且保留旧等待事件', async () => {
+test('R38 迁移幂等补齐默认值并清除已退役的随机异变卡事件', async () => {
   const migration = await importTypescript('../src/ui/state-migrations.ts');
   const legacy = {
     environment: { day: 3, time_period: '白昼' },
@@ -48,8 +48,12 @@ test('R38 迁移幂等补齐 anomaly/visit/facility/scene 默认值且保留旧�
         alice_greenhouse_maintenance_proposal: 'done',
         nitori_greenhouse_automation_proposal: 'done',
         select_greenhouse_form: 'selected_free_growth',
+        fairy_seed_shower: 'observe_fairy_seed_shower',
+        wandering_magic_mist: 'observe_wandering_magic_mist',
+        clockwork_temporal_ripple: 'temporal_ripple_observed',
       },
       waiting_events: [{ uid: 'w1', config_id: 'wandering_magic_mist', title: '游荡魔法雾', status: 'waiting' }],
+      active_event: { uid: 'w2', config_id: 'clockwork_temporal_ripple', title: '发条时间涟漪', status: 'active' },
       settled_ids: [],
     },
     inventory: { consumables: { incident_trigger_card: 2 } },
@@ -59,7 +63,11 @@ test('R38 迁移幂等补齐 anomaly/visit/facility/scene 默认值且保留旧�
   const twice = migration.migrateGardenState(once);
   assert.equal(once.anomaly_cycle.active, null);
   assert.equal(once.anomaly_cycle.pending_activation, null);
-  assert.equal(once.events.waiting_events[0].config_id, 'wandering_magic_mist');
+  assert.deepEqual(once.events.waiting_events, []);
+  assert.equal(once.events.active_event, null);
+  assert.equal(once.events.completed_key_events.fairy_seed_shower, undefined);
+  assert.equal(once.events.completed_key_events.wandering_magic_mist, undefined);
+  assert.equal(once.events.completed_key_events.clockwork_temporal_ripple, undefined);
   assert.ok(once.visit_scheduler.known_characters.includes('reimu'));
   assert.ok(once.visit_scheduler.known_characters.includes('alice'));
   assert.ok(once.visit_scheduler.known_characters.includes('nitori'));
@@ -624,6 +632,33 @@ test('R43 怀表不缩短异变与设施计时，咲夜认识后才可邀请', a
   watched.state.events.completed_key_events.sakuya_temporal_trace_investigation = 'done';
   const known = visitors.markCharacterKnown(watched.state, 'sakuya');
   assert.ok(visitors.isCharacterKnown(known, 'sakuya'));
+});
+
+test('怀表时停可提前解除且保留时段、每日冷却与时间痕迹', async () => {
+  const special = await importTypescript('../src/ui/special-item-rules.ts');
+  const prompt = await importTypescript('../src/ui/prompt-context.ts');
+  const inventory = await importTypescript('../src/ui/inventory-rules.ts');
+  const time = await importTypescript('../src/ui/time-rules.ts');
+  const state = await baseState();
+  state.key_items.sakuya_watch.obtained = true;
+  const active = special.useSpecialItem(state, 'sakuya_watch', 'watch:release:start').state;
+  const serial = time.periodSerialFromState(active);
+  assert.equal(active.key_items.sakuya_watch.time_stop_active, true);
+  assert.match(prompt.buildPromptContext(active), /【时间停止】/);
+  assert.equal(inventory.inventoryDisplayRows(active).find((row) => row.item_id === 'sakuya_watch').usable, true);
+
+  const released = special.useSpecialItem(active, 'sakuya_watch', 'watch:release:end').state;
+  assert.equal(released.key_items.sakuya_watch.time_stop_active, false);
+  assert.equal(released.key_items.sakuya_watch.state, 'daily_cooldown');
+  assert.equal(released.key_items.sakuya_watch.temporal_trace_active, true);
+  assert.equal(released.key_items.sakuya_watch.total_uses, 1);
+  assert.equal(time.periodSerialFromState(released), serial);
+  assert.doesNotMatch(prompt.buildPromptContext(released), /【时间停止】/);
+  assert.equal(inventory.inventoryDisplayRows(released).find((row) => row.item_id === 'sakuya_watch').usable, false);
+  assert.throws(
+    () => special.useSpecialItem(released, 'sakuya_watch', 'watch:release:cooldown'),
+    /今天已经使用过/,
+  );
 });
 
 test('R44 场景道具三上限、收尾清理、修缮包与异变并存', async () => {

@@ -366,6 +366,7 @@ function prepareM2AcceptanceState(state: GardenState, jump: TestJumpId) {
     state.facility_runtime!.fairy_garden.condition_id = 'fairy_garden_broken_fence';
     state.facilities!.fairy_garden.state = '损坏';
   }
+
 }
 
 export function testJumpReached(state: GardenState, jump: TestJumpId): boolean {

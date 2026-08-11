@@ -27,13 +27,11 @@ function waitingHas(state: GardenState, configId: string) {
 export interface SpecialItemUseResult {
   state: GardenState;
   message: string;
-  selectedEventId?: string;
   pendingAnomaly?: boolean;
 }
 
 /**
  * R39: incident card reserves a custom seven-day anomaly instead of rolling pre-registered incidents.
- * Legacy waiting_events already in saves remain completable and are never auto-promoted.
  */
 export function beginAnomalyCardUse(
   before: GardenState,
@@ -152,6 +150,22 @@ export function useSakuyaWatch(before: GardenState, useId: string): SpecialItemU
   return { state, message: dialogues.dialogues.watch_used };
 }
 
+export function releaseSakuyaWatch(before: GardenState, useId: string): SpecialItemUseResult {
+  validateUseId(useId);
+  if (before.events?.settled_ids?.includes(useId)) {
+    return { state: structuredClone(before), message: dialogues.dialogues.watch_released };
+  }
+  const watch = before.key_items?.sakuya_watch;
+  if (!watch?.obtained) throw new Error('尚未获得咲夜的怀表');
+  if (!watch.time_stop_active) throw new Error('当前没有正在生效的怀表时停');
+  const serialBefore = periodSerialFromState(before);
+  const state = structuredClone(before);
+  state.key_items!.sakuya_watch.time_stop_active = false;
+  appendSettlementId(state, useId);
+  if (periodSerialFromState(state) !== serialBefore) throw new Error('解除怀表不得推进正式时段');
+  return { state, message: dialogues.dialogues.watch_released };
+}
+
 export function useSpecialItem(
   before: GardenState,
   itemId: string,
@@ -162,6 +176,10 @@ export function useSpecialItem(
     if (!form) throw new Error('启用异变需要填写结构化表单');
     return activateAnomalyCard(before, useId, form);
   }
-  if (itemId === 'sakuya_watch') return useSakuyaWatch(before, useId);
+  if (itemId === 'sakuya_watch') {
+    return before.key_items?.sakuya_watch?.time_stop_active
+      ? releaseSakuyaWatch(before, useId)
+      : useSakuyaWatch(before, useId);
+  }
   throw new Error('该物品没有登记本地使用能力');
 }

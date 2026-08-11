@@ -195,6 +195,16 @@ export function completeDuelVictoryDialogue(before: GardenState, settlementId: s
   return state;
 }
 
+export function abandonDuelVictoryDialogue(before: GardenState, settlementId: string): GardenState {
+  validateSettlementId(settlementId);
+  const pending = before.inventory?.card_runtime?.duel?.pending_victory_dialogue;
+  if (!pending) return structuredClone(before);
+  if (pending.settlement_id !== settlementId) throw new Error('放弃要求 ID 与当前胜利事务不一致');
+  const state = structuredClone(before);
+  ensureCardRuntime(state).duel!.pending_victory_dialogue = null;
+  return state;
+}
+
 export function settleDuelCard(before: GardenState, result: BattleResult): DuelCardSettlementResult {
   validateSettlementId(result.settlement_id);
   const existingRuntime = before.inventory?.card_runtime;

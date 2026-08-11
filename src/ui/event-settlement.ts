@@ -44,10 +44,7 @@ const LOCAL_EVENT_ACTIONS = new Set([
   'remodel_to_free_growth',
   'remodel_to_doll_maintenance',
   'remodel_to_kappa_automation',
-  'investigate_clockwork_temporal_ripple',
   'investigate_sakuya_temporal_trace',
-  'observe_fairy_seed_shower',
-  'observe_wandering_magic_mist',
   'end_conversation',
   'investigate_flower_core',
   'resume_battle_settlement',
@@ -69,7 +66,6 @@ const LOCAL_EVENT_IDS = [
   'nitori_greenhouse_automation_proposal',
   'select_greenhouse_form',
   'remodel_greenhouse_form',
-  'clockwork_temporal_ripple',
   'sakuya_temporal_trace_investigation',
 ] as const;
 
@@ -633,30 +629,21 @@ function settleGreenhouseFormChange(state: GardenState, action: GardenActionMark
 
 function settleSpecialItemEvent(state: GardenState, action: GardenActionMarker) {
   const eventId = action.event_id;
-  if (eventId !== 'clockwork_temporal_ripple' && eventId !== 'sakuya_temporal_trace_investigation') {
+  if (eventId !== 'sakuya_temporal_trace_investigation') {
     throw new Error('特殊道具事件没有登记正确事件');
   }
   const watch = state.key_items?.sakuya_watch;
   if (!watch?.obtained || !watch.temporal_trace_active) throw new Error('没有可供调查的怀表时间痕迹');
   if (!state.events?.waiting_events?.some((event) => event.config_id === eventId)) throw new Error('该时间痕迹事件不在等待队列');
-  if (eventId === 'sakuya_temporal_trace_investigation' && (watch.total_uses ?? 0) < 2) {
+  if ((watch.total_uses ?? 0) < 2) {
     throw new Error('咲夜调查至少需要两次成功使用留下的痕迹');
   }
   completed(state)[eventId] = eventResultForAction(eventId, action.action_id)
     ?? eventById.get(eventId)?.allowed_results[0]
     ?? '';
   state.events!.waiting_events = state.events!.waiting_events!.filter((event) => event.config_id !== eventId);
-  if (eventId === 'sakuya_temporal_trace_investigation') {
-    watch.noticed_by_character_ids = Array.from(new Set([...(watch.noticed_by_character_ids ?? []), 'sakuya']));
-  }
+  watch.noticed_by_character_ids = Array.from(new Set([...(watch.noticed_by_character_ids ?? []), 'sakuya']));
   state.events!.active_event = null;
-}
-
-function settleWaitingFreeSideStory(state: GardenState, action: GardenActionMarker) {
-  const eventId = action.event_id;
-  if (eventId !== 'fairy_seed_shower' && eventId !== 'wandering_magic_mist') throw new Error('未登记的等待支线');
-  if (!state.events?.waiting_events?.some((event) => event.config_id === eventId)) throw new Error('该自由支线不在等待队列');
-  state.events.waiting_events = state.events.waiting_events.filter((event) => event.config_id !== eventId);
 }
 
 function settleConversationTurn(state: GardenState, action: GardenActionMarker) {
@@ -773,10 +760,7 @@ export function applyLocalSettlement(
     case 'remodel_to_free_growth':
     case 'remodel_to_doll_maintenance':
     case 'remodel_to_kappa_automation': settleGreenhouseFormChange(state, action); break;
-    case 'investigate_clockwork_temporal_ripple':
     case 'investigate_sakuya_temporal_trace': settleSpecialItemEvent(state, action); break;
-    case 'observe_fairy_seed_shower':
-    case 'observe_wandering_magic_mist': settleWaitingFreeSideStory(state, action); break;
     case 'greenhouse_research_talk':
     case 'continue_greenhouse_conversation': settleConversationTurn(state, action); break;
     case 'end_conversation': settleConversationEnd(state, action); break;

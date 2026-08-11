@@ -19,6 +19,9 @@
 - V2 二阶段持久化具备幂等短路，不再重复消费已清除的任务而误报 `missing-task`。
 - A07_leave 测试按钮已按新事务 `transactionId` 等待生成阶段，不会把上一轮 `settled` 当成本轮终态。
 - 变量初始化世界书条目保持关闭；新聊天初始状态由打包的 MVU initvar 提供。
+- 普通角色对话已改为等待玩家首轮输入；空输入不发送，未发送直接结束不创建楼层或调用 LLM。
+- 回想画廊已接入“幻想乡案内”：只读最近 1000 个真实楼层，支持起止范围、滑杆定位、逐 beat 回放和范围内图片网格。实现与验收步骤见 `project/gal-first-input-and-history-gallery-plan.md`。
+- 怀表主动解除与符卡胜利要求放弃已通过实机验收，相关临时测试控制台入口已移除；记录见 `project/2026-08-11-watch-duel-bugfix-acceptance.md`。
 
 ## 验收结论
 
@@ -42,7 +45,8 @@
 
 - `npm run check:ui`：通过。
 - `npm test`：739 项中 734 通过、5 失败，不能标记为全绿。
-- `npm run build:ui:standalone`：通过；2,196,294 bytes，SHA-256 `8b35d93631cf0eb038a20acf1b91e99b998974e5188845e1faf3d5857f80c2f3`。
+- `npm run build:ui:standalone`：通过；2,223,177 bytes，SHA-256 `c817ec4c348327a8f9e488a1523553516ce6603976112414116553174eb64f11`。
+- 首轮输入与回想画廊 UI 契约测试：140/140 通过；相关三组联合回归：178/178 通过。新画廊尚未记录真实 SillyTavern 实机验收。
 - 嵌入式 `package-checkpoint` dry-run：通过；远程 UI 打包 dry-run 因当前未生成 production/test loader 而不能作为通过项。
 - `git diff --check`：通过。
 - R2 generation 7 的 3 个 Boss 新增对象均通过 MIME、长度和 SHA-256 校验；生产 manifest 为 generation 7 且 `Cache-Control: no-store`。

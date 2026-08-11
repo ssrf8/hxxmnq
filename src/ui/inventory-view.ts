@@ -79,6 +79,8 @@ export function renderInventoryView(
   const pageRows = rows.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
 
   for (const row of pageRows) {
+    const watchActive = row.item_id === 'sakuya_watch'
+      && state.key_items?.sakuya_watch?.time_stop_active === true;
     const card = document.createElement('article');
     card.className = 'gg-inventory-item';
     card.dataset.kind = row.kind;
@@ -106,7 +108,9 @@ export function renderInventoryView(
     const status = document.createElement('p');
     status.className = 'gg-inventory-status';
     status.dataset.available = String(row.usable);
-    status.textContent = row.usable ? (row.kind === 'key_item' ? '现在可以使用' : '可在对应入口使用') : row.disabledReason;
+    status.textContent = watchActive
+      ? '时停生效中；可立即解除'
+      : row.usable ? (row.kind === 'key_item' ? '现在可以使用' : '可在对应入口使用') : row.disabledReason;
     content.append(titleLine, details, status);
 
     const side = document.createElement('div');
@@ -121,7 +125,7 @@ export function renderInventoryView(
       button.type = 'button';
       button.className = 'gg-inventory-use';
       button.textContent = row.item_id === 'sakuya_watch'
-        ? '使用怀表'
+        ? watchActive ? '解除时停' : '使用怀表'
         : row.item_id === 'incident_trigger_card'
           ? '启用异变'
           : row.item_id === 'opportunity_card'

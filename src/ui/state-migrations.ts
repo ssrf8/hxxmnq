@@ -7,6 +7,11 @@ import { deriveKnownCharacters } from './visitor-rules';
 
 const MAX_REWARDED_IDS = 256;
 const MAX_HISTORY = 8;
+const RETIRED_ANOMALY_CARD_EVENT_IDS = new Set([
+  'fairy_seed_shower',
+  'wandering_magic_mist',
+  'clockwork_temporal_ripple',
+]);
 
 function defaultFacilityRuntime() {
   return {
@@ -171,8 +176,14 @@ export function migrateGardenState(before: GardenState): GardenState {
   // v0.3.0 不迁移独立关系记忆；schema 会直接丢弃旧关系字段。
   state.events ??= {};
   state.events.settled_ids = Array.from(new Set(state.events.settled_ids ?? [])).slice(-256);
-  state.events.waiting_events = Array.isArray(state.events.waiting_events) ? state.events.waiting_events.slice(0, 3) : [];
+  state.events.waiting_events = Array.isArray(state.events.waiting_events)
+    ? state.events.waiting_events.filter((event) => !RETIRED_ANOMALY_CARD_EVENT_IDS.has(event.config_id ?? '')).slice(0, 3)
+    : [];
   state.events.completed_key_events ??= {};
+  for (const eventId of RETIRED_ANOMALY_CARD_EVENT_IDS) delete state.events.completed_key_events[eventId];
+  if (state.events.active_event && RETIRED_ANOMALY_CARD_EVENT_IDS.has(state.events.active_event.config_id ?? '')) {
+    state.events.active_event = null;
+  }
   state.uid_counters ??= {};
   delete state.uid_counters.relationship_fact;
   if (!Number.isInteger(state.uid_counters.interaction) || (state.uid_counters.interaction ?? 0) < 1) {

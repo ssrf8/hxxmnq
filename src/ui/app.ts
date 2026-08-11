@@ -23,9 +23,12 @@ import { memoryPort } from './memory-adapter-selection';
 import type { DatabaseSyncResult } from './memory-port';
 import { parseGardenAction, settlementProjection } from './event-settlement';
 import { assistantForCurrentTurn } from './gal-message-selection';
+import { buildGalGalleryEntries, filterGalGalleryEntries, type GalGalleryEntry } from './gal-gallery';
 import { mergeRemoteSexualPortraitSources, parseGalPortraitSources, resolveGalPortraitSource } from './gal-portrait-registry';
 import { projectGalScene } from './gal-scene';
 import { GardenMap } from './garden-map';
+
+const GALLERY_MESSAGE_LIMIT = 1000;
 import { resolveCharacterSprites } from './character-sprite-registry';
 import {
   buildBattleSettlementMessage,
@@ -158,12 +161,24 @@ const tutorialGuideText = byId<HTMLElement>('gg-tutorial-guide-text');
 const tutorialGuideSkip = byId<HTMLButtonElement>('gg-tutorial-guide-skip');
 const launcherDialog = byId<HTMLDialogElement>('gg-launcher-dialog');
 const launcherButton = byId<HTMLButtonElement>('gg-open-launcher');
+const galleryDialogueList = byId<HTMLElement>('gg-gallery-dialogues');
+const galleryImageList = byId<HTMLElement>('gg-gallery-images');
+const galleryPlayerDialog = byId<HTMLDialogElement>('gg-gallery-player-dialog');
+const galleryPlayerPortrait = byId<HTMLImageElement>('gg-gallery-player-portrait');
+const galleryPlayerStage = byId<HTMLElement>('gg-gallery-player-stage');
+const galleryRangeForm = byId<HTMLFormElement>('gg-gallery-range-form');
+const galleryRangeStart = byId<HTMLInputElement>('gg-gallery-range-start');
+const galleryRangeEnd = byId<HTMLInputElement>('gg-gallery-range-end');
+const galleryFloorSlider = byId<HTMLInputElement>('gg-gallery-floor-slider');
+const galleryFloorOutput = byId<HTMLOutputElement>('gg-gallery-floor-output');
+const galleryOpenFloor = byId<HTMLButtonElement>('gg-gallery-open-floor');
 const battleDialog = byId<HTMLDialogElement>('gg-battle-dialog');
 const dungeonDialog = byId<HTMLDialogElement>('gg-dungeon-dialog');
 const duelResultDialog = byId<HTMLDialogElement>('gg-duel-result-dialog');
 const duelVictoryDialog = byId<HTMLDialogElement>('gg-duel-victory-dialog');
 const duelVictoryForm = byId<HTMLFormElement>('gg-duel-victory-form');
 const duelVictoryRequest = byId<HTMLTextAreaElement>('gg-duel-victory-request');
+const duelVictoryAbandon = byId<HTMLButtonElement>('gg-duel-victory-abandon');
 const internalDialog = byId<HTMLDialogElement>('gg-internal-dialog');
 const internalDialogForm = byId<HTMLFormElement>('gg-internal-dialog-form');
 const internalDialogTitle = byId<HTMLElement>('gg-internal-dialog-title');
@@ -733,6 +748,12 @@ let activeBattleKind: 'flower_core' | 'dungeon' | 'practice' | 'duel' = 'flower_
 let activeDuelUseId = '';
 let activeDuelConversationTarget: InteractionTarget | null = null;
 let activeSceneId = '';
+let pendingTalkDraft: TargetAction | null = null;
+let galleryAllEntries: GalGalleryEntry[] = [];
+let galleryEntries: GalGalleryEntry[] = [];
+let galleryEntryIndex = -1;
+let galleryBeatIndex = 0;
+let galleryReadFloorCount = 0;
 let submissionInFlight = false;
 let automaticTaskInFlight = false;
 let inviteFeedback: {
@@ -834,8 +855,10 @@ function renderTutorialGuide() {
 
   let instruction = step.instruction;
   if (currentView === 'gal') {
-    instruction = '阅读当前剧情并点击对白框继续。剧情播放完毕后会返回庭园，再指向下一项目标。';
-    dialogueBox.classList.add('gg-tutorial-focus');
+    instruction = pendingTalkDraft
+      ? '先输入想对角色说的话；尚未发送时也可以直接结束聊天返回庭园。'
+      : '阅读当前剧情并点击对白框继续。剧情播放完毕后会返回庭园，再指向下一项目标。';
+    (pendingTalkDraft ? galInput : dialogueBox).classList.add('gg-tutorial-focus');
   } else if (currentView === 'facility' && pendingAction && route.actionIds.includes(pendingAction.id)) {
     instruction = `确认行动信息后，点击“${facilityConfirm.textContent || `确认${pendingAction.label}`}”。`;
     facilityConfirm.classList.add('gg-tutorial-focus');
@@ -869,7 +892,7 @@ function setView(view: SceneMode) {
   currentView = view;
   // 供 CSS 按当前视图切换外壳形态（庭园视图去边框、地图撑满）。
   byId('gg-app').dataset.activeView = view;
-  for (const name of ['garden', 'gal', 'facility', 'settings', 'shop', 'inventory', 'visitors', 'opportunities'] as SceneMode[]) {
+  for (const name of ['garden', 'gal', 'gallery', 'facility', 'settings', 'shop', 'inventory', 'visitors', 'opportunities'] as SceneMode[]) {
     const node = document.getElementById(`gg-view-${name}`);
     if (node) node.hidden = name !== view;
   }
@@ -1200,7 +1223,7 @@ function renderPendingTasks() {
 }
 
 function maybeStartAutomaticAnomalyResolution(transactionPhase: string) {
-  if (automaticTaskInFlight || submissionInFlight || currentView === 'gal' || activeTarget) return;
+  if (automaticTaskInFlight || submissionInFlight || currentView === 'gal' || currentView === 'gallery' || activeTarget) return;
   if (!['idle', 'settled'].includes(transactionPhase)) return;
   const task = state.pending_tasks?.find((item) => (
     item.kind === 'anomaly_resolution'
@@ -1483,7 +1506,227 @@ async function openSessionHistory() {
   if (!sessionHistoryDialog.open) sessionHistoryDialog.showModal();
 }
 
+function resolvedGalleryPortraitSource(
+  characterId: string | null,
+  cue: Pick<GalSceneProjection['beats'][number], 'visualMode' | 'reactionId' | 'poseId' | 'actId'>,
+) {
+  if (!characterId) return null;
+  return resolveGalPortraitSource(galPortraitSources, characterId, cue)
+    ?? characterSprites[characterId]?.idleSource
+    ?? null;
+}
+
+function renderTalkDraft() {
+  const draft = pendingTalkDraft;
+  if (!draft || draft.target.type !== 'character') return;
+  setGenerating(false);
+  scene = null;
+  sceneSignature = '';
+  suggestedReplies.replaceChildren();
+  sessionHistoryButton.disabled = true;
+  byId<HTMLButtonElement>('gg-regenerate').disabled = true;
+  dialogueBox.hidden = false;
+  dialogueBox.disabled = true;
+  const characterId = draft.target.id;
+  const source = resolvedGalleryPortraitSource(characterId, {
+    visualMode: 'normal', reactionId: 'neutral', poseId: 'default', actId: 'none',
+  });
+  byId('gg-scene-speaker').textContent = draft.target.label;
+  byId('gg-scene-text').textContent = `你来到${draft.target.label}面前。想说些什么？`;
+  byId('gg-scene-progress').textContent = '等待你的第一句话';
+  portraitStage.dataset.reaction = 'neutral';
+  portraitStage.dataset.visualMode = 'normal';
+  portraitStage.dataset.portraitKind = source ? 'gal' : 'narrator';
+  if (source) {
+    portrait.src = source;
+    portrait.alt = `${draft.target.label}普通立绘`;
+    portrait.hidden = false;
+    void assetPreloader.ensure(`asset:${source}`).catch(() => undefined);
+  } else {
+    portrait.removeAttribute('src');
+    portrait.alt = '';
+    portrait.hidden = true;
+  }
+  replyPanel.hidden = false;
+  galCompose.hidden = false;
+  galInput.disabled = false;
+  byId<HTMLButtonElement>('gg-send').disabled = false;
+  const endButton = byId<HTMLButtonElement>('gg-end-chat');
+  endButton.disabled = false;
+  endButton.textContent = '结束聊天';
+  renderSceneItemPicker();
+  queueMicrotask(() => galInput.focus({ preventScroll: true }));
+}
+
+function renderGalleryPlayer() {
+  const entry = galleryEntries[galleryEntryIndex];
+  const beat = entry?.scene.beats[galleryBeatIndex];
+  if (!entry || !beat) return;
+  const speaker = characterName(beat.speakerId);
+  const source = resolvedGalleryPortraitSource(beat.speakerId, beat);
+  byId('gg-gallery-player-speaker').textContent = speaker;
+  byId('gg-gallery-player-text').textContent = beat.text;
+  byId('gg-gallery-player-progress').textContent = `${galleryBeatIndex + 1} / ${entry.scene.beats.length}`;
+  galleryPlayerStage.dataset.visualMode = beat.visualMode;
+  if (source) {
+    galleryPlayerPortrait.src = source;
+    galleryPlayerPortrait.alt = `${speaker}回想图片`;
+    galleryPlayerPortrait.hidden = false;
+    void assetPreloader.ensure(`asset:${source}`).catch(() => undefined);
+  } else {
+    galleryPlayerPortrait.removeAttribute('src');
+    galleryPlayerPortrait.alt = '';
+    galleryPlayerPortrait.hidden = true;
+  }
+  byId<HTMLButtonElement>('gg-gallery-player-prev').disabled = galleryBeatIndex <= 0;
+  byId<HTMLButtonElement>('gg-gallery-player-next').disabled = galleryBeatIndex >= entry.scene.beats.length - 1;
+}
+
+function openGalleryPlayer(entryIndex: number, beatIndex = 0) {
+  const entry = galleryEntries[entryIndex];
+  if (!entry?.scene.beats.length) return;
+  galleryEntryIndex = entryIndex;
+  galleryBeatIndex = Math.max(0, Math.min(beatIndex, entry.scene.beats.length - 1));
+  renderGalleryPlayer();
+  if (!galleryPlayerDialog.open) galleryPlayerDialog.showModal();
+}
+
+function locateGalleryFloor(scrollIntoView = true) {
+  const index = Number(galleryFloorSlider.value);
+  const entry = galleryEntries[index];
+  galleryOpenFloor.disabled = !entry;
+  galleryFloorOutput.value = entry ? `第 ${entry.messageId} 楼` : '暂无剧情楼层';
+  galleryDialogueList.querySelectorAll('.gg-gallery-dialogue-card').forEach((card) => {
+    card.classList.toggle('gg-gallery-located', entry != null && (card as HTMLElement).dataset.messageId === String(entry.messageId));
+  });
+  if (!entry || !scrollIntoView) return;
+  galleryDialogueList.querySelector<HTMLElement>(`[data-message-id="${entry.messageId}"]`)
+    ?.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+}
+
+function renderGalleryEntries() {
+  const dialogueFragment = document.createDocumentFragment();
+  galleryEntries.forEach((entry, entryIndex) => {
+    const firstSpeaker = entry.scene.beats.find((beat) => beat.speakerId)?.speakerId ?? null;
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'gg-gallery-dialogue-card';
+    card.dataset.messageId = String(entry.messageId);
+    const title = document.createElement('strong');
+    title.textContent = firstSpeaker ? characterName(firstSpeaker) : '庭园回想';
+    const prompt = document.createElement('small');
+    prompt.textContent = `第 ${entry.messageId} 楼 · ${entry.userText || '无玩家输入摘要'}`;
+    const preview = document.createElement('span');
+    preview.textContent = entry.scene.beats.map((beat) => beat.text).join(' ').slice(0, 100);
+    card.append(title, prompt, preview);
+    card.addEventListener('click', () => openGalleryPlayer(entryIndex));
+    dialogueFragment.prepend(card);
+  });
+  if (!galleryEntries.length) {
+    const empty = document.createElement('p');
+    empty.className = 'gg-empty';
+    empty.textContent = '当前聊天还没有可以回放的 assistant 剧情楼层。';
+    dialogueFragment.append(empty);
+  }
+  galleryDialogueList.replaceChildren(dialogueFragment);
+
+  const imageFragment = document.createDocumentFragment();
+  const seenSources = new Set<string>();
+  galleryEntries.forEach((entry, entryIndex) => {
+    entry.scene.beats.forEach((beat, beatIndex) => {
+      const source = resolvedGalleryPortraitSource(beat.speakerId, beat);
+      if (!source || seenSources.has(source)) return;
+      seenSources.add(source);
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'gg-gallery-image-card';
+      const image = document.createElement('img');
+      image.src = source;
+      image.alt = `${characterName(beat.speakerId)} · ${beat.reactionId}`;
+      image.loading = 'lazy';
+      image.decoding = 'async';
+      const label = document.createElement('span');
+      label.textContent = characterName(beat.speakerId);
+      button.append(image, label);
+      button.addEventListener('click', () => openGalleryPlayer(entryIndex, beatIndex));
+      imageFragment.append(button);
+    });
+  });
+  if (!seenSources.size) {
+    const empty = document.createElement('p');
+    empty.className = 'gg-empty';
+    empty.textContent = '历史剧情中还没有可以解析的角色图片。';
+    imageFragment.append(empty);
+  }
+  galleryImageList.replaceChildren(imageFragment);
+  galleryFloorSlider.disabled = galleryEntries.length === 0;
+  galleryFloorSlider.min = '0';
+  galleryFloorSlider.max = String(Math.max(0, galleryEntries.length - 1));
+  galleryFloorSlider.value = String(Math.max(0, galleryEntries.length - 1));
+  locateGalleryFloor(false);
+  const start = galleryRangeStart.value;
+  const end = galleryRangeEnd.value;
+  byId('gg-gallery-summary').textContent = `读取最近 ${galleryReadFloorCount} 个真实楼层；当前范围 ${start}–${end}：${galleryEntries.length} 段剧情，${seenSources.size} 张去重图片。`;
+}
+
+function applyGalleryRange() {
+  const start = Number(galleryRangeStart.value);
+  const end = Number(galleryRangeEnd.value);
+  if (!Number.isFinite(start) || !Number.isFinite(end)) {
+    byId('gg-gallery-summary').textContent = '请输入有效的起始楼层和结束楼层。';
+    return;
+  }
+  const lower = Math.min(Math.trunc(start), Math.trunc(end));
+  const upper = Math.max(Math.trunc(start), Math.trunc(end));
+  galleryRangeStart.value = String(lower);
+  galleryRangeEnd.value = String(upper);
+  galleryEntries = filterGalGalleryEntries(galleryAllEntries, lower, upper);
+  renderGalleryEntries();
+}
+
+async function renderGallery() {
+  let messages: Awaited<ReturnType<typeof bridge.listMessages>>;
+  try {
+    messages = await bridge.listMessages(GALLERY_MESSAGE_LIMIT);
+  } catch (error) {
+    galleryAllEntries = [];
+    galleryEntries = [];
+    galleryDialogueList.replaceChildren();
+    galleryImageList.replaceChildren();
+    galleryFloorSlider.disabled = true;
+    galleryOpenFloor.disabled = true;
+    galleryFloorOutput.value = '暂无剧情楼层';
+    byId('gg-gallery-summary').textContent = `读取回想失败：${error instanceof Error ? error.message : String(error)}`;
+    return;
+  }
+  galleryReadFloorCount = messages.length;
+  galleryAllEntries = buildGalGalleryEntries(messages, state);
+  if (!galleryAllEntries.length) {
+    galleryRangeStart.value = '0';
+    galleryRangeEnd.value = '0';
+    galleryEntries = [];
+    renderGalleryEntries();
+    return;
+  }
+  const earliestFloor = galleryAllEntries[0].messageId;
+  const latestFloor = galleryAllEntries[galleryAllEntries.length - 1].messageId;
+  galleryRangeStart.min = String(earliestFloor);
+  galleryRangeStart.max = String(latestFloor);
+  galleryRangeEnd.min = String(earliestFloor);
+  galleryRangeEnd.max = String(latestFloor);
+  if (!galleryRangeStart.value || !galleryRangeEnd.value) {
+    galleryRangeStart.value = String(earliestFloor);
+    galleryRangeEnd.value = String(latestFloor);
+  }
+  applyGalleryRange();
+}
+
 async function renderGal() {
+  if (pendingTalkDraft) {
+    renderTalkDraft();
+    return;
+  }
+  sessionHistoryButton.disabled = false;
   void assetPreloader.ensure(`asset:${galBackgroundSource}`).catch(() => undefined);
   const transaction = await bridge.getTransactionState();
   let messages: Awaited<ReturnType<typeof bridge.listMessages>> | null = null;
@@ -1766,6 +2009,7 @@ async function chooseTargetAction(action: TargetAction) {
     hideTargetMenu();
     return;
   }
+  pendingTalkDraft = null;
   pendingAction = action;
   activeSceneId = state.scene_item_context?.scene_id || `scene:${Date.now().toString(36)}`;
   activeTarget = action.target;
@@ -1784,6 +2028,19 @@ async function chooseTargetAction(action: TargetAction) {
   }
   if (action.mode === 'facility') {
     openFacilityAction(action);
+    return;
+  }
+  if (action.id === 'talk' && action.target.type === 'character') {
+    pendingTalkDraft = action;
+    closurePending = false;
+    closurePresented = false;
+    singleShotEventPresentation = false;
+    scene = null;
+    sceneSignature = '';
+    galInput.value = '';
+    sceneItemInput.value = '';
+    setView('gal');
+    renderTalkDraft();
     return;
   }
   closurePending = false;
@@ -1998,6 +2255,11 @@ async function submitGalMessage(
 }
 
 async function endConversation() {
+  if (pendingTalkDraft) {
+    returnToGardenAfterFixedScene();
+    setStatus('尚未发送消息，已直接返回庭院。');
+    return;
+  }
   if (submissionInFlight || app.dataset.transactionBusy === 'true') {
     setStatus('当前回复尚未完成结算，暂时不能结束聊天。', true);
     return;
@@ -2032,9 +2294,12 @@ function returnToGardenAfterFixedScene() {
   singleShotEventPresentation = false;
   activeTarget = null;
   activeSceneId = '';
+  pendingTalkDraft = null;
   pendingAction = null;
   scene = null;
   sceneSignature = '';
+  galInput.value = '';
+  sceneItemInput.value = '';
   setView('garden');
   setStatus('已经返回庭园');
 }
@@ -2056,6 +2321,7 @@ async function performRefresh() {
       await renderGal();
       renderSceneItemPicker();
     }
+    if (currentView === 'gallery') await renderGallery();
     if (currentView === 'shop') renderShop();
     if (currentView === 'inventory') renderInventory();
     if (currentView === 'visitors') renderVisitors();
@@ -2184,6 +2450,7 @@ function renderSceneItemPicker() {
   });
   const watchItem = listInventoryCatalog().find((candidate) => candidate.item_id === 'sakuya_watch');
   const watchState = state.key_items?.sakuya_watch;
+  const watchActive = watchState?.time_stop_active === true;
   const watchCooldown = Boolean(watchState?.obtained) && (
     watchState?.state === 'daily_cooldown'
     || watchState?.last_used_day === (state.environment?.day ?? 1)
@@ -2194,7 +2461,7 @@ function renderSceneItemPicker() {
     button.className = 'gg-scene-item-option';
     button.dataset.itemId = 'sakuya_watch';
     button.dataset.kind = 'instant';
-    button.title = '即时使用 · 每日一次 · 长按查看完整介绍';
+    button.title = watchActive ? '解除当前时停' : '即时使用 · 每日一次 · 长按查看完整介绍';
     const mark = document.createElement('span');
     mark.className = 'gg-scene-item-option-mark';
     mark.textContent = '刻';
@@ -2203,15 +2470,17 @@ function renderSceneItemPicker() {
     const title = document.createElement('strong');
     title.textContent = watchItem.title;
     const description = document.createElement('small');
-    description.textContent = watchCooldown
+    description.textContent = watchActive
+      ? '五分钟停顿仍在生效；解除不会推进时段，也不会重置今日冷却。'
+      : watchCooldown
       ? '今日已经使用过，指针安静得像在嘲笑侥幸心理。'
       : (watchItem.blurb ?? watchItem.prompt_description);
     copy.append(title, description);
     const stock = document.createElement('span');
     stock.className = 'gg-scene-item-option-stock';
-    stock.textContent = watchCooldown ? '已冷却' : '即时使用';
+    stock.textContent = watchActive ? '解除时停' : watchCooldown ? '已冷却' : '即时使用';
     button.append(mark, copy, stock);
-    button.disabled = watchCooldown;
+    button.disabled = watchCooldown && !watchActive;
     attachSceneItemLongPress(button, watchItem, () => void useShopItem('sakuya_watch'));
     itemButtons.push(button);
   }
@@ -2400,7 +2669,28 @@ byId('gg-facility-back').addEventListener('click', () => setView('garden'));
 facilityConfirm.addEventListener('click', () => void confirmFacilityAction());
 byId<HTMLFormElement>('gg-gal-compose').addEventListener('submit', (event) => {
   event.preventDefault();
-  void submitGalMessage(galInput.value, 'interaction', { userVisibleText: galInput.value });
+  void (async () => {
+    const draft = pendingTalkDraft;
+    const userText = galInput.value;
+    if (!draft) {
+      await submitGalMessage(userText, 'interaction', { userVisibleText: userText });
+      return;
+    }
+    if (!userText.trim()) {
+      setStatus('先写点什么再发送吧。', true);
+      return;
+    }
+    pendingTalkDraft = null;
+    const sent = await submitGalMessage(
+      buildActionMessage({ ...draft, intent: userText.trim() }, state),
+      'interaction',
+      { userVisibleText: userText },
+    );
+    if (!sent) {
+      pendingTalkDraft = draft;
+      renderTalkDraft();
+    }
+  })();
 });
 byId('gg-end-chat').addEventListener('click', () => void endConversation());
 byId('gg-retry-transaction').addEventListener('click', async () => {
@@ -2438,6 +2728,39 @@ sessionHistoryDialog.addEventListener('click', (event) => {
 });
 sessionHistoryDialog.addEventListener('close', () => sessionHistoryButton.focus());
 byId('gg-open-settings').addEventListener('click', () => navigateFromLauncher(openSettings));
+byId('gg-open-gallery').addEventListener('click', () => navigateFromLauncher(() => {
+  if (currentView === 'gal' || pendingTalkDraft || activeTarget) {
+    setStatus('请先结束当前聊天，再打开回想画廊。', true);
+    return;
+  }
+  pendingAction = null;
+  scene = null;
+  sceneSignature = '';
+  activeTarget = null;
+  galleryRangeStart.value = '';
+  galleryRangeEnd.value = '';
+  setView('gallery');
+  void renderGallery();
+}));
+byId('gg-gallery-back').addEventListener('click', () => setView('garden'));
+galleryRangeForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  applyGalleryRange();
+});
+galleryFloorSlider.addEventListener('input', () => locateGalleryFloor());
+galleryOpenFloor.addEventListener('click', () => openGalleryPlayer(Number(galleryFloorSlider.value)));
+byId('gg-gallery-player-close').addEventListener('click', () => galleryPlayerDialog.close());
+byId('gg-gallery-player-prev').addEventListener('click', () => {
+  galleryBeatIndex -= 1;
+  renderGalleryPlayer();
+});
+byId('gg-gallery-player-next').addEventListener('click', () => {
+  galleryBeatIndex += 1;
+  renderGalleryPlayer();
+});
+galleryPlayerDialog.addEventListener('click', (event) => {
+  if (event.target === galleryPlayerDialog) galleryPlayerDialog.close();
+});
 byId('gg-settings-back').addEventListener('click', returnFromSettings);
 diagnosticExportButton.addEventListener('click', () => void downloadDiagnosticSnapshot());
 battleSoundEnabledInput.addEventListener('change', () => {
@@ -3310,8 +3633,9 @@ function openDuelVictoryDialog() {
     ? '继续未完成的胜利剧情'
     : '提交要求并进入剧情';
   byId('gg-duel-victory-status').textContent = pending.status === 'generating'
-    ? '要求已锁定；如上一轮生成中断，可从这里安全继续。'
+    ? '要求已锁定；可以继续原事务，无法恢复时也可以放弃本次要求。'
     : '';
+  duelVictoryAbandon.disabled = false;
   if (!duelVictoryDialog.open) duelVictoryDialog.showModal();
   if (!duelVictoryRequest.disabled) duelVictoryRequest.focus();
 }
@@ -3334,7 +3658,9 @@ async function submitDuelVictoryRequest() {
     if (pending.status === 'generating') {
       try {
         await bridge.retryLastTransaction();
-      } catch {
+      } catch (error) {
+        const transaction = await bridge.getTransactionState();
+        if (transaction.userMessageCreated || transaction.assistantResponded) throw error;
         await bridge.sendDuelVictoryRequest(requestText, message);
       }
     } else {
@@ -3353,6 +3679,28 @@ async function submitDuelVictoryRequest() {
     openDuelVictoryDialog();
   } finally {
     submit.disabled = false;
+  }
+}
+
+async function abandonDuelVictoryRequest() {
+  const pending = state.inventory?.card_runtime?.duel?.pending_victory_dialogue;
+  if (!pending) return;
+  const confirmed = await confirmInApp({
+    title: '放弃本次胜利要求',
+    message: '只放弃尚未完成的要求剧情；已经结算的战斗胜负、杂鱼标签和消耗都会保留。',
+    confirmLabel: '确认放弃',
+  });
+  if (!confirmed) return;
+  duelVictoryAbandon.disabled = true;
+  try {
+    await bridge.abandonDuelVictoryRequest(pending.settlement_id);
+    if (duelVictoryDialog.open) duelVictoryDialog.close();
+    await refresh();
+    setView('garden');
+    setStatus('已放弃本次胜利要求；后续符卡对战已恢复可用。', false, 'success');
+  } catch (error) {
+    duelVictoryAbandon.disabled = false;
+    byId('gg-duel-victory-status').textContent = `放弃失败：${error instanceof Error ? error.message : String(error)}`;
   }
 }
 
@@ -4251,9 +4599,10 @@ duelVictoryForm.addEventListener('submit', (event) => {
   event.preventDefault();
   void submitDuelVictoryRequest();
 });
+duelVictoryAbandon.addEventListener('click', () => void abandonDuelVictoryRequest());
 duelVictoryDialog.addEventListener('cancel', (event) => {
   event.preventDefault();
-  setStatus('胜利要求尚未完成，必须提交后才能继续。', true);
+  setStatus('胜利要求尚未完成；可以提交、继续恢复或主动放弃。', true);
 });
 byId('gg-open-opportunities').addEventListener('click', () => navigateFromLauncher(() => { setView('opportunities'); renderOpportunities(); }));
 byId('gg-opportunities-back').addEventListener('click', () => setView('garden'));

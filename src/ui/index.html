@@ -183,6 +183,56 @@
         </dialog>
       </section>
 
+      <section id="gg-view-gallery" class="gg-view gg-gallery" aria-labelledby="gg-gallery-title" hidden>
+        <header class="gg-scene-toolbar gg-gallery-toolbar">
+          <button type="button" id="gg-gallery-back">返回庭院</button>
+          <div>
+            <p class="gg-eyebrow">READ-ONLY MEMORIES</p>
+            <h2 id="gg-gallery-title">回想画廊</h2>
+          </div>
+        </header>
+        <p id="gg-gallery-summary" class="gg-note" role="status" aria-live="polite">正在读取当前聊天记录……</p>
+        <form id="gg-gallery-range-form" class="gg-gallery-range-form">
+          <label>起始楼层<input id="gg-gallery-range-start" type="number" inputmode="numeric" step="1" required></label>
+          <label>结束楼层<input id="gg-gallery-range-end" type="number" inputmode="numeric" step="1" required></label>
+          <button type="submit">应用范围</button>
+        </form>
+        <div class="gg-gallery-locator">
+          <label for="gg-gallery-floor-slider">快速定位剧情楼层</label>
+          <input id="gg-gallery-floor-slider" type="range" min="0" max="0" value="0" step="1" disabled>
+          <output id="gg-gallery-floor-output" for="gg-gallery-floor-slider">暂无剧情楼层</output>
+          <button type="button" id="gg-gallery-open-floor" disabled>查看该楼层</button>
+        </div>
+        <section class="gg-gallery-section" aria-labelledby="gg-gallery-dialogues-title">
+          <h3 id="gg-gallery-dialogues-title">剧情回想</h3>
+          <div id="gg-gallery-dialogues" class="gg-gallery-dialogues"></div>
+        </section>
+        <section class="gg-gallery-section" aria-labelledby="gg-gallery-images-title">
+          <h3 id="gg-gallery-images-title">图片回想</h3>
+          <div id="gg-gallery-images" class="gg-gallery-images"></div>
+        </section>
+        <dialog id="gg-gallery-player-dialog" class="gg-gallery-player-dialog" aria-labelledby="gg-gallery-player-speaker">
+          <div class="gg-gallery-player-shell">
+            <header>
+              <p class="gg-eyebrow">剧情回放</p>
+              <button type="button" id="gg-gallery-player-close">关闭</button>
+            </header>
+            <div id="gg-gallery-player-stage" class="gg-gallery-player-stage" data-visual-mode="normal">
+              <img id="gg-gallery-player-portrait" alt="" hidden>
+            </div>
+            <div class="gg-gallery-player-dialogue">
+              <strong id="gg-gallery-player-speaker">旁白</strong>
+              <p id="gg-gallery-player-text"></p>
+              <small id="gg-gallery-player-progress"></small>
+            </div>
+            <div class="gg-actions">
+              <button type="button" id="gg-gallery-player-prev">上一段</button>
+              <button type="button" id="gg-gallery-player-next">下一段</button>
+            </div>
+          </div>
+        </dialog>
+      </section>
+
       <section id="gg-view-facility" class="gg-view gg-facility" aria-labelledby="gg-facility-title" hidden>
         <header class="gg-scene-toolbar">
           <button type="button" id="gg-facility-back">返回庭院</button>
@@ -367,6 +417,7 @@
                 <button type="button" class="gg-test-wide gg-test-danger" data-test-jump="presence_clear">清空全部在场角色</button>
               </div>
             </section>
+
           </div>
         </section>
         <p class="gg-note">正常游戏只显示这一份常驻界面；后台楼层仍是真实消息。发生故障时可以临时恢复原生聊天。</p>
@@ -408,6 +459,7 @@
 
       <nav class="gg-launcher-secondary" aria-label="庭园辅助功能">
         <button type="button" id="gg-open-opportunities">开放庭园</button>
+        <button type="button" id="gg-open-gallery">回想画廊</button>
         <button type="button" id="gg-fullscreen" aria-label="切换全屏显示">全屏显示</button>
         <button type="button" id="gg-open-settings" aria-label="打开设置与恢复">设置与恢复</button>
       </nav>
@@ -565,6 +617,7 @@
       <p id="gg-duel-victory-hint" class="gg-note">要求提交后会锁定；只生成一次胜利剧情，不会直接修改金币、设施或其他本地状态。</p>
       <p id="gg-duel-victory-status" role="status" aria-live="polite"></p>
       <div class="gg-actions">
+        <button type="button" id="gg-duel-victory-abandon">放弃本次要求</button>
         <button type="submit" id="gg-duel-victory-submit">提交要求并进入剧情</button>
       </div>
     </form>

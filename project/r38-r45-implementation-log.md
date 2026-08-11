@@ -63,7 +63,7 @@
 - 字段链变更：
   - 新增 `anomaly_cycle` / `visit_scheduler` / `facility_runtime` / `garden_projects` / `garden_activities` / `scene_item_context` / `ui_flags` / `presence_snapshot.visitor_meta`
   - 全链：ledger → initial → schema → migration → types → rules → UI/prompt → tests
-- 数据迁移：旧 `events.waiting_events` 保留且不提升为七日异变；M2 字段幂等补默认值
+- 数据迁移：退役的随机异变卡等待／活动／完成事件会被清除，不提升为自定义异变；M2 字段幂等补默认值
 - 命令与结果：
   - `npm run check:ui`：通过
   - `npm test`：56/56 通过
