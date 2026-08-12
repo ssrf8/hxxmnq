@@ -17,7 +17,7 @@
 目标源码固定为 SillyTavern `1.18.0`、JS-Slash-Runner / Tavern Helper `4.8.18` 与当前 MagVarUpdate 源码；本节只记录声明和代码逻辑证据，**未运行探针，也不声明真实宿主时序 PASS**。
 
 - `@types/function/chat_message.d.ts`：`getChatMessages(range,{include_swipes:false,hide_state:'all'})` 读取活动页；`deleteChatMessages(ids,{refresh:'none'})` 删除指定楼层；`createChatMessages(messages,{insert_before:'end',refresh:'none'})` 按序追加并接受楼层 `data`。
-- `@types/function/worldbook.d.ts`：`getOrCreateChatWorldbook('current')` 返回当前聊天绑定世界书；`getWorldbook(name)` 读取条目；`updateWorldbookWith(name,updater)` 用一次 updater 替换同槽条目并保留其他条目。生产壳优先使用 iframe 平铺函数，缺失时从 `TavernHelper` 门面补齐。
+- `@types/function/worldbook.d.ts`：`getWorldbookNames()` 返回现有世界书名称，`createWorldbook(name, [])` 创建空世界书，`getWorldbook(name)` 读取条目，`updateWorldbookWith(name,updater)` 用一次 updater 替换同槽条目并保留其他条目。2026-08-11 起存档固定使用 `幻想乡物语_存档`：每次先按名称查找，缺失才创建，不再调用会优先复用当前聊天绑定书的 `getOrCreateChatWorldbook('current')`。生产壳优先使用 iframe 平铺函数，缺失时从 `TavernHelper` 门面补齐；静态依据为目标安装 `F:/agent airp/SillyTavern/.../worldbook.d.ts` 与 `src/function/worldbook.ts`，置信度高，跨新对话复用仍待实机核对。
 - `@types/iframe/exported.sillytavern.d.ts`：`SillyTavern.reloadCurrentChat(): Promise<void>`；Bridge 同时兼容平铺 `reloadCurrentChat`，但不把“声明存在”写成刷新时序已验收。
 - 2026-08-10 实机回归勘误：Helper 4.8.18 的 chat-scope 对应 `chat_metadata.variables`，message-scope 对应 `chat[message_id].variables[swipe_id]`，二者不会自动同步。存档合并快照必须拆分恢复：移除 `stat_data` 后的会话变量写入 `{type:'chat'}`，正式 `stat_data` 合并进重建后最后一个 assistant 并写入 `{type:'message',message_id}`；成功与自动回滚共用该路径。旧“完整 MvuData 只写 chat-scope、无需 assistant 状态锚点”裁定作废。
 - 静态回归：schema/codec/capture 5 项、世界书仓库 4 项、恢复事务 8 项、UI/Bridge 合同 1 项；全量 696/696 PASS。读取时会再次白名单化楼层字段；删除、首/末创建批、MVU 写入与 reload 失败的 fake-host 路径均恢复读档前消息和 MVU。

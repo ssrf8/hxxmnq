@@ -702,36 +702,33 @@ function settleFlowerCore(state: GardenState, action: GardenActionMarker) {
   }
   state.battle!.settled_ids ??= [];
   if (state.battle!.settled_ids!.includes(result.settlement_id)) throw new Error('该战斗结果已经结算');
+  state.battle!.settled_ids = [...state.battle!.settled_ids!, result.settlement_id];
+  state.battle!.current = null;
+  state.events!.active_event = null;
+  if (result.outcome === 'loss') return;
+
   completed(state).greenhouse_flower_core = result.outcome;
   const facility = state.facilities!.magic_greenhouse;
   facility.active_effects ??= [];
-  if (result.outcome === 'loss') {
-    facility.state = '异常';
-    facility.active_effects = Array.from(new Set([...facility.active_effects, '妖花核心暂时占据温室深处']));
-  } else {
-    facility.state = '启用';
-    const effect = result.outcome === 'narrow_win'
-      ? '妖花核心休眠，根系余波待观察'
-      : result.outcome === 'narrative'
-        ? '妖花核心经协商封存，仍有轻微异常'
-        : '';
-    facility.active_effects = effect ? [effect] : [];
-  }
+  facility.state = '启用';
+  const effect = result.outcome === 'narrow_win'
+    ? '妖花核心休眠，根系余波待观察'
+    : result.outcome === 'narrative'
+      ? '妖花核心经协商封存，仍有轻微异常'
+      : '';
+  facility.active_effects = effect ? [effect] : [];
   state.memory ??= { long_term_notes: [] };
   state.memory.long_term_notes ??= [];
   state.memory.long_term_notes = Array.from(new Set([
     ...state.memory.long_term_notes,
     '庭守钥与温室核心共鸣，暗示未来可建立移动锚点',
   ]));
-  state.battle!.settled_ids = [...state.battle!.settled_ids!, result.settlement_id];
   state.battle!.dungeon_unlocked = true;
   state.battle!.run_count ??= 0;
   state.battle!.last_run ??= null;
   state.battle!.rewarded_ids ??= [];
   state.shop ??= {};
   state.shop.unlocked = true;
-  state.battle!.current = null;
-  state.events!.active_event = null;
 }
 
 export function applyLocalSettlement(

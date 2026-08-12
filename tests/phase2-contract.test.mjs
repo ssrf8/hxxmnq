@@ -192,6 +192,25 @@ test('R4：全局 generationTransport 只服务 V1/诊断，不覆盖 V2 合同'
   assert.match(bridge, /const isV2Retry = pendingRequest\?\.schema === REQUEST_SCHEMA_V2/);
 });
 
+test('R4：V2 停止按当前事务 schema 路由到 stopGenerationById，不受默认 native transport 影响', () => {
+  assert.match(
+    bridge,
+    /const usesHelperGeneration = generationTransport === 'helper-generate'\s*\|\| current\.requestSchema === REQUEST_SCHEMA_V2;/,
+  );
+  assert.match(bridge, /if \(usesHelperGeneration && current\.generationId\) \{/);
+  assert.doesNotMatch(bridge, /if \(generationTransport === 'helper-generate' && current\.generationId\) \{/);
+});
+
+test('R4：普通对话主动停止会精确删掉未回复玩家楼层并释放全局事务', () => {
+  assert.match(bridge, /const finalizeStoppedInteraction = async \(\) => \{/);
+  assert.match(bridge, /message\.extra\.gensokyoTransactionId === current\.transactionId/);
+  assert.match(bridge, /userIndex !== messages\.length - 1/);
+  assert.match(bridge, /deleteChatMessages\(\[userMessageId\], \{ refresh: 'none' \}\)/);
+  assert.match(bridge, /pendingRequest = null;[\s\S]*?pendingSettlement = null;[\s\S]*?pendingOwnershipBefore = null;/);
+  assert.match(bridge, /transactions\.cancelStopped\(\)/);
+  assert.match(app, /生成已停止，可以继续发送/);
+});
+
 // ---- B2-T08-R1：新请求身份与单次注入（外援强制裁定 3/5/6/7）----
 test('R1：app 普通入口不预先注入 narrative contract（纯文本 + 结构化 requestContext）', () => {
   // submitGalMessage 传纯 value
@@ -205,7 +224,7 @@ test('R1：app 普通入口不预先注入 narrative contract（纯文本 + 结�
   assert.match(app, /explicitCharacterIds: authorizedCharacterIds/);
   assert.match(app, /requireMainTarget: Boolean\(activeTargetCharacterId\)/);
   // 异变调查锁定 reimu
-  assert.match(app, /mainTargetCharacterId: 'reimu', explicitCharacterIds: \['reimu'\], requireMainTarget: true/);
+  assert.match(app, /mainTargetCharacterId: 'reimu',[\s\S]*?explicitCharacterIds: \['reimu'\],[\s\S]*?requireMainTarget: true/);
 });
 
 test('R1：MessageTransactionSnapshot.requestSchema 在带 request 的 submit/restore 真实赋值', () => {
@@ -221,22 +240,21 @@ test('R2：sceneItemPreview 由 bridge 用 queueSceneItemUse 从持久态派生�
   // 有 preview 时派生 promptState，无则用 before
   assert.match(bridge, /const injectState = requestContext\?\.sceneItemPreview/);
   assert.match(bridge, /queueSceneItemUse\(\s*before,/s);
-  // 注入 state 用 promptState，并只传结构化显式角色给统一 builder
-  assert.match(bridge, /state: injectState,/);
+  // 注入 state 用最终只读 promptState，并只传结构化显式角色给统一 builder
+  assert.match(bridge, /const promptState = requestContext\?\.sceneAreaId/);
+  assert.match(bridge, /state: promptState,/);
   assert.match(bridge, /explicitCharacterIds: requestContext\?\.explicitCharacterIds/);
   assert.doesNotMatch(bridge, /contractInjector|withGardenNarrativeContract/);
   // 身份/结算仍以持久 before（pendingOwnershipBefore 克隆 before）
   assert.match(bridge, /pendingOwnershipBefore = structuredClone\(before\);/);
 });
 
-test('R2：app 只传结构化 preview，不传整份 GardenState；成功后仍走 queue_scene_item M2', () => {
+test('R2：app 只传结构化 preview，道具消费由 bridge 与回复结算原子提交', () => {
   assert.doesNotMatch(app, /sendUserMessage\([\s\S]*?queueSceneItemUse\(/);
   assert.match(app, /sceneItemPreview: \{/);
-  assert.match(app, /type: 'queue_scene_item',/);
-  // 失败路径（sendUserMessage 抛错）不会执行 M2：M2 调用位于发送成功之后
-  const sendIndex = app.indexOf('await bridge.sendUserMessage(');
-  const m2Index = app.indexOf("type: 'queue_scene_item'");
-  assert.ok(sendIndex !== -1 && m2Index !== -1 && m2Index > sendIndex, 'queue_scene_item 必须在发送成功之后');
+  assert.doesNotMatch(app, /type: 'queue_scene_item',/);
+  assert.match(bridge, /applyPendingSceneContext/);
+  assert.match(bridge, /pendingSceneContext = null/);
 });
 
 // ---- B2-T08-R3：两个系统生成入口改为 V2（外援强制裁定 6）----
@@ -254,12 +272,18 @@ test('R3：异变收束构造 V2 request + 合并 system-operation metadata，�
   assert.doesNotMatch(app, /sendAnomalyResolution\(withGardenNarrativeContract/);
 });
 
-test('R3：决斗胜利以锁定后 reread 状态构造 V2（mainTarget=对手，requireMainTarget:true）', () => {
+test('R3：决斗胜利先在内存构造 V2，成功后才持久化锁（mainTarget=对手）', () => {
   assert.match(bridge, /async sendDuelVictoryRequest\(requestText: string, message: string\)/);
-  assert.match(bridge, /const duelTargetId = rereadPending\.target_character_id;/);
+  const start = bridge.indexOf('async sendDuelVictoryRequest(');
+  const end = bridge.indexOf('async abandonDuelVictoryRequest(', start);
+  const method = bridge.slice(start, end);
+  assert.match(method, /const stagedPending = staged\.inventory/);
+  assert.match(method, /const duelTargetId = stagedPending\.target_character_id;/);
   assert.match(bridge, /mainTargetCharacterId: duelTargetId \?\? null,/);
   assert.match(bridge, /requireMainTarget: true,/);
   assert.match(bridge, /决斗胜利 V2 请求构造失败/);
+  assert.ok(method.indexOf('const v2 = buildGalGenerationRequestV2') < method.indexOf('await mvu.replaceMvuData'));
+  assert.ok(method.indexOf('if (!v2.ok)') < method.indexOf('pendingOwnershipBefore = structuredClone(reread)'));
   assert.match(bridge, /type: 'duel_victory_dialogue',/);
   assert.match(bridge, /\.\.\.buildRequestMetadataV2\(v2\.request\),/);
   // 不创建第二套结算器：pendingSystemOperation 保持原样

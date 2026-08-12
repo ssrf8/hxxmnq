@@ -57,11 +57,12 @@
       <aside id="gg-tutorial-guide" class="gg-tutorial-guide" aria-live="polite" hidden>
         <div>
           <p id="gg-tutorial-guide-progress" class="gg-eyebrow">新手指引</p>
-          <h2 id="gg-tutorial-guide-title">下一步</h2>
+          <h2 id="gg-tutorial-guide-title" tabindex="-1">下一步</h2>
           <p id="gg-tutorial-guide-text"></p>
         </div>
-        <button type="button" id="gg-tutorial-guide-skip">快进并完成教程</button>
+              <button type="button" id="gg-tutorial-guide-skip">跳过教程并前往温室选型</button>
       </aside>
+      <button type="button" id="gg-tutorial-guide-restore" aria-controls="gg-tutorial-guide" hidden>展开新手指引</button>
       <header class="gg-header">
         <div class="gg-title-wrap">
           <p class="gg-eyebrow">会移动的结界领地</p>
@@ -70,6 +71,7 @@
         <div class="gg-status-line" aria-label="庭园状态">
           <span id="gg-time">春·第1日·清晨</span>
           <span id="gg-weather">晴</span>
+          <span id="gg-time-stop-countdown" role="status" aria-live="polite" hidden></span>
           <span id="gg-resources">物资 6 · 灵感 1 · 金币 0 · 杂鱼标签 ×0</span>
         </div>
         <button type="button" id="gg-open-launcher" class="gg-icon-button" aria-haspopup="dialog" aria-controls="gg-launcher-dialog">幻想乡案内</button>
@@ -133,6 +135,7 @@
             <textarea id="gg-gal-input" rows="3" maxlength="6000" placeholder="手动输入对话或行动……"></textarea>
             <div class="gg-actions">
               <button type="submit" id="gg-send">发送</button>
+              <button type="button" id="gg-repair-generation">修复</button>
               <button type="button" id="gg-end-chat">结束聊天</button>
               <button type="button" id="gg-retry-transaction" hidden>继续上次生成</button>
             </div>
@@ -206,6 +209,11 @@
         <section class="gg-gallery-section" aria-labelledby="gg-gallery-dialogues-title">
           <h3 id="gg-gallery-dialogues-title">剧情回想</h3>
           <div id="gg-gallery-dialogues" class="gg-gallery-dialogues"></div>
+          <nav id="gg-gallery-pagination" class="gg-gallery-pagination" aria-label="剧情回想分页" hidden>
+            <button type="button" id="gg-gallery-page-prev">上一页</button>
+            <output id="gg-gallery-page-output" aria-live="polite">第 1 / 1 页</output>
+            <button type="button" id="gg-gallery-page-next">下一页</button>
+          </nav>
         </section>
         <section class="gg-gallery-section" aria-labelledby="gg-gallery-images-title">
           <h3 id="gg-gallery-images-title">图片回想</h3>
@@ -258,21 +266,21 @@
       <section id="gg-view-shop" class="gg-view gg-shop" aria-label="灵梦小店" hidden>
         <img id="gg-shop-background" alt="" aria-hidden="true">
         <div id="gg-shop-content"></div>
-        <button type="button" id="gg-shop-back" class="gg-shop-leave">离开小店</button>
+        <button type="button" id="gg-shop-back" class="gg-shop-leave">返回游戏</button>
       </section>
 
       <section id="gg-view-inventory" class="gg-view gg-settings gg-inventory" aria-label="背包" hidden>
-        <header class="gg-scene-toolbar gg-inventory-toolbar"><button type="button" id="gg-inventory-back">返回庭院</button><p class="gg-eyebrow">幻想乡道具整理帖</p></header>
+        <header class="gg-scene-toolbar gg-inventory-toolbar"><button type="button" id="gg-inventory-back">返回游戏</button><p class="gg-eyebrow">幻想乡道具整理帖</p></header>
         <div id="gg-inventory-content"></div>
       </section>
 
       <section id="gg-view-visitors" class="gg-view gg-settings gg-visitors" aria-labelledby="gg-visitors-title" hidden>
-        <header class="gg-scene-toolbar gg-visitors-toolbar"><button type="button" id="gg-visitors-back">返回庭院</button><div><p class="gg-eyebrow">一盏茶的来往</p><h2 id="gg-visitors-title">来客茶席</h2></div></header>
+        <header class="gg-scene-toolbar gg-visitors-toolbar"><button type="button" id="gg-visitors-back">返回游戏</button><div><p class="gg-eyebrow">一盏茶的来往</p><h2 id="gg-visitors-title">来客茶席</h2></div></header>
         <div id="gg-visitors-content"></div>
       </section>
 
       <section id="gg-view-opportunities" class="gg-view gg-settings gg-opportunities" aria-label="教程与开放庭园机会" hidden>
-        <header class="gg-scene-toolbar"><button type="button" id="gg-opportunities-back">返回庭院</button><p class="gg-eyebrow">教程进度 · 开放庭园</p></header>
+        <header class="gg-scene-toolbar"><button type="button" id="gg-opportunities-back">返回游戏</button><p class="gg-eyebrow">教程进度 · 开放庭园</p></header>
         <div id="gg-opportunities-content"></div>
       </section>
 
@@ -306,9 +314,17 @@
           </label>
           <p class="gg-note">该偏好只保存在本机（本会话），不写入庭园状态。</p>
         </fieldset>
+        <fieldset class="gg-sound-settings">
+          <legend>剧情记忆</legend>
+          <label class="gg-sound-toggle" for="gg-card-recall-enabled">
+            <input id="gg-card-recall-enabled" type="checkbox" checked>
+            <span><strong>卡内角色剧情召回</strong><small>读取 MVU 中每名角色的独立剧情梗概；关闭后仍照常写入和更新，只停止后续召回</small></span>
+          </label>
+          <p class="gg-note">使用外部数据库召回时可以关闭，避免两套记忆同时进入提示词。切换只影响下一次新请求；已经发送的请求与重新生成仍沿用各自冻结的上下文。</p>
+        </fieldset>
         <fieldset id="gg-save-panel" class="gg-save-panel" aria-busy="false">
           <legend>存档与读档</legend>
-          <p class="gg-note">保存当前聊天楼层与完整 MVU。读档会替换当前未保存进度，不会自动生成新剧情。</p>
+          <p class="gg-note">保存当前聊天楼层与完整 MVU；所有对话共用“幻想乡物语_存档”世界书。读档会替换当前未保存进度，不会自动生成新剧情。</p>
           <div id="gg-save-slots" class="gg-save-slots" aria-label="手动存档槽位"></div>
           <p id="gg-save-status" class="gg-note" role="status" aria-live="polite"></p>
         </fieldset>
@@ -341,7 +357,7 @@
             </div>
           </div>
         </dialog>
-        <section class="gg-test-tools" aria-labelledby="gg-test-tools-title">
+        <section class="gg-test-tools" aria-labelledby="gg-test-tools-title" hidden>
           <p class="gg-eyebrow">验收辅助</p>
           <h3 id="gg-test-tools-title">测试控制面板</h3>
           <p class="gg-note">这是管理员验收入口。快进按钮只写测试快照；实机链路按钮会创建真实消息并调用剧情模型与额外变量模型。只在专用测试聊天中使用。</p>

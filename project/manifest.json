@@ -1,9 +1,9 @@
 {
   "id": "gensokyo-moving-garden-0.3.0",
   "version": "0.3.0",
-  "status": "development",
-  "released_checkpoint": "0.2.0-r89",
-  "next_checkpoint": "0.3.0-r1",
+  "status": "release-candidate",
+  "released_checkpoint": "0.3.0-r7",
+  "next_checkpoint": "0.3.0-r8",
   "planned_checkpoint_sequence": [
     "0.2.0-r19",
     "0.2.0-r20",
@@ -83,7 +83,14 @@
     "0.2.0-r94",
     "0.2.0-r95",
     "0.2.0-r96",
-    "0.3.0-r1"
+    "0.3.0-r1",
+    "0.3.0-r2",
+    "0.3.0-r3",
+    "0.3.0-r4",
+    "0.3.0-r5",
+    "0.3.0-r6",
+    "0.3.0-r7",
+    "0.3.0-r8"
   ],
   "source_root": "../src",
   "test_root": "../tests",
@@ -101,36 +108,52 @@
     "published": false
   },
   "working_tree_update": {
-    "date": "2026-08-11",
-    "scope": "youmu-patchouli-sanae-animation-static-lorebook-items-boss-r2",
+    "date": "2026-08-12",
+    "scope": "production UI r9 hotfix: fix flower-core guidance and make tutorial skip end all guidance at greenhouse form selection",
     "typecheck": "pass",
-    "tests": "npm test (734/739 pass; 5 known failures documented in agent-handoff.md)",
+    "tests": "npm test (760/760 pass)",
     "diff_check": "pass",
-    "package_checkpoint_dry": "embedded dry-run pass (0.3.0-r1, 30 lorebook entries, no formal package written); remote UI dry-run pending loaders",
+    "package_checkpoint_dry": "0.3.0-r7 production remote dry-run passed (30 lorebook entries, 329,189 bytes, sha256 45f88aa598fd8426263f0f809ffb89a8ddb0c9eb8eb39107f20ad62909cb39b4)",
     "standalone_ui_build": {
-      "bytes": 2196294,
-      "sha256": "8b35d93631cf0eb038a20acf1b91e99b998974e5188845e1faf3d5857f80c2f3"
+      "ui_delivery": "remote",
+      "ui_version": "r9",
+      "bytes": 2252572,
+      "sha256": "15994d29e365e7aacff0f8c36832f4bfe109d340b8bf11c024fa42a1a05035de"
     },
     "r2_live": {
-      "generation": 7,
-      "files": 254,
-      "bytes": 355238436,
-      "manifest_sha256": "6b6bd8afa66e36e5bce9ddd9b56fd86cdb174d6037c7fa44bc15e82fdeec80b2",
+      "generation": 8,
+      "files": 263,
+      "bytes": 355377120,
+      "manifest_sha256": "64ac62ae0896e2523af23b137fd2acabfd2d2d4c92f743aeacb94cfdc28d4507",
       "uploaded_and_verified": true
     },
-    "known_failures": [
-      "missing owner archive: 旧素材/素材处理/CG/妖梦/正常 sfw.png",
-      "two ui-channel publisher tests blocked by non-dotenv Cloudflare console export in .env",
-      "test-channel package dry-run missing dist/runtime/test/profiles/standalone-mvu/ui-loader.js",
-      "open-garden tutorial progress test returns empty next-step text"
-    ],
+    "r2_ui": {
+      "channel": "production",
+      "profile": "standalone-mvu",
+      "version": "r9",
+      "url": "https://ssrfrrt.ccwu.cc/gensokyo-moving-garden/live/ui/profiles/standalone-mvu/ui-mount-r9.js",
+      "bytes": 2252572,
+      "sha256": "15994d29e365e7aacff0f8c36832f4bfe109d340b8bf11c024fa42a1a05035de",
+      "uploaded_and_verified": true,
+      "deleted_superseded_versions": ["r5", "r6"]
+    },
+    "known_failures": [],
     "pending_acceptance": [
-      "package current embedded UI and lorebook into a new checkpoint",
+      "validate 幻想乡案内 immediate anomaly finish advances to the exact deadline, clears the active anomaly and reconciles due facilities/activities/visitors",
+      "validate sakuya watch header countdown starts at 05:00, auto-releases at 00:00 and retains daily cooldown",
+      "validate gallery 12-entry pagination, floor-locator page switching and fixed replay controls with long/short dialogue",
+      "validate new chats reuse the existing 幻想乡物语_存档 worldbook and can list/load the same eight slots",
+      "validate tutorial fast-forward stops before the flower-core encounter and graduation occurs immediately after resolving it",
+      "validate assistant-saved/local-settlement-failed path shows a visible warning without blocking the next send",
+      "after the next explicit package, validate youmu/patchouli/sanae S0/S1/S2 cut-in switching in a real SillyTavern battle canvas",
+      "validate tutorial bar collapse->restore and visitors gate (disabled until graduation) in real SillyTavern with packaged 0.3.0-r4 embedded card",
+      "validate GAL stop button actually aborts helper-generate V2 generation in real SillyTavern with packaged 0.3.0-r3 embedded card",
+      "validate gallery and first-input draft in real SillyTavern with packaged 0.3.0-r2 embedded card",
       "validate three-character idle/motion alignment, direction and 48ms animation in real SillyTavern",
       "validate three-character Boss four-state switching in real SillyTavern",
       "validate new shop items, consumption, greenlight loading and scene cleanup in real SillyTavern"
     ],
-    "packaged": false
+    "packaged": true
   },
   "components": {
     "card": "../src/card",
@@ -232,12 +255,12 @@
     "preview_build": "../dist/ui/index.html"
   },
   "runtime_artifacts": {
-    "self_contained_ui_mount": "../dist/runtime/ui-mount.js",
+    "self_contained_ui_mount": "../dist/runtime/profiles/standalone-mvu/ui-mount.js",
     "mvu_loader": "../src/runtime/01-mvu-loader.js",
-    "checkpoint_card": "../dist/checkpoint-0.2.0-r94/幻想乡物语-测试检查点-0.2.0-r94.json",
-    "checkpoint_png": "../dist/checkpoint-0.2.0-r94/幻想乡物语-测试检查点-0.2.0-r94.png",
-    "current_ui_script": "gensokyo-garden-ui-020-r94",
-    "current_checkpoint": "0.2.0-r94"
+    "checkpoint_card": "../dist/checkpoint-0.3.0-r7/幻想乡物语-正式版-0.3.0-r7.json",
+    "checkpoint_png": "../dist/checkpoint-0.3.0-r7/幻想乡物语-正式版-0.3.0-r7.png",
+    "current_ui_script": "gensokyo-garden-ui-020-r7",
+    "current_checkpoint": "0.3.0-r7"
   },
   "checkpoint_adapter": {
     "command_dry_run": "npm run package:checkpoint:dry",
@@ -255,9 +278,15 @@
     ]
   },
   "release_artifacts": {
-    "checkpoint_card": "../dist/checkpoint-0.2.0-r93/幻想乡物语-正式版-0.2.0-r93.json",
-    "checkpoint_png": "../dist/checkpoint-0.2.0-r93/幻想乡物语-正式版-0.2.0-r93.png",
+    "checkpoint_card": "../dist/checkpoint-0.3.0-r7/幻想乡物语-正式版-0.3.0-r7.json",
+    "checkpoint_card_bytes": 329189,
+    "checkpoint_card_sha256": "45f88aa598fd8426263f0f809ffb89a8ddb0c9eb8eb39107f20ad62909cb39b4",
+    "checkpoint_png": "../dist/checkpoint-0.3.0-r7/幻想乡物语-正式版-0.3.0-r7.png",
+    "checkpoint_png_bytes": 1273524,
+    "checkpoint_png_sha256": "42b4e3e47f0c3f96b2b7a28dc19d1d9f772f7e07705f703b167cb5968e8b47c6",
     "card_name": "幻想乡物语·移动庭园",
-    "version": "0.2.0-r93"
+    "version": "0.3.0-r7",
+    "creator_notes_length": 0,
+    "png_payload_parity": true
   }
 }

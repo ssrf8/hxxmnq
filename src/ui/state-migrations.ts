@@ -150,17 +150,27 @@ export function migrateGardenState(before: GardenState): GardenState {
   state.key_items.sakuya_watch ??= {
     id: 'sakuya_watch', name: '十六夜咲夜的怀表', obtained: false, state: 'ready',
     last_used_day: null, total_uses: 0, last_used_area_id: null, last_used_time_period: null,
-    temporal_trace_active: false, noticed_by_character_ids: [],
+    temporal_trace_active: false, time_stop_active: false, time_stop_expires_at_ms: null,
+    noticed_by_character_ids: [],
   };
   const watch = state.key_items.sakuya_watch;
   watch.total_uses = Math.max(0, watch.total_uses ?? 0);
   watch.noticed_by_character_ids = Array.from(new Set(watch.noticed_by_character_ids ?? []));
+  watch.time_stop_active = watch.time_stop_active === true;
+  watch.time_stop_expires_at_ms = Number.isFinite(watch.time_stop_expires_at_ms)
+    ? Math.max(0, Math.floor(watch.time_stop_expires_at_ms!))
+    : null;
+  if (!watch.time_stop_active) watch.time_stop_expires_at_ms = null;
   if (watch.obtained && watch.last_used_day !== (state.environment?.day ?? 1)) watch.state = 'ready';
   state.interaction ??= {};
   state.interaction.current_session ??= null;
   state.interaction.presence_analysis_task ??= null;
   state.interaction.settled_ids = Array.from(new Set(state.interaction.settled_ids ?? [])).slice(-64);
   state.interaction.starter_gift_claimed = state.interaction.starter_gift_claimed === true;
+  // GAL 角色记忆：先读取完整旧 conversation_log，再对兼容字段做运行态裁剪。
+  // 旧 conversation_log 本批仍保留（旧协议继续写）；新结构由 character-memory 纯迁移维护。
+  state = migrateConversationLogToLegacyMemory(state);
+  state.interaction ??= {};
   // 兜底：模型偶发用 op:add 写不带 /- 的数组 path 时，MagVarUpdate/mvu_zod 可能把
   // conversation_log 替换成字符串或校验失败；这里统一归一化为 string[]，避免崩溃与历史丢失。
   {
@@ -170,9 +180,6 @@ export function migrateGardenState(before: GardenState): GardenState {
       new Set(entries.map((entry) => String(entry).slice(0, 120))),
     ).slice(-24);
   }
-  // GAL 角色记忆：把旧 conversation_log 确定性增量迁移进 visit_memory legacy 结构。
-  // 旧 conversation_log 本批仍保留（旧协议继续写）；新结构由 character-memory 纯迁移维护。
-  state = migrateConversationLogToLegacyMemory(state);
   // v0.3.0 不迁移独立关系记忆；schema 会直接丢弃旧关系字段。
   state.events ??= {};
   state.events.settled_ids = Array.from(new Set(state.events.settled_ids ?? [])).slice(-256);

@@ -111,6 +111,32 @@ test('schema：visit_memory 位于 interaction、结构上限与业务上限分�
   assert.doesNotMatch(ledger, /RELATIONSHIP_MEMORIES_PER_CHARACTER/);
 });
 
+test('schema：list 单独丢弃非法元素，并在过滤后执行容量裁剪', async () => {
+  const source = await read('../src/schema/02-mvu-schema.js');
+  const definition = source.slice(source.indexOf('const list ='), source.indexOf('const dictionary'));
+  const z = {
+    unknown: () => ({}),
+    array: () => {
+      let transform = (value) => value;
+      let fallback = [];
+      const chain = {
+        transform: (next) => { transform = next; return chain; },
+        prefault: (next) => { fallback = next; return chain; },
+        catch: (next) => { fallback = next; return chain; },
+        parse: (value) => (Array.isArray(value) ? transform(value) : fallback),
+      };
+      return chain;
+    },
+  };
+  const list = Function('z', `${definition}\nreturn list;`)(z);
+  const strings = { safeParse: (value) => (
+    typeof value === 'string' ? { success: true, data: value.toUpperCase() } : { success: false }
+  ) };
+
+  assert.deepEqual(list(strings, 2).parse(['first', 404, 'second', 'third']), ['SECOND', 'THIRD']);
+  assert.deepEqual(list(strings, 2).parse('not-an-array'), []);
+});
+
 test('initial-state：11 个固定角色独立空结构、counter≥1、独立关系字段不存在', async () => {
   const initial = JSON.parse(await read('../src/schema/initial-state.json'));
   assert.equal(initial.interaction.visit_memory.version, 'character-visit-memory.v2');
@@ -200,6 +226,27 @@ test('migration：malformed 单角色先归一化，不崩溃也不清空其他�
   const migrated = migrations.migrateGardenState(state);
   assert.deepEqual(migrated.interaction.visit_memory.by_character.reimu.closed_visits, []);
   assert.equal(migrated.interaction.visit_memory.by_character.marisa.unknownChar, 'keep');
+});
+
+test('migration：先归档完整 conversation_log，再把兼容日志裁为最后 24 条', async () => {
+  const { migrateGardenState } = await importTypescript('../src/ui/state-migrations.ts');
+  const tail = Array.from({ length: 24 }, (_, index) => (
+    `${index % 2 === 0 ? 'marisa' : 'cirno'}: 尾部记录 ${index}`
+  ));
+  const migrated = migrateGardenState(baseState({
+    interaction: {
+      conversation_log: ['reimu: 最早但需要保留的记录', ...tail],
+      visit_memory: visitMemoryFixture(),
+    },
+  }));
+
+  assert.equal(migrated.interaction.conversation_log.length, 24);
+  assert.deepEqual(migrated.interaction.conversation_log, tail);
+  assert.equal(
+    migrated.interaction.visit_memory.by_character.reimu.legacy_memories
+      .some((memory) => memory.text === '最早但需要保留的记录'),
+    true,
+  );
 });
 
 test('normalize：VisitTurn 摘要上限 100', async () => {

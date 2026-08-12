@@ -110,6 +110,23 @@ test('只有当前 visit：本次块出现且不伪造时间', () => {
   assert.deepEqual(result.characters, ['reimu']);
 });
 
+test('同一次入场跨场景时旧场景降级为背景，当前场景仍可连续', () => {
+  const state = makeState({
+    active_visit: visit('character_visit_000001', [
+      turn({ turn_id: 'house:reimu', scene_id: 'scene:house', summary: '在主屋收拾房间。' }),
+      turn({ turn_id: 'pool:reimu', scene_id: 'scene:pool', summary: '来到中央水池边。' }),
+    ]),
+  });
+  const result = sh.buildSyntheticHistory(baseInput(state, { sceneId: 'scene:pool' }));
+  const background = result.content.indexOf('【本次入场：其他场景背景】');
+  const current = result.content.indexOf('【本次入场：可维持当前连续性】');
+  assert.ok(background >= 0 && current > background);
+  assert.ok(result.content.indexOf('在主屋收拾房间。') > background);
+  assert.ok(result.content.indexOf('在主屋收拾房间。') < current);
+  assert.ok(result.content.indexOf('来到中央水池边。') > current);
+  assert.match(result.content, /不得续接旧地点/);
+});
+
 // ---- 只有过去、只有 legacy ----
 test('只有过去入场：过去块带边界句，旧到新', () => {
   const state = makeState({

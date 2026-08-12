@@ -1,17 +1,17 @@
 import type { GardenState } from './types';
-import { openGardenProjectsVisible, listFacilityCatalog } from './facility-rules';
+import { listFacilityCatalog } from './facility-rules';
 import { deriveKnownCharacters } from './visitor-rules';
 import { anomalyCardDisabledReason } from './anomaly-rules';
 import { periodSerialFromState } from './time-rules';
 
 export function isTutorialGraduated(state: GardenState): boolean {
-  return openGardenProjectsVisible(state);
+  return Boolean(state.events?.completed_key_events?.greenhouse_flower_core);
 }
 
 export function graduationMessage(state: GardenState): string {
   if (!isTutorialGraduated(state)) return '';
   if (state.ui_flags?.graduation_acknowledged) return '';
-  return '首次温室选型完成。移动庭园已经开放：此后没有必须完成的主线，可以自由建设、邀请访客、处理异变、使用道具或进行日常交流。';
+  return '温室妖花核心已经解决，新手教程完成。来客茶席与开放庭园现已开放；三套温室方案和首次选型作为后续自由玩法保留。';
 }
 
 export function acknowledgeGraduation(before: GardenState): GardenState {
@@ -30,13 +30,6 @@ export interface TutorialProgressStep {
 
 export function tutorialProgress(state: GardenState) {
   const completed = state.events?.completed_key_events ?? {};
-  const proposalNames = [
-    ['alice_greenhouse_maintenance_proposal', '爱丽丝'],
-    ['nitori_greenhouse_automation_proposal', '荷取'],
-  ] as const;
-  const missingProposalNames = proposalNames
-    .filter(([eventId]) => !completed[eventId])
-    .map(([, name]) => name);
   const steps: TutorialProgressStep[] = [
     {
       id: 'opening',
@@ -66,7 +59,7 @@ export function tutorialProgress(state: GardenState) {
       id: 'inspiration',
       title: '取得第二点灵感',
       instruction: '在温室旧址选择异常生长、魔理沙方案或祖父图纸中的一个入口。',
-      completed: Boolean(completed.gain_second_inspiration),
+      completed: Boolean(completed.gain_second_inspiration || (state.resources?.inspiration ?? 0) >= 2),
     },
     {
       id: 'foundation',
@@ -97,26 +90,6 @@ export function tutorialProgress(state: GardenState) {
       title: '解决妖花核心',
       instruction: '调查温室深处的妖花核心，并用符卡战或剧情方式完成结算。',
       completed: Boolean(completed.greenhouse_flower_core),
-    },
-    {
-      id: 'free-growth',
-      title: '整理自由生长方案',
-      instruction: '点击魔法温室，与魔理沙整理第一套改造方案。',
-      completed: Boolean(completed.greenhouse_free_growth_proposal),
-    },
-    {
-      id: 'parallel-proposals',
-      title: '收集另外两套方案',
-      instruction: missingProposalNames.length
-        ? `在魔法温室完成${missingProposalNames.join('与')}的方案；两者顺序自由。`
-        : '爱丽丝与荷取的方案均已登记。',
-      completed: missingProposalNames.length === 0,
-    },
-    {
-      id: 'select-form',
-      title: '完成首次温室选型',
-      instruction: '三套方案齐备后，在魔法温室比较方案并选择首次改造形态。',
-      completed: Boolean(completed.select_greenhouse_form),
     },
   ];
   const completedCount = steps.filter((step) => step.completed).length;

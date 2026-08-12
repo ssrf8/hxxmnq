@@ -21,6 +21,7 @@ import { DiagnosticExportError, serializeDiagnosticSnapshot } from './diagnostic
 import { LatestRefreshQueue } from './async-coordination';
 import { memoryPort } from './memory-adapter-selection';
 import type { DatabaseSyncResult } from './memory-port';
+import { isCardRecallEnabled, setCardRecallEnabled } from './recall-preference';
 import { parseGardenAction, settlementProjection } from './event-settlement';
 import { assistantForCurrentTurn } from './gal-message-selection';
 import { buildGalGalleryEntries, filterGalGalleryEntries, type GalGalleryEntry } from './gal-gallery';
@@ -51,12 +52,13 @@ import {
   openGardenOpportunityPanel,
   acknowledgeGraduation,
   graduationMessage,
+  isTutorialGraduated,
   tutorialProgress,
 } from './open-garden-rules';
 import { buildPromptContext } from './prompt-context';
 import { parseAnomalyClueReceipt } from './anomaly-rules';
 import { consumableCount, listInventoryCatalog } from './inventory-rules';
-import { rollFacilityRisk } from './facility-rules';
+import { facilityBuildBlock, rollFacilityRisk } from './facility-rules';
 import { periodSerialFromState } from './time-rules';
 import { REGISTERED_CHARACTER_IDS } from './character-memory';
 import { OpeningController } from './opening';
@@ -105,9 +107,11 @@ updateBrowserZoomCompensation();
 globalThis.addEventListener('resize', updateBrowserZoomCompensation);
 globalThis.visualViewport?.addEventListener('resize', updateBrowserZoomCompensation);
 const liveStatus = byId<HTMLElement>('gg-live-status');
+const timeStopCountdown = byId<HTMLElement>('gg-time-stop-countdown');
 const mapHint = byId<HTMLElement>('gg-map-hint');
 const hideUiHintsInput = byId<HTMLInputElement>('gg-hide-ui-hints');
 const hideUiHintsStorageKey = 'gensokyo-garden:hide-ui-hints';
+const cardRecallInput = byId<HTMLInputElement>('gg-card-recall-enabled');
 const debugFloorsInput = byId<HTMLInputElement>('gg-debug-floors');
 const debugBanner = byId<HTMLElement>('gg-debug-banner');
 const diagnosticExportButton = byId<HTMLButtonElement>('gg-export-diagnostics');
@@ -159,6 +163,7 @@ const tutorialGuideProgress = byId<HTMLElement>('gg-tutorial-guide-progress');
 const tutorialGuideTitle = byId<HTMLElement>('gg-tutorial-guide-title');
 const tutorialGuideText = byId<HTMLElement>('gg-tutorial-guide-text');
 const tutorialGuideSkip = byId<HTMLButtonElement>('gg-tutorial-guide-skip');
+const tutorialGuideRestore = byId<HTMLButtonElement>('gg-tutorial-guide-restore');
 const launcherDialog = byId<HTMLDialogElement>('gg-launcher-dialog');
 const launcherButton = byId<HTMLButtonElement>('gg-open-launcher');
 const galleryDialogueList = byId<HTMLElement>('gg-gallery-dialogues');
@@ -172,6 +177,10 @@ const galleryRangeEnd = byId<HTMLInputElement>('gg-gallery-range-end');
 const galleryFloorSlider = byId<HTMLInputElement>('gg-gallery-floor-slider');
 const galleryFloorOutput = byId<HTMLOutputElement>('gg-gallery-floor-output');
 const galleryOpenFloor = byId<HTMLButtonElement>('gg-gallery-open-floor');
+const galleryPagination = byId<HTMLElement>('gg-gallery-pagination');
+const galleryPagePrev = byId<HTMLButtonElement>('gg-gallery-page-prev');
+const galleryPageNext = byId<HTMLButtonElement>('gg-gallery-page-next');
+const galleryPageOutput = byId<HTMLOutputElement>('gg-gallery-page-output');
 const battleDialog = byId<HTMLDialogElement>('gg-battle-dialog');
 const dungeonDialog = byId<HTMLDialogElement>('gg-dungeon-dialog');
 const duelResultDialog = byId<HTMLDialogElement>('gg-duel-result-dialog');
@@ -626,6 +635,24 @@ const battlePortraitSakuyaS1Source = document.documentElement.dataset.battlePort
   || `${assetBase}/battle/portraits/portrait-sakuya-s1-v1.png`;
 const battlePortraitSakuyaS2Source = document.documentElement.dataset.battlePortraitSakuyaS2Src
   || `${assetBase}/battle/portraits/portrait-sakuya-s2-v1.png`;
+const battlePortraitYoumuS0Source = document.documentElement.dataset.battlePortraitYoumuS0Src
+  || `${assetBase}/battle/portraits/portrait-youmu-s0-v1.png`;
+const battlePortraitYoumuS1Source = document.documentElement.dataset.battlePortraitYoumuS1Src
+  || `${assetBase}/battle/portraits/portrait-youmu-s1-v1.png`;
+const battlePortraitYoumuS2Source = document.documentElement.dataset.battlePortraitYoumuS2Src
+  || `${assetBase}/battle/portraits/portrait-youmu-s2-v1.png`;
+const battlePortraitPatchouliS0Source = document.documentElement.dataset.battlePortraitPatchouliS0Src
+  || `${assetBase}/battle/portraits/portrait-patchouli-s0-v1.png`;
+const battlePortraitPatchouliS1Source = document.documentElement.dataset.battlePortraitPatchouliS1Src
+  || `${assetBase}/battle/portraits/portrait-patchouli-s1-v1.png`;
+const battlePortraitPatchouliS2Source = document.documentElement.dataset.battlePortraitPatchouliS2Src
+  || `${assetBase}/battle/portraits/portrait-patchouli-s2-v1.png`;
+const battlePortraitSanaeS0Source = document.documentElement.dataset.battlePortraitSanaeS0Src
+  || `${assetBase}/battle/portraits/portrait-sanae-s0-v1.png`;
+const battlePortraitSanaeS1Source = document.documentElement.dataset.battlePortraitSanaeS1Src
+  || `${assetBase}/battle/portraits/portrait-sanae-s1-v1.png`;
+const battlePortraitSanaeS2Source = document.documentElement.dataset.battlePortraitSanaeS2Src
+  || `${assetBase}/battle/portraits/portrait-sanae-s2-v1.png`;
 const battlePortraitFlowerCoreS0Source = document.documentElement.dataset.battlePortraitFlowerCoreS0Src
   || `${assetBase}/battle/portraits/portrait-flower-core-s0-v1.png`;
 const battlePortraitFlowerCoreS1Source = document.documentElement.dataset.battlePortraitFlowerCoreS1Src
@@ -676,6 +703,15 @@ const battleAtlasSources = {
   portrait_sakuya_s0: battlePortraitSakuyaS0Source,
   portrait_sakuya_s1: battlePortraitSakuyaS1Source,
   portrait_sakuya_s2: battlePortraitSakuyaS2Source,
+  portrait_youmu_s0: battlePortraitYoumuS0Source,
+  portrait_youmu_s1: battlePortraitYoumuS1Source,
+  portrait_youmu_s2: battlePortraitYoumuS2Source,
+  portrait_patchouli_s0: battlePortraitPatchouliS0Source,
+  portrait_patchouli_s1: battlePortraitPatchouliS1Source,
+  portrait_patchouli_s2: battlePortraitPatchouliS2Source,
+  portrait_sanae_s0: battlePortraitSanaeS0Source,
+  portrait_sanae_s1: battlePortraitSanaeS1Source,
+  portrait_sanae_s2: battlePortraitSanaeS2Source,
   portrait_flower_core_s0: battlePortraitFlowerCoreS0Source,
   portrait_flower_core_s1: battlePortraitFlowerCoreS1Source,
   portrait_flower_core_s2: battlePortraitFlowerCoreS2Source,
@@ -728,11 +764,15 @@ const assetPreloader = new AssetPreloader(scheduledAssets, {
 
 let state: GardenState = {};
 let cleanupSubscription: (() => void) | undefined;
+let timeStopCountdownTimer = 0;
+let timeStopExpiryInFlight = false;
+let timeStopExpiryRetryAtMs = 0;
 let battle: BattleEngine | undefined;
 let runtimeMode: 'host' | 'preview' = 'preview';
 let databaseSync: DatabaseSyncResult = { status: 'skipped', detail: '等待开局' };
 let currentView: SceneMode = 'garden';
 let settingsReturnView: Exclude<SceneMode, 'settings'> = 'garden';
+let launcherReturnView: 'garden' | 'gal' = 'garden';
 let activeTarget: InteractionTarget | null = null;
 let activeSessionActionId: string | null = null;
 let pendingAction: TargetAction | null = null;
@@ -754,6 +794,8 @@ let galleryEntries: GalGalleryEntry[] = [];
 let galleryEntryIndex = -1;
 let galleryBeatIndex = 0;
 let galleryReadFloorCount = 0;
+let galleryPage = 0;
+const GALLERY_PAGE_SIZE = 12;
 let submissionInFlight = false;
 let automaticTaskInFlight = false;
 let inviteFeedback: {
@@ -773,6 +815,11 @@ function greenhouseResearchJustSettled() {
   return activeSessionActionId === 'greenhouse_research_talk'
     && !state.interaction?.current_session
     && Boolean(state.events?.completed_key_events?.greenhouse_multiturn_conversation);
+}
+
+function flowerCoreInvestigationJustActivated() {
+  return activeSessionActionId === 'investigate_flower_core'
+    && state.events?.active_event?.config_id === 'greenhouse_flower_core';
 }
 
 function setStatus(text: string, error = false, tone?: 'success' | 'info') {
@@ -803,19 +850,11 @@ const TUTORIAL_GUIDE_ROUTES: Record<string, TutorialGuideRoute> = {
   greenhouse: { targetId: 'greenhouse_plot', targetLabel: '温室旧地基', actionIds: ['build_basic_magic_greenhouse'], actionLabel: '建造基础温室' },
   'first-use': { targetId: 'greenhouse_plot', targetLabel: '魔法温室', actionIds: ['greenhouse_first_use'], actionLabel: '第一次使用' },
   research: { targetId: 'greenhouse_plot', targetLabel: '魔法温室', actionIds: ['greenhouse_research_talk'], actionLabel: '温室研究交流' },
-  'flower-core': { targetId: 'greenhouse_plot', targetLabel: '魔法温室', actionIds: ['investigate_flower_core'], actionLabel: '调查妖花核心' },
-  'free-growth': { targetId: 'greenhouse_plot', targetLabel: '魔法温室', actionIds: ['organize_free_growth_proposal'], actionLabel: '整理自由生长方案' },
-  'parallel-proposals': {
+  'flower-core': {
     targetId: 'greenhouse_plot',
     targetLabel: '魔法温室',
-    actionIds: ['invite_alice_maintenance_assessment', 'commission_nitori_engineering_survey'],
-    actionLabel: '尚未完成的方案',
-  },
-  'select-form': {
-    targetId: 'greenhouse_plot',
-    targetLabel: '魔法温室',
-    actionIds: ['select_free_growth', 'select_doll_maintenance', 'select_kappa_automation'],
-    actionLabel: '任意一个首次选型方案',
+    actionIds: ['investigate_flower_core', 'start_flower_core_battle', 'resolve_flower_core_narratively', 'resume_battle_settlement'],
+    actionLabel: '调查妖花核心／进入符卡战／改用剧情解决',
   },
 };
 
@@ -826,6 +865,7 @@ function clearTutorialFocus() {
 function renderTutorialGuide() {
   clearTutorialFocus();
   gardenMap.setTutorialTarget(null);
+  tutorialGuideRestore.hidden = true;
   const progress = tutorialProgress(state);
   const activeActionId = pendingAction?.id ?? activeSessionActionId ?? '';
   const actionStep = currentView !== 'garden'
@@ -839,6 +879,7 @@ function renderTutorialGuide() {
   // 用户点击折叠过当前步骤：保持隐藏，直到步骤推进（step.id 变化）再重新出现。
   if (step.id === tutorialGuideCollapsedStep) {
     tutorialGuide.hidden = true;
+    tutorialGuideRestore.hidden = false;
     return;
   }
   const route = TUTORIAL_GUIDE_ROUTES[step.id];
@@ -1034,6 +1075,12 @@ function returnFromSettings() {
   if (returnView === 'gal') void refresh();
 }
 
+function returnFromLauncherView() {
+  const returnView = launcherReturnView;
+  setView(returnView);
+  if (returnView === 'gal') void refresh();
+}
+
 let launcherOpener: HTMLElement | null = null;
 
 function updateLauncherSummary() {
@@ -1042,11 +1089,23 @@ function updateLauncherSummary() {
     byId('gg-weather').textContent,
     byId('gg-resources').textContent,
   ].filter(Boolean).join(' · ');
+  const visitorsButton = byId<HTMLButtonElement>('gg-open-visitors');
+  const visitorsUnlocked = isTutorialGraduated(state);
+  visitorsButton.disabled = !visitorsUnlocked;
+  visitorsButton.title = visitorsUnlocked ? '' : '完成新手教程后开放';
+  visitorsButton.setAttribute('aria-label', visitorsUnlocked ? '打开来客茶席' : '来客茶席，完成新手教程后开放');
+  const visitorsDescription = visitorsButton.querySelector('small');
+  if (visitorsDescription) {
+    visitorsDescription.textContent = visitorsUnlocked
+      ? '查看所有角色、发送邀请、请客人离开并阅读来访通知'
+      : '完成新手教程后开放';
+  }
 }
 
 function openLauncher() {
   updateLauncherSummary();
   if (launcherDialog.open) return;
+  if (currentView === 'garden' || currentView === 'gal') launcherReturnView = currentView;
   launcherOpener = document.activeElement instanceof HTMLElement ? document.activeElement : launcherButton;
   // 记录案内按钮相对视口中心的偏移，让对话框从按钮位置飞入展开（dialog 居中于视口）
   const btnRect = launcherButton.getBoundingClientRect();
@@ -1165,7 +1224,9 @@ function recallStardust(anchor: HTMLElement) {
 }
 
 function navigateFromLauncher(action: () => void) {
-  closeLauncher();
+  // A second modal cannot be opened while the launcher is still in its closing
+  // animation. Close it synchronously before entering gallery/settings dialogs.
+  finishLauncherClose();
   action();
 }
 
@@ -1176,7 +1237,40 @@ function renderHeader() {
   byId('gg-weather').textContent = [environment.weather ?? '晴', environment.anomaly_weather].filter(Boolean).join(' / ');
   const zakoTagCount = state.inventory?.card_runtime?.duel?.zako_tag_count ?? 0;
   byId('gg-resources').textContent = `物资 ${state.resources?.materials ?? 0} · 灵感 ${state.resources?.inspiration ?? 0} · 金币 ${state.resources?.coins ?? 0} · 杂鱼标签 ×${zakoTagCount}`;
+  renderTimeStopCountdown();
   updateLauncherSummary();
+}
+
+function renderTimeStopCountdown(nowMs = Date.now()) {
+  const watch = state.key_items?.sakuya_watch;
+  if (!watch?.time_stop_active) {
+    timeStopCountdown.hidden = true;
+    timeStopCountdown.textContent = '';
+    timeStopExpiryRetryAtMs = 0;
+    return;
+  }
+  const expiresAtMs = Number.isFinite(watch.time_stop_expires_at_ms)
+    ? Math.max(0, Math.floor(watch.time_stop_expires_at_ms!))
+    : 0;
+  const remainingMs = Math.max(0, expiresAtMs - nowMs);
+  const remainingSeconds = Math.ceil(remainingMs / 1000);
+  const minutes = Math.floor(remainingSeconds / 60);
+  const seconds = remainingSeconds % 60;
+  timeStopCountdown.hidden = false;
+  timeStopCountdown.textContent = `时停 ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  if (remainingMs > 0 || timeStopExpiryInFlight || nowMs < timeStopExpiryRetryAtMs) return;
+
+  timeStopExpiryInFlight = true;
+  void bridge.applyM2Command({ type: 'expire_time_stop', nowMs })
+    .then(async (result) => {
+      await refresh();
+      setStatus(result.message, false, 'info');
+    })
+    .catch((error) => {
+      timeStopExpiryRetryAtMs = Date.now() + 5000;
+      setStatus(`时停自动解除失败：${error instanceof Error ? error.message : String(error)}`, true);
+    })
+    .finally(() => { timeStopExpiryInFlight = false; });
 }
 
 function taskActionLabel(task: PendingTask) {
@@ -1591,11 +1685,22 @@ function openGalleryPlayer(entryIndex: number, beatIndex = 0) {
   if (!galleryPlayerDialog.open) galleryPlayerDialog.showModal();
 }
 
+function galleryPageCount() {
+  return Math.max(1, Math.ceil(galleryEntries.length / GALLERY_PAGE_SIZE));
+}
+
 function locateGalleryFloor(scrollIntoView = true) {
   const index = Number(galleryFloorSlider.value);
   const entry = galleryEntries[index];
   galleryOpenFloor.disabled = !entry;
   galleryFloorOutput.value = entry ? `第 ${entry.messageId} 楼` : '暂无剧情楼层';
+  if (entry) {
+    const targetPage = Math.floor((galleryEntries.length - 1 - index) / GALLERY_PAGE_SIZE);
+    if (targetPage !== galleryPage) {
+      galleryPage = targetPage;
+      renderGalleryEntries(false);
+    }
+  }
   galleryDialogueList.querySelectorAll('.gg-gallery-dialogue-card').forEach((card) => {
     card.classList.toggle('gg-gallery-located', entry != null && (card as HTMLElement).dataset.messageId === String(entry.messageId));
   });
@@ -1604,24 +1709,28 @@ function locateGalleryFloor(scrollIntoView = true) {
     ?.scrollIntoView({ behavior: 'auto', block: 'nearest' });
 }
 
-function renderGalleryEntries() {
+function renderGalleryEntries(resetLocator = true) {
   const dialogueFragment = document.createDocumentFragment();
-  galleryEntries.forEach((entry, entryIndex) => {
-    const firstSpeaker = entry.scene.beats.find((beat) => beat.speakerId)?.speakerId ?? null;
-    const card = document.createElement('button');
-    card.type = 'button';
-    card.className = 'gg-gallery-dialogue-card';
-    card.dataset.messageId = String(entry.messageId);
-    const title = document.createElement('strong');
-    title.textContent = firstSpeaker ? characterName(firstSpeaker) : '庭园回想';
-    const prompt = document.createElement('small');
-    prompt.textContent = `第 ${entry.messageId} 楼 · ${entry.userText || '无玩家输入摘要'}`;
-    const preview = document.createElement('span');
-    preview.textContent = entry.scene.beats.map((beat) => beat.text).join(' ').slice(0, 100);
-    card.append(title, prompt, preview);
-    card.addEventListener('click', () => openGalleryPlayer(entryIndex));
-    dialogueFragment.prepend(card);
-  });
+  galleryPage = Math.max(0, Math.min(galleryPage, galleryPageCount() - 1));
+  const newestFirst = galleryEntries.map((entry, entryIndex) => ({ entry, entryIndex })).reverse();
+  newestFirst
+    .slice(galleryPage * GALLERY_PAGE_SIZE, (galleryPage + 1) * GALLERY_PAGE_SIZE)
+    .forEach(({ entry, entryIndex }) => {
+      const firstSpeaker = entry.scene.beats.find((beat) => beat.speakerId)?.speakerId ?? null;
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'gg-gallery-dialogue-card';
+      card.dataset.messageId = String(entry.messageId);
+      const title = document.createElement('strong');
+      title.textContent = firstSpeaker ? characterName(firstSpeaker) : '庭园回想';
+      const prompt = document.createElement('small');
+      prompt.textContent = `第 ${entry.messageId} 楼 · ${entry.userText || '无玩家输入摘要'}`;
+      const preview = document.createElement('span');
+      preview.textContent = entry.scene.beats.map((beat) => beat.text).join(' ').slice(0, 100);
+      card.append(title, prompt, preview);
+      card.addEventListener('click', () => openGalleryPlayer(entryIndex));
+      dialogueFragment.append(card);
+    });
   if (!galleryEntries.length) {
     const empty = document.createElement('p');
     empty.className = 'gg-empty';
@@ -1629,6 +1738,11 @@ function renderGalleryEntries() {
     dialogueFragment.append(empty);
   }
   galleryDialogueList.replaceChildren(dialogueFragment);
+  const pageCount = galleryPageCount();
+  galleryPagination.hidden = galleryEntries.length <= GALLERY_PAGE_SIZE;
+  galleryPagePrev.disabled = galleryPage <= 0;
+  galleryPageNext.disabled = galleryPage >= pageCount - 1;
+  galleryPageOutput.value = `第 ${galleryPage + 1} / ${pageCount} 页`;
 
   const imageFragment = document.createDocumentFragment();
   const seenSources = new Set<string>();
@@ -1662,7 +1776,7 @@ function renderGalleryEntries() {
   galleryFloorSlider.disabled = galleryEntries.length === 0;
   galleryFloorSlider.min = '0';
   galleryFloorSlider.max = String(Math.max(0, galleryEntries.length - 1));
-  galleryFloorSlider.value = String(Math.max(0, galleryEntries.length - 1));
+  if (resetLocator) galleryFloorSlider.value = String(Math.max(0, galleryEntries.length - 1));
   locateGalleryFloor(false);
   const start = galleryRangeStart.value;
   const end = galleryRangeEnd.value;
@@ -1681,6 +1795,7 @@ function applyGalleryRange() {
   galleryRangeStart.value = String(lower);
   galleryRangeEnd.value = String(upper);
   galleryEntries = filterGalGalleryEntries(galleryAllEntries, lower, upper);
+  galleryPage = 0;
   renderGalleryEntries();
 }
 
@@ -1723,8 +1838,12 @@ async function renderGallery() {
 
 async function renderGal() {
   if (pendingTalkDraft) {
-    renderTalkDraft();
-    return;
+    const transaction = await bridge.getTransactionState().catch(() => null);
+    if (transaction?.assistantResponded) pendingTalkDraft = null;
+    else {
+      renderTalkDraft();
+      return;
+    }
   }
   sessionHistoryButton.disabled = false;
   void assetPreloader.ensure(`asset:${galBackgroundSource}`).catch(() => undefined);
@@ -2011,7 +2130,8 @@ async function chooseTargetAction(action: TargetAction) {
   }
   pendingTalkDraft = null;
   pendingAction = action;
-  activeSceneId = state.scene_item_context?.scene_id || `scene:${Date.now().toString(36)}`;
+  // 每次从地图选择行动都建立新的场景边界；场景道具只能跟随当前行动，不能把旧地点带进来。
+  activeSceneId = `scene:${Date.now().toString(36)}`;
   activeTarget = action.target;
   activeSessionActionId = action.id;
   if (action.mode === 'battle') {
@@ -2156,13 +2276,21 @@ async function submitGalMessage(
   const original = galInput.value;
   const selectedItemId = kind === 'interaction' ? sceneItemInput.value : '';
   const itemUseId = selectedItemId ? `scene-item:${selectedItemId}:${Date.now().toString(36)}` : '';
+  let previousTransaction: Awaited<ReturnType<typeof bridge.getTransactionState>> | null = null;
   submissionInFlight = true;
   setGenerating(true);
   try {
-    const sceneId = state.scene_item_context?.scene_id || activeSceneId || `scene:${Date.now().toString(36)}`;
+    previousTransaction = await bridge.getTransactionState();
+    const sceneId = activeSceneId || state.scene_item_context?.scene_id || `scene:${Date.now().toString(36)}`;
     const activeTargetCharacterId = activeTarget?.type === 'character' ? activeTarget.id : null;
+    const sceneAreaId = activeTarget?.type === 'character'
+      ? state.presence_snapshot?.character_views?.[activeTarget.id]?.area_id
+      : activeTarget?.type === 'facility'
+        ? state.facilities?.[activeTarget.id]?.area_id ?? activeTarget.id
+        : activeTarget?.id;
     const activityParticipants = (() => {
       if (sessionParticipants !== undefined) return [...sessionParticipants];
+      if (activeTargetCharacterId) return [activeTargetCharacterId];
       if (activeTarget?.type !== 'facility') return undefined;
       if (activeTarget.id === 'moon_spring') {
         const session = state.garden_activities?.moon_spring_session;
@@ -2188,9 +2316,10 @@ async function submitGalMessage(
       userVisibleText,
       // R1/R2：入口只传纯可见文本 + 结构化 requestContext；注入统一在 bridge 完成一次。
       // 道具场景传 sceneItemPreview，bridge 基于最新持久状态构造本轮只读 promptState；
-      // 生成成功后由下方 queue_scene_item M2 正式持久化与消费（失败不消费）。
+      // 生成成功后由 bridge 在同一结算中正式持久化与消费（失败不消费）。
       {
         sceneId,
+        sceneAreaId,
         mainTargetCharacterId: activeTargetCharacterId,
         actionTargetCharacterId: activeTargetCharacterId,
         eventParticipants: [...eventParticipants],
@@ -2208,13 +2337,7 @@ async function submitGalMessage(
       },
     );
     if (selectedItemId) {
-      await bridge.applyM2Command({
-        type: 'queue_scene_item',
-        itemId: selectedItemId,
-        useId: itemUseId,
-        sceneId,
-        targetCharacterId: activeTarget?.type === 'character' ? activeTarget.id : undefined,
-      });
+      // bridge 已把道具消费与 assistant 结算原子写入，这里只清理界面选择。
       sceneItemInput.value = '';
       updateSceneItemPickerState();
     }
@@ -2231,19 +2354,38 @@ async function submitGalMessage(
     galInput.value = '';
     scene = null;
     sceneSignature = '';
-    setStatus(transaction.phase === 'settled' ? '回复与真实楼层已落盘' : '消息已发送，正在等待回复');
+    setStatus(
+      transaction.phase === 'idle' && transaction.stopReason === 'user-stop'
+        ? '生成已停止，可以继续发送。'
+        : transaction.lastError
+        ? transaction.lastError
+        : transaction.phase === 'settled' ? '回复与真实楼层已落盘' : '消息已发送，正在等待回复',
+      Boolean(transaction.lastError),
+    );
     await refresh();
     if (greenhouseResearchJustSettled()) {
       singleShotEventPresentation = true;
       renderSceneBeat();
       setStatus('温室研究交流已完成；读完本段后点击正文返回庭园。');
+    } else if (flowerCoreInvestigationJustActivated()) {
+      singleShotEventPresentation = true;
+      renderSceneBeat();
+      setStatus('妖花核心已激活；读完本段后点击正文返回庭园，再次点击温室选择符卡战或剧情解决。');
     }
     return true;
   } catch (error) {
+    const transaction = await bridge.getTransactionState().catch(() => null);
     galInput.value = restoreInputOnFailure ? (original || value) : original;
     setGenerating(false);
     replyPanel.hidden = false;
     setStatus(`发送失败：${error instanceof Error ? error.message : String(error)}`, true);
+    // 回复楼层已经落盘时，失败只属于后置结算；不能把首轮草稿恢复并遮住真实回复。
+    if (transaction?.assistantResponded
+      && previousTransaction
+      && transaction.transactionId !== previousTransaction.transactionId) {
+      await refresh().catch(() => undefined);
+      return true;
+    }
     return false;
   } finally {
     submissionInFlight = false;
@@ -2311,6 +2453,7 @@ async function performRefresh() {
     state = await bridge.readState();
     await opening.render(state);
     renderHeader();
+    updateLauncherSummary();
     renderPendingTasks();
     gardenMap.update(state);
     renderTutorialGuide();
@@ -2471,7 +2614,7 @@ function renderSceneItemPicker() {
     title.textContent = watchItem.title;
     const description = document.createElement('small');
     description.textContent = watchActive
-      ? '五分钟停顿仍在生效；解除不会推进时段，也不会重置今日冷却。'
+      ? '时停最多持续五分钟；正式时段推进或主动解除也会提前结束，今日冷却保持不变。'
       : watchCooldown
       ? '今日已经使用过，指针安静得像在嘲笑侥幸心理。'
       : (watchItem.blurb ?? watchItem.prompt_description);
@@ -2564,22 +2707,29 @@ const opening = new OpeningController(
 
 tutorialGuideSkip.addEventListener('click', () => {
   void (async () => {
-    if (!await runTestJump('m2_open_garden')) return;
-    tutorialGuideSkipped = true;
-    try {
-      if (tutorialGuideStorageKey) localStorage.setItem(tutorialGuideStorageKey, '1');
-    } catch { /* The guide still stays hidden for the current session. */ }
+    if (!await runTestJump('tutorial_form_selection_ready')) return;
     renderTutorialGuide();
     await confirmInApp({
-      title: '开放庭园玩法说明',
+      title: '新手教程已跳过',
       message: [
-        '符卡副本获得金币，购买搭建设施吸引 NPC 互动。',
-        '道具会添加额外玩法；每个角色都可以自由挑战。',
+        '新手教程已全部结束，指引不会再次出现。',
+        '剧情阶段已推进到温室首次选型；请点击魔法温室，从自由生长、人偶维护、河童自动化三种形态中亲自选择。',
       ].join('\n\n'),
-      confirmLabel: '开始自由探索',
+      confirmLabel: '前往温室',
     });
-    setStatus('新手教程已快进至完成；开放庭园已经解锁，现有资源保持不变。');
+    setStatus('已跳过全部新手教程；魔法温室现等待三选一。', false, 'success');
   })();
+});
+cardRecallInput.checked = isCardRecallEnabled();
+cardRecallInput.addEventListener('change', () => {
+  setCardRecallEnabled(cardRecallInput.checked);
+  setStatus(
+    cardRecallInput.checked
+      ? '卡内角色剧情召回已开启；下一次新请求会读取角色独立梗概。'
+      : '卡内角色剧情召回已关闭；梗概仍会照常写入，但下一次新请求不会读取。',
+    false,
+    'info',
+  );
 });
 
 // 点击教程条本身（跳过按钮除外）→ 折叠当前步骤，不挡下方抽屉/地图；下一步骤自动重现。
@@ -2591,6 +2741,11 @@ tutorialGuide.addEventListener('click', (event) => {
     tutorialGuideCollapsedStep = tutorialGuideRenderedStepId;
     tutorialGuide.hidden = true;
   }
+});
+tutorialGuideRestore.addEventListener('click', () => {
+  tutorialGuideCollapsedStep = null;
+  renderTutorialGuide();
+  tutorialGuideTitle.focus({ preventScroll: true });
 });
 
 // 运行壳的默认视图是庭园，但启动路径不经过 setView；
@@ -2693,6 +2848,17 @@ byId<HTMLFormElement>('gg-gal-compose').addEventListener('submit', (event) => {
   })();
 });
 byId('gg-end-chat').addEventListener('click', () => void endConversation());
+byId('gg-repair-generation').addEventListener('click', () => {
+  void (async () => {
+    const transaction = await bridge.getTransactionState();
+    await bridge.repairGenerationLock();
+    if (transaction.assistantResponded) pendingTalkDraft = null;
+    submissionInFlight = false;
+    setGenerating(false);
+    await refresh();
+    setStatus('GAL 发送锁已释放，可以继续发送。', false, 'success');
+  })().catch((error) => setStatus(`修复失败：${error instanceof Error ? error.message : String(error)}`, true));
+});
 byId('gg-retry-transaction').addEventListener('click', async () => {
   try {
     setGenerating(true, '正在继续上次生成……');
@@ -2729,7 +2895,7 @@ sessionHistoryDialog.addEventListener('click', (event) => {
 sessionHistoryDialog.addEventListener('close', () => sessionHistoryButton.focus());
 byId('gg-open-settings').addEventListener('click', () => navigateFromLauncher(openSettings));
 byId('gg-open-gallery').addEventListener('click', () => navigateFromLauncher(() => {
-  if (currentView === 'gal' || pendingTalkDraft || activeTarget) {
+  if (currentView === 'gal' || pendingTalkDraft) {
     setStatus('请先结束当前聊天，再打开回想画廊。', true);
     return;
   }
@@ -2749,6 +2915,14 @@ galleryRangeForm.addEventListener('submit', (event) => {
 });
 galleryFloorSlider.addEventListener('input', () => locateGalleryFloor());
 galleryOpenFloor.addEventListener('click', () => openGalleryPlayer(Number(galleryFloorSlider.value)));
+galleryPagePrev.addEventListener('click', () => {
+  galleryPage -= 1;
+  renderGalleryEntries(false);
+});
+galleryPageNext.addEventListener('click', () => {
+  galleryPage += 1;
+  renderGalleryEntries(false);
+});
 byId('gg-gallery-player-close').addEventListener('click', () => galleryPlayerDialog.close());
 byId('gg-gallery-player-prev').addEventListener('click', () => {
   galleryBeatIndex -= 1;
@@ -2966,6 +3140,10 @@ async function sendAcceptancePrompt(
     explicitCharacterIds: options.sessionParticipants ?? (options.targetCharacterId ? [options.targetCharacterId] : []),
   });
   if (!ok) throw new Error(`${caseId.toUpperCase()} 真实生成或结算未完成`);
+  const transaction = await bridge.getTransactionState();
+  if (transaction.phase !== 'settled' || transaction.lastError) {
+    throw new Error(`${caseId.toUpperCase()} 回复已生成，但本地结算未完成：${transaction.lastError ?? transaction.phase}`);
+  }
   return marker;
 }
 
@@ -3036,6 +3214,10 @@ async function runRuntimeAcceptanceCase(caseId: RuntimeAcceptanceCaseId) {
       await waitForGenerating(previousTransaction.transactionId);
       await bridge.applyM2Command({ type: 'dismiss_character', characterId: 'marisa' });
       if (!await pending) throw new Error('生成期间离场轮没有完成结算');
+      const transaction = await bridge.getTransactionState();
+      if (transaction.phase !== 'settled' || transaction.lastError) {
+        throw new Error(`生成期间离场轮的本地结算未完成：${transaction.lastError ?? transaction.phase}`);
+      }
       await refresh();
       break;
     }
@@ -3057,6 +3239,12 @@ async function runRuntimeAcceptanceCase(caseId: RuntimeAcceptanceCaseId) {
         sessionParticipants: ['reimu'],
         explicitCharacterIds: ['reimu'],
       })) throw new Error('A09 邀请制生成未完成');
+      {
+        const transaction = await bridge.getTransactionState();
+        if (transaction.phase !== 'settled' || transaction.lastError) {
+          throw new Error(`A09 回复已生成，但本地结算未完成：${transaction.lastError ?? transaction.phase}`);
+        }
+      }
       break;
     case 'a10':
       await prepareAcceptanceCharacters(['reimu']);
@@ -3693,6 +3881,9 @@ async function abandonDuelVictoryRequest() {
   if (!confirmed) return;
   duelVictoryAbandon.disabled = true;
   try {
+    await bridge.repairGenerationLock();
+    submissionInFlight = false;
+    setGenerating(false);
     await bridge.abandonDuelVictoryRequest(pending.settlement_id);
     if (duelVictoryDialog.open) duelVictoryDialog.close();
     await refresh();
@@ -3884,6 +4075,9 @@ function renderOpportunities() {
       .map((drawer) => drawer.dataset.opportunityDrawer)
       .filter((drawer): drawer is string => Boolean(drawer)),
   );
+  const expandedFacilityId = root
+    .querySelector<HTMLDetailsElement>('details[data-opportunity-facility][open]')
+    ?.dataset.opportunityFacility ?? null;
   root.replaceChildren();
   const panel = openGardenOpportunityPanel(state);
   const title = document.createElement('h2');
@@ -3999,10 +4193,13 @@ function renderOpportunities() {
     const list = document.createElement('div');
     list.className = 'gg-opportunity-facility-grid';
     for (const facility of panel.facilities) {
-      const card = document.createElement('article');
+      const card = document.createElement('details');
       card.className = 'gg-opportunity-facility';
       card.dataset.state = facility.built ? facility.status : 'planned';
-      const cardHeader = document.createElement('header');
+      card.dataset.opportunityFacility = facility.id;
+      card.open = expandedFacilityId === facility.id;
+      const cardHeader = document.createElement('summary');
+      cardHeader.className = 'gg-opportunity-facility-header';
       const heading = document.createElement('h4');
       heading.textContent = facility.title;
       const status = document.createElement('span');
@@ -4010,15 +4207,24 @@ function renderOpportunities() {
       status.textContent = facility.built
         ? facility.status === 'normal' ? '运转正常' : facility.status === 'damaged' ? '需要修复' : '等待调查'
         : '等待施工';
-      cardHeader.append(heading, status);
       const detail = document.createElement('p');
       detail.className = 'gg-opportunity-facility-summary';
       detail.textContent = facility.built
         ? `已建成 · 当前形态 ${facility.current_form ?? '未知'} · 状态 ${facility.status}`
         : `可规划 · 建设消耗 ${facility.build_cost} 物资`;
+      cardHeader.append(heading, status, detail);
+      const content = document.createElement('div');
+      content.className = 'gg-opportunity-facility-body';
       const forms = document.createElement('div');
       forms.className = 'gg-opportunity-form-list';
-      card.append(cardHeader, detail, forms);
+      content.append(forms);
+      card.append(cardHeader, content);
+      card.addEventListener('toggle', () => {
+        if (!card.open) return;
+        list.querySelectorAll<HTMLDetailsElement>('details[data-opportunity-facility][open]').forEach((other) => {
+          if (other !== card) other.open = false;
+        });
+      });
       for (const form of facility.forms) {
         const row = document.createElement('section');
         row.className = 'gg-opportunity-form';
@@ -4076,7 +4282,7 @@ function renderOpportunities() {
         repair.className = 'gg-opportunity-warning';
         repair.textContent = facility.status === 'damaged' ? '修复设施' : '调查异常';
         repair.addEventListener('click', () => void runFacilityRecovery(facility.id));
-        card.append(repair);
+        content.append(repair);
       }
       if (facility.id === 'moon_spring' && facility.built) {
         const modes = document.createElement('div');
@@ -4088,7 +4294,7 @@ function renderOpportunities() {
           button.addEventListener('click', () => void runMoonSpring(mode[0]));
           modes.append(button);
         }
-        card.append(modes);
+        content.append(modes);
       }
       if (facility.id === 'banquet_plaza' && facility.built) {
         const modes = document.createElement('div');
@@ -4102,7 +4308,7 @@ function renderOpportunities() {
           button.addEventListener('click', () => void runBanquet(mode[0]));
           modes.append(button);
         }
-        card.append(modes);
+        content.append(modes);
       }
       list.append(card);
     }
@@ -4131,6 +4337,14 @@ function renderOpportunities() {
       investigate.addEventListener('click', () => void runDailyAnomalyInvestigation());
       actions.append(investigate);
     }
+    if (active) {
+      const endNow = document.createElement('button');
+      endNow.type = 'button';
+      endNow.className = 'gg-opportunity-warning';
+      endNow.textContent = '立刻结束异变';
+      endNow.addEventListener('click', () => void runEndActiveAnomaly());
+      actions.append(endNow);
+    }
     if (actions.childElementCount) anomalySection.append(actions);
     root.append(anomalySection);
   } else if (panel.anomaly_card_block) {
@@ -4142,6 +4356,19 @@ function renderOpportunities() {
 }
 
 async function runFacilityBuild(facilityId: string, formId: string) {
+  const showBuildFailure = async (message: string) => {
+    setStatus(message, true);
+    await showInternalDialog({
+      title: '无法施工',
+      message,
+      confirmLabel: '知道了',
+    }).catch(() => null);
+  };
+  const blocked = facilityBuildBlock(state, facilityId, formId);
+  if (blocked) {
+    await showBuildFailure(blocked);
+    return;
+  }
   try {
     const result = await bridge.applyM2Command({
       type: 'build_facility', facilityId, formId, transactionId: `build:${facilityId}:${Date.now().toString(36)}`,
@@ -4149,7 +4376,9 @@ async function runFacilityBuild(facilityId: string, formId: string) {
     await refresh();
     renderOpportunities();
     setStatus(result.message);
-  } catch (error) { setStatus(error instanceof Error ? error.message : String(error), true); }
+  } catch (error) {
+    await showBuildFailure(error instanceof Error ? error.message : String(error));
+  }
 }
 
 async function runChooseFacilityForm(facilityId: string, formId: string) {
@@ -4167,6 +4396,7 @@ async function runFacilityRemodel(facilityId: string, formId: string) {
     const started = await bridge.applyM2Command({ type: 'begin_refit', facilityId, formId, transactionId });
     await refresh();
     activeTarget = { type: 'facility', id: facilityId, label: state.facilities?.[facilityId]?.name ?? facilityId };
+    activeSceneId = `scene:${Date.now().toString(36)}`;
     setView('gal');
     setGenerating(true, '正在生成简短装修剧情……');
     const prompt = [
@@ -4179,7 +4409,8 @@ async function runFacilityRemodel(facilityId: string, formId: string) {
       undefined,
       // R1：纯文本 + 结构化上下文；注入在 bridge 一次。selectedCharacterId 是代码锁定角色。
       {
-        sceneId: null,
+        sceneId: activeSceneId,
+        sceneAreaId: state.facilities?.[facilityId]?.area_id ?? facilityId,
         mainTargetCharacterId: started.selectedCharacterId ?? null,
         actionTargetCharacterId: started.selectedCharacterId ?? null,
         explicitCharacterIds: started.selectedCharacterId ? [started.selectedCharacterId] : [],
@@ -4200,6 +4431,7 @@ async function runM2FacilityAction(facilityId: string, actionId: string, intent:
     const transactionId = `facility:${facilityId}:${actionId}:${Date.now().toString(36)}`;
     const preview = rollFacilityRisk(state, facilityId, actionId, transactionId);
     activeTarget = { type: 'facility', id: facilityId, label: state.facilities?.[facilityId]?.name ?? facilityId };
+    activeSceneId = `scene:${Date.now().toString(36)}`;
     setView('gal');
     const prompt = [
       buildPromptContext(preview.state, { kind: 'facility_action', facilityId, actionIntent: intent }),
@@ -4208,7 +4440,8 @@ async function runM2FacilityAction(facilityId: string, actionId: string, intent:
         : '代码已决定本轮没有新的结构风险；自由演绎当前行动，不凭空损坏设施。',
     ].join('\n\n');
     const completed = await submitGalMessage(prompt, 'interaction', { restoreInputOnFailure: false });
-    if (completed) {
+    const transaction = await bridge.getTransactionState();
+    if (completed && transaction.phase === 'settled' && !transaction.lastError) {
       await bridge.applyM2Command({ type: 'facility_action', facilityId, actionId, transactionId });
       await refresh();
     }
@@ -4222,6 +4455,7 @@ async function runFacilityRecovery(facilityId: string) {
     await bridge.applyM2Command({ type: 'begin_recovery', facilityId, transactionId, useRepairKit: hasKit });
     await refresh();
     activeTarget = { type: 'facility', id: facilityId, label: state.facilities?.[facilityId]?.name ?? facilityId };
+    activeSceneId = `scene:${Date.now().toString(36)}`;
     setView('gal');
     const prompt = [
       buildPromptContext(state, { kind: 'facility_action', facilityId, actionIntent: '调查并恢复当前结构状况' }),
@@ -4232,7 +4466,12 @@ async function runFacilityRecovery(facilityId: string) {
       'interaction',
       undefined,
       // R1：设施不是角色，不冒充 mainTarget；无主目标、无显式角色。
-      { sceneId: null, mainTargetCharacterId: null, requireMainTarget: false },
+      {
+        sceneId: activeSceneId,
+        sceneAreaId: state.facilities?.[facilityId]?.area_id ?? facilityId,
+        mainTargetCharacterId: null,
+        requireMainTarget: false,
+      },
     );
     await bridge.applyM2Command({ type: 'commit_recovery', transactionId });
     await refresh();
@@ -4287,9 +4526,10 @@ async function runMoonSpring(mode: 'public' | 'invite_only' | 'alone') {
     await bridge.applyM2Command({ type: 'start_moon_session', mode, acceptedCharacterIds: accepted });
     await refresh();
     activeTarget = { type: 'facility', id: 'moon_spring', label: '月见温泉' };
+    activeSceneId = `scene:${Date.now().toString(36)}`;
     setView('gal');
     const participants = mode === 'invite_only' || mode === 'alone' ? accepted : undefined;
-    await submitGalMessage(
+    const completed = await submitGalMessage(
       `我以${mode === 'public' ? '公开' : mode === 'alone' ? '独处' : '仅邀请'}模式开始本次月见温泉会话。`,
       'interaction',
       {
@@ -4298,7 +4538,12 @@ async function runMoonSpring(mode: 'public' | 'invite_only' | 'alone') {
         explicitCharacterIds: participants ?? [],
       },
     );
+    const transaction = await bridge.getTransactionState();
+    if (!completed || transaction.phase !== 'settled' || transaction.lastError) {
+      throw new Error('温泉开场生成或本地结算失败，会话已回滚');
+    }
   } catch (error) {
+    await bridge.repairGenerationLock().catch(() => undefined);
     await bridge.applyM2Command({ type: 'end_moon_session' }).catch(() => undefined);
     setStatus(error instanceof Error ? error.message : String(error), true);
   }
@@ -4362,6 +4607,7 @@ async function startBanquetTask(task: PendingTask) {
     const banquet = state.garden_activities?.banquet;
     if (!banquet || banquet.activity_id !== activityId) throw new Error('宴会开始状态复读失败');
     activeTarget = { type: 'facility', id: 'banquet_plaza', label: '宴会广场' };
+    activeSceneId = `scene:${Date.now().toString(36)}`;
     setView('gal');
     await submitGalMessage(
       `我开始已经到期的${banquet.participation_mode === 'public' ? '公开' : '邀请制'}宴会。`,
@@ -4396,6 +4642,7 @@ async function latestAssistantReply() {
 
 async function runDailyAnomalyInvestigation() {
   try {
+    activeSceneId = `scene:${Date.now().toString(36)}`;
     setView('gal');
     setGenerating(true, '灵梦正在追查今天的线索……');
     const prompt = [
@@ -4408,7 +4655,13 @@ async function runDailyAnomalyInvestigation() {
       'interaction',
       undefined,
       // R1：异变调查代码锁定 reimu 为主目标（显式角色），纯文本 + 结构化上下文。
-      { sceneId: null, mainTargetCharacterId: 'reimu', explicitCharacterIds: ['reimu'], requireMainTarget: true },
+      {
+        sceneId: activeSceneId,
+        sceneAreaId: state.presence_snapshot?.character_views?.reimu?.area_id ?? state.player?.current_area_id,
+        mainTargetCharacterId: 'reimu',
+        explicitCharacterIds: ['reimu'],
+        requireMainTarget: true,
+      },
     );
     const reply = await latestAssistantReply();
     if (!reply) throw new Error('没有找到调查回复');
@@ -4417,6 +4670,28 @@ async function runDailyAnomalyInvestigation() {
   } catch (error) {
     setGenerating(false);
     setStatus(`异变调查失败：${error instanceof Error ? error.message : String(error)}`, true);
+  }
+}
+
+async function runEndActiveAnomaly() {
+  const active = state.anomaly_cycle?.active;
+  if (!active) {
+    setStatus('当前没有可结束的异变', true);
+    return;
+  }
+  const remaining = Math.max(0, active.end_period_serial - periodSerialFromState(state));
+  const confirmed = await confirmInApp({
+    title: '立刻结束异变？',
+    message: `正式时间会快进 ${remaining} 个时段至异变期限，并立即归档、清空「${active.title}」。期间到期的设施、活动与来访也会一并结算。`,
+    confirmLabel: '结束异变',
+  });
+  if (!confirmed) return;
+  try {
+    const result = await bridge.applyM2Command({ type: 'end_active_anomaly' });
+    await refresh();
+    setStatus(result.message, false, 'success');
+  } catch (error) {
+    setStatus(`立即结束异变失败：${error instanceof Error ? error.message : String(error)}`, true);
   }
 }
 
@@ -4586,11 +4861,11 @@ async function useShopItem(itemId: string) {
   }
 }
 byId('gg-open-shop').addEventListener('click', () => navigateFromLauncher(() => { setView('shop'); renderShop(); }));
-byId('gg-shop-back').addEventListener('click', () => setView('garden'));
+byId('gg-shop-back').addEventListener('click', returnFromLauncherView);
 byId('gg-open-inventory').addEventListener('click', () => navigateFromLauncher(() => { setView('inventory'); renderInventory(); }));
-byId('gg-inventory-back').addEventListener('click', () => setView('garden'));
+byId('gg-inventory-back').addEventListener('click', returnFromLauncherView);
 byId('gg-open-visitors').addEventListener('click', () => navigateFromLauncher(() => { setView('visitors'); renderVisitors(); }));
-byId('gg-visitors-back').addEventListener('click', () => setView('garden'));
+byId('gg-visitors-back').addEventListener('click', returnFromLauncherView);
 duelResultDialog.addEventListener('cancel', (event) => {
   event.preventDefault();
   byId<HTMLButtonElement>('gg-duel-result-confirm').click();
@@ -4605,7 +4880,7 @@ duelVictoryDialog.addEventListener('cancel', (event) => {
   setStatus('胜利要求尚未完成；可以提交、继续恢复或主动放弃。', true);
 });
 byId('gg-open-opportunities').addEventListener('click', () => navigateFromLauncher(() => { setView('opportunities'); renderOpportunities(); }));
-byId('gg-opportunities-back').addEventListener('click', () => setView('garden'));
+byId('gg-opportunities-back').addEventListener('click', returnFromLauncherView);
 byId('gg-battle-retry').addEventListener('click', () => {
   if (pendingBattleResult) void settleBattleResult(pendingBattleResult);
 });
@@ -4685,6 +4960,7 @@ battleBombBtn.addEventListener('pointerdown', (event) => {
 
 globalThis.addEventListener('beforeunload', () => {
   cleanupSubscription?.();
+  if (timeStopCountdownTimer) globalThis.clearInterval(timeStopCountdownTimer);
   assetPreloader.destroy();
   gardenMap.destroy();
   destroyBattleSession();
@@ -4692,6 +4968,7 @@ globalThis.addEventListener('beforeunload', () => {
 });
 
 globalThis.addEventListener('gensokyo-garden:resume', () => {
+  renderTimeStopCountdown();
   void refresh();
 });
 
@@ -4708,8 +4985,28 @@ globalThis.addEventListener('gensokyo-garden:generation-stream', (event) => {
 async function boot() {
   cleanupSubscription = await bridge.subscribe(() => void refresh());
   await refresh();
-  const previewCharacterId = new URLSearchParams(globalThis.location.search).get('previewGal');
+  if (!timeStopCountdownTimer) {
+    timeStopCountdownTimer = globalThis.setInterval(() => renderTimeStopCountdown(), 250);
+  }
+  const previewParams = new URLSearchParams(globalThis.location.search);
+  const previewCharacterId = previewParams.get('previewGal');
   if (globalThis.document.documentElement.dataset.previewHarness === 'true'
+    && previewParams.get('previewOpportunities') === 'facilities') {
+    if (!state.meta?.opening_committed) {
+      const context = await bridge.getOpeningContext();
+      await bridge.initializeOpening({
+        playerName: context.personaName || '预览玩家',
+        playerPronouns: '中性称谓',
+        playerAppearance: context.personaDescription || '来自外界的年轻旅人。',
+        gardenName: '无名庭园',
+      }, context.chatId);
+      await refresh();
+    }
+    if (await runTestJump('m2_facilities_ready')) {
+      setView('opportunities');
+      renderOpportunities();
+    }
+  } else if (globalThis.document.documentElement.dataset.previewHarness === 'true'
     && previewCharacterId === 'marisa') {
     const target: InteractionTarget = { type: 'character', id: 'marisa', label: '雾雨魔理沙' };
     const talk = targetActions(target, state).find((action) => action.id === 'talk');

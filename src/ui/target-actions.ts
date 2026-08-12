@@ -302,7 +302,7 @@ function greenhouseActions(target: InteractionTarget, state: GardenState): Targe
         '调查温室深处的异常花核并激活本次事件。',
         '我沿着温室内反常的魔力脉动调查深处的妖花核心。请按 greenhouse_flower_core 的前置激活唯一 active_event；只呈现本地符卡战或剧情解决两个入口，不提前写入战斗结果。',
         'gal',
-        { eventId: GREENHOUSE_EVENTS.flowerCore },
+        { eventId: GREENHOUSE_EVENTS.flowerCore, fixedPresentation: true },
       ));
     }
   } else {
@@ -342,12 +342,7 @@ function greenhouseActions(target: InteractionTarget, state: GardenState): Targe
         { eventId: GREENHOUSE_EVENTS.nitoriAutomationProposal, fixedPresentation: true },
       ));
     }
-    const proposalsReady = Boolean(
-      completed[GREENHOUSE_EVENTS.freeGrowthProposal]
-      && completed[GREENHOUSE_EVENTS.aliceMaintenanceProposal]
-      && completed[GREENHOUSE_EVENTS.nitoriAutomationProposal],
-    );
-    if (proposalsReady && !completed[GREENHOUSE_EVENTS.selectForm]) {
+    if (!completed[GREENHOUSE_EVENTS.selectForm]) {
       result.push(
         greenhouseAction(
           target,
@@ -662,6 +657,7 @@ const FIXED_PRESENTATION_ACTION_IDS = new Set([
   'clear_greenhouse_foundation',
   'build_basic_magic_greenhouse',
   'greenhouse_first_use',
+  'investigate_flower_core',
   'resume_battle_settlement',
   'organize_free_growth_proposal',
   'invite_alice_maintenance_assessment',

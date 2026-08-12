@@ -68,6 +68,16 @@ function createStats(): BattleStats {
   };
 }
 
+let battleRunSequence = 0;
+
+function createSettlementRunId() {
+  battleRunSequence += 1;
+  const time = Date.now().toString(36).slice(-8).padStart(8, '0');
+  const sequence = battleRunSequence.toString(36).slice(-3).padStart(3, '0');
+  const entropy = Math.floor(Math.random() * 0x1000000).toString(36).slice(-5).padStart(5, '0');
+  return `${time}${sequence}${entropy}`;
+}
+
 function createPlayer(config: BattleConfig): PlayerState {
   const spawn = arenaPlayerSpawn(config.arena);
   const lives = Math.max(1, Math.round(config.player.lives));
@@ -153,6 +163,7 @@ export class BattleSimulation {
   private gameTimeMs = 0;
   private lastShotAt = -Infinity;
   private settlementSerial = 0;
+  private readonly settlementRunId = createSettlementRunId();
   private lostLifeThisRun = false;
   private bombEdgeLatched = false;
   private waveStartedAt = 0;
@@ -1110,7 +1121,7 @@ export class BattleSimulation {
           : 'narrow_win';
 
     const result: BattleResult = {
-      settlement_id: `${this.config.config_id}-s${this.settlementSerial}-${Math.floor(this.gameTimeMs).toString(36)}`.slice(0, 64),
+      settlement_id: `${this.config.config_id.slice(0, 32)}-r${this.settlementRunId}-s${this.settlementSerial}-${Math.floor(this.gameTimeMs).toString(36)}`,
       config_id: this.config.config_id,
       outcome: finalOutcome,
       remaining_lives: remaining,

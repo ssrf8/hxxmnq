@@ -85,6 +85,8 @@ export function purchaseShopItem(before: GardenState, itemId: string, purchaseId
       last_used_area_id: null,
       last_used_time_period: null,
       temporal_trace_active: false,
+      time_stop_active: false,
+      time_stop_expires_at_ms: null,
       noticed_by_character_ids: [],
     };
   } else {

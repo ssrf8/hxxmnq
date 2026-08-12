@@ -7,9 +7,10 @@ import {
   createDeterministicAnomalyOrigin,
   reserveAnomalyActivation,
 } from './anomaly-rules';
-import { periodSerialFromState } from './time-rules';
+import { clearSakuyaTimeStop, periodSerialFromState } from './time-rules';
 
 const MAX_EVENT_SETTLEMENT_IDS = 256;
+export const SAKUYA_TIME_STOP_DURATION_MS = 5 * 60 * 1000;
 
 function validateUseId(useId: string) {
   if (!/^[A-Za-z0-9._:-]{1,96}$/u.test(useId)) throw new Error('道具使用 ID 非法');
@@ -101,7 +102,7 @@ export function abortAnomalyCardUse(before: GardenState, transactionId?: string)
   };
 }
 
-export function useSakuyaWatch(before: GardenState, useId: string): SpecialItemUseResult {
+export function useSakuyaWatch(before: GardenState, useId: string, nowMs = Date.now()): SpecialItemUseResult {
   validateUseId(useId);
   if (before.events?.settled_ids?.includes(useId)) {
     return { state: structuredClone(before), message: dialogues.dialogues.watch_used };
@@ -123,6 +124,8 @@ export function useSakuyaWatch(before: GardenState, useId: string): SpecialItemU
   nextWatch.last_used_time_period = state.environment?.time_period ?? '清晨';
   nextWatch.temporal_trace_active = true;
   nextWatch.time_stop_active = true;
+  const safeNowMs = Number.isFinite(nowMs) ? Math.max(0, Math.floor(nowMs)) : Date.now();
+  nextWatch.time_stop_expires_at_ms = safeNowMs + SAKUYA_TIME_STOP_DURATION_MS;
   nextWatch.noticed_by_character_ids ??= [];
   const reimuView = state.presence_snapshot?.character_views?.reimu;
   const reimuPresent = state.presence_snapshot?.present_character_ids?.includes('reimu');
@@ -159,11 +162,28 @@ export function releaseSakuyaWatch(before: GardenState, useId: string): SpecialI
   if (!watch?.obtained) throw new Error('尚未获得咲夜的怀表');
   if (!watch.time_stop_active) throw new Error('当前没有正在生效的怀表时停');
   const serialBefore = periodSerialFromState(before);
-  const state = structuredClone(before);
-  state.key_items!.sakuya_watch.time_stop_active = false;
+  const state = clearSakuyaTimeStop(before);
   appendSettlementId(state, useId);
   if (periodSerialFromState(state) !== serialBefore) throw new Error('解除怀表不得推进正式时段');
   return { state, message: dialogues.dialogues.watch_released };
+}
+
+export function expireSakuyaWatch(before: GardenState, nowMs = Date.now()): SpecialItemUseResult {
+  const watch = before.key_items?.sakuya_watch;
+  if (!watch?.time_stop_active) {
+    return { state: structuredClone(before), message: '当前没有正在生效的怀表时停' };
+  }
+  const safeNowMs = Number.isFinite(nowMs) ? Math.max(0, Math.floor(nowMs)) : Date.now();
+  const expiresAtMs = Number.isFinite(watch.time_stop_expires_at_ms)
+    ? Math.max(0, Math.floor(watch.time_stop_expires_at_ms!))
+    : 0;
+  if (safeNowMs < expiresAtMs) {
+    return { state: structuredClone(before), message: '怀表时停仍在生效' };
+  }
+  return {
+    state: clearSakuyaTimeStop(before),
+    message: '怀表时停已到期，今日使用进入冷却',
+  };
 }
 
 export function useSpecialItem(

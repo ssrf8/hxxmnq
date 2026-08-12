@@ -1,0 +1,119 @@
+{
+  "schema_version": "gensokyo-battle-portrait-preparation.v1",
+  "date": "2026-08-11",
+  "source_root": "旧素材/素材处理/新建文件夹",
+  "transform": {
+    "source_dimensions": [1152, 1920],
+    "output_dimensions": [480, 800],
+    "codec": "webp",
+    "quality": 50,
+    "effort": 6,
+    "resize_kernel": "lanczos3",
+    "aspect_ratio_preserved": true
+  },
+  "files": [
+    {
+      "id": "youmu_s0",
+      "source": "旧素材/素材处理/新建文件夹/幽梦/S0.png",
+      "source_bytes": 2528932,
+      "source_sha256": "7b7b74d381b8ee9f64beee22d523e5131d1640efe6dc79a2211da58fa848d977",
+      "runtime": "src/assets/battle/portraits/portrait-youmu-s0-v1.webp",
+      "runtime_bytes": 13544,
+      "runtime_sha256": "f2543cd825945a5f38e53e97359a8a4df067eaeb6652a58e9cca0016607a1cb3"
+    },
+    {
+      "id": "youmu_s1",
+      "source": "旧素材/素材处理/新建文件夹/幽梦/S1.png",
+      "source_bytes": 2581207,
+      "source_sha256": "1b2189236eadf21c93d8af879368bd5274b97f90e73846718d17fc5a80735629",
+      "runtime": "src/assets/battle/portraits/portrait-youmu-s1-v1.webp",
+      "runtime_bytes": 14046,
+      "runtime_sha256": "033780215be852676c00a35da0ab278b550796babbfa37aae46ad8fd729cc188"
+    },
+    {
+      "id": "youmu_s2",
+      "source": "旧素材/素材处理/新建文件夹/幽梦/S2.png",
+      "source_bytes": 2463829,
+      "source_sha256": "7447ab6b050685ea160d8f1e6a7385434406580df58ce82ed1e8005695ce2605",
+      "runtime": "src/assets/battle/portraits/portrait-youmu-s2-v1.webp",
+      "runtime_bytes": 14030,
+      "runtime_sha256": "52a31ab37b2ce7d10e19826b90f2ab2c5134f1229c6780a4b4cbef8e18fd1645"
+    },
+    {
+      "id": "patchouli_s0",
+      "source": "旧素材/素材处理/新建文件夹/帕秋莉/S0.png",
+      "source_bytes": 2688604,
+      "source_sha256": "b7a11d315d03f1ea4f66e3268725a7584aa2298027c7d736ee9c1977408661a5",
+      "runtime": "src/assets/battle/portraits/portrait-patchouli-s0-v1.webp",
+      "runtime_bytes": 16344,
+      "runtime_sha256": "147a0adf7c9ecec6ef46eb291af70314082a77a5e25413208f76d4e8a47f1812"
+    },
+    {
+      "id": "patchouli_s1",
+      "source": "旧素材/素材处理/新建文件夹/帕秋莉/S1.png",
+      "source_bytes": 2712147,
+      "source_sha256": "a04ddb8912b66286d7a0925fbcd316451f46f8f126400096f5f3fd842dd3def2",
+      "runtime": "src/assets/battle/portraits/portrait-patchouli-s1-v1.webp",
+      "runtime_bytes": 16812,
+      "runtime_sha256": "3e1c799a7bca2bfc3a3b5e849772731a97dd0607197f7367a5f90d5187c7148d"
+    },
+    {
+      "id": "patchouli_s2",
+      "source": "旧素材/素材处理/新建文件夹/帕秋莉/S2.png",
+      "source_bytes": 2641668,
+      "source_sha256": "51942f4a20b6c46074af5fabc2738e45086813e30ebd3b271cb30a0500a742b7",
+      "runtime": "src/assets/battle/portraits/portrait-patchouli-s2-v1.webp",
+      "runtime_bytes": 15576,
+      "runtime_sha256": "51bac58acbbd895c0cbdbf25253d06da36a9cbd514076ffae559029700a44d29"
+    },
+    {
+      "id": "sanae_s0",
+      "source": "旧素材/素材处理/新建文件夹/早苗/S0.png",
+      "source_bytes": 2740304,
+      "source_sha256": "770c948397496b889b1f587d3a5a7af06695770963d52d3ac9508d15cd21a5a0",
+      "runtime": "src/assets/battle/portraits/portrait-sanae-s0-v1.webp",
+      "runtime_bytes": 16850,
+      "runtime_sha256": "c4660a5483e2615752f7ffb5350abb0e9c3c771530132616470d536fe69787f2"
+    },
+    {
+      "id": "sanae_s1",
+      "source": "旧素材/素材处理/新建文件夹/早苗/S1.png",
+      "source_bytes": 2790624,
+      "source_sha256": "2b57882c3abcf1fa9deb19a0c8a76c705ca230adc9f7feb0f6e7e06d69bee154",
+      "runtime": "src/assets/battle/portraits/portrait-sanae-s1-v1.webp",
+      "runtime_bytes": 16874,
+      "runtime_sha256": "f7a632b89efd6800548c88595de9dbbd8581369fe4f9ea12793acb31882a423d"
+    },
+    {
+      "id": "sanae_s2",
+      "source": "旧素材/素材处理/新建文件夹/早苗/S2.png",
+      "source_bytes": 2593452,
+      "source_sha256": "ad4fc29d78fc6a26ea1976eaf4362efb517eabcd8c1f1fb4fb45ced012fb0d37",
+      "runtime": "src/assets/battle/portraits/portrait-sanae-s2-v1.webp",
+      "runtime_bytes": 14608,
+      "runtime_sha256": "63df736e2c712cf9c1f64b0f77b08ab9108f890ca40abfe5c1a3cad7b2559743"
+    }
+  ],
+  "totals": {
+    "files": 9,
+    "source_bytes": 23740767,
+    "runtime_bytes": 138684
+  },
+  "r2_release": {
+    "generation": 8,
+    "operation": "9 additions, 0 replacements",
+    "files": 263,
+    "bytes": 355377120,
+    "manifest_sha256": "64ac62ae0896e2523af23b137fd2acabfd2d2d4c92f743aeacb94cfdc28d4507",
+    "s3_readback": "pass",
+    "public_origin_readback": "pass",
+    "manifest_last": true
+  },
+  "verification": {
+    "typecheck": "pass",
+    "tests": "753/753 pass",
+    "standalone_ui_bytes": 2236008,
+    "standalone_ui_sha256": "fa8c34ac8c767227b6a33977bc3b61f4d942b3fd08ae168e75e98d296961572f",
+    "real_sillytavern_canvas": "pending"
+  }
+}

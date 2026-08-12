@@ -9,6 +9,8 @@ import {
   type SaveSlotId,
 } from './save-schema';
 
+export const SAVE_WORLDBOOK_NAME = '幻想乡物语_存档';
+
 export interface SaveWorldbookEntry {
   uid: number;
   name: string;
@@ -24,7 +26,7 @@ export interface SaveWorldbookEntry {
 }
 
 export interface SaveWorldbookAdapter {
-  getOrCreateChatWorldbook(): Promise<string>;
+  getOrCreateSaveWorldbook(): Promise<string>;
   getWorldbook(name: string): Promise<SaveWorldbookEntry[]>;
   updateWorldbook(name: string, updater: (entries: SaveWorldbookEntry[]) => SaveWorldbookEntry[]): Promise<SaveWorldbookEntry[]>;
 }
@@ -115,7 +117,7 @@ export async function readSaveSlotFromEntries(entries: SaveWorldbookEntry[], slo
 }
 
 export async function listSaveSlots(adapter: SaveWorldbookAdapter): Promise<SaveSlotSummary[]> {
-  const name = await adapter.getOrCreateChatWorldbook();
+  const name = await adapter.getOrCreateSaveWorldbook();
   const entries = await adapter.getWorldbook(name);
   return Promise.all(SAVE_SLOT_IDS.map(async (slotId) => {
     const owned = entries.filter((entry) => belongsToSlot(entry, slotId));
@@ -130,13 +132,13 @@ export async function listSaveSlots(adapter: SaveWorldbookAdapter): Promise<Save
 }
 
 export async function readSaveSlot(adapter: SaveWorldbookAdapter, slotId: SaveSlotId): Promise<GensokyoSaveV1> {
-  const name = await adapter.getOrCreateChatWorldbook();
+  const name = await adapter.getOrCreateSaveWorldbook();
   return readSaveSlotFromEntries(await adapter.getWorldbook(name), slotId);
 }
 
 export async function writeSaveSlot(adapter: SaveWorldbookAdapter, payload: GensokyoSaveV1): Promise<void> {
   const encoded = await encodeSavePayload(payload);
-  const name = await adapter.getOrCreateChatWorldbook();
+  const name = await adapter.getOrCreateSaveWorldbook();
   await adapter.updateWorldbook(name, (entries) => {
     const kept = entries.filter((entry) => !belongsToSlot(entry, payload.slotId));
     let uid = entries.reduce((max, entry) => Math.max(max, Number.isSafeInteger(entry.uid) ? entry.uid : -1), -1) + 1;

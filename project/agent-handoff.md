@@ -1,6 +1,6 @@
 # 当前 Agent 交接
 
-更新时间：2026-08-11。
+更新时间：2026-08-12。
 
 ## 已完成
 
@@ -22,6 +22,12 @@
 - 普通角色对话已改为等待玩家首轮输入；空输入不发送，未发送直接结束不创建楼层或调用 LLM。
 - 回想画廊已接入“幻想乡案内”：只读最近 1000 个真实楼层，支持起止范围、滑杆定位、逐 beat 回放和范围内图片网格。实现与验收步骤见 `project/gal-first-input-and-history-gallery-plan.md`。
 - 怀表主动解除与符卡胜利要求放弃已通过实机验收，相关临时测试控制台入口已移除；记录见 `project/2026-08-11-watch-duel-bugfix-acceptance.md`。
+- “幻想乡案内”的活动异变区已增加“立刻结束异变”：确认后由本地命令把正式时间推进到异变期限，归档并清空当前异变，再统一协调期间到期的设施、活动、待办与来访；不调用 LLM。
+- 咲夜怀表已实现真实五分钟期限；顶栏显示 `时停 MM:SS`，到点自动解除并保留当日冷却。主动解除和跨正式时段推进仍可提前结束，旧的无期限激活态会在界面恢复时安全解除。
+- 新手教程以解决温室妖花核心正常毕业；妖花调查现使用一次性固定剧情并在正文结束后引导玩家返回庭园选择符卡战或剧情解决。正式跳过按钮则直接结束全部新手教程、撤下指引并停在三种温室形态待选状态，不自动选型。
+- 本地白名单剧情（含全部新手教程）收到非空 assistant 回复后直接完成本地结算。VisitTurn 任务改为尽力记录：缺失、错配或摘要失败时清除一次性任务并继续；普通自由对话仍严格拒绝无效 VisitTurn。
+- 0.3.0-r7 正式候选已采用 production R2 UI 交付完成打包。UI r7 已上传并公网逐字节读回；正式 JSON/PNG 均已生成，`creator_notes` 为空，PNG 内只有一份 `chara` 且与 JSON 逐字节一致。R2 上已被替代的 production UI r5/r6 源对象已逐个删除并回查为不存在。详见 `project/2026-08-11-release-0.3.0-r7.md`。
+- production UI r10 热更新已发布并公网逐字节读回；production manifest 现指向 r10。该版统一释放 GAL 生成异常锁，新增手动“修复”按钮，修正教程第五步事实派生、胜利要求遗留/放弃生成与画廊角色小窗冲突。采用固定 production loader 的既有旧卡刷新后会自动读取 r10，本次未重打角色卡。
 
 ## 验收结论
 
@@ -44,22 +50,17 @@
 ## 当前验证基线
 
 - `npm run check:ui`：通过。
-- `npm test`：739 项中 734 通过、5 失败，不能标记为全绿。
-- `npm run build:ui:standalone`：通过；2,223,177 bytes，SHA-256 `c817ec4c348327a8f9e488a1523553516ce6603976112414116553174eb64f11`。
+- `npm test`：760/760 通过。
+- production remote UI r10：2,255,171 bytes，SHA-256 `132ee9f852f352bdba796f253b6e2cb64d649a00dd1cbbde7ce73a03fbfcdd04`；R2 上传、production manifest 切换与公网读回通过。
 - 首轮输入与回想画廊 UI 契约测试：140/140 通过；相关三组联合回归：178/178 通过。新画廊尚未记录真实 SillyTavern 实机验收。
-- 嵌入式 `package-checkpoint` dry-run：通过；远程 UI 打包 dry-run 因当前未生成 production/test loader 而不能作为通过项。
+- production remote `package-checkpoint` dry-run 与正式写入均通过；JSON 329,189 bytes，PNG 1,273,524 bytes。
 - `git diff --check`：通过。
 - R2 generation 7 的 3 个 Boss 新增对象均通过 MIME、长度和 SHA-256 校验；生产 manifest 为 generation 7 且 `Cache-Control: no-store`。
 - Presence 真实 SillyTavern 验收：通过。
 
 ## 后续工作
 
-- **P0：恢复全量测试基线。** 当前 5 个失败为：
-  1. `tests/new-character-integration.test.mjs` 读取不到维护源 `旧素材/素材处理/CG/妖梦/正常 sfw.png`；需要恢复所有者原图，或把测试改为项目现存的权威归档来源。
-  2. 两项 `tests/ui-channel.test.mjs` 发布测试被项目根 `.env` 的 Cloudflare 控制台分段格式阻断；发布脚本只认标准 `KEY=value` dotenv。不得在日志中打印或提交密钥。
-  3. UI 测试入口打包缺少 `dist/runtime/test/profiles/standalone-mvu/ui-loader.js`；需要用新的 `test-rNN` 完成一次测试通道 remote build 后再跑打包 dry-run。
-  4. `tests/ui-contract.test.mjs` 的“开放庭园页面从正式状态派生教程进度与下一步”仍得到空文案；需要判断是实现回归还是旧断言过期。
-- **P0：重新打包并在真实 SillyTavern 验收本轮功能。** generation 7 已提供媒体，但 Boss 路由与其他本轮逻辑仍需进入新角色卡/UI 包；实际检查三角色动静切换、左右朝向、Boss 四状态、商店购买、消费、绿灯加载与场景结束回收。
+- **P0：在真实 SillyTavern 完成发布后验收。** 重点检查旧卡刷新后 production loader 拉取 UI r9、妖花调查结束后的战斗／剧情解决指引、跳过教程后指引完全消失且停在温室三选一，以及 GAL 子页面返回、剧情召回开关、开放庭院设施折叠、五分钟怀表自动解除、立即结束异变、画廊翻页、固定存档世界书和新角色对战图。
 - **P1：整理工作树。** 当前有大量已修改/未跟踪文件及历史诊断产物；正式打包或提交前必须区分本轮源码、用户素材与临时日志，不得批量清理或误提交。
 - **P1：三名新角色 sexual 姿势池仍为空。** 这是明确保留状态，不影响 normal/nude 与地图动画，但如要完整 GAL sexual 表现仍需后续素材与 manifest 登记。
 - 若要比较 `standalone-mvu` 与 `database-assisted`，单独执行 A11，避免污染现有验收聊天。

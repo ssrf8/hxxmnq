@@ -628,6 +628,15 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .gg-gallery-dialogue-card strong { color: #f1d69e; font-family: var(--gg-font-serif); }
 .gg-gallery-dialogue-card small { color: #c4ad84; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .gg-gallery-dialogue-card span { color: var(--gg-muted); line-height: 1.5; }
+.gg-gallery-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: .7rem;
+  margin-top: .8rem;
+}
+.gg-gallery-pagination[hidden] { display: none; }
+.gg-gallery-pagination output { min-width: 7.5em; color: #f1d69e; text-align: center; }
 .gg-gallery-images { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: .7rem; }
 .gg-gallery-image-card {
   display: grid;
@@ -665,11 +674,11 @@ button:disabled { opacity: .5; cursor: not-allowed; }
     var(--gg-gal-background-image) center / cover;
 }
 .gg-gallery-player-stage img { display: block; width: 100%; height: min(58dvh, 580px); object-fit: contain; }
-.gg-gallery-player-dialogue { display: grid; gap: .35rem; padding: .85rem 1rem; border-top: 1px solid rgba(214, 181, 119, .32); background: rgba(20, 22, 24, .97); }
+.gg-gallery-player-dialogue { display: grid; align-content: start; gap: .35rem; height: clamp(8.5rem, 18dvh, 11rem); padding: .85rem 1rem; overflow-y: auto; border-top: 1px solid rgba(214, 181, 119, .32); background: rgba(20, 22, 24, .97); }
 .gg-gallery-player-dialogue strong { color: #efcf91; font: 800 1rem var(--gg-font-serif); }
 .gg-gallery-player-dialogue p { min-height: 3em; margin: 0; white-space: pre-wrap; line-height: 1.65; }
 .gg-gallery-player-dialogue small { color: var(--gg-muted); text-align: right; }
-.gg-gallery-player-shell > .gg-actions { justify-content: flex-end; padding: 0 1rem 1rem; background: rgba(20, 22, 24, .97); }
+.gg-gallery-player-shell > .gg-actions { position: sticky; bottom: 0; z-index: 1; justify-content: flex-end; min-height: 3.5rem; padding: 0 1rem 1rem; background: rgba(20, 22, 24, .97); }
 
 @media (max-width: 520px) {
   .gg-gallery { padding: .7rem; }
@@ -780,7 +789,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
   .gg-save-slots { grid-template-columns: 1fr; }
 }
 .gg-test-tools {
-  display: block;
+  display: none;
   margin-top: 1.25rem;
   padding: clamp(.8rem, 2vw, 1.2rem);
   border: 1px solid rgba(214, 181, 119, .42);
@@ -2548,8 +2557,23 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 }
 .gg-tutorial-guide[hidden] { display: none !important; }
 .gg-tutorial-guide .gg-eyebrow { margin: 0 0 .2rem; color: #e7bd6f; }
-.gg-tutorial-guide h2 { margin: 0 0 .28rem; font-size: 1.08rem; }
+.gg-tutorial-guide h2 { margin: 0 0 .28rem; font-size: 1.08rem; outline: none; }
 .gg-tutorial-guide p:last-child { margin: 0; color: #dccfb9; line-height: 1.55; }
+#gg-tutorial-guide-restore {
+  position: fixed;
+  z-index: 38;
+  bottom: max(20px, env(safe-area-inset-bottom));
+  left: 50%;
+  min-height: 44px;
+  padding: .6rem 1rem;
+  transform: translateX(-50%);
+  border: 2px solid rgba(243, 200, 108, .82);
+  border-radius: 999px;
+  background: rgba(24, 23, 25, .96);
+  color: #f5ead3;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .38);
+}
+#gg-tutorial-guide-restore[hidden] { display: none !important; }
 #gg-tutorial-guide-skip {
   min-height: 44px;
   padding: .55rem .72rem;
@@ -2577,6 +2601,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
     transform: none;
     width: auto;
   }
+  #gg-tutorial-guide-restore { bottom: max(12px, env(safe-area-inset-bottom)); }
   /* GAL 视图：教程条从底部移到顶部居中胶囊，避免盖住对白框/回复面板。
      剧情播放中只需要"点击对白框继续"，顶部小条不遮挡底部对话交互区。 */
   #gg-app[data-active-view="gal"] .gg-tutorial-guide {
@@ -2594,6 +2619,10 @@ button:disabled { opacity: .5; cursor: not-allowed; }
     border-width: 1px;
     border-radius: 999px;
     opacity: .97;
+  }
+  #gg-app[data-active-view="gal"] #gg-tutorial-guide-restore {
+    top: max(8px, env(safe-area-inset-top));
+    bottom: auto;
   }
   #gg-app[data-active-view="gal"] .gg-tutorial-guide h2 { font-size: .92rem; margin: 0; }
   #gg-app[data-active-view="gal"] .gg-tutorial-guide p:last-child { font-size: .8rem; line-height: 1.4; }
@@ -3104,18 +3133,48 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
 }
 .gg-opportunity-facility {
   min-width: 0;
-  padding: .8rem;
   border: 2px solid #b47d58;
   border-radius: 8px;
   background: linear-gradient(150deg, #f2dfbb, #dcbf91);
   color: #452b24;
   box-shadow: inset 0 0 0 2px rgba(255, 248, 219, .66), 0 5px 0 rgba(74, 42, 29, .28);
 }
-.gg-opportunity-facility > header {
-  display: flex;
-  justify-content: space-between;
-  gap: .65rem;
-  align-items: start;
+.gg-opportunity-facility-header {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: .25rem .65rem;
+  align-items: center;
+  min-height: 78px;
+  padding: .75rem 2.65rem .75rem .8rem;
+  cursor: pointer;
+  list-style: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.gg-opportunity-facility-header::-webkit-details-marker { display: none; }
+.gg-opportunity-facility-header::after {
+  content: "+";
+  position: absolute;
+  right: .75rem;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  border: 1px solid rgba(99, 51, 45, .52);
+  border-radius: 50%;
+  color: #71383a;
+  font: 800 1rem/1 system-ui;
+  transform: translateY(-50%);
+}
+.gg-opportunity-facility[open] > .gg-opportunity-facility-header::after { content: "−"; }
+.gg-opportunity-facility-header:focus-visible {
+  outline: 3px solid #8f3b3e;
+  outline-offset: -4px;
+}
+.gg-opportunity-facility-body {
+  padding: 0 .8rem .8rem;
+  border-top: 1px solid rgba(126, 79, 52, .25);
 }
 .gg-opportunity-facility h4 {
   margin: 0;
@@ -3145,13 +3204,14 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
   color: #672d2a;
 }
 .gg-opportunity-facility-summary {
-  margin: .45rem 0 .7rem;
+  grid-column: 1 / -1;
+  margin: 0;
   color: #684b3d;
   font-size: .76rem;
   line-height: 1.55;
   overflow-wrap: anywhere;
 }
-.gg-opportunity-form-list { display: grid; gap: .55rem; }
+.gg-opportunity-form-list { display: grid; gap: .55rem; padding-top: .7rem; }
 .gg-opportunity-form {
   display: grid;
   gap: .48rem;
@@ -3187,7 +3247,7 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
   overflow-wrap: anywhere;
 }
 .gg-opportunity-form button,
-.gg-opportunity-facility > button,
+.gg-opportunity-facility-body > button,
 .gg-opportunity-actions button {
   min-height: 42px;
   padding: .5rem .65rem;
@@ -3197,7 +3257,7 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
   font-size: .75rem;
 }
 .gg-opportunity-form button:hover:not(:disabled),
-.gg-opportunity-facility > button:hover:not(:disabled),
+.gg-opportunity-facility-body > button:hover:not(:disabled),
 .gg-opportunity-actions button:hover:not(:disabled) {
   border-color: #9d3c42;
   background: linear-gradient(180deg, #6d4540, #4a3030);
@@ -3536,7 +3596,7 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
   .gg-opportunity-facility-grid { grid-template-columns: 1fr; gap: .65rem; }
   .gg-opportunity-facility { padding: .7rem; }
   .gg-opportunity-form button,
-  .gg-opportunity-facility > button,
+  .gg-opportunity-facility-body > button,
   .gg-opportunity-actions button { min-height: 44px; }
   .gg-opportunity-actions { grid-template-columns: 1fr; }
   .gg-opportunity-invite-feedback { align-items: start; padding: .65rem; }
@@ -3548,7 +3608,7 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
 @media (max-width: 360px) {
   .gg-opportunity-section-header { display: grid; gap: .55rem; }
   .gg-opportunity-count { justify-self: start; }
-  .gg-opportunity-facility > header { align-items: center; }
+  .gg-opportunity-facility-header { align-items: center; }
   .gg-opportunity-invite-grid { grid-template-columns: 1fr; }
 }
 /* 符卡副本：所有者提供的灵梦弹幕牌面，完整轮廓按固定高度等比显示。 */
@@ -3735,9 +3795,12 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
 /* 状态徽记分色：时间＝淡金、天气＝淡朱、物资＝淡青；便签纸色分色：淡柠檬／淡樱／淡水 */
 .gg-header #gg-time::before { background: #dfa84e; }
 .gg-header #gg-weather::before { background: var(--gg-header-red); }
+.gg-header #gg-time-stop-countdown::before { background: #8771bf; }
 .gg-header #gg-resources::before { background: #86b3b0; }
 .gg-header .gg-status-line #gg-time { background: rgba(255, 250, 218, .62); }
 .gg-header .gg-status-line #gg-weather { background: rgba(255, 240, 233, .62); }
+.gg-header .gg-status-line #gg-time-stop-countdown { background: rgba(238, 232, 255, .68); }
+.gg-header .gg-status-line #gg-time-stop-countdown[hidden] { display: none; }
 .gg-header .gg-status-line #gg-resources { background: rgba(234, 246, 244, .62); }
 .gg-header #gg-open-opportunities,
 .gg-header #gg-fullscreen,

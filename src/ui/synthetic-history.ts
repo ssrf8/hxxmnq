@@ -16,6 +16,7 @@ export const HISTORY_BOUNDARY_MESSAGE = '【历史边界】本请求不读取 Si
 export const PAST_BOUNDARY_LINE = '不可续接旧地点、姿势、动作进行态、未完台词或即时意图；当前在场状态与本轮场景事实优先。';
 /** 本次块提示句。 */
 export const CURRENT_CONTINUITY_LINE = '以下属于角色当前这次在场，可用于维持本次场景连续性；当前在场状态与本轮场景事实优先。';
+export const CURRENT_OTHER_SCENE_LINE = '以下发生在角色本次入场的其他场景，只能作为已发生的背景；不得续接旧地点、动作进行态或未完台词。';
 /** 旧版遗留记忆提示句。 */
 export const LEGACY_BOUNDARY_LINE = '没有可靠入场和时间，只能作为模糊长期记忆，不得视为当前场景。';
 
@@ -28,6 +29,8 @@ export interface SyntheticHistoryInput {
   visitIdsByCharacter: Record<string, string | null>;
   /** 角色登记信息：characterId → 显示名（缺省回退 characterId）。 */
   characterNames?: Record<string, string>;
+  /** 当前请求的场景边界；提供后，只有同 scene_id 的回合可作为即时连续性。 */
+  sceneId?: string | null;
 }
 
 export interface SyntheticHistoryResult {
@@ -87,6 +90,7 @@ interface CharacterBlockParts {
   header: string;
   pastVisitBlocks: string[]; // 每块已含标题与边界句；内部旧到新
   currentLines: string[];
+  currentOtherSceneLines: string[];
   legacyLines: string[];
 }
 
@@ -153,13 +157,14 @@ function buildCharacterBlock(
     legacyLines.push(`- ${NO_TIME}：${text}`);
   }
 
-  return { header, pastVisitBlocks, currentLines: [], legacyLines };
+  return { header, pastVisitBlocks, currentLines: [], currentOtherSceneLines: [], legacyLines };
 }
 
 /** 把角色块各部分拼成单块文本（未裁剪）。 */
 function renderCharacterBlock(parts: CharacterBlockParts): string {
   const sections: string[] = [parts.header];
   if (parts.pastVisitBlocks.length) sections.push(parts.pastVisitBlocks.join('\n'));
+  if (parts.currentOtherSceneLines.length) sections.push(`【本次入场：其他场景背景】\n${CURRENT_OTHER_SCENE_LINE}\n${parts.currentOtherSceneLines.join('\n')}`);
   if (parts.currentLines.length) sections.push(`【本次入场：可维持当前连续性】\n${CURRENT_CONTINUITY_LINE}\n${parts.currentLines.join('\n')}`);
   if (parts.legacyLines.length) sections.push(`【旧版遗留记忆：时间不明】\n${LEGACY_BOUNDARY_LINE}\n${parts.legacyLines.join('\n')}`);
   return sections.join('\n\n');
@@ -190,6 +195,7 @@ export function buildSyntheticHistory(input: SyntheticHistoryInput): SyntheticHi
 
     // 本次入场：精确按冻结 visit ID 找（active 或 closed 恰好一处）
     const currentLines: string[] = [];
+    const currentOtherSceneLines: string[] = [];
     if (frozenVisitId != null) {
       let currentVisit: Record<string, unknown> | null = null;
       if (isRecord(memory.active_visit) && memory.active_visit.visit_id === frozenVisitId) {
@@ -216,7 +222,9 @@ export function buildSyntheticHistory(input: SyntheticHistoryInput): SyntheticHi
           })
           .map(({ turn }) => turn);
         for (const turn of turns) {
-          currentLines.push(`- ${turnTime(turn)}：${String(turn.summary ?? '').trim()}`);
+          const line = `- ${turnTime(turn)}：${String(turn.summary ?? '').trim()}`;
+          if (input.sceneId != null && turn.scene_id !== input.sceneId) currentOtherSceneLines.push(line);
+          else currentLines.push(line);
         }
       }
     }
@@ -225,6 +233,7 @@ export function buildSyntheticHistory(input: SyntheticHistoryInput): SyntheticHi
       header: parts.header,
       pastVisitBlocks: parts.pastVisitBlocks,
       currentLines,
+      currentOtherSceneLines,
       legacyLines: parts.legacyLines,
     };
 

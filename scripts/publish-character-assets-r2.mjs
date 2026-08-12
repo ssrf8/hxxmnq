@@ -52,9 +52,13 @@ if (sha256(Buffer.from(stableJson(remoteWithoutHashForCheck))) !== remoteHash) t
 const localManifest = JSON.parse(await readFile(join(ASSET_ROOT, 'asset-manifest.json'), 'utf8'));
 const prefixes = characterIds.map((id) => `characters/${id}/`);
 const battleBossSources = new Set(characterIds.map((id) => `battle/boss/${id}-battle-sheet-v1.webp`));
+const battlePortraitSources = new Set(characterIds.flatMap((id) => (
+  [0, 1, 2].map((tier) => `battle/portraits/portrait-${id}-s${tier}-v1.webp`)
+)));
 const selected = collectRuntimeAssets(localManifest).filter((entry) => (
   prefixes.some((prefix) => entry.source.startsWith(prefix))
   || battleBossSources.has(entry.source)
+  || battlePortraitSources.has(entry.source)
 ));
 const remoteBySource = new Map(remote.files.map((entry) => [entry.source, entry]));
 const assetRootReal = await realpath(ASSET_ROOT);

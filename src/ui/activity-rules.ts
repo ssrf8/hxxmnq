@@ -35,12 +35,11 @@ export function queueSceneItemUse(
   if (item.use_mode !== 'scene_chat') throw new Error('该物品不是场景聊天道具');
   if (item.item_id === 'emergency_repair_kit') throw new Error('应急修缮包不能进入普通场景道具上下文');
   if (!/^[A-Za-z0-9._:-]{1,96}$/u.test(useId)) throw new Error('使用 ID 非法');
-  if (consumableCount(before, itemId) < 1) throw new Error('数量不足');
-
   const prepared = ensureSceneItemContext(before, sceneId);
   const preparedContext = prepared.scene_item_context!;
   if (preparedContext.status !== 'active') throw new Error('场景正在收尾，不能再新增道具');
   if (preparedContext.entries.some((entry) => entry.use_ids.includes(useId))) return prepared;
+  if (consumableCount(before, itemId) < 1) throw new Error('数量不足');
 
   // One new item kind reservation per call is enforced by caller; same id merges.
   const preparedExisting = preparedContext.entries.find((entry) => entry.item_id === itemId);

@@ -491,12 +491,17 @@ export function spawnPatternBullets(
   }
 
   if (id === 'cross_sweep') {
+    const gapCount = safe.gaps ?? 1;
     // Not a direct TH06 aim mode — keep as gap-chase lines with moving notch.
     const gapSlot = (ctx.volleyIndex * 2 + Math.floor(ctx.random() * 2)) % 5;
     const fromLeft = ctx.volleyIndex % 2 === 0;
     const rowCount = 6;
+    const rowGaps = Array.from(
+      { length: Math.min(gapCount, rowCount) },
+      (_, index) => (gapSlot + Math.floor(index * rowCount / gapCount)) % rowCount,
+    );
     for (let row = 0; row < rowCount; row += 1) {
-      if (row === gapSlot) continue;
+      if (rowGaps.includes(row)) continue;
       const y = 120 + row * ((ctx.arenaHeight - 220) / Math.max(1, rowCount - 1));
       const vSpeed = speed * (0.9 + 0.05 * (row % 3));
       pushEnemy(out, ctx, {
@@ -510,9 +515,14 @@ export function spawnPatternBullets(
       });
     }
     const vertGap = (gapSlot + 2) % 4;
-    for (let col = 0; col < 5; col += 1) {
-      if (col === vertGap) continue;
-      const x = 50 + col * ((ctx.arenaWidth - 100) / 4);
+    const columnCount = 5;
+    const columnGaps = Array.from(
+      { length: Math.min(gapCount, columnCount) },
+      (_, index) => (vertGap + Math.floor(index * columnCount / gapCount)) % columnCount,
+    );
+    for (let col = 0; col < columnCount; col += 1) {
+      if (columnGaps.includes(col)) continue;
+      const x = 50 + col * ((ctx.arenaWidth - 100) / (columnCount - 1));
       pushEnemy(out, ctx, {
         x,
         y: -12,

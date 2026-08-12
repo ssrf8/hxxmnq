@@ -2,6 +2,15 @@ import type { GardenState, TimePeriod } from './types';
 
 export const TIME_PERIODS: TimePeriod[] = ['清晨', '白昼', '黄昏', '夜晚'];
 
+export function clearSakuyaTimeStop(before: GardenState): GardenState {
+  const state = structuredClone(before);
+  if (state.key_items?.sakuya_watch) {
+    state.key_items.sakuya_watch.time_stop_active = false;
+    state.key_items.sakuya_watch.time_stop_expires_at_ms = null;
+  }
+  return state;
+}
+
 /** Rejects invalid or backward model-written time while preserving other candidate fields. */
 export function enforceMonotonicTime(before: GardenState, candidate: GardenState): GardenState {
   const state = structuredClone(candidate);
@@ -33,10 +42,7 @@ export function advanceOneTimePeriod(before: GardenState): GardenState {
   state.environment.time_period = TIME_PERIODS[next];
   if (next === 0) state.environment.day = (state.environment.day ?? 1) + 1;
   // 怀表时停只在当前时段内生效，跨时段自动失效。
-  if (state.key_items?.sakuya_watch) {
-    state.key_items.sakuya_watch.time_stop_active = false;
-  }
-  return state;
+  return clearSakuyaTimeStop(state);
 }
 
 export function timeSnapshot(state: GardenState) {

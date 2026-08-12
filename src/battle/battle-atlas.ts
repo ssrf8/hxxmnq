@@ -64,6 +64,15 @@ export type BattleSheetKey =
   | 'portrait_sakuya_s0'
   | 'portrait_sakuya_s1'
   | 'portrait_sakuya_s2'
+  | 'portrait_youmu_s0'
+  | 'portrait_youmu_s1'
+  | 'portrait_youmu_s2'
+  | 'portrait_patchouli_s0'
+  | 'portrait_patchouli_s1'
+  | 'portrait_patchouli_s2'
+  | 'portrait_sanae_s0'
+  | 'portrait_sanae_s1'
+  | 'portrait_sanae_s2'
   | 'portrait_flower_core_s0'
   | 'portrait_flower_core_s1'
   | 'portrait_flower_core_s2'
@@ -110,6 +119,15 @@ export const BATTLE_SHEET_PATHS = {
   portrait_sakuya_s0: 'battle/portraits/portrait-sakuya-s0-v1.png',
   portrait_sakuya_s1: 'battle/portraits/portrait-sakuya-s1-v1.png',
   portrait_sakuya_s2: 'battle/portraits/portrait-sakuya-s2-v1.png',
+  portrait_youmu_s0: 'battle/portraits/portrait-youmu-s0-v1.png',
+  portrait_youmu_s1: 'battle/portraits/portrait-youmu-s1-v1.png',
+  portrait_youmu_s2: 'battle/portraits/portrait-youmu-s2-v1.png',
+  portrait_patchouli_s0: 'battle/portraits/portrait-patchouli-s0-v1.png',
+  portrait_patchouli_s1: 'battle/portraits/portrait-patchouli-s1-v1.png',
+  portrait_patchouli_s2: 'battle/portraits/portrait-patchouli-s2-v1.png',
+  portrait_sanae_s0: 'battle/portraits/portrait-sanae-s0-v1.png',
+  portrait_sanae_s1: 'battle/portraits/portrait-sanae-s1-v1.png',
+  portrait_sanae_s2: 'battle/portraits/portrait-sanae-s2-v1.png',
   portrait_flower_core_s0: 'battle/portraits/portrait-flower-core-s0-v1.png',
   portrait_flower_core_s1: 'battle/portraits/portrait-flower-core-s1-v1.png',
   portrait_flower_core_s2: 'battle/portraits/portrait-flower-core-s2-v1.png',
@@ -370,6 +388,15 @@ export interface BattleAtlasSources {
   portrait_sakuya_s0?: string;
   portrait_sakuya_s1?: string;
   portrait_sakuya_s2?: string;
+  portrait_youmu_s0?: string;
+  portrait_youmu_s1?: string;
+  portrait_youmu_s2?: string;
+  portrait_patchouli_s0?: string;
+  portrait_patchouli_s1?: string;
+  portrait_patchouli_s2?: string;
+  portrait_sanae_s0?: string;
+  portrait_sanae_s1?: string;
+  portrait_sanae_s2?: string;
   portrait_flower_core_s0?: string;
   portrait_flower_core_s1?: string;
   portrait_flower_core_s2?: string;
@@ -442,6 +469,15 @@ export async function loadBattleAtlas(sources: BattleAtlasSources = {}): Promise
     ['portrait_sakuya_s0', sources.portrait_sakuya_s0],
     ['portrait_sakuya_s1', sources.portrait_sakuya_s1],
     ['portrait_sakuya_s2', sources.portrait_sakuya_s2],
+    ['portrait_youmu_s0', sources.portrait_youmu_s0],
+    ['portrait_youmu_s1', sources.portrait_youmu_s1],
+    ['portrait_youmu_s2', sources.portrait_youmu_s2],
+    ['portrait_patchouli_s0', sources.portrait_patchouli_s0],
+    ['portrait_patchouli_s1', sources.portrait_patchouli_s1],
+    ['portrait_patchouli_s2', sources.portrait_patchouli_s2],
+    ['portrait_sanae_s0', sources.portrait_sanae_s0],
+    ['portrait_sanae_s1', sources.portrait_sanae_s1],
+    ['portrait_sanae_s2', sources.portrait_sanae_s2],
     ['portrait_flower_core_s0', sources.portrait_flower_core_s0],
     ['portrait_flower_core_s1', sources.portrait_flower_core_s1],
     ['portrait_flower_core_s2', sources.portrait_flower_core_s2],

@@ -80,8 +80,9 @@ export function facilityBuildBlock(state: GardenState, facilityId: string, formI
   if (state.garden_projects?.active_construction) return '已有大型施工进行中';
   const runtime = state.facility_runtime?.[facilityId];
   if (runtime?.built || state.facilities?.[facilityId]?.current_form) return '该设施已经建成';
-  if ((state.resources?.materials ?? 0) < def.build_cost_materials) {
-    return `物资不足，需要 ${def.build_cost_materials} 点物资`;
+  const materials = state.resources?.materials ?? 0;
+  if (materials < def.build_cost_materials) {
+    return `物资不足：当前 ${materials}，建设需要 ${def.build_cost_materials} 点物资。`;
   }
   return '';
 }

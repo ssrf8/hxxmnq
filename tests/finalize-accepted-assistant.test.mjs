@@ -352,6 +352,38 @@ test('F03-5：VisitTurn 缺 summary → 抛错不 settled，并回滚额外模�
   assert.equal(rolledBack[LC].status, 'pending');
 });
 
+test('固定剧情收到非空回复后即使缺 VisitTurn task 也完成本地结算', async () => {
+  const request = makeV2Request();
+  const baseState = makeBaseState();
+  const mvu = makeMvu();
+  const options = { type: 'message', message_id: 541 };
+  const currentData = { stat_data: structuredClone(baseState) };
+  const snapshot = makeSnapshot(request, 541);
+  const outcome = await b.finalizeAcceptedAssistant({
+    mvu,
+    options,
+    currentData,
+    before: baseState,
+    assistantText: '灵梦已经给出了教程剧情回复。',
+    pendingRequest: request,
+    snapshot,
+    characterNames: { reimu: '博丽灵梦' },
+    readAssistantIdentity: makeIdentityReader(snapshot),
+    transformFinalState: (state) => ({
+      ...state,
+      events: { ...(state.events ?? {}), settled_ids: ['tutorial-reply-received'] },
+    }),
+    consumePresenceAnalysis: false,
+    visitTurnRequired: false,
+  });
+  assert.equal(outcome.phase, 'settled');
+  const written = mvu.__peek();
+  assert.deepEqual(written.stat_data.events.settled_ids, ['tutorial-reply-received']);
+  assert.equal(written.stat_data.interaction.visit_summary_task, null);
+  assert.equal(written.stat_data.interaction.visit_memory.by_character.reimu.active_visit.turns.length, 0);
+  assert.equal(written[LC].status, 'settled');
+});
+
 test('F03-6：replace 成功但复读缺 turn → 抛错不 settled', async () => {
   const request = makeV2Request();
   const baseState = makeBaseState();

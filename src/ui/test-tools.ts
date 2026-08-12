@@ -202,6 +202,12 @@ function prepareTutorialAcceptanceState(before: GardenState, jump: TestJumpId): 
     state.facilities.magic_greenhouse.unlocked_forms = [
       '基础魔法温室', '自由生长型温室', '人偶维护型温室', '河童自动化型温室',
     ];
+    state.ui_flags = { ...state.ui_flags, graduation_acknowledged: true };
+    state.memory ??= { long_term_notes: [] };
+    state.memory.long_term_notes = Array.from(new Set([
+      ...(state.memory.long_term_notes ?? []),
+      '【阶段边界】新手教程、妖花核心与三套温室方案均已完成；当前等待玩家亲自选择首次温室形态，不得重演此前教程。',
+    ]));
   }
   return state;
 }

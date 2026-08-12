@@ -106,6 +106,19 @@ test('onFinish 每局只调用一次，cancel 不结算', async () => {
   assert.equal(sim2.isFinished(), true);
 });
 
+test('相同配置在相同模拟帧结束的不同战斗实例使用不同结算 ID', async () => {
+  const { BattleSimulation } = await importTypescript('../src/battle/battle-simulation.ts');
+  const results = [];
+  for (let run = 0; run < 2; run += 1) {
+    const sim = new BattleSimulation(baseConfig, { onFinish: (result) => results.push(result), random: () => 0.5 });
+    sim.start();
+    sim.forceFinish('loss');
+  }
+  assert.equal(results.length, 2);
+  assert.notEqual(results[0].settlement_id, results[1].settlement_id);
+  assert.ok(results.every((result) => result.settlement_id.length <= 64));
+});
+
 test('固定时钟下暂停不推进阶段，clean_win 用初始生命判定', async () => {
   const { BattleSimulation, FIXED_STEP_MS } = await importTypescript('../src/battle/battle-simulation.ts')
     .then(async (mod) => ({ ...mod, ...(await importTypescript('../src/battle/battle-types.ts')) }));
@@ -265,6 +278,22 @@ test('登记弹型受参数上限约束，未知弹型被拒绝', async () => {
   armLasers(lasers);
   assert.equal(lasers[0].warning, false);
   assert.equal(lasers[0].collidable, true);
+});
+
+test('cross_sweep 按 gaps 为横纵扫射分别保留安全缺口', async () => {
+  const { spawnPatternBullets } = await importTypescript('../src/battle/battle-patterns.ts');
+  const ctx = {
+    bossX: 240, bossY: 100, playerX: 240, playerY: 500,
+    arenaWidth: 480, arenaHeight: 640, nextId: (() => { let i = 1; return () => i++; })(),
+    random: () => 0.4, volleyIndex: 2, phaseElapsedMs: 1200,
+  };
+  const spawn = (gaps) => spawnPatternBullets(baseConfig, {
+    pattern_id: 'cross_sweep', interval_ms: 200, speed: 100, ...(gaps == null ? {} : { gaps }),
+  }, ctx);
+  assert.equal(spawn().length, 9);
+  assert.equal(spawn(1).length, 9);
+  assert.equal(spawn(2).length, 7);
+  assert.equal(spawn(4).length, 3);
 });
 
 test('dirChange 离散重定向：钳制、标记并在间隔后转向', async () => {
@@ -783,10 +812,18 @@ test('外部专注与 Bomb 请求进入输入状态', async () => {
   input.requestBomb();
   assert.equal(input.consumeBombPressed(), true);
   assert.equal(input.consumeBombPressed(), false);
+  input.requestBomb();
+  input.resetTransient();
+  assert.equal(input.consumeBombPressed(), false, 'resetTransient must discard a queued Bomb edge');
   input.setExternalFocus(false);
   assert.equal(input.state.focused, false);
   input.detach();
   for (const [, list] of listeners) assert.equal(list.length, 0);
+});
+
+test('键盘 Esc 切换暂停后立即清除瞬态输入，暂停中的 Bomb 不会泄漏到恢复帧', async () => {
+  const engine = await read('../src/ui/battle-engine.ts');
+  assert.match(engine, /if \(this\.input\.consumePausePressed\(\)\) \{\s*this\.sim\.togglePause\(\);\s*this\.input\.resetTransient\(\);/);
 });
 
 test('战斗 atlas 裁切表完整且 build 不嵌入 chroma 重复素材', async () => {
@@ -1321,13 +1358,22 @@ test('十一名角色的对战视觉 ID 均解析到独立 Boss sheet', async ()
   assert.equal(characterBossPortrait('sakuya', 0), 'portrait_sakuya_s0');
   assert.equal(characterBossPortrait('sakuya', 1), 'portrait_sakuya_s1');
   assert.equal(characterBossPortrait('sakuya', 2), 'portrait_sakuya_s2');
+  assert.equal(characterBossPortrait('youmu', 0), 'portrait_youmu_s0');
+  assert.equal(characterBossPortrait('youmu', 1), 'portrait_youmu_s1');
+  assert.equal(characterBossPortrait('youmu', 2), 'portrait_youmu_s2');
+  assert.equal(characterBossPortrait('patchouli', 0), 'portrait_patchouli_s0');
+  assert.equal(characterBossPortrait('patchouli', 1), 'portrait_patchouli_s1');
+  assert.equal(characterBossPortrait('patchouli', 2), 'portrait_patchouli_s2');
+  assert.equal(characterBossPortrait('sanae', 0), 'portrait_sanae_s0');
+  assert.equal(characterBossPortrait('sanae', 1), 'portrait_sanae_s1');
+  assert.equal(characterBossPortrait('sanae', 2), 'portrait_sanae_s2');
   assert.equal(characterBossPortrait('flower_core', 0), 'portrait_flower_core_s0');
   assert.equal(characterBossPortrait('flower_core', 1), 'portrait_flower_core_s1');
   assert.equal(characterBossPortrait('flower_core', 2), 'portrait_flower_core_s2');
   assert.equal(characterBossPortrait('boss_flower_core', 0), undefined);
 });
 
-test('八名角色的 S0/S1/S2 立绘均走压缩 WebP 运行链，不要求图集裁切', async () => {
+test('十一名角色的 S0/S1/S2 立绘均走压缩 WebP 运行链，不要求图集裁切', async () => {
   const manifest = JSON.parse(await read('../src/assets/asset-manifest.json'));
   assert.deepEqual(manifest.battle_assets.reimu_battle_portraits.sources, {
     s0: 'battle/portraits/portrait-reimu-s0-v1.webp',
@@ -1369,6 +1415,21 @@ test('八名角色的 S0/S1/S2 立绘均走压缩 WebP 运行链，不要求图�
     s1: 'battle/portraits/portrait-sakuya-s1-v1.webp',
     s2: 'battle/portraits/portrait-sakuya-s2-v1.webp',
   });
+  assert.deepEqual(manifest.battle_assets.youmu_battle_portraits.sources, {
+    s0: 'battle/portraits/portrait-youmu-s0-v1.webp',
+    s1: 'battle/portraits/portrait-youmu-s1-v1.webp',
+    s2: 'battle/portraits/portrait-youmu-s2-v1.webp',
+  });
+  assert.deepEqual(manifest.battle_assets.patchouli_battle_portraits.sources, {
+    s0: 'battle/portraits/portrait-patchouli-s0-v1.webp',
+    s1: 'battle/portraits/portrait-patchouli-s1-v1.webp',
+    s2: 'battle/portraits/portrait-patchouli-s2-v1.webp',
+  });
+  assert.deepEqual(manifest.battle_assets.sanae_battle_portraits.sources, {
+    s0: 'battle/portraits/portrait-sanae-s0-v1.webp',
+    s1: 'battle/portraits/portrait-sanae-s1-v1.webp',
+    s2: 'battle/portraits/portrait-sanae-s2-v1.webp',
+  });
   assert.deepEqual(manifest.battle_assets.flower_core_battle_portraits.sources, {
     s0: 'battle/portraits/portrait-flower-core-s0-v1.webp',
     s1: 'battle/portraits/portrait-flower-core-s1-v1.webp',
@@ -1384,6 +1445,9 @@ test('八名角色的 S0/S1/S2 立绘均走压缩 WebP 运行链，不要求图�
   assert.equal(manifest.battle_assets.nitori_battle_portraits.runtime_embed, 'compressed-webp');
   assert.equal(manifest.battle_assets.suika_battle_portraits.runtime_embed, 'compressed-webp');
   assert.equal(manifest.battle_assets.sakuya_battle_portraits.runtime_embed, 'compressed-webp');
+  assert.equal(manifest.battle_assets.youmu_battle_portraits.runtime_embed, 'compressed-webp');
+  assert.equal(manifest.battle_assets.patchouli_battle_portraits.runtime_embed, 'compressed-webp');
+  assert.equal(manifest.battle_assets.sanae_battle_portraits.runtime_embed, 'compressed-webp');
   assert.equal(manifest.battle_assets.flower_core_battle_portraits.runtime_embed, 'compressed-webp');
   const buildSource = await read('../scripts/build-ui.mjs');
   const hostSource = await read('../src/runtime/ui-host-shell.js');
@@ -1395,6 +1459,9 @@ test('八名角色的 S0/S1/S2 立绘均走压缩 WebP 运行链，不要求图�
   assert.match(buildSource, /nitoriPortraitAsset[\s\S]*?compressed-webp/);
   assert.match(buildSource, /suikaPortraitAsset[\s\S]*?compressed-webp/);
   assert.match(buildSource, /sakuyaPortraitAsset[\s\S]*?compressed-webp/);
+  assert.match(buildSource, /youmuPortraitAsset[\s\S]*?compressed-webp/);
+  assert.match(buildSource, /patchouliPortraitAsset[\s\S]*?compressed-webp/);
+  assert.match(buildSource, /sanaePortraitAsset[\s\S]*?compressed-webp/);
   assert.match(buildSource, /flowerCorePortraitAsset[\s\S]*?compressed-webp/);
   assert.match(buildSource, /fairyAsset[\s\S]*?alpha-only/);
   assert.match(buildSource, /battlePortraitReimuS0DataUrl/);
@@ -1421,6 +1488,15 @@ test('八名角色的 S0/S1/S2 立绘均走压缩 WebP 运行链，不要求图�
   assert.match(buildSource, /battlePortraitSakuyaS0DataUrl/);
   assert.match(buildSource, /battlePortraitSakuyaS1DataUrl/);
   assert.match(buildSource, /battlePortraitSakuyaS2DataUrl/);
+  assert.match(buildSource, /battlePortraitYoumuS0DataUrl/);
+  assert.match(buildSource, /battlePortraitYoumuS1DataUrl/);
+  assert.match(buildSource, /battlePortraitYoumuS2DataUrl/);
+  assert.match(buildSource, /battlePortraitPatchouliS0DataUrl/);
+  assert.match(buildSource, /battlePortraitPatchouliS1DataUrl/);
+  assert.match(buildSource, /battlePortraitPatchouliS2DataUrl/);
+  assert.match(buildSource, /battlePortraitSanaeS0DataUrl/);
+  assert.match(buildSource, /battlePortraitSanaeS1DataUrl/);
+  assert.match(buildSource, /battlePortraitSanaeS2DataUrl/);
   assert.match(buildSource, /battlePortraitFlowerCoreS0DataUrl/);
   assert.match(buildSource, /battlePortraitFlowerCoreS1DataUrl/);
   assert.match(buildSource, /battlePortraitFlowerCoreS2DataUrl/);
@@ -1449,6 +1525,15 @@ test('八名角色的 S0/S1/S2 立绘均走压缩 WebP 运行链，不要求图�
   assert.match(hostSource, /battlePortraitSakuyaS0Src/);
   assert.match(hostSource, /battlePortraitSakuyaS1Src/);
   assert.match(hostSource, /battlePortraitSakuyaS2Src/);
+  assert.match(hostSource, /battlePortraitYoumuS0Src/);
+  assert.match(hostSource, /battlePortraitYoumuS1Src/);
+  assert.match(hostSource, /battlePortraitYoumuS2Src/);
+  assert.match(hostSource, /battlePortraitPatchouliS0Src/);
+  assert.match(hostSource, /battlePortraitPatchouliS1Src/);
+  assert.match(hostSource, /battlePortraitPatchouliS2Src/);
+  assert.match(hostSource, /battlePortraitSanaeS0Src/);
+  assert.match(hostSource, /battlePortraitSanaeS1Src/);
+  assert.match(hostSource, /battlePortraitSanaeS2Src/);
   assert.match(hostSource, /battlePortraitFlowerCoreS0Src/);
   assert.match(hostSource, /battlePortraitFlowerCoreS1Src/);
   assert.match(hostSource, /battlePortraitFlowerCoreS2Src/);

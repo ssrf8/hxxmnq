@@ -1003,6 +1003,8 @@ export interface GalGenerationRequestV2BuildInput {
   characterNames?: Record<string, string>;
   /** 只用于角色档案绿灯；其余注入内容由统一纯函数构造。 */
   explicitCharacterIds?: readonly string[];
+  /** 仅控制卡内 MVU 剧情记忆投影；不影响 visit 冻结、写入或更新。 */
+  memoryRecallEnabled?: boolean;
   /** retry/regenerate 复用原 requestId；缺省时新建。 */
   requestId?: string;
   attemptSeq?: number;
@@ -1071,9 +1073,11 @@ export function buildGalGenerationRequestV2(input: GalGenerationRequestV2BuildIn
     relevantCharacterIds: resolved.characterIds,
     visitIdsByCharacter,
     characterNames: input.characterNames,
-  });
+    sceneId: input.snapshot.sceneId,
+  }, { recallEnabled: input.memoryRecallEnabled !== false });
 
   const narrativeCharacterIds = input.characterContext.sessionParticipants === undefined
+    && !input.characterContext.mainTargetCharacterId
     ? undefined
     : resolved.characterIds;
   const modelUserInput = buildGalStoredUserMessage({

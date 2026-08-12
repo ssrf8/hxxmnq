@@ -12,13 +12,17 @@ function fakeAdapter(initial = []) {
   let entries = structuredClone(initial);
   let updates = 0;
   return {
-    getOrCreateChatWorldbook: async () => 'chat-book',
+    getOrCreateSaveWorldbook: async () => store.SAVE_WORLDBOOK_NAME,
     getWorldbook: async () => structuredClone(entries),
     updateWorldbook: async (_name, updater) => { updates += 1; entries = structuredClone(updater(structuredClone(entries))); return structuredClone(entries); },
     snapshot: () => structuredClone(entries),
     updates: () => updates,
   };
 }
+
+test('所有聊天共用固定命名的存档世界书', () => {
+  assert.equal(store.SAVE_WORLDBOOK_NAME, '幻想乡物语_存档');
+});
 
 test('覆盖同槽只更新一次并逐字节保留其他条目和其他槽', async () => {
   const foreign = { uid: 41, name: 'foreign', enabled: true, content: 'do-not-touch', extra: { custom: { x: 1 } } };

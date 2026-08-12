@@ -340,16 +340,16 @@ test('R38 邀请冷却中的角色被明确拒绝，不创建“改约”计划'
   assert.ok(accepted.state.presence_snapshot.present_character_ids.includes('reimu'));
 });
 
-test('R38 教程毕业由首次选型派生，机会面板同时展示三设施', async () => {
+test('R38 教程毕业由妖花核心完成派生，机会面板同时展示三设施', async () => {
   const open = await importTypescript('../src/ui/open-garden-rules.ts');
   const state = await baseState();
   assert.equal(open.isTutorialGraduated(state), false);
-  state.events.completed_key_events.select_greenhouse_form = 'selected_free_growth';
+  state.events.completed_key_events.greenhouse_flower_core = 'clean_win';
   assert.equal(open.isTutorialGraduated(state), true);
   const panel = open.openGardenOpportunityPanel(state);
   assert.equal(panel.facilities.length, 3);
   assert.ok(panel.facilities.every((item) => item.built === false));
-  assert.match(panel.graduation, /没有必须完成的主线/);
+  assert.match(panel.graduation, /新手教程完成/);
 });
 
 test('R39 异变 28 时段、隐藏源头隔离、取消退卡与历史有界', async () => {
@@ -390,6 +390,11 @@ test('R39 异变 28 时段、隐藏源头隔离、取消退卡与历史有界', 
     resolution_method: '熄灭灯笼',
   });
   assert.equal(active.state.anomaly_cycle.active.end_period_serial - active.state.anomaly_cycle.active.start_period_serial, 28);
+  const ordinaryAnomaly = anomaly.buildOrdinaryAnomalyPrompt(active.state);
+  assert.match(ordinaryAnomaly, /本地系统已正式激活的当前异变事实/);
+  assert.match(ordinaryAnomaly, /角色既有性格可以影响反应和表现方式，但不能否认、抵消或绕过规则写明的效果/);
+  assert.match(ordinaryAnomaly, /规则之外不得额外推导长期人格、关系、记忆、同意或未声明行为/);
+  assert.match(ordinaryAnomaly, /表现倾向只调整叙事风格，排除内容只禁止列明项，均不得用于否定其余规则/);
   prompt.assertNoHiddenOriginLeak(prompt.buildPromptContext(active.state, { kind: 'ordinary' }));
   const withClue = anomaly.appendDailyClue(active.state, '灵梦发现灯笼温度异常');
   const sameDay = anomaly.appendDailyClue(withClue, '不应重复');
@@ -401,6 +406,11 @@ test('R39 异变 28 时段、隐藏源头隔离、取消退卡与历史有界', 
   const resolved = anomaly.resolveAnomaly(cursor);
   assert.equal(resolved.anomaly_cycle.active, null);
   assert.equal(resolved.anomaly_cycle.history.length, 1);
+
+  const fastEnded = anomaly.fastForwardAndResolveAnomaly(active.state);
+  assert.equal(time.periodSerialFromState(fastEnded), active.state.anomaly_cycle.active.end_period_serial);
+  assert.equal(fastEnded.anomaly_cycle.active, null);
+  assert.equal(fastEnded.anomaly_cycle.history.at(-1).anomaly_id, 'anom:2');
 });
 
 test('R40 妖精花园建造/换型/12-24 解锁与琪露诺道具商店', async () => {
@@ -409,6 +419,11 @@ test('R40 妖精花园建造/换型/12-24 解锁与琪露诺道具商店', async
   const time = await importTypescript('../src/ui/time-rules.ts');
   let state = await baseState();
   state.events.completed_key_events.select_greenhouse_form = 'selected_free_growth';
+  state.resources.materials = 3;
+  assert.equal(
+    facility.facilityBuildBlock(state, 'fairy_garden', '四季花境'),
+    '物资不足：当前 3，建设需要 4 点物资。',
+  );
   state.resources.materials = 10;
   state.resources.coins = 50;
   state.shop.unlocked = true;
@@ -634,21 +649,32 @@ test('R43 怀表不缩短异变与设施计时，咲夜认识后才可邀请', a
   assert.ok(visitors.isCharacterKnown(known, 'sakuya'));
 });
 
-test('怀表时停可提前解除且保留时段、每日冷却与时间痕迹', async () => {
+test('怀表时停显示五分钟期限，可提前或到期解除且保留每日冷却与时间痕迹', async () => {
   const special = await importTypescript('../src/ui/special-item-rules.ts');
   const prompt = await importTypescript('../src/ui/prompt-context.ts');
   const inventory = await importTypescript('../src/ui/inventory-rules.ts');
   const time = await importTypescript('../src/ui/time-rules.ts');
   const state = await baseState();
   state.key_items.sakuya_watch.obtained = true;
-  const active = special.useSpecialItem(state, 'sakuya_watch', 'watch:release:start').state;
+  const active = special.useSakuyaWatch(state, 'watch:release:start', 1_000).state;
   const serial = time.periodSerialFromState(active);
   assert.equal(active.key_items.sakuya_watch.time_stop_active, true);
+  assert.equal(active.key_items.sakuya_watch.time_stop_expires_at_ms, 301_000);
   assert.match(prompt.buildPromptContext(active), /【时间停止】/);
   assert.equal(inventory.inventoryDisplayRows(active).find((row) => row.item_id === 'sakuya_watch').usable, true);
 
+  const notYetExpired = special.expireSakuyaWatch(active, 300_999).state;
+  assert.equal(notYetExpired.key_items.sakuya_watch.time_stop_active, true);
+  const expired = special.expireSakuyaWatch(active, 301_000).state;
+  assert.equal(expired.key_items.sakuya_watch.time_stop_active, false);
+  assert.equal(expired.key_items.sakuya_watch.time_stop_expires_at_ms, null);
+  assert.equal(expired.key_items.sakuya_watch.state, 'daily_cooldown');
+  assert.equal(expired.key_items.sakuya_watch.temporal_trace_active, true);
+  assert.equal(time.periodSerialFromState(expired), serial);
+
   const released = special.useSpecialItem(active, 'sakuya_watch', 'watch:release:end').state;
   assert.equal(released.key_items.sakuya_watch.time_stop_active, false);
+  assert.equal(released.key_items.sakuya_watch.time_stop_expires_at_ms, null);
   assert.equal(released.key_items.sakuya_watch.state, 'daily_cooldown');
   assert.equal(released.key_items.sakuya_watch.temporal_trace_active, true);
   assert.equal(released.key_items.sakuya_watch.total_uses, 1);
@@ -783,6 +809,7 @@ test('收尾门：M2 命令层接通施工、邀请和活动，邀请制拒绝�
   assert.doesNotMatch(app, /异变已启用，正在生成首次影响剧情/);
   assert.match(app, /下一次正常聊天会自然携带异变影响/);
   assert.match(app, /sendAnomalyResolution/);
-  assert.match(app, /type: 'queue_scene_item'/);
+  assert.doesNotMatch(app, /type: 'queue_scene_item'/);
+  assert.match(bridge, /applyPendingSceneContext/);
   assert.match(bridge, /applyLocalM2Command/);
 });

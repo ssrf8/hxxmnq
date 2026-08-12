@@ -95,8 +95,8 @@ test('buildGalGenerationRequestV2 产出冻结请求：schema/revision/角色/vi
   assert.match(result.request.syntheticHistory[0].content, /旧主屋：尚未修复；当前损坏/u);
   assert.doesNotMatch(result.request.modelUserInput, /【庭园设施现状：当前代码事实】/u);
   assert.match(result.request.modelUserInput, /^灵梦，结界怎么样了？\n\n【庭园正文协议】/u);
-  assert.match(result.request.modelUserInput, /【庭园在场快照：本轮唯一事实】[\s\S]*【场景事实】/u);
-  const presenceSnapshot = result.request.modelUserInput.match(/【庭园在场快照：本轮唯一事实】([\s\S]*?)【场景事实】/u)?.[1] ?? '';
+  assert.match(result.request.modelUserInput, /【当前活动参与者：本轮唯一叙事范围】[\s\S]*【场景事实】/u);
+  const presenceSnapshot = result.request.modelUserInput.match(/【当前活动参与者：本轮唯一叙事范围】([\s\S]*?)【场景事实】/u)?.[1] ?? '';
   assert.doesNotMatch(presenceSnapshot, /朝向|facing|left/u);
   const taskMatch = result.request.modelUserInput.match(/<GensokyoVariableAnalysisTask>([\s\S]*?)<\/GensokyoVariableAnalysisTask>/u);
   assert.ok(taskMatch);
@@ -120,6 +120,28 @@ test('buildGalGenerationRequestV2 产出冻结请求：schema/revision/角色/vi
   assert.ok(result.request.syntheticHistoryHash.length > 0);
   assert.equal(g.storedUserMessageMatchesRequestV2(result.request, result.request.modelUserInput), true);
   assert.equal(g.storedUserMessageMatchesRequestV2(result.request, result.request.visibleUserText), false);
+});
+
+test('角色单聊只授权主目标，不把庭园中其他在场角色带进正文', () => {
+  const result = g.buildGalGenerationRequestV2(baseInput());
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.match(result.request.modelUserInput, /【当前活动参与者：本轮唯一叙事范围】/u);
+  assert.match(result.request.modelUserInput, /reimu/u);
+  assert.doesNotMatch(result.request.modelUserInput, /marisa|cirno/u);
+});
+
+test('关闭卡内召回只移除角色独立剧情梗概，设施事实与写入目标仍保留', () => {
+  const result = g.buildGalGenerationRequestV2(baseInput({ memoryRecallEnabled: false }));
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.deepEqual(result.relevantCharacterIds, ['reimu']);
+  assert.deepEqual(result.visitIdsByCharacter, { reimu: 'character_visit_000001' });
+  assert.doesNotMatch(result.request.syntheticHistory[0].content, /旧回响/u);
+  assert.match(result.request.syntheticHistory[0].content, /【历史边界】/u);
+  assert.match(result.request.syntheticHistory[0].content, /【庭园设施现状：当前代码事实】/u);
+  const task = JSON.parse(result.request.modelUserInput.match(/<GensokyoVariableAnalysisTask>([\s\S]*?)<\/GensokyoVariableAnalysisTask>/u)?.[1] ?? '{}');
+  assert.deepEqual(task.interaction.visit_summary_task.slots.map((slot) => slot.character_id), ['reimu']);
 });
 
 test('visible/model input 各只出现一次', () => {

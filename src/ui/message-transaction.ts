@@ -157,6 +157,12 @@ export class MessageTransactionCoordinator {
       // their user floor is already durable and stable.
       if (createdUserMessage) await this.host.prepareGeneration?.();
       await this.host.triggerGeneration();
+      // A confirmed user cancellation removes the just-created player floor and
+      // resets the coordinator to idle while triggerGeneration is unwinding.
+      // Return that terminal snapshot instead of waiting for a reply that can no
+      // longer arrive or turning the cancellation back into a failure.
+      const afterTrigger = this.read();
+      if (afterTrigger.phase === 'idle' && afterTrigger.stopReason) return afterTrigger;
       // Hosts without a generation-state surface define completion by the awaited
       // command. Luker exposes the state and may resolve a takeover command before
       // its fake stream has written the assistant body, so it must wait for the
@@ -246,6 +252,19 @@ export class MessageTransactionCoordinator {
   }
 
   /**
+   * The host has confirmed an explicit user abort and removed its unanswered
+   * player floor. Only that fully reconciled path may reopen sending immediately.
+   */
+  cancelStopped() {
+    if (this.snapshot.phase !== 'stopping') return false;
+    const stopReason = this.snapshot.stopReason ?? 'user-stop';
+    this.snapshot = { ...idleSnapshot(), stopReason };
+    this.stopped = false;
+    this.generationEnded = false;
+    return true;
+  }
+
+  /**
    * Phase 3：从头重试（helper-generate 停止后的默认恢复；计划 §3.2）。
    * 复用同一 requestId 与玩家楼层，生成新 attemptId/generationId/commitKey，
    * 重新调一次 generate()，落新正式 assistant 楼层。与 native 的“继续(/continue)”分开。
@@ -318,8 +337,8 @@ export class MessageTransactionCoordinator {
   markSettlementFailed(error: unknown) {
     const detail = error instanceof Error ? error.message : String(error);
     if (this.snapshot.assistantResponded) {
-      this.snapshot.phase = 'settled';
-      this.snapshot.lastError = `回复已保存，但 MVU 更新失败：${detail}；可以继续发送`;
+      this.snapshot.phase = 'failed';
+      this.snapshot.lastError = `回复正文已保存，但本地结算未完成：${detail}；请重试本地结算或使用修复按钮放弃结算`;
       return;
     }
     this.snapshot.phase = 'failed';

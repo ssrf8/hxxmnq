@@ -49,7 +49,7 @@
     {
       "item_id": "sakuya_watch",
       "title": "十六夜咲夜的怀表",
-      "blurb": "永久关键物品，每日一次暂停五分钟，不推进时段。",
+      "blurb": "永久关键物品，每日一次；时停最多持续五分钟，也会在正式时段推进或主动解除时提前结束。",
       "item_type": "key_item",
       "stack_limit": 1,
       "use_mode": "local",
@@ -57,7 +57,7 @@
       "unlock_conditions": ["shop_unique"],
       "consume_policy": "never",
       "local_effect_id": "sakuya_watch",
-      "prompt_description": "永久关键物品。每日最多成功使用一次，留下五分钟停顿与时间痕迹，不推进正式时段。",
+      "prompt_description": "永久关键物品。每日最多成功使用一次；时停最多持续五分钟，也会在正式时段推进或主动解除时提前结束，并留下时间痕迹。",
       "shop_price": 80,
       "shop_unlock": "shop_unique"
     },

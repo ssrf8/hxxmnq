@@ -12,7 +12,7 @@
 
 ## 0. 一句话方案
 
-把每个存档槽保存为当前聊天绑定世界书中的一组**永久禁用数据条目**：
+把每个存档槽保存到固定世界书 `幻想乡物语_存档` 中的一组**永久禁用数据条目**；每个对话按名称复用同一本书，仅在不存在时创建：
 
 ```text
 一个完整 MVU 数据
@@ -62,7 +62,7 @@ await Mvu.replaceMvuData(savedMvu, { type: 'chat' });
 
 1. 固定 `gensokyo-save.v1` 存档 schema。
 2. 从当前聊天捕获全部活动页楼层和完整 MVU。
-3. 把存档按 UTF-8 字节分块写入当前聊天绑定世界书。
+3. 把存档按 UTF-8 字节分块写入固定世界书 `幻想乡物语_存档`。
 4. 提供固定手动槽位列表、覆盖存档和读取存档。
 5. 读档前完整校验，读档时清聊天、重建楼层、直接恢复 chat-scope MVU。
 6. 读档成功后清理旧内存事务并重新载入 UI。
@@ -94,8 +94,8 @@ await Mvu.replaceMvuData(savedMvu, { type: 'chat' });
 | `reloadCurrentChat()` | SillyTavern / Helper 暴露 | 1.18.0 / 4.8.18 | 完成后一次性刷新 | 高 | 待本批实机验收 |
 | `Mvu.getMvuData(options)` | MagVarUpdate | 当前已安装 | 捕获／复读完整 MVU | 高 | 已被现有项目使用 |
 | `Mvu.replaceMvuData(data, {type:'chat'})` | MagVarUpdate | 当前已安装 | 直接恢复聊天级 MVU | 高 | 签名已由声明和源码确认；本用途待实机 |
-| `getOrCreateChatWorldbook('current')` | Tavern Helper | 4.8.18 | 获取专属聊天世界书 | 高 | 待本批实机验收 |
-| `getWorldbook` / `updateWorldbookWith` | Tavern Helper | 4.8.18 | 读取及单次替换槽位条目 | 高 | 待本批实机验收 |
+| `getWorldbookNames` / `createWorldbook` | Tavern Helper | 4.8.18 | 按固定名称查找，仅在不存在时创建存档世界书 | 高 | 待本批实机验收 |
+| `getWorldbook` / `updateWorldbookWith` | Tavern Helper | 4.8.18 | 读取固定世界书及单次替换槽位条目 | 高 | 待本批实机验收 |
 
 依赖分类：
 
@@ -112,7 +112,7 @@ await Mvu.replaceMvuData(savedMvu, { type: 'chat' });
 | 数据 | 唯一事实源 | 写入者 | 读取者 |
 |---|---|---|---|
 | 当前游戏状态 | MVU `stat_data` | 既有 MVU + bridge 所有权恢复链 | UI、bridge、请求构造器 |
-| 存档槽数据 | 当前聊天绑定世界书中 `extra.source='gensokyo-save-v1'` 的禁用条目 | `save-worldbook-store` | 存档列表／读档器 |
+| 存档槽数据 | `幻想乡物语_存档` 中 `extra.source='gensokyo-save-v1'` 的禁用条目 | `save-worldbook-store` | 存档列表／读档器 |
 | 当前聊天历史 | SillyTavern 当前聊天楼层 | Tavern Helper 消息 API | 原生聊天、存档捕获器 |
 | 存档 UI 状态 | iframe 内存 | 存档面板 | 存档面板 |
 
@@ -250,7 +250,7 @@ interface SaveMetaV1 {
 ### 7.3 写世界书
 
 ```text
-getOrCreateChatWorldbook('current')
+getWorldbookNames() 查找“幻想乡物语_存档”，不存在时 createWorldbook(name, [])
 → updateWorldbookWith(worldbook => {
      保留全部非本项目条目
      删除 source+slotId 匹配的旧 meta/chunk

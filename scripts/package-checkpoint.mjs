@@ -33,13 +33,13 @@ if (runtimeRootArg && runtimeRootArg.slice('--runtime-root='.length) !== RUNTIME
   throw new Error(`--runtime-root 与 ${RELEASE_KIND} 通道推导不一致：${runtimeRootArg.slice('--runtime-root='.length)} != ${RUNTIME_ROOT}`);
 }
 const OUTPUT_DIR = path.resolve('dist', IS_TEST_ENTRY ? 'checkpoint-ui-test-entry' : `checkpoint-${CHECKPOINT}`);
-const OUTPUT_FILE = path.join(OUTPUT_DIR, IS_TEST_ENTRY ? '幻想乡物语 [UI测试版].json' : `幻想乡物语-测试检查点-${CHECKPOINT}.json`);
+const OUTPUT_FILE = path.join(OUTPUT_DIR, IS_TEST_ENTRY ? '幻想乡物语 [UI测试版].json' : `幻想乡物语-正式版-${CHECKPOINT}.json`);
 const WORLDBOOK_NAME = IS_TEST_ENTRY
   ? '幻想乡物语·移动庭园 [UI测试版]'
   : `幻想乡物语·移动庭园 ${CHECKPOINT}`;
 const CARD_NAME = IS_TEST_ENTRY
   ? '幻想乡物语 [UI测试版]'
-  : `幻想乡物语·移动庭园（测试检查点 ${CHECKPOINT}）`;
+  : '幻想乡物语·移动庭园';
 const DRY_RUN = process.argv.includes('--dry-run');
 const REPLACE_EXISTING = process.argv.includes('--replace');
 const EXPECT_REMOTE_R2 = process.argv.includes('--expect-remote-r2');
@@ -281,13 +281,15 @@ const script = (name, id, content) => ({
   name,
   id,
   content,
-  info: `幻想乡物语测试检查点 ${CHECKPOINT}；由项目源文件生成。`,
+  info: IS_TEST_ENTRY
+    ? `幻想乡物语 UI 测试入口 ${CHECKPOINT}；由项目源文件生成。`
+    : `幻想乡物语正式版 ${CHECKPOINT}；由项目源文件生成。`,
   button: { enabled: false, buttons: [] },
   data: {},
   export_with: { data: true, button: true },
 });
 
-const firstMes = `<移动庭园_测试检查点 version="${VERSION}">\n祖父失踪后的第七天，一个没有寄件地址的旧木匣被送到门前。请在自动出现的“移动庭园”界面确认身份并接过庭守钥；界面会在本楼层本地写入开局资料并直接进入庭园，不发送玩家消息，也不调用 LLM。第一次真实行动才会生成正文。若界面未出现，请先使用原生聊天查看诊断。\n</移动庭园_测试检查点>`;
+const firstMes = `<移动庭园 version="${VERSION}">\n祖父失踪后的第七天，一个没有寄件地址的旧木匣被送到门前。请在自动出现的“移动庭园”界面确认身份并接过庭守钥；界面会在本楼层本地写入开局资料并直接进入庭园，不发送玩家消息，也不调用 LLM。第一次真实行动才会生成正文。若界面未出现，请先使用原生聊天查看诊断。\n</移动庭园>`;
 const data = {
   name: CARD_NAME,
   description: identity,
@@ -295,15 +297,13 @@ const data = {
   scenario: '玩家收到祖父留下的遗信与沉睡的“庭守钥”，在本地开场界面确认资料并接受继承后穿过结界抵达荒废庭园，随后修复设施，并在锚点、建设与选择中迎接来访者和小型异变。',
   first_mes: firstMes,
   mes_example: '',
-  creator_notes: RELEASE_KIND === 'test'
-    ? `本文件是 UI 测试版检查点 ${CHECKPOINT}（${CHECKPOINT_SUFFIX}），仅供测试通道验收，禁止当作正式版导入。\nUI 由 R2 测试通道远程交付（/test/ui/），公共资产仍共享 /live/manifest.json。\n开场为确定性的本地流程：玩家确认资料后，在首个 assistant 楼层幂等写入并复读开场状态；不创建 user 消息、不触发 /trigger、不调用 LLM。第一次真实行动才会首次调用 LLM。\n开场资料格式：\n${openingTemplate}`
-    : `本文件是本地运行测试检查点 ${CHECKPOINT}，不是正式发布版。\n开场为确定性的本地流程：玩家确认资料后，在首个 assistant 楼层幂等写入并复读开场状态；不创建 user 消息、不触发 /trigger、不调用 LLM。第一次真实行动才会首次调用 LLM。\n开场资料格式：\n${openingTemplate}`,
+  creator_notes: '',
   system_prompt: `${identity}\n\n${movingGarden}`,
   post_history_instructions: '严格遵守角色卡身份、玩家权边界、信息可知性、庭园正文与 MVU 更新协议。互动允许跨越多轮真实聊天；只有自然离场或玩家明确结束时才结算当前互动。',
   alternate_greetings: [],
   tags: RELEASE_KIND === 'test'
     ? ['幻想乡', '群像', '建设', 'MVU', 'UI测试版', '测试检查点']
-    : ['幻想乡', '群像', '建设', 'MVU', '测试检查点'],
+    : ['幻想乡', '群像', '建设', 'MVU'],
   creator: 'AlbusKen / Codex 协作制作',
   character_version: CHECKPOINT,
   extensions: {
@@ -321,7 +321,9 @@ const data = {
   },
   character_book: {
     name: WORLDBOOK_NAME,
-    description: '测试检查点内嵌世界书；由项目维护源自动组成。',
+    description: IS_TEST_ENTRY
+      ? 'UI 测试入口内嵌世界书；由项目维护源自动组成。'
+      : '正式版内嵌世界书；由项目维护源自动组成。',
     scan_depth: 4,
     token_budget: 12288,
     recursive_scanning: false,

@@ -256,7 +256,7 @@ test('中途切聊天：生成前切换 → reconcile 冻结旧事务（phase=fa
   assert.match(snapshot.lastError ?? '', /聊天已经切换/);
 });
 
-test('assistant 已保存后 settlement 失败只提示，不阻断下一次发送', async () => {
+test('assistant 已保存后 settlement 失败保留事务并阻断新发送', async () => {
   const { host, calls } = makeFlexibleHost();
   const coordinator = new MessageTransactionCoordinator(host);
   const request = makeRequest();
@@ -264,11 +264,14 @@ test('assistant 已保存后 settlement 失败只提示，不阻断下一次发�
   assert.equal(first.assistantResponded, true);
   coordinator.markSettlementFailed(new Error('settlement 失败'));
   const warned = coordinator.read();
-  assert.equal(warned.phase, 'settled');
-  assert.match(warned.lastError ?? '', /可以继续发送/);
-  const next = await coordinator.submit({ kind: 'interaction', message: 'B' });
-  assert.equal(next.assistantResponded, true);
-  assert.equal(calls.trigger, 2);
+  assert.equal(warned.phase, 'failed');
+  assert.match(warned.lastError ?? '', /本地结算未完成/);
+  assert.match(warned.lastError ?? '', /重试本地结算/);
+  await assert.rejects(
+    coordinator.submit({ kind: 'interaction', message: 'B' }),
+    /上一条消息尚未完成/,
+  );
+  assert.equal(calls.trigger, 1);
 });
 
 test('stop 后 retry 走 continueGeneration（不重头调模型）', async () => {
@@ -361,6 +364,31 @@ test('Phase3 markStopped 非 generating 阶段忽略（返回 false）', async (
   const snapshot = await coordinator.submit({ kind: 'interaction', message: 'A', request, extra: g.buildRequestMetadata(request) });
   assert.equal(snapshot.phase, 'settling');
   assert.equal(coordinator.markStopped('user-stop'), false);
+});
+
+test('Phase3 主动停止清理完成后回到 idle，并允许直接发送下一轮', async () => {
+  const { host, messages } = makeFlexibleHost();
+  const coordinator = new MessageTransactionCoordinator(host);
+  const request = makeRequest();
+  let releaseTrigger;
+  const gate = new Promise((resolve) => { releaseTrigger = resolve; });
+  host.triggerGeneration = async () => { await gate; };
+  const submitP = coordinator.submit({ kind: 'interaction', message: 'A', request, extra: g.buildRequestMetadata(request) });
+  await new Promise((resolve) => setTimeout(resolve, 30));
+  assert.equal(coordinator.markStopped('user-stop'), true);
+  messages.splice(0, messages.length);
+  assert.equal(coordinator.cancelStopped(), true);
+  releaseTrigger();
+  const cancelled = await submitP;
+  assert.equal(cancelled.phase, 'idle');
+  assert.equal(cancelled.stopReason, 'user-stop');
+
+  host.triggerGeneration = async () => {
+    messages.push({ role: 'assistant', message: '下一轮回复', message_id: messages.length + 1 });
+  };
+  const next = await coordinator.submit({ kind: 'interaction', message: 'B' });
+  assert.equal(next.phase, 'settling');
+  assert.equal(next.assistantResponded, true);
 });
 
 test('Phase3 retryFromScratch：同 requestId、新 attemptId/generationId/commitKey，尾部 settle', async () => {

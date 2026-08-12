@@ -241,7 +241,8 @@
       'createChatMessages',
       'deleteChatMessages',
       'reloadCurrentChat',
-      'getOrCreateChatWorldbook',
+      'getWorldbookNames',
+      'createWorldbook',
       'getWorldbook',
       'updateWorldbookWith',
       'triggerSlash',
@@ -257,7 +258,8 @@
     // 同名函数平铺到 iframe global。优先保留平铺值，缺失时才从门面补齐。
     for (const name of [
       'deleteChatMessages',
-      'getOrCreateChatWorldbook',
+      'getWorldbookNames',
+      'createWorldbook',
       'getWorldbook',
       'updateWorldbookWith',
     ]) {
@@ -356,6 +358,15 @@
     if (embedded.battlePortraitSakuyaS0DataUrl) childDoc.documentElement.dataset.battlePortraitSakuyaS0Src = embedded.battlePortraitSakuyaS0DataUrl;
     if (embedded.battlePortraitSakuyaS1DataUrl) childDoc.documentElement.dataset.battlePortraitSakuyaS1Src = embedded.battlePortraitSakuyaS1DataUrl;
     if (embedded.battlePortraitSakuyaS2DataUrl) childDoc.documentElement.dataset.battlePortraitSakuyaS2Src = embedded.battlePortraitSakuyaS2DataUrl;
+    if (embedded.battlePortraitYoumuS0DataUrl) childDoc.documentElement.dataset.battlePortraitYoumuS0Src = embedded.battlePortraitYoumuS0DataUrl;
+    if (embedded.battlePortraitYoumuS1DataUrl) childDoc.documentElement.dataset.battlePortraitYoumuS1Src = embedded.battlePortraitYoumuS1DataUrl;
+    if (embedded.battlePortraitYoumuS2DataUrl) childDoc.documentElement.dataset.battlePortraitYoumuS2Src = embedded.battlePortraitYoumuS2DataUrl;
+    if (embedded.battlePortraitPatchouliS0DataUrl) childDoc.documentElement.dataset.battlePortraitPatchouliS0Src = embedded.battlePortraitPatchouliS0DataUrl;
+    if (embedded.battlePortraitPatchouliS1DataUrl) childDoc.documentElement.dataset.battlePortraitPatchouliS1Src = embedded.battlePortraitPatchouliS1DataUrl;
+    if (embedded.battlePortraitPatchouliS2DataUrl) childDoc.documentElement.dataset.battlePortraitPatchouliS2Src = embedded.battlePortraitPatchouliS2DataUrl;
+    if (embedded.battlePortraitSanaeS0DataUrl) childDoc.documentElement.dataset.battlePortraitSanaeS0Src = embedded.battlePortraitSanaeS0DataUrl;
+    if (embedded.battlePortraitSanaeS1DataUrl) childDoc.documentElement.dataset.battlePortraitSanaeS1Src = embedded.battlePortraitSanaeS1DataUrl;
+    if (embedded.battlePortraitSanaeS2DataUrl) childDoc.documentElement.dataset.battlePortraitSanaeS2Src = embedded.battlePortraitSanaeS2DataUrl;
     if (embedded.battlePortraitFlowerCoreS0DataUrl) childDoc.documentElement.dataset.battlePortraitFlowerCoreS0Src = embedded.battlePortraitFlowerCoreS0DataUrl;
     if (embedded.battlePortraitFlowerCoreS1DataUrl) childDoc.documentElement.dataset.battlePortraitFlowerCoreS1Src = embedded.battlePortraitFlowerCoreS1DataUrl;
     if (embedded.battlePortraitFlowerCoreS2DataUrl) childDoc.documentElement.dataset.battlePortraitFlowerCoreS2Src = embedded.battlePortraitFlowerCoreS2DataUrl;

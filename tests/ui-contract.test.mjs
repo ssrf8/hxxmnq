@@ -20,6 +20,16 @@ const importTypescript = async (path) => {
   return import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
 };
 
+test('构建与发布快捷命令携带当前版本所需参数', async () => {
+  const packageJson = JSON.parse(await read('../package.json'));
+  const buildUi = await read('../scripts/build-ui.mjs');
+  const embedPng = await read('../scripts/embed-card-png.mjs');
+  assert.match(packageJson.scripts['build:assets:r2'], /--generation=8 --base-url=https:\/\/ssrfrrt\.ccwu\.cc/);
+  assert.match(packageJson.scripts['plan:assets:r2'], /--bucket=hxxwy --manifest=dist\/asset-live\/generation-8\/manifest\.json/);
+  assert.match(buildUi, /0\\\.4\\\.4-late-bound-generate-r\\d\+/);
+  assert.match(embedPng, /\^0\\\.3\\\.0-r\[1-9\]/);
+});
+
 test('MVU 存读 UI 与 bridge 只暴露八槽合同，宿主壳补齐精确 Helper 能力', async () => {
   const document = await read('../src/ui/index.html');
   const app = await read('../src/ui/app.ts');
@@ -34,9 +44,12 @@ test('MVU 存读 UI 与 bridge 只暴露八槽合同，宿主壳补齐精确 Hel
   assert.match(app, /confirmInApp\(\{ title: '读取存档'/);
   assert.match(app, /promptInApp\(\{ title: slot\.occupied \? '覆盖存档' : '保存进度'/);
   assert.doesNotMatch(app, /\b(?:alert|confirm|prompt)\s*\(/);
-  for (const capability of ['deleteChatMessages', 'getOrCreateChatWorldbook', 'getWorldbook', 'updateWorldbookWith']) {
+  for (const capability of ['deleteChatMessages', 'getWorldbookNames', 'createWorldbook', 'getWorldbook', 'updateWorldbookWith']) {
     assert.match(shell, new RegExp(`'${capability}'`));
   }
+  assert.match(bridge, /getWorldbookNames!\(\)\.includes\(SAVE_WORLDBOOK_NAME\)/);
+  assert.match(bridge, /createWorldbook!\(SAVE_WORLDBOOK_NAME, \[\]\)/);
+  assert.doesNotMatch(bridge, /getOrCreateChatWorldbook!\('current'/);
   assert.match(bridge, /replaceMvuData\(structuredClone\(data\), \{ type: 'chat' \}\)/);
 });
 
@@ -245,6 +258,7 @@ test('R33.2 顶栏换装「晨雾结界·像素晨光·玻璃流光」：更透�
   assert.match(styles, /\.gg-header \.gg-status-line #gg-resources \{ background: rgba\(234, 246, 244, \.62\); \}/);
   assert.match(styles, /\.gg-header #gg-time::before \{ background: #dfa84e; \}/);
   assert.match(styles, /\.gg-header #gg-weather::before \{ background: var\(--gg-header-red\); \}/);
+  assert.match(styles, /\.gg-header #gg-time-stop-countdown::before \{ background: #8771bf; \}/);
   assert.match(styles, /\.gg-header #gg-resources::before \{ background: #86b3b0; \}/);
   assert.match(styles, /\.gg-header #gg-open-launcher \{[\s\S]*?--btn-hi: rgba\(235, 178, 160, \.9\);[\s\S]*?--btn-lo: rgba\(214, 138, 118, \.88\);/);
   assert.match(styles, /\.gg-header #gg-open-launcher:active:not\(:disabled\) \{[\s\S]*?translate\(2px, 2px\)/);
@@ -340,7 +354,7 @@ test('开放庭园页面从正式状态派生教程进度与下一步', async ()
   const initial = JSON.parse(await read('../src/schema/initial-state.json'));
   let progress = rules.tutorialProgress(initial);
   assert.equal(progress.currentStep.id, 'opening');
-  assert.equal(progress.totalCount, 13);
+  assert.equal(progress.totalCount, 10);
 
   initial.meta.opening_committed = true;
   progress = rules.tutorialProgress(initial);
@@ -356,18 +370,14 @@ test('开放庭园页面从正式状态派生教程进度与下一步', async ()
     build_basic_magic_greenhouse: 'basic_greenhouse_enabled',
     greenhouse_first_use: 'stable_first_growth',
     greenhouse_multiturn_conversation: 'conversation_settled_after_multiple_turns',
-    greenhouse_flower_core: 'clean_win',
-    greenhouse_free_growth_proposal: 'wild_growth_plan_registered',
-    nitori_greenhouse_automation_proposal: 'kappa_automation_plan_registered',
   });
   progress = rules.tutorialProgress(initial);
-  assert.equal(progress.currentStep.id, 'parallel-proposals');
-  assert.match(progress.currentStep.instruction, /爱丽丝/);
-  assert.doesNotMatch(progress.currentStep.instruction, /荷取/);
-
-  initial.events.completed_key_events.alice_greenhouse_maintenance_proposal = 'doll_maintenance_plan_registered';
+  assert.equal(progress.currentStep.id, 'flower-core');
+  initial.events.completed_key_events.greenhouse_flower_core = 'clean_win';
   progress = rules.tutorialProgress(initial);
-  assert.equal(progress.currentStep.id, 'select-form');
+  assert.equal(progress.currentStep, null);
+  assert.equal(progress.completedCount, 10);
+  assert.equal(rules.isTutorialGraduated(initial), true);
 
   const controller = await read('../src/ui/app.ts');
   const styles = await read('../src/ui/styles.css');
@@ -375,18 +385,23 @@ test('开放庭园页面从正式状态派生教程进度与下一步', async ()
   const bridge = await read('../src/ui/bridge.ts');
   const map = await read('../src/ui/garden-map.ts');
   assert.match(document, /id="gg-tutorial-guide"/);
-  assert.match(document, /id="gg-tutorial-guide-skip">快进并完成教程/);
+  assert.match(document, /id="gg-tutorial-guide-title" tabindex="-1"/);
+  assert.match(document, /id="gg-tutorial-guide-skip">跳过教程并前往温室选型/);
+  assert.match(document, /id="gg-tutorial-guide-restore"[^>]*aria-controls="gg-tutorial-guide"[^>]*hidden>展开新手指引/);
   assert.match(controller, /TUTORIAL_GUIDE_ROUTES/);
   assert.match(controller, /boundary:\s*\{ targetId: 'reimu'[\s\S]*actionIds: \['inspect_boundary'\]/);
   assert.match(controller, /'main-house':\s*\{ targetId: 'main_house'[\s\S]*actionIds: \['repair'\]/);
   assert.match(controller, /'magic-trace':\s*\{ targetId: 'greenhouse_plot'[\s\S]*actionIds: \['investigate_magic_trace'\]/);
   assert.match(controller, /inspiration:[\s\S]*investigate_growth[\s\S]*hear_marisa_plan[\s\S]*study_grandfather_blueprint/);
-  assert.match(controller, /await runTestJump\('m2_open_garden'\)/);
-  assert.match(controller, /localStorage\.setItem\(tutorialGuideStorageKey, '1'\)/);
-  assert.match(controller, /title: '开放庭园玩法说明'/);
-  assert.match(controller, /符卡副本获得金币，购买搭建设施吸引 NPC 互动。/);
-  assert.match(controller, /道具会添加额外玩法；每个角色都可以自由挑战。/);
-  assert.match(controller, /新手教程已快进至完成；开放庭园已经解锁，现有资源保持不变。/);
+  assert.match(controller, /await runTestJump\('tutorial_form_selection_ready'\)/);
+  assert.match(controller, /step\.id === tutorialGuideCollapsedStep[\s\S]*?tutorialGuideRestore\.hidden = false/);
+  assert.match(controller, /tutorialGuideRestore\.addEventListener\('click',[\s\S]*?tutorialGuideCollapsedStep = null;[\s\S]*?renderTutorialGuide\(\)/);
+  assert.match(controller, /const visitorsUnlocked = isTutorialGraduated\(state\);[\s\S]*?visitorsButton\.disabled = !visitorsUnlocked/);
+  assert.match(controller, /visitorsDescription\.textContent = visitorsUnlocked[\s\S]*?完成新手教程后开放/);
+  assert.match(controller, /title: '新手教程已跳过'/);
+  assert.match(controller, /剧情阶段已推进到温室首次选型/);
+  assert.match(controller, /魔法温室现等待三选一/);
+  assert.match(controller, /妖花核心已激活；读完本段后点击正文返回庭园/);
   assert.match(controller, /button\.dataset\.actionId = options\.action\.id/);
   assert.match(controller, /const actionStep = currentView !== 'garden'[\s\S]*TUTORIAL_GUIDE_ROUTES\[item\.id\]\?\.actionIds\.includes\(activeActionId\)/);
   assert.match(bridge, /events: \{ completed_key_events: \{\} \}/);
@@ -403,6 +418,8 @@ test('开放庭园页面从正式状态派生教程进度与下一步', async ()
   assert.match(controller, /step\.completed \? 'complete'/);
   assert.match(controller, /className = 'gg-opportunity-section gg-opportunity-facilities'/);
   assert.match(controller, /className = 'gg-opportunity-facility-grid'/);
+  assert.match(controller, /const blocked = facilityBuildBlock\(state, facilityId, formId\)/);
+  assert.match(controller, /title: '无法施工'[\s\S]*?confirmLabel: '知道了'/);
   assert.match(controller, /function renderVisitors\(\)/);
   assert.match(controller, /for \(const characterId of REGISTERED_CHARACTER_IDS\)/);
   assert.match(controller, /className = 'gg-visitor-grid'/);
@@ -411,6 +428,10 @@ test('开放庭园页面从正式状态派生教程进度与下一步', async ()
   assert.match(controller, /feedback\.setAttribute\('role', 'status'\)/);
   assert.match(controller, /querySelectorAll<HTMLDetailsElement>\('details\[data-opportunity-drawer\]\[open\]'\)/);
   assert.match(controller, /createElement\('details'\)[\s\S]*?dataset\.opportunityDrawer = 'facilities'[\s\S]*?open = expandedDrawers\.has\('facilities'\)/);
+  assert.match(controller, /querySelector<HTMLDetailsElement>\('details\[data-opportunity-facility\]\[open\]'\)/);
+  assert.match(controller, /card\.dataset\.opportunityFacility = facility\.id;[\s\S]*?card\.open = expandedFacilityId === facility\.id/);
+  assert.match(controller, /if \(other !== card\) other\.open = false/);
+  assert.match(controller, /previewParams\.get\('previewOpportunities'\) === 'facilities'[\s\S]*?runTestJump\('m2_facilities_ready'\)[\s\S]*?setView\('opportunities'\)/);
   assert.match(controller, /name\.textContent = characterName\(characterId\)/);
   assert.match(controller, /action\.textContent = '请离庭园'[\s\S]*?dismissCharacterFromGarden\(characterId\)/);
   assert.match(controller, /action\.textContent = '发送邀请'[\s\S]*?runInvite\(characterId\)/);
@@ -1335,6 +1356,9 @@ test('打包器提供 MVU initvar 初始状态，不依赖角色脚本变量初�
   assert.match(packer, /不发送玩家消息，也不调用 LLM/);
   assert.match(packer, /const payload = \{ spec: 'chara_card_v2', spec_version: '2\.0', data \}/);
   assert.doesNotMatch(packer, /spec_version: '2\.0', \.\.\.data, data/);
+  assert.match(packer, /creator_notes: ''/);
+  assert.match(packer, /幻想乡物语-正式版-\$\{CHECKPOINT\}\.json/);
+  assert.match(packer, /: '幻想乡物语·移动庭园'/);
   assert.match(packer, /if \(!DRY_RUN && await exists\(OUTPUT_FILE\)\)/);
   assert.match(packer, /REPLACE_EXISTING/);
   assert.match(packer, /archive-and-replace/);
@@ -1454,10 +1478,44 @@ test('GAL 世界书恢复完整庭园正文定义与正确示范，旧 scene 只
 
 test('咲夜怀表只在生效时动态投影，不再作为常驻世界书条目', async () => {
   const promptContext = await read('../src/ui/prompt-context.ts');
+  const watchCopy = await Promise.all([
+    '../src/ui/app.ts', '../src/shop/dialogues.json', '../src/shop/catalog.json', '../src/items/catalog.json',
+  ].map(read));
   const packager = await read('../scripts/package-checkpoint.mjs');
   assert.match(promptContext, /【时间停止】/);
   assert.match(promptContext, /不授予伤害、永久记忆或立场变化/);
+  assert.match(promptContext, /最多持续五分钟/);
+  assert.ok(watchCopy.every((text) => /五分钟/.test(text) && /正式时段推进/.test(text) && /主动解除/.test(text)));
   assert.doesNotMatch(packager, /sakuya_watch\.xml|怀表·时间停止/);
+});
+
+test('设置页只开关每角色 MVU 剧情梗概召回，不关闭写入与更新', async () => {
+  const document = await read('../src/ui/index.html');
+  const app = await read('../src/ui/app.ts');
+  const bridge = await read('../src/ui/bridge.ts');
+  const builder = await read('../src/ui/gal-generation-request.ts');
+  assert.match(document, /id="gg-card-recall-enabled"[^>]*type="checkbox"[^>]*checked/);
+  assert.match(document, /关闭后仍照常写入和更新，只停止后续召回/);
+  assert.match(app, /setCardRecallEnabled\(cardRecallInput\.checked\)/);
+  assert.match(bridge, /memoryRecallEnabled: isCardRecallEnabled\(\)/);
+  assert.match(builder, /memoryRecallEnabled\?: boolean/);
+  assert.match(builder, /recallEnabled: input\.memoryRecallEnabled !== false/);
+  assert.match(builder, /const visitIdsByCharacter = freezeVisitIds/);
+});
+
+test('幻想乡案内提供本地立即结束异变，顶栏提供五分钟时停倒计时与自动解除', async () => {
+  const document = await read('../src/ui/index.html');
+  const controller = await read('../src/ui/app.ts');
+  const commands = await read('../src/ui/m2-commands.ts');
+  const special = await read('../src/ui/special-item-rules.ts');
+  assert.match(document, /id="gg-time-stop-countdown" role="status" aria-live="polite" hidden/);
+  assert.match(controller, /endNow\.textContent = '立刻结束异变'/);
+  assert.match(controller, /type: 'end_active_anomaly'/);
+  assert.match(controller, /timeStopCountdown\.textContent = `时停 \$\{String\(minutes\).*?:\$\{String\(seconds\)/s);
+  assert.match(controller, /type: 'expire_time_stop', nowMs/);
+  assert.match(controller, /setInterval\(\(\) => renderTimeStopCountdown\(\), 250\)/);
+  assert.match(commands, /case 'end_active_anomaly':[\s\S]*?reconcileM2Runtime\(before, state, chatId\)/);
+  assert.match(special, /SAKUYA_TIME_STOP_DURATION_MS = 5 \* 60 \* 1000/);
 });
 
 test('GAL visual_mode 兼容旧回复并按三种素材语义归一化姿势', async () => {
@@ -1961,10 +2019,16 @@ test('普通对话等待玩家首轮输入，回想画廊只读投影真实消�
   assert.match(app, /bridge\.listMessages\(GALLERY_MESSAGE_LIMIT\)/);
   assert.match(app, /filterGalGalleryEntries\(galleryAllEntries, lower, upper\)/);
   assert.match(app, /galleryFloorSlider\.addEventListener\('input', \(\) => locateGalleryFloor\(\)\)/);
+  assert.match(document, /id="gg-gallery-pagination"[\s\S]*?id="gg-gallery-page-prev"[\s\S]*?id="gg-gallery-page-next"/);
+  assert.match(app, /const GALLERY_PAGE_SIZE = 12/);
+  assert.match(app, /slice\(galleryPage \* GALLERY_PAGE_SIZE, \(galleryPage \+ 1\) \* GALLERY_PAGE_SIZE\)/);
+  assert.match(styles, /\.gg-gallery-player-dialogue[^}]*height:\s*clamp\([^}]*overflow-y:\s*auto/);
+  assert.match(styles, /\.gg-gallery-player-shell > \.gg-actions[^}]*position:\s*sticky/);
   assert.match(await read('../src/ui/types.ts'), /listMessages\(limit\?: number\)/);
   assert.match(await read('../src/ui/bridge.ts'), /MAX_MESSAGE_READ_LIMIT = 1000[\s\S]*?async listMessages\(limit = DEFAULT_MESSAGE_READ_LIMIT\)/);
   assert.match(app, /seenSources\.has\(source\)/);
-  assert.match(app, /currentView === 'gal' \|\| pendingTalkDraft \|\| activeTarget[\s\S]*?请先结束当前聊天，再打开回想画廊/);
+  assert.match(app, /currentView === 'gal' \|\| pendingTalkDraft[\s\S]*?请先结束当前聊天，再打开回想画廊/);
+  assert.doesNotMatch(app, /currentView === 'gal' \|\| pendingTalkDraft \|\| activeTarget/);
   assert.match(app, /读取回想失败/);
   assert.match(styles, /\.gg-gallery-dialogues/);
   assert.match(styles, /\.gg-gallery-player-dialog/);
@@ -2183,8 +2247,14 @@ test('妖花核心入口不再暴露为设置页演练，结算先写 battle.cur
 
 test('R21 本地结算器原子完成温室主链，温室研究交流为单轮结算', async () => {
   const settlement = await importTypescript('../src/ui/event-settlement.ts');
+  const actionRules = await importTypescript('../src/ui/target-actions.ts');
+  const tutorialRules = await importTypescript('../src/ui/open-garden-rules.ts');
   let state = JSON.parse(await read('../src/schema/initial-state.json'));
-  const action = (action_id, event_id) => ({ version: 'garden-action.v1', action_id, event_id });
+  state.meta.opening_committed = true;
+  const action = (action_id, event_id, settlement_id) => ({
+    version: 'garden-action.v1', action_id, event_id,
+    ...(settlement_id ? { settlement_id } : {}),
+  });
   const result = (event_id, value) => `<GensokyoEventResult>{"version":"event-result.v1","event_id":"${event_id}","result":"${value}"}</GensokyoEventResult>`;
 
   state = settlement.applyLocalSettlement(state, action('inspect_boundary', 'reimu_boundary_inspection'), 1, result('reimu_boundary_inspection', 'temporary_permission'));
@@ -2234,6 +2304,38 @@ test('R21 本地结算器原子完成温室主链，温室研究交流为单轮�
 
   state = settlement.applyLocalSettlement(state, action('investigate_flower_core', 'greenhouse_flower_core'), 11, '激活');
   state.battle.current = {
+    settlement_id: 'r21-test-loss',
+    config_id: 'greenhouse_flower_core_tutorial_v1',
+    outcome: 'loss',
+    remaining_lives: 0,
+    grazes: 0,
+    duration_ms: 1000,
+    hits: 3,
+    damage: 0,
+    phases_cleared: 0,
+    objective_ratio: 0,
+  };
+  const lossAction = action('settle_flower_core_battle', 'greenhouse_flower_core', 'event:greenhouse_flower_core:r21-loss');
+  state = settlement.applyLocalSettlement(state, lossAction, 12, '战败结算');
+  assert.equal(state.events.completed_key_events.greenhouse_flower_core, undefined);
+  assert.equal(state.facilities.magic_greenhouse.state, '启用');
+  assert.deepEqual(state.facilities.magic_greenhouse.active_effects, []);
+  assert.equal(state.battle.current, null);
+  assert.equal(state.events.active_event, null);
+  assert.deepEqual(state.battle.settled_ids, ['r21-test-loss']);
+  assert.equal(state.battle.dungeon_unlocked, false);
+  assert.equal(state.shop.unlocked, false);
+  assert.doesNotMatch(state.memory.long_term_notes.join('\n'), /移动锚点/);
+  assert.equal(settlement.settlementProjection(state, lossAction, 12), true);
+  assert.equal(tutorialRules.tutorialProgress(state).currentStep.id, 'flower-core');
+  const retryActions = actionRules.targetActions(
+    { type: 'facility', id: 'magic_greenhouse', label: '魔法温室' },
+    state,
+  );
+  assert.ok(retryActions.some((candidate) => candidate.id === 'investigate_flower_core' && !candidate.disabled));
+
+  state = settlement.applyLocalSettlement(state, action('investigate_flower_core', 'greenhouse_flower_core'), 13, '再次激活');
+  state.battle.current = {
     settlement_id: 'r21-test-narrative',
     config_id: 'greenhouse_flower_core_tutorial_v1',
     outcome: 'narrative',
@@ -2245,9 +2347,9 @@ test('R21 本地结算器原子完成温室主链，温室研究交流为单轮�
     phases_cleared: 0,
     objective_ratio: 100,
   };
-  state = settlement.applyLocalSettlement(state, action('settle_flower_core_battle', 'greenhouse_flower_core'), 12, '结算');
+  state = settlement.applyLocalSettlement(state, action('settle_flower_core_battle', 'greenhouse_flower_core'), 14, '结算');
   assert.equal(state.battle.current, null);
-  assert.deepEqual(state.battle.settled_ids, ['r21-test-narrative']);
+  assert.deepEqual(state.battle.settled_ids, ['r21-test-loss', 'r21-test-narrative']);
   assert.equal(state.events.completed_key_events.greenhouse_flower_core, 'narrative');
   assert.match(state.memory.long_term_notes.join('\n'), /移动锚点/);
   assert.deepEqual(state.anchors.stable, {});
@@ -2492,7 +2594,7 @@ test('流式 assistant 正文可被观察，但必须等 GENERATION_ENDED 才进
   assert.equal(completed.assistantMessageId, 2);
 });
 
-test('回复存在时本地结算失败只提示，下一次角色互动仍可提交', async () => {
+test('回复存在时本地结算失败保留可重试事务并阻断下一次提交', async () => {
   const { MessageTransactionCoordinator } = await importTypescript('../src/ui/message-transaction.ts');
   const messages = [];
   const coordinator = new MessageTransactionCoordinator({
@@ -2509,10 +2611,9 @@ test('回复存在时本地结算失败只提示，下一次角色互动仍可�
   const first = await coordinator.submit({ kind: 'interaction', message: '聊天' });
   assert.equal(first.phase, 'settling');
   coordinator.markSettlementFailed(new Error('模拟本地结算失败'));
-  assert.equal(coordinator.read().phase, 'settled');
-  assert.match(coordinator.read().lastError, /可以继续发送/);
-  const second = await coordinator.submit({ kind: 'interaction', message: '摸摸头' });
-  assert.equal(second.assistantResponded, true);
+  assert.equal(coordinator.read().phase, 'failed');
+  assert.match(coordinator.read().lastError, /重试本地结算/);
+  await assert.rejects(coordinator.submit({ kind: 'interaction', message: '摸摸头' }), /尚未完成/);
 });
 
 test('await trigger 返回但没有正文时进入可重试失败态，不再永久显示回应中', async () => {
@@ -2797,6 +2898,8 @@ test('测试快进先修复持久层已结算但协调器仍 settling 的恢复�
 
 test('测试控制面板覆盖教程断点与十一名角色在场编排', async () => {
   const tools = await importTypescript('../src/ui/test-tools.ts');
+  const tutorialRules = await importTypescript('../src/ui/open-garden-rules.ts');
+  const actionRules = await importTypescript('../src/ui/target-actions.ts');
   const initial = JSON.parse(await read('../src/schema/initial-state.json'));
   const tutorialJumps = [
     'tutorial_boundary_ready',
@@ -2810,6 +2913,20 @@ test('测试控制面板覆盖教程断点与十一名角色在场编排', async
   for (const jump of tutorialJumps) {
     assert.equal(tools.testJumpReached(tools.applyTestJump(initial, jump), jump), true, jump);
   }
+
+  const skipped = tools.applyTestJump(initial, 'tutorial_form_selection_ready');
+  assert.equal(tutorialRules.isTutorialGraduated(skipped), true);
+  assert.equal(tutorialRules.tutorialProgress(skipped).currentStep, null);
+  assert.equal(skipped.ui_flags.graduation_acknowledged, true);
+  assert.equal(skipped.events.completed_key_events.select_greenhouse_form, undefined);
+  assert.match(skipped.memory.long_term_notes.join('\n'), /当前等待玩家亲自选择首次温室形态/);
+  const formActions = actionRules.targetActions(
+    { type: 'facility', id: 'magic_greenhouse', label: '魔法温室' },
+    skipped,
+  ).filter((candidate) => ['select_free_growth', 'select_doll_maintenance', 'select_kappa_automation'].includes(candidate.id));
+  assert.equal(formActions.length, 3);
+  assert.ok(formActions.every((candidate) => !candidate.disabled));
+  assert.equal(actionRules.isFixedPresentationAction('investigate_flower_core'), true);
 
   let presence = tools.applyTestJump(initial, 'presence_sakuya');
   assert.deepEqual(presence.presence_snapshot.present_character_ids, ['reimu', 'sakuya']);
@@ -2834,11 +2951,12 @@ test('测试控制面板覆盖教程断点与十一名角色在场编排', async
   assert.match(styles, /\.gg-test-character-grid/);
 });
 
-test('管理员测试控制台可见，并提供额外模型、离场、邀请制与自动串行入口', async () => {
+test('管理员测试控制台保留维护节点但在正式界面默认关闭', async () => {
   const html = await read('../src/ui/index.html');
   const css = await read('../src/ui/styles.css');
   const app = await read('../src/ui/app.ts');
-  assert.match(css, /\.gg-test-tools\s*\{[\s\S]*?display:\s*block/);
+  assert.match(html, /class="gg-test-tools"[^>]*hidden/);
+  assert.match(css, /\.gg-test-tools\s*\{[\s\S]*?display:\s*none/);
   for (const id of ['a01', 'a02', 'a03', 'a04', 'a05', 'a06', 'a07_multi', 'a07_leave', 'a08', 'a09', 'a10', 'a11', 'dismiss', 'end_chat']) {
     assert.match(html, new RegExp(`data-runtime-case="${id}"`));
   }
@@ -2862,6 +2980,30 @@ test('助手楼层已经出现时会清除漏掉结束事件留下的宿主忙�
   assert.equal(reconcileHostGenerationActivity(false, { assistantResponded: true }), false);
   assert.equal(reconcileHostGenerationActivity(false, { assistantResponded: true }, true), true);
   assert.equal(reconcileHostGenerationActivity(true, { assistantResponded: false }, false), false);
+});
+
+test('角色回复已落盘时不恢复首轮草稿，修复锁也会移除遮挡草稿', async () => {
+  const app = await read('../src/ui/app.ts');
+  assert.match(app, /submissionInFlight = true;[\s\S]*?previousTransaction = await bridge\.getTransactionState\(\);[\s\S]*?const transaction = await bridge\.getTransactionState\(\)\.catch\(\(\) => null\)[\s\S]*?transaction\.transactionId !== previousTransaction\.transactionId[\s\S]*?return true/);
+  assert.match(app, /const transaction = await bridge\.getTransactionState\(\);[\s\S]*?repairGenerationLock\(\)[\s\S]*?transaction\.assistantResponded[\s\S]*?pendingTalkDraft = null/);
+});
+
+test('地图行动建立新场景并把目标区域投影到请求快照', async () => {
+  const app = await read('../src/ui/app.ts');
+  const bridge = await read('../src/ui/bridge.ts');
+  assert.match(app, /activeSceneId = `scene:\$\{Date\.now\(\)\.toString\(36\)\}`/);
+  assert.match(app, /sceneAreaId,[\s\S]*?mainTargetCharacterId/);
+  assert.match(bridge, /requestContext\?\.sceneAreaId[\s\S]*?current_area_id: requestContext\.sceneAreaId/);
+});
+
+test('原生生成命令抛错时会在 finally 释放当前 attempt 的宿主忙碌标志', async () => {
+  const bridge = await read('../src/ui/bridge.ts');
+  const transactionHost = bridge.slice(
+    bridge.indexOf('const transactions = new MessageTransactionCoordinator'),
+    bridge.indexOf('const requireMvu = async'),
+  );
+  assert.match(transactionHost, /hostGenerationActive = true;\s*try \{\s*await g\.triggerSlash\?\.\('\/trigger await=true'\);\s*\} finally \{\s*if \(hostGenerationStartedEpoch === startedEpoch\) hostGenerationActive = false;/);
+  assert.match(transactionHost, /hostGenerationActive = true;\s*try \{\s*await g\.triggerSlash\?\.\('\/continue await=true'\);\s*\} finally \{\s*if \(hostGenerationStartedEpoch === startedEpoch\) hostGenerationActive = false;/);
 });
 
 test('宿主提示词 dry-run 不会锁住测试快进，真实生成仍进入忙碌态', async () => {
@@ -3375,6 +3517,7 @@ test('L5 固定剧情按 restore→settle→reconcile 后由统一冻结任务�
     cursor += match + 1;
   }
   assert.match(persist, /pendingRequest,/);
+  assert.match(persist, /visitTurnRequired:\s*false/);
   assert.match(bridge, /applyPresenceAnalysisTask\(before, finalState, pendingRequest\)/);
   assert.match(bridge, /receiptPolicy:\s*action\s*\?\s*'next-nonempty-assistant'\s*:\s*'exact-attempt'/);
 });
@@ -3528,6 +3671,12 @@ test('R35 三方案首次选型与重复换型由登记结果和事件结算 ID 
   assert.equal(registry.eventResultForAction('select_greenhouse_form', 'select_doll_maintenance'), 'selected_doll_maintenance');
   assert.equal(rules.greenhouseActionBlock(state, 'select_free_growth'), '');
   const target = { type: 'facility', id: 'magic_greenhouse', label: '魔法温室' };
+  const missingProposal = structuredClone(state);
+  delete missingProposal.events.completed_key_events.nitori_greenhouse_automation_proposal;
+  const blockedSelections = actionsModule.targetActions(target, missingProposal)
+    .filter((action) => action.id.startsWith('select_'));
+  assert.equal(blockedSelections.length, 3);
+  assert.ok(blockedSelections.every((action) => action.disabledReason?.includes('三套方案')));
   const selectActions = actionsModule.targetActions(target, state);
   assert.ok(selectActions.some((action) => action.id === 'select_free_growth' && action.cost.materials === 4));
   assert.ok(selectActions.some((action) => action.id === 'select_doll_maintenance'));
@@ -3837,6 +3986,18 @@ test('设置页返回原场景，重复入口不会把返回目标污染成设�
   assert.match(app, /const sourceView = currentView;\s+if \(sourceView === 'settings'\) return;\s+settingsReturnView = sourceView;/);
   assert.match(app, /function returnFromSettings\(\) \{\s+const returnView = settingsReturnView;\s+setView\(returnView\);\s+if \(returnView === 'gal'\) void refresh\(\);\s+\}/);
   assert.doesNotMatch(app, /previousView/);
+});
+
+test('案内子页面返回打开菜单前的主场景，子页面内重开菜单不会污染来源', async () => {
+  const document = await read('../src/ui/index.html');
+  const app = await read('../src/ui/app.ts');
+  assert.match(app, /let launcherReturnView: 'garden' \| 'gal' = 'garden'/);
+  assert.match(app, /if \(currentView === 'garden' \|\| currentView === 'gal'\) launcherReturnView = currentView;/);
+  assert.match(app, /function returnFromLauncherView\(\) \{\s+const returnView = launcherReturnView;\s+setView\(returnView\);\s+if \(returnView === 'gal'\) void refresh\(\);\s+\}/);
+  for (const view of ['shop', 'inventory', 'visitors', 'opportunities']) {
+    assert.match(app, new RegExp(`byId\\('gg-${view}-back'\\)\\.addEventListener\\('click', returnFromLauncherView\\)`));
+    assert.match(document, new RegExp(`id="gg-${view}-back"[^>]*>返回游戏<`));
+  }
 });
 
 test('宿主重复注入复用同一游戏框架，聊天切换不再强制重建 iframe', async () => {

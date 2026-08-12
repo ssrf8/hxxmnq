@@ -1,7 +1,7 @@
 // 幻想乡物语：把打包好的 chara_card_v2 JSON 嵌入 PNG 立绘，输出标准 SillyTavern 角色卡。
-// 用法：node scripts/embed-card-png.mjs --checkpoint=0.2.0-rN --image="D:\path\image.png" [--dry-run] [--compress]
+// 用法：node scripts/embed-card-png.mjs --checkpoint=0.3.0-rN --image="D:\path\image.png" [--dry-run] [--compress]
 //       可选 --json=<自定义 JSON 路径> --output=<自定义 PNG 路径>（默认使用测试检查点命名）
-// 产物：dist/checkpoint-0.2.0-rN/幻想乡物语-测试检查点-0.2.0-rN.png
+// 产物：dist/checkpoint-0.3.0-rN/幻想乡物语-测试检查点-0.3.0-rN.png
 // 说明：SillyTavern 角色卡 PNG 标准——chara 为 tEXt chunk（Latin-1 编码文本，值含 base64 JSON）。
 // 默认保留原立绘全部像素与原始 chunk（只插入新 chunk，不重编码）。
 // --compress 模式：用 sharp 把立绘压缩为小尺寸 PNG 作为卡片本体（体积大幅缩小，格式仍是标准 PNG，SillyTavern 完全兼容）。
@@ -14,9 +14,9 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 
 const checkpointArg = process.argv.find(argument => argument.startsWith('--checkpoint='));
-if (!checkpointArg) throw new Error('缺少必需参数：--checkpoint=0.2.0-rN');
+if (!checkpointArg) throw new Error('缺少必需参数：--checkpoint=0.3.0-rN');
 const CHECKPOINT = checkpointArg.slice('--checkpoint='.length).trim();
-if (!/^0\.2\.0-r[1-9][0-9]*$/u.test(CHECKPOINT)) throw new Error(`非法检查点：${CHECKPOINT}`);
+if (!/^0\.3\.0-r[1-9][0-9]*$/u.test(CHECKPOINT)) throw new Error(`非法检查点：${CHECKPOINT}`);
 
 const imageArg = process.argv.find(argument => argument.startsWith('--image='));
 if (!imageArg) throw new Error('缺少必需参数：--image="D:\\path\\image.png"');
@@ -122,4 +122,3 @@ async function main() {
 }
 
 await main();
-

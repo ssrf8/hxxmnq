@@ -240,6 +240,9 @@ export function settleDuelCard(before: GardenState, result: BattleResult): DuelC
     result.settlement_id,
   ])).slice(-256);
   duel.pending_battle = null;
+  // A new victory always owns this slot. Discard any stale request left by an
+  // older victory before staging the current one.
+  duel.pending_victory_dialogue = null;
   duel.pending_victory_dialogue = won
     ? {
       settlement_id: result.settlement_id,

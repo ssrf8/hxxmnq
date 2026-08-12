@@ -695,6 +695,42 @@
       "layout": "three-full-images-s0-s1-s2",
       "note": "Owner PNG is retained beside the runtime file; runtime uses a quality-50 WebP resized to 800px height with aspect ratio preserved."
     },
+    "youmu_battle_portraits": {
+      "status": "owner-provided-compressed-runtime-pending-sillytavern",
+      "sources": {
+        "s0": "battle/portraits/portrait-youmu-s0-v1.webp",
+        "s1": "battle/portraits/portrait-youmu-s1-v1.webp",
+        "s2": "battle/portraits/portrait-youmu-s2-v1.webp"
+      },
+      "runtime_embed": "compressed-webp",
+      "layout": "three-full-images-s0-s1-s2",
+      "preparation_report": "project/new-character-battle-portrait-report-2026-08-11.json",
+      "note": "Owner PNG is retained in the source archive; runtime uses a quality-50 WebP resized to 800px height with aspect ratio preserved."
+    },
+    "patchouli_battle_portraits": {
+      "status": "owner-provided-compressed-runtime-pending-sillytavern",
+      "sources": {
+        "s0": "battle/portraits/portrait-patchouli-s0-v1.webp",
+        "s1": "battle/portraits/portrait-patchouli-s1-v1.webp",
+        "s2": "battle/portraits/portrait-patchouli-s2-v1.webp"
+      },
+      "runtime_embed": "compressed-webp",
+      "layout": "three-full-images-s0-s1-s2",
+      "preparation_report": "project/new-character-battle-portrait-report-2026-08-11.json",
+      "note": "Owner PNG is retained in the source archive; runtime uses a quality-50 WebP resized to 800px height with aspect ratio preserved."
+    },
+    "sanae_battle_portraits": {
+      "status": "owner-provided-compressed-runtime-pending-sillytavern",
+      "sources": {
+        "s0": "battle/portraits/portrait-sanae-s0-v1.webp",
+        "s1": "battle/portraits/portrait-sanae-s1-v1.webp",
+        "s2": "battle/portraits/portrait-sanae-s2-v1.webp"
+      },
+      "runtime_embed": "compressed-webp",
+      "layout": "three-full-images-s0-s1-s2",
+      "preparation_report": "project/new-character-battle-portrait-report-2026-08-11.json",
+      "note": "Owner PNG is retained in the source archive; runtime uses a quality-50 WebP resized to 800px height with aspect ratio preserved."
+    },
     "flower_core_battle_portraits": {
       "status": "ai-generated-integrated-pending-sillytavern",
       "sources": {

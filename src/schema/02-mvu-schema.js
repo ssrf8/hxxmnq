@@ -13,8 +13,11 @@ const integer = (fallback, minimum, maximum) => z.coerce.number().int()
   .prefault(fallback)
   .catch(fallback);
 const boolean = fallback => z.boolean().prefault(fallback).catch(fallback);
-const list = (schema, maximum) => z.array(schema)
-  .transform(value => value.slice(-maximum))
+const list = (schema, maximum) => z.array(z.unknown())
+  .transform(value => value.flatMap(entry => {
+    const parsed = schema.safeParse(entry);
+    return parsed.success ? [parsed.data] : [];
+  }).slice(-maximum))
   .prefault([])
   .catch([]);
 const dictionary = schema => z.object({}).catchall(schema).prefault({}).catch({});

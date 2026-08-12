@@ -56,3 +56,11 @@ node scripts/build-ui.mjs --asset-mode=remote-r2-live --asset-base-url=$assetOri
 - 基线 generation 6 manifest SHA-256：`d2cb6a317f449ff7bac92906393948b253d6b421825c78874941792860e1a57f`。
 - 最终 generation 7：254 files / 355,238,436 bytes；manifest SHA-256：`6b6bd8afa66e36e5bce9ddd9b56fd86cdb174d6037c7fa44bc15e82fdeec80b2`。
 - 三个对象均完成 S3 与生产域名读回校验，最后切换 `live/manifest.json`；清单缓存为 `no-store`。
+
+## 2026-08-11 generation 8
+
+- 作用域：妖梦、帕秋莉、早苗的 S0/S1/S2 战损 cut-in WebP，共 9 个新增对象；没有覆盖或删除既有对象。
+- 原始 9 张 `1152×1920` PNG 保留在 `旧素材/素材处理/新建文件夹`；运行副本按既有 portrait 合同转换为 `480×800`、WebP quality 50、effort 6，总计 138,684 bytes。
+- dry-run 确认 9 additions / 0 replacements；基线 generation 7 manifest SHA-256：`6b6bd8afa66e36e5bce9ddd9b56fd86cdb174d6037c7fa44bc15e82fdeec80b2`。
+- 最终 generation 8：263 files / 355,377,120 bytes；manifest SHA-256：`64ac62ae0896e2523af23b137fd2acabfd2d2d4c92f743aeacb94cfdc28d4507`。
+- 9 个对象均完成 S3 与生产域名读回校验，最后切换 `live/manifest.json`；清单缓存为 `no-store`。资源明细见 `project/new-character-battle-portrait-report-2026-08-11.json`。

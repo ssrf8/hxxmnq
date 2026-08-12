@@ -1,5 +1,10 @@
 # 弹幕小游戏交接文档
 
+> 2026-08-11 新角色 cut-in 更新：妖梦、帕秋莉、早苗的 S0/S1/S2 共 9 张原图已按既有 portrait
+> 合同转换为 `480×800`、quality 50 WebP，并接入 renderer 白名单、atlas、应用 dataset、宿主、构建与
+> 资源清单。R2 generation 8 已新增并双读回验证 9 个对象；`check:ui`、753/753 与 standalone 构建通过。
+> 真实 SillyTavern 中的三档切换仍待验收，详见 `project/new-character-battle-portrait-report-2026-08-11.json`。
+>
 > 2026-08-11 新角色 Boss 更新：妖梦、帕秋莉、早苗的 `1536×1536` 黑底四宫格已完整归档，
 > 透明运行副本统一为既有 `1254×1254` 待机／施法／受击／击破合同，并接入 atlas、宿主 dataset、
 > 对战档案与构建链。透明预览和逐格统计见 `project/new-character-boss-sheet-alpha-preview-2026-08-11.png`
@@ -126,7 +131,7 @@
 
 - 战斗本体已从单文件重构为模块：`battle-types` / `battle-atlas` / `battle-input` / `battle-patterns` / `battle-renderer` / `battle-simulation`，`src/ui/battle-engine.ts` 为稳定门面。
 - 已实现 TH06 风格扩展：120Hz 定步长 + 自适应绘制、Power(0–128)/Bomb/决死补弹/被弹无敌/复活控制锁、杂鱼波 + 道具 POC、弹型 **11 种**、shape×hue 视觉文法、素材内嵌链（build→data URL→dataset→app，含几何 fallback）。
-- 主线继续使用温室妖花图集；三个固定副本使用琪露诺、爱丽丝、咲夜，任意角色对战卡的八名角色均按 `boss_id` 使用各自独立四状态图集，不再视觉串台或回退妖花。
+- 主线继续使用温室妖花图集；三个固定副本使用琪露诺、爱丽丝、咲夜，任意角色对战卡的十一名角色均按 `boss_id` 使用各自独立四状态图集和 S0/S1/S2 cut-in，不再视觉串台、回退妖花或显示空框。
 - `BattleResult` 10 字段形状未变；主线（`stageBattleResult`→剧情）与副本（`settleDungeonResult`→本地金币，无 LLM）双结算链未变。
 
 ## 本轮改动（2026-07-26）

@@ -44,6 +44,9 @@ const BATTLE_PORTRAIT_IDS = [
   'nitori_battle_portraits',
   'suika_battle_portraits',
   'sakuya_battle_portraits',
+  'youmu_battle_portraits',
+  'patchouli_battle_portraits',
+  'sanae_battle_portraits',
   'flower_core_battle_portraits',
 ];
 

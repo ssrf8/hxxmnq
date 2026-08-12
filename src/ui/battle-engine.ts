@@ -185,6 +185,7 @@ export class BattleEngine {
 
     if (this.input.consumePausePressed()) {
       this.sim.togglePause();
+      this.input.resetTransient();
       this.accumulator = 0;
       this.drawAccumulator = 0;
       this.lastFrame = now;

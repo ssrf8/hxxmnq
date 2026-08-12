@@ -53,6 +53,9 @@ export function characterBossPortrait(
     && bossId !== 'nitori'
     && bossId !== 'suika'
     && bossId !== 'sakuya'
+    && bossId !== 'youmu'
+    && bossId !== 'patchouli'
+    && bossId !== 'sanae'
     && bossId !== 'flower_core'
   ) return undefined;
   return `portrait_${bossId}_s${damageLevel}` as BattleSheetKey;

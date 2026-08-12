@@ -5,7 +5,7 @@ import type {
   AnomalyPendingActivation,
   GardenState,
 } from './types';
-import { periodSerialFromState } from './time-rules';
+import { clearSakuyaTimeStop, fromPeriodSerial, periodSerialFromState } from './time-rules';
 import { reserveConsumable, consumableCount } from './inventory-rules';
 
 export const ANOMALY_DURATION_PERIODS = 28;
@@ -257,6 +257,8 @@ export function buildOrdinaryAnomalyPrompt(state: GardenState): string {
       : '',
     projection.presentation_tone ? `表现倾向：${projection.presentation_tone}` : '',
     projection.excluded_content ? `排除内容：${projection.excluded_content}` : '',
+    '效力声明：这是本地系统已正式激活的当前异变事实。规则指定范围内的效果必须实际发生；角色既有性格可以影响反应和表现方式，但不能否认、抵消或绕过规则写明的效果。',
+    '边界声明：只改变规则明确写出的状态；规则之外不得额外推导长期人格、关系、记忆、同意或未声明行为。表现倾向只调整叙事风格，排除内容只禁止列明项，均不得用于否定其余规则。',
     `第 ${projection.day_index} 日，剩余 ${projection.remaining_periods} 个标准时段`,
     projection.needs_daily_guidance ? '本轮若合适，只能用一两句概括灵梦仍在调查；具体线索必须留给“每日异变调查”入口。' : '',
     '普通聊天不得新增、猜定或指向异变源头、位置、成因、解决办法或调查路线，也不得把自由聊天改写成固定调查剧情。',
@@ -333,6 +335,19 @@ export function resolveAnomaly(before: GardenState, resolutionMessageId: number 
     // retained only in history path; active cleared
   }
   return state;
+}
+
+/** Advances formal world time to the active anomaly deadline, then archives and clears it. */
+export function fastForwardAndResolveAnomaly(before: GardenState): GardenState {
+  const active = before.anomaly_cycle?.active;
+  if (!active) throw new Error('没有可立即结束的活动异变');
+  const targetSerial = Math.max(periodSerialFromState(before), active.end_period_serial);
+  const targetTime = fromPeriodSerial(targetSerial);
+  const state = structuredClone(before);
+  state.environment ??= {};
+  state.environment.day = targetTime.day;
+  state.environment.time_period = targetTime.time_period;
+  return resolveAnomaly(clearSakuyaTimeStop(state));
 }
 
 export function anomalyCardDisabledReason(state: GardenState): string {

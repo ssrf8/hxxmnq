@@ -49,6 +49,17 @@ test('R2：相同 useId 幂等（第二次调用不重复 reserve，scene contex
   assert.equal(entries[0].quantity_used, 1);
 });
 
+test('R2：同一 useId 已扣到零后仍可幂等复读，不会误报数量不足', async () => {
+  const ar = await importTypescript('../src/ui/activity-rules.ts');
+  const base = await baseState(true);
+  base.inventory.consumables.reimu_coin_bait = 1;
+  const once = ar.queueSceneItemUse(base, 'reimu_coin_bait', 'scene-item:reimu_coin_bait:last', 'scene:last', 'reimu');
+  assert.equal(once.inventory.consumables.reimu_coin_bait, 0);
+  const replayed = ar.queueSceneItemUse(once, 'reimu_coin_bait', 'scene-item:reimu_coin_bait:last', 'scene:last', 'reimu');
+  assert.equal(replayed.inventory.consumables.reimu_coin_bait, 0);
+  assert.equal(replayed.scene_item_context.entries[0].quantity_used, 1);
+});
+
 // ---- 纯函数：不修改传入 state ----
 test('R2：queueSceneItemUse 是纯函数，preview 不改变传入 state', async () => {
   const ar = await importTypescript('../src/ui/activity-rules.ts');

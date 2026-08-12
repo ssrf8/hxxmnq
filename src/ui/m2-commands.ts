@@ -25,6 +25,8 @@ import {
 import { consumeVisitNotices, dismissCharacter, inviteCharacter } from './visitor-rules';
 import { reconcileM2Runtime } from './m2-runtime';
 import { claimPendingTask, releasePendingTask, removePendingTask } from './task-rules';
+import { fastForwardAndResolveAnomaly } from './anomaly-rules';
+import { expireSakuyaWatch } from './special-item-rules';
 
 export function applyM2Command(
   before: GardenState,
@@ -143,6 +145,17 @@ export function applyM2Command(
       state = releasePendingTask(state, command.taskId);
       result.message = '待办已恢复为可处理状态';
       break;
+    case 'end_active_anomaly':
+      state = fastForwardAndResolveAnomaly(state);
+      state = reconcileM2Runtime(before, state, chatId);
+      result.message = '已快进至异变结束，当前异变已归档并清除';
+      break;
+    case 'expire_time_stop': {
+      const expired = expireSakuyaWatch(state, command.nowMs);
+      state = expired.state;
+      result.message = expired.message;
+      break;
+    }
     case 'queue_scene_item':
       state = queueSceneItemUse(state, command.itemId, command.useId, command.sceneId, command.targetCharacterId);
       result.message = '道具已加入当前场景并完成本地消费';

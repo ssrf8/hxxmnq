@@ -428,6 +428,7 @@ export interface GardenState {
     last_used_time_period?: TimePeriod | null;
     temporal_trace_active?: boolean;
     time_stop_active?: boolean;
+    time_stop_expires_at_ms?: number | null;
     noticed_by_character_ids?: string[];
   }>;
   anomaly_cycle?: {
@@ -631,6 +632,8 @@ export type MessageTransactionPhase =
  */
 export interface GalRequestContext {
   sceneId?: string | null;
+  /** 本轮目标对应的区域；只覆盖请求期提示快照，不直接改写持久状态。 */
+  sceneAreaId?: string | null;
   mainTargetCharacterId?: string | null;
   actionTargetCharacterId?: string | null;
   eventParticipants?: readonly string[];
@@ -730,6 +733,7 @@ export interface GardenBridge {
   sendAnomalyResolution(text: string): Promise<MessageTransactionSnapshot>;
   sendDuelVictoryRequest(requestText: string, message: string): Promise<MessageTransactionSnapshot>;
   abandonDuelVictoryRequest(settlementId: string): Promise<void>;
+  repairGenerationLock(): Promise<void>;
   getTransactionState(): Promise<MessageTransactionSnapshot>;
   retryLastTransaction(): Promise<MessageTransactionSnapshot>;
   stageBattleResult(result: BattleResult): Promise<{ messageId: number; alreadyStaged: boolean }>;
@@ -786,6 +790,8 @@ export type M2Command =
   | { type: 'dismiss_character'; characterId: string }
   | { type: 'claim_pending_task'; taskId: string }
   | { type: 'release_pending_task'; taskId: string }
+  | { type: 'end_active_anomaly' }
+  | { type: 'expire_time_stop'; nowMs: number }
   | { type: 'queue_scene_item'; itemId: string; useId: string; sceneId: string; targetCharacterId?: string }
   | { type: 'clear_scene_items' };
 

@@ -41,7 +41,7 @@
 | `inventory.card_runtime.duel.settled_result_ids` | 最多 256 个对战卡结果 ID | 本地对战卡结算、迁移器 | 结果幂等校验 | 不复用副本奖励 ID；去重并 FIFO 裁剪 |
 | `inventory.card_runtime.duel.pending_victory_dialogue` | null 或唯一胜利要求事务 | 本地对战卡结算与胜利消息事务 | 胜利要求 UI、最小剧情投影 | 只有胜利创建；要求提交后正文与事务 ID 锁定为 generating；完整 assistant 回复及变量阶段结束后清空；刷新可按真实 user 消息恢复；失败只重试对话，不重复结算战斗 |
 | `key_items` | 关键物品字典 | 确定性开场与本地道具 bridge、迁移器 | 模型、UI | 开场只确认庭守钥取得与苏醒；变量模型禁写 |
-| `key_items.sakuya_watch` | 获得、日冷却、累计使用、最近地点/时段、时间痕迹与察觉者 | 本地商店、怀表使用与迁移器 | 小店、背包、登记事件投影 | 每日最多一次；不推进或回滚时段；不缩短 12/24/28 派生计时 |
+| `key_items.sakuya_watch` | 获得、日冷却、累计使用、最近地点/时段、时间痕迹、察觉者、时停激活态与真实毫秒到期时间 | 本地商店、怀表使用/自动到期与迁移器 | 顶栏倒计时、小店、背包、登记事件投影 | 每日最多一次；时停最多 5 分钟；主动/自动解除均保留当日冷却且不推进时段；跨正式时段也会解除；不缩短 12/24/28 派生计时 |
 | `anomaly_cycle.pending_activation` | null 或预留启用事务 | bridge 异变预留 | 启用调用、背包 | 成功提交或取消后置空；失败不扣卡；旧存档默认 null |
 | `anomaly_cycle.active` | null 或唯一活动异变 | bridge 异变事务 | UI、剧情投影、时间规则 | 同时仅一个；28 标准时段后收束；模型不可改写规则/源头/期限 |
 | `anomaly_cycle.active.hidden_origin` | 隐藏源头对象 | 本地确定性异变事务 | 每日调查、最终收束 | 使用卡片时按事务种子生成并锁定；普通剧情与普通 UI 不可见 |
@@ -53,7 +53,7 @@
 | `garden_activities` | 温泉会话、宴会计划/活动与最多 8 条宴会摘要 | 本地活动规则 | 来访上限、场景收尾、宴会入口 | 到时先生成待办；玩家进入或四时段后默认举行并清理 |
 | `pending_tasks` | 最多 8 个到期待办，默认 `[]` | 本地调度器与白名单命令 | 庭院待办面板 | `(kind, source_id)` 唯一；异变/宴会到期创建，点击或四时段自动处理后删除；模型禁写 |
 | `scene_item_context` | null 或最多 3 种场景道具 | bridge 场景道具事务 | 提示上下文、收尾 | 完整收尾成功后清空；修缮包不进入 |
-| `ui_flags.graduation_acknowledged` | boolean/false | 本地 UI | 毕业说明 | 首次选型后显示一次 |
+| `ui_flags.graduation_acknowledged` | boolean/false | 本地 UI | 毕业说明 | 妖花核心完成后显示一次 |
 | `abilities` | 最多 32 条事实解锁 | bridge/登记事件；模型仅可更新请求中已登记 ID 的开放描述 | 模型、战斗 | 必须记录剧情来源；不用等级/经验；模型不得创建 ID |
 | `memory.long_term_notes` | 最多 24 条短事实 | 模型 | 条件投影、数据库归档 | 不存流水账；相近内容合并 |
 | `uid_counters` | 正整数计数器 | bridge | 实体创建器 | 额外变量模型不得猜测计数器；动态实体创建须先经本地分配器 |

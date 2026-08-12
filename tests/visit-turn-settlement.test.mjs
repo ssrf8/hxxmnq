@@ -208,6 +208,6 @@ test('T10：bridge 接线对非 V2 request 保留原 state（V1 兼容路径不�
   const bridge = await read('../src/ui/bridge.ts');
   assert.match(
     bridge,
-    /if \(request\?\.schema !== REQUEST_SCHEMA_V2\) return \{ state: finalState, turns: \[\] \};/,
+    /if \(request\?\.schema !== REQUEST_SCHEMA_V2\) \{\s*return \{ state: finalState, turns: \[\], verifyTurns: false \};/,
   );
 });

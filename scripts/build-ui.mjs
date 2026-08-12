@@ -170,6 +170,30 @@ if (
 ) {
   throw new Error('十六夜咲夜 S0/S1/S2 立绘缺少压缩 WebP 运行登记');
 }
+const youmuPortraitAsset = assetManifest.battle_assets?.youmu_battle_portraits;
+const youmuPortraitSources = youmuPortraitAsset?.sources;
+if (
+  youmuPortraitAsset?.runtime_embed !== 'compressed-webp'
+  || !['s0', 's1', 's2'].every((state) => typeof youmuPortraitSources?.[state] === 'string')
+) {
+  throw new Error('魂魄妖梦 S0/S1/S2 立绘缺少压缩 WebP 运行登记');
+}
+const patchouliPortraitAsset = assetManifest.battle_assets?.patchouli_battle_portraits;
+const patchouliPortraitSources = patchouliPortraitAsset?.sources;
+if (
+  patchouliPortraitAsset?.runtime_embed !== 'compressed-webp'
+  || !['s0', 's1', 's2'].every((state) => typeof patchouliPortraitSources?.[state] === 'string')
+) {
+  throw new Error('帕秋莉 S0/S1/S2 立绘缺少压缩 WebP 运行登记');
+}
+const sanaePortraitAsset = assetManifest.battle_assets?.sanae_battle_portraits;
+const sanaePortraitSources = sanaePortraitAsset?.sources;
+if (
+  sanaePortraitAsset?.runtime_embed !== 'compressed-webp'
+  || !['s0', 's1', 's2'].every((state) => typeof sanaePortraitSources?.[state] === 'string')
+) {
+  throw new Error('东风谷早苗 S0/S1/S2 立绘缺少压缩 WebP 运行登记');
+}
 const flowerCorePortraitAsset = assetManifest.battle_assets?.flower_core_battle_portraits;
 const flowerCorePortraitSources = flowerCorePortraitAsset?.sources;
 if (
@@ -524,6 +548,15 @@ const previewDataset = {
   battlePortraitSakuyaS0Src: previewAssetUrl(sakuyaPortraitSources.s0),
   battlePortraitSakuyaS1Src: previewAssetUrl(sakuyaPortraitSources.s1),
   battlePortraitSakuyaS2Src: previewAssetUrl(sakuyaPortraitSources.s2),
+  battlePortraitYoumuS0Src: previewAssetUrl(youmuPortraitSources.s0),
+  battlePortraitYoumuS1Src: previewAssetUrl(youmuPortraitSources.s1),
+  battlePortraitYoumuS2Src: previewAssetUrl(youmuPortraitSources.s2),
+  battlePortraitPatchouliS0Src: previewAssetUrl(patchouliPortraitSources.s0),
+  battlePortraitPatchouliS1Src: previewAssetUrl(patchouliPortraitSources.s1),
+  battlePortraitPatchouliS2Src: previewAssetUrl(patchouliPortraitSources.s2),
+  battlePortraitSanaeS0Src: previewAssetUrl(sanaePortraitSources.s0),
+  battlePortraitSanaeS1Src: previewAssetUrl(sanaePortraitSources.s1),
+  battlePortraitSanaeS2Src: previewAssetUrl(sanaePortraitSources.s2),
   battlePortraitFlowerCoreS0Src: previewAssetUrl(flowerCorePortraitSources.s0),
   battlePortraitFlowerCoreS1Src: previewAssetUrl(flowerCorePortraitSources.s1),
   battlePortraitFlowerCoreS2Src: previewAssetUrl(flowerCorePortraitSources.s2),
@@ -610,6 +643,9 @@ await Promise.all([
   ...Object.values(nitoriPortraitSources).map((source) => copyFile(`src/assets/${source}`, `dist/assets/${source}`)),
   ...Object.values(suikaPortraitSources).map((source) => copyFile(`src/assets/${source}`, `dist/assets/${source}`)),
   ...Object.values(sakuyaPortraitSources).map((source) => copyFile(`src/assets/${source}`, `dist/assets/${source}`)),
+  ...Object.values(youmuPortraitSources).map((source) => copyFile(`src/assets/${source}`, `dist/assets/${source}`)),
+  ...Object.values(patchouliPortraitSources).map((source) => copyFile(`src/assets/${source}`, `dist/assets/${source}`)),
+  ...Object.values(sanaePortraitSources).map((source) => copyFile(`src/assets/${source}`, `dist/assets/${source}`)),
   ...Object.values(flowerCorePortraitSources).map((source) => copyFile(`src/assets/${source}`, `dist/assets/${source}`)),
   copyFile(`src/assets/${fairySource}`, `dist/assets/${fairySource}`),
   copyFile(`src/assets/${battleEffectsSource}`, `dist/assets/${battleEffectsSource}`),
@@ -670,6 +706,15 @@ const [
   battlePortraitSakuyaS0Bytes,
   battlePortraitSakuyaS1Bytes,
   battlePortraitSakuyaS2Bytes,
+  battlePortraitYoumuS0Bytes,
+  battlePortraitYoumuS1Bytes,
+  battlePortraitYoumuS2Bytes,
+  battlePortraitPatchouliS0Bytes,
+  battlePortraitPatchouliS1Bytes,
+  battlePortraitPatchouliS2Bytes,
+  battlePortraitSanaeS0Bytes,
+  battlePortraitSanaeS1Bytes,
+  battlePortraitSanaeS2Bytes,
   battlePortraitFlowerCoreS0Bytes,
   battlePortraitFlowerCoreS1Bytes,
   battlePortraitFlowerCoreS2Bytes,
@@ -727,6 +772,15 @@ const [
   readFile(`src/assets/${sakuyaPortraitSources.s0}`),
   readFile(`src/assets/${sakuyaPortraitSources.s1}`),
   readFile(`src/assets/${sakuyaPortraitSources.s2}`),
+  readFile(`src/assets/${youmuPortraitSources.s0}`),
+  readFile(`src/assets/${youmuPortraitSources.s1}`),
+  readFile(`src/assets/${youmuPortraitSources.s2}`),
+  readFile(`src/assets/${patchouliPortraitSources.s0}`),
+  readFile(`src/assets/${patchouliPortraitSources.s1}`),
+  readFile(`src/assets/${patchouliPortraitSources.s2}`),
+  readFile(`src/assets/${sanaePortraitSources.s0}`),
+  readFile(`src/assets/${sanaePortraitSources.s1}`),
+  readFile(`src/assets/${sanaePortraitSources.s2}`),
   readFile(`src/assets/${flowerCorePortraitSources.s0}`),
   readFile(`src/assets/${flowerCorePortraitSources.s1}`),
   readFile(`src/assets/${flowerCorePortraitSources.s2}`),
@@ -816,6 +870,15 @@ const battlePortraitSuikaS2DataUrl = imageDataUrl(battlePortraitSuikaS2Bytes, su
 const battlePortraitSakuyaS0DataUrl = imageDataUrl(battlePortraitSakuyaS0Bytes, sakuyaPortraitSources.s0);
 const battlePortraitSakuyaS1DataUrl = imageDataUrl(battlePortraitSakuyaS1Bytes, sakuyaPortraitSources.s1);
 const battlePortraitSakuyaS2DataUrl = imageDataUrl(battlePortraitSakuyaS2Bytes, sakuyaPortraitSources.s2);
+const battlePortraitYoumuS0DataUrl = imageDataUrl(battlePortraitYoumuS0Bytes, youmuPortraitSources.s0);
+const battlePortraitYoumuS1DataUrl = imageDataUrl(battlePortraitYoumuS1Bytes, youmuPortraitSources.s1);
+const battlePortraitYoumuS2DataUrl = imageDataUrl(battlePortraitYoumuS2Bytes, youmuPortraitSources.s2);
+const battlePortraitPatchouliS0DataUrl = imageDataUrl(battlePortraitPatchouliS0Bytes, patchouliPortraitSources.s0);
+const battlePortraitPatchouliS1DataUrl = imageDataUrl(battlePortraitPatchouliS1Bytes, patchouliPortraitSources.s1);
+const battlePortraitPatchouliS2DataUrl = imageDataUrl(battlePortraitPatchouliS2Bytes, patchouliPortraitSources.s2);
+const battlePortraitSanaeS0DataUrl = imageDataUrl(battlePortraitSanaeS0Bytes, sanaePortraitSources.s0);
+const battlePortraitSanaeS1DataUrl = imageDataUrl(battlePortraitSanaeS1Bytes, sanaePortraitSources.s1);
+const battlePortraitSanaeS2DataUrl = imageDataUrl(battlePortraitSanaeS2Bytes, sanaePortraitSources.s2);
 const battlePortraitFlowerCoreS0DataUrl = imageDataUrl(battlePortraitFlowerCoreS0Bytes, flowerCorePortraitSources.s0);
 const battlePortraitFlowerCoreS1DataUrl = imageDataUrl(battlePortraitFlowerCoreS1Bytes, flowerCorePortraitSources.s1);
 const battlePortraitFlowerCoreS2DataUrl = imageDataUrl(battlePortraitFlowerCoreS2Bytes, flowerCorePortraitSources.s2);
@@ -893,6 +956,15 @@ const embedded = {
   battlePortraitSakuyaS0DataUrl,
   battlePortraitSakuyaS1DataUrl,
   battlePortraitSakuyaS2DataUrl,
+  battlePortraitYoumuS0DataUrl,
+  battlePortraitYoumuS1DataUrl,
+  battlePortraitYoumuS2DataUrl,
+  battlePortraitPatchouliS0DataUrl,
+  battlePortraitPatchouliS1DataUrl,
+  battlePortraitPatchouliS2DataUrl,
+  battlePortraitSanaeS0DataUrl,
+  battlePortraitSanaeS1DataUrl,
+  battlePortraitSanaeS2DataUrl,
   battlePortraitFlowerCoreS0DataUrl,
   battlePortraitFlowerCoreS1DataUrl,
   battlePortraitFlowerCoreS2DataUrl,
@@ -934,8 +1006,8 @@ const buildMountBundle = (versionToken) => [
   // 构建时注入唯一 host 版本：ST 页面里残留的旧实例（version 相同）会短路新代码，
   // 必须保证每次构建产物 version 不同，旧实例才会走 destroy→重建路径。
   applyMemoryProfileToHostShell(hostShellSource, memoryProfile).replace(
-    /0\.4\.3-host-generate-r\d+/,
-    `0.4.3-host-generate-${uiDelivery === 'remote'
+    /0\.4\.4-late-bound-generate-r\d+/,
+    `0.4.4-late-bound-generate-${uiDelivery === 'remote'
       ? versionToken
       : createHash('sha256').update(JSON.stringify(embedded)).digest('hex').slice(0, 14)}`,
   ),
