@@ -274,6 +274,33 @@ test('胜利要求可本地放弃且不回滚战斗结算，并立即解除后�
   );
 });
 
+test('胜利要求可修复为可编辑状态，且保留本次胜利和要求文本', async () => {
+  const duel = await importTypescript('../src/ui/duel-card-rules.ts');
+  const state = await baseState();
+  const started = duel.beginDuelCard(state, 'reimu', 'duel:repair:1').state;
+  const settled = duel.settleDuelCard(
+    started,
+    battleResult('character_duel_hard_v1', 'clean_win', 'duel-result:repair:1'),
+  ).state;
+  const locked = duel.stageDuelVictoryRequest(
+    settled,
+    'duel-result:repair:1',
+    '请陪我喝一次茶。',
+  );
+
+  const repaired = duel.repairDuelVictoryDialogue(locked, 'duel-result:repair:1');
+  assert.deepEqual(repaired.inventory.card_runtime.duel.pending_victory_dialogue, {
+    settlement_id: 'duel-result:repair:1',
+    target_character_id: 'reimu',
+    status: 'waiting_request',
+    request_text: '请陪我喝一次茶。',
+  });
+  assert.deepEqual(
+    repaired.inventory.card_runtime.duel.settled_result_ids,
+    locked.inventory.card_runtime.duel.settled_result_ids,
+  );
+});
+
 test('对战卡拒绝叙事替代、错配配置和非法数值且不修改输入状态', async () => {
   const duel = await importTypescript('../src/ui/duel-card-rules.ts');
   const state = await baseState();

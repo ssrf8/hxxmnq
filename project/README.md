@@ -1,6 +1,6 @@
 # 幻想乡物语 · 项目总览
 
-最后更新：2026-08-12。
+最后更新：2026-08-14。
 
 ## 项目形态
 
@@ -22,7 +22,7 @@
 - 正式登记角色：11 名；妖梦、帕秋莉、早苗已接入无前置随机来访、独立静态四视图、四向地图动画与 GAL 反应图。妖梦、早苗的左右运行源已在构建期纠正；早苗右侧静态图由左侧精确镜像生成，三人的原始动画帧数保持不变。
 - 三名新角色的动静帧已按所有者参数独立校准，动画统一为 48ms/帧；本地校准台位于 `src/ui/new-character-sprite-calibration.html`。这些尺寸、定位和帧速属于 UI 代码，必须随新角色卡/UI 包重新打包后才会进入 SillyTavern。
 - 弹幕对战：妖梦、帕秋莉、早苗已接入独立四状态 Boss 图集与角色对战配置；原始 `1536×1536` 图片完整归档，运行副本统一为透明 `1254×1254` 四宫格。
-- Live 素材：生产 manifest 已更新至 generation 7（254 files / 355,238,436 bytes）；三张新 Boss WebP 已按 media-first / manifest-last 新增，并完成 S3 与生产域名双通道读回校验。manifest SHA-256 为 `6b6bd8afa66e36e5bce9ddd9b56fd86cdb174d6037c7fa44bc15e82fdeec80b2`。
+- Live 素材：生产 manifest 已更新至 generation 8（263 files / 355,377,120 bytes）；manifest SHA-256 为 `64ac62ae0896e2523af23b137fd2acabfd2d2d4c92f743aeacb94cfdc28d4507`。
 - 世界书：妖梦、帕秋莉、早苗的人设条目已扩充；新增“剑术特训”和“昏睡红茶·半梦半醒”两个无额外前置的商店消耗品。角色与道具继续使用不透明绿灯，世界书道具 UID 使用独立 `100+` 区段并在打包时检查重复。
 - 角色记忆：每角色最多 60 条 `VisitTurn` 剧情梗概；退役的关系事实数组不再使用。
 - Presence 已迁移到额外模型任务：bridge 暂存 `interaction.presence_analysis_task`，额外模型填写语义叶字段，bridge 校验并更新 `presence_snapshot`。
@@ -36,14 +36,14 @@
 - 新手教程现以解决温室妖花核心为正常毕业终点；妖花调查回复结束后会明确引导返回庭园选择符卡战或剧情解决。正式“跳过教程”会直接撤下全部新手指引并推进至温室三形态待选状态，但不会代替玩家选型。
 - 新手教程与其他本地白名单剧情现统一以“收到非空 assistant 回复”为完成回执；VisitTurn 梗概仍会尽力写入，但任务缺失、错配或摘要失败不再阻断本地剧情推进。普通自由对话继续保持严格 VisitTurn 校验。
 - 0.3.0-r7 正式候选已打包：卡内使用 production R2 UI loader，UI r7 已上传并读回校验；JSON/PNG 的创作者注释为空，PNG payload 与 JSON 逐字节一致。已被替代的 production UI r5/r6 源对象已从 R2 删除。
-- production remote UI 已热更新至 r10；GAL 请求异常会自动释放发送锁，并提供手动“修复”按钮；教程第五步、胜利要求遗留锁与画廊角色小窗冲突均已修复。采用 production loader 的旧卡刷新后会自动加载 r10，无需重新导入角色卡。
+- production remote UI 已更新至 r17：在保留 r16 玩法介绍的基础上，修复 GAL assistant 落楼时丢失完整 MvuData、重复触发初始化，以及错误接管空占位楼层后出现“没有可显示的正文”的问题。采用 production loader 的旧卡刷新后会自动加载 r17，无需重新导入角色卡。
 
 ## 当前验证与未完成项
 
 - `npm run check:ui`：通过。
-- production remote UI r10：2,255,171 bytes，SHA-256 `132ee9f852f352bdba796f253b6e2cb64d649a00dd1cbbde7ce73a03fbfcdd04`，R2 公网读回通过。
+- production remote UI r17：2,289,624 bytes，SHA-256 `d540a36cffeb9d4138429346e6d73986c97b44ed72c9c90b0a4556ee4e917f10`，R2 对象与 manifest 公网读回通过。
 - 首轮输入与回想画廊 UI 契约测试：140/140 通过；相关三组联合回归：178/178 通过。真实 SillyTavern 的新画廊交互仍需按专项文档末尾步骤验收。
-- `npm test`：760/760 通过。
+- `npm test`：774/774 通过。
 - generation 8 已包含远端 Boss portrait 媒体；0.3.0-r7 已重新打包，剩余步骤是真实 SillyTavern 导入与运行验收。
 
 ## 必读文档

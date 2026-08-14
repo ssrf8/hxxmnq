@@ -1,6 +1,7 @@
 // Phase 2 增量 E — bridge 专属场景合同测试（无法 fake 宿主全局的部分）。
 // 断言 runHelperGenerate / waitForVariableStage / 事件投影的结构性行为。
 import assert from 'node:assert/strict';
+import { build } from 'esbuild';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
@@ -9,6 +10,33 @@ const read = (path) => readFile(new URL(path, import.meta.url), 'utf8');
 const bridge = await read('../src/ui/bridge.ts');
 const app = await read('../src/ui/app.ts');
 const tx = await read('../src/ui/message-transaction.ts');
+const types = await read('../src/ui/types.ts');
+const bridgeBundle = await build({
+  entryPoints: [fileURLToPath(new URL('../src/ui/bridge.ts', import.meta.url))],
+  bundle: true,
+  write: false,
+  format: 'esm',
+  platform: 'node',
+  target: 'node22',
+});
+const bridgeRuntime = await import(`data:text/javascript;base64,${Buffer.from(bridgeBundle.outputFiles[0].text).toString('base64')}`);
+
+test('放弃失败的设施生成会退款并解除持久事务，普通失败仍可重试', () => {
+  assert.match(bridge, /const cancelPendingFacilityReservation = \(before: GardenState\)/);
+  assert.match(bridge, /type: 'cancel_refit', transactionId: command\.transactionId/);
+  assert.match(bridge, /type: 'cancel_recovery', transactionId: command\.transactionId/);
+  assert.match(bridge, /async repairGenerationLock\(\) \{\s*await persistCancelledFacilityReservation\(\);\s*await forceReleaseGenerationLock\(true\);/);
+  assert.match(bridge, /command\.type === 'end_conversation_local'\s*\? cancelPendingFacilityReservation\(before\)/);
+  assert.match(bridge, /设施事务取消后复读校验失败/);
+  assert.doesNotMatch(bridge, /forceReleaseGenerationLock\(false\);\s*await persistCancelledFacilityReservation/);
+});
+
+test('聊天恢复只接受字段完整的后置结算指令', () => {
+  assert.match(bridge, /function parsePostSettlementCommand\(value: unknown\)/);
+  assert.match(bridge, /requiredString\('facilityId'\) && requiredString\('actionId'\) && requiredString\('transactionId'\)/);
+  assert.match(bridge, /requiredString\('activityId'\)/);
+  assert.match(bridge, /parsePostSettlementCommand\(scene\?\.postSettlementCommand\)/);
+});
 
 test('非本 generationId 事件：started/stream/ended 三处均按 attempt.generationId 过滤', () => {
   const matches = bridge.match(/id !== attempt\.generationId/g) ?? [];
@@ -120,6 +148,43 @@ test('retry attemptSeq 递增：由完成的 snapshot 推进一次（V1/V2 按 s
 test('writeHelperAssistantMessage 幂等：commitKey 反查 0 条才写/多条歧义失败', () => {
   assert.match(bridge, /resolveAssistantMessageByCommitKey\(activeMessages\(\), attempt\.requestId, attempt\.attemptId\)/);
   assert.match(bridge, /助手楼层 commitKey 反查歧义，禁止猜 ID/);
+});
+
+test('assistant 落楼继承完整 MvuData，不清空 initialized_lorebooks 或未知顶层字段', () => {
+  assert.match(bridge, /export function inheritAssistantMvuData\(/);
+  assert.match(bridge, /\.\.\.\(sourceData \? structuredClone\(sourceData\) : \{\}\)/);
+  assert.match(bridge, /const baseData = inheritAssistantMvuData\(latest\?\.data, latest\?\.state\);/);
+  assert.match(bridge, /const baseDataForSt = inheritAssistantMvuData\(latestForSt\?\.data, latestForSt\?\.state\);/);
+  assert.match(bridge, /persistedMessageBefore\(mvuForSt, Number\(stFloor\.message_id\)\)/);
+  assert.match(bridge, /writeHelperAssistantMessage\(attempt, text, floorsBefore \+ 1\)/);
+  assert.doesNotMatch(bridge, /\{ \.\.\.EMPTY_MVU_DATA, stat_data: latest(?:ForSt)?\.state \}/);
+});
+
+test('完整 MvuData 继承会保留生命周期字段并深克隆状态', () => {
+  const sourceState = { meta: { initialized: true, opening_committed: true } };
+  const sourceData = {
+    stat_data: sourceState,
+    initialized_lorebooks: { 移动庭园: [234] },
+    schema: { type: 'object', future_schema_key: true },
+    future_mvu_field: { kept: true },
+  };
+  const inherited = bridgeRuntime.inheritAssistantMvuData(sourceData, sourceState);
+  assert.deepEqual(inherited.initialized_lorebooks, sourceData.initialized_lorebooks);
+  assert.deepEqual(inherited.schema, sourceData.schema);
+  assert.deepEqual(inherited.future_mvu_field, sourceData.future_mvu_field);
+  assert.notEqual(inherited.initialized_lorebooks, sourceData.initialized_lorebooks);
+  assert.notEqual(inherited.stat_data, sourceState);
+});
+
+test('宿主 assistant 只有正文与 generate 返回值一致才可接管，且已有楼层只更新不复制', () => {
+  assert.match(bridge, /String\(m\.message \?\? m\.mes \?\? ''\) === text/);
+  const start = bridge.indexOf('if (stFloor && g.setChatMessages)');
+  const end = bridge.indexOf("trace('st_persisted'", start);
+  assert.ok(start >= 0 && end > start, '应能定位宿主 assistant 更新分支');
+  const branch = bridge.slice(start, end);
+  assert.match(branch, /await g\.setChatMessages\(/);
+  assert.match(branch, /message_id: Number\(stFloor\.message_id\)/);
+  assert.doesNotMatch(branch, /createChatMessages/);
 });
 
 test('P0：assistant 两条持久化路径完成前，提前到达的 MVU 事件不得启动 settlement', () => {
@@ -255,6 +320,19 @@ test('R2：app 只传结构化 preview，道具消费由 bridge 与回复结算�
   assert.doesNotMatch(app, /type: 'queue_scene_item',/);
   assert.match(bridge, /applyPendingSceneContext/);
   assert.match(bridge, /pendingSceneContext = null/);
+});
+
+test('后置 M2 动作与 assistant 结算原子提交，停止时不由 app 提前落盘', () => {
+  assert.match(types, /export type GalPostSettlementCommand/);
+  assert.match(bridge, /postSettlementCommand: requestContext\?\.postSettlementCommand/);
+  assert.match(bridge, /applyLocalM2Command\(next, postSettlementCommand, currentChatId\(\)\)\.state/);
+  assert.match(app, /postSettlementCommand: \{ type: 'commit_refit', transactionId \}/);
+  assert.match(app, /postSettlementCommand: \{ type: 'commit_recovery', transactionId \}/);
+  assert.match(app, /postSettlementCommand: \{ type: 'facility_action', facilityId, actionId, transactionId \}/);
+  assert.match(app, /postSettlementCommand: \{ type: 'start_due_banquet', activityId \}/);
+  assert.doesNotMatch(app, /await bridge\.applyM2Command\(\{ type: 'commit_refit', transactionId \}\)/);
+  assert.doesNotMatch(app, /await bridge\.applyM2Command\(\{ type: 'commit_recovery', transactionId \}\)/);
+  assert.match(app, /!transaction\?\.userMessageCreated \|\| transaction\.stopReason === 'user-stop'/);
 });
 
 // ---- B2-T08-R3：两个系统生成入口改为 V2（外援强制裁定 6）----

@@ -443,6 +443,21 @@
     <p id="gg-live-status" class="gg-live-status" role="status" aria-live="polite"></p>
   </main>
 
+  <section id="gg-gameplay-intro" class="gg-gameplay-intro" role="dialog" aria-modal="true"
+    aria-labelledby="gg-gameplay-intro-title" hidden>
+    <div id="gg-gameplay-intro-spotlight" class="gg-gameplay-intro-spotlight" aria-hidden="true"></div>
+    <article class="gg-gameplay-intro-card">
+      <p id="gg-gameplay-intro-progress" class="gg-eyebrow">玩法介绍 · 1 / 8</p>
+      <h2 id="gg-gameplay-intro-title" tabindex="-1">时间会让庭园活起来</h2>
+      <p id="gg-gameplay-intro-text"></p>
+      <p id="gg-gameplay-intro-tip" class="gg-gameplay-intro-tip"></p>
+      <div class="gg-gameplay-intro-actions">
+        <button type="button" id="gg-gameplay-intro-prev">上一步</button>
+        <button type="button" id="gg-gameplay-intro-next">下一步</button>
+      </div>
+    </article>
+  </section>
+
   <dialog id="gg-launcher-dialog" class="gg-launcher-dialog" aria-labelledby="gg-launcher-title">
     <div class="gg-launcher-shell">
       <header class="gg-launcher-header">
@@ -633,6 +648,7 @@
       <p id="gg-duel-victory-hint" class="gg-note">要求提交后会锁定；只生成一次胜利剧情，不会直接修改金币、设施或其他本地状态。</p>
       <p id="gg-duel-victory-status" role="status" aria-live="polite"></p>
       <div class="gg-actions">
+        <button type="button" id="gg-duel-victory-repair" hidden>修复锁定</button>
         <button type="button" id="gg-duel-victory-abandon">放弃本次要求</button>
         <button type="submit" id="gg-duel-victory-submit">提交要求并进入剧情</button>
       </div>

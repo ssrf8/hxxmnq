@@ -3,7 +3,7 @@
   "version": "0.3.0",
   "status": "release-candidate",
   "released_checkpoint": "0.3.0-r7",
-  "next_checkpoint": "0.3.0-r8",
+  "next_checkpoint": "0.3.0-r14",
   "planned_checkpoint_sequence": [
     "0.2.0-r19",
     "0.2.0-r20",
@@ -90,7 +90,13 @@
     "0.3.0-r5",
     "0.3.0-r6",
     "0.3.0-r7",
-    "0.3.0-r8"
+    "0.3.0-r8",
+    "0.3.0-r9",
+    "0.3.0-r10",
+    "0.3.0-r11",
+    "0.3.0-r12",
+    "0.3.0-r13",
+    "0.3.0-r14"
   ],
   "source_root": "../src",
   "test_root": "../tests",
@@ -108,17 +114,17 @@
     "published": false
   },
   "working_tree_update": {
-    "date": "2026-08-12",
-    "scope": "production UI r9 hotfix: fix flower-core guidance and make tutorial skip end all guidance at greenhouse form selection",
+    "date": "2026-08-14",
+    "scope": "production UI r17: preserve complete assistant MvuData and reject empty or concurrent assistant floors during GAL persistence",
     "typecheck": "pass",
-    "tests": "npm test (760/760 pass)",
+    "tests": "npm test (774/774 pass)",
     "diff_check": "pass",
-    "package_checkpoint_dry": "0.3.0-r7 production remote dry-run passed (30 lorebook entries, 329,189 bytes, sha256 45f88aa598fd8426263f0f809ffb89a8ddb0c9eb8eb39107f20ad62909cb39b4)",
+    "package_checkpoint_dry": "not run; this release updates only the production remote UI channel",
     "standalone_ui_build": {
       "ui_delivery": "remote",
-      "ui_version": "r9",
-      "bytes": 2252572,
-      "sha256": "15994d29e365e7aacff0f8c36832f4bfe109d340b8bf11c024fa42a1a05035de"
+      "ui_version": "r17",
+      "bytes": 2289624,
+      "sha256": "d540a36cffeb9d4138429346e6d73986c97b44ed72c9c90b0a4556ee4e917f10"
     },
     "r2_live": {
       "generation": 8,
@@ -130,12 +136,14 @@
     "r2_ui": {
       "channel": "production",
       "profile": "standalone-mvu",
-      "version": "r9",
-      "url": "https://ssrfrrt.ccwu.cc/gensokyo-moving-garden/live/ui/profiles/standalone-mvu/ui-mount-r9.js",
-      "bytes": 2252572,
-      "sha256": "15994d29e365e7aacff0f8c36832f4bfe109d340b8bf11c024fa42a1a05035de",
+      "version": "r17",
+      "url": "https://ssrfrrt.ccwu.cc/gensokyo-moving-garden/live/ui/profiles/standalone-mvu/ui-mount-r17.js",
+      "bytes": 2289624,
+      "sha256": "d540a36cffeb9d4138429346e6d73986c97b44ed72c9c90b0a4556ee4e917f10",
       "uploaded_and_verified": true,
-      "deleted_superseded_versions": ["r5", "r6"]
+      "published_at": "2026-08-14T05:04:59.524Z",
+      "previous_live_version": "r16",
+      "deleted_superseded_versions": []
     },
     "known_failures": [],
     "pending_acceptance": [
@@ -153,7 +161,7 @@
       "validate three-character Boss four-state switching in real SillyTavern",
       "validate new shop items, consumption, greenlight loading and scene cleanup in real SillyTavern"
     ],
-    "packaged": true
+    "packaged": false
   },
   "components": {
     "card": "../src/card",

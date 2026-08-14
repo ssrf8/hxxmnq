@@ -1,6 +1,6 @@
 # 当前 Agent 交接
 
-更新时间：2026-08-12。
+更新时间：2026-08-14。
 
 ## 已完成
 
@@ -27,7 +27,7 @@
 - 新手教程以解决温室妖花核心正常毕业；妖花调查现使用一次性固定剧情并在正文结束后引导玩家返回庭园选择符卡战或剧情解决。正式跳过按钮则直接结束全部新手教程、撤下指引并停在三种温室形态待选状态，不自动选型。
 - 本地白名单剧情（含全部新手教程）收到非空 assistant 回复后直接完成本地结算。VisitTurn 任务改为尽力记录：缺失、错配或摘要失败时清除一次性任务并继续；普通自由对话仍严格拒绝无效 VisitTurn。
 - 0.3.0-r7 正式候选已采用 production R2 UI 交付完成打包。UI r7 已上传并公网逐字节读回；正式 JSON/PNG 均已生成，`creator_notes` 为空，PNG 内只有一份 `chara` 且与 JSON 逐字节一致。R2 上已被替代的 production UI r5/r6 源对象已逐个删除并回查为不存在。详见 `project/2026-08-11-release-0.3.0-r7.md`。
-- production UI r10 热更新已发布并公网逐字节读回；production manifest 现指向 r10。该版统一释放 GAL 生成异常锁，新增手动“修复”按钮，修正教程第五步事实派生、胜利要求遗留/放弃生成与画廊角色小窗冲突。采用固定 production loader 的既有旧卡刷新后会自动读取 r10，本次未重打角色卡。
+- production UI r17 已发布并公网逐字节读回；production manifest 现指向 r17。该版继承 r16 的玩法介绍，并修复 GAL assistant 持久化时丢失完整 MvuData、重复触发 MVU 初始化及误接管空占位楼层导致“没有可显示的正文”的问题。采用固定 production loader 的既有旧卡刷新后会自动读取 r17；本次未重打角色卡，r16 保留为回滚点。详见 `project/2026-08-14-ui-r17-gal-mvu-persistence-hotfix.md`。
 
 ## 验收结论
 
@@ -50,8 +50,8 @@
 ## 当前验证基线
 
 - `npm run check:ui`：通过。
-- `npm test`：760/760 通过。
-- production remote UI r10：2,255,171 bytes，SHA-256 `132ee9f852f352bdba796f253b6e2cb64d649a00dd1cbbde7ce73a03fbfcdd04`；R2 上传、production manifest 切换与公网读回通过。
+- `npm test`：774/774 通过。
+- production remote UI r17：2,289,624 bytes，SHA-256 `d540a36cffeb9d4138429346e6d73986c97b44ed72c9c90b0a4556ee4e917f10`；R2 上传、production manifest 切换与公网读回通过。
 - 首轮输入与回想画廊 UI 契约测试：140/140 通过；相关三组联合回归：178/178 通过。新画廊尚未记录真实 SillyTavern 实机验收。
 - production remote `package-checkpoint` dry-run 与正式写入均通过；JSON 329,189 bytes，PNG 1,273,524 bytes。
 - `git diff --check`：通过。
@@ -60,7 +60,7 @@
 
 ## 后续工作
 
-- **P0：在真实 SillyTavern 完成发布后验收。** 重点检查旧卡刷新后 production loader 拉取 UI r9、妖花调查结束后的战斗／剧情解决指引、跳过教程后指引完全消失且停在温室三选一，以及 GAL 子页面返回、剧情召回开关、开放庭院设施折叠、五分钟怀表自动解除、立即结束异变、画廊翻页、固定存档世界书和新角色对战图。
+- **P0：刷新正式卡确认 production loader 拉取 UI r17。** 所有者已完成修复候选的真实 SillyTavern 测试；发布后重点复核正式 loader 已切至 r17，连续 GAL 对话不再重复提示 MVU 初始化且每次非空回复均有可显示正文。其余长期回归包括玩法介绍只出现一次、菜单入口高亮、妖花调查指引、GAL 子页面返回、剧情召回开关、开放庭院设施折叠、五分钟怀表自动解除、立即结束异变、画廊翻页、固定存档世界书和新角色对战图。
 - **P1：整理工作树。** 当前有大量已修改/未跟踪文件及历史诊断产物；正式打包或提交前必须区分本轮源码、用户素材与临时日志，不得批量清理或误提交。
 - **P1：三名新角色 sexual 姿势池仍为空。** 这是明确保留状态，不影响 normal/nude 与地图动画，但如要完整 GAL sexual 表现仍需后续素材与 manifest 登记。
 - 若要比较 `standalone-mvu` 与 `database-assisted`，单独执行 A11，避免污染现有验收聊天。

@@ -1,6 +1,7 @@
 import type {
   BattleResult,
   ChatMessageView,
+  GalPostSettlementCommand,
   GalRequestContext,
   GardenBridge,
   GardenState,
@@ -65,6 +66,7 @@ import {
   beginDuelCard as beginLocalDuelCard,
   cancelDuelCard as cancelLocalDuelCard,
   completeDuelVictoryDialogue,
+  repairDuelVictoryDialogue,
   settleDuelCard as settleLocalDuelCard,
   stageDuelVictoryRequest,
 } from './duel-card-rules';
@@ -202,6 +204,22 @@ const EMPTY_MVU_DATA = {
   schema: { type: 'object', properties: {} },
   initialized_lorebooks: {},
 };
+
+/**
+ * 新 assistant 继承上一有效楼层的完整 MvuData，而不是只复制 stat_data。
+ * initialized_lorebooks、schema 及未知顶层字段都是 MVU 生命周期的一部分；
+ * 丢失它们会让下一次 MESSAGE_SENT / GENERATION_STARTED 误触发 initvar。
+ */
+export function inheritAssistantMvuData(
+  sourceData: Record<string, unknown> | null | undefined,
+  sourceState: GardenState | null | undefined,
+) {
+  return {
+    ...structuredClone(EMPTY_MVU_DATA),
+    ...(sourceData ? structuredClone(sourceData) : {}),
+    ...(sourceState ? { stat_data: structuredClone(sourceState) } : {}),
+  };
+}
 
 function parseOpeningMessage(message: string): OpeningDraft {
   const body = message
@@ -925,11 +943,29 @@ function latestPersistedMessage(mvu: HostGlobals['Mvu']): PersistedMessage | nul
   return fallback;
 }
 
+function parsePostSettlementCommand(value: unknown): GalPostSettlementCommand | null {
+  if (!isRecord(value) || typeof value.type !== 'string') return null;
+  const requiredString = (key: string) => typeof value[key] === 'string' && value[key].trim().length > 0;
+  switch (value.type) {
+    case 'commit_refit':
+    case 'commit_recovery':
+      return requiredString('transactionId') ? value as GalPostSettlementCommand : null;
+    case 'facility_action':
+      return requiredString('facilityId') && requiredString('actionId') && requiredString('transactionId')
+        ? value as GalPostSettlementCommand
+        : null;
+    case 'start_due_banquet':
+      return requiredString('activityId') ? value as GalPostSettlementCommand : null;
+    default:
+      return null;
+  }
+}
+
 function latestPersistedState(mvu: HostGlobals['Mvu']): GardenState {
   return migrateGardenState(latestPersistedMessage(mvu)?.state ?? {});
 }
 
-function persistedStateBefore(mvu: HostGlobals['Mvu'], messageId: number): GardenState | null {
+function persistedMessageBefore(mvu: HostGlobals['Mvu'], messageId: number): PersistedMessage | null {
   if (!mvu) return null;
   const assistantMessages = activeMessages()
     .filter((message) => messageRole(message) === 'assistant' && Number(message.message_id) < messageId)
@@ -937,10 +973,24 @@ function persistedStateBefore(mvu: HostGlobals['Mvu'], messageId: number): Garde
   for (const message of assistantMessages) {
     const previousId = Number(message.message_id);
     if (!Number.isInteger(previousId) || previousId < 0) continue;
-    const state = mvu.getMvuData({ type: 'message', message_id: previousId }).stat_data;
-    if (isRecord(state) && Object.keys(state).length > 0) return migrateGardenState(state);
+    const options = { type: 'message', message_id: previousId };
+    const data = mvu.getMvuData(options);
+    const state = data.stat_data;
+    if (isRecord(state) && Object.keys(state).length > 0) {
+      return {
+        messageId: previousId,
+        options,
+        data: structuredClone(data) as Record<string, unknown>,
+        state: structuredClone(state) as GardenState,
+      };
+    }
   }
   return null;
+}
+
+function persistedStateBefore(mvu: HostGlobals['Mvu'], messageId: number): GardenState | null {
+  const persisted = persistedMessageBefore(mvu, messageId);
+  return persisted ? migrateGardenState(persisted.state) : null;
 }
 
 function openingProgress(rawMessages = activeMessages()) {
@@ -997,6 +1047,7 @@ export function createHostBridge(): GardenBridge | null {
   let pendingSceneContext: {
     sceneAreaId: string | null;
     itemUse: GalRequestContext['sceneItemPreview'] | null;
+    postSettlementCommand: GalRequestContext['postSettlementCommand'] | null;
   } | null = null;
   // Phase 2 增量 D：assistant 落楼失败时保留的已生成文本（显式重试落楼，不再调模型）。
   let pendingHelperResult: string | null = null;
@@ -1231,6 +1282,7 @@ export function createHostBridge(): GardenBridge | null {
         const extra = isRecord(player?.extra) ? player.extra : {};
         const scene = isRecord(extra.gensokyoSceneContext) ? extra.gensokyoSceneContext : null;
         const item = scene && isRecord(scene.itemUse) ? scene.itemUse : null;
+        const postSettlementCommand = parsePostSettlementCommand(scene?.postSettlementCommand);
         pendingSceneContext = scene?.version === 'scene-context.v1'
           ? {
             sceneAreaId: typeof scene.sceneAreaId === 'string' ? scene.sceneAreaId : null,
@@ -1245,6 +1297,7 @@ export function createHostBridge(): GardenBridge | null {
                 targetCharacterId: typeof item.targetCharacterId === 'string' ? item.targetCharacterId : null,
               }
               : null,
+            postSettlementCommand,
           }
           : null;
       } else pendingSceneContext = null;
@@ -1262,17 +1315,21 @@ export function createHostBridge(): GardenBridge | null {
    * 幂等写入 helper-generate 的 assistant 楼层（commitKey 反查复用；refresh:'affected'
    * 触发 MESSAGE_RECEIVED → MVU，Probe B 实测）。调用方负责 chat identity 复核。
    */
-  const writeHelperAssistantMessage = async (attempt: GalGenerationAttempt, text: string): Promise<void> => {
+  const writeHelperAssistantMessage = async (
+    attempt: GalGenerationAttempt,
+    text: string,
+    sourceBeforeMessageId?: number,
+  ): Promise<void> => {
     const commit = resolveAssistantMessageByCommitKey(activeMessages(), attempt.requestId, attempt.attemptId);
     if (commit.ok) return; // 已存在：幂等复用
     if (commit.code === 'ambiguous') throw new Error('助手楼层 commitKey 反查歧义，禁止猜 ID');
     const mvu = await requireMvu();
-    const latest = latestPersistedMessage(mvu);
-    // MVU 变量域（stat_data 五字段）：ST 原生楼层的 data 结构不含 stat_data，
-    // 必须用最新持久化 state 构造，否则该楼层不参与 MVU 变量更新（Probe B 实测）。
-    const baseData = latest?.state
-      ? { ...EMPTY_MVU_DATA, stat_data: latest.state }
-      : EMPTY_MVU_DATA;
+    const latest = Number.isInteger(sourceBeforeMessageId)
+      ? persistedMessageBefore(mvu, Number(sourceBeforeMessageId))
+      : latestPersistedMessage(mvu);
+    // 完整继承上一楼 MvuData；只复制 stat_data 会清空 initialized_lorebooks，
+    // 导致 MVU 在下一轮发送时重新执行 [initvar]。
+    const baseData = inheritAssistantMvuData(latest?.data, latest?.state);
     const data = {
       ...baseData,
       [COMMIT_LIFECYCLE_KEY]: buildCommitLifecycle(attempt, 'pending'),
@@ -1424,24 +1481,30 @@ export function createHostBridge(): GardenBridge | null {
         return;
       }
       try {
+        // 只接管正文与 generate() 返回值完全一致的宿主楼层。空占位、额外模型
+        // 或其他插件同期创建的 assistant 都不得抢占本 attempt。
         const stFloor = activeMessages()
-          .filter((m) => m.role === 'assistant' && Number(m.message_id ?? 0) > floorsBefore)
+          .filter((m) => m.role === 'assistant'
+            && Number(m.message_id ?? 0) > floorsBefore
+            && String(m.message ?? m.mes ?? '') === text)
           .at(-1);
-        if (stFloor) {
+        if (stFloor && g.setChatMessages) {
           // ST 自动落楼：复用楼层并补 attempt metadata + MVU 变量域（幂等 commitKey 语义）。
           const mvuForSt = await requireMvu();
-          const latestForSt = latestPersistedMessage(mvuForSt);
-          const baseDataForSt = latestForSt?.state
-            ? { ...EMPTY_MVU_DATA, stat_data: latestForSt.state }
-            : EMPTY_MVU_DATA;
+          const latestForSt = persistedMessageBefore(mvuForSt, Number(stFloor.message_id));
+          const baseDataForSt = inheritAssistantMvuData(latestForSt?.data, latestForSt?.state);
           const dataForSt = {
             ...baseDataForSt,
             [COMMIT_LIFECYCLE_KEY]: buildCommitLifecycle(attempt, 'pending'),
           };
           assistantPersistenceInFlight = true;
           try {
-            await g.createChatMessages?.(
-              [{ ...stFloor, data: dataForSt, extra: { ...(stFloor.extra ?? {}), ...buildAttemptMetadata(attempt) } }],
+            await g.setChatMessages(
+              [{
+                message_id: Number(stFloor.message_id),
+                data: dataForSt,
+                extra: { ...(stFloor.extra ?? {}), ...buildAttemptMetadata(attempt) },
+              }],
               { refresh: 'affected' },
             );
           } finally {
@@ -1449,7 +1512,7 @@ export function createHostBridge(): GardenBridge | null {
           }
           trace('st_persisted', stFloor.message_id);
         } else {
-          await writeHelperAssistantMessage(attempt, text);
+          await writeHelperAssistantMessage(attempt, text, floorsBefore + 1);
           trace('persisted');
         }
       } catch (error) {
@@ -1589,6 +1652,35 @@ export function createHostBridge(): GardenBridge | null {
     assistantObservedAt = 0;
   };
 
+  const cancelPendingFacilityReservation = (before: GardenState): GardenState => {
+    const command = pendingSceneContext?.postSettlementCommand;
+    if (command?.type === 'commit_refit') {
+      return applyLocalM2Command(before, { type: 'cancel_refit', transactionId: command.transactionId }, currentChatId()).state;
+    }
+    if (command?.type === 'commit_recovery') {
+      return applyLocalM2Command(before, { type: 'cancel_recovery', transactionId: command.transactionId }, currentChatId()).state;
+    }
+    return before;
+  };
+
+  const persistCancelledFacilityReservation = async () => {
+    const command = pendingSceneContext?.postSettlementCommand;
+    if (command?.type !== 'commit_refit' && command?.type !== 'commit_recovery') return;
+    const mvu = await requireMvu();
+    if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持取消设施事务');
+    const latest = latestPersistedMessage(mvu);
+    if (!latest) throw new Error('没有可承载设施事务取消的 assistant 楼层');
+    latest.data.stat_data = cancelPendingFacilityReservation(migrateGardenState(latest.state));
+    await mvu.replaceMvuData(latest.data, latest.options);
+    const reread = migrateGardenState(mvu.getMvuData(latest.options).stat_data ?? {});
+    const stillPending = Object.values(reread.facility_runtime ?? {}).some((runtime) => (
+      command.type === 'commit_refit'
+        ? runtime.pending_refit?.transaction_id === command.transactionId
+        : runtime.pending_recovery?.transaction_id === command.transactionId
+    ));
+    if (stillPending) throw new Error('设施事务取消后复读校验失败');
+  };
+
   const runCardOperation = async <T>(operation: () => Promise<T>): Promise<T> => {
     const transaction = readTransaction();
     if (cardOperationInFlight
@@ -1665,6 +1757,10 @@ export function createHostBridge(): GardenBridge | null {
     }
     const item = pendingSceneContext?.itemUse;
     if (item) next = queueSceneItemUse(next, item.itemId, item.useId, item.sceneId, item.targetCharacterId);
+    const postSettlementCommand = pendingSceneContext?.postSettlementCommand;
+    if (postSettlementCommand) {
+      next = applyLocalM2Command(next, postSettlementCommand, currentChatId()).state;
+    }
     return next;
   };
 
@@ -2715,6 +2811,9 @@ export function createHostBridge(): GardenBridge | null {
         pendingSceneContext = {
           sceneAreaId: requestContext?.sceneAreaId?.trim() || null,
           itemUse: requestContext?.sceneItemPreview ? { ...requestContext.sceneItemPreview } : null,
+          postSettlementCommand: requestContext?.postSettlementCommand
+            ? structuredClone(requestContext.postSettlementCommand)
+            : null,
         };
         const snapshot = await transactions.submit({
           kind,
@@ -2930,7 +3029,24 @@ export function createHostBridge(): GardenBridge | null {
         lastError = '';
       });
     },
+    async repairDuelVictoryRequest(settlementId: string) {
+      await forceReleaseGenerationLock(true);
+      return runCardOperation(async () => {
+        const mvu = await requireMvu();
+        if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持修复胜利要求');
+        const latest = latestPersistedMessage(mvu);
+        if (!latest) throw new Error('没有可承载胜利要求修复的 assistant 楼层');
+        latest.data.stat_data = repairDuelVictoryDialogue(migrateGardenState(latest.state), settlementId);
+        await mvu.replaceMvuData(latest.data, latest.options);
+        const reread = migrateGardenState(mvu.getMvuData(latest.options).stat_data ?? {});
+        const repaired = reread.inventory?.card_runtime?.duel?.pending_victory_dialogue;
+        if (repaired?.settlement_id !== settlementId || repaired.status !== 'waiting_request') {
+          throw new Error('胜利要求修复后复读校验失败');
+        }
+      });
+    },
     async repairGenerationLock() {
+      await persistCancelledFacilityReservation();
       await forceReleaseGenerationLock(true);
     },
     async getTransactionState() {
@@ -2956,7 +3072,11 @@ export function createHostBridge(): GardenBridge | null {
         if (pendingHelperResult && !current.assistantResponded) {
           const attempt = buildAttemptFromSnapshot(current);
           if (!attempt) throw new Error('缺少 attempt 标识，无法落回已生成结果');
-          await writeHelperAssistantMessage(attempt, pendingHelperResult);
+          await writeHelperAssistantMessage(
+            attempt,
+            pendingHelperResult,
+            Number.isInteger(current.userMessageId) ? Number(current.userMessageId) + 1 : undefined,
+          );
           pendingHelperResult = null;
           assistantObservedAt = Date.now();
           const after = transactions.read();
@@ -3265,7 +3385,11 @@ export function createHostBridge(): GardenBridge | null {
       if (!mvu.replaceMvuData) throw new Error('当前 MVU 不支持 M2 本地事务');
       const latest = latestPersistedMessage(mvu);
       if (!latest) throw new Error('没有可承载 M2 本地事务的 assistant 楼层');
-      const applied = applyLocalM2Command(migrateGardenState(latest.state), command, currentChatId());
+      const before = migrateGardenState(latest.state);
+      const input = command.type === 'end_conversation_local'
+        ? cancelPendingFacilityReservation(before)
+        : before;
+      const applied = applyLocalM2Command(input, command, currentChatId());
       latest.data.stat_data = applied.state;
       await mvu.replaceMvuData(latest.data, latest.options);
       if (command.type === 'end_conversation_local') {
@@ -3833,6 +3957,11 @@ export function createPreviewBridge(): GardenBridge {
     },
     async abandonDuelVictoryRequest(settlementId: string) {
       Object.assign(previewState, abandonDuelVictoryDialogue(previewState, settlementId));
+    },
+    async repairDuelVictoryRequest(settlementId: string) {
+      transaction.phase = 'idle';
+      transaction.lastError = undefined;
+      Object.assign(previewState, repairDuelVictoryDialogue(previewState, settlementId));
     },
     async repairGenerationLock() {
       transaction.phase = 'idle';

@@ -649,7 +649,15 @@ export interface GalRequestContext {
     sceneId: string;
     targetCharacterId: string | null;
   };
+  /** 只在 assistant 与本地结算同时成功时落盘的既有 M2 动作。 */
+  postSettlementCommand?: GalPostSettlementCommand;
 }
+
+export type GalPostSettlementCommand =
+  | { type: 'commit_refit'; transactionId: string }
+  | { type: 'commit_recovery'; transactionId: string }
+  | { type: 'facility_action'; facilityId: string; actionId: string; transactionId: string }
+  | { type: 'start_due_banquet'; activityId: string };
 
 export interface MessageTransactionSnapshot {
   transactionId: string;
@@ -732,6 +740,7 @@ export interface GardenBridge {
   sendUserMessage(text: string, kind?: MessageTransactionKind, userVisibleText?: string, requestContext?: GalRequestContext): Promise<MessageTransactionSnapshot>;
   sendAnomalyResolution(text: string): Promise<MessageTransactionSnapshot>;
   sendDuelVictoryRequest(requestText: string, message: string): Promise<MessageTransactionSnapshot>;
+  repairDuelVictoryRequest(settlementId: string): Promise<void>;
   abandonDuelVictoryRequest(settlementId: string): Promise<void>;
   repairGenerationLock(): Promise<void>;
   getTransactionState(): Promise<MessageTransactionSnapshot>;

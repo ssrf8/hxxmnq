@@ -64,3 +64,19 @@ node scripts/build-ui.mjs --asset-mode=remote-r2-live --asset-base-url=$assetOri
 - dry-run 确认 9 additions / 0 replacements；基线 generation 7 manifest SHA-256：`6b6bd8afa66e36e5bce9ddd9b56fd86cdb174d6037c7fa44bc15e82fdeec80b2`。
 - 最终 generation 8：263 files / 355,377,120 bytes；manifest SHA-256：`64ac62ae0896e2523af23b137fd2acabfd2d2d4c92f743aeacb94cfdc28d4507`。
 - 9 个对象均完成 S3 与生产域名读回校验，最后切换 `live/manifest.json`；清单缓存为 `no-store`。资源明细见 `project/new-character-battle-portrait-report-2026-08-11.json`。
+
+## 2026-08-14 production UI r16
+
+- UI 版本对象与媒体 generation 是两条独立发布链；本次没有修改 generation 8 的媒体对象或 `live/manifest.json`。
+- `standalone-mvu` 构建产物为 `ui-mount-r16.js`，2,288,543 bytes，SHA-256 `d3967f1a76566a197e06e5d061b868c03ecc7753afd3316841465ee66c410e4b`。
+- dry-run 只计划写入不可变版本对象与 profile 的 `ui-manifest.json`；正式发布按版本对象优先、manifest-last 执行。
+- production manifest 已由 r15 切换至 r16，两个对象均完成生产域名回读；r15 未删除，可用于回滚。
+- 本次没有重新打包角色卡。固定 production loader 会在刷新时读取新的 profile manifest。完整记录见 `project/2026-08-14-ui-r16-gameplay-intro.md`。
+
+## 2026-08-14 production UI r17
+
+- UI 版本对象与媒体 generation 继续独立；本次没有修改 generation 8 的媒体对象或 `live/manifest.json`。
+- `standalone-mvu` 构建产物为 `ui-mount-r17.js`，2,289,624 bytes，SHA-256 `d540a36cffeb9d4138429346e6d73986c97b44ed72c9c90b0a4556ee4e917f10`。
+- dry-run 只计划写入新的不可变版本对象与 profile 的 `ui-manifest.json`；正式发布按版本对象优先、manifest-last 执行。
+- production manifest 已由 r16 切换至 r17；版本对象和 manifest 均完成生产域名回读，声明长度与 SHA-256 和本地构建完全一致。r16 未删除，可用于回滚。
+- 本次没有重新打包正式角色卡。固定 production loader 会在刷新时自动读取 r17。完整记录见 `project/2026-08-14-ui-r17-gal-mvu-persistence-hotfix.md`。

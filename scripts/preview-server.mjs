@@ -17,7 +17,7 @@ const mime = new Map([
 createServer(async (request, response) => {
   try {
     const pathname = decodeURIComponent(new URL(request.url ?? '/', 'http://127.0.0.1').pathname);
-    const relative = pathname === '/' ? 'ui/index.html' : pathname.replace(/^\/+/, '');
+    const relative = pathname === '/' ? 'ui/profiles/standalone-mvu/index.html' : pathname.replace(/^\/+/, '');
     const file = path.resolve(root, relative);
     if (file !== root && !file.startsWith(`${root}${path.sep}`)) throw new Error('path outside dist');
     const info = await stat(file);

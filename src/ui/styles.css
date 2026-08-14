@@ -1883,6 +1883,18 @@ button:disabled { opacity: .5; cursor: not-allowed; }
     max-width: 260px;
     text-align: center;
   }
+  #gg-target-menu[data-radial-direction="down"] header > div {
+    top: auto;
+    bottom: 46px;
+  }
+  #gg-target-menu[data-radial-direction="down"] #gg-target-status {
+    top: auto;
+    bottom: 88px;
+  }
+  #gg-target-menu[data-radial-direction="down"] .gg-target-actions .gg-note {
+    top: auto;
+    bottom: 126px;
+  }
 }
 @keyframes gg-bubble-pop-radial {
   from { opacity: 0; transform: translate(-50%, -50%) scale(.3); }
@@ -2989,7 +3001,9 @@ button:disabled { opacity: .5; cursor: not-allowed; }
     padding: .8rem;
   }
   #gg-duel-result-confirm,
-  #gg-duel-victory-submit { min-height: 44px; }
+  #gg-duel-victory-submit,
+  #gg-duel-victory-repair,
+  #gg-duel-victory-abandon { min-height: 44px; }
 }
 
 /* ---- 教程导航：直接从正式事件事实派生，不保存第二份进度 ---- */
@@ -4689,6 +4703,107 @@ details.gg-opportunity-section > .gg-opportunity-section-header:focus-visible {
   .gg-launcher-dialog .gg-launcher-card img { transition: none; }
   .gg-launcher-dialog .gg-launcher-card:hover:not(:disabled),
   .gg-launcher-dialog .gg-launcher-card:hover:not(:disabled) img { transform: none; }
+}
+
+/* 教程完成／跳过后的极简玩法介绍：只读 UI 遮罩，不写第二份进度。 */
+.gg-gameplay-intro {
+  position: fixed;
+  z-index: 120;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: clamp(16px, 4vw, 42px);
+  overflow: auto;
+  isolation: isolate;
+}
+.gg-launcher-dialog.gg-gameplay-intro-launcher[open] {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  animation: none;
+}
+.gg-launcher-dialog.gg-gameplay-intro-launcher[open]::backdrop { display: none; }
+.gg-launcher-dialog.gg-gameplay-intro-launcher[open] .gg-launcher-header,
+.gg-launcher-dialog.gg-gameplay-intro-launcher[open] .gg-launcher-card,
+.gg-launcher-dialog.gg-gameplay-intro-launcher[open] .gg-launcher-secondary { animation: none; }
+.gg-gameplay-intro[hidden] { display: none !important; }
+.gg-gameplay-intro::before {
+  content: "";
+  position: fixed;
+  z-index: -2;
+  inset: 0;
+  background: transparent;
+  pointer-events: none;
+}
+.gg-gameplay-intro-spotlight {
+  position: fixed;
+  z-index: 0;
+  left: var(--gg-intro-x);
+  top: var(--gg-intro-y);
+  width: var(--gg-intro-w);
+  height: var(--gg-intro-h);
+  border: 3px solid #ffe29a;
+  border-radius: 14px;
+  background: transparent;
+  box-shadow: 0 0 0 9999px rgba(5, 7, 10, .86), 0 0 32px 8px rgba(255, 210, 105, .72);
+  pointer-events: none;
+}
+.gg-gameplay-intro-card {
+  position: relative;
+  z-index: 1;
+  width: min(560px, 100%);
+  max-height: min(620px, calc(100dvh - 32px));
+  overflow: auto;
+  padding: clamp(1.1rem, 4vw, 2rem);
+  border: 2px solid rgba(244, 204, 116, .86);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(34, 27, 33, .98), rgba(15, 20, 25, .98));
+  color: #f8edd8;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, .65), inset 0 0 0 1px rgba(255, 239, 193, .12);
+}
+.gg-gameplay-intro[data-launcher-visible="true"] {
+  place-items: start center;
+  padding-top: max(10px, env(safe-area-inset-top));
+  pointer-events: none;
+}
+.gg-gameplay-intro[data-launcher-visible="true"] .gg-gameplay-intro-card {
+  width: min(760px, calc(100vw - 24px));
+  max-height: min(230px, 28dvh);
+  padding: .8rem 1rem;
+  pointer-events: auto;
+}
+.gg-gameplay-intro[data-launcher-visible="true"] .gg-gameplay-intro-card h2 {
+  margin: .1rem 0 .35rem;
+  font-size: clamp(1.05rem, 2.4vw, 1.35rem);
+}
+.gg-gameplay-intro[data-launcher-visible="true"] .gg-gameplay-intro-card > p:not(.gg-eyebrow) {
+  margin: .3rem 0;
+  line-height: 1.45;
+}
+.gg-gameplay-intro[data-launcher-visible="true"] .gg-gameplay-intro-tip {
+  padding: .35rem .6rem;
+}
+.gg-gameplay-intro[data-launcher-visible="true"] .gg-gameplay-intro-actions {
+  margin-top: .45rem;
+}
+.gg-gameplay-intro-card h2 { margin: .2rem 0 .8rem; font-size: clamp(1.35rem, 4vw, 2rem); }
+.gg-gameplay-intro-card > p:not(.gg-eyebrow) { line-height: 1.75; overflow-wrap: anywhere; }
+.gg-gameplay-intro-tip {
+  margin: 1rem 0;
+  padding: .75rem .9rem;
+  border-left: 4px solid #f0c56b;
+  background: rgba(240, 197, 107, .1);
+  color: #f4dca8;
+}
+.gg-gameplay-intro-actions { display: flex; justify-content: flex-end; gap: .65rem; margin-top: 1.2rem; }
+.gg-gameplay-intro-actions button { min-width: 108px; min-height: 44px; }
+#gg-gameplay-intro-next { border-color: #efc670; background: linear-gradient(#8a5d26, #684019); color: #fff6df; }
+@media (max-height: 560px) {
+  .gg-gameplay-intro { place-items: end center; padding: 10px; }
+  .gg-gameplay-intro-card { max-height: calc(100dvh - 20px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gg-gameplay-intro-spotlight { box-shadow: 0 0 0 9999px rgba(5, 7, 10, .86); }
 }
 
 /* R4 主视觉：所有者提供的神社灯笼樱夜图（1300px JPEG q86，原图存 src/assets/ui/opening-hero-source-v1.png） */

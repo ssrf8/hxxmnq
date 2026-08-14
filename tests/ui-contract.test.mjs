@@ -1060,6 +1060,17 @@ test('设施菜单锚点随地图相机逐帧移动，不被固定安全区夹�
   assert.doesNotMatch(app, /245 \* compensation/);
 });
 
+test('桌面气泡菜单在上方空间不足时自动翻转到下半环', async () => {
+  const app = await read('../src/ui/app.ts');
+  const styles = await read('../src/ui/styles.css');
+  assert.match(app, /const requiredSpace = reach \+ 72/);
+  assert.match(app, /spaceAbove < requiredSpace && spaceBelow > spaceAbove \? 'down' : 'up'/);
+  assert.match(app, /const direction = targetMenu\.dataset\.radialDirection === 'down' \? -1 : 1/);
+  assert.match(app, /Math\.sin\(radians\) \* reach \* direction/);
+  assert.match(styles, /#gg-target-menu\[data-radial-direction="down"\] header > div/);
+  assert.match(styles, /#gg-target-menu\[data-radial-direction="down"\] #gg-target-status/);
+});
+
 test('角色命中区上移覆盖整幅立绘，重叠时不会把头部点击漏给设施', async () => {
   const map = await importTypescript('../src/ui/garden-map.ts');
   assert.deepEqual(map.resolveCharacterHitGeometry(100, 22), {
@@ -2693,6 +2704,19 @@ test('GAL 稳定后忽略旧事务锚点，原生输入的新回复应接管场�
   const app = await read('../src/ui/app.ts');
   assert.match(app, /transaction\.phase === 'submitting_user' \|\| transaction\.phase === 'generating'[\s\S]*?assistantForCurrentTurn\(messages, transaction\.userMessageId\)/);
   assert.match(app, /messages \?\?= await bridge\.listMessages\(\);[\s\S]*?latest \?\?= assistantForCurrentTurn\(messages\);/);
+});
+
+test('GAL 主动停止后不回退播放上一轮 assistant', async () => {
+  const app = await read('../src/ui/app.ts');
+  const stoppedBranch = app.match(/if \(transaction\.stopReason === 'user-stop'\) \{[\s\S]*?\n  \}/)?.[0] ?? '';
+  assert.match(stoppedBranch, /scene = null/);
+  assert.match(stoppedBranch, /sceneSignature = ''/);
+  assert.match(stoppedBranch, /本轮生成已停止，内容未提交。可以修改输入后重新发送。/);
+  assert.match(stoppedBranch, /return;/);
+  assert.ok(
+    app.indexOf("if (transaction.stopReason === 'user-stop')") < app.indexOf('latest ??= assistantForCurrentTurn(messages);'),
+    '停止分支必须早于旧 assistant 回退选择',
+  );
 });
 
 test('返回原生聊天后重新打开游戏会主动校正事务状态', async () => {
